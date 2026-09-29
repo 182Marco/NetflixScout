@@ -1,5 +1,7 @@
 # 🎬 NetflixScout
 
+### An AI Discovery Chatbox for Netflix Content Exploration
+
 ## 🚀 Project Vision
 
 **NetflixScout** is a Python-based intelligent discovery platform designed to help users find movies and TV series through natural conversation rather than traditional search filters.
