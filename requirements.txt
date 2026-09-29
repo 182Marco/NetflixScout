@@ -1,0 +1,13 @@
+openai==3.21.0
+chromadb==1.5.9
+pydantic==2.13.5
+python-dotenv==1.2.3
+cohere==7.2.0
+rank-bm25==0.2.2
+beautifulsoup4==4.15.0
+markdown-it-py==4.2.0
+pypdf==6.19.0
+python-docx==1.2.0
+numpy==2.2.6
+sentence-transformers==6.1.0
+torch==2.14.0

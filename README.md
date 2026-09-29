@@ -1,43 +1,55 @@
-# 🎬 NetflixScout
+# NetflixScout
 
-### An AI Discovery Chatbox for Netflix Content Exploration
+This repository integrates the AIKit RAG modules into a reproducible local pipeline and a public runtime entrypoint.
 
-# 🚀 How to Run the Project
-
-Before starting the application, you must download the dataset used by the RAG pipeline.
-
-## 📥 Download the Dataset
-
-Download the **CMU Movie Summary Corpus** from:
-
-🔗 https://www.cs.cmu.edu/~ark/personas/
-
----
-
-## 📂 Extract the Dataset
-
-After downloading and extracting the archive, place the dataset inside the `datasets/` directory.
-
-⚠️ Depending on how the archive is extracted, you may end up with a duplicated folder structure such as:
+## Project Layout
 
 ```text
-datasets/
-└── MovieSummaries/
-    └── MovieSummaries/
-        ├── character.metadata.tsv
-        ├── movie.metadata.tsv
-        ├── name.clusters.txt
-        ├── plot_summaries.txt
-        ├── README.txt
-        └── tvtropes.clusters.txt
+/
+├── aikit/
+├── dataset/            # local corpus input (not versioned)
+├── semanticDb/         # local Chroma persistence (not versioned)
+├── app.py              # public API + RAG Tool facade
+├── buildSemanticDb.py  # reproducible semantic DB builder
+└── ...
 ```
 
-If this happens, move the files up one level and remove the extra `MovieSummaries` folder.
+Note: a legacy `datasets/` folder may exist in older clones, but the new build pipeline reads from `dataset/`.
 
-✅ The final structure **must** look exactly like this:
+## Prerequisites
+
+1. Python 3.11+.
+2. A virtual environment.
+3. API keys in `.env`:
+
+```env
+OPENAI_API_KEY=...
+COHERE_API_KEY=...
+```
+
+`COHERE_API_KEY` is required when `rerank_backend` is `cohere` (default in `app.py`).
+
+## Install / Setup
+
+From repository root:
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+pip install --upgrade pip
+pip install openai python-dotenv pydantic chromadb numpy rank-bm25 cohere beautifulsoup4 markdown-it-py pypdf python-docx sentence-transformers
+```
+
+## Download the Dataset
+
+Download the CMU Movie Summary Corpus:
+
+https://www.cs.cmu.edu/~ark/personas/
+
+Place all corpus files inside `dataset/` (not `datasets/`), for example:
 
 ```text
-datasets/
+dataset/
 └── MovieSummaries/
     ├── character.metadata.tsv
     ├── movie.metadata.tsv
@@ -47,412 +59,64 @@ datasets/
     └── tvtropes.clusters.txt
 ```
 
----
+## Build semanticDb/
 
-## ✅ Verify the Installation
+Single command (full rebuild from zero):
 
-Make sure the following file exists:
-
-```text
-datasets/MovieSummaries/plot_summaries.txt
+```bash
+python buildSemanticDb.py
 ```
 
-This file contains the movie plot summaries that will be processed, chunked, embedded, and indexed by the RAG pipeline.
+What the build does:
 
-Once the dataset has been placed in the correct location, you can proceed with the project setup and data ingestion steps.
+1. Deletes and recreates `semanticDb/`.
+2. Scans all files under `dataset/` in deterministic sorted order.
+3. Cleans text with AIKit cleaning pipelines.
+4. Chunks text with AIKit semantic chunking (`chunk_semantic`).
+5. Embeds chunks with AIKit embeddings.
+6. Indexes into Chroma via AIKit vectorstore APIs.
 
+## Verify Build
 
-## 🚀 Project Vision
+After build, verify:
 
-**NetflixScout** is a Python-based intelligent discovery platform designed to help users find movies and TV series through natural conversation rather than traditional search filters.
+1. `semanticDb/` exists.
+2. The build log shows final chunk count and collection name.
+3. Optional runtime check:
 
-Instead of manually browsing categories, users can describe concepts, themes, emotions, plot patterns, or analogies they have in mind.
-
-Examples:
-
-> "Show me movies that discuss loneliness and redemption in a single story."
-
-> "Find TV series similar to *Dark* because of their philosophical themes rather than their sci-fi setting."
-
-> "What productions have explored artificial intelligence as a moral dilemma?"
-
-The system interprets the request, searches across multiple knowledge sources, and provides highly relevant recommendations together with a transparent explanation of how the result was generated.
-
----
-
-# 🐍 Technology Stack
-
-NetflixScout will be developed in **Python**, leveraging modern AI and data-access technologies to build a scalable and maintainable agentic architecture.
-
-Potential technologies include:
-
-- Python
-- FastAPI
-- LangChain / LangGraph
-- Vector Databases
-- SQL Databases
-- OpenAI-compatible LLMs
-- Embedding Models
-- Retrieval Pipelines
-- Observability & Monitoring Tools
-
-The architecture is intentionally modular to support future extensions and integrations.
-
----
-
-# 🧠 Core Concept
-
-The user interacts with a conversational AI assistant instead of a traditional search engine.
-
-The assistant can reason about:
-
-- Themes
-- Plot elements
-- Narrative structures
-- Character archetypes
-- Genres
-- Emotional tone
-- Historical periods
-- Direct and indirect similarities
-
-This allows discovery through concepts instead of keywords.
-
----
-
-# ⚙️ Agentic Architecture
-
-The chatbox is powered by multiple agentic tools working together.
-
-## 🥇 Primary Tool: RAG
-
-### What does RAG mean?
-
-**RAG = Retrieval Augmented Generation**
-
-### What is it?
-
-In simple terms:
-
-A language model does not rely solely on its pre-trained knowledge.
-
-Before generating a response, it searches a knowledge base containing information about movies, series, actors, plots, themes, reviews, metadata, and other relevant content.
-
-The retrieved information is then used to generate a more accurate and grounded answer.
-
-### Why is it important?
-
-Without RAG:
-
-- The model may hallucinate
-- Information may be outdated
-- Recommendations may be generic
-
-With RAG:
-
-- Answers are grounded on real data
-- Recommendations become more accurate
-- The reasoning process becomes explainable
-
----
-
-## 🥈 Secondary Tool: Database Queries
-
-The second most important capability is structured database access.
-
-The system can query information such as:
-
-- Titles
-- Cast
-- Directors
-- Release dates
-- Genres
-- Runtime
-- Ratings
-- Platform metadata
-
-This allows precise filtering and validation of the results identified by the retrieval system.
-
----
-
-## 🧩 Additional Agentic Tools
-
-The architecture is designed to be extensible.
-
-Potential future tools include:
-
-- Semantic Search
-- Knowledge Graphs
-- Recommendation Engines
-- User Preference Profiles
-- Trend Analysis Services
-- External APIs
-- Vector Databases
-- Ranking and Scoring Engines
-
----
-
-# 🔄 High-Level Retrieval Cycle
-
-The platform will expose an explainable version of its retrieval and reasoning process.
-
-The goal is to make the system understandable even to non-technical users.
-
----
-
-## 1️⃣ User Request
-
-The user starts with a natural language query.
-
-Example:
-
-> "Find stories that discuss free will and destiny in a psychological way."
-
----
-
-## 2️⃣ Query Understanding
-
-NetflixScout extracts:
-
-- Themes
-- Concepts
-- User intent
-- Constraints
-
----
-
-## 3️⃣ Retrieval Phase
-
-The RAG system searches the knowledge base and retrieves potentially relevant content.
-
-### Retrieved Chunks
-
-Information fragments that may be related to the user's request.
-
-### Candidate Chunks
-
-The most promising chunks selected for deeper evaluation.
-
----
-
-## 4️⃣ Re-Ranking
-
-Candidate chunks are evaluated and scored.
-
-The most relevant information is promoted while less relevant content is discarded.
-
----
-
-## 5️⃣ Top-K Selection
-
-Only the highest-quality results are retained.
-
-These are known as:
-
-**Top-K Results**
-
-The value of **K** may vary depending on the retrieval strategy and system configuration.
-
----
-
-## 6️⃣ Database Interrogation
-
-After retrieval, structured queries are executed against the database.
-
-Examples:
-
-- Movie metadata
-- Series metadata
-- Ratings
-- Production information
-- Availability details
-
----
-
-## 7️⃣ Response Reasoning
-
-The assistant combines:
-
-- RAG outputs
-- Retrieved chunks
-- Database results
-- Conversation history
-
-to produce the final recommendation.
-
----
-
-# 🔍 Explainability Output
-
-Transparency is one of the key goals of NetflixScout.
-
-Users and stakeholders will be able to inspect a simplified explanation of the entire retrieval and reasoning workflow.
-
-The output may include:
-
-- ✅ Reasoning steps
-- ✅ Retrieved chunks
-- ✅ Candidate chunks
-- ✅ Re-ranking scores
-- ✅ Top-K selection
-- ✅ Database calls performed
-- ✅ Database responses received
-- ✅ Final reasoning process
-- ✅ Final answer generation
-
-This increases trust, observability, and debuggability while showcasing the work performed by the platform.
-
----
-
-# 🧵 Conversation Memory
-
-To provide coherent and personalized interactions, NetflixScout continuously leverages previous conversation context.
-
-Benefits include:
-
-- Follow-up questions
-- Progressive refinement
-- Consistent recommendations
-- Better understanding of user preferences
-
----
-
-## 📦 Context Compression
-
-Keeping the entire conversation forever would become expensive and inefficient.
-
-To solve this problem, NetflixScout applies context compression techniques.
-
-### How?
-
-Language models periodically generate compact summaries of previous exchanges.
-
-These summaries preserve:
-
-- User preferences
-- Previously explored topics
-- Important decisions
-- Relevant constraints
-
-while dramatically reducing token consumption.
-
----
-
-## 🔎 Context Audit Trail
-
-The explainability layer will also expose:
-
-- Original context size
-- Compressed context size
-- Generated summaries
-- Retrieved memory elements
-
-This demonstrates how memory influenced each answer and helps validate system behavior.
-
----
-
-# 🔐 Security & Governance
-
-Security and operational governance are first-class requirements.
-
----
-
-## 🛡️ Jailbreak Prevention
-
-The chatbox will contain mechanisms to mitigate:
-
-- Prompt Injection
-- Jailbreak Attempts
-- Instruction Override Attacks
-- Out-of-Scope Requests
-
-Users will only be allowed to access supported business functionalities.
-
----
-
-## 🗄️ Database Protection
-
-Database interactions will be strictly controlled.
-
-Allowed operations:
-
-```sql
-SELECT
+```bash
+python app.py
 ```
 
-Blocked operations:
+If the collection is empty, `app.py` raises an explicit error telling you to run `python buildSemanticDb.py`.
 
-```sql
-INSERT
-UPDATE
-DELETE
-DROP
-ALTER
-TRUNCATE
-```
+## Public Runtime API
 
-This prevents accidental or malicious modifications to production data.
+`app.py` is the stable integration layer. It exposes:
 
----
+1. `CONFIG` (typed, validated with Pydantic).
+2. `QUERY`.
+3. `run_rag(config=CONFIG, query=QUERY)`.
 
-## 💰 Cost Control
+`search_mode` is strictly validated to:
 
-NetflixScout will implement spending governance mechanisms such as:
+1. `semantic`
+2. `hybrid`
+3. `bm25`
 
-- Request quotas
-- Agent execution limits
-- Token budgets
-- Maximum retrieval depth
-- Caching strategies
-- Dynamic model selection
+The chosen mode is propagated to AIKit retrieval components (`rag` / `hybrid`) and does not rely on fake APIs.
 
-This ensures predictable operational costs and sustainable scalability.
+## RAG Tool (OpenAI Function Calling Ready)
 
----
+`app.py` also exposes a first tool-ready interface:
 
-# 📈 Scalability & Maintainability
+1. `RAG_TOOL_NAME`
+2. `RAG_TOOL` (JSON schema generated from Pydantic via AIKit `definisci_tool`)
+3. `REGISTERED_TOOLS`
+4. `execute_tool(name, arguments, config=CONFIG)`
 
-NetflixScout is designed around modular and independently deployable components.
+This is designed so future tools can be added without refactoring the runtime core.
 
-Benefits include:
+## Git Notes
 
-- Independent tool evolution
-- Easier testing
-- Reduced coupling
-- Improved observability
-- Horizontal scalability
-- Simplified maintenance
-- Incremental feature adoption
-
-Future agentic tools can be integrated without redesigning the overall architecture.
-
----
-
-# 🏗️ Expected Benefits
-
-✅ Better content discovery
-
-✅ Natural language interaction
-
-✅ Explainable recommendations
-
-✅ Transparent reasoning process
-
-✅ Conversation-aware responses
-
-✅ Controlled operational costs
-
-✅ Strong security posture
-
-✅ Long-term maintainability
-
-✅ Horizontal scalability
-
-✅ Extensible agent ecosystem
-
----
-
-# 🎯 Final Objective
-
-The ultimate goal of **NetflixScout** is to create an intelligent movie and TV-show discovery assistant capable of understanding complex human intentions and transforming them into highly relevant recommendations.
-
-By combining **Python**, **RAG**, **database querying**, **conversation memory**, **context compression**, **agentic reasoning**, and **transparent explainability**, NetflixScout aims to deliver a discovery experience that is significantly more powerful, trustworthy, maintainable, scalable, and user-friendly than traditional search and filtering systems.
+`dataset/` and `semanticDb/` are local artifacts and are ignored by Git.
