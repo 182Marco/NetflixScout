@@ -2,6 +2,66 @@
 
 ### An AI Discovery Chatbox for Netflix Content Exploration
 
+# 🚀 How to Run the Project
+
+Before starting the application, you must download the dataset used by the RAG pipeline.
+
+## 📥 Download the Dataset
+
+Download the **CMU Movie Summary Corpus** from:
+
+🔗 https://www.cs.cmu.edu/~ark/personas/
+
+---
+
+## 📂 Extract the Dataset
+
+After downloading and extracting the archive, place the dataset inside the `datasets/` directory.
+
+⚠️ Depending on how the archive is extracted, you may end up with a duplicated folder structure such as:
+
+```text
+datasets/
+└── MovieSummaries/
+    └── MovieSummaries/
+        ├── character.metadata.tsv
+        ├── movie.metadata.tsv
+        ├── name.clusters.txt
+        ├── plot_summaries.txt
+        ├── README.txt
+        └── tvtropes.clusters.txt
+```
+
+If this happens, move the files up one level and remove the extra `MovieSummaries` folder.
+
+✅ The final structure **must** look exactly like this:
+
+```text
+datasets/
+└── MovieSummaries/
+    ├── character.metadata.tsv
+    ├── movie.metadata.tsv
+    ├── name.clusters.txt
+    ├── plot_summaries.txt
+    ├── README.txt
+    └── tvtropes.clusters.txt
+```
+
+---
+
+## ✅ Verify the Installation
+
+Make sure the following file exists:
+
+```text
+datasets/MovieSummaries/plot_summaries.txt
+```
+
+This file contains the movie plot summaries that will be processed, chunked, embedded, and indexed by the RAG pipeline.
+
+Once the dataset has been placed in the correct location, you can proceed with the project setup and data ingestion steps.
+
+
 ## 🚀 Project Vision
 
 **NetflixScout** is a Python-based intelligent discovery platform designed to help users find movies and TV series through natural conversation rather than traditional search filters.

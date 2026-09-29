@@ -1,0 +1,80 @@
+# =========================
+# Environment variables
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# Dataset (CMU Movie Summary Corpus)
+# Keep folder structure, ignore contents
+# =========================
+datasets/*
+!datasets/.gitkeep
+
+# =========================
+# Virtual environments
+# =========================
+.venv/
+venv/
+env/
+ENV/
+
+# =========================
+# Python cache
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+
+# =========================
+# Build artifacts
+# =========================
+build/
+dist/
+*.egg-info/
+
+# =========================
+# IDEs
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# macOS / Windows
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# Jupyter
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# Vector stores / RAG artifacts
+# =========================
+chroma/
+vectorstore/
+qdrant_storage/
+faiss_index/
+indexes/
+
+# =========================
+# Local data & temp files
+# =========================
+data/
+scripts/tmp/
+tmp/
+temp/
+
+# =========================
+# Large generated files
+# =========================
+*.npz
