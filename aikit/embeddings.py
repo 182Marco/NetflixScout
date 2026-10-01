@@ -34,14 +34,6 @@ def embed_openai(texts, model):
             input=batch,
         )
 
-        token = risposta.usage.total_tokens
-        costo = token / 1_000_000 * 0.02
-
-        print(
-            f"  [openai] {len(batch)} testi, "
-            f"{token} token → ${costo:.6f}"
-        )
-
         embeddings.extend(
             d.embedding for d in risposta.data
         )

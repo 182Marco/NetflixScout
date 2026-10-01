@@ -90,7 +90,7 @@ After build, verify:
 
 1. `dbVettoriale/openai/` or `dbVettoriale/local/` exists.
 2. The build log shows final chunk count and collection name.
-3. Optional runtime check:
+3. Runtime check:
 
 ```bash
 python app.py
@@ -98,13 +98,28 @@ python app.py
 
 If the collection is empty, `app.py` raises an explicit error telling you to run `python buildSemanticDb.py --embedding-backend <backend>`.
 
+When the collection is available, `app.py` starts an interactive terminal chat.
+
+Conversation flow:
+
+1. Type a query in terminal.
+2. The app runs retrieval + reranking + generation.
+3. The answer is printed.
+4. Conversation history is updated and reused in the next turns.
+5. Type `exit` or `quit` to close.
+
+Automatic compaction:
+
+1. After each completed answer, input context tokens are checked.
+2. If they are `>= 60000`, history is compacted and replaced (not appended).
+3. A short user-friendly notice is printed in terminal.
+
 ## Public Runtime API
 
 `app.py` is the stable integration layer. It exposes:
 
-1. `CONFIG` (typed, validated with Pydantic).
-2. `QUERY`.
-3. `run_rag(config=CONFIG, query=QUERY)`.
+1. `RAG_CONFIG`.
+2. `run_rag(config=RAG_CONFIG, query=QUERY, history=None)`.
 
 `search_mode` is strictly validated to:
 
@@ -121,7 +136,7 @@ The chosen mode is propagated to AIKit retrieval components (`rag` / `hybrid`) a
 1. `RAG_TOOL_NAME`
 2. `RAG_TOOL` (JSON schema generated from Pydantic via AIKit `definisci_tool`)
 3. `REGISTERED_TOOLS`
-4. `execute_tool(name, arguments, config=CONFIG)`
+4. `execute_tool(name, arguments, config=RAG_CONFIG)`
 
 This is designed so future tools can be added without refactoring the runtime core.
 

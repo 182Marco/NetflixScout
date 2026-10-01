@@ -24,7 +24,15 @@ def recupera(query, collection_name, k, embedding_backend, embedding_model, db_d
     )
 
 
-def genera(chunks, domanda, model, instructions, storia=None, openai_client=None):
+def genera(
+    chunks,
+    domanda,
+    model,
+    instructions,
+    storia=None,
+    openai_client=None,
+    return_usage=False,
+):
     """Generate an answer from retrieved chunks using the supplied prompt rules."""
     documenti = ""
     for chunk in chunks:
@@ -54,7 +62,18 @@ def genera(chunks, domanda, model, instructions, storia=None, openai_client=None
         instructions=instructions,
         input=storia + [{"role": "user", "content": prompt}],
     )
-    return response.output_text
+    if not return_usage:
+        return response.output_text
+
+    usage = getattr(response, "usage", None)
+    input_tokens = getattr(usage, "input_tokens", None)
+    output_tokens = getattr(usage, "output_tokens", None)
+
+    return {
+        "text": response.output_text,
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
+    }
 
 
 def rispondi(
