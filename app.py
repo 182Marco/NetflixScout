@@ -1,15 +1,20 @@
 from __future__ import annotations
 from enum import Enum
 from pathlib import Path
-from typing import Literal
-
 from pydantic import BaseModel, Field
 
-from aikit import hybrid
-from aikit import rag
-from aikit import rerank
-from aikit import vectorstore
-from aikit.tools import definisci_tool
+from aikit import (
+    apri_collection,
+    cerca_bm25,
+    cerca_hybrid,
+    costruisci_indice_bm25,
+    db_dir_for_backend,
+    definisci_tool,
+    genera,
+    recupera,
+    rerank_cohere,
+    rerank_llm,
+)
 
 
 class SearchMode(str, Enum):
@@ -23,18 +28,39 @@ class RerankBackend(str, Enum):
     llm = "llm"
 
 
-class RagConfig(BaseModel):
-    k_largo: int = Field(default=10, ge=1)
-    k_finale: int = Field(default=3, ge=1)
-    modello_cohere: str = Field(default="rerank-v3.5", min_length=1)
-    modello_llm: str = Field(default="gpt-5.6-luna", min_length=1)
-    pausa: int = Field(default=6, ge=0)
-    search_mode: SearchMode = SearchMode.semantic
-    rerank_backend: RerankBackend = RerankBackend.cohere
-    embedding_backend: Literal["openai", "local"] = "openai"
-    collection: str = Field(default="netflix_scout", min_length=1)
-    vector_db_dir: str | None = None
-    rrf_costante: int = Field(default=60, ge=1)
+RAG_CONFIG = {
+    "retrieval": {
+        "search_mode": SearchMode.semantic,
+        "k_largo": 10,
+        "k_finale": 3,
+        "rrf_costante": 60,
+    },
+    "rerank": {
+        "backend": RerankBackend.cohere,
+        "cohere_model": "rerank-v3.5",
+        "llm_model": "gpt-5.6-luna",
+    },
+    "generation": {
+        "model": "gpt-5.6-luna",
+        "instructions": (
+            "Rispondi alla domanda usando solo le informazioni nei documenti del messaggio. "
+            "Non cercare su internet. "
+            "Non usare id film o markup nella risposta. "
+            "Prima del consiglio riporta titolo, anno e genere tra parentesi. "
+            "Poi spiega le motivazioni del consiglio con tono informale, caldo e amabile, "
+            "citando i passaggi specifici che motivano la scelta. "
+            "Se la risposta non e presente nei documenti, rispondi esattamente: \"Non lo trovo nei documenti.\""
+        ),
+    },
+    "embedding": {
+        "backend": "openai",
+        "model": "text-embedding-3-small",
+    },
+    "vectorstore": {
+        "collection": "netflix_scout",
+        "db_dir": None,
+    },
+}
 
 
 class RagChunk(BaseModel):
@@ -64,15 +90,16 @@ class RagToolInput(BaseModel):
     query: str = Field(min_length=1)
 
 
-CONFIG = RagConfig()
-QUERY = "Consigliami film che nello stesso tempo compenetri il tema del riscatto e dell'amicizia, con un tono leggero e divertente, ma che non siano troppo lunghi."
+QUERY = "Trova film simili a Inception per struttura narrativa, ma senza usare necessariamente fantascienza o sogni."
 
-def _apply_config(config: RagConfig) -> None:
+def _resolve_runtime_config(config: dict) -> dict:
     db_root = Path("dbVettoriale")
+    vectorstore_config = dict(config["vectorstore"])
+    embedding_config = dict(config["embedding"])
 
-    if config.vector_db_dir:
-        db_dir = Path(config.vector_db_dir)
-        effective_backend = config.embedding_backend
+    if vectorstore_config["db_dir"]:
+        db_dir = Path(vectorstore_config["db_dir"])
+        effective_backend = embedding_config["backend"]
     else:
         openai_dir = db_root / "openai"
         local_dir = db_root / "local"
@@ -82,53 +109,84 @@ def _apply_config(config: RagConfig) -> None:
         elif local_dir.exists() and not openai_dir.exists():
             effective_backend = "local"
         else:
-            effective_backend = config.embedding_backend
+            effective_backend = embedding_config["backend"]
 
-        db_dir = vectorstore.usa_backend(effective_backend)
+        db_dir = db_dir_for_backend(effective_backend)
 
-    vectorstore.CHROMA_DIR = db_dir
+    runtime_config = {
+        **config,
+        "retrieval": dict(config["retrieval"]),
+        "rerank": dict(config["rerank"]),
+        "generation": dict(config["generation"]),
+        "embedding": {**embedding_config, "backend": effective_backend},
+        "vectorstore": {**vectorstore_config, "db_dir": db_dir},
+    }
 
-    rag.CONFIG["embedding_backend"] = effective_backend
-    rag.CONFIG["collection"] = config.collection
-    rag.CONFIG["k"] = config.k_largo
-    rag.CONFIG["modello"] = config.modello_llm
-
-    hybrid.CONFIG["k"] = config.k_finale
-    hybrid.CONFIG["candidati"] = config.k_largo
-    hybrid.CONFIG["rrf_costante"] = config.rrf_costante
-
-    rerank.CONFIG["k_largo"] = config.k_largo
-    rerank.CONFIG["k_finale"] = config.k_finale
-    rerank.CONFIG["modello_cohere"] = config.modello_cohere
-    rerank.CONFIG["modello_llm"] = config.modello_llm
-    rerank.CONFIG["pausa"] = config.pausa
+    return runtime_config
 
 
-def _retrieve(query: str, config: RagConfig) -> list[dict]:
-    if config.search_mode == SearchMode.semantic:
-        return rag.recupera(query, config.k_largo)
+def _retrieve(query: str, config: dict) -> list[dict]:
+    collection = apri_collection(
+        config["vectorstore"]["collection"],
+        db_dir=config["vectorstore"]["db_dir"],
+    )
 
-    hybrid.costruisci_indice_bm25()
+    if config["retrieval"]["search_mode"] == SearchMode.semantic:
+        return recupera(
+            query,
+            collection_name=config["vectorstore"]["collection"],
+            k=config["retrieval"]["k_largo"],
+            embedding_backend=config["embedding"]["backend"],
+            embedding_model=config["embedding"]["model"],
+            db_dir=config["vectorstore"]["db_dir"],
+        )
 
-    if config.search_mode == SearchMode.hybrid:
-        return hybrid.cerca_hybrid(query, config.k_largo)
+    indice_bm25 = costruisci_indice_bm25(collection)
 
-    return hybrid.cerca_bm25(query, config.k_largo)
+    if config["retrieval"]["search_mode"] == SearchMode.hybrid:
+        risultati_semantici = recupera(
+            query,
+            collection_name=config["vectorstore"]["collection"],
+            k=config["retrieval"]["k_largo"],
+            embedding_backend=config["embedding"]["backend"],
+            embedding_model=config["embedding"]["model"],
+            db_dir=config["vectorstore"]["db_dir"],
+        )
+        risultati_bm25 = cerca_bm25(query, indice_bm25, config["retrieval"]["k_largo"])
+        return cerca_hybrid(
+            risultati_semantici,
+            risultati_bm25,
+            config["retrieval"]["k_largo"],
+            rrf_costante=config["retrieval"]["rrf_costante"],
+        )
+
+    return cerca_bm25(query, indice_bm25, config["retrieval"]["k_largo"])
 
 
-def _rerank(query: str, chunks: list[dict], config: RagConfig) -> list[dict]:
-    if config.rerank_backend == RerankBackend.cohere:
-        ranked = rerank.rerank_cohere(query, chunks)
+def _rerank(query: str, chunks: list[dict], config: dict) -> list[dict]:
+    if config["rerank"]["backend"] == RerankBackend.cohere:
+        ranked = rerank_cohere(
+            query,
+            chunks,
+            model=config["rerank"]["cohere_model"],
+        )
     else:
-        ranked = rerank.rerank_llm(query, chunks)
+        ranked = rerank_llm(
+            query,
+            chunks,
+            model=config["rerank"]["llm_model"],
+        )
 
-    return ranked[: config.k_finale]
+    return ranked[: config["retrieval"]["k_finale"]]
 
 
-def run_rag(config: RagConfig = CONFIG, query: str = QUERY) -> RagResult:
-    _apply_config(config)
+def run_rag(config: dict = RAG_CONFIG, query: str = QUERY) -> RagResult:
+    runtime_config = _resolve_runtime_config(config)
 
-    collection = vectorstore.apri_collection(config.collection)
+    collection = apri_collection(
+        runtime_config["vectorstore"]["collection"],
+        db_dir=runtime_config["vectorstore"]["db_dir"],
+    )
 
     if collection.count() == 0:
         raise RuntimeError(
@@ -136,14 +194,19 @@ def run_rag(config: RagConfig = CONFIG, query: str = QUERY) -> RagResult:
             "--embedding-backend <backend>` before querying."
         )
 
-    retrieved = _retrieve(query, config)
-    final_chunks = _rerank(query, retrieved, config)
-    answer = rag.genera(final_chunks, query)
+    retrieved = _retrieve(query, runtime_config)
+    final_chunks = _rerank(query, retrieved, runtime_config)
+    answer = genera(
+        final_chunks,
+        query,
+        model=runtime_config["generation"]["model"],
+        instructions=runtime_config["generation"]["instructions"],
+    )
 
     return RagResult(
         query=query,
-        search_mode=config.search_mode,
-        rerank_backend=config.rerank_backend,
+        search_mode=runtime_config["retrieval"]["search_mode"],
+        rerank_backend=runtime_config["rerank"]["backend"],
         answer=answer,
         chunks=[RagChunk(**c) for c in final_chunks],
     )
@@ -157,7 +220,7 @@ REGISTERED_TOOLS = [RAG_TOOL]
 def execute_tool(
     name: str,
     arguments: dict,
-    config: RagConfig = CONFIG,
+    config: dict = RAG_CONFIG,
 ) -> str:
     if name != RAG_TOOL_NAME:
         raise ValueError(f"Unknown tool: {name}")
@@ -224,9 +287,12 @@ def _print_chunks(
 
 
 if __name__ == "__main__":
-    _apply_config(CONFIG)
+    runtime_config = _resolve_runtime_config(RAG_CONFIG)
 
-    collection = vectorstore.apri_collection(CONFIG.collection)
+    collection = apri_collection(
+        runtime_config["vectorstore"]["collection"],
+        db_dir=runtime_config["vectorstore"]["db_dir"],
+    )
 
     if collection.count() == 0:
         raise RuntimeError(
@@ -243,12 +309,12 @@ if __name__ == "__main__":
     print(f"   \"{QUERY}\"")
 
     print(f"\n⚙️  MODALITÀ")
-    print(f"   🔍 Search       : {CONFIG.search_mode.value}")
-    print(f"   🧠 Reranker     : {CONFIG.rerank_backend.value}")
-    print(f"   📚 K largo      : {CONFIG.k_largo}")
-    print(f"   🎯 K finale     : {CONFIG.k_finale}")
+    print(f"   🔍 Search       : {runtime_config['retrieval']['search_mode'].value}")
+    print(f"   🧠 Reranker     : {runtime_config['rerank']['backend'].value}")
+    print(f"   📚 K largo      : {runtime_config['retrieval']['k_largo']}")
+    print(f"   🎯 K finale     : {runtime_config['retrieval']['k_finale']}")
 
-    retrieved = _retrieve(QUERY, CONFIG)
+    retrieved = _retrieve(QUERY, runtime_config)
 
     _print_chunks(
         f"K LARGO — {len(retrieved)} CHUNK RECUPERATI",
@@ -256,7 +322,7 @@ if __name__ == "__main__":
         "📚",
     )
 
-    final_chunks = _rerank(QUERY, retrieved, CONFIG)
+    final_chunks = _rerank(QUERY, retrieved, runtime_config)
 
     _print_chunks(
         f"RERANKING — {len(final_chunks)} CHUNK SELEZIONATI",
@@ -264,7 +330,12 @@ if __name__ == "__main__":
         "🏆",
     )
 
-    answer = rag.genera(final_chunks, QUERY)
+    answer = genera(
+        final_chunks,
+        QUERY,
+        model=runtime_config["generation"]["model"],
+        instructions=runtime_config["generation"]["instructions"],
+    )
 
     print("\n")
     print("╔" + "═" * 68 + "╗")

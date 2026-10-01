@@ -8,12 +8,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from aikit.chunk import chunk_semantic
-from aikit.clean import clean, pipeline_for
-from aikit.embeddings import embed
-from aikit.loaders import load
-from aikit import vectorstore
-from aikit.movie_metadata import iter_plot_rows
+from aikit import chunk_semantic, clean, crea_collection, db_dir_for_backend, embed, indicizza, load, pipeline_for
+from movie_metadata import iter_plot_rows
 
 
 SUPPORTED_LOADER_EXTENSIONS = {".pdf", ".docx", ".html", ".htm", ".md", ".markdown", ".txt"}
@@ -125,23 +121,20 @@ def build_semantic_db(
     collection_name: str,
     semantic_threshold: float,
     embedding_backend: str,
+    embedding_model: str,
     batch_size: int,
 ) -> int:
     if not dataset_dir.exists():
         raise FileNotFoundError(f"Dataset directory not found: {dataset_dir}")
 
     if db_dir is None:
-        db_dir = vectorstore.usa_backend(embedding_backend)
-    else:
-        vectorstore.CHROMA_DIR = db_dir
+        db_dir = db_dir_for_backend(embedding_backend)
 
     if db_dir.exists():
         shutil.rmtree(db_dir)
     db_dir.mkdir(parents=True, exist_ok=True)
 
-    # Reuse AIKit vectorstore logic while redirecting persistence location.
-    vectorstore.CHROMA_DIR = db_dir
-    collection = vectorstore.crea_collection(collection_name)
+    collection = crea_collection(collection_name, db_dir=db_dir)
 
     ids: list[str] = []
     texts: list[str] = []
@@ -160,7 +153,12 @@ def build_semantic_db(
         if rel == "MovieSummaries/plot_summaries.txt":
             chunks = [cleaned]
         else:
-            chunks = chunk_semantic(cleaned, semantic_threshold, backend=embedding_backend)
+            chunks = chunk_semantic(
+                cleaned,
+                semantic_threshold,
+                backend=embedding_backend,
+                model=embedding_model,
+            )
         chunks = [c.strip() for c in chunks if c and c.strip()]
         if not chunks:
             continue
@@ -200,8 +198,8 @@ def build_semantic_db(
         batch_texts = texts[start:end]
         batch_meta = metadatas[start:end]
         _validate_batch_metadata(batch_meta, start)
-        vectors = embed(batch_texts, backend=embedding_backend)
-        vectorstore.indicizza(collection, batch_ids, batch_texts, vectors, batch_meta)
+        vectors = embed(batch_texts, backend=embedding_backend, model=embedding_model)
+        indicizza(collection, batch_ids, batch_texts, vectors, batch_meta)
         print(f"Indexed chunks {start + 1}-{end} / {len(texts)}")
 
     count = collection.count()
@@ -217,6 +215,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--collection", default="netflix_scout", help="Collection name")
     parser.add_argument("--semantic-threshold", type=float, default=0.78, help="Semantic chunk split threshold")
     parser.add_argument("--embedding-backend", choices=["openai", "local"], default="openai")
+    parser.add_argument("--embedding-model", default="text-embedding-3-small", help="Embedding model to use with the selected backend")
     parser.add_argument("--batch-size", type=int, default=128)
     return parser.parse_args()
 
@@ -230,5 +229,6 @@ if __name__ == "__main__":
         collection_name=args.collection,
         semantic_threshold=args.semantic_threshold,
         embedding_backend=args.embedding_backend,
+        embedding_model=args.embedding_model,
         batch_size=args.batch_size,
     )

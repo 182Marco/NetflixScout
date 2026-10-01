@@ -108,13 +108,9 @@ def load_cast_by_movie(path: Path) -> dict[str, list[str]]:
             movie_id = row[0].strip()
             if not movie_id:
                 continue
-
-            if len(row) <= 8:
-                continue
             actor_name = row[8].strip()
             if not actor_name:
                 continue
-
             if movie_id not in cast_by_movie:
                 cast_by_movie[movie_id] = []
             if actor_name not in cast_by_movie[movie_id]:
