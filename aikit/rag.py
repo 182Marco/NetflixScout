@@ -61,6 +61,7 @@ CONFIG = {
     "chunk_size": 500,              # recursive, come nel Modulo 2
     "k": 4,                         # chunk recuperati per domanda
     "modello": "gpt-5.6-luna",      # il generator (Luna da Modulo 3 · Lezione 11; prima gpt-4o-mini)
+    "embedding_backend": "openai",  # lo stesso backend per ingest e query
 }
 
 # Le regole del prompt RAG di Modulo 2 · Lezione 11, nelle instructions:
@@ -69,15 +70,14 @@ CONFIG = {
 # «nei documenti del messaggio», non più «qui sotto» — perché ora i
 # documenti stanno nel messaggio user e le regole qui.
 ISTRUZIONI = """Rispondi alla domanda usando SOLO le informazioni nei documenti
-del messaggio. Cita la fonte tra parentesi quadre, per esempio:
-[policy-resi-garanzia-002]. Se la risposta non è nei documenti, rispondi
-esattamente: "Non lo trovo nei documenti." — senza inventare nulla."""
-
-# Le domande di prova del main: una sui documenti storici, una sui documenti
-# nuovi del corpus esteso, una FUORI corpus (deve uscire il rifiuto pulito).
-DOMANDA_STORICA = "Quanto tempo ho per richiedere il contributo per la postazione di casa?"
-DOMANDA_NUOVA = "Quanto costa il vassoio portacavi e come si fissa?"
-DOMANDA_FUORI = "Posso pagare alla consegna, in contrassegno?"
+del messaggio. 
+Non cercare su intenet. 
+Non usare id film e markup nella risposta.
+Prima dell'inizio del consiglio riporta titolo, anno più il genere tra parentesi.
+Poi spiega le motivazioni del consiglio con il tono informale, caldo e amabile di un amico che vuole spiegare quali film sono adatti alla richiesta. Riporta i passaggi specifici trovati che te lo fanno pensare dando dettagli emozionanti rispetto a ciò
+che l'utente cerca. Se la risposta non è nei
+documenti, rispondi esattamente: "Non lo trovo nei documenti." — senza
+inventare nulla."""
 
 
 # ------------------------- indicizza · scritta a Modulo 3 · Lezione 2
@@ -100,7 +100,7 @@ def indicizza():
             testi.append(pezzo)
             meta.append({"source": percorso.name})
         print(f"  {percorso.stem}: {len(pezzi)} chunk")
-    vettori = embed(testi)                                               # Modulo 2 · Lezione 7
+    vettori = embed(testi, backend=CONFIG["embedding_backend"])         # Modulo 2 · Lezione 7
     vectorstore.indicizza(collection, ids, testi, vettori, meta)
     print(f"indicizzati {len(testi)} chunk da {len(list(CONFIG['corpus_dir'].glob('*.txt')))} "
           f"documenti in '{CONFIG['collection']}'")
@@ -118,7 +118,7 @@ def recupera(query, k=None):
     if k is None:
         k = CONFIG["k"]
     collection = vectorstore.apri_collection(CONFIG["collection"])
-    return vectorstore.search(collection, query, k)
+    return vectorstore.search(collection, query, k, backend=CONFIG["embedding_backend"])
 
 
 # ----------------------------------- genera · 🎤 Modulo 3 · Lezione 3
@@ -134,7 +134,20 @@ def genera(chunks, domanda, storia=None):
     """
     documenti = ""
     for c in chunks:
-        documenti += f'<documento fonte="{c["id"]}">\n{c["testo"]}\n</documento>\n'
+        meta = []
+        if c.get("title"):
+            meta.append(f"titolo: {c['title']}")
+        if c.get("release_year"):
+            meta.append(f"anno: {c['release_year']}")
+        if c.get("release_date"):
+            meta.append(f"data_uscita: {c['release_date']}")
+        if c.get("genres"):
+            meta.append(f"generi: {c['genres']}")
+        if c.get("cast"):
+            meta.append(f"cast: {c['cast']}")
+        meta_testo = "\n".join(meta)
+        documento = f"<documento>\n{meta_testo}\n<trama>\n{c['testo']}\n</trama>\n</documento>\n"
+        documenti += documento
     prompt = f"<documenti>\n{documenti}</documenti>\n\n<domanda>\n{domanda}\n</domanda>"
 
     if storia is None:
@@ -163,33 +176,3 @@ def stampa_chunks(chunks):
     for posizione, c in enumerate(chunks, start=1):
         anteprima = " ".join(c["testo"].split())[:58]
         print(f"   {posizione}. {c['id']}  score={c['score']:.3f}  {anteprima}…")
-
-
-if __name__ == "__main__":
-    # L'ingest si fa una volta: se la collection è già piena non si ripaga.
-    # Per ricostruirla da zero (corpus cambiato): chiamare indicizza() a mano.
-    try:
-        collection = vectorstore.apri_collection(CONFIG["collection"])
-        if collection.count() == 0:
-            indicizza()
-            # crea_collection ricrea da zero: il riferimento va riaperto
-            collection = vectorstore.apri_collection(CONFIG["collection"])
-        print(f"collection '{CONFIG['collection']}': {collection.count()} chunk")
-    except NotImplementedError:
-        raise SystemExit("indicizza() è ancora da scrivere: si parte da lì.")
-
-    for domanda in (DOMANDA_STORICA, DOMANDA_NUOVA, DOMANDA_FUORI):
-        print("\n" + "=" * 72)
-        print(f"D: {domanda}")
-        try:
-            chunks = recupera(domanda)
-        except NotImplementedError:
-            print("   recupera(): ancora da scrivere")
-            continue
-        stampa_chunks(chunks)
-        try:
-            risposta, usati = rispondi(domanda)
-        except NotImplementedError:
-            print("   rispondi(): ancora da scrivere")
-            continue
-        print(f"→ {risposta}")

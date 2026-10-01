@@ -1,8 +1,7 @@
 from __future__ import annotations
-
-import json
 from enum import Enum
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -32,8 +31,9 @@ class RagConfig(BaseModel):
     pausa: int = Field(default=6, ge=0)
     search_mode: SearchMode = SearchMode.semantic
     rerank_backend: RerankBackend = RerankBackend.cohere
+    embedding_backend: Literal["openai", "local"] = "openai"
     collection: str = Field(default="netflix_scout", min_length=1)
-    vector_db_dir: str = Field(default="semanticDb", min_length=1)
+    vector_db_dir: str | None = None
     rrf_costante: int = Field(default=60, ge=1)
 
 
@@ -42,6 +42,12 @@ class RagChunk(BaseModel):
     testo: str
     score: float
     source: str | None = None
+    movie_id: str | None = None
+    title: str | None = None
+    release_date: str | None = None
+    release_year: str | None = None
+    genres: str | None = None
+    cast: str | None = None
 
 
 class RagResult(BaseModel):
@@ -59,13 +65,30 @@ class RagToolInput(BaseModel):
 
 
 CONFIG = RagConfig()
-QUERY = "Consigliami film con temi di redenzione e solitudine."
-
+QUERY = "Consigliami film che nello stesso tempo compenetri il tema del riscatto e dell'amicizia, con un tono leggero e divertente, ma che non siano troppo lunghi."
 
 def _apply_config(config: RagConfig) -> None:
-    db_dir = Path(config.vector_db_dir)
+    db_root = Path("dbVettoriale")
+
+    if config.vector_db_dir:
+        db_dir = Path(config.vector_db_dir)
+        effective_backend = config.embedding_backend
+    else:
+        openai_dir = db_root / "openai"
+        local_dir = db_root / "local"
+
+        if openai_dir.exists() and not local_dir.exists():
+            effective_backend = "openai"
+        elif local_dir.exists() and not openai_dir.exists():
+            effective_backend = "local"
+        else:
+            effective_backend = config.embedding_backend
+
+        db_dir = vectorstore.usa_backend(effective_backend)
+
     vectorstore.CHROMA_DIR = db_dir
 
+    rag.CONFIG["embedding_backend"] = effective_backend
     rag.CONFIG["collection"] = config.collection
     rag.CONFIG["k"] = config.k_largo
     rag.CONFIG["modello"] = config.modello_llm
@@ -86,8 +109,10 @@ def _retrieve(query: str, config: RagConfig) -> list[dict]:
         return rag.recupera(query, config.k_largo)
 
     hybrid.costruisci_indice_bm25()
+
     if config.search_mode == SearchMode.hybrid:
         return hybrid.cerca_hybrid(query, config.k_largo)
+
     return hybrid.cerca_bm25(query, config.k_largo)
 
 
@@ -96,6 +121,7 @@ def _rerank(query: str, chunks: list[dict], config: RagConfig) -> list[dict]:
         ranked = rerank.rerank_cohere(query, chunks)
     else:
         ranked = rerank.rerank_llm(query, chunks)
+
     return ranked[: config.k_finale]
 
 
@@ -103,9 +129,11 @@ def run_rag(config: RagConfig = CONFIG, query: str = QUERY) -> RagResult:
     _apply_config(config)
 
     collection = vectorstore.apri_collection(config.collection)
+
     if collection.count() == 0:
         raise RuntimeError(
-            "Collection is empty. Run `python buildSemanticDb.py` before querying."
+            "Collection is empty. Run `python buildSemanticDb.py "
+            "--embedding-backend <backend>` before querying."
         )
 
     retrieved = _retrieve(query, config)
@@ -126,14 +154,125 @@ RAG_TOOL = definisci_tool(RagToolInput, RAG_TOOL_NAME)
 REGISTERED_TOOLS = [RAG_TOOL]
 
 
-def execute_tool(name: str, arguments: dict, config: RagConfig = CONFIG) -> str:
+def execute_tool(
+    name: str,
+    arguments: dict,
+    config: RagConfig = CONFIG,
+) -> str:
     if name != RAG_TOOL_NAME:
         raise ValueError(f"Unknown tool: {name}")
+
     payload = RagToolInput(**arguments)
     result = run_rag(config=config, query=payload.query)
+
     return result.model_dump_json(indent=2)
 
 
+def _print_chunks(
+    title: str,
+    chunks: list[dict | RagChunk],
+    emoji: str,
+) -> None:
+    print("\n")
+    print("╔" + "═" * 68 + "╗")
+    print(f"║  {emoji}  {title.upper():<62}║")
+    print("╚" + "═" * 68 + "╝")
+
+    for index, chunk in enumerate(chunks, start=1):
+        if isinstance(chunk, RagChunk):
+            chunk_id = chunk.id
+            score = chunk.score
+            source = chunk.source
+            testo = chunk.testo
+            movie_id = chunk.movie_id
+            title = chunk.title
+            release_date = chunk.release_date
+            release_year = chunk.release_year
+            genres = chunk.genres
+            cast = chunk.cast
+        else:
+            chunk_id = chunk.get("id")
+            score = chunk.get("score")
+            source = chunk.get("source")
+            testo = chunk.get("testo", "")
+            movie_id = chunk.get("movie_id")
+            title = chunk.get("title")
+            release_date = chunk.get("release_date")
+            release_year = chunk.get("release_year")
+            genres = chunk.get("genres")
+            cast = chunk.get("cast")
+
+        preview = testo[:200] + "..."
+
+        print()
+        print(f"  🔹 CHUNK #{index}")
+        print("  " + "─" * 64)
+        print(f"  🆔 ID       : {chunk_id}")
+        print(f"  📊 SCORE    : {score:.4f}")
+        print(f"  📁 SOURCE   : {source}")
+        if movie_id:
+            print(f"  🎬 MOVIE ID : {movie_id}")
+        if title:
+            print(f"  🎞️ TITLE    : {title}")
+        if release_year or release_date:
+            print(f"  📅 YEAR     : {release_year or release_date}")
+        if genres:
+            print(f"  🏷️ GENRES   : {genres}")
+        if cast:
+            print(f"  👥 CAST     : {cast}")
+        print(f"  📝 TESTO    : \"{preview}\"")
+
+
 if __name__ == "__main__":
-    output = run_rag(config=CONFIG, query=QUERY)
-    print(json.dumps(output.model_dump(), indent=2, ensure_ascii=False))
+    _apply_config(CONFIG)
+
+    collection = vectorstore.apri_collection(CONFIG.collection)
+
+    if collection.count() == 0:
+        raise RuntimeError(
+            "Collection is empty. Run `python buildSemanticDb.py "
+            "--embedding-backend <backend>` before querying."
+        )
+
+    print("\n")
+    print("╔" + "═" * 68 + "╗")
+    print("║  🎬 NETFLIXSCOUT — RAG SEARCH" + " " * 38 + "║")
+    print("╚" + "═" * 68 + "╝")
+
+    print(f"\n🔎 QUERY")
+    print(f"   \"{QUERY}\"")
+
+    print(f"\n⚙️  MODALITÀ")
+    print(f"   🔍 Search       : {CONFIG.search_mode.value}")
+    print(f"   🧠 Reranker     : {CONFIG.rerank_backend.value}")
+    print(f"   📚 K largo      : {CONFIG.k_largo}")
+    print(f"   🎯 K finale     : {CONFIG.k_finale}")
+
+    retrieved = _retrieve(QUERY, CONFIG)
+
+    _print_chunks(
+        f"K LARGO — {len(retrieved)} CHUNK RECUPERATI",
+        retrieved,
+        "📚",
+    )
+
+    final_chunks = _rerank(QUERY, retrieved, CONFIG)
+
+    _print_chunks(
+        f"RERANKING — {len(final_chunks)} CHUNK SELEZIONATI",
+        final_chunks,
+        "🏆",
+    )
+
+    answer = rag.genera(final_chunks, QUERY)
+
+    print("\n")
+    print("╔" + "═" * 68 + "╗")
+    print("║  🤖  RISPOSTA FINALE DELL'LLM" + " " * 38 + "║")
+    print("╚" + "═" * 68 + "╝")
+    print()
+    print(answer)
+    print()
+    print("═" * 70)
+    print("✅ RAG PIPELINE COMPLETATA")
+    print("═" * 70)

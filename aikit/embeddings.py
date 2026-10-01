@@ -12,62 +12,104 @@ Due backend dietro la stessa firma:
   - "openai"  → API text-embedding-3-small (a pagamento, i testi escono)
   - "local"   → sentence-transformers sulla tua macchina (gratis, offline)
 
-Rispetto al file scritto a Modulo 2 · Lezione 7 manca solo la cache su disco: qui non
-serve, e senza è più corto e più leggibile. Rilanciare la stessa query
-ri-paga l'embedding — parliamo di $0.0000002.
+Il vector store viene salvato in:
+
+    dbVettoriale/
+    ├── openai/
+    │   ├── embeddings.npy
+    │   └── metadata.json
+    └── local/
+        ├── embeddings.npy
+        └── metadata.json
 """
-import time
+
+import json
+from pathlib import Path
 
 import numpy as np
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Modelli di default dei due backend (verificati live, luglio 2026).
-MODELLO_OPENAI = "text-embedding-3-small"   # 1536 dim — $0.02 / 1M token
-MODELLO_LOCAL = "all-MiniLM-L6-v2"          # 384 dim — ~88 MB, gira in CPU
+# Modelli di default dei due backend
+MODELLO_OPENAI = "text-embedding-3-small"   # 1536 dim
+MODELLO_LOCAL = "all-MiniLM-L6-v2"          # 384 dim
+
+# Cartella principale del database vettoriale
+CARTELLA_DB = Path("dbVettoriale")
 
 
 # ------------------------------------------------------------ Modulo 2 · Lezione 7 · cosine
-def cosine_similarity(a, b):
-    """Similarità coseno tra due vettori: cos(θ) = a·b / (|a| |b|).
 
-    Vale 1.0 per vettori paralleli (stesso significato), ~0 per vettori
-    ortogonali (nessuna relazione), -1.0 per vettori opposti. Conta l'ANGOLO,
-    non la lunghezza: per questo non serve normalizzare prima.
-    """
+def cosine_similarity(a, b):
+    """Similarità coseno tra due vettori."""
+
     a = np.asarray(a, dtype=np.float64)
     b = np.asarray(b, dtype=np.float64)
-    return float((a @ b) / (np.linalg.norm(a) * np.linalg.norm(b)))
+
+    return float(
+        (a @ b) /
+        (np.linalg.norm(a) * np.linalg.norm(b))
+    )
 
 
 # ---------------------------------------------------- Modulo 2 · Lezione 7 · i due backend
+
 def embed_openai(texts):
     """Embedding via API OpenAI. I testi VIAGGIANO verso il servizio."""
+
     from openai import OpenAI
 
-    risposta = OpenAI().embeddings.create(model=MODELLO_OPENAI, input=texts)
-    token = risposta.usage.total_tokens
-    costo = token / 1_000_000 * 0.02       # $0.02 per milione di token
-    print(f"  [openai] {len(texts)} testi, {token} token → ${costo:.6f}")
-    return np.array([d.embedding for d in risposta.data], dtype=np.float32)
+    client = OpenAI()
+    batch_size = 1000
+    embeddings = []
+
+    for i in range(0, len(texts), batch_size):
+        batch = texts[i:i + batch_size]
+
+        risposta = client.embeddings.create(
+            model=MODELLO_OPENAI,
+            input=batch,
+        )
+
+        token = risposta.usage.total_tokens
+        costo = token / 1_000_000 * 0.02
+
+        print(
+            f"  [openai] {len(batch)} testi, "
+            f"{token} token → ${costo:.6f}"
+        )
+
+        embeddings.extend(
+            d.embedding for d in risposta.data
+        )
+
+    return np.array(
+        embeddings,
+        dtype=np.float32,
+    )
 
 
-_modello_locale = None   # caricato una volta sola: l'import e il load costano
+_modello_locale = None
 
 
 def embed_local(texts):
-    """Embedding con sentence-transformers, sulla TUA macchina.
+    """Embedding con sentence-transformers, sulla TUA macchina."""
 
-    Il primo uso scarica il modello (~88 MB) nella cache di Hugging Face;
-    da lì in poi è tutto offline e gratis.
-    """
     global _modello_locale
+
     if _modello_locale is None:
         from sentence_transformers import SentenceTransformer
 
-        _modello_locale = SentenceTransformer(MODELLO_LOCAL)
-    return np.asarray(_modello_locale.encode(texts), dtype=np.float32)
+        _modello_locale = SentenceTransformer(
+            MODELLO_LOCAL,
+            device="cpu",
+        )
+
+    return np.asarray(
+        _modello_locale.encode(texts),
+        dtype=np.float32,
+    )
 
 
 def embed(texts, backend="openai"):
@@ -76,21 +118,182 @@ def embed(texts, backend="openai"):
         return embed_openai(texts)
     elif backend == "local":
         return embed_local(texts)
+
     else:
-        raise ValueError(f"backend {backend!r} sconosciuto: 'openai' o 'local'")
+        raise ValueError(
+            f"backend {backend!r} sconosciuto: "
+            "'openai' o 'local'"
+        )
 
 
-# ------------------------------------------------------------- demo a occhio
-if __name__ == "__main__":
-    frasi = [
-        "La scrivania si alza e si abbassa con il doppio motore.",   # A
-        "Il piano motorizzato sale e scende in silenzio.",           # B: come A, parole diverse
-        "Il reso va richiesto entro trenta giorni dalla consegna.",  # C: altro tema
+# ------------------------------------------------------------ vector store
+
+def cartella_backend(backend):
+    """Restituisce la cartella del vector store del backend."""
+
+    if backend not in ("openai", "local"):
+        raise ValueError(
+            f"backend {backend!r} sconosciuto: "
+            "'openai' o 'local'"
+        )
+
+    cartella = CARTELLA_DB / backend
+    cartella.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    return cartella
+
+
+def salva_vector_store(
+    records,
+    backend,
+):
+    """Salva embeddings e metadata nel database del backend."""
+
+    cartella = cartella_backend(backend)
+
+    file_embeddings = cartella / "embeddings.npy"
+    file_metadata = cartella / "metadata.json"
+
+    embeddings = np.array(
+        [
+            record["embedding"]
+            for record in records
+        ],
+        dtype=np.float32,
+    )
+
+    metadata = [
+        {
+            "id": record["id"],
+            "testo": record["testo"],
+            "metadata": record["metadata"],
+            "source": record["source"],
+        }
+        for record in records
     ]
-    for backend in ("openai", "local"):
-        print(f"\nbackend = {backend}")
-        inizio = time.perf_counter()
-        vecs = embed(frasi, backend=backend)
-        print(f"  shape {vecs.shape} in {time.perf_counter() - inizio:.2f}s")
-        print(f"  A~B (stesso senso, parole diverse): {cosine_similarity(vecs[0], vecs[1]):.3f}")
-        print(f"  A~C (temi diversi):                 {cosine_similarity(vecs[0], vecs[2]):.3f}")
+
+    np.save(
+        file_embeddings,
+        embeddings,
+    )
+
+    file_metadata.write_text(
+        json.dumps(
+            metadata,
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    print(
+        f"\nVector store {backend} salvato:"
+    )
+    print(
+        f"  embeddings: {file_embeddings}"
+    )
+    print(
+        f"  metadata:   {file_metadata}"
+    )
+    print(
+        f"  shape:      {embeddings.shape}"
+    )
+
+
+def carica_vector_store(backend):
+    """Carica il vector store del backend richiesto."""
+
+    cartella = cartella_backend(backend)
+
+    file_embeddings = cartella / "embeddings.npy"
+    file_metadata = cartella / "metadata.json"
+
+    if not file_embeddings.exists():
+        raise FileNotFoundError(
+            f"Embeddings non trovati: {file_embeddings}"
+        )
+
+    if not file_metadata.exists():
+        raise FileNotFoundError(
+            f"Metadata non trovati: {file_metadata}"
+        )
+
+    embeddings = np.load(
+        file_embeddings
+    )
+
+    metadata = json.loads(
+        file_metadata.read_text(
+            encoding="utf-8"
+        )
+    )
+
+    return embeddings, metadata
+
+
+# ------------------------------------------------------------ creazione record
+
+def crea_record(
+    chunk,
+    embedding,
+    metadata=None,
+    id=None,
+    source=None,
+):
+    """Crea un record del vector store."""
+
+    if metadata is None:
+        metadata = {}
+
+    return {
+        "id": id,
+        "testo": chunk,
+        "embedding": embedding,
+        "metadata": metadata,
+        "source": source,
+    }
+
+
+# ------------------------------------------------------------ ricerca
+
+def cerca(
+    query,
+    backend="openai",
+    k=3,
+):
+    """Cerca i chunk semanticamente più simili alla query."""
+
+    embeddings, metadata = carica_vector_store(
+        backend
+    )
+
+    query_embedding = embed(
+        [query],
+        backend=backend,
+    )[0]
+
+    scores = np.array([
+        cosine_similarity(
+            query_embedding,
+            embedding,
+        )
+        for embedding in embeddings
+    ])
+
+    indici = np.argsort(scores)[::-1][:k]
+
+    risultati = []
+
+    for indice in indici:
+        risultato = metadata[indice].copy()
+
+        risultato["score"] = float(
+            scores[indice]
+        )
+
+        risultati.append(risultato)
+
+    return risultati

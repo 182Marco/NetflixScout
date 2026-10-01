@@ -46,7 +46,7 @@ def chunk_recursive(testo, size):
     return [finestra] + chunk_recursive(testo[size:], size)
 
 
-def chunk_semantic(testo, soglia):
+def chunk_semantic(testo, soglia, backend="openai"):
     """Taglia dove il DISCORSO cambia: embedda le frasi una per una e chiude
     il chunk quando la similarità tra una frase e la successiva scende sotto
     `soglia` — un calo di similarità è un cambio di argomento."""
@@ -56,7 +56,7 @@ def chunk_semantic(testo, soglia):
             if frase.strip():
                 frasi.append(frase.strip())
 
-    vettori = embed(frasi)
+    vettori = embed(frasi, backend=backend)
 
     pezzi = []
     corrente = [frasi[0]]

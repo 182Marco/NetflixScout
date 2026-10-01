@@ -51,7 +51,7 @@ from aikit import rag                            # noqa: E402 — Modulo 3 · Le
 from aikit import hybrid                         # noqa: E402 — Modulo 3 · Lezione 4
 from aikit import vectorstore                    # noqa: E402 — Modulo 2 · Lezione 9
 
-load_dotenv(SCRIPTS / ".env")                    # OPENAI_API_KEY e COHERE_API_KEY
+load_dotenv(".env")                    # OPENAI_API_KEY e COHERE_API_KEY
 
 # ---------------------------------------- il punto unico di configurazione
 CONFIG = {

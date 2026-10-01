@@ -8,7 +8,9 @@ This repository integrates the AIKit RAG modules into a reproducible local pipel
 /
 ├── aikit/
 ├── dataset/            # local corpus input (not versioned)
-├── semanticDb/         # local Chroma persistence (not versioned)
+├── dbVettoriale/       # local vector DB persistence (not versioned)
+│   ├── openai/
+│   └── local/
 ├── app.py              # public API + RAG Tool facade
 ├── buildSemanticDb.py  # reproducible semantic DB builder
 └── ...
@@ -59,17 +61,23 @@ dataset/
     └── tvtropes.clusters.txt
 ```
 
-## Build semanticDb/
+## Build dbVettoriale/
 
-Single command (full rebuild from zero):
+Single command (full rebuild from zero, OpenAI backend):
 
 ```bash
-python buildSemanticDb.py
+python buildSemanticDb.py --embedding-backend openai
+```
+
+For the local backend:
+
+```bash
+python buildSemanticDb.py --embedding-backend local
 ```
 
 What the build does:
 
-1. Deletes and recreates `semanticDb/`.
+1. Deletes and recreates `dbVettoriale/<backend>/`.
 2. Scans all files under `dataset/` in deterministic sorted order.
 3. Cleans text with AIKit cleaning pipelines.
 4. Chunks text with AIKit semantic chunking (`chunk_semantic`).
@@ -80,7 +88,7 @@ What the build does:
 
 After build, verify:
 
-1. `semanticDb/` exists.
+1. `dbVettoriale/openai/` or `dbVettoriale/local/` exists.
 2. The build log shows final chunk count and collection name.
 3. Optional runtime check:
 
@@ -88,7 +96,7 @@ After build, verify:
 python app.py
 ```
 
-If the collection is empty, `app.py` raises an explicit error telling you to run `python buildSemanticDb.py`.
+If the collection is empty, `app.py` raises an explicit error telling you to run `python buildSemanticDb.py --embedding-backend <backend>`.
 
 ## Public Runtime API
 
@@ -119,4 +127,4 @@ This is designed so future tools can be added without refactoring the runtime co
 
 ## Git Notes
 
-`dataset/` and `semanticDb/` are local artifacts and are ignored by Git.
+`dataset/` and `dbVettoriale/` are local artifacts and are ignored by Git.

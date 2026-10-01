@@ -48,7 +48,7 @@ from pydantic import BaseModel                   # noqa: E402 — Modulo 2 · Le
 
 from aikit.llm_client import cost_usd            # noqa: E402 — Modulo 2 · Lezione 3
 
-load_dotenv(SCRIPTS / ".env")                    # OPENAI_API_KEY
+load_dotenv(".env")                    # OPENAI_API_KEY
 client = OpenAI()
 
 MODELLO = "gpt-5.6-luna"                         # è in PRICING di llm_client: cost_usd sa quanto costa (Luna da Modulo 3 · Lezione 11; prima gpt-4.1-mini)

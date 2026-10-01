@@ -26,7 +26,25 @@ import chromadb
 
 from aikit.embeddings import embed
 
-CHROMA_DIR = Path(__file__).parent.parent.parent / "chroma"
+DB_ROOT = Path("dbVettoriale")
+CHROMA_DIR = DB_ROOT / "openai"
+
+
+def db_dir_for_backend(backend):
+    """Cartella persistente del vector DB per backend embedding."""
+    if backend not in ("openai", "local"):
+        raise ValueError(
+            f"backend {backend!r} sconosciuto: "
+            "'openai' o 'local'"
+        )
+    return DB_ROOT / backend
+
+
+def usa_backend(backend):
+    """Imposta la cartella persistente del vector DB per il backend scelto."""
+    global CHROMA_DIR
+    CHROMA_DIR = db_dir_for_backend(backend)
+    return CHROMA_DIR
 
 
 def apri_collection(nome):
