@@ -11,6 +11,7 @@ from rag_support.cli import (
     print_mode,
 )
 from rag_support.conversation import _compact_history, _rewrite_query_with_history
+from rag_support.local_query_classifier import classify_query_domain
 from rag_support.retrieval import _rerank, _retrieve
 from rag_support.runtime import _resolve_runtime_config
 
@@ -21,6 +22,17 @@ def run_conversation_loop(
     exit_commands: set[str],
     compact_notice: str,
 ) -> None:
+    def _precheck_query(query: str) -> str | None:
+        classification = classify_query_domain(query)
+        if classification["is_cinema"]:
+            return None
+
+        # Lazy import avoids circular imports while keeping the shared message source in app.py.
+        from app import NON_CINEMA_BLOCK_MESSAGES
+
+        language = "it" if classification["is_italian"] else "en"
+        return NON_CINEMA_BLOCK_MESSAGES[language]
+
     runtime_config = _resolve_runtime_config(config)
 
     collection = apri_collection(
@@ -49,6 +61,11 @@ def run_conversation_loop(
         if query.lower() in exit_commands:
             print("\nChiusura chat. A presto!")
             break
+
+        block_message = _precheck_query(query)
+        if block_message:
+            print_final_answer(block_message)
+            continue
 
         effective_query = _rewrite_query_with_history(query, history, runtime_config, openai_client)
 

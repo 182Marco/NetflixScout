@@ -47,6 +47,12 @@ RAG_CONFIG = {
         "db_dir": None,
     },
 }
+
+NON_CINEMA_BLOCK_MESSAGES = {
+    "it": "Non rispondo a domande non cinematografiche",
+    "en": "I do not answer non-film questions",
+}
+
 EXIT_COMMANDS = {"exit", "quit"}
 COMPACT_NOTICE = "🧠 Soglia 60k raggiunta: history compattata. 💬 Continuiamo!"
 
