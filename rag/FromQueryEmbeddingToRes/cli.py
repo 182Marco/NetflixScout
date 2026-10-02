@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from rag_support.models import RagChunk
+from .models import RagChunk
 
 
 def print_header() -> None:

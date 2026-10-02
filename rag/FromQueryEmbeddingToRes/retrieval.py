@@ -1,16 +1,10 @@
 from __future__ import annotations
 
-from aikit import (
-    apri_collection,
-    cerca_bm25,
-    cerca_hybrid,
-    costruisci_indice_bm25,
-    recupera,
-    rerank_cohere,
-    rerank_llm,
-)
-
-from rag_support.models import RerankBackend, SearchMode
+from .hybrid import cerca_bm25, cerca_hybrid, costruisci_indice_bm25
+from .models import RerankBackend, SearchMode
+from .rag import recupera
+from .rerank import rerank_cohere, rerank_llm
+from .vectorstore import apri_collection
 
 
 def _retrieve(query: str, config: dict) -> list[dict]:

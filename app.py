@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from rag_support.chat import run_conversation_loop
-from rag_support.models import RerankBackend, SearchMode
+from rag.FromQueryEmbeddingToRes.chat import run_conversation_loop
+from rag.FromQueryEmbeddingToRes.models import RerankBackend, SearchMode
 
 
 RAG_CONFIG = {

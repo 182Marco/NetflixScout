@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from aikit import db_dir_for_backend
+from .vectorstore import db_dir_for_backend
 
 
 def _resolve_runtime_config(config: dict) -> dict:

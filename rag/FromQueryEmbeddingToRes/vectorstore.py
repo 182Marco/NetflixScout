@@ -3,7 +3,7 @@ from pathlib import Path
 
 import chromadb
 
-from aikit.embeddings import embed
+from .embeddings import embed
 
 DB_ROOT = Path("dbVettoriale")
 

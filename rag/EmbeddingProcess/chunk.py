@@ -1,6 +1,6 @@
 """Text chunking helpers."""
 
-from aikit.embeddings import embed, cosine_similarity
+from rag.FromQueryEmbeddingToRes.embeddings import cosine_similarity, embed
 
 
 def chunk_fixed(testo, size, overlap):

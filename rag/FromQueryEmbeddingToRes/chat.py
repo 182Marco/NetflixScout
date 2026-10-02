@@ -2,18 +2,19 @@ from __future__ import annotations
 
 from openai import OpenAI
 
-from aikit import apri_collection, genera
-from rag_support.cli import (
+from .cli import (
     _print_chunks,
     _print_retrieval_compact,
     print_final_answer,
     print_header,
     print_mode,
 )
-from rag_support.conversation import _compact_history, _rewrite_query_with_history
-from rag_support.local_query_classifier import classify_query_domain
-from rag_support.retrieval import _rerank, _retrieve
-from rag_support.runtime import _resolve_runtime_config
+from .conversation import _compact_history, _rewrite_query_with_history
+from .local_query_classifier import classify_query_domain
+from .rag import genera
+from .retrieval import _rerank, _retrieve
+from .runtime import _resolve_runtime_config
+from .vectorstore import apri_collection
 
 
 def run_conversation_loop(

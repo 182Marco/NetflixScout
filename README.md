@@ -1,12 +1,14 @@
 # NetflixScout
 
-This repository integrates the AIKit RAG modules into a reproducible local pipeline and a public runtime entrypoint.
+This repository integrates the RAG modules into a reproducible local pipeline and a public runtime entrypoint.
 
 ## Project Layout
 
 ```text
 /
-├── aikit/
+├── rag/
+│   ├── EmbeddingProcess/
+│   └── FromQueryEmbeddingToRes/
 ├── dataset/            # local corpus input (not versioned)
 ├── dbVettoriale/       # local vector DB persistence (not versioned)
 │   ├── openai/
@@ -79,10 +81,10 @@ What the build does:
 
 1. Deletes and recreates `dbVettoriale/<backend>/`.
 2. Scans all files under `dataset/` in deterministic sorted order.
-3. Cleans text with AIKit cleaning pipelines.
-4. Chunks text with AIKit semantic chunking (`chunk_semantic`).
-5. Embeds chunks with AIKit embeddings.
-6. Indexes into Chroma via AIKit vectorstore APIs.
+3. Cleans text with `rag.EmbeddingProcess.clean` pipelines.
+4. Chunks text with `rag.EmbeddingProcess.chunk` semantic chunking (`chunk_semantic`).
+5. Embeds chunks with `rag.FromQueryEmbeddingToRes.embeddings`.
+6. Indexes into Chroma via `rag.FromQueryEmbeddingToRes.vectorstore` APIs.
 
 ## Verify Build
 
@@ -127,14 +129,14 @@ Automatic compaction:
 2. `hybrid`
 3. `bm25`
 
-The chosen mode is propagated to AIKit retrieval components (`rag` / `hybrid`) and does not rely on fake APIs.
+The chosen mode is propagated to the runtime retrieval components (`rag` / `hybrid`) and does not rely on fake APIs.
 
 ## RAG Tool (OpenAI Function Calling Ready)
 
 `app.py` also exposes a first tool-ready interface:
 
 1. `RAG_TOOL_NAME`
-2. `RAG_TOOL` (JSON schema generated from Pydantic via AIKit `definisci_tool`)
+2. `RAG_TOOL` (JSON schema generated from Pydantic via `rag.FromQueryEmbeddingToRes.tools.definisci_tool`)
 3. `REGISTERED_TOOLS`
 4. `execute_tool(name, arguments, config=RAG_CONFIG)`
 

@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from aikit import definisci_tool
-
-from rag_support.models import RagToolInput
-from rag_support.pipeline import run_rag
+from .models import RagToolInput
+from .pipeline import run_rag
+from .tools import definisci_tool
 
 RAG_TOOL_NAME = "rag_search"
 RAG_TOOL = definisci_tool(RagToolInput, RAG_TOOL_NAME)

@@ -3,7 +3,7 @@
 from dotenv import load_dotenv
 from openai import OpenAI
 
-from aikit import vectorstore
+from . import vectorstore
 
 load_dotenv()
 

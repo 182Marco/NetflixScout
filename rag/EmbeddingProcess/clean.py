@@ -10,8 +10,8 @@ UNA cosa) + un piccolo runner che le compone. Nessun framework: una pipeline è
 solo una lista di funzioni applicate in ordine. Il docente sceglie step diversi
 per documenti diversi (un `.txt` di Gutenberg non ha lo stesso noise di un PDF).
 
-    from aikit import clean, load
-    from aikit.clean import normalize_whitespace, reflow_paragraphs
+    from rag.EmbeddingProcess import clean, load
+    from rag.EmbeddingProcess.clean import normalize_whitespace, reflow_paragraphs
 
     text = load("libro.txt")[0].text
     pulito = clean(text, [normalize_whitespace, reflow_paragraphs])

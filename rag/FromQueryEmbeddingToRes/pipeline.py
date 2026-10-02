@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from aikit import apri_collection, genera
-
-from rag_support.models import RagChunk, RagResult
-from rag_support.retrieval import _rerank, _retrieve
-from rag_support.runtime import _resolve_runtime_config
+from .models import RagChunk, RagResult
+from .rag import genera
+from .retrieval import _rerank, _retrieve
+from .runtime import _resolve_runtime_config
+from .vectorstore import apri_collection
 
 
 def run_rag(
