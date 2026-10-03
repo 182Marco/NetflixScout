@@ -157,6 +157,12 @@ def _validate_classification(
             'Classifier JSON must include boolean key: is_cinema.'
         )
 
+    if is_cinema:
+        return {
+            'is_cinema': True,
+            'is_italian': bool(raw.get('is_italian', False)),
+        }
+
     is_italian_raw = raw.get('is_italian')
 
     if isinstance(is_italian_raw, bool):

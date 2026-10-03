@@ -13,7 +13,7 @@ cohere_client = cohere.ClientV2(api_key=os.getenv("COHERE_API_KEY") or "manca")
 client = OpenAI()
 
 
-# --------------------- 1 · rerank_cohere() · codice spiegato a Modulo 3 · Lezione 5
+
 def rerank_cohere(query, chunks, model, cohere_api_client=None):
     """Rerank candidate chunks with Cohere's cross-encoder API."""
     active_client = cohere_api_client or cohere_client
@@ -29,7 +29,7 @@ def rerank_cohere(query, chunks, model, cohere_api_client=None):
     return riordinati
 
 
-# ------------------------- 2 · rerank_llm() · scritta a Modulo 3 · Lezione 5
+
 class Ordine(BaseModel):
     """Indices of chunks ordered from most to least relevant."""
     indici: list[int]

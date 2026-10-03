@@ -10,11 +10,20 @@ from .cli import (
     print_mode,
 )
 from .conversation import _compact_history, _rewrite_query_with_history
-from .local_query_classifier import classify_query_domain
+from .local_query_classifier.local_query_classifier import (
+    _looks_italian,
+    classify_query_domain,
+)
 from .rag import genera
 from .retrieval import _rerank, _retrieve
 from .runtime import _resolve_runtime_config
 from .vectorstore import apri_collection
+
+
+def _choose_block_language(query: str, classification: dict[str, bool]) -> str:
+    if classification.get("is_italian") or _looks_italian(query):
+        return "it"
+    return "en"
 
 
 def run_conversation_loop(
@@ -31,7 +40,7 @@ def run_conversation_loop(
         # Lazy import avoids circular imports while keeping the shared message source in app.py.
         from app import NON_CINEMA_BLOCK_MESSAGES
 
-        language = "it" if classification["is_italian"] else "en"
+        language = _choose_block_language(query, classification)
         return NON_CINEMA_BLOCK_MESSAGES[language]
 
     runtime_config = _resolve_runtime_config(config)
@@ -56,7 +65,7 @@ def run_conversation_loop(
 
     while True:
         query = input("\n" * 2 + "Tu > ").strip()
-        print( "\n" * 2)
+        print( "\n")
         if not query:
             continue
         if query.lower() in exit_commands:

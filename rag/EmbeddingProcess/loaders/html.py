@@ -1,12 +1,3 @@
-"""HTML → testo (BeautifulSoup), togliendo prima il noise più ovvio.
-
-Una pagina web è un albero di tag dove il contenuto utile è circondato da menu,
-footer, banner, script. Se prendiamo tutto il testo, il *noise* finisce nel
-prompt e confonde il modello: `ask()` arriva a citare il menu.
-
-Qui rimuoviamo i tag più rumorosi — è il minimo sindacale. "Pulire bene" è un
-mestiere a sé: è la prossima lezione (Modulo 2 · Lezione 5, Text Cleaning).
-"""
 from bs4 import BeautifulSoup
 
 from .base import Document

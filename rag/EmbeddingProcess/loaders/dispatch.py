@@ -1,9 +1,3 @@
-"""load(): un'unica porta d'ingresso.
-
-Chi carica un documento non deve sapere quale libreria serve per quale file. Una
-sola funzione smista per estensione e restituisce sempre dei `Document`.
-Aggiungere un formato = aggiungere una riga qui e una funzione nel suo modulo.
-"""
 from pathlib import Path
 
 from .base import Document

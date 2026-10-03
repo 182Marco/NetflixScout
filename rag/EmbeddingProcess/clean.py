@@ -1,25 +1,3 @@
-"""clean.py — pulire il testo grezzo prima di chunking/embedding.
-
-Il testo che esce dai loader (Modulo 2 · Lezione 4) è **grezzo**: boilerplate, righe spezzate,
-whitespace a caso, header ripetuti, numeri di pagina. Se lo diamo così a
-chunking/embedding, il *noise* si porta dietro tutta la pipeline (chunk sporchi
-→ embedding sporchi → retrieval peggiore).
-
-Idea di fondo — la stessa di Modulo 2 · Lezione 3: **funzioni pure `str -> str`** (ogni step fa
-UNA cosa) + un piccolo runner che le compone. Nessun framework: una pipeline è
-solo una lista di funzioni applicate in ordine. Il docente sceglie step diversi
-per documenti diversi (un `.txt` di Gutenberg non ha lo stesso noise di un PDF).
-
-    from rag.EmbeddingProcess import clean, load
-    from rag.EmbeddingProcess.clean import normalize_whitespace, reflow_paragraphs
-
-    text = load("libro.txt")[0].text
-    pulito = clean(text, [normalize_whitespace, reflow_paragraphs])
-
-Gli step parametrici (soglie, elenchi di heading) sono **factory**: restituiscono
-uno step `str -> str` già configurato, così la pipeline resta una lista di
-funzioni uniformi.
-"""
 import re
 import unicodedata
 from collections import Counter
@@ -134,10 +112,7 @@ def drop_sections(headings: list):
     return step
 
 
-# ---------------------------------------------------------------- una ricetta per tipo di file
-# La "conoscenza" del noise di ogni formato sta QUI. Per lavorare su un nuovo tipo
-# di documento: si aggiunge la funzione-step qui sopra e la si registra in questa
-# mappa. Nient'altro da toccare — `ask.py` usa `pipeline_for()` in automatico.
+
 PIPELINES = {
     ".txt": [                                  # libro Gutenberg: boilerplate + righe a ~70 char
         keep_between_markers("*** START", "*** END"),
@@ -157,22 +132,17 @@ PIPELINES = {
     ],
 }
 
-# ricetta di riserva per estensioni non ancora previste
+
 DEFAULT_STEPS = [normalize_unicode, normalize_whitespace]
 
 
 def pipeline_for(path: str) -> list:
-    """La ricetta di cleaning giusta per l'estensione del file."""
     from pathlib import Path
     return PIPELINES.get(Path(path).suffix.lower(), DEFAULT_STEPS)
 
 
 def clean_file(path: str) -> str:
-    """Carica un file (loader di Modulo 2 · Lezione 4) e lo ripulisce con la sua pipeline.
 
-    Un solo posto da toccare per un documento nuovo: gli step qui sopra + la mappa
-    `PIPELINES`. Chi vuole vedere l'effetto sul chatbot usa `ask.py`.
-    """
-    from .loaders import load          # import pigro: clean.py resta un modulo di sole funzioni
+    from .loaders import load
     grezzo = "\n".join(d.text for d in load(path))
     return clean(grezzo, pipeline_for(path))

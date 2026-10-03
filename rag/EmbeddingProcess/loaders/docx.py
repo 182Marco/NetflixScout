@@ -1,11 +1,3 @@
-"""DOCX → testo dai paragrafi dell'XML (python-docx). Di solito un unico Document.
-
-Un .docx è un archivio zip di XML: il testo c'è, ma annegato nei tag. `python-docx`
-ce lo espone come lista di paragrafi.
-
-Nota: `import docx` qui prende il pacchetto installato **python-docx** (import
-assoluto). Questo file, per Python, è `loaders.docx` — non c'è collisione.
-"""
 import docx
 
 from .base import Document
