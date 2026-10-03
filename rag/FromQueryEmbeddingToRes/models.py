@@ -43,3 +43,11 @@ class RagToolInput(BaseModel):
     """Run the NetflixScout RAG pipeline on a natural language query."""
 
     query: str = Field(min_length=1)
+
+
+class QuerySignals(BaseModel):
+    """Structured retrieval intent extracted from a user query."""
+
+    positive_signals: list[str] = Field(default_factory=list)
+    negative_signals: list[str] = Field(default_factory=list)
+    hard_exclusions: list[str] = Field(default_factory=list)

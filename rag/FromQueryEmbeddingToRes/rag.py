@@ -9,7 +9,19 @@ load_dotenv()
 
 client = OpenAI()
 
-def recupera(query, collection_name, k, embedding_backend, embedding_model, db_dir=None):
+def recupera(
+    query,
+    collection_name,
+    k,
+    embedding_backend,
+    embedding_model,
+    db_dir=None,
+    *,
+    positive_signals=None,
+    negative_signals=None,
+    hard_exclusions=None,
+    fetch_k=None,
+):
     """Retrieve the top-k chunks for a query from a vector collection."""
     collection = vectorstore.apri_collection(
         collection_name,
@@ -21,6 +33,10 @@ def recupera(query, collection_name, k, embedding_backend, embedding_model, db_d
         k,
         backend=embedding_backend,
         model=embedding_model,
+        positive_signals=positive_signals,
+        negative_signals=negative_signals,
+        hard_exclusions=hard_exclusions,
+        fetch_k=fetch_k,
     )
 
 
