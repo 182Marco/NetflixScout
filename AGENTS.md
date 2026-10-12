@@ -33,10 +33,9 @@ l'orchestratore genera la risposta finale → history → compattazione oltre me
 | `rag/EmbeddingProcess/` | pipeline offline: `loaders/` → `clean.py` → `chunk.py` (`chunk_semantic`) → embed → index (`buildSemanticDb.py`) |
 | `rag/FromQueryEmbeddingToRes/` | runtime: `pipeline.run_rag`, `retrieval.py`, `rerank.py`, `hybrid.py`, `vectorstore.py`, `embeddings.py`, `models.py`, `tool_interface.py` (`RagTool`, `rag_search`), `runtime.py`, `conversation.py`, `cli.py` |
 | `rag/FromQueryEmbeddingToRes/query_classifier/` | classificatore di dominio e lingua **attuale** |
-| `rag/FromQueryEmbeddingToRes/local_query_classifier/` | legacy, duplicato in fase di rimozione: non estenderlo |
 | `buildSemanticDb.py`, `movie_metadata.py` (root) | shim che reindirizzano a `rag/EmbeddingProcess/` |
 | `tests/` | `test_query_language.py` (offline, con mock), `test_tool_contract.py` (**integrazione**: chiama API reali e Chroma) |
-| `dataset/`, `dbVettoriale/`, `semanticDb/` | artefatti locali, ignorati da git |
+| `dataset/`, `dbVettoriale/` | artefatti locali, ignorati da git |
 
 Nota: il README è in parte obsoleto (cita `run_rag`/`execute_tool` esposti da `app.py`). In caso di conflitto conta il codice.
 
@@ -95,7 +94,7 @@ Non c'è uno step di build o packaging: il progetto si esegue da sorgente, dalla
 
 **Non fare senza un permesso esplicito**
 - Leggere, stampare o modificare `.env` (contiene chiavi API). Aggiorna solo `.env.example`.
-- Lanciare `buildSemanticDb.py` (distruttivo, lento, costoso) o cancellare `dbVettoriale/`, `dataset/`, `semanticDb/`.
+- Lanciare `buildSemanticDb.py` (distruttivo, lento, costoso) o cancellare `dbVettoriale/`, `dataset/`.
 - Eseguire la suite completa o script che chiamano OpenAI/Cohere (costano crediti).
 - Cambiare i nomi dei modelli LLM, le versioni pinnate in `requirements.txt` o i prompt di sistema (classificatore, generazione, compattazione), che sono comportamento di prodotto.
 - Indebolire il filtro di dominio e anti jailbreak in `query_classifier/`.
