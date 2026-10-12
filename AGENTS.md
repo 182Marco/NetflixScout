@@ -36,7 +36,7 @@ l'orchestratore genera la risposta finale → history → compattazione oltre me
 | `rag/FromQueryEmbeddingToRes/` | runtime: `pipeline.run_rag`, `retrieval.py`, `rerank.py`, `hybrid.py`, `vectorstore.py`, `embeddings.py`, `models.py`, `tool_interface.py` (`RagTool`, `rag_search`), `runtime.py`, `conversation.py` |
 | `rag/FromQueryEmbeddingToRes/query_classifier/` | classificatore di dominio e lingua **attuale** |
 | `buildSemanticDb.py`, `movie_metadata.py` (root) | shim che reindirizzano a `rag/EmbeddingProcess/` |
-| `tests/` | `test_query_language.py` e `test_presenters.py` (offline, con mock), `test_tool_contract.py` (**integrazione**: chiama API reali e Chroma) |
+| `tests/` | `test_query_language.py`, `test_presenters.py` e `test_orchestrator.py` (offline, con mock), `test_tool_contract.py` (**integrazione**: chiama API reali e Chroma) |
 | `dataset/`, `dbVettoriale/` | artefatti locali, ignorati da git |
 
 Nota: il README è in parte obsoleto (cita `run_rag`/`execute_tool` esposti da `app.py`). In caso di conflitto conta il codice.
@@ -61,7 +61,7 @@ python buildSemanticDb.py --embedding-backend openai     # oppure: local
 python app.py
 
 # Test
-python -m pytest tests/test_query_language.py tests/test_presenters.py -q   # offline, veloce, gratis
+python -m pytest tests/test_query_language.py tests/test_presenters.py tests/test_orchestrator.py -q   # offline, veloce, gratis
 python -m pytest -q                                # include l'integrazione: servono .env e un DB popolato, consuma crediti API
 ```
 
@@ -83,6 +83,7 @@ Non c'è uno step di build o packaging: il progetto si esegue da sorgente, dalla
 - **Contratto dei tool**: ogni tool rispetta il `Tool` Protocol (`name`, `description`, `input_schema`, `run(*, query, params, conversation_history) -> dict`). `input_schema` deriva da un modello Pydantic (`model_json_schema()`). Un nuovo tool si registra in `build_app` e in `CONFIG["orchestrator"]["allowed_tools"]`, senza toccare il core.
 - **Separazione dei ruoli**: `RagTool`/`run_rag` restituiscono solo evidenza strutturata (`chunks` + `metadata` + `trace`); la risposta finale la genera solo l'orchestratore.
 - **Il nucleo non stampa**: `handle_query` produce un `TurnResult` con gli step (`trace` dei tool inclusa). L'output sta solo in `presenters/<canale>/`. Il canale (`OutputChannel`) lo dichiara l'entry point: `python app.py` → `terminal`, la futura route FastAPI → `web`. Niente `print` fuori da `presenters/terminal/` (eccezioni: builder offline, loop legacy in `chat.py`).
+- **Query autonoma per i follow-up**: nella stessa chiamata LLM con cui sceglie il tool, l'orchestratore (`_plan_turn`) riscrive la domanda in modo autonomo usando la history (`standalone_query`) e la passa a **qualunque** tool, anche con `required_tools` o fallback. Senza history o se l'LLM fallisce si usa la domanda originale. La history va passata **intera e invariata** (niente finestre scorrevoli): un prefisso stabile permette al prompt caching del provider di riusarla.
 - **Trace dei tool**: ogni tool restituisce `"trace": [{kind, title, data}]` fuori da `metadata` (che finisce nel prompt). Un `kind` nuovo va aggiunto in `presenters/terminal/renderer.py:STEP_RENDERERS`, altrimenti viene stampato col fallback generico.
 - Enum Pydantic per i valori chiusi (`SearchMode`, `RerankBackend`); nuovi modelli dati in `models.py`.
 - Errori espliciti con istruzioni operative (es. collection vuota → "Run `python buildSemanticDb.py ...`").
@@ -92,7 +93,7 @@ Non c'è uno step di build o packaging: il progetto si esegue da sorgente, dalla
 
 **Da fare sempre**
 - Aggiungi o aggiorna test `pytest` per ogni modifica di logica. Mocka OpenAI/Cohere con `monkeypatch` (vedi `tests/test_query_language.py`); i nuovi unit test non devono fare chiamate di rete.
-- Prima di chiudere un task esegui almeno `python -m pytest tests/test_query_language.py tests/test_presenters.py -q` più i test che hai aggiunto.
+- Prima di chiudere un task esegui almeno `python -m pytest tests/test_query_language.py tests/test_presenters.py tests/test_orchestrator.py -q` più i test che hai aggiunto.
 - Mantieni la retrocompatibilità del contratto `RagTool.run` e della forma di `CONFIG` (`tests/test_tool_contract.py` la verifica).
 - Se cambi comandi, struttura o API pubbliche, aggiorna `README.md` e questo file.
 
