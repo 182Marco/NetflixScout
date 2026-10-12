@@ -180,7 +180,7 @@
   </div>
 
   <footer class="statusbar">
-    <span>⎇ main*</span>
+    <span>⎇ main</span>
     <span id="git-count"></span>
     <span class="r"><span>Python 3.11 (.venv)</span><span>ChromaDB</span><span>UTF-8</span></span>
   </footer>
@@ -421,15 +421,15 @@ const TREE = D("NetflixScout", {}, [
           ["SearchMode", "<code>semantic | hybrid | bm25</code>"],
           ["RerankBackend", "<code>cohere | llm</code>"],
           ["RagChunk", "Un chunk con <code>id, testo, score</code> e metadati del film."],
-          ["RagResult", "Output di <code>run_rag</code>: query, modalità, <code>chunks</code> (dopo il rerank), <code>candidates</code> (i k_largo prima del rerank), (token)."],
+          ["RagResult", "Output di <code>run_rag</code>: query, modalità, <code>chunks</code> (dopo il rerank), <code>candidates</code> (i k_largo prima del rerank), <code>signals</code>, <code>embedded_text</code> (il testo su cui si è fatto l'embedding), (token)."],
           ["RagToolInput", "Input del tool: <code>query</code> non vuota."],
-          ["QuerySignals", "<code>positive_signals, negative_signals, hard_exclusions</code> estratti dall'LLM."],
+          ["QuerySignals", "Estratti dall'LLM, in inglese: <code>positive_signals, negative_signals, hard_exclusions</code>, <code>semantic_query</code> (la frase da embeddare) e <code>genres</code> (nomi di genere del corpus, es. <code>Science Fiction</code>)."],
         ],
         x: ["pydantic"],
       }),
       F("pipeline.py", {
         L: "rt", s: "<code>run_rag()</code>: retrieval + rerank, senza generazione.",
-        d: `Risolve la configurazione a runtime, controlla che la collection non sia vuota (altrimenti dice di lanciare <code>buildSemanticDb.py</code>), poi esegue <code>_retrieve</code> e <code>_rerank</code> e impacchetta il risultato in un <code>RagResult</code>: <code>chunks</code> sono i finali, <code>candidates</code> i k_largo recuperati prima del rerank (servono al resoconto). <code>answer</code> resta <code>None</code>: la generazione spetta all'orchestratore.`,
+        d: `Risolve la configurazione a runtime, controlla che la collection non sia vuota (altrimenti dice di lanciare <code>buildSemanticDb.py</code>), poi calcola una sola volta i segnali (<code>_build_signal_aware_query</code>), li passa a <code>_retrieve</code>, esegue <code>_rerank</code> e impacchetta il risultato in un <code>RagResult</code>: <code>chunks</code> sono i finali, <code>candidates</code> i k_largo recuperati prima del rerank, <code>signals</code> ed <code>embedded_text</code> (<code>semantic_query</code> o, se vuota, la query) servono al resoconto. <code>answer</code> resta <code>None</code>: la generazione spetta all'orchestratore.`,
         it: [["run_rag(*, config, query, history=None)", "Entry point della pipeline RAG. <code>history</code> oggi non viene usata."]],
         dep: [Q + "models.py", Q + "retrieval.py", Q + "runtime.py", Q + "vectorstore.py"],
       }),
@@ -437,7 +437,7 @@ const TREE = D("NetflixScout", {}, [
         L: "rt", s: "Primitive RAG di base: recupera, genera, rispondi.",
         d: `<code>recupera</code> è un wrapper su <code>vectorstore.search</code> (ricerca semantica con segnali). <code>genera</code> costruisce un prompt XML <code>&lt;documenti&gt;&lt;documento&gt;…&lt;trama&gt;</code> con i metadati di ogni film e chiama la Responses API, restituendo eventualmente l'uso dei token. <code>rispondi</code> fa recupera + genera in un solo passo.`,
         it: [
-          ["recupera(query, collection_name, k, …)", "Usata da <code>retrieval._retrieve</code> per le modalità semantic e hybrid."],
+          ["recupera(query, collection_name, k, …, semantic_query, genres, genre_boost)", "Usata da <code>retrieval._retrieve</code> per le modalità semantic e hybrid; inoltra a <code>search</code> testo da embeddare e boost di genere."],
           ["genera(chunks, domanda, model, instructions, …)", "Usata solo da <code>chat.py</code>."],
           ["rispondi(...)", "Helper completo, non usato dall'app."],
         ],
@@ -447,10 +447,11 @@ const TREE = D("NetflixScout", {}, [
       }),
       F("rerank.py", {
         L: "rt", s: "Secondo stadio: riordina i candidati con Cohere o con un LLM.",
-        d: `<code>rerank_cohere</code> usa il cross-encoder di Cohere (<code>rerank-v3.5</code> in CONFIG) e restituisce tutti i candidati riordinati. <code>rerank_llm</code> chiede a un modello OpenAI un output strutturato <code>Ordine</code> (lista di indici dal più al meno rilevante).`,
+        d: `Entrambi i backend non vedono la trama nuda: <code>_documento_per_rerank</code> antepone <code>Title: … (anno)</code> e <code>Genres: …</code>, perché spesso la trama non dice il proprio genere. <code>rerank_cohere</code> usa il cross-encoder di Cohere (<code>rerank-v3.5</code> in CONFIG) e restituisce tutti i candidati riordinati. <code>rerank_llm</code> chiede a un modello OpenAI un output strutturato <code>Ordine</code> (lista di indici dal più al meno rilevante).`,
         it: [
           ["rerank_cohere(query, chunks, model)", "Backend di default, richiede <code>COHERE_API_KEY</code>."],
           ["rerank_llm(query, chunks, model)", "Alternativa senza Cohere."],
+          ["_documento_per_rerank(chunk)", "Testo passato al reranker: intestazione con titolo, anno e generi + trama."],
           ["Ordine", "Schema Pydantic per l'output del reranker LLM."],
           ["cerca_due_stadi(...)", "Helper rerank + taglio a k_finale (l'app usa <code>retrieval._rerank</code>)."],
         ],
@@ -458,10 +459,11 @@ const TREE = D("NetflixScout", {}, [
       }),
       F("retrieval.py", {
         L: "rt", s: "Primo stadio: segnali dalla query + ricerca semantic / bm25 / hybrid.",
-        d: `Prima un LLM estrae dalla query i <code>QuerySignals</code>: cosa l'utente vuole (positivi), cosa preferisce evitare (negativi, penalità leggera) e cosa va escluso del tutto (hard exclusions). Poi recupera fino a <code>k_largo</code> candidati nella modalità configurata e applica <code>_light_rerank</code>: +0.03 per segnale positivo trovato, −0.08 per segnale negativo, piccolo bonus per le parole della query. <code>_rerank</code> passa poi al reranker e taglia a <code>k_finale</code>.`,
+        d: `Prima un LLM estrae dalla query i <code>QuerySignals</code>, tutti <b>in inglese</b> perché il corpus è fatto di trame inglesi: cosa l'utente vuole (positivi), cosa preferisce evitare (negativi, penalità leggera), cosa va escluso del tutto (hard exclusions), la <code>semantic_query</code> (una frase che descrive il film cercato, senza numeri né “migliori”: è il testo su cui si fa l'embedding) e i <code>genres</code> nel vocabolario del corpus. Il prompt precisa che “che hanno fatto la storia”, “classici”, “cult” significano film iconici, non film storici. Poi, su un pool di <code>fetch_k</code> risultati con boost di genere, recupera fino a <code>k_largo</code> candidati nella modalità configurata e applica <code>_light_rerank</code>: +0.03 per segnale positivo trovato, −0.08 per segnale negativo, piccolo bonus per le parole della query. <code>_rerank</code> passa poi al reranker e taglia a <code>k_finale</code>.`,
         it: [
           ["_extract_query_signals(query, llm_model)", "Output strutturato OpenAI; senza API key o in caso di errore restituisce segnali vuoti."],
-          ["_retrieve(query, config)", "Smista tra le modalità semantic, hybrid e bm25."],
+          ["_build_signal_aware_query(query, config)", "Segnali normalizzati, inclusi <code>semantic_query</code> e <code>genres</code>."],
+          ["_retrieve(query, config, signals=None)", "Smista tra le modalità semantic, hybrid e bm25; riusa i segnali se <code>run_rag</code> li ha già calcolati. Pool = <code>max(fetch_k o k_finale×3, k_largo)</code>."],
           ["_light_rerank(query, chunks, signals)", "Ritocco euristico degli score."],
           ["_rerank(query, chunks, config)", "Reranking Cohere o LLM, poi i primi <code>k_finale</code>."],
         ],
@@ -475,7 +477,7 @@ const TREE = D("NetflixScout", {}, [
       }),
       F("tool_interface.py", {
         L: "orch", s: "<code>RagTool</code>: il tool <code>rag_search</code> esposto all'orchestratore.",
-        d: `Dataclass che rispetta il <code>Tool</code> Protocol di <code>orchestrator.py</code>: <code>name</code>, <code>description</code>, <code>input_schema</code> (da <code>RagToolInput</code>) e <code>run()</code>. <code>run</code> valida l'input, chiama <code>run_rag</code> e restituisce <code>{query, chunks, metadata, trace}</code>. <code>metadata</code> contiene search_mode, rerank_backend, k_finale e collection e finisce nel prompt dell'orchestratore. <code>trace</code> è la lista dei passaggi <code>[{kind, title, data}]</code> (<code>retrieval</code> con i candidati k_largo, <code>rerank</code> con i chunk finali): sta fuori da metadata così non consuma token, e la usano solo i <code>presenters/</code>.`,
+        d: `Dataclass che rispetta il <code>Tool</code> Protocol di <code>orchestrator.py</code>: <code>name</code>, <code>description</code>, <code>input_schema</code> (da <code>RagToolInput</code>) e <code>run()</code>. <code>run</code> valida l'input, chiama <code>run_rag</code> e restituisce <code>{query, chunks, metadata, trace}</code>. <code>metadata</code> contiene search_mode, rerank_backend, k_finale e collection e finisce nel prompt dell'orchestratore. <code>trace</code> è la lista dei passaggi <code>[{kind, title, data}]</code> (<code>retrieval</code> con i candidati k_largo, <code>embedded_text</code> e <code>signals</code>; <code>rerank</code> con i chunk finali): sta fuori da metadata così non consuma token, e la usano solo i <code>presenters/</code>.`,
         it: [
           ["RagTool", "Implementazione del tool."],
           ["RAG_TOOL_NAME = \"rag_search\"", "Nome usato in <code>allowed_tools</code> e <code>fallback_tool</code>."],
@@ -487,13 +489,14 @@ const TREE = D("NetflixScout", {}, [
       }),
       F("vectorstore.py", {
         L: "rt", s: "Tutto ciò che riguarda ChromaDB: apertura, creazione, upsert, ricerca.",
-        d: `<code>search()</code> è il cuore della ricerca semantica: se ci sono segnali positivi embedda quelli al posto della query, recupera <code>fetch_k</code> risultati, scarta le hard exclusions (titolo, cast, …), sottrae 0.08 per ogni segnale negativo trovato e riordina. Lo score è <code>1 − distanza coseno</code>.`,
+        d: `<code>search()</code> è il cuore della ricerca semantica: fa l'embedding di <code>semantic_query</code> (o della query originale se è vuota) e <b>mai</b> del join dei segnali positivi, che con keyword italiane portava a film italiani o storici. Poi recupera <code>fetch_k</code> risultati, scarta le hard exclusions (titolo, cast, …), sottrae 0.08 per ogni segnale negativo trovato, aggiunge <code>genre_boost</code> ai chunk il cui metadato <code>genres</code> contiene un genere richiesto, riordina e taglia a k. Lo score è <code>1 − distanza coseno</code>.`,
         it: [
           ["DB_ROOT · db_dir_for_backend(backend)", "<code>dbVettoriale/openai</code> o <code>dbVettoriale/local</code>."],
           ["apri_collection(nome, db_dir)", "Apre la collection o la crea se manca (cosine)."],
           ["crea_collection(nome, db_dir)", "La ricrea da zero (cancella quella esistente)."],
           ["indicizza(collection, ids, testi, embeddings, metadatas)", "Upsert con embedding già calcolati."],
-          ["search(collection, query, k, backend, model, *, …signals, fetch_k)", "Ricerca con gestione dei segnali."],
+          ["search(collection, query, k, backend, model, *, …signals, fetch_k, semantic_query, genres, genre_boost)", "Ricerca con gestione dei segnali e boost di genere."],
+          ["_matches_genres(result, genres)", "True se un genere richiesto compare nei <code>genres</code> del chunk (separati da <code>;</code>)."],
         ],
         dep: [Q + "embeddings.py"],
         x: ["chromadb"],
@@ -503,19 +506,20 @@ const TREE = D("NetflixScout", {}, [
       D("query_classifier", {
         L: "orch",
         s: "Il guardrail attuale: la domanda riguarda il cinema? È in italiano?",
-        d: `Viene chiamato da <code>app.py</code> prima dell'orchestratore, a ogni turno. Se la domanda non riguarda il cinema la chat risponde con un messaggio fisso nella lingua dell'utente, senza toccare né RAG né orchestratore.`,
+        d: `Viene chiamato da <code>app.py</code> prima dell'orchestratore, a ogni turno, insieme all'ultimo scambio della conversazione (<code>classifier_context_messages</code>). Se la domanda non riguarda il cinema la chat risponde con un messaggio fisso nella lingua dell'utente, senza toccare né RAG né orchestratore.`,
       }, [
         F("__init__.py", { L: "orch", s: "Re-esporta <code>classify_query_domain</code>.", d: `Permette di scrivere <code>from …query_classifier import classify_query_domain</code>.`, dep: [Q + "query_classifier/query_classifier.py"] }),
         F("query_classifier.py", {
-          L: "orch", s: "<code>classify_query_domain(query)</code> → <code>{is_cinema, is_italian}</code>.",
-          d: `Chiama <code>gpt-4o-mini</code> (<code>CHEAP_MODEL</code>) con temperatura 0 e <code>response_format = json_object</code>. Il prompt di sistema accetta film, serie TV, documentari, attori, registi e richieste implicite di consigli, e ignora esplicitamente i tentativi di jailbreak contenuti nella query. <code>_validate_classification</code> garantisce che la risposta contenga due booleani.`,
+          L: "orch", s: "<code>classify_query_domain(query, history=None)</code> → <code>{is_cinema, is_italian}</code>.",
+          d: `Chiama <code>gpt-4o-mini</code> (<code>CHEAP_MODEL</code>) con temperatura 0 e <code>response_format = json_object</code>. Il prompt di sistema accetta film, serie TV, documentari, attori, registi e richieste implicite di consigli, e ignora esplicitamente i tentativi di jailbreak contenuti nella query. <code>_validate_classification</code> garantisce che la risposta contenga due booleani.<br><br><b>Contesto della conversazione.</b> Se riceve <code>history</code> (da <code>app.py</code> arrivano gli ultimi <code>classifier_context_messages</code> = 2 messaggi, cioè l'ultimo scambio domanda/risposta), <code>_context_messages</code> la mette in un messaggio “Conversazione precedente (solo contesto)” prima della domanda, che resta l'ultimo messaggio. Il prompt dice di usarla solo per risolvere riferimenti impliciti (“ne puoi trovare 3 più recenti?”), di classificare sempre l'ultima query (un cambio di argomento resta <code>is_cinema = false</code>) e di calcolare <code>is_italian</code> solo sull'ultima query. Senza history i messaggi sono <code>[system, query]</code>, come prima.`,
           it: [
-            ["classify_query_domain(query)", "Una chiamata OpenAI per ogni domanda."],
+            ["classify_query_domain(query, history=None)", "Una chiamata OpenAI per ogni domanda; <code>history</code> è solo contesto."],
+            ["_context_messages(history)", "Trascrizione <code>[ruolo]\ncontenuto</code> della history in un unico messaggio di contesto (lista vuota se non c'è history)."],
             ["QueryClassification", "TypedDict del risultato."],
             ["_validate_classification(raw)", "Controllo del JSON restituito."],
           ],
           x: ["openai"],
-          n: ["Fa parte della difesa anti off-topic e anti jailbreak: non indebolirla senza permesso.", "Testato con mock in <code>tests/test_query_language.py</code>."],
+          n: ["Fa parte della difesa anti off-topic e anti jailbreak: non indebolirla senza permesso.", "Perché il contesto: il guardrail gira <b>prima</b> della riscrittura <code>standalone_query</code> dell'orchestratore. Senza contesto un follow-up come “Ne puoi trovare 3 più recenti rispetto al 94?” non contiene parole di cinema e veniva bloccato.", "Nella history finiscono solo turni già accettati: quelli bloccati non vengono salvati, quindi il contesto è sempre cinematografico.", "Testato con mock in <code>tests/test_query_language.py</code> (messaggi con e senza history) e <code>tests/test_presenters.py</code> (cosa passa <code>handle_query</code>)."],
         }),
       ]),
     ]),
@@ -541,7 +545,7 @@ const TREE = D("NetflixScout", {}, [
     D("terminal", {
       L: "out",
       s: "Canale terminale: stampa tutto il procedimento, come faceva la chat prima dell'orchestratore.",
-      d: `Usato da <code>python app.py</code>. Ordine dell'output a ogni turno: 🔁 query usata (riscritta se è un follow-up) → 🛠️ tool scelto → 📚 K LARGO (i candidati recuperati) → 🏆 RERANKING (i chunk finali con score, generi, cast e anteprima) → 🤖 risposta finale → eventuale avviso di compattazione. Header e modalità vengono stampati una volta, all'avvio.`,
+      d: `Usato da <code>python app.py</code>. Ordine dell'output a ogni turno: 🔁 query usata (riscritta se è un follow-up) → 🛠️ tool scelto → 🔎 testo usato per l'embedding e generi richiesti → 📚 K LARGO (i candidati recuperati) → 🏆 RERANKING (i chunk finali con score, generi, cast e anteprima) → 🤖 risposta finale → eventuale avviso di compattazione. Header e modalità vengono stampati una volta, all'avvio.`,
     }, [
       F("__init__.py", {
         L: "out", s: "API del canale terminale.",
@@ -553,6 +557,7 @@ const TREE = D("NetflixScout", {}, [
         d: `È l'ex <code>rag/FromQueryEmbeddingToRes/cli.py</code>, spostato qui perché è output e non logica RAG. Accetta chunk sia come <code>dict</code> sia come modelli Pydantic (con <code>model_dump()</code>) <b>senza importare il package <code>rag</code></b>: così i presenter restano indipendenti dal nucleo e non ci sono import circolari.`,
         it: [
           ["print_header() · print_mode(runtime_config)", "Banner e configurazione di ricerca, stampati all'avvio."],
+          ["print_retrieval_query(embedded_text, genres)", "Righe “🔎 Testo usato per l'embedding” e “Generi richiesti”, sopra il K LARGO."],
           ["_print_retrieval_compact(title, chunks, emoji)", "Lista compatta titolo (anno): il blocco 📚 K LARGO."],
           ["_print_chunks(title, chunks, emoji)", "Scheda dettagliata di ogni chunk: il blocco 🏆 RERANKING."],
           ["print_query_used(original, used, rewritten)", "Riga “🔁 Query riscritta con il contesto” (con la domanda originale) oppure “🔁 Query usata”."],
@@ -564,7 +569,7 @@ const TREE = D("NetflixScout", {}, [
       }),
       F("renderer.py", {
         L: "out", s: "<code>render(turn)</code>: trasforma gli step del <code>TurnResult</code> in blocchi stampati.",
-        d: `Scorre <code>turn.steps</code> e per ogni <code>kind</code> usa la funzione registrata in <code>STEP_RENDERERS</code>: <code>query_rewrite</code> → riga della query usata, <code>tool_selection</code> → riga del tool, <code>retrieval</code> → K LARGO, <code>rerank</code> → RERANKING, <code>classification</code> → niente (resta nei dati, come prima del refactor). Un <code>kind</code> sconosciuto viene stampato con il fallback generico, così un tool nuovo non rompe il terminale. Alla fine stampa la risposta e l'eventuale avviso di compattazione.`,
+        d: `Scorre <code>turn.steps</code> e per ogni <code>kind</code> usa la funzione registrata in <code>STEP_RENDERERS</code>: <code>query_rewrite</code> → riga della query usata, <code>tool_selection</code> → riga del tool, <code>retrieval</code> → testo dell'embedding + generi + K LARGO, <code>rerank</code> → RERANKING, <code>classification</code> → niente (resta nei dati, come prima del refactor). Un <code>kind</code> sconosciuto viene stampato con il fallback generico, così un tool nuovo non rompe il terminale. Alla fine stampa la risposta e l'eventuale avviso di compattazione.`,
         it: [["STEP_RENDERERS", "Mappa <code>kind → funzione</code>: è il punto da estendere per i tool futuri."], ["render(turn)", "Entry point del canale terminale."]],
         dep: ["presenters/terminal/blocks.py", "turn.py"],
       }),
@@ -592,11 +597,11 @@ const TREE = D("NetflixScout", {}, [
     L: "test",
     s: "Test pytest: unit test offline + test di integrazione.",
     d: `Si eseguono dalla root con <code>python -m pytest</code>. I test di unità mockano OpenAI con <code>monkeypatch</code>; il test del contratto del tool invece usa API reali e il DB.`,
-    cmd: "python -m pytest tests/test_query_language.py tests/test_presenters.py tests/test_orchestrator.py -q   # offline\npython -m pytest -q   # include l'integrazione",
+    cmd: "python -m pytest tests/test_query_language.py tests/test_presenters.py tests/test_orchestrator.py tests/test_retrieval.py -q   # offline\npython -m pytest -q   # include l'integrazione",
   }, [
     F("test_query_language.py", {
       L: "test", s: "Unit test offline del classificatore e della lingua del blocco.",
-      d: `<code>test_block_language_uses_classification_flag</code> verifica la scelta it/en. <code>test_cinema_question_uses_openai_classifier</code> sostituisce il client OpenAI con un fake via <code>monkeypatch</code> e controlla il parsing e l'uso di <code>gpt-4o-mini</code>. Nessuna chiamata di rete.`,
+      d: `<code>test_block_language_uses_classification_flag</code> verifica la scelta it/en. <code>test_cinema_question_uses_openai_classifier</code> sostituisce il client OpenAI con un fake via <code>monkeypatch</code> e controlla il parsing e l'uso di <code>gpt-4o-mini</code>. <code>test_classifier_without_history_sends_only_the_query</code> verifica che senza history i messaggi siano <code>[system, query]</code>; <code>test_classifier_with_history_sends_context_before_the_query</code> che con la history il contesto arrivi prima e la domanda resti l'ultimo messaggio. Nessuna chiamata di rete.`,
       dep: [Q + "chat.py", Q + "query_classifier/query_classifier.py"],
       x: ["pytest"],
     }),
@@ -608,9 +613,15 @@ const TREE = D("NetflixScout", {}, [
     }),
     F("test_presenters.py", {
       L: "test", s: "Unit test offline del nucleo <code>handle_query</code>, della <code>trace</code> del tool e dei presenter.",
-      d: `Tutto con fake e <code>monkeypatch</code>, nessuna chiamata di rete. Verifica che <code>RagTool.run</code> restituisca la <code>trace</code> (retrieval + rerank) fuori da <code>metadata</code>; che <code>handle_query</code> registri gli step nell'ordine giusto e che nel caso bloccato non chiami l'orchestratore; che il canale terminale stampi tool, K LARGO, RERANKING, un passo di tipo sconosciuto (fallback) e la risposta nell'ordine corretto; che il canale web sia predisposto ma sollevi <code>NotImplementedError</code> senza stampare nulla.`,
+      d: `Tutto con fake e <code>monkeypatch</code>, nessuna chiamata di rete. Verifica che <code>RagTool.run</code> restituisca la <code>trace</code> (retrieval + rerank) fuori da <code>metadata</code>; che <code>handle_query</code> registri gli step nell'ordine giusto e che nel caso bloccato non chiami l'orchestratore; che passi al classificatore gli ultimi <code>classifier_context_messages</code> messaggi della history; che il canale terminale stampi tool, K LARGO, RERANKING, un passo di tipo sconosciuto (fallback) e la risposta nell'ordine corretto; che il canale web sia predisposto ma sollevi <code>NotImplementedError</code> senza stampare nulla.`,
       dep: ["app.py", "presenters/__init__.py", "turn.py", Q + "models.py", Q + "tool_interface.py"],
       x: ["pytest"],
+    }),
+    F("test_retrieval.py", {
+      L: "test", s: "Unit test offline del testo dell'embedding, del boost di genere e del rerank.",
+      d: `Usa una collection Chroma finta e un <code>embed</code> finto. Verifica che <code>search</code> faccia l'embedding di <code>semantic_query</code> e non delle keyword, con fallback sulla query originale; che il <code>genre_boost</code> riordini il pool <code>fetch_k</code> prima del taglio a k e ignori generi non correlati; che <code>_retrieve</code> passi <code>fetch_k</code>, generi e <code>semantic_query</code> (e senza <code>fetch_k</code> mantenga il pool di prima); che Cohere riceva titolo e generi; che <code>run_rag</code> restituisca <code>signals</code> ed <code>embedded_text</code>.`,
+      dep: [Q + "pipeline.py", Q + "retrieval.py", Q + "vectorstore.py", Q + "rerank.py", Q + "models.py"],
+      x: ["pytest", "numpy"],
     }),
     F("test_tool_contract.py", {
       L: "test", s: "Test di integrazione su CONFIG, RagTool e orchestratore.",
@@ -638,20 +649,21 @@ const TREE = D("NetflixScout", {}, [
   }),
   F("AGENTS.md", {
     L: "cfg", s: "Guida per gli agenti IA: stack, comandi, convenzioni, regole.",
-    d: `Riassume contesto, comandi (setup, build del DB, avvio, test), stile del codice, pattern architetturali (config-driven, <code>Tool</code> Protocol) e regole di ingaggio: test con mock, niente modifiche a <code>.env</code>, niente build distruttive o chiamate API senza permesso, stile dei commit.`,
+    d: `Riassume contesto, comandi (setup, build del DB, avvio, test), stile del codice, pattern architetturali (config-driven, <code>Tool</code> Protocol, query autonoma per i follow-up, contesto del classificatore, testo dell'embedding) e regole di ingaggio: test con mock, niente modifiche a <code>.env</code>, niente build distruttive o chiamate API senza permesso, stile dei commit.`,
   }),
   F("README.md", {
     L: "cfg", s: "Documentazione per gli umani: setup, dataset, build del DB, API.",
     d: `Spiega come scaricare il corpus CMU, come costruire <code>dbVettoriale/</code> e come avviare la chat.`,
-    n: ["In parte superato: descrive <code>run_rag</code>/<code>execute_tool</code> esposti da <code>app.py</code> e la compattazione a 60.000 token, mentre ora <code>app.py</code> usa l'orchestratore e compatta ogni 12 messaggi."],
+    n: ["La sezione “Retrieval Notes” descrive <code>semantic_query</code>, generi e boost.", "In parte superato: descrive <code>run_rag</code>/<code>execute_tool</code> esposti da <code>app.py</code> e la compattazione a 60.000 token, mentre ora <code>app.py</code> usa l'orchestratore e compatta ogni 12 messaggi."],
   }),
   F("app.py", {
     L: "entry",
     s: "Entry point: <code>CONFIG</code>, nucleo <code>handle_query()</code> senza output e chat da terminale.",
-    d: `<code>CONFIG</code> contiene tutti i parametri del sistema: la sezione <code>orchestrator</code> (modello, istruzioni, tool consentiti, soglia di confidenza, finestra di memoria, compattazione) e la sezione <code>rag</code> (retrieval <code>semantic</code> con k_largo 10 → k_finale 3, rerank Cohere <code>rerank-v3.5</code>, prompt di generazione, embedding <code>text-embedding-3-small</code>, collection <code>netflix_scout</code>).<br><br><b>Nucleo</b> – <code>handle_query(app, query, history)</code> non stampa nulla e restituisce un <code>TurnResult</code> (<code>turn.py</code>): 1) classifica la domanda (step <code>classification</code>); se non riguarda il cinema ritorna subito con <code>blocked=True</code> e il messaggio fisso nella lingua dell'utente; 2) chiama <code>orchestrator.run</code> e registra lo step <code>query_rewrite</code> (domanda originale e query autonoma usata dai tool), lo step <code>tool_selection</code> e gli step della <code>trace</code> del tool (<code>retrieval</code>, <code>rerank</code>); 3) aggiorna la history e la compatta quando arriva a <code>memory_window_size</code> messaggi. È la funzione che chiamerà anche la futura route FastAPI.<br><br><b>Terminale</b> – <code>run_terminal_chat</code> è solo il loop di I/O: legge la domanda, chiama <code>handle_query</code> e passa il risultato a <code>present(turn, OutputChannel.terminal)</code>. Il canale lo dichiara questo entry point, perché è l'unico a sapere che l'input arriva da <code>input()</code> sul terminale.`,
+    d: `<code>CONFIG</code> contiene tutti i parametri del sistema: la sezione <code>orchestrator</code> (modello, istruzioni, tool consentiti, soglia di confidenza, finestra di memoria, <code>classifier_context_messages</code>, compattazione) e la sezione <code>rag</code> (retrieval <code>semantic</code> con pool <code>fetch_k</code> 50, <code>genre_boost</code> 0.15, k_largo 10 → k_finale 3, rerank Cohere <code>rerank-v3.5</code>, prompt di generazione, embedding <code>text-embedding-3-small</code>, collection <code>netflix_scout</code>).<br><br><b>Nucleo</b> – <code>handle_query(app, query, history)</code> non stampa nulla e restituisce un <code>TurnResult</code> (<code>turn.py</code>): 1) classifica la domanda passando al classificatore anche gli ultimi <code>classifier_context_messages</code> messaggi della history, così i follow-up non vengono bloccati (step <code>classification</code>); se non riguarda il cinema ritorna subito con <code>blocked=True</code> e il messaggio fisso nella lingua dell'utente; 2) chiama <code>orchestrator.run</code> e registra lo step <code>query_rewrite</code> (domanda originale e query autonoma usata dai tool), lo step <code>tool_selection</code> e gli step della <code>trace</code> del tool (<code>retrieval</code>, <code>rerank</code>); 3) aggiorna la history e la compatta quando arriva a <code>memory_window_size</code> messaggi. È la funzione che chiamerà anche la futura route FastAPI.<br><br><b>Terminale</b> – <code>run_terminal_chat</code> è solo il loop di I/O: legge la domanda, chiama <code>handle_query</code> e passa il risultato a <code>present(turn, OutputChannel.terminal)</code>. Il canale lo dichiara questo entry point, perché è l'unico a sapere che l'input arriva da <code>input()</code> sul terminale.`,
     it: [
       ["CONFIG", "Unica fonte di verità per modelli, k, backend e prompt."],
       ["NON_CINEMA_BLOCK_MESSAGES", "Risposte fisse in it/en per le domande non cinematografiche."],
+      ["CONFIG[\"orchestrator\"][\"classifier_context_messages\"]", "Quanti messaggi finali della history vede il classificatore (default 2 = ultimo scambio; 0 = nessun contesto)."],
       ["build_runtime_config(overrides)", "Deep merge degli override sopra CONFIG (pensato per future richieste web/SSE)."],
       ["build_app(overrides)", "Crea <code>LLMOrchestrator</code> con <code>RagTool</code>."],
       ["ensure_collection_ready(runtime_rag)", "Errore esplicito se il DB vettoriale è vuoto (vale per ogni canale)."],
@@ -686,7 +698,7 @@ const TREE = D("NetflixScout", {}, [
   F("orchestrator.py", {
     L: "orch",
     s: "<code>LLMOrchestrator</code>: riscrive i follow-up in una query autonoma, sceglie ed esegue il tool, scrive la risposta finale.",
-    d: `Definisce il <code>Tool</code> Protocol (<code>name</code>, <code>description</code>, <code>input_schema</code>, <code>run(*, query, params, conversation_history)</code>). <code>run()</code> fa tre passi:<br>1) <b>pianificazione</b> (<code>_plan_turn</code>, una sola chiamata LLM): restituisce un JSON <code>{standalone_query, tool_name, arguments, confidence}</code>. <code>standalone_query</code> è la domanda riscritta in modo autonomo usando la history (“e uno più recente?” → “film di fantascienza con robot più recenti”). È una proprietà del <b>turno</b>, non del tool: vale per qualunque tool, anche quando il tool è imposto da <code>required_tools</code> o la confidenza è sotto <code>tool_confidence_threshold</code> e gira il <code>fallback_tool</code>. Al primo turno (senza history) e in caso di errore dell'LLM si usa la domanda originale; al primo turno con <code>required_tools</code> la chiamata viene proprio saltata;<br>2) <b>esecuzione</b> del tool con la query autonoma;<br>3) <b>risposta finale</b>: costruisce un contesto con history + al massimo 10 chunk (600 caratteri l'uno) e chiede all'LLM di rispondere usando solo quei dati. Se la chiamata fallisce, restituisce il testo grezzo dei primi 3 chunk.`,
+    d: `Definisce il <code>Tool</code> Protocol (<code>name</code>, <code>description</code>, <code>input_schema</code>, <code>run(*, query, params, conversation_history)</code>). <code>run()</code> fa tre passi:<br>1) <b>pianificazione</b> (<code>_plan_turn</code>, una sola chiamata LLM): restituisce un JSON <code>{standalone_query, tool_name, arguments, confidence}</code>. <code>standalone_query</code> è la domanda riscritta in modo autonomo usando la history (“e uno più recente?” → “film di fantascienza con robot più recenti”). È una proprietà del <b>turno</b>, non del tool: vale per qualunque tool, anche quando il tool è imposto da <code>required_tools</code> o la confidenza è sotto <code>tool_confidence_threshold</code> e gira il <code>fallback_tool</code>. Al primo turno (senza history) e in caso di errore dell'LLM si usa la domanda originale; al primo turno con <code>required_tools</code> la chiamata viene proprio saltata;<br>2) <b>esecuzione</b> del tool con la query autonoma;<br>3) <b>risposta finale</b>: costruisce un contesto con history + al massimo 10 chunk (titolo, anno, generi, score e 600 caratteri di trama) e chiede all'LLM di rispondere usando solo quei dati. Se la chiamata fallisce, restituisce il testo grezzo dei primi 3 chunk.`,
     it: [
       ["Tool (Protocol)", "Il contratto che ogni nuovo tool deve rispettare."],
       ["LLMOrchestrator.run(*, query, conversation_history, tool_overrides)", "Restituisce <code>{tool, standalone_query, result, final_answer}</code>."],
@@ -735,26 +747,7 @@ const sortKids = (a, b) =>
 })(TREE, null);
 
 // Stato git (git status --short): aggiornalo qui quando cambia.
-const GIT = {
-  "AGENTS.md": "M",
-  "app.py": "M",
-  "mappa.html": "M",
-  [Q + "chat.py"]: "M",
-  [Q + "models.py"]: "M",
-  [Q + "pipeline.py"]: "M",
-  [Q + "tool_interface.py"]: "M",
-  "presenters/__init__.py": "U",
-  "presenters/channel.py": "U",
-  "presenters/terminal/__init__.py": "U",
-  "presenters/terminal/blocks.py": "M",
-  "presenters/terminal/renderer.py": "U",
-  "presenters/web/__init__.py": "U",
-  "presenters/web/payload.py": "U",
-  "orchestrator.py": "M",
-  "tests/test_orchestrator.py": "U",
-  "tests/test_presenters.py": "U",
-  "turn.py": "U",
-};
+const GIT = {};  // albero pulito dopo cdcfb26
 for (const [p, g] of Object.entries(GIT)) if (BY_PATH.has(p)) BY_PATH.get(p).g = g;
 
 // "Usato da" = dipendenze al contrario
@@ -1031,7 +1024,7 @@ const NODES = [
   // ② runtime
   { id: "user", x: 24, y: 262, w: 120, k: "ext", t: "Utente", s: "terminale" },
   { id: "app", x: 200, y: 262, w: 140, k: "entry", t: "app.py", s: "CONFIG + handle_query", p: "app.py" },
-  { id: "clf", x: 420, y: 262, w: 160, k: "orch", t: "query_classifier.py", s: "cinema? italiano?", p: Q + "query_classifier/query_classifier.py", api: 1 },
+  { id: "clf", x: 420, y: 262, w: 160, k: "orch", t: "query_classifier.py", s: "cinema? + ultimo scambio", p: Q + "query_classifier/query_classifier.py", api: 1 },
   { id: "block", x: 660, y: 262, w: 170, k: "ext", t: "Messaggio di blocco", s: "risposta fissa it / en" },
   { id: "conv", x: 24, y: 352, w: 120, k: "rt", t: "conversation.py", s: "compatta la history", p: Q + "conversation.py", api: 1 },
   { id: "orch", x: 200, y: 352, w: 140, k: "orch", t: "orchestrator.py", s: "riscrive query + tool", p: "orchestrator.py", api: 1 },
@@ -1043,7 +1036,7 @@ const NODES = [
   { id: "term", x: 24, y: 552, w: 120, k: "out", t: "terminal/", s: "resoconto completo", p: "presenters/terminal" },
   { id: "web", x: 366, y: 552, w: 88, k: "out", dash: 1, t: "web/", s: "predisposto", p: "presenters/web" },
   { id: "models", x: 420, y: 442, w: 160, k: "rt", t: "models.py", s: "schemi Pydantic", p: Q + "models.py" },
-  { id: "retr", x: 660, y: 442, w: 170, k: "rt", t: "retrieval.py", s: "segnali LLM + ricerca", p: Q + "retrieval.py", api: 1 },
+  { id: "retr", x: 660, y: 442, w: 170, k: "rt", t: "retrieval.py", s: "segnali EN + boost genere", p: Q + "retrieval.py", api: 1 },
   { id: "rerank", x: 868, y: 442, w: 112, k: "rt", t: "rerank.py", s: "Cohere | LLM", p: Q + "rerank.py", api: 1 },
   { id: "hyb", x: 470, y: 552, w: 130, k: "rt", t: "hybrid.py", s: "BM25 + RRF", p: Q + "hybrid.py" },
   { id: "rag", x: 620, y: 552, w: 120, k: "rt", t: "rag.py", s: "recupera()", p: Q + "rag.py" },
@@ -1169,12 +1162,12 @@ function renderOverview() {
     <h2>Il flusso in 7 passi</h2>
     <ol class="steps">
       <li><b>Indicizzazione (una volta sola).</b> <a class="vscode" href="#buildSemanticDb.py">buildSemanticDb.py</a> legge <code>dataset/</code>. Ogni trama diventa un chunk con titolo, anno, generi e cast; gli embedding finiscono in Chroma, in <code>dbVettoriale/&lt;backend&gt;/</code>.</li>
-      <li><b>Guardrail.</b> <a class="vscode" href="#app.py">app.py</a> riceve la domanda e <a class="vscode" href="#${Q}query_classifier/query_classifier.py">query_classifier</a> (gpt-4o-mini) blocca quelle che non riguardano il cinema, rispondendo in italiano o in inglese.</li>
+      <li><b>Guardrail.</b> <a class="vscode" href="#app.py">app.py</a> riceve la domanda e <a class="vscode" href="#${Q}query_classifier/query_classifier.py">query_classifier</a> (gpt-4o-mini) blocca quelle che non riguardano il cinema, rispondendo in italiano o in inglese. Vede anche l'ultimo scambio della conversazione (<code>classifier_context_messages = 2</code>), così un follow-up come “ne puoi trovare 3 più recenti?” non viene scambiato per off-topic; giudica comunque solo l'ultima domanda.</li>
       <li><b>Orchestrazione.</b> <a class="vscode" href="#orchestrator.py">orchestrator.py</a>, con una sola chiamata LLM, riscrive le domande di follow-up in una query autonoma usando la history (“e uno più recente?” → “film di fantascienza con robot più recenti”) e sceglie il tool. Oggi c'è solo <code>rag_search</code>, che è anche il fallback; la query autonoma vale per qualunque tool.</li>
-      <li><b>Retrieval.</b> <a class="vscode" href="#${Q}retrieval.py">retrieval.py</a> estrae i segnali dalla query (cosa vuoi, cosa evitare, cosa escludere) e cerca fino a <code>k_largo = 10</code> candidati in modalità <code>semantic</code>, <code>bm25</code> o <code>hybrid</code>.</li>
-      <li><b>Rerank.</b> <a class="vscode" href="#${Q}rerank.py">rerank.py</a> riordina con Cohere <code>rerank-v3.5</code> e tiene i primi <code>k_finale = 3</code>.</li>
+      <li><b>Retrieval.</b> <a class="vscode" href="#${Q}retrieval.py">retrieval.py</a> estrae i segnali in inglese dalla query (cosa vuoi, cosa evitare, cosa escludere, la frase da embeddare <code>semantic_query</code> e i generi), fa l'embedding di <code>semantic_query</code>, dà un boost (<code>genre_boost = 0.15</code>) ai film del genere richiesto su un pool di <code>fetch_k = 50</code> e tiene fino a <code>k_largo = 10</code> candidati, in modalità <code>semantic</code>, <code>bm25</code> o <code>hybrid</code>.</li>
+      <li><b>Rerank.</b> <a class="vscode" href="#${Q}rerank.py">rerank.py</a> riordina con Cohere <code>rerank-v3.5</code>, mostrandogli titolo, anno e generi prima della trama, e tiene i primi <code>k_finale = 3</code>.</li>
       <li><b>Risposta.</b> L'orchestratore scrive la risposta usando solo i chunk ricevuti. Ogni 12 messaggi <a class="vscode" href="#${Q}conversation.py">conversation.py</a> compatta la history.</li>
-      <li><b>Output.</b> <code>handle_query</code> in <a class="vscode" href="#app.py">app.py</a> non stampa nulla: impacchetta risposta e passaggi in un <a class="vscode" href="#turn.py">TurnResult</a>. Poi <a class="vscode" href="#presenters">presenters/</a> lo mostra in base al canale dichiarato dall'entry point: a terminale il resoconto completo (tool, K LARGO, RERANKING, risposta); per il web (predisposto, non ancora implementato) una struttura dati per il frontend.</li>
+      <li><b>Output.</b> <code>handle_query</code> in <a class="vscode" href="#app.py">app.py</a> non stampa nulla: impacchetta risposta e passaggi in un <a class="vscode" href="#turn.py">TurnResult</a>. Poi <a class="vscode" href="#presenters">presenters/</a> lo mostra in base al canale dichiarato dall'entry point: a terminale il resoconto completo (query usata, tool, testo dell'embedding e generi, K LARGO, RERANKING, risposta); per il web (predisposto, non ancora implementato) una struttura dati per il frontend.</li>
     </ol>
 
     <h2>Punti di attenzione nel codice</h2>
