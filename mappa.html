@@ -203,7 +203,6 @@ const LAYERS = {
   data:   { label: "Dati locali",            color: "#e0a43a" },
   cfg:    { label: "Config / docs",          color: "#9da5b4" },
   test:   { label: "Test",                   color: "#73c991" },
-  legacy: { label: "Legacy / da ripulire",   color: "#f14c4c" },
 };
 
 const F = (name, info = {}) => ({ type: "file", name, ...info });
@@ -496,11 +495,6 @@ const TREE = D("NetflixScout", {}, [
         dep: [Q + "models.py", Q + "pipeline.py"],
         n: ["Il formato restituito da <code>run()</code> è un contratto verificato da <code>tests/test_tool_contract.py</code>."],
       }),
-      F("tools.py", {
-        L: "legacy", s: "<code>definisci_tool()</code>: trasforma un modello Pydantic in un descrittore di function tool.",
-        d: `Restituisce <code>{type: "function", name, description: schema.__doc__, parameters: schema.model_json_schema(), strict: False}</code>. Oggi il lavoro equivalente lo fa <code>LLMOrchestrator._tool_catalog</code>.`,
-        n: [`Il blocco <code>if __name__ == "__main__"</code> usa <code>SOLO</code>, <code>DOMANDE</code> e <code>chiedi</code>, che non sono definiti: eseguire il file dà <code>NameError</code>.`],
-      }),
       F("vectorstore.py", {
         L: "rt", s: "Tutto ciò che riguarda ChromaDB: apertura, creazione, upsert, ricerca.",
         d: `<code>search()</code> è il cuore della ricerca semantica: se ci sono segnali positivi embedda quelli al posto della query, recupera <code>fetch_k</code> risultati, scarta le hard exclusions (titolo, cast, …), sottrae 0.08 per ogni segnale negativo trovato e riordina. Lo score è <code>1 − distanza coseno</code>.`,
@@ -534,32 +528,8 @@ const TREE = D("NetflixScout", {}, [
           n: ["Fa parte della difesa anti off-topic e anti jailbreak: non indebolirla senza permesso.", "Testato con mock in <code>tests/test_query_language.py</code>."],
         }),
       ]),
-      D("local_query_classifier", {
-        L: "legacy",
-        s: "Vecchia versione del classificatore, in fase di rimozione.",
-        d: `In origine conteneva un classificatore locale basato su marcatori lessicali italiani (<code>italian_markers.py</code>, ora cancellato). Il file rimasto è quasi identico a <code>query_classifier/</code> e <b>nessun modulo lo importa più</b>.`,
-        n: ["Da cancellare quando la migrazione verso <code>query_classifier/</code> viene committata. Non estenderlo."],
-      }, [
-        F("local_query_classifier.py", {
-          L: "legacy", g: "M", s: "Duplicato di <code>query_classifier.py</code> (usa <code>CLASSIFIER_MODEL</code>).",
-          d: `Stessa logica e stesso modello (<code>gpt-4o-mini</code>) della versione nuova. È un residuo della migrazione: le modifiche vanno fatte in <code>query_classifier/query_classifier.py</code>.`,
-          x: ["openai"],
-        }),
-      ]),
     ]),
   ]),
-
-  D("rag_support", {
-    L: "legacy",
-    s: "Cartella vuota: il suo unico file è stato cancellato.",
-    d: `Conteneva <code>local_query_classifier.py</code> (uno shim), ora eliminato nel working tree. Git non traccia le cartelle vuote, quindi sparirà da sola dopo il commit; in locale si può rimuovere.`,
-  }),
-
-  D("semanticDb", {
-    L: "legacy", ig: true,
-    s: "Vecchio DB Chroma di un layout precedente, non più usato.",
-    d: `Nessun modulo fa riferimento a <code>semanticDb/</code>: oggi il percorso del DB è <code>dbVettoriale/&lt;backend&gt;/</code>. È ignorato da git.`,
-  }, [F("chroma.sqlite3", { ...SQLITE, L: "legacy", s: "SQLite di un vecchio database Chroma (orfano)." })]),
 
   D("tests", {
     L: "test",
@@ -1097,8 +1067,6 @@ function renderOverview() {
     <div class="callout"><ul>
       <li>Il README è in parte superato rispetto ad <code>app.py</code> e <code>orchestrator.py</code>.</li>
       <li>Il commit “migrate db to Qdrant” non corrisponde al codice, che usa solo ChromaDB.</li>
-      <li><a class="vscode" href="#${Q}local_query_classifier">local_query_classifier/</a>, <a class="vscode" href="#rag_support">rag_support/</a> e <a class="vscode" href="#semanticDb">semanticDb/</a> sono residui da ripulire.</li>
-      <li><a class="vscode" href="#${Q}tools.py">tools.py</a> lanciato come script va in <code>NameError</code>.</li>
       <li>In modalità bm25/hybrid l'indice BM25 viene ricostruito su tutto il corpus a ogni query (<a class="vscode" href="#${Q}hybrid.py">hybrid.py</a>).</li>
       <li><code>max_iterations</code>, <code>max_execution_time</code> e <code>token_budget</code> sono in CONFIG ma il codice non li usa.</li>
     </ul></div>
