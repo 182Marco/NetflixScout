@@ -387,10 +387,10 @@ const TREE = D("NetflixScout", {}, [
         d: `<code>_compact_history</code> chiede a un LLM di riassumere la history in markdown con le sezioni FATTO / DECISIONE / APERTO / IPOTESI e <b>sostituisce</b> tutta la history con un unico messaggio <code>system</code>. <code>_rewrite_query_with_history</code> usa gli ultimi 8 messaggi per trasformare una domanda con riferimenti impliciti (“e uno più recente?”) in una query autonoma per il retrieval.`,
         it: [
           ["_compact_history(history, runtime_config, client)", "Usata da <code>app.py</code> ogni <code>memory_window_size</code> messaggi."],
-          ["_rewrite_query_with_history(...)", "Usata solo da <code>chat.py</code>."],
+          ["_rewrite_query_with_history(...)", "Usata solo dal loop legacy di <code>chat.py</code> (chiamata LLM separata)."],
         ],
         x: ["openai"],
-        n: ["Il flusso con orchestratore non riscrive la query: le domande di follow-up arrivano al retrieval così come sono."],
+        n: ["Nel flusso con orchestratore la riscrittura dei follow-up la fa <code>orchestrator._plan_turn</code>, nella stessa chiamata che sceglie il tool: niente chiamate LLM in più."],
       }),
       F("embeddings.py", {
         L: "rt", s: "Calcolo degli embedding (OpenAI o locali) e similarità coseno.",
@@ -541,7 +541,7 @@ const TREE = D("NetflixScout", {}, [
     D("terminal", {
       L: "out",
       s: "Canale terminale: stampa tutto il procedimento, come faceva la chat prima dell'orchestratore.",
-      d: `Usato da <code>python app.py</code>. Ordine dell'output a ogni turno: 🛠️ tool scelto → 📚 K LARGO (i candidati recuperati) → 🏆 RERANKING (i chunk finali con score, generi, cast e anteprima) → 🤖 risposta finale → eventuale avviso di compattazione. Header e modalità vengono stampati una volta, all'avvio.`,
+      d: `Usato da <code>python app.py</code>. Ordine dell'output a ogni turno: 🔁 query usata (riscritta se è un follow-up) → 🛠️ tool scelto → 📚 K LARGO (i candidati recuperati) → 🏆 RERANKING (i chunk finali con score, generi, cast e anteprima) → 🤖 risposta finale → eventuale avviso di compattazione. Header e modalità vengono stampati una volta, all'avvio.`,
     }, [
       F("__init__.py", {
         L: "out", s: "API del canale terminale.",
@@ -555,6 +555,7 @@ const TREE = D("NetflixScout", {}, [
           ["print_header() · print_mode(runtime_config)", "Banner e configurazione di ricerca, stampati all'avvio."],
           ["_print_retrieval_compact(title, chunks, emoji)", "Lista compatta titolo (anno): il blocco 📚 K LARGO."],
           ["_print_chunks(title, chunks, emoji)", "Scheda dettagliata di ogni chunk: il blocco 🏆 RERANKING."],
+          ["print_query_used(original, used, rewritten)", "Riga “🔁 Query riscritta con il contesto” (con la domanda originale) oppure “🔁 Query usata”."],
           ["print_tool_selection(tool_name)", "Riga “🛠️ Tool scelto dall'orchestratore”."],
           ["print_generic_step(title, data)", "Fallback per i passaggi di tool futuri senza un renderer dedicato."],
           ["print_final_answer · print_compact_notice · print_goodbye", "Risposta, avviso di compattazione, uscita."],
@@ -563,7 +564,7 @@ const TREE = D("NetflixScout", {}, [
       }),
       F("renderer.py", {
         L: "out", s: "<code>render(turn)</code>: trasforma gli step del <code>TurnResult</code> in blocchi stampati.",
-        d: `Scorre <code>turn.steps</code> e per ogni <code>kind</code> usa la funzione registrata in <code>STEP_RENDERERS</code>: <code>tool_selection</code> → riga del tool, <code>retrieval</code> → K LARGO, <code>rerank</code> → RERANKING, <code>classification</code> → niente (resta nei dati, come prima del refactor). Un <code>kind</code> sconosciuto viene stampato con il fallback generico, così un tool nuovo non rompe il terminale. Alla fine stampa la risposta e l'eventuale avviso di compattazione.`,
+        d: `Scorre <code>turn.steps</code> e per ogni <code>kind</code> usa la funzione registrata in <code>STEP_RENDERERS</code>: <code>query_rewrite</code> → riga della query usata, <code>tool_selection</code> → riga del tool, <code>retrieval</code> → K LARGO, <code>rerank</code> → RERANKING, <code>classification</code> → niente (resta nei dati, come prima del refactor). Un <code>kind</code> sconosciuto viene stampato con il fallback generico, così un tool nuovo non rompe il terminale. Alla fine stampa la risposta e l'eventuale avviso di compattazione.`,
         it: [["STEP_RENDERERS", "Mappa <code>kind → funzione</code>: è il punto da estendere per i tool futuri."], ["render(turn)", "Entry point del canale terminale."]],
         dep: ["presenters/terminal/blocks.py", "turn.py"],
       }),
@@ -591,12 +592,18 @@ const TREE = D("NetflixScout", {}, [
     L: "test",
     s: "Test pytest: unit test offline + test di integrazione.",
     d: `Si eseguono dalla root con <code>python -m pytest</code>. I test di unità mockano OpenAI con <code>monkeypatch</code>; il test del contratto del tool invece usa API reali e il DB.`,
-    cmd: "python -m pytest tests/test_query_language.py tests/test_presenters.py -q   # offline\npython -m pytest -q                                                          # include l'integrazione",
+    cmd: "python -m pytest tests/test_query_language.py tests/test_presenters.py tests/test_orchestrator.py -q   # offline\npython -m pytest -q   # include l'integrazione",
   }, [
     F("test_query_language.py", {
       L: "test", s: "Unit test offline del classificatore e della lingua del blocco.",
       d: `<code>test_block_language_uses_classification_flag</code> verifica la scelta it/en. <code>test_cinema_question_uses_openai_classifier</code> sostituisce il client OpenAI con un fake via <code>monkeypatch</code> e controlla il parsing e l'uso di <code>gpt-4o-mini</code>. Nessuna chiamata di rete.`,
       dep: [Q + "chat.py", Q + "query_classifier/query_classifier.py"],
+      x: ["pytest"],
+    }),
+    F("test_orchestrator.py", {
+      L: "test", s: "Unit test offline della riscrittura dei follow-up nell'orchestratore.",
+      d: `Usa un client OpenAI finto e tool finti. Verifica che: la query riscritta arrivi al tool; la history venga inviata <b>intera e invariata</b> (prefisso stabile per il prompt caching); la riscrittura resti valida anche con confidenza bassa (gira il fallback) e con <code>required_tools</code>; al primo turno si usi la domanda originale; al primo turno con <code>required_tools</code> la chiamata di pianificazione venga saltata; se l'LLM va in errore si torni alla domanda originale.`,
+      dep: ["orchestrator.py"],
       x: ["pytest"],
     }),
     F("test_presenters.py", {
@@ -641,7 +648,7 @@ const TREE = D("NetflixScout", {}, [
   F("app.py", {
     L: "entry",
     s: "Entry point: <code>CONFIG</code>, nucleo <code>handle_query()</code> senza output e chat da terminale.",
-    d: `<code>CONFIG</code> contiene tutti i parametri del sistema: la sezione <code>orchestrator</code> (modello, istruzioni, tool consentiti, soglia di confidenza, finestra di memoria, compattazione) e la sezione <code>rag</code> (retrieval <code>semantic</code> con k_largo 10 → k_finale 3, rerank Cohere <code>rerank-v3.5</code>, prompt di generazione, embedding <code>text-embedding-3-small</code>, collection <code>netflix_scout</code>).<br><br><b>Nucleo</b> – <code>handle_query(app, query, history)</code> non stampa nulla e restituisce un <code>TurnResult</code> (<code>turn.py</code>): 1) classifica la domanda (step <code>classification</code>); se non riguarda il cinema ritorna subito con <code>blocked=True</code> e il messaggio fisso nella lingua dell'utente; 2) chiama <code>orchestrator.run</code> e registra lo step <code>tool_selection</code> più gli step della <code>trace</code> del tool (<code>retrieval</code>, <code>rerank</code>); 3) aggiorna la history e la compatta quando arriva a <code>memory_window_size</code> messaggi. È la funzione che chiamerà anche la futura route FastAPI.<br><br><b>Terminale</b> – <code>run_terminal_chat</code> è solo il loop di I/O: legge la domanda, chiama <code>handle_query</code> e passa il risultato a <code>present(turn, OutputChannel.terminal)</code>. Il canale lo dichiara questo entry point, perché è l'unico a sapere che l'input arriva da <code>input()</code> sul terminale.`,
+    d: `<code>CONFIG</code> contiene tutti i parametri del sistema: la sezione <code>orchestrator</code> (modello, istruzioni, tool consentiti, soglia di confidenza, finestra di memoria, compattazione) e la sezione <code>rag</code> (retrieval <code>semantic</code> con k_largo 10 → k_finale 3, rerank Cohere <code>rerank-v3.5</code>, prompt di generazione, embedding <code>text-embedding-3-small</code>, collection <code>netflix_scout</code>).<br><br><b>Nucleo</b> – <code>handle_query(app, query, history)</code> non stampa nulla e restituisce un <code>TurnResult</code> (<code>turn.py</code>): 1) classifica la domanda (step <code>classification</code>); se non riguarda il cinema ritorna subito con <code>blocked=True</code> e il messaggio fisso nella lingua dell'utente; 2) chiama <code>orchestrator.run</code> e registra lo step <code>query_rewrite</code> (domanda originale e query autonoma usata dai tool), lo step <code>tool_selection</code> e gli step della <code>trace</code> del tool (<code>retrieval</code>, <code>rerank</code>); 3) aggiorna la history e la compatta quando arriva a <code>memory_window_size</code> messaggi. È la funzione che chiamerà anche la futura route FastAPI.<br><br><b>Terminale</b> – <code>run_terminal_chat</code> è solo il loop di I/O: legge la domanda, chiama <code>handle_query</code> e passa il risultato a <code>present(turn, OutputChannel.terminal)</code>. Il canale lo dichiara questo entry point, perché è l'unico a sapere che l'input arriva da <code>input()</code> sul terminale.`,
     it: [
       ["CONFIG", "Unica fonte di verità per modelli, k, backend e prompt."],
       ["NON_CINEMA_BLOCK_MESSAGES", "Risposte fisse in it/en per le domande non cinematografiche."],
@@ -678,17 +685,18 @@ const TREE = D("NetflixScout", {}, [
   }),
   F("orchestrator.py", {
     L: "orch",
-    s: "<code>LLMOrchestrator</code>: sceglie il tool, lo esegue e scrive la risposta finale.",
-    d: `Definisce il <code>Tool</code> Protocol (<code>name</code>, <code>description</code>, <code>input_schema</code>, <code>run(*, query, params, conversation_history)</code>). <code>run()</code> fa tre passi:<br>1) <b>selezione</b>: se ci sono <code>required_tools</code> usa il primo; altrimenti chiede all'LLM un JSON <code>{tool_name, arguments, confidence}</code> e accetta la scelta solo sopra <code>tool_confidence_threshold</code>, se no usa <code>fallback_tool</code>;<br>2) <b>esecuzione</b> del tool;<br>3) <b>risposta finale</b>: costruisce un contesto con history + al massimo 10 chunk (600 caratteri l'uno) e chiede all'LLM di rispondere usando solo quei dati. Se la chiamata fallisce, restituisce il testo grezzo dei primi 3 chunk.`,
+    s: "<code>LLMOrchestrator</code>: riscrive i follow-up in una query autonoma, sceglie ed esegue il tool, scrive la risposta finale.",
+    d: `Definisce il <code>Tool</code> Protocol (<code>name</code>, <code>description</code>, <code>input_schema</code>, <code>run(*, query, params, conversation_history)</code>). <code>run()</code> fa tre passi:<br>1) <b>pianificazione</b> (<code>_plan_turn</code>, una sola chiamata LLM): restituisce un JSON <code>{standalone_query, tool_name, arguments, confidence}</code>. <code>standalone_query</code> è la domanda riscritta in modo autonomo usando la history (“e uno più recente?” → “film di fantascienza con robot più recenti”). È una proprietà del <b>turno</b>, non del tool: vale per qualunque tool, anche quando il tool è imposto da <code>required_tools</code> o la confidenza è sotto <code>tool_confidence_threshold</code> e gira il <code>fallback_tool</code>. Al primo turno (senza history) e in caso di errore dell'LLM si usa la domanda originale; al primo turno con <code>required_tools</code> la chiamata viene proprio saltata;<br>2) <b>esecuzione</b> del tool con la query autonoma;<br>3) <b>risposta finale</b>: costruisce un contesto con history + al massimo 10 chunk (600 caratteri l'uno) e chiede all'LLM di rispondere usando solo quei dati. Se la chiamata fallisce, restituisce il testo grezzo dei primi 3 chunk.`,
     it: [
       ["Tool (Protocol)", "Il contratto che ogni nuovo tool deve rispettare."],
-      ["LLMOrchestrator.run(*, query, conversation_history, tool_overrides)", "Restituisce <code>{tool, result, final_answer}</code>."],
-      ["_select_tool · _allowed_tool_names · _required_tool_names", "Logica di scelta e di fallback."],
+      ["LLMOrchestrator.run(*, query, conversation_history, tool_overrides)", "Restituisce <code>{tool, standalone_query, result, final_answer}</code>."],
+      ["_plan_turn(*, query, conversation_history)", "Query autonoma + scelta del tool in una chiamata → <code>(tool_name, arguments, standalone_query)</code>."],
+      ["_allowed_tool_names · _required_tool_names · _fallback_tool_name", "Logica di scelta e di fallback."],
       ["_build_final_context · _generate_final_answer", "Composizione del prompt finale e generazione."],
       ["list_tools · _tool_catalog", "Descrizione dei tool registrati."],
     ],
     x: ["openai"],
-    n: ["Il catalogo dei tool non viene passato all'LLM come function tool: la scelta avviene tramite prompt testuale + JSON.", "Gli errori LLM vengono silenziati con <code>except Exception</code>: utile per la robustezza, ma rende difficile il debug."],
+    n: ["La history viene passata <b>intera e invariata</b>, nello stesso ordine, a ogni chiamata: l'inizio del prompt resta stabile e il prompt caching del provider può riusarlo (sconto sui token in input). Una finestra scorrevole degli ultimi N messaggi lo impedirebbe.", "Il catalogo dei tool non viene passato all'LLM come function tool: la scelta avviene tramite prompt testuale + JSON.", "Gli errori LLM vengono silenziati con <code>except Exception</code>: utile per la robustezza, ma rende difficile il debug."],
   }),
   F("turn.py", {
     L: "out", s: "Modelli neutri rispetto al canale: <code>TraceStep</code> e <code>TurnResult</code>.",
@@ -696,7 +704,7 @@ const TREE = D("NetflixScout", {}, [
     it: [
       ["TraceStep", "Un passaggio: <code>kind</code>, <code>title</code>, <code>data</code>."],
       ["TurnResult", "Tutto ciò che è successo in un turno di chat."],
-      ["STEP_CLASSIFICATION · STEP_TOOL_SELECTION · STEP_RETRIEVAL · STEP_RERANK", "I <code>kind</code> conosciuti. I tool futuri possono aggiungerne altri."],
+      ["STEP_CLASSIFICATION · STEP_QUERY_REWRITE · STEP_TOOL_SELECTION · STEP_RETRIEVAL · STEP_RERANK", "I <code>kind</code> conosciuti. I tool futuri possono aggiungerne altri."],
     ],
     x: ["pydantic"],
   }),
@@ -738,10 +746,12 @@ const GIT = {
   "presenters/__init__.py": "U",
   "presenters/channel.py": "U",
   "presenters/terminal/__init__.py": "U",
-  "presenters/terminal/blocks.py": "U",
+  "presenters/terminal/blocks.py": "M",
   "presenters/terminal/renderer.py": "U",
   "presenters/web/__init__.py": "U",
   "presenters/web/payload.py": "U",
+  "orchestrator.py": "M",
+  "tests/test_orchestrator.py": "U",
   "tests/test_presenters.py": "U",
   "turn.py": "U",
 };
@@ -1024,7 +1034,7 @@ const NODES = [
   { id: "clf", x: 420, y: 262, w: 160, k: "orch", t: "query_classifier.py", s: "cinema? italiano?", p: Q + "query_classifier/query_classifier.py", api: 1 },
   { id: "block", x: 660, y: 262, w: 170, k: "ext", t: "Messaggio di blocco", s: "risposta fissa it / en" },
   { id: "conv", x: 24, y: 352, w: 120, k: "rt", t: "conversation.py", s: "compatta la history", p: Q + "conversation.py", api: 1 },
-  { id: "orch", x: 200, y: 352, w: 140, k: "orch", t: "orchestrator.py", s: "sceglie tool + risponde", p: "orchestrator.py", api: 1 },
+  { id: "orch", x: 200, y: 352, w: 140, k: "orch", t: "orchestrator.py", s: "riscrive query + tool", p: "orchestrator.py", api: 1 },
   { id: "tool", x: 420, y: 352, w: 160, k: "orch", t: "tool_interface.py", s: "RagTool · rag_search", p: Q + "tool_interface.py" },
   { id: "pipe", x: 660, y: 352, w: 170, k: "rt", t: "pipeline.py", s: "run_rag()", p: Q + "pipeline.py" },
   { id: "rt", x: 868, y: 352, w: 112, k: "rt", t: "runtime.py", s: "risolve config", p: Q + "runtime.py" },
@@ -1052,7 +1062,7 @@ const EDGES = [
   { f: "clf", t: "block", l: "non cinema", dash: 1 },
   { f: "app", t: "orch", l: "se cinema", dir: "v" },
   { f: "app", t: "conv", l: "ogni 12 msg" },
-  { f: "orch", t: "tool", l: "rag_search", both: 1 },
+  { f: "orch", t: "tool", l: "query autonoma", both: 1 },
   { f: "tool", t: "pipe", l: "run_rag()" },
   { f: "pipe", t: "rt" },
   { f: "pipe", t: "retr", l: "_retrieve", dir: "v" },
@@ -1160,7 +1170,7 @@ function renderOverview() {
     <ol class="steps">
       <li><b>Indicizzazione (una volta sola).</b> <a class="vscode" href="#buildSemanticDb.py">buildSemanticDb.py</a> legge <code>dataset/</code>. Ogni trama diventa un chunk con titolo, anno, generi e cast; gli embedding finiscono in Chroma, in <code>dbVettoriale/&lt;backend&gt;/</code>.</li>
       <li><b>Guardrail.</b> <a class="vscode" href="#app.py">app.py</a> riceve la domanda e <a class="vscode" href="#${Q}query_classifier/query_classifier.py">query_classifier</a> (gpt-4o-mini) blocca quelle che non riguardano il cinema, rispondendo in italiano o in inglese.</li>
-      <li><b>Orchestrazione.</b> <a class="vscode" href="#orchestrator.py">orchestrator.py</a> sceglie il tool: oggi c'è solo <code>rag_search</code>, che è anche il fallback.</li>
+      <li><b>Orchestrazione.</b> <a class="vscode" href="#orchestrator.py">orchestrator.py</a>, con una sola chiamata LLM, riscrive le domande di follow-up in una query autonoma usando la history (“e uno più recente?” → “film di fantascienza con robot più recenti”) e sceglie il tool. Oggi c'è solo <code>rag_search</code>, che è anche il fallback; la query autonoma vale per qualunque tool.</li>
       <li><b>Retrieval.</b> <a class="vscode" href="#${Q}retrieval.py">retrieval.py</a> estrae i segnali dalla query (cosa vuoi, cosa evitare, cosa escludere) e cerca fino a <code>k_largo = 10</code> candidati in modalità <code>semantic</code>, <code>bm25</code> o <code>hybrid</code>.</li>
       <li><b>Rerank.</b> <a class="vscode" href="#${Q}rerank.py">rerank.py</a> riordina con Cohere <code>rerank-v3.5</code> e tiene i primi <code>k_finale = 3</code>.</li>
       <li><b>Risposta.</b> L'orchestratore scrive la risposta usando solo i chunk ricevuti. Ogni 12 messaggi <a class="vscode" href="#${Q}conversation.py">conversation.py</a> compatta la history.</li>
