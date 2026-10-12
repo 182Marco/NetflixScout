@@ -116,6 +116,14 @@ Automatic compaction:
 2. If they are `>= 60000`, history is compacted and replaced (not appended).
 3. A short user-friendly notice is printed in terminal.
 
+## Retrieval Notes
+
+1. An LLM parser turns the user query into English `QuerySignals`: `semantic_query`, `genres`, and positive/negative signals plus hard exclusions.
+2. The embedding is computed on `semantic_query` (falling back to the original query), never on a bag of keywords: the corpus is English plot summaries.
+3. Chunks whose metadata `genres` match the requested genres get `retrieval.genre_boost` on a pool of `retrieval.fetch_k` candidates, before cutting to `k_largo`.
+4. The reranker sees `Title (year)` and `Genres` before the plot.
+5. The terminal shows the text used for the embedding and the requested genres above the K LARGO list.
+
 ## Public Runtime API
 
 `app.py` is the stable integration layer. It exposes:
