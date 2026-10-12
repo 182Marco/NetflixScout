@@ -136,7 +136,7 @@ The chosen mode is propagated to the runtime retrieval components (`rag` / `hybr
 `app.py` also exposes a first tool-ready interface:
 
 1. `RAG_TOOL_NAME`
-2. `RAG_TOOL` (JSON schema generated from Pydantic via `rag.FromQueryEmbeddingToRes.tools.definisci_tool`)
+2. `RAG_TOOL` (JSON schema generated from the Pydantic model `RagToolInput.model_json_schema()`)
 3. `REGISTERED_TOOLS`
 4. `execute_tool(name, arguments, config=RAG_CONFIG)`
 
