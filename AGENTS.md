@@ -17,7 +17,7 @@ Guida operativa per agenti IA. Leggila prima di modificare il codice.
 
 **Flusso a runtime** (`app.py`)
 ```
-input → classify_query_domain (gpt-4o-mini, JSON) ──non cinema──→ messaggio di blocco it/en
+input + ultimi classifier_context_messages della history → classify_query_domain (gpt-4o-mini, JSON) ──non cinema──→ messaggio di blocco it/en
                          │ cinema
                          ▼
 LLMOrchestrator (orchestrator.py) → sceglie il tool → RagTool.run → run_rag (retrieve + rerank, nessuna generazione)
@@ -84,7 +84,9 @@ Non c'è uno step di build o packaging: il progetto si esegue da sorgente, dalla
 - **Separazione dei ruoli**: `RagTool`/`run_rag` restituiscono solo evidenza strutturata (`chunks` + `metadata` + `trace`); la risposta finale la genera solo l'orchestratore.
 - **Il nucleo non stampa**: `handle_query` produce un `TurnResult` con gli step (`trace` dei tool inclusa). L'output sta solo in `presenters/<canale>/`. Il canale (`OutputChannel`) lo dichiara l'entry point: `python app.py` → `terminal`, la futura route FastAPI → `web`. Niente `print` fuori da `presenters/terminal/` (eccezioni: builder offline, loop legacy in `chat.py`).
 - **Query autonoma per i follow-up**: nella stessa chiamata LLM con cui sceglie il tool, l'orchestratore (`_plan_turn`) riscrive la domanda in modo autonomo usando la history (`standalone_query`) e la passa a **qualunque** tool, anche con `required_tools` o fallback. Senza history o se l'LLM fallisce si usa la domanda originale. La history va passata **intera e invariata** (niente finestre scorrevoli): un prefisso stabile permette al prompt caching del provider di riusarla.
+- **Contesto del classificatore**: `handle_query` passa a `classify_query_domain(query, history)` gli ultimi `CONFIG["orchestrator"]["classifier_context_messages"]` messaggi della history. Il guardrail gira prima della riscrittura `standalone_query`: senza contesto un follow-up come "ne puoi trovare 3 più recenti?" verrebbe bloccato. La history serve solo a risolvere riferimenti impliciti; si classifica sempre l'ultima query.
 - **Trace dei tool**: ogni tool restituisce `"trace": [{kind, title, data}]` fuori da `metadata` (che finisce nel prompt). Un `kind` nuovo va aggiunto in `presenters/terminal/renderer.py:STEP_RENDERERS`, altrimenti viene stampato col fallback generico.
+- **Testo dell'embedding**: il corpus è composto da trame in inglese. Il parser `_extract_query_signals` (`retrieval.py`) produce `QuerySignals` in inglese con `semantic_query` (la frase su cui si fa l'embedding) e `genres` (vocabolario del corpus). `vectorstore.search` fa l'embedding di `semantic_query`, altrimenti della query originale, **mai** del join dei `positive_signals`: un insieme di keyword italiane faceva finire il retrieval su film italiani o storici. Il genere non viene indicizzato nel testo: entra nel ranking con il boost `retrieval.genre_boost` sul pool di `retrieval.fetch_k` e nel documento passato al reranker (`rerank._documento_per_rerank`). Lo step `retrieval` del trace riporta `embedded_text` e `signals`.
 - Enum Pydantic per i valori chiusi (`SearchMode`, `RerankBackend`); nuovi modelli dati in `models.py`.
 - Errori espliciti con istruzioni operative (es. collection vuota → "Run `python buildSemanticDb.py ...`").
 - Stato della conversazione: lista `history` di `{"role", "content"}` gestita in `app.py`; la compattazione la **sostituisce**, non la estende.
