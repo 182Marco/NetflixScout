@@ -116,6 +116,19 @@ def _count_negative_matches(result, negative_signals):
     return matches
 
 
+def _matches_genres(result, genres):
+    """True if any requested genre appears in the chunk's `;`-separated genres metadata."""
+    if not genres:
+        return False
+    chunk_genres = [g.strip().lower() for g in str(result.get("genres") or "").split(";")]
+    return any(
+        genre.lower() in chunk_genre
+        for genre in genres
+        for chunk_genre in chunk_genres
+        if chunk_genre
+    )
+
+
 def search(
     collection,
     query,
@@ -127,14 +140,23 @@ def search(
     negative_signals=None,
     hard_exclusions=None,
     fetch_k=None,
+    semantic_query=None,
+    genres=None,
+    genre_boost=0.0,
 ):
-    """Return the top-k most similar documents for a query."""
-    positive_signals = _normalize_signals(positive_signals)
+    """Return the top-k most similar documents for a query.
+
+    The embedded text is `semantic_query` when given, otherwise `query`. Keyword signals
+    are never embedded: a bag of keywords (often not in the corpus language) drifts away
+    from the user's intent. Chunks matching `genres` get `genre_boost` added to their score
+    before the fetch_k pool is cut to k.
+    """
     negative_signals = _normalize_signals(negative_signals)
     hard_exclusions = _normalize_signals(hard_exclusions)
+    genres = _normalize_signals(genres)
 
-    semantic_query = " ".join(positive_signals) if positive_signals else query
-    q = embed([semantic_query], backend=backend, model=model)[0]
+    embedded_text = str(semantic_query or "").strip() or query
+    q = embed([embedded_text], backend=backend, model=model)[0]
 
     requested_k = int(fetch_k or k)
     requested_k = max(requested_k, int(k))
@@ -159,6 +181,9 @@ def search(
         negative_matches = _count_negative_matches(risultato, negative_signals)
         if negative_matches > 0:
             risultato["score"] = risultato["score"] - (soft_penalty_per_match * negative_matches)
+
+        if _matches_genres(risultato, genres):
+            risultato["score"] = risultato["score"] + genre_boost
 
         risultati.append(risultato)
 

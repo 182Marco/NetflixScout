@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from .models import RagChunk, RagResult
-from .retrieval import _rerank, _retrieve
+from .retrieval import _build_signal_aware_query, _rerank, _retrieve
 from .runtime import _resolve_runtime_config
 from .vectorstore import apri_collection
 
@@ -26,7 +26,8 @@ def run_rag(
             "--embedding-backend <backend>` before querying."
         )
 
-    retrieved = _retrieve(query, runtime_config)
+    signals = _build_signal_aware_query(query, runtime_config)
+    retrieved = _retrieve(query, runtime_config, signals=signals)
     final_chunks = _rerank(query, retrieved, runtime_config)
 
     return RagResult(
@@ -34,6 +35,9 @@ def run_rag(
         search_mode=runtime_config["retrieval"]["search_mode"],
         rerank_backend=runtime_config["rerank"]["backend"],
         chunks=[RagChunk(**c) for c in final_chunks],
+        candidates=[RagChunk(**c) for c in retrieved],
         input_tokens=None,
         output_tokens=None,
+        signals=signals,
+        embedded_text=signals.semantic_query or query,
     )

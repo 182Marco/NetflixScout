@@ -57,9 +57,11 @@ class LLMOrchestrator:
                 text = str(chunk.get("testo") or chunk.get("content") or "").strip()
                 title = chunk.get("title") or ""
                 year = chunk.get("release_year") or chunk.get("release_date") or ""
+                genres = chunk.get("genres") or ""
                 score = chunk.get("score")
                 summary_lines.append(
-                    f"[{idx}] {title + ' ' + year if title or year else ''} | score={score} | {text[:600]}"
+                    f"[{idx}] {title + ' ' + year if title or year else ''} | generi={genres} "
+                    f"| score={score} | {text[:600]}"
                 )
 
         history = list(conversation_history or [])
@@ -138,23 +140,36 @@ class LLMOrchestrator:
         required = self.orchestrator_config.get("required_tools") or []
         return [tool_name for tool_name in required if tool_name in self.tools]
 
-    def _select_tool(
+    def _fallback_tool_name(self, allowed: list[str]) -> str:
+        fallback = self.orchestrator_config.get("fallback_tool") or allowed[0]
+        return fallback if fallback in self.tools else allowed[0]
+
+    def _plan_turn(
         self,
         *,
         query: str,
         conversation_history: list[dict[str, str]] | None = None,
-    ) -> tuple[str, dict[str, Any]]:
+    ) -> tuple[str, dict[str, Any], str]:
+        """Pick the tool and rewrite the query as standalone, in a single LLM call.
+
+        Returns (tool_name, arguments, standalone_query). The standalone query is a
+        property of the turn, not of the tool: it is used whatever tool runs, also when
+        the tool comes from `required_tools` or from the fallback. If the LLM call fails,
+        the original query is used.
+        """
         allowed = self._allowed_tool_names()
         if not allowed:
             raise ValueError("No tools are available to the orchestrator.")
 
+        history = list(conversation_history or [])
         required = self._required_tool_names()
-        if required:
-            return required[0], {}
+        # First turn: nothing to resolve from history and no tool choice to make.
+        if required and not history:
+            return required[0], {}, query
 
         decision_prompt = (
             "Decidi quale tool usare per rispondere alla query. "
-            "Ritorna un JSON con queste chiavi: tool_name, arguments, confidence. "
+            "Ritorna un JSON con queste chiavi: standalone_query, tool_name, arguments, confidence. "
             "Se non sei sicuro, usa il fallback tool."
         )
 
@@ -166,25 +181,30 @@ class LLMOrchestrator:
                     + "\nAllowed tools: "
                     + ", ".join(allowed)
                 ),
+                # Full history, unchanged and in order: a stable prompt prefix lets the
+                # provider's prompt caching reuse it across turns.
                 input=[
-                    *((conversation_history or [])[: self.orchestrator_config.get("memory_window_size", 12)]),
+                    *history,
                     {"role": "user", "content": query},
                 ],
             )
             payload = json.loads(response.output_text.strip())
-            tool_name = payload.get("tool_name") or payload.get("tool") or allowed[0]
-            arguments = payload.get("arguments") or {}
-            confidence = payload.get("confidence")
-            threshold = float(self.orchestrator_config.get("tool_confidence_threshold", 0.6))
-            if tool_name in self.tools and (confidence is None or confidence >= threshold):
-                return tool_name, arguments
         except Exception:
-            pass
+            return (required[0] if required else self._fallback_tool_name(allowed)), {}, query
 
-        fallback = self.orchestrator_config.get("fallback_tool") or allowed[0]
-        if fallback in self.tools:
-            return fallback, {}
-        return allowed[0], {}
+        rewritten = str(payload.get("standalone_query") or "").strip()
+        standalone_query = rewritten if history and rewritten else query
+
+        if required:
+            return required[0], {}, standalone_query
+
+        tool_name = payload.get("tool_name") or payload.get("tool") or allowed[0]
+        arguments = payload.get("arguments") or {}
+        confidence = payload.get("confidence")
+        threshold = float(self.orchestrator_config.get("tool_confidence_threshold", 0.6))
+        if tool_name in allowed and (confidence is None or confidence >= threshold):
+            return tool_name, arguments, standalone_query
+        return self._fallback_tool_name(allowed), {}, standalone_query
 
     def run(
         self,
@@ -193,13 +213,13 @@ class LLMOrchestrator:
         conversation_history: list[dict[str, str]] | None = None,
         tool_overrides: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        tool_name, args = self._select_tool(
+        tool_name, args, standalone_query = self._plan_turn(
             query=query,
             conversation_history=conversation_history,
         )
         tool = self.tools[tool_name]
         tool_result = tool.run(
-            query=query,
+            query=standalone_query,
             params={**(tool_overrides or {}), **args},
             conversation_history=conversation_history,
         )
@@ -212,6 +232,7 @@ class LLMOrchestrator:
 
         return {
             "tool": tool_name,
+            "standalone_query": standalone_query,
             "result": tool_result,
             "final_answer": final_answer,
         }

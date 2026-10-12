@@ -36,15 +36,39 @@ class RagTool:
         payload = RagToolInput(**arguments)
         result = run_rag(config=self.config, query=payload.query, history=conversation_history)
 
+        chunks = [chunk.model_dump(mode="json") for chunk in result.chunks]
+
         return {
             "query": result.query,
-            "chunks": [chunk.model_dump(mode="json") for chunk in result.chunks],
+            "chunks": chunks,
             "metadata": {
                 "search_mode": result.search_mode.value,
                 "rerank_backend": result.rerank_backend.value,
                 "k_finale": self.config.get("retrieval", {}).get("k_finale"),
                 "collection": self.config.get("vectorstore", {}).get("collection"),
             },
+            # Procedure steps for the presenters (same shape as turn.TraceStep).
+            # Kept outside "metadata": the orchestrator puts metadata in the LLM prompt.
+            "trace": [
+                {
+                    "kind": "retrieval",
+                    "title": "K largo",
+                    "data": {
+                        "search_mode": result.search_mode.value,
+                        "embedded_text": result.embedded_text,
+                        "signals": result.signals.model_dump(mode="json") if result.signals else None,
+                        "chunks": [c.model_dump(mode="json") for c in result.candidates],
+                    },
+                },
+                {
+                    "kind": "rerank",
+                    "title": "Reranking",
+                    "data": {
+                        "backend": result.rerank_backend.value,
+                        "chunks": chunks,
+                    },
+                },
+            ],
         }
 
 

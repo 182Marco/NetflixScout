@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from openai import OpenAI
 
-from .cli import (
+from presenters.terminal.blocks import (
     _print_chunks,
     _print_retrieval_compact,
     print_final_answer,

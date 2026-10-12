@@ -20,13 +20,23 @@ def _extract_query_signals(query: str, llm_model: str) -> QuerySignals:
 
     prompt = (
         "You are a retrieval query parser for a movie recommendation engine.\n"
-        "Extract three lists from the user query:\n"
+        "The movie corpus is in English: write every field in English, "
+        "translating from the user's language.\n"
+        "Extract from the user query:\n"
         "1) positive_signals: what the user wants (themes, genres, moods, plot elements, eras, style, actors/directors).\n"
         "2) negative_signals: what should be discouraged but NOT absolutely excluded.\n"
-        "3) hard_exclusions: exact movies/people/franchises or explicit hard constraints to exclude.\n\n"
+        "3) hard_exclusions: exact movies/people/franchises or explicit hard constraints to exclude.\n"
+        "4) semantic_query: one English sentence describing the kind of movie or plot the user wants, "
+        "used for semantic search over English plot summaries. Leave out counts and quality words "
+        "(e.g. '3', 'best').\n"
+        "5) genres: the requested genres using the corpus genre names (e.g. 'Science Fiction', "
+        "'Horror', 'Comedy', 'Drama', 'Thriller', 'Romance Film', 'Animation', 'Documentary', "
+        "'War film', 'Western', 'Crime Fiction', 'Fantasy').\n\n"
         "Rules:\n"
         "- Keep each item short (1-5 words), lowercase when natural.\n"
         "- Do not invent facts.\n"
+        "- Expressions like 'that made history', 'classics' or 'cult' mean influential or iconic "
+        "movies, not historical movies.\n"
         "- If a list is not present, return [] for that list.\n"
         "- Return JSON only matching the schema.\n"
     )
@@ -69,6 +79,8 @@ def _build_signal_aware_query(query: str, config: dict) -> QuerySignals:
         positive_signals=_normalize_signal_list(extracted.positive_signals),
         negative_signals=_normalize_signal_list(extracted.negative_signals),
         hard_exclusions=_normalize_signal_list(extracted.hard_exclusions),
+        semantic_query=extracted.semantic_query.strip(),
+        genres=_normalize_signal_list(extracted.genres),
     )
 
 
@@ -110,8 +122,14 @@ def _light_rerank(query: str, chunks: list[dict], signals: QuerySignals) -> list
     return rescored
 
 
-def _retrieve(query: str, config: dict) -> list[dict]:
-    signals = _build_signal_aware_query(query, config)
+def _retrieve(query: str, config: dict, signals: QuerySignals | None = None) -> list[dict]:
+    if signals is None:
+        signals = _build_signal_aware_query(query, config)
+    retrieval_config = config["retrieval"]
+    fetch_k = max(
+        retrieval_config.get("fetch_k") or retrieval_config["k_finale"] * 3,
+        retrieval_config["k_largo"],
+    )
 
     collection = apri_collection(
         config["vectorstore"]["collection"],
@@ -129,7 +147,10 @@ def _retrieve(query: str, config: dict) -> list[dict]:
             positive_signals=signals.positive_signals,
             negative_signals=signals.negative_signals,
             hard_exclusions=signals.hard_exclusions,
-            fetch_k=max(config["retrieval"]["k_largo"], config["retrieval"]["k_finale"] * 3),
+            fetch_k=fetch_k,
+            semantic_query=signals.semantic_query,
+            genres=signals.genres,
+            genre_boost=retrieval_config.get("genre_boost", 0.0),
         )
         return _light_rerank(query, base_results, signals)
 
@@ -160,7 +181,10 @@ def _retrieve(query: str, config: dict) -> list[dict]:
             positive_signals=signals.positive_signals,
             negative_signals=signals.negative_signals,
             hard_exclusions=signals.hard_exclusions,
-            fetch_k=max(config["retrieval"]["k_largo"], config["retrieval"]["k_finale"] * 3),
+            fetch_k=fetch_k,
+            semantic_query=signals.semantic_query,
+            genres=signals.genres,
+            genre_boost=retrieval_config.get("genre_boost", 0.0),
         )
         risultati_bm25 = cerca_bm25(query, indice_bm25, config["retrieval"]["k_largo"])
         risultati_bm25 = _apply_hard_exclusions(risultati_bm25)
