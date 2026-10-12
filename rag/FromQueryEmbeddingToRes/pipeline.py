@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from .models import RagChunk, RagResult
-from .rag import genera
 from .retrieval import _rerank, _retrieve
 from .runtime import _resolve_runtime_config
 from .vectorstore import apri_collection
@@ -13,6 +12,7 @@ def run_rag(
     query: str,
     history: list[dict] | None = None,
 ) -> RagResult:
+    """Run retrieval and reranking only; return structured evidence to the orchestrator."""
     runtime_config = _resolve_runtime_config(config)
 
     collection = apri_collection(
@@ -28,21 +28,12 @@ def run_rag(
 
     retrieved = _retrieve(query, runtime_config)
     final_chunks = _rerank(query, retrieved, runtime_config)
-    generation_result = genera(
-        final_chunks,
-        query,
-        model=runtime_config["generation"]["model"],
-        instructions=runtime_config["generation"]["instructions"],
-        storia=history,
-        return_usage=True,
-    )
 
     return RagResult(
         query=query,
         search_mode=runtime_config["retrieval"]["search_mode"],
         rerank_backend=runtime_config["rerank"]["backend"],
-        answer=generation_result["text"],
         chunks=[RagChunk(**c) for c in final_chunks],
-        input_tokens=generation_result.get("input_tokens"),
-        output_tokens=generation_result.get("output_tokens"),
+        input_tokens=None,
+        output_tokens=None,
     )

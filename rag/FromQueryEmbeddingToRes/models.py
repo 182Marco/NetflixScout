@@ -33,7 +33,7 @@ class RagResult(BaseModel):
     query: str
     search_mode: SearchMode
     rerank_backend: RerankBackend
-    answer: str
+    answer: str | None = None
     chunks: list[RagChunk]
     input_tokens: int | None = None
     output_tokens: int | None = None

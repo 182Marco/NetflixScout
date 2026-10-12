@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NetflixScout — Mappa del progetto</title>
+<style>
+  :root {
+    --bg: #1e1e1e;
+    --sidebar: #181818;
+    --activity: #181818;
+    --border: #2b2b2b;
+    --tab-bg: #181818;
+    --tab-active: #1f1f1f;
+    --text: #cccccc;
+    --muted: #8b8b8b;
+    --accent: #0078d4;
+    --hover: #2a2d2e;
+    --selected: #04395e;
+    --git-m: #e2c08d;
+    --git-u: #73c991;
+    --ignored: #6e6e6e;
+    --mono: "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 13px/1.5 var(--sans); }
+  a { color: inherit; text-decoration: none; }
+
+  .app { display: grid; grid-template-rows: 30px 1fr 22px; height: 100vh; }
+  .titlebar { background: #181818; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--muted); position: relative; }
+  .titlebar .dots { position: absolute; left: 12px; display: flex; gap: 8px; }
+  .titlebar .dots i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+  .workbench { display: grid; grid-template-columns: 48px var(--side-w, 280px) 4px 1fr; min-height: 0; }
+
+  /* Activity bar */
+  .activity { background: var(--activity); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding-top: 4px; }
+  .activity button { width: 48px; height: 48px; background: none; border: 0; color: var(--muted); cursor: pointer; display: grid; place-items: center; border-left: 2px solid transparent; }
+  .activity button.on { color: #fff; border-left-color: var(--accent); }
+  .activity button:hover { color: #fff; }
+
+  /* Sidebar */
+  .sidebar { background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
+  .side-title { height: 35px; display: flex; align-items: center; padding: 0 20px; font-size: 11px; letter-spacing: .04em; color: var(--muted); }
+  .section-head { display: flex; align-items: center; height: 22px; padding: 0 8px 0 4px; font-size: 11px; font-weight: 700; letter-spacing: .02em; cursor: default; }
+  .section-head .chev { width: 16px; display: grid; place-items: center; }
+  .section-head .actions { margin-left: auto; display: flex; gap: 2px; }
+  .section-head .actions button { background: none; border: 0; color: var(--text); cursor: pointer; width: 22px; height: 20px; border-radius: 4px; display: grid; place-items: center; }
+  .section-head .actions button:hover { background: #ffffff1a; }
+  .tree { overflow: auto; flex: 1; padding-bottom: 24px; outline: none; }
+  .sash { cursor: col-resize; background: transparent; }
+  .sash:hover, .sash.drag { background: var(--accent); }
+
+  .row { height: 22px; display: flex; align-items: center; padding-left: calc(var(--d) * 12px + 6px); padding-right: 10px; cursor: pointer; white-space: nowrap; border: 1px solid transparent; position: relative; }
+  .row:hover { background: var(--hover); }
+  .row.active { background: var(--selected); border-color: var(--accent); }
+  .row .twist { width: 16px; flex: none; display: grid; place-items: center; color: var(--text); }
+  .row .twist svg { transition: transform .1s; }
+  .node.open > .row .twist svg { transform: rotate(90deg); }
+  .row .ico { width: 16px; flex: none; margin-right: 6px; display: grid; place-items: center; font: 600 10px/1 var(--mono); }
+  .row .label { overflow: hidden; text-overflow: ellipsis; flex: 1; }
+  .row .badge { font: 11px var(--mono); margin-left: 8px; }
+  .row.g-M .label, .row.g-M .badge { color: var(--git-m); }
+  .row.g-U .label, .row.g-U .badge { color: var(--git-u); }
+  .row.ig .label { color: var(--ignored); }
+  .row.has-M .label { color: var(--git-m); }
+  .row.has-U .label { color: var(--git-u); }
+  .row .dot { width: 6px; height: 6px; border-radius: 50%; margin-left: 8px; }
+  .children { display: none; position: relative; }
+  .node.open > .children { display: block; }
+  .children::before { content: ""; position: absolute; top: 0; bottom: 0; left: calc(var(--d) * 12px + 14px); border-left: 1px solid #585858; opacity: 0; transition: opacity .15s; z-index: 1; pointer-events: none; }
+  .tree:hover .children::before { opacity: .45; }
+
+  /* Editor */
+  .editor { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--bg); }
+  .tabs { display: flex; background: var(--tab-bg); border-bottom: 1px solid var(--border); overflow-x: auto; flex: none; scrollbar-width: thin; }
+  .tab { display: flex; align-items: center; gap: 6px; height: 35px; padding: 0 8px 0 12px; border-right: 1px solid var(--border); cursor: pointer; color: var(--muted); white-space: nowrap; border-top: 1px solid transparent; }
+  .tab.on { background: var(--tab-active); color: #fff; border-top-color: var(--accent); }
+  .tab .x { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 4px; visibility: hidden; color: var(--text); }
+  .tab:hover .x, .tab.on .x { visibility: visible; }
+  .tab .x:hover { background: #ffffff1a; }
+  .tab .ico { font: 600 10px/1 var(--mono); width: 16px; display: grid; place-items: center; }
+  .crumbs { height: 26px; display: flex; align-items: center; gap: 4px; padding: 0 16px; color: var(--muted); font-size: 12px; flex: none; border-bottom: 1px solid #ffffff08; }
+  .crumbs a:hover { color: #fff; }
+  .crumbs .sep { opacity: .6; }
+  .content { overflow: auto; flex: 1; }
+  .page { max-width: 980px; padding: 28px 40px 60px; }
+
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 6px; color: #fff; display: flex; align-items: center; gap: 10px; }
+  h1 .ico { font: 700 13px/1 var(--mono); }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 30px 0 10px; font-weight: 600; }
+  p { margin: 0 0 12px; max-width: 78ch; }
+  code { font: 12px var(--mono); background: #ffffff12; padding: 1px 5px; border-radius: 4px; color: #d7ba7d; }
+  .lead { font-size: 15px; color: #e6e6e6; margin: 10px 0 18px; }
+  .path { font: 12px var(--mono); color: var(--muted); }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 4px; align-items: center; }
+  .tag { font-size: 11px; padding: 2px 8px; border-radius: 10px; border: 1px solid; white-space: nowrap; }
+  .vscode { font-size: 12px; color: #3794ff; margin-left: 4px; }
+  .vscode:hover { text-decoration: underline; }
+
+  table.items { border-collapse: collapse; width: 100%; }
+  table.items td { padding: 7px 12px 7px 0; border-bottom: 1px solid #ffffff0d; vertical-align: top; }
+  table.items td:first-child { white-space: nowrap; width: 1%; padding-right: 20px; }
+  table.items td:first-child code { color: #dcdcaa; background: none; padding: 0; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 8px; border-radius: 4px; background: #ffffff0d; border: 1px solid #ffffff14; font: 12px var(--mono); }
+  .chip:hover { background: #ffffff1a; border-color: #ffffff30; }
+  .chip.ext { color: var(--muted); }
+  .none { color: var(--muted); font-style: italic; }
+
+  .callout { border-left: 3px solid #cca700; background: #cca70012; padding: 10px 14px; border-radius: 0 4px 4px 0; }
+  .callout ul { margin: 0; padding-left: 18px; }
+  .callout li { margin: 3px 0; }
+  pre.cmd { font: 12px/1.6 var(--mono); background: #0d0d0d; border: 1px solid #ffffff12; border-radius: 6px; padding: 10px 14px; overflow-x: auto; color: #9cdcfe; margin: 0; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+  .card { display: flex; gap: 10px; padding: 10px 12px; border-radius: 6px; background: #ffffff08; border: 1px solid #ffffff10; }
+  .card:hover { background: #ffffff12; border-color: #ffffff28; }
+  .card .ico { font: 600 10px/1 var(--mono); width: 16px; margin-top: 3px; flex: none; text-align: center; }
+  .card b { font: 600 12.5px var(--mono); color: #e6e6e6; display: block; }
+  .card span { font-size: 12px; color: var(--muted); }
+
+  /* Diagram */
+  .diagram { background: #181818; border: 1px solid var(--border); border-radius: 8px; padding: 8px; }
+  .diagram svg { width: 100%; height: auto; display: block; }
+  .diagram .n { cursor: pointer; }
+  .diagram .n:hover rect, .diagram .n:hover path, .diagram .n:hover ellipse { filter: brightness(1.45); }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; border: 1.5px solid; }
+  ol.steps { padding-left: 20px; max-width: 80ch; }
+  ol.steps li { margin: 6px 0; }
+
+  .statusbar { background: var(--accent); color: #fff; display: flex; align-items: center; gap: 16px; padding: 0 10px; font-size: 12px; }
+  .statusbar .r { margin-left: auto; display: flex; gap: 16px; }
+
+  @media (max-width: 760px) {
+    .workbench { grid-template-columns: 0 220px 0 1fr; }
+    .activity { display: none; }
+    .page { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="titlebar">
+    <div class="dots"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div>
+    <span id="title">NetflixScout — Mappa del progetto</span>
+  </div>
+
+  <div class="workbench" id="workbench">
+    <nav class="activity">
+      <button class="on" title="Esplora risorse">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 3H7a2 2 0 0 0-2 2v12"/><path d="M9 7h8l3 3v9a2 2 0 0 1-2 2H11a2 2 0 0 1-2-2z"/></svg>
+      </button>
+      <button title="Panoramica (grafico)" id="act-overview">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="6" rx="1"/><rect x="14" y="3" width="7" height="6" rx="1"/><rect x="8.5" y="15" width="7" height="6" rx="1"/><path d="M6.5 9v3h11V9M12 12v3"/></svg>
+      </button>
+    </nav>
+
+    <aside class="sidebar">
+      <div class="side-title">EXPLORER</div>
+      <div class="section-head">
+        <span class="chev"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></span>
+        NETFLIXSCOUT
+        <span class="actions">
+          <button id="btn-overview" title="Panoramica (grafico)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2" y="2" width="5" height="4" rx=".5"/><rect x="9" y="2" width="5" height="4" rx=".5"/><rect x="5.5" y="10" width="5" height="4" rx=".5"/><path d="M4.5 6v2h7V6M8 8v2"/></svg></button>
+          <button id="btn-collapse" title="Comprimi cartelle"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="4.5" y="4.5" width="9" height="9" rx="1"/><path d="M2.5 11V3.5a1 1 0 0 1 1-1H11M7 9h4"/></svg></button>
+        </span>
+      </div>
+      <div class="tree" id="tree" tabindex="0"></div>
+    </aside>
+    <div class="sash" id="sash"></div>
+
+    <main class="editor">
+      <div class="tabs" id="tabs"></div>
+      <div class="crumbs" id="crumbs"></div>
+      <div class="content" id="content"></div>
+    </main>
+  </div>
+
+  <footer class="statusbar">
+    <span>⎇ main*</span>
+    <span id="git-count"></span>
+    <span class="r"><span>Python 3.11 (.venv)</span><span>ChromaDB</span><span>UTF-8</span></span>
+  </footer>
+</div>
+
+<script>
+/* ======================================================================
+   Percorso assoluto usato dal link "Apri in VS Code" (vscode://file/...).
+   ====================================================================== */
+const ROOT_ABS = "/Users/filippo.milzagmail.com/Desktop/NetflixScout";
+
+const Q = "rag/FromQueryEmbeddingToRes/";
+const E = "rag/EmbeddingProcess/";
+
+const LAYERS = {
+  entry:  { label: "Entry point",            color: "#b48cff" },
+  orch:   { label: "Orchestrazione",         color: "#ff7eb6" },
+  off:    { label: "Indicizzazione offline", color: "#2bb3a0" },
+  rt:     { label: "Runtime RAG",            color: "#4a9eff" },
+  data:   { label: "Dati locali",            color: "#e0a43a" },
+  cfg:    { label: "Config / docs",          color: "#9da5b4" },
+  test:   { label: "Test",                   color: "#73c991" },
+  legacy: { label: "Legacy / da ripulire",   color: "#f14c4c" },
+};
+
+const F = (name, info = {}) => ({ type: "file", name, ...info });
+const D = (name, info = {}, children = []) => ({ type: "dir", name, children, ...info });
+
+/* ---------- File generati da ChromaDB (riusati in ogni cartella del DB) ---------- */
+const SQLITE = {
+  L: "data", ig: true,
+  s: "Database SQLite di Chroma: documenti, metadati e definizione delle collection.",
+  d: `File principale di un <code>chromadb.PersistentClient</code>. Contiene il testo dei chunk, i metadati (<code>title</code>, <code>release_year</code>, <code>genres</code>, <code>cast</code>, …), gli id e la configurazione della collection (<code>hnsw:space = cosine</code>). I vettori veri e propri stanno nella sottocartella con nome UUID.`,
+  n: ["Non va modificato a mano: si rigenera con <code>python buildSemanticDb.py</code>."],
+};
+const BIN = {
+  "data_level0.bin": "I vettori di embedding e il livello 0 del grafo HNSW (la parte più grande dell'indice).",
+  "header.bin": "Intestazione dell'indice hnswlib: dimensione dei vettori, parametri M/ef, numero di elementi.",
+  "length.bin": "Metadati di servizio di hnswlib sulle lunghezze dei record.",
+  "link_lists.bin": "Collegamenti dei livelli superiori del grafo HNSW (servono per navigare velocemente verso i vicini).",
+  "index_metadata.pickle": "Mappa id ↔ posizione nell'indice salvata da Chroma (formato pickle).",
+};
+function segment(uuid, files) {
+  return D(uuid, {
+    L: "data", ig: true,
+    s: "Segmento vettoriale HNSW della collection (nome = UUID generato da Chroma).",
+    d: `Contiene l'indice di ricerca approssimata dei vicini (HNSW, libreria <code>hnswlib</code>) su cui Chroma esegue <code>collection.query(query_embeddings=…)</code>. Il nome della cartella è l'id interno del segmento.`,
+  }, files.map(f => F(f, { L: "data", ig: true, s: BIN[f], d: BIN[f] + " File binario generato automaticamente: non si apre e non si modifica." })));
+}
+function chromaDir(name, uuid, files, info) {
+  return D(name, { L: "data", ig: true, ...info }, [F("chroma.sqlite3", SQLITE), segment(uuid, files)]);
+}
+const BINS4 = ["data_level0.bin", "header.bin", "length.bin", "link_lists.bin"];
+const BINS5 = ["data_level0.bin", "header.bin", "index_metadata.pickle", "length.bin", "link_lists.bin"];
+const DIAG_NOTE = "Cartella di diagnostica creata durante il debug della validazione dei metadati a batch. Il codice non la usa (legge solo <code>openai/</code> e <code>local/</code>): si può cancellare.";
+
+/* ====================================================================== */
+const TREE = D("NetflixScout", {}, [
+
+  D(".venv", {
+    L: "cfg", ig: true,
+    s: "Virtualenv Python 3.11 con le dipendenze installate.",
+    d: `Ambiente isolato creato con <code>python3.11 -m venv .venv</code>. Contiene l'interprete e i pacchetti di <code>requirements.txt</code> (più <code>pytest</code>). È ignorato da git e non va mai committato.`,
+    cmd: "source .venv/bin/activate\npip install -r requirements.txt pytest",
+  }),
+
+  D("dataset", {
+    L: "data", ig: true,
+    s: "Corpus di input: CMU Movie Summary Corpus (non versionato).",
+    d: `È la sorgente da cui <code>buildSemanticDb.py</code> costruisce il database vettoriale. Va scaricato a mano da <a class="vscode" href="https://www.cs.cmu.edu/~ark/personas/" target="_blank" rel="noopener">cs.cmu.edu/~ark/personas</a>. Il builder scorre tutti i file in ordine alfabetico: le trame passano da <code>movie_metadata.py</code>, i file <code>.tsv</code> sono saltati (vengono letti solo come metadati), gli altri formati passano dai <code>loaders/</code>.`,
+  }, [
+    D("MovieSummaries", {
+      L: "data", ig: true,
+      s: "I file originali del corpus CMU (trame di Wikipedia + metadati Freebase).",
+      d: `Circa 42.000 trame di film estratte da Wikipedia, unite ai metadati di circa 81.000 film presi da Freebase. Il join avviene sul <code>wikipedia_movie_id</code>.`,
+    }, [
+      F("README.txt", { L: "data", ig: true, s: "Descrizione ufficiale del corpus e del formato delle colonne.", d: `Documentazione degli autori del dataset. Il builder lo tratta come un normale <code>.txt</code>: passa dal loader, da <code>clean.py</code> e da <code>chunk_semantic</code>, quindi finisce anche lui nel DB come chunk con <code>source = MovieSummaries/README.txt</code>.`, n: ["Questi chunk non hanno titolo, anno e generi: possono comparire nei risultati come rumore."] }),
+      F("character.metadata.tsv", { L: "data", ig: true, s: "Personaggi e attori di ogni film.", d: `Una riga per personaggio: id del film, nome del personaggio, attore, genere, età. <code>load_cast_by_movie()</code> lo usa per costruire il campo <code>cast</code> dei metadati.` }),
+      F("movie.metadata.tsv", { L: "data", ig: true, s: "Metadati dei film: titolo, data di uscita, lingue, paesi, generi.", d: `Letto da <code>load_movie_metadata()</code>. Colonne come lingue, paesi e generi sono dizionari Freebase serializzati in JSON (<code>{"/m/02h40lc": "English Language"}</code>) che vengono normalizzati in stringhe leggibili.` }),
+      F("name.clusters.txt", { L: "data", ig: true, s: "Cluster di nomi di personaggi (non usato dall'app).", d: `Raggruppa i personaggi che sono la stessa entità in film diversi. NetflixScout non lo usa per i metadati, ma essendo un <code>.txt</code> viene comunque indicizzato come testo generico.` }),
+      F("plot_summaries.txt", { L: "data", ig: true, s: "Il cuore del corpus: una trama per riga (id\\ttrama).", d: `Formato <code>wikipedia_movie_id&lt;TAB&gt;trama</code>. Ha un percorso dedicato nel builder: <code>iter_plot_rows()</code> unisce ogni trama ai metadati e al cast, e ogni trama diventa <b>un solo chunk</b>, senza pulizia né chunking semantico.` }),
+      F("tvtropes.clusters.txt", { L: "data", ig: true, s: "Personaggi classificati per tropo di TV Tropes (non usato dall'app).", d: `Personaggi annotati con 72 tropi (es. <i>dumb muscle</i>). Come gli altri <code>.txt</code> finisce nel DB come testo generico.` }),
+    ]),
+  ]),
+
+  D("dbVettoriale", {
+    L: "data", ig: true,
+    s: "Database vettoriale Chroma persistente, una sottocartella per backend di embedding.",
+    d: `<code>vectorstore.DB_ROOT</code> punta qui. A runtime <code>runtime._resolve_runtime_config</code> sceglie <code>openai/</code> o <code>local/</code>: se ne esiste una sola usa quella, altrimenti segue <code>CONFIG["rag"]["embedding"]["backend"]</code>. La collection si chiama <code>netflix_scout</code>.`,
+    n: ["La query va embeddata con lo stesso backend e modello usati per costruire il DB, altrimenti i risultati non hanno senso.", "Le cartelle <code>diag_*</code> e <code>test_*</code> sono residui di debug."],
+  }, [
+    chromaDir("openai", "ccd8ca3a-7582-4c5a-8a88-305387ceebcc", BINS5, { s: "DB costruito con embedding OpenAI text-embedding-3-small (backend di default).", d: `Generato da <code>python buildSemanticDb.py --embedding-backend openai</code>. È il DB che usa l'app con la configurazione attuale.` }),
+    chromaDir("local", "ab13cb76-df1d-42d3-af67-7f60f102b828", BINS5, { s: "DB costruito con embedding locali (sentence-transformers).", d: `Generato da <code>python buildSemanticDb.py --embedding-backend local --embedding-model &lt;modello HF&gt;</code>. Non richiede chiamate a OpenAI per gli embedding.` }),
+    chromaDir("diag_metadata_batch", "9e7ec721-7943-4bfe-a11c-24adcb6fc939", BINS4, { s: "Residuo di diagnostica (validazione metadati).", d: DIAG_NOTE }),
+    chromaDir("diag_metadata_batch2", "93be12ac-ec64-4712-a51c-50d086cda8a3", BINS5, { s: "Residuo di diagnostica (validazione metadati).", d: DIAG_NOTE }),
+    chromaDir("diag_metadata_batch_fixed", "0305a07c-6617-43b2-8ae4-82fc2cc0ec4b", BINS5, { s: "Residuo di diagnostica (validazione metadati).", d: DIAG_NOTE }),
+    chromaDir("test_metadata_batch", "db1416b5-bc32-474d-866d-0d34d1d52ef5", BINS4, { s: "Residuo di test (validazione metadati).", d: DIAG_NOTE }),
+  ]),
+
+  D("rag", {
+    L: "rt",
+    s: "Il package Python con tutta la logica RAG, divisa in due fasi.",
+    d: `<b>EmbeddingProcess/</b> è la fase offline (documenti → chunk → vettori → DB). <b>FromQueryEmbeddingToRes/</b> è la fase a runtime (query → retrieval → rerank → evidenze per l'orchestratore). Le due fasi condividono <code>embeddings.py</code> e <code>vectorstore.py</code>, che stanno nella cartella runtime.`,
+  }, [
+    F("__init__.py", { L: "rt", s: "Marca <code>rag</code> come package (contiene solo una docstring).", d: `File vuoto a parte la docstring <code>"RAG package root."</code>. Serve per poter scrivere import assoluti come <code>from rag.FromQueryEmbeddingToRes import …</code> dalla root del repo.` }),
+
+    D("EmbeddingProcess", {
+      L: "off",
+      s: "Pipeline offline: carica, pulisce, spezza in chunk e indicizza i documenti.",
+      d: `Viene eseguita solo da <code>buildSemanticDb.py</code>, mai durante la chat. Flusso: <code>loaders/</code> → <code>clean.py</code> → <code>chunk.py</code> → <code>embeddings.embed</code> → <code>vectorstore.indicizza</code>. Le trame dei film seguono un percorso dedicato via <code>movie_metadata.py</code>.`,
+    }, [
+      F("__init__.py", {
+        L: "off", s: "Re-esporta le API pubbliche della fase offline.",
+        d: `Rende disponibili <code>Document</code>, <code>load</code>, <code>chunk_fixed/recursive/semantic</code>, <code>clean</code>, <code>clean_file</code> e <code>pipeline_for</code> direttamente da <code>rag.EmbeddingProcess</code>.`,
+        dep: [E + "chunk.py", E + "clean.py", E + "loaders/__init__.py"],
+      }),
+      F("buildSemanticDb.py", {
+        L: "off",
+        s: "Costruisce da zero il database vettoriale a partire da <code>dataset/</code>.",
+        d: `È il vero builder (quello in root è solo un wrapper). <code>build_semantic_db()</code> <b>cancella</b> <code>dbVettoriale/&lt;backend&gt;/</code>, ricrea la collection e scorre i file di <code>dataset/</code> in ordine deterministico. Le trame di <code>plot_summaries.txt</code> diventano un chunk per film con metadati (titolo, data/anno, generi, lingue, paesi, cast). Gli altri file vengono puliti con <code>pipeline_for</code> e spezzati con <code>chunk_semantic</code>. Infine embedda e indicizza a batch, validando i metadati prima di ogni upsert.`,
+        it: [
+          ["build_semantic_db()", "Orchestra tutta la build e ritorna il numero di chunk indicizzati."],
+          ["_iter_texts()", "Generatore sui file del dataset: salta <code>.tsv</code> e <code>.DS_Store</code>, gestisce a parte le trame e usa i loader per gli altri formati."],
+          ["_stable_id()", "Id deterministico del chunk (percorso + indice documento + indice chunk), così le rebuild sono riproducibili."],
+          ["_stringify_metadata()", "Converte i metadati in tipi primitivi accettati da Chroma."],
+          ["_validate_batch_metadata()", "Blocca la build con un errore chiaro se un metadato non è str/int/float/bool (es. tipi numpy)."],
+          ["parse_args()", "CLI: <code>--dataset-dir --db-dir --collection --semantic-threshold --embedding-backend --embedding-model --batch-size</code>."],
+        ],
+        dep: [E + "loaders/dispatch.py", E + "clean.py", E + "chunk.py", E + "movie_metadata.py", Q + "embeddings.py", Q + "vectorstore.py"],
+        x: ["argparse", "shutil"],
+        cmd: "python buildSemanticDb.py --embedding-backend openai",
+        n: ["Distruttivo: elimina il DB esistente del backend scelto.", "Costa chiamate di embedding OpenAI (decine di migliaia di trame)."],
+      }),
+      F("chunk.py", {
+        L: "off", s: "Strategie per spezzare il testo in chunk.",
+        d: `Tre strategie. Il builder usa solo <code>chunk_semantic</code>: divide il testo in frasi (su a-capo e <code>". "</code>), le embedda e taglia ogni volta che la similarità coseno tra due frasi consecutive scende sotto la soglia (default <code>0.78</code>).`,
+        it: [
+          ["chunk_fixed(testo, size, overlap)", "Finestre di caratteri a dimensione fissa, con sovrapposizione."],
+          ["chunk_recursive(testo, size)", "Taglia sul separatore più forte che sta nella finestra (<code>\\n\\n</code> → <code>\\n</code> → <code>. </code>)."],
+          ["chunk_semantic(testo, soglia, backend, model)", "Taglio basato sul cambio di argomento tra frasi adiacenti."],
+        ],
+        dep: [Q + "embeddings.py"],
+        n: ["<code>chunk_semantic</code> fa una chiamata di embedding per ogni documento."],
+      }),
+      F("clean.py", {
+        L: "off", s: "Pulizia del testo grezzo con pipeline componibili per formato.",
+        d: `Una pipeline è una lista di funzioni <code>str → str</code> applicate in sequenza da <code>clean(text, steps)</code>. <code>PIPELINES</code> associa le estensioni agli step: <code>.txt</code> è pensato per i libri Gutenberg (tiene solo il testo tra i marcatori START/END e ricompone i paragrafi), <code>.pdf</code> rimuove sillabazione, header ripetuti e numeri di pagina, <code>.html</code> toglie note <code>[n]</code> e le sezioni di coda di Wikipedia.`,
+        it: [
+          ["clean(text, steps)", "Applica gli step in ordine."],
+          ["normalize_unicode / strip_control_chars / normalize_whitespace", "Step base di normalizzazione."],
+          ["dehyphenate / reflow_paragraphs / remove_page_numbers", "Step per testo impaginato."],
+          ["remove_repeated_lines() · remove_citation_markers() · keep_between_markers() · drop_sections()", "Factory di step parametrici."],
+          ["PIPELINES · DEFAULT_STEPS", "Mappa estensione → step; il default è unicode + whitespace."],
+          ["pipeline_for(path)", "Restituisce gli step adatti al file."],
+          ["clean_file(path)", "Carica il file con i loader e lo pulisce."],
+        ],
+        dep: [E + "loaders/dispatch.py"],
+        n: ["La pipeline <code>.txt</code> è pensata per Gutenberg: sui file .txt del corpus CMU i marcatori non esistono e viene tenuto tutto il testo."],
+      }),
+      F("movie_metadata.py", {
+        L: "off", s: "Unisce trame, metadati e cast del corpus CMU.",
+        d: `Legge i <code>.tsv</code> del dataset e produce, per ogni riga di <code>plot_summaries.txt</code>, un record con testo e metadati puliti. Gestisce i campi Freebase in formato dizionario JSON e i caratteri Unicode non validi (surrogati), che romperebbero Chroma.`,
+        it: [
+          ["load_movie_metadata(path)", "<code>movie.metadata.tsv</code> → <code>{movie_id: {title, release_date, release_year, genres, languages, countries}}</code>."],
+          ["load_cast_by_movie(path)", "<code>character.metadata.tsv</code> → <code>{movie_id: [attori]}</code>."],
+          ["iter_plot_rows(dataset_dir)", "Generatore di righe arricchite, consumato da <code>_iter_texts</code> del builder."],
+          ["_normalize_values · _clean_string_value · _strip_invalid_surrogates", "Normalizzazione dei valori grezzi."],
+        ],
+      }),
+      D("loaders", {
+        L: "off", s: "Un loader per formato: ogni file diventa una lista di <code>Document</code>.",
+        d: `Tutti i loader hanno la stessa firma <code>load_xxx(path) → list[Document]</code>. <code>dispatch.load(path)</code> sceglie quello giusto in base all'estensione. Nel corpus CMU servono solo i <code>.txt</code>; gli altri ci sono per rendere il builder riusabile con altri documenti.`,
+      }, [
+        F("__init__.py", { L: "off", s: "Re-esporta <code>Document</code>, <code>load</code> e i singoli loader.", d: `La docstring descrive lo scopo del package: leggere file eterogenei e normalizzarli in un <code>Document</code>.`, dep: [E + "loaders/base.py", E + "loaders/dispatch.py", E + "loaders/docx.py", E + "loaders/html.py", E + "loaders/markdown.py", E + "loaders/pdf.py", E + "loaders/txt.py"] }),
+        F("base.py", { L: "off", s: "Definisce la dataclass <code>Document(text, metadata)</code>.", d: `Il formato comune prodotto da tutti i loader. <code>__repr__</code> mostra i metadati e un'anteprima di 60 caratteri, utile in debug.` }),
+        F("dispatch.py", { L: "off", s: "<code>load(path)</code>: sceglie il loader in base all'estensione.", d: `Supporta <code>.pdf</code>, <code>.docx</code>, <code>.html/.htm</code>, <code>.md/.markdown</code>, <code>.txt</code>. Per qualsiasi altra estensione solleva <code>ValueError("Formato non supportato")</code>; il builder in quel caso legge il file come testo grezzo.`, dep: [E + "loaders/base.py", E + "loaders/docx.py", E + "loaders/html.py", E + "loaders/markdown.py", E + "loaders/pdf.py", E + "loaders/txt.py"] }),
+        F("docx.py", { L: "off", s: "Estrae il testo dai documenti Word.", d: `Usa <code>python-docx</code> per leggere i paragrafi di un <code>.docx</code> e restituirli come <code>Document</code>.`, dep: [E + "loaders/base.py"], x: ["python-docx"] }),
+        F("html.py", { L: "off", s: "Estrae il testo visibile dalle pagine HTML.", d: `Usa <code>BeautifulSoup</code> per togliere i tag e tenere il contenuto testuale.`, dep: [E + "loaders/base.py"], x: ["beautifulsoup4"] }),
+        F("markdown.py", { L: "off", s: "Converte il Markdown in testo semplice.", d: `Usa <code>markdown-it-py</code> per fare il parse del Markdown e ottenere il testo senza markup.`, dep: [E + "loaders/base.py"], x: ["markdown-it-py"] }),
+        F("pdf.py", { L: "off", s: "Un <code>Document</code> per ogni pagina del PDF.", d: `Usa <code>pypdf.PdfReader</code>; ogni pagina diventa un <code>Document</code> con metadati <code>{source, page, type: "pdf"}</code>.`, dep: [E + "loaders/base.py"], x: ["pypdf"] }),
+        F("txt.py", { L: "off", s: "Legge un file di testo UTF-8 in un unico <code>Document</code>.", d: `Metadati <code>{source, type: "txt"}</code>. È il loader usato per i file .txt del corpus CMU (tranne <code>plot_summaries.txt</code>, che ha un percorso dedicato).`, dep: [E + "loaders/base.py"] }),
+      ]),
+    ]),
+
+    D("FromQueryEmbeddingToRes", {
+      L: "rt",
+      s: "Fase runtime: dalla query dell'utente ai chunk rilevanti.",
+      d: `Il percorso usato da <code>app.py</code> è: <code>tool_interface.RagTool</code> → <code>pipeline.run_rag</code> → <code>retrieval._retrieve</code> (segnali LLM + ricerca semantic/bm25/hybrid) → <code>retrieval._rerank</code> (Cohere o LLM). Il risultato sono evidenze strutturate: la risposta per l'utente la scrive l'orchestratore. Qui ci sono anche il classificatore di dominio, la gestione della conversazione e l'output da terminale.`,
+    }, [
+      F("__init__.py", { L: "rt", s: "API pubblica del package runtime.", d: `Re-esporta <code>run_rag</code>, <code>RAG_TOOL</code>, <code>RAG_TOOL_NAME</code>, <code>REGISTERED_TOOLS</code>, <code>execute_tool</code> e <code>run_conversation_loop</code>.`, dep: [Q + "chat.py", Q + "pipeline.py", Q + "tool_interface.py"], n: ["Importarlo carica anche <code>rag.py</code>, che crea un client OpenAI all'import: serve <code>OPENAI_API_KEY</code> nell'ambiente."] }),
+      F("chat.py", {
+        L: "rt", g: "M",
+        s: "Loop di chat “vecchio stile” senza orchestratore, più l'helper per la lingua del blocco.",
+        d: `<code>app.py</code> oggi usa da qui solo <code>_choose_block_language</code>. <code>run_conversation_loop</code> è il loop precedente, ancora esportato: classifica la domanda, la riscrive in forma autonoma usando la history, esegue retrieve + rerank, stampa i chunk, genera la risposta con <code>rag.genera</code> e compatta la history quando i token di input superano <code>token_threshold</code>.`,
+        it: [
+          ["_choose_block_language(query, classification)", `<code>"it"</code> se il classificatore dice <code>is_italian</code>, altrimenti <code>"en"</code>.`],
+          ["run_conversation_loop(*, config, exit_commands, compact_notice)", "Chat RAG completa senza orchestratore (stampa anche i chunk intermedi)."],
+        ],
+        dep: [Q + "cli.py", Q + "conversation.py", Q + "query_classifier/query_classifier.py", Q + "rag.py", Q + "retrieval.py", Q + "runtime.py", Q + "vectorstore.py", "app.py"],
+        n: ["Importa <code>NON_CINEMA_BLOCK_MESSAGES</code> da <code>app.py</code> dentro la funzione, per evitare un import circolare."],
+      }),
+      F("cli.py", {
+        L: "rt", s: "Tutto l'output a terminale (header, modalità, chunk, risposta).",
+        d: `Funzioni di sola stampa con cornici in box-drawing ed emoji. Accettano chunk sia come <code>dict</code> sia come <code>RagChunk</code>.`,
+        it: [
+          ["print_header()", "Banner “🎬 NETFLIXSCOUT — RAG SEARCH” e istruzioni per uscire."],
+          ["print_mode(runtime_config)", "Mostra search mode, reranker, k_largo, k_finale."],
+          ["print_final_answer(answer)", "Box con la risposta finale dell'LLM."],
+          ["_print_chunks / _print_retrieval_compact", "Debug dei chunk recuperati e riordinati (usati da <code>chat.py</code>)."],
+        ],
+        dep: [Q + "models.py"],
+      }),
+      F("conversation.py", {
+        L: "rt", s: "Memoria della conversazione: compattazione e riscrittura della query.",
+        d: `<code>_compact_history</code> chiede a un LLM di riassumere la history in markdown con le sezioni FATTO / DECISIONE / APERTO / IPOTESI e <b>sostituisce</b> tutta la history con un unico messaggio <code>system</code>. <code>_rewrite_query_with_history</code> usa gli ultimi 8 messaggi per trasformare una domanda con riferimenti impliciti (“e uno più recente?”) in una query autonoma per il retrieval.`,
+        it: [
+          ["_compact_history(history, runtime_config, client)", "Usata da <code>app.py</code> ogni <code>memory_window_size</code> messaggi."],
+          ["_rewrite_query_with_history(...)", "Usata solo da <code>chat.py</code>."],
+        ],
+        x: ["openai"],
+        n: ["Il flusso con orchestratore non riscrive la query: le domande di follow-up arrivano al retrieval così come sono."],
+      }),
+      F("embeddings.py", {
+        L: "rt", s: "Calcolo degli embedding (OpenAI o locali) e similarità coseno.",
+        d: `Usato sia in fase offline sia a runtime. <code>embed(texts, backend, model)</code> smista su <code>embed_openai</code> (batch da 1000, restituisce <code>np.float32</code>) o su <code>embed_local</code> (<code>SentenceTransformer</code>, modello in cache in <code>_modelli_locali</code> e import di torch solo quando serve).`,
+        it: [
+          ["embed(texts, backend, model)", "Punto d'ingresso unico."],
+          ["embed_openai / embed_local", "Le due implementazioni."],
+          ["cosine_similarity(a, b)", "Usata dal chunking semantico."],
+        ],
+        x: ["openai", "numpy", "sentence-transformers"],
+      }),
+      F("hybrid.py", {
+        L: "rt", s: "Ricerca per parole chiave (BM25) e fusione ibrida con RRF.",
+        d: `Implementa le modalità <code>bm25</code> e <code>hybrid</code>. L'indice BM25 si costruisce leggendo <b>tutti</b> i documenti della collection (<code>collection.get()</code>). La fusione usa Reciprocal Rank Fusion: score = Σ 1/(rrf_costante + posizione).`,
+        it: [
+          ["tokenizza(testo)", "Tokenizzazione semplice in minuscolo."],
+          ["costruisci_indice_bm25(collection)", "Crea un <code>BM25Okapi</code> su tutto il corpus."],
+          ["cerca_bm25(query, indice, k)", "Top-k per parole chiave."],
+          ["rrf(liste, k, rrf_costante=60) · cerca_hybrid(...)", "Fusione delle liste semantica e BM25."],
+        ],
+        x: ["rank-bm25"],
+        n: ["<code>_retrieve</code> ricostruisce l'indice BM25 a ogni query: con ~42k trame è lento e usa molta memoria. Conviene metterlo in cache."],
+      }),
+      F("models.py", {
+        L: "rt", g: "M", s: "Schemi Pydantic ed enum condivisi.",
+        d: `Definisce i tipi che attraversano la pipeline. La docstring di <code>RagToolInput</code> e il suo <code>model_json_schema()</code> diventano descrizione e parametri del tool <code>rag_search</code>.`,
+        it: [
+          ["SearchMode", "<code>semantic | hybrid | bm25</code>"],
+          ["RerankBackend", "<code>cohere | llm</code>"],
+          ["RagChunk", "Un chunk con <code>id, testo, score</code> e metadati del film."],
+          ["RagResult", "Output di <code>run_rag</code>: query, modalità, chunk, (token)."],
+          ["RagToolInput", "Input del tool: <code>query</code> non vuota."],
+          ["QuerySignals", "<code>positive_signals, negative_signals, hard_exclusions</code> estratti dall'LLM."],
+        ],
+        x: ["pydantic"],
+      }),
+      F("pipeline.py", {
+        L: "rt", g: "M", s: "<code>run_rag()</code>: retrieval + rerank, senza generazione.",
+        d: `Risolve la configurazione a runtime, controlla che la collection non sia vuota (altrimenti dice di lanciare <code>buildSemanticDb.py</code>), poi esegue <code>_retrieve</code> e <code>_rerank</code> e impacchetta il risultato in un <code>RagResult</code>. <code>answer</code> resta <code>None</code>: la generazione spetta all'orchestratore.`,
+        it: [["run_rag(*, config, query, history=None)", "Entry point della pipeline RAG. <code>history</code> oggi non viene usata."]],
+        dep: [Q + "models.py", Q + "retrieval.py", Q + "runtime.py", Q + "vectorstore.py"],
+      }),
+      F("rag.py", {
+        L: "rt", s: "Primitive RAG di base: recupera, genera, rispondi.",
+        d: `<code>recupera</code> è un wrapper su <code>vectorstore.search</code> (ricerca semantica con segnali). <code>genera</code> costruisce un prompt XML <code>&lt;documenti&gt;&lt;documento&gt;…&lt;trama&gt;</code> con i metadati di ogni film e chiama la Responses API, restituendo eventualmente l'uso dei token. <code>rispondi</code> fa recupera + genera in un solo passo.`,
+        it: [
+          ["recupera(query, collection_name, k, …)", "Usata da <code>retrieval._retrieve</code> per le modalità semantic e hybrid."],
+          ["genera(chunks, domanda, model, instructions, …)", "Usata solo da <code>chat.py</code>."],
+          ["rispondi(...)", "Helper completo, non usato dall'app."],
+        ],
+        dep: [Q + "vectorstore.py"],
+        x: ["openai", "python-dotenv"],
+        n: ["Crea <code>client = OpenAI()</code> all'import: senza <code>OPENAI_API_KEY</code> l'import fallisce."],
+      }),
+      F("rerank.py", {
+        L: "rt", s: "Secondo stadio: riordina i candidati con Cohere o con un LLM.",
+        d: `<code>rerank_cohere</code> usa il cross-encoder di Cohere (<code>rerank-v3.5</code> in CONFIG) e restituisce tutti i candidati riordinati. <code>rerank_llm</code> chiede a un modello OpenAI un output strutturato <code>Ordine</code> (lista di indici dal più al meno rilevante).`,
+        it: [
+          ["rerank_cohere(query, chunks, model)", "Backend di default, richiede <code>COHERE_API_KEY</code>."],
+          ["rerank_llm(query, chunks, model)", "Alternativa senza Cohere."],
+          ["Ordine", "Schema Pydantic per l'output del reranker LLM."],
+          ["cerca_due_stadi(...)", "Helper rerank + taglio a k_finale (l'app usa <code>retrieval._rerank</code>)."],
+        ],
+        x: ["cohere", "openai", "pydantic"],
+      }),
+      F("retrieval.py", {
+        L: "rt", s: "Primo stadio: segnali dalla query + ricerca semantic / bm25 / hybrid.",
+        d: `Prima un LLM estrae dalla query i <code>QuerySignals</code>: cosa l'utente vuole (positivi), cosa preferisce evitare (negativi, penalità leggera) e cosa va escluso del tutto (hard exclusions). Poi recupera fino a <code>k_largo</code> candidati nella modalità configurata e applica <code>_light_rerank</code>: +0.03 per segnale positivo trovato, −0.08 per segnale negativo, piccolo bonus per le parole della query. <code>_rerank</code> passa poi al reranker e taglia a <code>k_finale</code>.`,
+        it: [
+          ["_extract_query_signals(query, llm_model)", "Output strutturato OpenAI; senza API key o in caso di errore restituisce segnali vuoti."],
+          ["_retrieve(query, config)", "Smista tra le modalità semantic, hybrid e bm25."],
+          ["_light_rerank(query, chunks, signals)", "Ritocco euristico degli score."],
+          ["_rerank(query, chunks, config)", "Reranking Cohere o LLM, poi i primi <code>k_finale</code>."],
+        ],
+        dep: [Q + "hybrid.py", Q + "models.py", Q + "rag.py", Q + "rerank.py", Q + "vectorstore.py"],
+        x: ["openai"],
+      }),
+      F("runtime.py", {
+        L: "rt", g: "M", s: "Normalizza la config RAG prima dell'uso (backend effettivo, db_dir, default).",
+        d: `<code>_resolve_runtime_config(config)</code> copia le sottosezioni, decide il backend effettivo guardando quali cartelle esistono in <code>dbVettoriale/</code> (oppure usa <code>db_dir</code> se è impostato), calcola il percorso del DB e aggiunge i default della sezione <code>conversation</code>. Va chiamata prima di toccare vectorstore ed embedding.`,
+        dep: [Q + "vectorstore.py"],
+      }),
+      F("tool_interface.py", {
+        L: "orch", g: "M", s: "<code>RagTool</code>: il tool <code>rag_search</code> esposto all'orchestratore.",
+        d: `Dataclass che rispetta il <code>Tool</code> Protocol di <code>orchestrator.py</code>: <code>name</code>, <code>description</code>, <code>input_schema</code> (da <code>RagToolInput</code>) e <code>run()</code>. <code>run</code> valida l'input, chiama <code>run_rag</code> e restituisce <code>{query, chunks, metadata}</code>, dove metadata contiene search_mode, rerank_backend, k_finale e collection.`,
+        it: [
+          ["RagTool", "Implementazione del tool."],
+          ["RAG_TOOL_NAME = \"rag_search\"", "Nome usato in <code>allowed_tools</code> e <code>fallback_tool</code>."],
+          ["RAG_TOOL · REGISTERED_TOOLS", "Istanza di default (con config vuota) e registro dei tool."],
+          ["execute_tool(name, arguments, config)", "Esegue un tool per nome e restituisce JSON (in stile function calling)."],
+        ],
+        dep: [Q + "models.py", Q + "pipeline.py"],
+        n: ["Il formato restituito da <code>run()</code> è un contratto verificato da <code>tests/test_tool_contract.py</code>."],
+      }),
+      F("tools.py", {
+        L: "legacy", s: "<code>definisci_tool()</code>: trasforma un modello Pydantic in un descrittore di function tool.",
+        d: `Restituisce <code>{type: "function", name, description: schema.__doc__, parameters: schema.model_json_schema(), strict: False}</code>. Oggi il lavoro equivalente lo fa <code>LLMOrchestrator._tool_catalog</code>.`,
+        n: [`Il blocco <code>if __name__ == "__main__"</code> usa <code>SOLO</code>, <code>DOMANDE</code> e <code>chiedi</code>, che non sono definiti: eseguire il file dà <code>NameError</code>.`],
+      }),
+      F("vectorstore.py", {
+        L: "rt", s: "Tutto ciò che riguarda ChromaDB: apertura, creazione, upsert, ricerca.",
+        d: `<code>search()</code> è il cuore della ricerca semantica: se ci sono segnali positivi embedda quelli al posto della query, recupera <code>fetch_k</code> risultati, scarta le hard exclusions (titolo, cast, …), sottrae 0.08 per ogni segnale negativo trovato e riordina. Lo score è <code>1 − distanza coseno</code>.`,
+        it: [
+          ["DB_ROOT · db_dir_for_backend(backend)", "<code>dbVettoriale/openai</code> o <code>dbVettoriale/local</code>."],
+          ["apri_collection(nome, db_dir)", "Apre la collection o la crea se manca (cosine)."],
+          ["crea_collection(nome, db_dir)", "La ricrea da zero (cancella quella esistente)."],
+          ["indicizza(collection, ids, testi, embeddings, metadatas)", "Upsert con embedding già calcolati."],
+          ["search(collection, query, k, backend, model, *, …signals, fetch_k)", "Ricerca con gestione dei segnali."],
+        ],
+        dep: [Q + "embeddings.py"],
+        x: ["chromadb"],
+        n: ["Nonostante il commit “migrate db to Qdrant”, il codice usa solo Chroma."],
+      }),
+
+      D("query_classifier", {
+        L: "orch", g: "U",
+        s: "Il guardrail attuale: la domanda riguarda il cinema? È in italiano?",
+        d: `Viene chiamato da <code>app.py</code> prima dell'orchestratore, a ogni turno. Se la domanda non riguarda il cinema la chat risponde con un messaggio fisso nella lingua dell'utente, senza toccare né RAG né orchestratore.`,
+      }, [
+        F("__init__.py", { L: "orch", g: "U", s: "Re-esporta <code>classify_query_domain</code>.", d: `Permette di scrivere <code>from …query_classifier import classify_query_domain</code>.`, dep: [Q + "query_classifier/query_classifier.py"] }),
+        F("query_classifier.py", {
+          L: "orch", g: "U", s: "<code>classify_query_domain(query)</code> → <code>{is_cinema, is_italian}</code>.",
+          d: `Chiama <code>gpt-4o-mini</code> (<code>CHEAP_MODEL</code>) con temperatura 0 e <code>response_format = json_object</code>. Il prompt di sistema accetta film, serie TV, documentari, attori, registi e richieste implicite di consigli, e ignora esplicitamente i tentativi di jailbreak contenuti nella query. <code>_validate_classification</code> garantisce che la risposta contenga due booleani.`,
+          it: [
+            ["classify_query_domain(query)", "Una chiamata OpenAI per ogni domanda."],
+            ["QueryClassification", "TypedDict del risultato."],
+            ["_validate_classification(raw)", "Controllo del JSON restituito."],
+          ],
+          x: ["openai"],
+          n: ["Fa parte della difesa anti off-topic e anti jailbreak: non indebolirla senza permesso.", "Testato con mock in <code>tests/test_query_language.py</code>."],
+        }),
+      ]),
+      D("local_query_classifier", {
+        L: "legacy",
+        s: "Vecchia versione del classificatore, in fase di rimozione.",
+        d: `In origine conteneva un classificatore locale basato su marcatori lessicali italiani (<code>italian_markers.py</code>, ora cancellato). Il file rimasto è quasi identico a <code>query_classifier/</code> e <b>nessun modulo lo importa più</b>.`,
+        n: ["Da cancellare quando la migrazione verso <code>query_classifier/</code> viene committata. Non estenderlo."],
+      }, [
+        F("local_query_classifier.py", {
+          L: "legacy", g: "M", s: "Duplicato di <code>query_classifier.py</code> (usa <code>CLASSIFIER_MODEL</code>).",
+          d: `Stessa logica e stesso modello (<code>gpt-4o-mini</code>) della versione nuova. È un residuo della migrazione: le modifiche vanno fatte in <code>query_classifier/query_classifier.py</code>.`,
+          x: ["openai"],
+        }),
+      ]),
+    ]),
+  ]),
+
+  D("rag_support", {
+    L: "legacy",
+    s: "Cartella vuota: il suo unico file è stato cancellato.",
+    d: `Conteneva <code>local_query_classifier.py</code> (uno shim), ora eliminato nel working tree. Git non traccia le cartelle vuote, quindi sparirà da sola dopo il commit; in locale si può rimuovere.`,
+  }),
+
+  D("semanticDb", {
+    L: "legacy", ig: true,
+    s: "Vecchio DB Chroma di un layout precedente, non più usato.",
+    d: `Nessun modulo fa riferimento a <code>semanticDb/</code>: oggi il percorso del DB è <code>dbVettoriale/&lt;backend&gt;/</code>. È ignorato da git.`,
+  }, [F("chroma.sqlite3", { ...SQLITE, L: "legacy", s: "SQLite di un vecchio database Chroma (orfano)." })]),
+
+  D("tests", {
+    L: "test",
+    s: "Test pytest: unit test offline + test di integrazione.",
+    d: `Si eseguono dalla root con <code>python -m pytest</code>. I test di unità mockano OpenAI con <code>monkeypatch</code>; il test del contratto del tool invece usa API reali e il DB.`,
+    cmd: "python -m pytest tests/test_query_language.py -q   # offline\npython -m pytest -q                                # include l'integrazione",
+  }, [
+    F("test_query_language.py", {
+      L: "test", g: "M", s: "Unit test offline del classificatore e della lingua del blocco.",
+      d: `<code>test_block_language_uses_classification_flag</code> verifica la scelta it/en. <code>test_cinema_question_uses_openai_classifier</code> sostituisce il client OpenAI con un fake via <code>monkeypatch</code> e controlla il parsing e l'uso di <code>gpt-4o-mini</code>. Nessuna chiamata di rete.`,
+      dep: [Q + "chat.py", Q + "query_classifier/query_classifier.py"],
+      x: ["pytest"],
+    }),
+    F("test_tool_contract.py", {
+      L: "test", g: "U", s: "Test di integrazione su CONFIG, RagTool e orchestratore.",
+      d: `Verifica che <code>CONFIG</code> abbia le sezioni attese, che <code>RagTool.run</code> restituisca <code>{query, chunks, metadata}</code> con <code>k_finale</code> corretto e che l'orchestratore veda il tool <code>rag_search</code>.`,
+      dep: ["app.py", "orchestrator.py", Q + "tool_interface.py"],
+      x: ["pytest"],
+      n: ["<code>test_rag_tool_returns_structured_results</code> chiama davvero OpenAI e Cohere e richiede un DB popolato: costa crediti."],
+    }),
+  ]),
+
+  F(".env", {
+    L: "cfg", ig: true,
+    s: "Le chiavi API reali (OPENAI_API_KEY, COHERE_API_KEY). Segreto.",
+    d: `Caricato con <code>python-dotenv</code> (<code>load_dotenv()</code> in <code>embeddings.py</code>, <code>rag.py</code>, <code>rerank.py</code> e nel builder). È ignorato da git.`,
+    n: ["Non aprirlo, non stamparlo e non committarlo. Per documentare nuove variabili usa <code>.env.example</code>."],
+  }),
+  F(".env.example", {
+    L: "cfg", s: "Template delle variabili d'ambiente richieste.",
+    d: `Contiene le chiavi vuote <code>OPENAI_API_KEY=</code> e <code>COHERE_API_KEY=</code>. Va copiato in <code>.env</code> e compilato. <code>COHERE_API_KEY</code> è necessaria solo con <code>rerank.backend = cohere</code> (il default).`,
+    cmd: "cp .env.example .env",
+  }),
+  F(".gitignore", {
+    L: "cfg", s: "Cosa resta fuori da git: segreti, venv, dataset, DB vettoriali, cache.",
+    d: `Esclude <code>.env*</code> (tranne <code>.env.example</code>), <code>.venv/</code>, <code>__pycache__/</code>, <code>dataset/</code>, <code>datasets/*</code>, <code>dbVettoriale/*</code>, <code>semanticDb/</code> e le cartelle tipiche dei vector store (<code>chroma/</code>, <code>qdrant_storage/</code>, <code>faiss_index/</code>…).`,
+  }),
+  F("AGENTS.md", {
+    L: "cfg", g: "U", s: "Guida per gli agenti IA: stack, comandi, convenzioni, regole.",
+    d: `Riassume contesto, comandi (setup, build del DB, avvio, test), stile del codice, pattern architetturali (config-driven, <code>Tool</code> Protocol) e regole di ingaggio: test con mock, niente modifiche a <code>.env</code>, niente build distruttive o chiamate API senza permesso, stile dei commit.`,
+  }),
+  F("README.md", {
+    L: "cfg", s: "Documentazione per gli umani: setup, dataset, build del DB, API.",
+    d: `Spiega come scaricare il corpus CMU, come costruire <code>dbVettoriale/</code> e come avviare la chat.`,
+    n: ["In parte superato: descrive <code>run_rag</code>/<code>execute_tool</code> esposti da <code>app.py</code> e la compattazione a 60.000 token, mentre ora <code>app.py</code> usa l'orchestratore e compatta ogni 12 messaggi."],
+  }),
+  F("app.py", {
+    L: "entry", g: "M",
+    s: "Entry point: configurazione unica (<code>CONFIG</code>) e chat interattiva da terminale.",
+    d: `<code>CONFIG</code> contiene tutti i parametri del sistema: la sezione <code>orchestrator</code> (modello, istruzioni, tool consentiti, soglia di confidenza, finestra di memoria, compattazione) e la sezione <code>rag</code> (retrieval <code>semantic</code> con k_largo 10 → k_finale 3, rerank Cohere <code>rerank-v3.5</code>, prompt di generazione, embedding <code>text-embedding-3-small</code>, collection <code>netflix_scout</code>).<br><br><code>run_terminal_chat</code> controlla che il DB non sia vuoto, poi a ogni domanda: 1) la classifica, 2) se non riguarda il cinema stampa il messaggio di blocco nella lingua dell'utente, 3) altrimenti chiama <code>orchestrator.run</code>, stampa la risposta e aggiorna la history, 4) compatta la history quando arriva a <code>memory_window_size</code> messaggi.`,
+    it: [
+      ["CONFIG", "Unica fonte di verità per modelli, k, backend e prompt."],
+      ["NON_CINEMA_BLOCK_MESSAGES", "Risposte fisse in it/en per le domande non cinematografiche."],
+      ["build_runtime_config(overrides)", "Deep merge degli override sopra CONFIG (pensato per future richieste web/SSE)."],
+      ["build_app(overrides)", "Crea <code>LLMOrchestrator</code> con <code>RagTool</code>."],
+      ["run_terminal_chat() · main()", "Il loop REPL (<code>exit</code>/<code>quit</code> per uscire)."],
+    ],
+    dep: ["orchestrator.py", Q + "query_classifier/query_classifier.py", Q + "chat.py", Q + "cli.py", Q + "conversation.py", Q + "runtime.py", Q + "models.py", Q + "tool_interface.py", Q + "vectorstore.py"],
+    x: ["openai"],
+    cmd: "python app.py",
+    n: ["<code>max_iterations</code>, <code>max_execution_time</code> e <code>token_budget</code> sono in CONFIG ma il codice non li legge ancora."],
+  }),
+  F("buildSemanticDb.py", {
+    L: "off", s: "Wrapper in root: avvia il builder reale con gli argomenti da CLI.",
+    d: `Re-esporta tutto da <code>rag.EmbeddingProcess.buildSemanticDb</code> e, se lanciato come script, carica <code>.env</code>, legge gli argomenti e chiama <code>build_semantic_db(...)</code>. Esiste per avere il comando corto dalla root.`,
+    dep: [E + "buildSemanticDb.py"],
+    cmd: "python buildSemanticDb.py --embedding-backend openai\npython buildSemanticDb.py --embedding-backend local",
+    n: ["Distruttivo e costoso: ricrea <code>dbVettoriale/&lt;backend&gt;/</code> da zero."],
+  }),
+  F("imports.txt", {
+    L: "cfg", s: "Elenco di tutti gli import usati nel progetto (appunti, non usato dal codice).",
+    d: `Una lista ordinata di righe <code>import</code>/<code>from … import</code> raccolte dai moduli, con alcuni commenti da appunti di corso (es. “la libreria di stasera”). Serve solo come riferimento, nessun modulo lo legge.`,
+  }),
+  F("mappa.html", {
+    L: "cfg", g: "U", s: "Questa pagina: mappa interattiva del progetto.",
+    d: `File HTML autonomo (niente dipendenze esterne) con il grafico dell'architettura e un explorer in stile VS Code. Le descrizioni sono scritte a mano nell'oggetto <code>TREE</code> dentro lo script: aggiornale quando cambi la struttura del repo.`,
+  }),
+  F("movie_metadata.py", {
+    L: "off", s: "Shim in root: re-esporta <code>rag.EmbeddingProcess.movie_metadata</code>.",
+    d: `Contiene solo <code>from rag.EmbeddingProcess.movie_metadata import *</code>. Esiste per compatibilità con import vecchi.`,
+    dep: [E + "movie_metadata.py"],
+  }),
+  F("orchestrator.py", {
+    L: "orch", g: "U",
+    s: "<code>LLMOrchestrator</code>: sceglie il tool, lo esegue e scrive la risposta finale.",
+    d: `Definisce il <code>Tool</code> Protocol (<code>name</code>, <code>description</code>, <code>input_schema</code>, <code>run(*, query, params, conversation_history)</code>). <code>run()</code> fa tre passi:<br>1) <b>selezione</b>: se ci sono <code>required_tools</code> usa il primo; altrimenti chiede all'LLM un JSON <code>{tool_name, arguments, confidence}</code> e accetta la scelta solo sopra <code>tool_confidence_threshold</code>, se no usa <code>fallback_tool</code>;<br>2) <b>esecuzione</b> del tool;<br>3) <b>risposta finale</b>: costruisce un contesto con history + al massimo 10 chunk (600 caratteri l'uno) e chiede all'LLM di rispondere usando solo quei dati. Se la chiamata fallisce, restituisce il testo grezzo dei primi 3 chunk.`,
+    it: [
+      ["Tool (Protocol)", "Il contratto che ogni nuovo tool deve rispettare."],
+      ["LLMOrchestrator.run(*, query, conversation_history, tool_overrides)", "Restituisce <code>{tool, result, final_answer}</code>."],
+      ["_select_tool · _allowed_tool_names · _required_tool_names", "Logica di scelta e di fallback."],
+      ["_build_final_context · _generate_final_answer", "Composizione del prompt finale e generazione."],
+      ["list_tools · _tool_catalog", "Descrizione dei tool registrati."],
+    ],
+    x: ["openai"],
+    n: ["Il catalogo dei tool non viene passato all'LLM come function tool: la scelta avviene tramite prompt testuale + JSON.", "Gli errori LLM vengono silenziati con <code>except Exception</code>: utile per la robustezza, ma rende difficile il debug."],
+  }),
+  F("requirements.txt", {
+    L: "cfg", s: "Dipendenze Python con versioni pinnate.",
+    d: `openai, chromadb, pydantic, python-dotenv, cohere, rank-bm25, beautifulsoup4, markdown-it-py, pypdf, python-docx, numpy, sentence-transformers, torch.`,
+    cmd: "pip install -r requirements.txt",
+    n: ["<code>pytest</code> non è nell'elenco: va installato a parte.", "Non cambiare le versioni senza permesso."],
+  }),
+]);
+
+/* ====================================================================== */
+/* Indicizzazione                                                          */
+/* ====================================================================== */
+const BY_PATH = new Map();
+const sortKids = (a, b) =>
+  (a.type === b.type ? 0 : a.type === "dir" ? -1 : 1) ||
+  a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+
+(function index(node, parent) {
+  node.path = parent === null ? "" : (parent ? parent + "/" : "") + node.name;
+  node.parentPath = parent;
+  if (node.path) BY_PATH.set(node.path, node);
+  if (node.children) {
+    node.children.sort(sortKids);
+    node.children.forEach(c => index(c, node.path));
+  }
+})(TREE, null);
+
+// "Usato da" = dipendenze al contrario
+for (const n of BY_PATH.values()) n.usedBy = [];
+for (const n of BY_PATH.values()) (n.dep || []).forEach(p => BY_PATH.get(p) && BY_PATH.get(p).usedBy.push(n.path));
+
+// Cartelle colorate se contengono modifiche git
+function gitInside(n) {
+  if (n.type === "file") return n.g ? new Set([n.g]) : new Set();
+  const s = new Set(n.g ? [n.g] : []);
+  n.children.forEach(c => gitInside(c).forEach(v => s.add(v)));
+  n.gitInside = s;
+  return s;
+}
+gitInside(TREE);
+
+/* ====================================================================== */
+/* Icone                                                                   */
+/* ====================================================================== */
+const PY = `<svg width="14" height="14" viewBox="0 0 16 16"><path d="M7.9 1C4.6 1 4.8 2.4 4.8 2.4v1.5h3.2v.4H3.6S1.5 4.1 1.5 7.5s1.8 3.2 1.8 3.2h1.1V9.1s-.1-1.8 1.8-1.8h3.1s1.7 0 1.7-1.7V2.8S11.3 1 7.9 1zM6.2 2a.6.6 0 1 1 0 1.1.6.6 0 0 1 0-1.1z" fill="#3c78aa"/><path d="M8.1 15c3.3 0 3.1-1.4 3.1-1.4v-1.5H8v-.4h4.4s2.1.2 2.1-3.2-1.8-3.2-1.8-3.2h-1.1v1.6s.1 1.8-1.8 1.8H6.7S5 8.7 5 10.4v2.8S4.7 15 8.1 15zm1.7-1a.6.6 0 1 1 0-1.1.6.6 0 0 1 0 1.1z" fill="#f2c94c"/></svg>`;
+function icon(n) {
+  if (n.type === "dir") return "";
+  const name = n.name;
+  const ext = name.includes(".") ? name.slice(name.lastIndexOf(".") + 1).toLowerCase() : "";
+  if (ext === "py") return PY;
+  if (ext === "md") return `<span style="color:#519aba">M↓</span>`;
+  if (ext === "html") return `<span style="color:#e37933">&lt;&gt;</span>`;
+  if (ext === "tsv") return `<span style="color:#8dc149">▦</span>`;
+  if (ext === "sqlite3") return `<span style="color:#a074c4">⛁</span>`;
+  if (ext === "bin" || ext === "pickle") return `<span style="color:#7f7f7f">01</span>`;
+  if (name === ".gitignore") return `<span style="color:#e44d26">◆</span>`;
+  if (name.startsWith(".env")) return `<span style="color:#cbcb41">⚙</span>`;
+  if (name === "requirements.txt") return `<span style="color:#cc6d2e">≣</span>`;
+  return `<span style="color:#9da5b4">≡</span>`;
+}
+const CHEV = `<svg width="10" height="10" viewBox="0 0 10 10"><path d="M3.5 2l3 3-3 3" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>`;
+const FOLDER_ICO = `<svg width="14" height="14" viewBox="0 0 16 16"><path d="M1.5 3.5h4.2l1.5 1.5h7.3v8.5h-13z" fill="#c09553"/></svg>`;
+
+/* ====================================================================== */
+/* Albero (sidebar)                                                        */
+/* ====================================================================== */
+const treeEl = document.getElementById("tree");
+const WRAP = new Map();
+const OPEN_DEFAULT = new Set(["rag", "rag/FromQueryEmbeddingToRes"]);
+
+function buildNode(n, depth) {
+  const wrap = document.createElement("div");
+  wrap.className = "node" + (OPEN_DEFAULT.has(n.path) ? " open" : "");
+  const row = document.createElement("div");
+  row.className = "row";
+  row.style.setProperty("--d", depth);
+  row.dataset.path = n.path;
+  row.title = n.path;
+  if (n.g) row.classList.add("g-" + n.g);
+  if (n.ig) row.classList.add("ig");
+  let badge = n.g ? `<span class="badge">${n.g}</span>` : "";
+  if (n.type === "dir" && !n.g && n.gitInside && n.gitInside.size) {
+    const k = n.gitInside.has("M") ? "M" : "U";
+    row.classList.add("has-" + k);
+    badge = `<span class="dot" style="background:var(--git-${k.toLowerCase()})"></span>`;
+  }
+  row.innerHTML =
+    `<span class="twist">${n.type === "dir" ? CHEV : ""}</span>` +
+    `<span class="ico">${icon(n)}</span>` +
+    `<span class="label">${n.name}</span>${badge}`;
+  wrap.appendChild(row);
+  WRAP.set(n.path, wrap);
+  if (n.type === "dir") {
+    const kids = document.createElement("div");
+    kids.className = "children";
+    kids.style.setProperty("--d", depth);
+    n.children.forEach(c => kids.appendChild(buildNode(c, depth + 1)));
+    wrap.appendChild(kids);
+  }
+  return wrap;
+}
+TREE.children.forEach(c => treeEl.appendChild(buildNode(c, 0)));
+
+treeEl.addEventListener("click", ev => {
+  const row = ev.target.closest(".row");
+  if (!row) return;
+  const n = BY_PATH.get(row.dataset.path);
+  if (n.type === "dir") {
+    const wrap = WRAP.get(n.path);
+    const wasActive = state.active === n.path;
+    // Come VS Code: il click apre/chiude; in più mostra la pagina della cartella
+    if (wasActive || !wrap.classList.contains("open")) wrap.classList.toggle("open");
+  }
+  go(n.path);
+});
+
+document.getElementById("btn-collapse").onclick = () =>
+  WRAP.forEach(w => w.classList.remove("open"));
+document.getElementById("btn-overview").onclick = () => go("");
+document.getElementById("act-overview").onclick = () => go("");
+
+function reveal(path) {
+  const parts = path.split("/");
+  for (let i = 1; i < parts.length; i++) {
+    const w = WRAP.get(parts.slice(0, i).join("/"));
+    if (w) w.classList.add("open");
+  }
+  treeEl.querySelectorAll(".row.active").forEach(r => r.classList.remove("active"));
+  const w = WRAP.get(path);
+  if (w) {
+    const row = w.querySelector(":scope > .row");
+    row.classList.add("active");
+    const tr = treeEl.getBoundingClientRect(), rr = row.getBoundingClientRect();
+    if (rr.top < tr.top || rr.bottom > tr.bottom) row.scrollIntoView({ block: "center" });
+  }
+}
+
+/* Tastiera: frecce su/giù, destra/sinistra per aprire/chiudere */
+treeEl.addEventListener("keydown", ev => {
+  const rows = [...treeEl.querySelectorAll(".row")].filter(r => r.offsetParent !== null);
+  let i = rows.findIndex(r => r.classList.contains("active"));
+  const cur = rows[i] && BY_PATH.get(rows[i].dataset.path);
+  if (ev.key === "ArrowDown") i = Math.min(rows.length - 1, i + 1);
+  else if (ev.key === "ArrowUp") i = Math.max(0, i - 1);
+  else if (ev.key === "ArrowRight" && cur && cur.type === "dir") { WRAP.get(cur.path).classList.add("open"); ev.preventDefault(); return; }
+  else if (ev.key === "ArrowLeft" && cur) {
+    if (cur.type === "dir" && WRAP.get(cur.path).classList.contains("open")) WRAP.get(cur.path).classList.remove("open");
+    else if (cur.parentPath) go(cur.parentPath);
+    ev.preventDefault(); return;
+  } else return;
+  ev.preventDefault();
+  if (rows[i]) go(rows[i].dataset.path);
+});
+
+/* Sash ridimensionabile */
+(() => {
+  const sash = document.getElementById("sash"), wb = document.getElementById("workbench");
+  sash.addEventListener("mousedown", e => {
+    e.preventDefault(); sash.classList.add("drag");
+    const move = ev => wb.style.setProperty("--side-w", Math.min(600, Math.max(170, ev.clientX - 48)) + "px");
+    const up = () => { sash.classList.remove("drag"); removeEventListener("mousemove", move); removeEventListener("mouseup", up); };
+    addEventListener("mousemove", move); addEventListener("mouseup", up);
+  });
+})();
+
+/* ====================================================================== */
+/* Tab + routing                                                           */
+/* ====================================================================== */
+const state = { tabs: [""], active: "" };
+const tabsEl = document.getElementById("tabs");
+const crumbsEl = document.getElementById("crumbs");
+const contentEl = document.getElementById("content");
+
+function go(path) {
+  if (("#" + path) !== location.hash && !(path === "" && (location.hash === "" || location.hash === "#"))) {
+    location.hash = path;           // hashchange → open()
+  } else open(path);
+}
+addEventListener("hashchange", () => open(decodeURIComponent(location.hash.slice(1))));
+
+function open(path) {
+  if (path && !BY_PATH.has(path)) path = "";
+  if (!state.tabs.includes(path)) state.tabs.push(path);
+  state.active = path;
+  renderTabs();
+  renderCrumbs(path);
+  contentEl.innerHTML = path ? renderNodePage(BY_PATH.get(path)) : renderOverview();
+  contentEl.scrollTop = 0;
+  if (path) reveal(path); else treeEl.querySelectorAll(".row.active").forEach(r => r.classList.remove("active"));
+  document.getElementById("title").textContent = (path ? BY_PATH.get(path).name + " — " : "") + "NetflixScout — Mappa del progetto";
+}
+
+function renderTabs() {
+  tabsEl.innerHTML = state.tabs.map(p => {
+    const n = p ? BY_PATH.get(p) : null;
+    const ico = n ? (n.type === "dir" ? FOLDER_ICO : icon(n)) : `<span style="color:#3794ff">◈</span>`;
+    const name = n ? n.name : "Panoramica";
+    const cls = n && n.g ? ` style="color:var(--git-${n.g.toLowerCase()})"` : "";
+    return `<div class="tab${p === state.active ? " on" : ""}" data-tab="${p}" title="${p || "Grafico della struttura"}">` +
+      `<span class="ico">${ico}</span><span${cls}>${name}</span>` +
+      (p ? `<span class="x" data-close="${p}">✕</span>` : `<span class="x" style="visibility:hidden"></span>`) + `</div>`;
+  }).join("");
+  const on = tabsEl.querySelector(".tab.on");
+  if (on) on.scrollIntoView({ block: "nearest", inline: "nearest" });
+}
+tabsEl.addEventListener("click", ev => {
+  const close = ev.target.closest("[data-close]");
+  if (close) {
+    const p = close.dataset.close, i = state.tabs.indexOf(p);
+    state.tabs.splice(i, 1);
+    if (state.active === p) go(state.tabs[Math.max(0, i - 1)] || "");
+    else renderTabs();
+    return;
+  }
+  const t = ev.target.closest(".tab");
+  if (t) go(t.dataset.tab);
+});
+tabsEl.addEventListener("auxclick", ev => {
+  const t = ev.target.closest(".tab");
+  if (ev.button === 1 && t && t.dataset.tab) t.querySelector("[data-close]").click();
+});
+
+function renderCrumbs(path) {
+  if (!path) { crumbsEl.innerHTML = `<a href="#">NetflixScout</a><span class="sep">›</span><span>Panoramica</span>`; return; }
+  const parts = path.split("/");
+  crumbsEl.innerHTML = `<a href="#">NetflixScout</a>` + parts.map((p, i) => {
+    const sub = parts.slice(0, i + 1).join("/");
+    return `<span class="sep">›</span>` + (i === parts.length - 1 ? `<span style="color:#ddd">${p}</span>` : `<a href="#${sub}">${p}</a>`);
+  }).join("");
+}
+
+/* ====================================================================== */
+/* Pagine                                                                  */
+/* ====================================================================== */
+const strip = html => html.replace(/<[^>]+>/g, "");
+function layerTag(L) {
+  const l = LAYERS[L]; if (!l) return "";
+  return `<span class="tag" style="color:${l.color};border-color:${l.color}55;background:${l.color}14">${l.label}</span>`;
+}
+function gitTag(n) {
+  let t = "";
+  if (n.g === "M") t += `<span class="tag" style="color:var(--git-m);border-color:#e2c08d55">M · modificato, non committato</span>`;
+  if (n.g === "U") t += `<span class="tag" style="color:var(--git-u);border-color:#73c99155">U · nuovo, non tracciato</span>`;
+  if (n.ig) t += `<span class="tag" style="color:#9a9a9a;border-color:#ffffff22">ignorato da git</span>`;
+  return t;
+}
+function chip(p) {
+  const n = BY_PATH.get(p);
+  if (!n) return `<span class="chip ext">${p}</span>`;
+  return `<a class="chip" href="#${p}" title="${strip(n.s || "").replace(/"/g, "&quot;")}"><span style="display:grid;place-items:center;width:14px">${n.type === "dir" ? FOLDER_ICO : icon(n)}</span>${p}</a>`;
+}
+
+function renderNodePage(n) {
+  const isDir = n.type === "dir";
+  const vs = `vscode://file${ROOT_ABS}/${n.path}`;
+  let h = `<div class="page">
+    <h1><span class="ico" style="display:grid;place-items:center">${isDir ? FOLDER_ICO : icon(n)}</span>${n.name}${isDir ? "/" : ""}</h1>
+    <div class="path">${n.path}${isDir ? "/" : ""} ${n.name === ".env" ? "" : `<a class="vscode" href="${vs}">Apri in VS Code ↗</a>`}</div>
+    <div class="tags">${layerTag(n.L)}${gitTag(n)}</div>
+    <p class="lead">${n.s || ""}</p>`;
+
+  if (n.d) h += `<h2>${isDir ? "Cosa contiene" : "Cosa fa"}</h2><p>${n.d}</p>`;
+  if (n.it && n.it.length)
+    h += `<h2>Elementi principali</h2><table class="items">${n.it.map(([k, v]) => `<tr><td><code>${k}</code></td><td>${v}</td></tr>`).join("")}</table>`;
+  if (n.cmd) h += `<h2>Comando</h2><pre class="cmd">${n.cmd}</pre>`;
+
+  if (isDir) {
+    h += `<h2>Contenuto · ${n.children.length} elementi</h2>`;
+    h += n.children.length
+      ? `<div class="cards">${n.children.map(c => `<a class="card" href="#${c.path}"><span class="ico">${c.type === "dir" ? FOLDER_ICO : icon(c)}</span><div><b style="${c.g ? `color:var(--git-${c.g.toLowerCase()})` : c.ig ? "color:#8a8a8a" : ""}">${c.name}${c.type === "dir" ? "/" : ""}</b><span>${c.s || ""}</span></div></a>`).join("")}</div>`
+      : `<p class="none">Cartella vuota.</p>`;
+  } else {
+    const deps = n.dep || [];
+    h += `<h2>Dipende da</h2>` + (deps.length || (n.x && n.x.length)
+      ? `<div class="chips">${deps.map(chip).join("")}${(n.x || []).map(x => `<span class="chip ext" title="Libreria esterna">📦 ${x}</span>`).join("")}</div>`
+      : `<p class="none">Nessun modulo interno.</p>`);
+    h += `<h2>Usato da</h2>` + (n.usedBy.length
+      ? `<div class="chips">${n.usedBy.map(chip).join("")}</div>`
+      : `<p class="none">Nessun modulo del progetto lo importa${n.L === "data" ? " (è un file di dati)" : ""}.</p>`);
+  }
+  if (n.n && n.n.length) h += `<h2>Da sapere</h2><div class="callout"><ul>${n.n.map(x => `<li>${x}</li>`).join("")}</ul></div>`;
+  return h + `</div>`;
+}
+
+/* ====================================================================== */
+/* Grafico della struttura                                                 */
+/* ====================================================================== */
+const NODES = [
+  // ① offline
+  { id: "build", x: 165, y: 46, w: 700, h: 30, k: "off", t: "buildSemanticDb.py — orchestra la pipeline offline e ricrea il DB da zero", p: E + "buildSemanticDb.py", bar: true },
+  { id: "dataset", x: 24, y: 100, w: 120, k: "data", t: "dataset/", s: "CMU Movie Summary", p: "dataset" },
+  { id: "loaders", x: 165, y: 100, w: 120, k: "off", t: "loaders/", s: "pdf·docx·html·md·txt", p: E + "loaders" },
+  { id: "clean", x: 310, y: 100, w: 120, k: "off", t: "clean.py", s: "pulizia per formato", p: E + "clean.py" },
+  { id: "chunk", x: 455, y: 100, w: 120, k: "off", t: "chunk.py", s: "chunk semantico", p: E + "chunk.py", api: 1 },
+  { id: "emb", x: 600, y: 100, w: 120, k: "rt", t: "embeddings.py", s: "OpenAI | locale", p: Q + "embeddings.py", api: 1 },
+  { id: "vs1", x: 745, y: 100, w: 120, k: "rt", t: "vectorstore.py", s: "indicizza (upsert)", p: Q + "vectorstore.py" },
+  { id: "db1", x: 888, y: 92, w: 92, h: 62, k: "data", t: "dbVettoriale/", s: "Chroma", p: "dbVettoriale", cyl: true },
+  { id: "meta", x: 20, y: 162, w: 132, h: 34, k: "off", t: "movie_metadata.py", p: E + "movie_metadata.py" },
+  // ② runtime
+  { id: "user", x: 24, y: 262, w: 120, k: "ext", t: "Utente", s: "terminale" },
+  { id: "app", x: 200, y: 262, w: 140, k: "entry", t: "app.py", s: "CONFIG + chat loop", p: "app.py" },
+  { id: "clf", x: 420, y: 262, w: 160, k: "orch", t: "query_classifier.py", s: "cinema? italiano?", p: Q + "query_classifier/query_classifier.py", api: 1 },
+  { id: "block", x: 660, y: 262, w: 170, k: "ext", t: "Messaggio di blocco", s: "risposta fissa it / en" },
+  { id: "conv", x: 24, y: 352, w: 120, k: "rt", t: "conversation.py", s: "compatta la history", p: Q + "conversation.py", api: 1 },
+  { id: "orch", x: 200, y: 352, w: 140, k: "orch", t: "orchestrator.py", s: "sceglie tool + risponde", p: "orchestrator.py", api: 1 },
+  { id: "tool", x: 420, y: 352, w: 160, k: "orch", t: "tool_interface.py", s: "RagTool · rag_search", p: Q + "tool_interface.py" },
+  { id: "pipe", x: 660, y: 352, w: 170, k: "rt", t: "pipeline.py", s: "run_rag()", p: Q + "pipeline.py" },
+  { id: "rt", x: 868, y: 352, w: 112, k: "rt", t: "runtime.py", s: "risolve config", p: Q + "runtime.py" },
+  { id: "cli", x: 200, y: 442, w: 140, k: "rt", t: "cli.py", s: "stampa a terminale", p: Q + "cli.py" },
+  { id: "models", x: 420, y: 442, w: 160, k: "rt", t: "models.py", s: "schemi Pydantic", p: Q + "models.py" },
+  { id: "retr", x: 660, y: 442, w: 170, k: "rt", t: "retrieval.py", s: "segnali LLM + ricerca", p: Q + "retrieval.py", api: 1 },
+  { id: "rerank", x: 868, y: 442, w: 112, k: "rt", t: "rerank.py", s: "Cohere | LLM", p: Q + "rerank.py", api: 1 },
+  { id: "hyb", x: 470, y: 552, w: 130, k: "rt", t: "hybrid.py", s: "BM25 + RRF", p: Q + "hybrid.py" },
+  { id: "rag", x: 620, y: 552, w: 120, k: "rt", t: "rag.py", s: "recupera()", p: Q + "rag.py" },
+  { id: "vs2", x: 760, y: 552, w: 110, k: "rt", t: "vectorstore.py", s: "search()", p: Q + "vectorstore.py" },
+  { id: "db2", x: 890, y: 544, w: 90, h: 62, k: "data", t: "dbVettoriale/", s: "stesso DB", p: "dbVettoriale", cyl: true },
+];
+const EDGES = [
+  { f: "build", t: "loaders", dash: 1, dir: "v" }, { f: "build", t: "vs1", dash: 1, dir: "v" },
+  { f: "dataset", t: "loaders", l: "altri file", lp: [154, 90] },
+  { f: "loaders", t: "clean" }, { f: "clean", t: "chunk" }, { f: "chunk", t: "emb" }, { f: "emb", t: "vs1" }, { f: "vs1", t: "db1" },
+  { f: "dataset", t: "meta", dir: "v" },
+  { f: "meta", t: "emb", via: [[152, 179], [660, 180], [660, 146]], l: "trame: 1 film = 1 chunk + metadati", lp: [400, 180] },
+
+  { f: "user", t: "app", l: "domanda" },
+  { f: "app", t: "clf", l: "classifica" },
+  { f: "clf", t: "block", l: "non cinema", dash: 1 },
+  { f: "app", t: "orch", l: "se cinema", dir: "v" },
+  { f: "app", t: "conv", l: "ogni 12 msg" },
+  { f: "orch", t: "tool", l: "rag_search", both: 1 },
+  { f: "tool", t: "pipe", l: "run_rag()" },
+  { f: "pipe", t: "rt" },
+  { f: "pipe", t: "retr", l: "_retrieve", dir: "v" },
+  { f: "retr", t: "rerank" },
+  { f: "orch", t: "cli", l: "risposta finale", dir: "v" },
+  { f: "tool", t: "models", l: "valida input", dir: "v", dash: 1 },
+  { f: "retr", t: "hyb", dir: "v", l: "bm25 · hybrid", lp: [560, 522] },
+  { f: "retr", t: "rag", dir: "v", l: "semantic", lp: [714, 537] },
+  { f: "rag", t: "vs2" },
+  { f: "vs2", t: "db2" },
+];
+const KIND = {
+  off:   { fill: "#10302c", stroke: "#2bb3a0" },
+  rt:    { fill: "#14273d", stroke: "#4a9eff" },
+  orch:  { fill: "#33192a", stroke: "#ff7eb6" },
+  entry: { fill: "#271f3d", stroke: "#b48cff" },
+  data:  { fill: "#33280f", stroke: "#e0a43a" },
+  ext:   { fill: "#232323", stroke: "#7a7a7a", dash: "4 3" },
+};
+
+function renderDiagram() {
+  const N = Object.fromEntries(NODES.map(n => [n.id, { h: 46, ...n }]));
+  const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  let edges = "", labels = "";
+  for (const e of EDGES) {
+    const a = N[e.f], b = N[e.t];
+    const ac = { x: a.x + a.w / 2, y: a.y + a.h / 2 }, bc = { x: b.x + b.w / 2, y: b.y + b.h / 2 };
+    let pts;
+    if (e.via) {
+      pts = e.via;
+    } else {
+      const dir = e.dir || (Math.abs(bc.x - ac.x) > Math.abs(bc.y - ac.y) ? "h" : "v");
+      if (dir === "h") {
+        const s = [bc.x > ac.x ? a.x + a.w : a.x, ac.y], t = [bc.x > ac.x ? b.x : b.x + b.w, bc.y], mx = (s[0] + t[0]) / 2;
+        pts = [s, [mx, s[1]], [mx, t[1]], t];
+      } else {
+        const sx = a.bar ? bc.x : ac.x;
+        const s = [sx, bc.y > ac.y ? a.y + a.h : a.y], t = [bc.x, bc.y > ac.y ? b.y : b.y + b.h], my = (s[1] + t[1]) / 2;
+        pts = [s, [s[0], my], [t[0], my], t];
+      }
+    }
+    const d = "M" + pts.map(p => p.join(" ")).join(" L");
+    edges += `<path d="${d}" fill="none" stroke="#8b949e" stroke-width="1.3" ${e.dash ? 'stroke-dasharray="4 3"' : ""} marker-end="url(#ah)" ${e.both ? 'marker-start="url(#ah)"' : ""}/>`;
+    if (e.l) {
+      let lp = e.lp;
+      if (!lp) {
+        const i = Math.floor((pts.length - 1) / 2), p1 = pts[i], p2 = pts[i + 1];
+        lp = [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
+      }
+      const halo = lp[1] < 215 ? "#1a2322" : "#1c1f27";
+      labels += `<text x="${lp[0]}" y="${lp[1] + 3.5}" text-anchor="middle" font-size="10" fill="#b8b8b8" paint-order="stroke" stroke="${halo}" stroke-width="5" stroke-linejoin="round">${esc(e.l)}</text>`;
+    }
+  }
+  let nodes = "";
+  for (const n of Object.values(N)) {
+    const k = KIND[n.k], cx = n.x + n.w / 2;
+    const attrs = `fill="${k.fill}" stroke="${k.stroke}" stroke-width="1.5" ${k.dash ? `stroke-dasharray="${k.dash}"` : ""}`;
+    let shape, ty, sy;
+    if (n.cyl) {
+      const ry = 7;
+      shape = `<path d="M${n.x} ${n.y + ry} a${n.w / 2} ${ry} 0 0 0 ${n.w} 0 v${n.h - 2 * ry} a${n.w / 2} ${ry} 0 0 1 ${-n.w} 0 z" ${attrs}/>` +
+              `<ellipse cx="${cx}" cy="${n.y + ry}" rx="${n.w / 2}" ry="${ry}" ${attrs}/>`;
+      ty = n.y + n.h / 2 + 6; sy = ty + 14;
+    } else {
+      shape = `<rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="6" ${attrs}/>`;
+      ty = n.s ? n.y + n.h / 2 - 3 : n.y + n.h / 2 + 4; sy = ty + 14;
+    }
+    const title = n.p ? `<title>${n.p} — clicca per la spiegazione</title>` : "";
+    const api = n.api ? `<g><rect x="${n.x + n.w - 24}" y="${n.y - 7}" width="28" height="14" rx="7" fill="#c2732a"/><text x="${n.x + n.w - 10}" y="${n.y + 3}" text-anchor="middle" font-size="8.5" font-weight="700" fill="#fff">API</text></g>` : "";
+    nodes += `<g class="${n.p ? "n" : ""}" ${n.p ? `data-path="${n.p}"` : ""}>${title}${shape}` +
+      `<text x="${cx}" y="${ty}" text-anchor="middle" style="font-family:var(--mono)" font-size="${n.bar ? 11.5 : n.cyl ? 10.5 : 11}" font-weight="600" fill="#ececec">${esc(n.t)}</text>` +
+      (n.s ? `<text x="${cx}" y="${sy}" text-anchor="middle" font-size="10" fill="#a9a9a9">${esc(n.s)}</text>` : "") + api + `</g>`;
+  }
+  return `<svg viewBox="0 0 1000 640" role="img" aria-label="Architettura di NetflixScout" style="font-family:var(--sans)">
+    <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8b949e"/></marker></defs>
+    <rect x="8" y="8" width="984" height="200" rx="10" fill="#1a2322" stroke="#2bb3a033"/>
+    <text x="24" y="31" font-size="11" font-weight="700" letter-spacing=".06em" fill="#2bb3a0">① INDICIZZAZIONE OFFLINE</text>
+    <text x="210" y="31" font-size="11" fill="#8b8b8b" style="font-family:var(--mono)">python buildSemanticDb.py --embedding-backend openai|local</text>
+    <rect x="8" y="222" width="984" height="410" rx="10" fill="#1c1f27" stroke="#4a9eff33"/>
+    <text x="24" y="245" font-size="11" font-weight="700" letter-spacing=".06em" fill="#4a9eff">② RUNTIME</text>
+    <text x="110" y="245" font-size="11" fill="#8b8b8b" style="font-family:var(--mono)">python app.py</text>
+    ${edges}${nodes}${labels}
+  </svg>`;
+}
+
+function renderOverview() {
+  const L = (k, label) => `<span><i style="background:${KIND[k].fill};border-color:${KIND[k].stroke}${KIND[k].dash ? ";border-style:dashed" : ""}"></i>${label}</span>`;
+  return `<div class="page" style="max-width:1120px">
+    <h1><span style="color:#3794ff">◈</span>NetflixScout</h1>
+    <div class="path">Mappa del progetto · grafico della struttura</div>
+    <p class="lead">Assistente da terminale che consiglia film con una pipeline RAG sul CMU Movie Summary Corpus: ChromaDB per la ricerca, Cohere per il rerank, OpenAI per classificazione, segnali, embedding e risposta.</p>
+    <p style="color:var(--muted)">Clicca un riquadro del grafico, oppure un file o una cartella nell'explorer a sinistra, per leggerne la spiegazione.</p>
+    <div class="diagram" id="diagram">${renderDiagram()}</div>
+    <div class="legend">
+      ${L("off", "Indicizzazione offline")}${L("rt", "Runtime RAG")}${L("orch", "Orchestrazione / guardrail")}${L("entry", "Entry point")}${L("data", "Dati locali")}${L("ext", "Esterno / non è un file")}
+      <span><i style="background:#c2732a;border-color:#c2732a;border-radius:7px"></i>chiama un'API a pagamento</span>
+    </div>
+
+    <h2>Il flusso in 6 passi</h2>
+    <ol class="steps">
+      <li><b>Indicizzazione (una volta sola).</b> <a class="vscode" href="#buildSemanticDb.py">buildSemanticDb.py</a> legge <code>dataset/</code>. Ogni trama diventa un chunk con titolo, anno, generi e cast; gli embedding finiscono in Chroma, in <code>dbVettoriale/&lt;backend&gt;/</code>.</li>
+      <li><b>Guardrail.</b> <a class="vscode" href="#app.py">app.py</a> riceve la domanda e <a class="vscode" href="#${Q}query_classifier/query_classifier.py">query_classifier</a> (gpt-4o-mini) blocca quelle che non riguardano il cinema, rispondendo in italiano o in inglese.</li>
+      <li><b>Orchestrazione.</b> <a class="vscode" href="#orchestrator.py">orchestrator.py</a> sceglie il tool: oggi c'è solo <code>rag_search</code>, che è anche il fallback.</li>
+      <li><b>Retrieval.</b> <a class="vscode" href="#${Q}retrieval.py">retrieval.py</a> estrae i segnali dalla query (cosa vuoi, cosa evitare, cosa escludere) e cerca fino a <code>k_largo = 10</code> candidati in modalità <code>semantic</code>, <code>bm25</code> o <code>hybrid</code>.</li>
+      <li><b>Rerank.</b> <a class="vscode" href="#${Q}rerank.py">rerank.py</a> riordina con Cohere <code>rerank-v3.5</code> e tiene i primi <code>k_finale = 3</code>.</li>
+      <li><b>Risposta.</b> L'orchestratore scrive la risposta usando solo i chunk ricevuti. Ogni 12 messaggi <a class="vscode" href="#${Q}conversation.py">conversation.py</a> compatta la history.</li>
+    </ol>
+
+    <h2>Punti di attenzione nel codice</h2>
+    <div class="callout"><ul>
+      <li>Il README è in parte superato rispetto ad <code>app.py</code> e <code>orchestrator.py</code>.</li>
+      <li>Il commit “migrate db to Qdrant” non corrisponde al codice, che usa solo ChromaDB.</li>
+      <li><a class="vscode" href="#${Q}local_query_classifier">local_query_classifier/</a>, <a class="vscode" href="#rag_support">rag_support/</a> e <a class="vscode" href="#semanticDb">semanticDb/</a> sono residui da ripulire.</li>
+      <li><a class="vscode" href="#${Q}tools.py">tools.py</a> lanciato come script va in <code>NameError</code>.</li>
+      <li>In modalità bm25/hybrid l'indice BM25 viene ricostruito su tutto il corpus a ogni query (<a class="vscode" href="#${Q}hybrid.py">hybrid.py</a>).</li>
+      <li><code>max_iterations</code>, <code>max_execution_time</code> e <code>token_budget</code> sono in CONFIG ma il codice non li usa.</li>
+    </ul></div>
+  </div>`;
+}
+
+contentEl.addEventListener("click", ev => {
+  const g = ev.target.closest("#diagram [data-path]");
+  if (g) go(g.dataset.path);
+});
+
+/* Status bar */
+(() => {
+  let m = 0, u = 0;
+  BY_PATH.forEach(n => { if (n.type === "file" && n.g === "M") m++; if (n.type === "file" && n.g === "U") u++; });
+  document.getElementById("git-count").textContent = `● ${m} modificati   ＋ ${u} nuovi`;
+})();
+
+open(decodeURIComponent(location.hash.slice(1)));
+</script>
+</body>
+</html>

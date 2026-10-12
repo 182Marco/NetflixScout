@@ -1,28 +1,42 @@
 from rag.FromQueryEmbeddingToRes.chat import _choose_block_language
-from rag.FromQueryEmbeddingToRes.local_query_classifier.local_query_classifier import (
-    _validate_classification,
-)
+from rag.FromQueryEmbeddingToRes.query_classifier.query_classifier import classify_query_domain
 
 
-def test_block_language_uses_italian_markers_for_mixed_language_queries() -> None:
-    query = "Mi spieghi per favore the relativity theory from albery Einstein?"
+def test_block_language_uses_classification_flag() -> None:
+    assert _choose_block_language("query", {"is_cinema": False, "is_italian": True}) == "it"
+    assert _choose_block_language("query", {"is_cinema": False, "is_italian": False}) == "en"
 
-    assert _choose_block_language(query, {"is_cinema": False, "is_italian": False}) == "it"
 
+def test_cinema_question_uses_openai_classifier(monkeypatch) -> None:
+    captured: dict[str, object] = {}
 
-def test_cinema_queries_skip_italian_marker_detection(monkeypatch) -> None:
-    called = {"value": False}
-
-    def fake_looks_italian(query: str) -> bool:
-        called["value"] = True
-        return True
+    class FakeCompletions:
+        @staticmethod
+        def create(**kwargs):
+            captured["model"] = kwargs["model"]
+            captured["messages"] = kwargs["messages"]
+            return type(
+                "Response",
+                (),
+                {
+                    "choices": [
+                        type(
+                            "Choice",
+                            (),
+                            {"message": type("Message", (), {"content": '{"is_cinema": true, "is_italian": true}'})()},
+                        )()
+                    ]
+                },
+            )()
 
     monkeypatch.setattr(
-        "rag.FromQueryEmbeddingToRes.local_query_classifier.local_query_classifier._looks_italian",
-        fake_looks_italian,
+        "rag.FromQueryEmbeddingToRes.query_classifier.query_classifier.OpenAI",
+        lambda: type("Client", (), {"chat": type("Chat", (), {"completions": FakeCompletions})()})(),
     )
 
-    result = _validate_classification({"is_cinema": True, "is_italian": False}, "Mi spieghi per favore?")
+    result = classify_query_domain(
+        "Dimmi il più bel film di sport che hai tra i documenti e poi dimmi quando uscirà il prossimo film di sport su un grande personaggio con budget relativamente alto"
+    )
 
-    assert result == {"is_cinema": True, "is_italian": False}
-    assert called["value"] is False
+    assert result == {"is_cinema": True, "is_italian": True}
+    assert captured["model"] == "gpt-4o-mini"
