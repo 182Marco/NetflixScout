@@ -36,7 +36,7 @@ l'orchestratore genera la risposta finale → history → compattazione oltre me
 | `rag/FromQueryEmbeddingToRes/` | runtime: `pipeline.run_rag`, `retrieval.py`, `rerank.py`, `hybrid.py`, `vectorstore.py`, `embeddings.py`, `models.py`, `tool_interface.py` (`RagTool`, `rag_search`), `runtime.py`, `conversation.py` |
 | `rag/FromQueryEmbeddingToRes/query_classifier/` | classificatore di dominio e lingua **attuale** |
 | `buildSemanticDb.py`, `movie_metadata.py` (root) | shim che reindirizzano a `rag/EmbeddingProcess/` |
-| `tests/` | `test_query_language.py`, `test_presenters.py` e `test_orchestrator.py` (offline, con mock), `test_tool_contract.py` (**integrazione**: chiama API reali e Chroma) |
+| `tests/` | `test_query_language.py`, `test_presenters.py`, `test_orchestrator.py` e `test_retrieval.py` (offline, con mock), `test_tool_contract.py` (**integrazione**: chiama API reali e Chroma) |
 | `dataset/`, `dbVettoriale/` | artefatti locali, ignorati da git |
 
 Nota: il README è in parte obsoleto (cita `run_rag`/`execute_tool` esposti da `app.py`). In caso di conflitto conta il codice.
@@ -61,7 +61,7 @@ python buildSemanticDb.py --embedding-backend openai     # oppure: local
 python app.py
 
 # Test
-python -m pytest tests/test_query_language.py tests/test_presenters.py tests/test_orchestrator.py -q   # offline, veloce, gratis
+python -m pytest tests/test_query_language.py tests/test_presenters.py tests/test_orchestrator.py tests/test_retrieval.py -q   # offline, veloce, gratis
 python -m pytest -q                                # include l'integrazione: servono .env e un DB popolato, consuma crediti API
 ```
 
@@ -95,7 +95,7 @@ Non c'è uno step di build o packaging: il progetto si esegue da sorgente, dalla
 
 **Da fare sempre**
 - Aggiungi o aggiorna test `pytest` per ogni modifica di logica. Mocka OpenAI/Cohere con `monkeypatch` (vedi `tests/test_query_language.py`); i nuovi unit test non devono fare chiamate di rete.
-- Prima di chiudere un task esegui almeno `python -m pytest tests/test_query_language.py tests/test_presenters.py tests/test_orchestrator.py -q` più i test che hai aggiunto.
+- Prima di chiudere un task esegui almeno `python -m pytest tests/test_query_language.py tests/test_presenters.py tests/test_orchestrator.py tests/test_retrieval.py -q` più i test che hai aggiunto.
 - Mantieni la retrocompatibilità del contratto `RagTool.run` e della forma di `CONFIG` (`tests/test_tool_contract.py` la verifica).
 - Se cambi comandi, struttura o API pubbliche, aggiorna `README.md` e questo file.
 
