@@ -202,6 +202,7 @@ const LAYERS = {
   rt:     { label: "Runtime RAG",            color: "#4a9eff" },
   data:   { label: "Dati locali",            color: "#e0a43a" },
   cfg:    { label: "Config / docs",          color: "#9da5b4" },
+  out:    { label: "Output / presenter",     color: "#56d4dd" },
   test:   { label: "Test",                   color: "#73c991" },
 };
 
@@ -371,26 +372,15 @@ const TREE = D("NetflixScout", {}, [
     }, [
       F("__init__.py", { L: "rt", s: "API pubblica del package runtime.", d: `Re-esporta <code>run_rag</code>, <code>RAG_TOOL</code>, <code>RAG_TOOL_NAME</code>, <code>REGISTERED_TOOLS</code>, <code>execute_tool</code> e <code>run_conversation_loop</code>.`, dep: [Q + "chat.py", Q + "pipeline.py", Q + "tool_interface.py"], n: ["Importarlo carica anche <code>rag.py</code>, che crea un client OpenAI all'import: serve <code>OPENAI_API_KEY</code> nell'ambiente."] }),
       F("chat.py", {
-        L: "rt", g: "M",
+        L: "rt",
         s: "Loop di chat “vecchio stile” senza orchestratore, più l'helper per la lingua del blocco.",
         d: `<code>app.py</code> oggi usa da qui solo <code>_choose_block_language</code>. <code>run_conversation_loop</code> è il loop precedente, ancora esportato: classifica la domanda, la riscrive in forma autonoma usando la history, esegue retrieve + rerank, stampa i chunk, genera la risposta con <code>rag.genera</code> e compatta la history quando i token di input superano <code>token_threshold</code>.`,
         it: [
           ["_choose_block_language(query, classification)", `<code>"it"</code> se il classificatore dice <code>is_italian</code>, altrimenti <code>"en"</code>.`],
           ["run_conversation_loop(*, config, exit_commands, compact_notice)", "Chat RAG completa senza orchestratore (stampa anche i chunk intermedi)."],
         ],
-        dep: [Q + "cli.py", Q + "conversation.py", Q + "query_classifier/query_classifier.py", Q + "rag.py", Q + "retrieval.py", Q + "runtime.py", Q + "vectorstore.py", "app.py"],
-        n: ["Importa <code>NON_CINEMA_BLOCK_MESSAGES</code> da <code>app.py</code> dentro la funzione, per evitare un import circolare."],
-      }),
-      F("cli.py", {
-        L: "rt", s: "Tutto l'output a terminale (header, modalità, chunk, risposta).",
-        d: `Funzioni di sola stampa con cornici in box-drawing ed emoji. Accettano chunk sia come <code>dict</code> sia come <code>RagChunk</code>.`,
-        it: [
-          ["print_header()", "Banner “🎬 NETFLIXSCOUT — RAG SEARCH” e istruzioni per uscire."],
-          ["print_mode(runtime_config)", "Mostra search mode, reranker, k_largo, k_finale."],
-          ["print_final_answer(answer)", "Box con la risposta finale dell'LLM."],
-          ["_print_chunks / _print_retrieval_compact", "Debug dei chunk recuperati e riordinati (usati da <code>chat.py</code>)."],
-        ],
-        dep: [Q + "models.py"],
+        dep: ["presenters/terminal/blocks.py", Q + "conversation.py", Q + "query_classifier/query_classifier.py", Q + "rag.py", Q + "retrieval.py", Q + "runtime.py", Q + "vectorstore.py", "app.py"],
+        n: ["Importa <code>NON_CINEMA_BLOCK_MESSAGES</code> da <code>app.py</code> dentro la funzione, per evitare un import circolare.", "Il loop legacy stampa direttamente con i blocchi di <code>presenters/terminal/blocks.py</code>: è l'unica eccezione alla regola “il nucleo non stampa”."],
       }),
       F("conversation.py", {
         L: "rt", s: "Memoria della conversazione: compattazione e riscrittura della query.",
@@ -425,21 +415,21 @@ const TREE = D("NetflixScout", {}, [
         n: ["<code>_retrieve</code> ricostruisce l'indice BM25 a ogni query: con ~42k trame è lento e usa molta memoria. Conviene metterlo in cache."],
       }),
       F("models.py", {
-        L: "rt", g: "M", s: "Schemi Pydantic ed enum condivisi.",
+        L: "rt", s: "Schemi Pydantic ed enum condivisi.",
         d: `Definisce i tipi che attraversano la pipeline. La docstring di <code>RagToolInput</code> e il suo <code>model_json_schema()</code> diventano descrizione e parametri del tool <code>rag_search</code>.`,
         it: [
           ["SearchMode", "<code>semantic | hybrid | bm25</code>"],
           ["RerankBackend", "<code>cohere | llm</code>"],
           ["RagChunk", "Un chunk con <code>id, testo, score</code> e metadati del film."],
-          ["RagResult", "Output di <code>run_rag</code>: query, modalità, chunk, (token)."],
+          ["RagResult", "Output di <code>run_rag</code>: query, modalità, <code>chunks</code> (dopo il rerank), <code>candidates</code> (i k_largo prima del rerank), (token)."],
           ["RagToolInput", "Input del tool: <code>query</code> non vuota."],
           ["QuerySignals", "<code>positive_signals, negative_signals, hard_exclusions</code> estratti dall'LLM."],
         ],
         x: ["pydantic"],
       }),
       F("pipeline.py", {
-        L: "rt", g: "M", s: "<code>run_rag()</code>: retrieval + rerank, senza generazione.",
-        d: `Risolve la configurazione a runtime, controlla che la collection non sia vuota (altrimenti dice di lanciare <code>buildSemanticDb.py</code>), poi esegue <code>_retrieve</code> e <code>_rerank</code> e impacchetta il risultato in un <code>RagResult</code>. <code>answer</code> resta <code>None</code>: la generazione spetta all'orchestratore.`,
+        L: "rt", s: "<code>run_rag()</code>: retrieval + rerank, senza generazione.",
+        d: `Risolve la configurazione a runtime, controlla che la collection non sia vuota (altrimenti dice di lanciare <code>buildSemanticDb.py</code>), poi esegue <code>_retrieve</code> e <code>_rerank</code> e impacchetta il risultato in un <code>RagResult</code>: <code>chunks</code> sono i finali, <code>candidates</code> i k_largo recuperati prima del rerank (servono al resoconto). <code>answer</code> resta <code>None</code>: la generazione spetta all'orchestratore.`,
         it: [["run_rag(*, config, query, history=None)", "Entry point della pipeline RAG. <code>history</code> oggi non viene usata."]],
         dep: [Q + "models.py", Q + "retrieval.py", Q + "runtime.py", Q + "vectorstore.py"],
       }),
@@ -479,13 +469,13 @@ const TREE = D("NetflixScout", {}, [
         x: ["openai"],
       }),
       F("runtime.py", {
-        L: "rt", g: "M", s: "Normalizza la config RAG prima dell'uso (backend effettivo, db_dir, default).",
+        L: "rt", s: "Normalizza la config RAG prima dell'uso (backend effettivo, db_dir, default).",
         d: `<code>_resolve_runtime_config(config)</code> copia le sottosezioni, decide il backend effettivo guardando quali cartelle esistono in <code>dbVettoriale/</code> (oppure usa <code>db_dir</code> se è impostato), calcola il percorso del DB e aggiunge i default della sezione <code>conversation</code>. Va chiamata prima di toccare vectorstore ed embedding.`,
         dep: [Q + "vectorstore.py"],
       }),
       F("tool_interface.py", {
-        L: "orch", g: "M", s: "<code>RagTool</code>: il tool <code>rag_search</code> esposto all'orchestratore.",
-        d: `Dataclass che rispetta il <code>Tool</code> Protocol di <code>orchestrator.py</code>: <code>name</code>, <code>description</code>, <code>input_schema</code> (da <code>RagToolInput</code>) e <code>run()</code>. <code>run</code> valida l'input, chiama <code>run_rag</code> e restituisce <code>{query, chunks, metadata}</code>, dove metadata contiene search_mode, rerank_backend, k_finale e collection.`,
+        L: "orch", s: "<code>RagTool</code>: il tool <code>rag_search</code> esposto all'orchestratore.",
+        d: `Dataclass che rispetta il <code>Tool</code> Protocol di <code>orchestrator.py</code>: <code>name</code>, <code>description</code>, <code>input_schema</code> (da <code>RagToolInput</code>) e <code>run()</code>. <code>run</code> valida l'input, chiama <code>run_rag</code> e restituisce <code>{query, chunks, metadata, trace}</code>. <code>metadata</code> contiene search_mode, rerank_backend, k_finale e collection e finisce nel prompt dell'orchestratore. <code>trace</code> è la lista dei passaggi <code>[{kind, title, data}]</code> (<code>retrieval</code> con i candidati k_largo, <code>rerank</code> con i chunk finali): sta fuori da metadata così non consuma token, e la usano solo i <code>presenters/</code>.`,
         it: [
           ["RagTool", "Implementazione del tool."],
           ["RAG_TOOL_NAME = \"rag_search\"", "Nome usato in <code>allowed_tools</code> e <code>fallback_tool</code>."],
@@ -493,7 +483,7 @@ const TREE = D("NetflixScout", {}, [
           ["execute_tool(name, arguments, config)", "Esegue un tool per nome e restituisce JSON (in stile function calling)."],
         ],
         dep: [Q + "models.py", Q + "pipeline.py"],
-        n: ["Il formato restituito da <code>run()</code> è un contratto verificato da <code>tests/test_tool_contract.py</code>."],
+        n: ["Il formato restituito da <code>run()</code> è un contratto verificato da <code>tests/test_tool_contract.py</code> e <code>tests/test_presenters.py</code>.", "Ogni tool futuro deve restituire la sua <code>trace</code> con la stessa forma."],
       }),
       F("vectorstore.py", {
         L: "rt", s: "Tutto ciò che riguarda ChromaDB: apertura, creazione, upsert, ricerca.",
@@ -511,13 +501,13 @@ const TREE = D("NetflixScout", {}, [
       }),
 
       D("query_classifier", {
-        L: "orch", g: "U",
+        L: "orch",
         s: "Il guardrail attuale: la domanda riguarda il cinema? È in italiano?",
         d: `Viene chiamato da <code>app.py</code> prima dell'orchestratore, a ogni turno. Se la domanda non riguarda il cinema la chat risponde con un messaggio fisso nella lingua dell'utente, senza toccare né RAG né orchestratore.`,
       }, [
-        F("__init__.py", { L: "orch", g: "U", s: "Re-esporta <code>classify_query_domain</code>.", d: `Permette di scrivere <code>from …query_classifier import classify_query_domain</code>.`, dep: [Q + "query_classifier/query_classifier.py"] }),
+        F("__init__.py", { L: "orch", s: "Re-esporta <code>classify_query_domain</code>.", d: `Permette di scrivere <code>from …query_classifier import classify_query_domain</code>.`, dep: [Q + "query_classifier/query_classifier.py"] }),
         F("query_classifier.py", {
-          L: "orch", g: "U", s: "<code>classify_query_domain(query)</code> → <code>{is_cinema, is_italian}</code>.",
+          L: "orch", s: "<code>classify_query_domain(query)</code> → <code>{is_cinema, is_italian}</code>.",
           d: `Chiama <code>gpt-4o-mini</code> (<code>CHEAP_MODEL</code>) con temperatura 0 e <code>response_format = json_object</code>. Il prompt di sistema accetta film, serie TV, documentari, attori, registi e richieste implicite di consigli, e ignora esplicitamente i tentativi di jailbreak contenuti nella query. <code>_validate_classification</code> garantisce che la risposta contenga due booleani.`,
           it: [
             ["classify_query_domain(query)", "Una chiamata OpenAI per ogni domanda."],
@@ -531,20 +521,92 @@ const TREE = D("NetflixScout", {}, [
     ]),
   ]),
 
+  D("presenters", {
+    L: "out",
+    s: "Lo strato di output: come mostrare un <code>TurnResult</code>, separato per canale.",
+    d: `Il nucleo (<code>app.handle_query</code>) produce solo dati. Questa cartella decide come presentarli, e <code>present(turn, channel)</code> in <code>__init__.py</code> è <b>l'unico <code>if</code></b> che distingue terminale e web. Ogni canale ha la sua sottocartella: <code>terminal/</code> stampa il resoconto completo del procedimento, <code>web/</code> è predisposto per restituire una struttura dati al frontend.`,
+    n: ["Il canale non viene “indovinato” con <code>sys.stdin.isatty()</code>: lo dichiara l'entry point (vedi <code>channel.py</code>)."],
+  }, [
+    F("__init__.py", {
+      L: "out", s: "<code>present(turn, channel)</code>: l'unico punto in cui si sceglie terminale o web.",
+      d: `Se il canale è <code>OutputChannel.terminal</code> chiama <code>terminal.render(turn)</code>, che stampa e restituisce <code>None</code>. Altrimenti chiama <code>web.to_payload(turn)</code>, che in futuro restituirà un <code>dict</code> per la risposta HTTP.`,
+      it: [["present(turn, channel)", "Dispatcher tra i canali."], ["OutputChannel", "Re-esportato da <code>channel.py</code>."]],
+      dep: ["presenters/channel.py", "presenters/terminal/__init__.py", "presenters/web/__init__.py", "turn.py"],
+    }),
+    F("channel.py", {
+      L: "out", s: "Enum <code>OutputChannel</code> (<code>terminal</code> | <code>web</code>) e come si capisce da dove arriva l'input.",
+      d: `Il canale lo dichiara l'entry point che riceve l'input, perché è l'unico a sapere da dove arriva. <code>python app.py</code> esegue <code>if __name__ == "__main__": main()</code> e legge con <code>input()</code> dal terminale, quindi usa <code>terminal</code>. La futura route FastAPI importa <code>app.handle_query</code> (lì <code>__name__</code> non è <code>"__main__"</code>), riceve la domanda nella richiesta HTTP e usa <code>web</code>.`,
+      n: ["<code>sys.stdin.isatty()</code> non viene usato di proposito: è falso con le pipe (<code>echo … | python app.py</code>), in Docker senza <code>-t</code>, in alcuni runner degli IDE e nei test."],
+    }),
+    D("terminal", {
+      L: "out",
+      s: "Canale terminale: stampa tutto il procedimento, come faceva la chat prima dell'orchestratore.",
+      d: `Usato da <code>python app.py</code>. Ordine dell'output a ogni turno: 🛠️ tool scelto → 📚 K LARGO (i candidati recuperati) → 🏆 RERANKING (i chunk finali con score, generi, cast e anteprima) → 🤖 risposta finale → eventuale avviso di compattazione. Header e modalità vengono stampati una volta, all'avvio.`,
+    }, [
+      F("__init__.py", {
+        L: "out", s: "API del canale terminale.",
+        d: `Re-esporta <code>render</code> e i blocchi usati dal loop di <code>app.py</code>: <code>print_header</code>, <code>print_mode</code>, <code>print_goodbye</code>, <code>read_query</code>.`,
+        dep: ["presenters/terminal/blocks.py", "presenters/terminal/renderer.py"],
+      }),
+      F("blocks.py", {
+        L: "out", s: "I blocchi di stampa: box, header, modalità, liste di chunk, risposta.",
+        d: `È l'ex <code>rag/FromQueryEmbeddingToRes/cli.py</code>, spostato qui perché è output e non logica RAG. Accetta chunk sia come <code>dict</code> sia come modelli Pydantic (con <code>model_dump()</code>) <b>senza importare il package <code>rag</code></b>: così i presenter restano indipendenti dal nucleo e non ci sono import circolari.`,
+        it: [
+          ["print_header() · print_mode(runtime_config)", "Banner e configurazione di ricerca, stampati all'avvio."],
+          ["_print_retrieval_compact(title, chunks, emoji)", "Lista compatta titolo (anno): il blocco 📚 K LARGO."],
+          ["_print_chunks(title, chunks, emoji)", "Scheda dettagliata di ogni chunk: il blocco 🏆 RERANKING."],
+          ["print_tool_selection(tool_name)", "Riga “🛠️ Tool scelto dall'orchestratore”."],
+          ["print_generic_step(title, data)", "Fallback per i passaggi di tool futuri senza un renderer dedicato."],
+          ["print_final_answer · print_compact_notice · print_goodbye", "Risposta, avviso di compattazione, uscita."],
+          ["read_query()", "Legge la domanda con <code>input()</code> (I/O da terminale)."],
+        ],
+      }),
+      F("renderer.py", {
+        L: "out", s: "<code>render(turn)</code>: trasforma gli step del <code>TurnResult</code> in blocchi stampati.",
+        d: `Scorre <code>turn.steps</code> e per ogni <code>kind</code> usa la funzione registrata in <code>STEP_RENDERERS</code>: <code>tool_selection</code> → riga del tool, <code>retrieval</code> → K LARGO, <code>rerank</code> → RERANKING, <code>classification</code> → niente (resta nei dati, come prima del refactor). Un <code>kind</code> sconosciuto viene stampato con il fallback generico, così un tool nuovo non rompe il terminale. Alla fine stampa la risposta e l'eventuale avviso di compattazione.`,
+        it: [["STEP_RENDERERS", "Mappa <code>kind → funzione</code>: è il punto da estendere per i tool futuri."], ["render(turn)", "Entry point del canale terminale."]],
+        dep: ["presenters/terminal/blocks.py", "turn.py"],
+      }),
+    ]),
+    D("web", {
+      L: "out",
+      s: "Canale web: predisposto per la futura FastAPI, non ancora implementato.",
+      d: `Restituirà al frontend una struttura dati, non testo formattato. Verrà implementato quando ci saranno altri tool oltre alla RAG, così lo schema degli step si potrà progettare per tutti insieme.`,
+    }, [
+      F("__init__.py", {
+        L: "out", s: "Re-esporta <code>to_payload</code>.",
+        d: `API del canale web.`,
+        dep: ["presenters/web/payload.py"],
+      }),
+      F("payload.py", {
+        L: "out", s: "<code>to_payload(turn)</code>: contratto documentato, per ora solleva <code>NotImplementedError</code>.",
+        d: `La docstring fissa la forma prevista del JSON: <code>{answer, blocked, language, tool, steps: [{kind, title, data}]}</code>, con <code>data</code> tipizzato per ogni <code>kind</code> (per esempio <code>retrieval</code>/<code>rerank</code> → <code>{chunks: [RagChunk]}</code>). La history resta fuori dal payload: la tiene il client web e la rimanda alla richiesta successiva.`,
+        dep: ["turn.py"],
+        n: ["Predisposto ma non implementato, per scelta: chiamarlo oggi solleva <code>NotImplementedError</code> (verificato in <code>tests/test_presenters.py</code>)."],
+      }),
+    ]),
+  ]),
+
   D("tests", {
     L: "test",
     s: "Test pytest: unit test offline + test di integrazione.",
     d: `Si eseguono dalla root con <code>python -m pytest</code>. I test di unità mockano OpenAI con <code>monkeypatch</code>; il test del contratto del tool invece usa API reali e il DB.`,
-    cmd: "python -m pytest tests/test_query_language.py -q   # offline\npython -m pytest -q                                # include l'integrazione",
+    cmd: "python -m pytest tests/test_query_language.py tests/test_presenters.py -q   # offline\npython -m pytest -q                                                          # include l'integrazione",
   }, [
     F("test_query_language.py", {
-      L: "test", g: "M", s: "Unit test offline del classificatore e della lingua del blocco.",
+      L: "test", s: "Unit test offline del classificatore e della lingua del blocco.",
       d: `<code>test_block_language_uses_classification_flag</code> verifica la scelta it/en. <code>test_cinema_question_uses_openai_classifier</code> sostituisce il client OpenAI con un fake via <code>monkeypatch</code> e controlla il parsing e l'uso di <code>gpt-4o-mini</code>. Nessuna chiamata di rete.`,
       dep: [Q + "chat.py", Q + "query_classifier/query_classifier.py"],
       x: ["pytest"],
     }),
+    F("test_presenters.py", {
+      L: "test", s: "Unit test offline del nucleo <code>handle_query</code>, della <code>trace</code> del tool e dei presenter.",
+      d: `Tutto con fake e <code>monkeypatch</code>, nessuna chiamata di rete. Verifica che <code>RagTool.run</code> restituisca la <code>trace</code> (retrieval + rerank) fuori da <code>metadata</code>; che <code>handle_query</code> registri gli step nell'ordine giusto e che nel caso bloccato non chiami l'orchestratore; che il canale terminale stampi tool, K LARGO, RERANKING, un passo di tipo sconosciuto (fallback) e la risposta nell'ordine corretto; che il canale web sia predisposto ma sollevi <code>NotImplementedError</code> senza stampare nulla.`,
+      dep: ["app.py", "presenters/__init__.py", "turn.py", Q + "models.py", Q + "tool_interface.py"],
+      x: ["pytest"],
+    }),
     F("test_tool_contract.py", {
-      L: "test", g: "U", s: "Test di integrazione su CONFIG, RagTool e orchestratore.",
+      L: "test", s: "Test di integrazione su CONFIG, RagTool e orchestratore.",
       d: `Verifica che <code>CONFIG</code> abbia le sezioni attese, che <code>RagTool.run</code> restituisca <code>{query, chunks, metadata}</code> con <code>k_finale</code> corretto e che l'orchestratore veda il tool <code>rag_search</code>.`,
       dep: ["app.py", "orchestrator.py", Q + "tool_interface.py"],
       x: ["pytest"],
@@ -568,7 +630,7 @@ const TREE = D("NetflixScout", {}, [
     d: `Esclude <code>.env*</code> (tranne <code>.env.example</code>), <code>.venv/</code>, <code>__pycache__/</code>, <code>dataset/</code>, <code>datasets/*</code>, <code>dbVettoriale/*</code>, <code>semanticDb/</code> e le cartelle tipiche dei vector store (<code>chroma/</code>, <code>qdrant_storage/</code>, <code>faiss_index/</code>…).`,
   }),
   F("AGENTS.md", {
-    L: "cfg", g: "U", s: "Guida per gli agenti IA: stack, comandi, convenzioni, regole.",
+    L: "cfg", s: "Guida per gli agenti IA: stack, comandi, convenzioni, regole.",
     d: `Riassume contesto, comandi (setup, build del DB, avvio, test), stile del codice, pattern architetturali (config-driven, <code>Tool</code> Protocol) e regole di ingaggio: test con mock, niente modifiche a <code>.env</code>, niente build distruttive o chiamate API senza permesso, stile dei commit.`,
   }),
   F("README.md", {
@@ -577,17 +639,19 @@ const TREE = D("NetflixScout", {}, [
     n: ["In parte superato: descrive <code>run_rag</code>/<code>execute_tool</code> esposti da <code>app.py</code> e la compattazione a 60.000 token, mentre ora <code>app.py</code> usa l'orchestratore e compatta ogni 12 messaggi."],
   }),
   F("app.py", {
-    L: "entry", g: "M",
-    s: "Entry point: configurazione unica (<code>CONFIG</code>) e chat interattiva da terminale.",
-    d: `<code>CONFIG</code> contiene tutti i parametri del sistema: la sezione <code>orchestrator</code> (modello, istruzioni, tool consentiti, soglia di confidenza, finestra di memoria, compattazione) e la sezione <code>rag</code> (retrieval <code>semantic</code> con k_largo 10 → k_finale 3, rerank Cohere <code>rerank-v3.5</code>, prompt di generazione, embedding <code>text-embedding-3-small</code>, collection <code>netflix_scout</code>).<br><br><code>run_terminal_chat</code> controlla che il DB non sia vuoto, poi a ogni domanda: 1) la classifica, 2) se non riguarda il cinema stampa il messaggio di blocco nella lingua dell'utente, 3) altrimenti chiama <code>orchestrator.run</code>, stampa la risposta e aggiorna la history, 4) compatta la history quando arriva a <code>memory_window_size</code> messaggi.`,
+    L: "entry",
+    s: "Entry point: <code>CONFIG</code>, nucleo <code>handle_query()</code> senza output e chat da terminale.",
+    d: `<code>CONFIG</code> contiene tutti i parametri del sistema: la sezione <code>orchestrator</code> (modello, istruzioni, tool consentiti, soglia di confidenza, finestra di memoria, compattazione) e la sezione <code>rag</code> (retrieval <code>semantic</code> con k_largo 10 → k_finale 3, rerank Cohere <code>rerank-v3.5</code>, prompt di generazione, embedding <code>text-embedding-3-small</code>, collection <code>netflix_scout</code>).<br><br><b>Nucleo</b> – <code>handle_query(app, query, history)</code> non stampa nulla e restituisce un <code>TurnResult</code> (<code>turn.py</code>): 1) classifica la domanda (step <code>classification</code>); se non riguarda il cinema ritorna subito con <code>blocked=True</code> e il messaggio fisso nella lingua dell'utente; 2) chiama <code>orchestrator.run</code> e registra lo step <code>tool_selection</code> più gli step della <code>trace</code> del tool (<code>retrieval</code>, <code>rerank</code>); 3) aggiorna la history e la compatta quando arriva a <code>memory_window_size</code> messaggi. È la funzione che chiamerà anche la futura route FastAPI.<br><br><b>Terminale</b> – <code>run_terminal_chat</code> è solo il loop di I/O: legge la domanda, chiama <code>handle_query</code> e passa il risultato a <code>present(turn, OutputChannel.terminal)</code>. Il canale lo dichiara questo entry point, perché è l'unico a sapere che l'input arriva da <code>input()</code> sul terminale.`,
     it: [
       ["CONFIG", "Unica fonte di verità per modelli, k, backend e prompt."],
       ["NON_CINEMA_BLOCK_MESSAGES", "Risposte fisse in it/en per le domande non cinematografiche."],
       ["build_runtime_config(overrides)", "Deep merge degli override sopra CONFIG (pensato per future richieste web/SSE)."],
       ["build_app(overrides)", "Crea <code>LLMOrchestrator</code> con <code>RagTool</code>."],
-      ["run_terminal_chat() · main()", "Il loop REPL (<code>exit</code>/<code>quit</code> per uscire)."],
+      ["ensure_collection_ready(runtime_rag)", "Errore esplicito se il DB vettoriale è vuoto (vale per ogni canale)."],
+      ["handle_query(app, query, history, openai_client=None)", "Nucleo senza print → <code>TurnResult</code> con risposta, step e history aggiornata."],
+      ["run_terminal_chat() · main()", "Loop REPL: <code>handle_query</code> → <code>present(…, OutputChannel.terminal)</code> (<code>exit</code>/<code>quit</code> per uscire)."],
     ],
-    dep: ["orchestrator.py", Q + "query_classifier/query_classifier.py", Q + "chat.py", Q + "cli.py", Q + "conversation.py", Q + "runtime.py", Q + "models.py", Q + "tool_interface.py", Q + "vectorstore.py"],
+    dep: ["orchestrator.py", "presenters/__init__.py", "turn.py", Q + "query_classifier/query_classifier.py", Q + "chat.py", Q + "conversation.py", Q + "runtime.py", Q + "models.py", Q + "tool_interface.py", Q + "vectorstore.py"],
     x: ["openai"],
     cmd: "python app.py",
     n: ["<code>max_iterations</code>, <code>max_execution_time</code> e <code>token_budget</code> sono in CONFIG ma il codice non li legge ancora."],
@@ -604,7 +668,7 @@ const TREE = D("NetflixScout", {}, [
     d: `Una lista ordinata di righe <code>import</code>/<code>from … import</code> raccolte dai moduli, con alcuni commenti da appunti di corso (es. “la libreria di stasera”). Serve solo come riferimento, nessun modulo lo legge.`,
   }),
   F("mappa.html", {
-    L: "cfg", g: "U", s: "Questa pagina: mappa interattiva del progetto.",
+    L: "cfg", s: "Questa pagina: mappa interattiva del progetto.",
     d: `File HTML autonomo (niente dipendenze esterne) con il grafico dell'architettura e un explorer in stile VS Code. Le descrizioni sono scritte a mano nell'oggetto <code>TREE</code> dentro lo script: aggiornale quando cambi la struttura del repo.`,
   }),
   F("movie_metadata.py", {
@@ -613,7 +677,7 @@ const TREE = D("NetflixScout", {}, [
     dep: [E + "movie_metadata.py"],
   }),
   F("orchestrator.py", {
-    L: "orch", g: "U",
+    L: "orch",
     s: "<code>LLMOrchestrator</code>: sceglie il tool, lo esegue e scrive la risposta finale.",
     d: `Definisce il <code>Tool</code> Protocol (<code>name</code>, <code>description</code>, <code>input_schema</code>, <code>run(*, query, params, conversation_history)</code>). <code>run()</code> fa tre passi:<br>1) <b>selezione</b>: se ci sono <code>required_tools</code> usa il primo; altrimenti chiede all'LLM un JSON <code>{tool_name, arguments, confidence}</code> e accetta la scelta solo sopra <code>tool_confidence_threshold</code>, se no usa <code>fallback_tool</code>;<br>2) <b>esecuzione</b> del tool;<br>3) <b>risposta finale</b>: costruisce un contesto con history + al massimo 10 chunk (600 caratteri l'uno) e chiede all'LLM di rispondere usando solo quei dati. Se la chiamata fallisce, restituisce il testo grezzo dei primi 3 chunk.`,
     it: [
@@ -625,6 +689,16 @@ const TREE = D("NetflixScout", {}, [
     ],
     x: ["openai"],
     n: ["Il catalogo dei tool non viene passato all'LLM come function tool: la scelta avviene tramite prompt testuale + JSON.", "Gli errori LLM vengono silenziati con <code>except Exception</code>: utile per la robustezza, ma rende difficile il debug."],
+  }),
+  F("turn.py", {
+    L: "out", s: "Modelli neutri rispetto al canale: <code>TraceStep</code> e <code>TurnResult</code>.",
+    d: `È il confine tra nucleo e output: <code>app.handle_query</code> produce un <code>TurnResult</code> e i <code>presenters/</code> lo consumano. <code>TraceStep(kind, title, data)</code> descrive un passaggio del procedimento; <code>TurnResult</code> contiene domanda, lingua, <code>blocked</code>, risposta, tool usato, la lista ordinata degli step, la history aggiornata e <code>history_compacted</code>.`,
+    it: [
+      ["TraceStep", "Un passaggio: <code>kind</code>, <code>title</code>, <code>data</code>."],
+      ["TurnResult", "Tutto ciò che è successo in un turno di chat."],
+      ["STEP_CLASSIFICATION · STEP_TOOL_SELECTION · STEP_RETRIEVAL · STEP_RERANK", "I <code>kind</code> conosciuti. I tool futuri possono aggiungerne altri."],
+    ],
+    x: ["pydantic"],
   }),
   F("requirements.txt", {
     L: "cfg", s: "Dipendenze Python con versioni pinnate.",
@@ -651,6 +725,27 @@ const sortKids = (a, b) =>
     node.children.forEach(c => index(c, node.path));
   }
 })(TREE, null);
+
+// Stato git (git status --short): aggiornalo qui quando cambia.
+const GIT = {
+  "AGENTS.md": "M",
+  "app.py": "M",
+  "mappa.html": "M",
+  [Q + "chat.py"]: "M",
+  [Q + "models.py"]: "M",
+  [Q + "pipeline.py"]: "M",
+  [Q + "tool_interface.py"]: "M",
+  "presenters/__init__.py": "U",
+  "presenters/channel.py": "U",
+  "presenters/terminal/__init__.py": "U",
+  "presenters/terminal/blocks.py": "U",
+  "presenters/terminal/renderer.py": "U",
+  "presenters/web/__init__.py": "U",
+  "presenters/web/payload.py": "U",
+  "tests/test_presenters.py": "U",
+  "turn.py": "U",
+};
+for (const [p, g] of Object.entries(GIT)) if (BY_PATH.has(p)) BY_PATH.get(p).g = g;
 
 // "Usato da" = dipendenze al contrario
 for (const n of BY_PATH.values()) n.usedBy = [];
@@ -925,7 +1020,7 @@ const NODES = [
   { id: "meta", x: 20, y: 162, w: 132, h: 34, k: "off", t: "movie_metadata.py", p: E + "movie_metadata.py" },
   // ② runtime
   { id: "user", x: 24, y: 262, w: 120, k: "ext", t: "Utente", s: "terminale" },
-  { id: "app", x: 200, y: 262, w: 140, k: "entry", t: "app.py", s: "CONFIG + chat loop", p: "app.py" },
+  { id: "app", x: 200, y: 262, w: 140, k: "entry", t: "app.py", s: "CONFIG + handle_query", p: "app.py" },
   { id: "clf", x: 420, y: 262, w: 160, k: "orch", t: "query_classifier.py", s: "cinema? italiano?", p: Q + "query_classifier/query_classifier.py", api: 1 },
   { id: "block", x: 660, y: 262, w: 170, k: "ext", t: "Messaggio di blocco", s: "risposta fissa it / en" },
   { id: "conv", x: 24, y: 352, w: 120, k: "rt", t: "conversation.py", s: "compatta la history", p: Q + "conversation.py", api: 1 },
@@ -933,7 +1028,10 @@ const NODES = [
   { id: "tool", x: 420, y: 352, w: 160, k: "orch", t: "tool_interface.py", s: "RagTool · rag_search", p: Q + "tool_interface.py" },
   { id: "pipe", x: 660, y: 352, w: 170, k: "rt", t: "pipeline.py", s: "run_rag()", p: Q + "pipeline.py" },
   { id: "rt", x: 868, y: 352, w: 112, k: "rt", t: "runtime.py", s: "risolve config", p: Q + "runtime.py" },
-  { id: "cli", x: 200, y: 442, w: 140, k: "rt", t: "cli.py", s: "stampa a terminale", p: Q + "cli.py" },
+  { id: "turn", x: 200, y: 442, w: 140, k: "out", t: "turn.py", s: "TurnResult + steps", p: "turn.py" },
+  { id: "pres", x: 200, y: 552, w: 140, k: "out", t: "presenters/", s: "present(turn, channel)", p: "presenters" },
+  { id: "term", x: 24, y: 552, w: 120, k: "out", t: "terminal/", s: "resoconto completo", p: "presenters/terminal" },
+  { id: "web", x: 366, y: 552, w: 88, k: "out", dash: 1, t: "web/", s: "predisposto", p: "presenters/web" },
   { id: "models", x: 420, y: 442, w: 160, k: "rt", t: "models.py", s: "schemi Pydantic", p: Q + "models.py" },
   { id: "retr", x: 660, y: 442, w: 170, k: "rt", t: "retrieval.py", s: "segnali LLM + ricerca", p: Q + "retrieval.py", api: 1 },
   { id: "rerank", x: 868, y: 442, w: 112, k: "rt", t: "rerank.py", s: "Cohere | LLM", p: Q + "rerank.py", api: 1 },
@@ -959,7 +1057,10 @@ const EDGES = [
   { f: "pipe", t: "rt" },
   { f: "pipe", t: "retr", l: "_retrieve", dir: "v" },
   { f: "retr", t: "rerank" },
-  { f: "orch", t: "cli", l: "risposta finale", dir: "v" },
+  { f: "orch", t: "turn", l: "handle_query()", dir: "v" },
+  { f: "turn", t: "pres", l: "present()", dir: "v" },
+  { f: "pres", t: "term", l: "terminale" },
+  { f: "pres", t: "web", l: "web", dash: 1, lp: [353, 566] },
   { f: "tool", t: "models", l: "valida input", dir: "v", dash: 1 },
   { f: "retr", t: "hyb", dir: "v", l: "bm25 · hybrid", lp: [560, 522] },
   { f: "retr", t: "rag", dir: "v", l: "semantic", lp: [714, 537] },
@@ -972,6 +1073,7 @@ const KIND = {
   orch:  { fill: "#33192a", stroke: "#ff7eb6" },
   entry: { fill: "#271f3d", stroke: "#b48cff" },
   data:  { fill: "#33280f", stroke: "#e0a43a" },
+  out:   { fill: "#0f2f33", stroke: "#56d4dd" },
   ext:   { fill: "#232323", stroke: "#7a7a7a", dash: "4 3" },
 };
 
@@ -1011,7 +1113,8 @@ function renderDiagram() {
   let nodes = "";
   for (const n of Object.values(N)) {
     const k = KIND[n.k], cx = n.x + n.w / 2;
-    const attrs = `fill="${k.fill}" stroke="${k.stroke}" stroke-width="1.5" ${k.dash ? `stroke-dasharray="${k.dash}"` : ""}`;
+    const dash = k.dash || (n.dash ? "4 3" : "");
+    const attrs = `fill="${k.fill}" stroke="${k.stroke}" stroke-width="1.5" ${dash ? `stroke-dasharray="${dash}"` : ""}`;
     let shape, ty, sy;
     if (n.cyl) {
       const ry = 7;
@@ -1049,11 +1152,11 @@ function renderOverview() {
     <p style="color:var(--muted)">Clicca un riquadro del grafico, oppure un file o una cartella nell'explorer a sinistra, per leggerne la spiegazione.</p>
     <div class="diagram" id="diagram">${renderDiagram()}</div>
     <div class="legend">
-      ${L("off", "Indicizzazione offline")}${L("rt", "Runtime RAG")}${L("orch", "Orchestrazione / guardrail")}${L("entry", "Entry point")}${L("data", "Dati locali")}${L("ext", "Esterno / non è un file")}
+      ${L("off", "Indicizzazione offline")}${L("rt", "Runtime RAG")}${L("orch", "Orchestrazione / guardrail")}${L("out", "Output / presenter")}${L("entry", "Entry point")}${L("data", "Dati locali")}${L("ext", "Esterno / non è un file")}
       <span><i style="background:#c2732a;border-color:#c2732a;border-radius:7px"></i>chiama un'API a pagamento</span>
     </div>
 
-    <h2>Il flusso in 6 passi</h2>
+    <h2>Il flusso in 7 passi</h2>
     <ol class="steps">
       <li><b>Indicizzazione (una volta sola).</b> <a class="vscode" href="#buildSemanticDb.py">buildSemanticDb.py</a> legge <code>dataset/</code>. Ogni trama diventa un chunk con titolo, anno, generi e cast; gli embedding finiscono in Chroma, in <code>dbVettoriale/&lt;backend&gt;/</code>.</li>
       <li><b>Guardrail.</b> <a class="vscode" href="#app.py">app.py</a> riceve la domanda e <a class="vscode" href="#${Q}query_classifier/query_classifier.py">query_classifier</a> (gpt-4o-mini) blocca quelle che non riguardano il cinema, rispondendo in italiano o in inglese.</li>
@@ -1061,6 +1164,7 @@ function renderOverview() {
       <li><b>Retrieval.</b> <a class="vscode" href="#${Q}retrieval.py">retrieval.py</a> estrae i segnali dalla query (cosa vuoi, cosa evitare, cosa escludere) e cerca fino a <code>k_largo = 10</code> candidati in modalità <code>semantic</code>, <code>bm25</code> o <code>hybrid</code>.</li>
       <li><b>Rerank.</b> <a class="vscode" href="#${Q}rerank.py">rerank.py</a> riordina con Cohere <code>rerank-v3.5</code> e tiene i primi <code>k_finale = 3</code>.</li>
       <li><b>Risposta.</b> L'orchestratore scrive la risposta usando solo i chunk ricevuti. Ogni 12 messaggi <a class="vscode" href="#${Q}conversation.py">conversation.py</a> compatta la history.</li>
+      <li><b>Output.</b> <code>handle_query</code> in <a class="vscode" href="#app.py">app.py</a> non stampa nulla: impacchetta risposta e passaggi in un <a class="vscode" href="#turn.py">TurnResult</a>. Poi <a class="vscode" href="#presenters">presenters/</a> lo mostra in base al canale dichiarato dall'entry point: a terminale il resoconto completo (tool, K LARGO, RERANKING, risposta); per il web (predisposto, non ancora implementato) una struttura dati per il frontend.</li>
     </ol>
 
     <h2>Punti di attenzione nel codice</h2>
