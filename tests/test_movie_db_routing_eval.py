@@ -81,4 +81,4 @@ def test_cases_cover_both_tools_and_a_follow_up() -> None:
 
     assert tools.count(DB) >= 5 and tools.count(RAG) >= 4
     assert any(case.history for case in ROUTING_CASES)
-    assert len(ROUTING_CASES) == 10
+    assert len(ROUTING_CASES) == 11

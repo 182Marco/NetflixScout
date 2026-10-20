@@ -25,6 +25,11 @@ _HORROR_80S = (
     {"role": "assistant", "content": "I più votati sono The Shining (1980), Alien (1979) e The Thing (1982)."},
 )
 
+_EUTHANASIA_TOP = (
+    {"role": "user", "content": "Mi dici il film che ha parlato di eutanasia che ha ricevuto i voti più alti nella storia?"},
+    {"role": "assistant", "content": "Il film sull'eutanasia con il voto medio più alto è The Sea Inside (Mar adentro, 2004)."},
+)
+
 ROUTING_CASES: tuple[RoutingCase, ...] = (
     RoutingCase("Quali sono i 10 film più votati di sempre?", DB),
     RoutingCase("Che voto medio ha Pulp Fiction?", DB),
@@ -36,4 +41,11 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
     RoutingCase("Vorrei un film malinconico ambientato in Giappone", RAG),
     RoutingCase("Il film in cui Tom Hanks naufraga su un'isola deserta", RAG),
     RoutingCase("E degli anni '90?", DB, history=_HORROR_80S, standalone_must_contain=("horror", "90")),
+    # Follow-up in another language that acts on the film just suggested: once blocked as off-topic.
+    RoutingCase(
+        "Could you get in english the plot from the movie you just advised?",
+        RAG,
+        history=_EUTHANASIA_TOP,
+        standalone_must_contain=("sea inside",),
+    ),
 )
