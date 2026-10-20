@@ -113,6 +113,13 @@ def print_query_used(original: str, used: str, rewritten: bool) -> None:
         print(f"\n🔁 Query usata: {used}")
 
 
+def print_classification(is_cinema: bool | None, is_italian: bool | None) -> None:
+    def _yes_no(value: bool | None) -> str:
+        return "?" if value is None else ("sì" if value else "no")
+
+    print(f"\n🧭 Classificatore: cinema={_yes_no(is_cinema)}, italiano={_yes_no(is_italian)}")
+
+
 def print_tool_selection(tool_name: str) -> None:
     print(f"\n🛠️  Tool scelto dall'orchestratore: {tool_name}")
 

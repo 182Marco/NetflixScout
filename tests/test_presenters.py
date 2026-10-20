@@ -92,7 +92,11 @@ def _sample_turn() -> TurnResult:
         answer="Guarda Matrix.",
         tool="rag_search",
         steps=[
-            TraceStep(kind="classification", title="Classificazione", data={"is_cinema": True}),
+            TraceStep(
+                kind="classification",
+                title="Classificazione",
+                data={"is_cinema": True, "is_italian": True},
+            ),
             TraceStep(
                 kind="query_rewrite",
                 title="Query usata dai tool",
@@ -119,6 +123,7 @@ def test_terminal_channel_prints_full_procedure(capsys) -> None:
 
     out = capsys.readouterr().out
     assert "rag_search" in out
+    assert "Classificatore: cinema=sì, italiano=sì" in out
     assert "Query riscritta con il contesto: film con robot recenti" in out
     assert "Testo usato per l'embedding: Movies about robots" in out
     assert "Generi richiesti: Science Fiction" in out

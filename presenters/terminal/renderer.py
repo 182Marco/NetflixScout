@@ -17,6 +17,7 @@ from turn import (
 from .blocks import (
     _print_chunks,
     _print_retrieval_compact,
+    print_classification,
     print_compact_notice,
     print_final_answer,
     print_generic_step,
@@ -47,12 +48,12 @@ def _render_tool_selection(step: TraceStep) -> None:
     print_tool_selection(step.data.get("tool", "?"))
 
 
-def _render_silently(step: TraceStep) -> None:
-    """Steps kept in the data but not shown on the terminal (as before the refactor)."""
+def _render_classification(step: TraceStep) -> None:
+    print_classification(step.data.get("is_cinema"), step.data.get("is_italian"))
 
 
 STEP_RENDERERS: dict[str, Callable[[TraceStep], None]] = {
-    STEP_CLASSIFICATION: _render_silently,
+    STEP_CLASSIFICATION: _render_classification,
     STEP_QUERY_REWRITE: _render_query_rewrite,
     STEP_TOOL_SELECTION: _render_tool_selection,
     STEP_RETRIEVAL: _render_retrieval,
