@@ -15,6 +15,7 @@ STEP_QUERY_REWRITE = "query_rewrite"
 STEP_TOOL_SELECTION = "tool_selection"
 STEP_RETRIEVAL = "retrieval"
 STEP_RERANK = "rerank"
+STEP_DB_QUERY = "db_query"
 
 
 class TraceStep(BaseModel):

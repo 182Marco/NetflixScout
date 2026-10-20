@@ -5,6 +5,7 @@ from collections.abc import Callable
 
 from turn import (
     STEP_CLASSIFICATION,
+    STEP_DB_QUERY,
     STEP_QUERY_REWRITE,
     STEP_RERANK,
     STEP_RETRIEVAL,
@@ -23,6 +24,7 @@ from .blocks import (
     print_retrieval_query,
     print_tool_selection,
 )
+from .movie_db import render_db_query
 
 
 def _render_retrieval(step: TraceStep) -> None:
@@ -55,6 +57,7 @@ STEP_RENDERERS: dict[str, Callable[[TraceStep], None]] = {
     STEP_TOOL_SELECTION: _render_tool_selection,
     STEP_RETRIEVAL: _render_retrieval,
     STEP_RERANK: _render_rerank,
+    STEP_DB_QUERY: render_db_query,
 }
 
 

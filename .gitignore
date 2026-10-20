@@ -81,3 +81,10 @@ temp/
 # Large generated files
 # =========================
 *.npz
+# =========================
+# MovieLens data: unzipped CSV + generated SQLite DB (~2 GB, license forbids redistribution)
+# Re-included after the global data/ rule so only .gitkeep is versioned.
+# =========================
+!movie_db/data/
+movie_db/data/*
+!movie_db/data/.gitkeep
