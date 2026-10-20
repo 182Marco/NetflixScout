@@ -194,6 +194,7 @@ const ROOT_ABS = "/Users/filippo.milzagmail.com/Desktop/NetflixScout";
 
 const Q = "rag/FromQueryEmbeddingToRes/";
 const E = "rag/EmbeddingProcess/";
+const M = "movie_db/";
 
 const LAYERS = {
   entry:  { label: "Entry point",            color: "#b48cff" },
@@ -204,6 +205,7 @@ const LAYERS = {
   cfg:    { label: "Config / docs",          color: "#9da5b4" },
   out:    { label: "Output / presenter",     color: "#56d4dd" },
   test:   { label: "Test",                   color: "#73c991" },
+  db:     { label: "Tool DB MovieLens",      color: "#f78c6c" },
 };
 
 const F = (name, info = {}) => ({ type: "file", name, ...info });
@@ -511,7 +513,7 @@ const TREE = D("NetflixScout", {}, [
         F("__init__.py", { L: "orch", s: "Re-esporta <code>classify_query_domain</code>.", d: `Permette di scrivere <code>from …query_classifier import classify_query_domain</code>.`, dep: [Q + "query_classifier/query_classifier.py"] }),
         F("query_classifier.py", {
           L: "orch", s: "<code>classify_query_domain(query, history=None)</code> → <code>{is_cinema, is_italian}</code>.",
-          d: `Chiama <code>gpt-4o-mini</code> (<code>CHEAP_MODEL</code>) con temperatura 0 e <code>response_format = json_object</code>. Il prompt di sistema accetta film, serie TV, documentari, attori, registi e richieste implicite di consigli, e ignora esplicitamente i tentativi di jailbreak contenuti nella query. <code>_validate_classification</code> garantisce che la risposta contenga due booleani.<br><br><b>Contesto della conversazione.</b> Se riceve <code>history</code> (da <code>app.py</code> arrivano gli ultimi <code>classifier_context_messages</code> = 2 messaggi, cioè l'ultimo scambio domanda/risposta), <code>_context_messages</code> la mette in un messaggio “Conversazione precedente (solo contesto)” prima della domanda, che resta l'ultimo messaggio. Il prompt dice di usarla solo per risolvere riferimenti impliciti (“ne puoi trovare 3 più recenti?”), di classificare sempre l'ultima query (un cambio di argomento resta <code>is_cinema = false</code>) e di calcolare <code>is_italian</code> solo sull'ultima query. Senza history i messaggi sono <code>[system, query]</code>, come prima.`,
+          d: `Chiama <code>gpt-4o-mini</code> (<code>CHEAP_MODEL</code>) con temperatura 0 e <code>response_format = json_object</code>. Il prompt di sistema accetta film, serie TV, documentari, attori, registi, richieste implicite di consigli e domande statistiche su voti, classifiche, generi e tag anche senza la parola “film” (es. “Qual è il genere con il voto medio più alto?”), e ignora esplicitamente i tentativi di jailbreak contenuti nella query. <code>_validate_classification</code> garantisce che la risposta contenga due booleani.<br><br><b>Contesto della conversazione.</b> Se riceve <code>history</code> (da <code>app.py</code> arrivano gli ultimi <code>classifier_context_messages</code> = 2 messaggi, cioè l'ultimo scambio domanda/risposta), <code>_context_messages</code> la mette in un messaggio “Conversazione precedente (solo contesto)” prima della domanda, che resta l'ultimo messaggio. Il prompt dice di usarla solo per risolvere riferimenti impliciti (“ne puoi trovare 3 più recenti?”), di classificare sempre l'ultima query (un cambio di argomento resta <code>is_cinema = false</code>) e di calcolare <code>is_italian</code> solo sull'ultima query. Senza history i messaggi sono <code>[system, query]</code>, come prima.`,
           it: [
             ["classify_query_domain(query, history=None)", "Una chiamata OpenAI per ogni domanda; <code>history</code> è solo contesto."],
             ["_context_messages(history)", "Trascrizione <code>[ruolo]\ncontenuto</code> della history in un unico messaggio di contesto (lista vuota se non c'è history)."],
@@ -520,6 +522,180 @@ const TREE = D("NetflixScout", {}, [
           ],
           x: ["openai"],
           n: ["Fa parte della difesa anti off-topic e anti jailbreak: non indebolirla senza permesso.", "Perché il contesto: il guardrail gira <b>prima</b> della riscrittura <code>standalone_query</code> dell'orchestratore. Senza contesto un follow-up come “Ne puoi trovare 3 più recenti rispetto al 94?” non contiene parole di cinema e veniva bloccato.", "Nella history finiscono solo turni già accettati: quelli bloccati non vengono salvati, quindi il contesto è sempre cinematografico.", "Testato con mock in <code>tests/test_query_language.py</code> (messaggi con e senza history) e <code>tests/test_presenters.py</code> (cosa passa <code>handle_query</code>)."],
+        }),
+      ]),
+    ]),
+  ]),
+
+  D("movie_db", {
+    L: "db",
+    s: "Tool SQL read-only su MovieLens 32M: voti, classifiche, generi per anno, tag.",
+    d: `Secondo tool dell'orchestratore (<code>movie_db_search</code>), accanto a <code>rag_search</code>. Codice e dati stanno nella stessa cartella ma separati per ruolo: <code>config.py</code> e <code>schema.py</code> condivisi, <code>tool/</code> a runtime (unico codice importato da <code>app.py</code>), <code>harness/</code> offline (ingestion, fixture, valutazione), <code>data/</code> con CSV e DB (ignorati da git).<br><br>Il modello non scrive mai SQL: un parser LLM riempie un <code>MovieDbQuery</code> con un'operazione da enum chiuso, il codice compone SQL fisso con parametri bind ed esegue su una connessione SQLite <code>mode=ro</code> + <code>PRAGMA query_only</code> + authorizer.`,
+    n: ["Tutti i parametri stanno in <code>CONFIG[\"movie_db\"]</code> in <code>app.py</code> e passano da <code>build_runtime_config(overrides)</code>.", "<code>app.py</code> e <code>tool/</code> non importano mai <code>harness/</code>: lo verifica <code>tests/test_movie_db_app.py</code>.", "Limiti noti dei dati: il catalogo include serie TV (es. Firefly, Planet Earth II) e l'articolo finale resta in fondo quando c'è un titolo alternativo tra parentesi."],
+  }, [
+    F("__init__.py", { L: "db", s: "Docstring che descrive le quattro parti del package.", d: `Nessun codice: spiega il ruolo di <code>config.py</code>, <code>schema.py</code>, <code>tool/</code>, <code>harness/</code> e <code>data/</code>.` }),
+    F("config.py", {
+      L: "db", s: "<code>MovieDbConfig</code>: vista validata di <code>CONFIG[\"movie_db\"]</code>, senza default.",
+      d: `Modelli Pydantic <code>QueryConfig</code> (<code>default_limit</code>, <code>max_limit</code>, <code>min_ratings</code>, <code>timeout_ms</code>), <code>ParserConfig</code> (modello e prompt), <code>IngestionConfig</code> (batch, ratings e tag sì/no) e <code>MovieDbConfig</code>. Nessun campo ha un default, così l'unica fonte dei valori resta <code>app.py</code>; <code>extra="forbid"</code> rifiuta chiavi sconosciute e un validatore impone <code>max_limit ≥ default_limit</code>.`,
+      it: [["load_movie_db_config(config)", "Valida il dict (già passato da <code>build_runtime_config</code>)."], ["MovieDbConfig.model_json_schema()", "Schema pronto per un futuro form web: ogni campo ha titolo, descrizione e <code>ui_exposed</code>."]],
+      x: ["pydantic"],
+      n: ["<code>ui_exposed</code> è <code>true</code> per i limiti delle query e <code>false</code> per percorsi, prompt e modello. Nessuna API o form è implementato."],
+    }),
+    F("schema.py", {
+      L: "db", s: "Tabelle, colonne, generi e DDL: unica fonte per ingestion e runtime.",
+      d: `Tabelle <code>movies</code>, <code>movie_genres</code>, <code>ratings</code>, <code>movie_stats</code> (voti precalcolati), <code>tags</code> (con <code>tag_norm</code>) e <code>links</code>; indici creati dopo il caricamento. <code>GENRES</code> è il vocabolario dei 19 generi MovieLens. Nessun I/O.`,
+      it: [["TABLES", "Colonne per tabella: l'ingestion le usa per gli INSERT, la guardia per sapere quali tabelle si possono leggere."], ["GENRES · NO_GENRES_LABEL", "Generi validi per il parser e per la validazione."], ["normalize_tag(tag)", "Forma usata sia per salvare sia per cercare i tag (spazi compattati, minuscolo)."], ["CREATE_TABLES · CREATE_INDEXES", "DDL usato solo dall'ingestion."]],
+    }),
+    D("data", {
+      L: "data",
+      s: "Dati, non codice: CSV MovieLens scompattati e database SQLite generato.",
+      d: `Ignorata da git tranne <code>.gitkeep</code> (la licenza MovieLens vieta la redistribuzione). Chi clona scarica <code>ml-32m.zip</code> da GroupLens, lo scompatta in <code>raw/</code> e lancia <code>python buildMovieDb.py</code>.`,
+      cmd: "unzip ml-32m.zip -d movie_db/data/raw\npython buildMovieDb.py",
+    }, [
+      F(".gitkeep", { L: "data", s: "File vuoto che tiene la cartella nel repository.", d: `Unico file versionato di <code>data/</code>.` }),
+      F("movielens32m.sqlite3", { L: "data", ig: true, s: "Il database SQLite (~1,3 GB) letto in sola lettura dal tool.", d: `Generato da <code>buildMovieDb.py</code> in circa 3-4 minuti: 87.585 film, 32.000.204 voti, 2.000.066 tag. Percorso in <code>CONFIG[\"movie_db\"][\"db_path\"]</code>.`, n: ["Non si modifica a mano: si rigenera con <code>python buildMovieDb.py --force</code>."] }),
+      D("raw", { L: "data", ig: true, s: "Dove si scompatta <code>ml-32m.zip</code>.", d: `Percorso in <code>CONFIG[\"movie_db\"][\"source_dir\"]</code> (<code>movie_db/data/raw/ml-32m</code>).` }, [
+        D("ml-32m", { L: "data", ig: true, s: "Contenuto dello zip di GroupLens (~950 MB).", d: `Letto solo dalla build offline; la chat non lo usa.` }, [
+          F("movies.csv", { L: "data", ig: true, s: "Film: <code>movieId, title, genres</code> (titolo con anno tra parentesi, generi separati da <code>|</code>).", d: "Film: <code>movieId, title, genres</code> (titolo con anno tra parentesi, generi separati da <code>|</code>). Letto solo dalla build offline." }),
+          F("ratings.csv", { L: "data", ig: true, s: "Circa 32 milioni di voti: <code>userId, movieId, rating, timestamp</code> (rating da 0,5 a 5).", d: "Circa 32 milioni di voti: <code>userId, movieId, rating, timestamp</code> (rating da 0,5 a 5). Letto solo dalla build offline." }),
+          F("tags.csv", { L: "data", ig: true, s: "Circa 2 milioni di tag liberi degli utenti: <code>userId, movieId, tag, timestamp</code>.", d: "Circa 2 milioni di tag liberi degli utenti: <code>userId, movieId, tag, timestamp</code>. Letto solo dalla build offline." }),
+          F("links.csv", { L: "data", ig: true, s: "Collegamenti esterni: <code>movieId, imdbId, tmdbId</code>.", d: "Collegamenti esterni: <code>movieId, imdbId, tmdbId</code>. Letto solo dalla build offline." }),
+          F("README.txt", { L: "data", ig: true, s: "Documentazione ufficiale di GroupLens (formato e licenza).", d: "Documentazione ufficiale di GroupLens (formato e licenza). Letto solo dalla build offline." }),
+          F("checksums.txt", { L: "data", ig: true, s: "MD5 ufficiali dei quattro CSV, per verificare il download.", d: "MD5 ufficiali dei quattro CSV, per verificare il download. Letto solo dalla build offline." })
+        ]),
+      ]),
+    ]),
+    D("tool", {
+      L: "db",
+      s: "Runtime: il tool dell'orchestratore, il parser e l'accesso SQL read-only.",
+      d: `Unica parte di <code>movie_db</code> importata da <code>app.py</code>. Non stampa nulla e non conosce il canale di output: restituisce <code>chunks</code>, <code>metadata</code> e una <code>trace</code> con le sole query eseguite.`,
+    }, [
+      F("__init__.py", { L: "db", s: "Docstring del package runtime.", d: `Nessun codice.` }),
+      F("movie_db_tool.py", {
+        L: "db", s: "<code>MovieDbTool</code> (<code>movie_db_search</code>): rispetta il <code>Tool</code> Protocol.",
+        d: `<code>run(*, query, params, conversation_history)</code>: valida l'input (<code>MovieDbToolInput</code>), fa convertire la domanda autonoma in <code>MovieDbQuery</code> dal parser, apre una connessione read-only per chiamata ed esegue il repository. Restituisce <code>{query, chunks, metadata: {operation, row_count}, trace}</code>. Se il parser o il DB falliscono non solleva eccezioni: risultato vuoto con <code>metadata.error</code> e trace con <code>queries: []</code>, così l'orchestratore risponde in modo trasparente.`,
+        it: [["MOVIE_DB_TOOL_NAME", "<code>\"movie_db_search\"</code>, il nome visto dall'orchestratore."], ["MovieDbTool(config, client=None)", "Il client OpenAI del parser viene creato al primo uso."]],
+        dep: [M + "config.py", M + "tool/models.py", M + "tool/parser.py", M + "tool/results.py", M + "tool/trace.py", M + "tool/sql/connection.py", M + "tool/sql/repository.py"],
+        n: ["Gli <code>arguments</code> scelti dal planner vengono ignorati tranne <code>query</code>: i parametri della query li ricava solo il parser e li valida Pydantic."],
+      }),
+      F("models.py", {
+        L: "db", s: "<code>MovieDbOperation</code>, <code>MovieDbQuery</code>, <code>ExecutedQuery</code>, <code>MovieDbToolInput</code>.",
+        d: `<code>MovieDbOperation</code> è l'insieme chiuso delle operazioni: <code>top_rated</code>, <code>most_rated</code>, <code>by_title</code>, <code>by_genre_year</code>, <code>by_tag</code>, <code>stats_by_genre</code>. <code>MovieDbQuery</code> (<code>extra="forbid"</code>) ha solo campi tipizzati: titolo e tag con lunghezza massima, genere ricondotto al vocabolario di <code>schema.GENRES</code>, anni tra 1870 e 2100, limite ≥ 1; controlla anche gli argomenti obbligatori di ogni operazione. <code>ExecutedQuery(sql, params)</code> è l'unico contenuto della trace.`,
+        x: ["pydantic"],
+      }),
+      F("parser.py", {
+        L: "db", api: 1, s: "<code>parse_query(query, settings, client)</code>: domanda → <code>MovieDbQuery</code> con una chiamata LLM.",
+        d: `Chiama <code>client.responses.create</code> con il modello e il prompt di <code>CONFIG[\"movie_db\"][\"parser\"]</code> (il segnaposto <code>{genres}</code> riceve i generi validi), accetta JSON anche tra <code>\`\`\`</code> e lo valida con <code>MovieDbQuery</code>. Ogni errore (chiamata, JSON, validazione) diventa <code>MovieDbParseError</code>.`,
+        dep: [M + "config.py", M + "schema.py", M + "tool/models.py"],
+        x: ["openai", "pydantic"],
+        n: ["Una chiave in più nel JSON (per esempio <code>sql</code>) fa rifiutare tutta la risposta: è voluto."],
+      }),
+      F("results.py", {
+        L: "db", s: "<code>row_to_chunk(row)</code>: righe SQL → chunk nel formato letto dall'orchestratore.",
+        d: `Produce i campi che <code>LLMOrchestrator._build_final_context</code> legge già per il RAG: <code>title</code>, <code>release_year</code>, <code>genres</code>, <code>score</code> (voto medio) e <code>testo</code> (riepilogo in italiano, es. “Voto medio 4.16/5 su 93808 voti.”). Le statistiche per genere diventano un chunk per genere.`,
+      }),
+      F("trace.py", {
+        L: "db", s: "<code>build_db_query_trace(executed)</code>: un solo step <code>db_query</code> con le query eseguite.",
+        d: `Forma: <code>{kind: \"db_query\", title: \"Query DB\", data: {queries: [{sql, params}]}}</code>. Niente righe di risultato, limiti di configurazione o percorsi del DB, per tenere corto il resoconto.`,
+        dep: ["turn.py", M + "tool/models.py"],
+      }),
+      D("sql", {
+        L: "db",
+        s: "Accesso SQL: connessione read-only, guardia, query whitelistate, repository.",
+        d: `La sola lettura è garantita dal codice, non dal prompt: file aperto con <code>mode=ro</code>, <code>PRAGMA query_only = ON</code>, authorizer SQLite che nega tutto tranne SELECT sulle tabelle note, una sola istruzione per <code>execute</code>, limite e timeout per ogni chiamata.`,
+      }, [
+        F("__init__.py", { L: "db", s: "Docstring del package SQL.", d: `Nessun codice.` }),
+        F("connection.py", {
+          L: "db", s: "<code>open_readonly</code>, <code>readonly_connection</code>, <code>ensure_db_ready</code>.",
+          d: `<code>open_readonly(path, *, timeout_ms)</code> rifiuta un file mancante (senza mostrarne il percorso), apre <code>file:…?mode=ro</code>, imposta <code>PRAGMA query_only</code> e poi installa la guardia. <code>readonly_connection</code> apre e chiude una connessione per chiamata. <code>ensure_db_ready(config)</code> è il controllo d'avvio usato da <code>app.run_terminal_chat</code>.`,
+          dep: [M + "config.py", M + "schema.py", M + "tool/sql/guard.py"],
+          n: ["Se il DB manca l'errore dice di lanciare <code>python buildMovieDb.py</code>."],
+        }),
+        F("guard.py", {
+          L: "db", s: "Authorizer read-only e progress handler con timeout.",
+          d: `<code>read_only_authorizer</code> consente solo <code>SQLITE_SELECT</code>, <code>SQLITE_READ</code> sulle tabelle di <code>schema.TABLES</code> e le funzioni <code>avg, coalesce, count, group_concat, like, max, min, round, sum</code>; nega INSERT/UPDATE/DELETE, DDL, ATTACH, PRAGMA, transazioni, CTE ricorsive, <code>load_extension</code> e la lettura di <code>sqlite_master</code>. <code>install_guard</code> interrompe la connessione oltre <code>timeout_ms</code>.`,
+          dep: [M + "schema.py"],
+        }),
+        F("queries.py", {
+          L: "db", s: "SQL whitelistato: ogni operazione ha un builder fatto di frammenti costanti.",
+          d: `<code>QUERY_BUILDERS</code> mappa ogni <code>MovieDbOperation</code> a una funzione che sceglie frammenti SQL fissi in base ai filtri presenti (genere, anni): nessun valore della richiesta entra nel testo SQL, i valori viaggiano solo come parametri <code>?</code>. <code>top_rated</code> e <code>by_genre_year</code> usano lo stesso ordinamento per voto; <code>by_title</code> usa <code>LIKE</code> con escape di <code>%</code> e <code>_</code>.`,
+          it: [["build_query(query, *, limit, min_ratings)", "→ <code>ExecutedQuery(sql, params)</code>."], ["escape_like(value)", "Rende letterali i caratteri jolly di LIKE."]],
+          dep: [M + "schema.py", M + "tool/models.py"],
+          n: ["<code>by_title</code> cerca per sottostringa: “Heat” trova anche “Heathers”; la scelta del film giusto la fa l'LLM nella risposta."],
+        }),
+        F("repository.py", {
+          L: "db", s: "<code>run_query(conn, query, settings)</code> → (query eseguite, righe).",
+          d: `Calcola il limite effettivo (<code>effective_limit</code>: richiesto o predefinito, sempre ≤ <code>max_limit</code>), costruisce il SQL con <code>queries.build_query</code>, lo esegue con <code>conn.execute</code> e legge al massimo <code>limit</code> righe.`,
+          dep: [M + "config.py", M + "tool/models.py", M + "tool/sql/queries.py"],
+        }),
+      ]),
+    ]),
+    D("harness", {
+      L: "off",
+      s: "Offline: ingestion (unico codice che scrive il DB), fixture e valutazione. Mai importato a runtime.",
+      d: `Tutto ciò che non gira nella chat. Può importare <code>tool/</code> (la valutazione lo usa), ma non il contrario.`,
+    }, [
+      F("__init__.py", { L: "off", s: "Docstring: il runtime non importa questo package.", d: `Nessun codice.` }),
+      D("ingestion", {
+        L: "off", s: "Build CSV → SQLite.", d: `Unico componente autorizzato a scrivere il database.`,
+      }, [
+        F("__init__.py", { L: "off", s: "Docstring del package.", d: `Nessun codice.` }),
+        F("load_csv.py", {
+          L: "off", s: "Parser in streaming dei CSV MovieLens.",
+          d: `<code>split_title_year</code> separa l'anno dal titolo (“Heat (1995)”, anche intervalli come “1994-1998”) e riporta in testa l'articolo finale (“Matrix, The” → “The Matrix”). <code>parse_genres</code> divide i generi e tratta <code>(no genres listed)</code> come nessun genere. <code>iter_movies</code>, <code>iter_ratings</code>, <code>iter_tags</code>, <code>iter_links</code> leggono i CSV riga per riga.`,
+          dep: [M + "schema.py"],
+          n: ["Con un titolo alternativo tra parentesi l'articolo resta in fondo (“Kingdom II, The (Riget II)”): limite noto, la correzione richiede una nuova build."],
+        }),
+        F("build.py", {
+          L: "off", s: "<code>build_movie_db(...)</code> e la CLI dietro <code>buildMovieDb.py</code>.",
+          d: `Controlla che ci siano i CSV, rifiuta di sovrascrivere un DB esistente senza <code>--force</code>, scrive su un file temporaneo <code>*.building</code> e lo rinomina solo a build completata. Calcola <code>movie_stats</code> nella stessa passata sui voti, crea gli indici dopo il caricamento e chiude con <code>ANALYZE</code>.`,
+          it: [["build_movie_db(*, source_dir, db_path, ingestion, force=False, verbose=False)", "Costruisce il DB."], ["main(argv)", "Legge i default da <code>CONFIG[\"movie_db\"]</code>."]],
+          dep: [M + "config.py", M + "schema.py", M + "harness/ingestion/load_csv.py", "app.py"],
+          cmd: "python buildMovieDb.py [--source-dir DIR] [--db-path FILE] [--force]",
+          n: ["Non fa chiamate API, ma oggi richiede <code>OPENAI_API_KEY</code>: legge <code>CONFIG</code> da <code>app.py</code>, i cui import creano il client OpenAI."],
+        }),
+      ]),
+      D("fixtures", {
+        L: "test", s: "Mini dataset MovieLens per test e valutazione offline.",
+        d: `Costruito con il vero codice di ingestion in un DB temporaneo (<code>tests/conftest.py</code>, <code>run_eval</code>).`,
+      }, [
+        F("__init__.py", { L: "test", s: "Docstring del package.", d: `Nessun codice.` }),
+        F("build_fixture_db.py", { L: "test", s: "<code>build_fixture_db(db_path, ingestion)</code>.", d: `Chiama <code>build_movie_db</code> sui CSV di <code>movielens_mini/</code>.`, dep: [M + "harness/ingestion/build.py", M + "config.py"] }),
+        D("movielens_mini", { L: "test", s: "Quattro CSV minuscoli con lo stesso formato di ml-32m.", d: `Valori scelti a mano perché classifiche e conteggi siano deterministici.` }, [
+            F("movies.csv", { L: "test", s: "10 film con casi limite: articolo spostato (<code>Matrix, The</code>), titolo senza anno, <code>(no genres listed)</code>, UTF-8 (Amélie).", d: "10 film con casi limite: articolo spostato (<code>Matrix, The</code>), titolo senza anno, <code>(no genres listed)</code>, UTF-8 (Amélie). Versionato: è un dato di test, non il dataset reale." }),
+            F("ratings.csv", { L: "test", s: "26 voti scelti per avere classifiche deterministiche (The Shining ha un solo voto e resta sotto <code>min_ratings = 2</code>).", d: "26 voti scelti per avere classifiche deterministiche (The Shining ha un solo voto e resta sotto <code>min_ratings = 2</code>). Versionato: è un dato di test, non il dataset reale." }),
+            F("tags.csv", { L: "test", s: "6 tag, con maiuscole diverse (<code>time travel</code> / <code>Time Travel</code>) e una virgola tra virgolette.", d: "6 tag, con maiuscole diverse (<code>time travel</code> / <code>Time Travel</code>) e una virgola tra virgolette. Versionato: è un dato di test, non il dataset reale." }),
+            F("links.csv", { L: "test", s: "Id IMDb/TMDb dei 10 film (uno vuoto).", d: "Id IMDb/TMDb dei 10 film (uno vuoto). Versionato: è un dato di test, non il dataset reale." })
+        ]),
+      ]),
+      D("evaluation", {
+        L: "test", s: "Valutazione del parser e del routing (offline o con LLM reale).",
+        d: `Non sono test pytest: le parti offline sono coperte da <code>tests/test_movie_db_eval.py</code> e <code>tests/test_movie_db_routing_eval.py</code>. Ultimo esito: parser 6/6, routing 10/10, sessione end-to-end 5/5.`,
+      }, [
+        F("__init__.py", { L: "test", s: "Docstring del package.", d: `Nessun codice.` }),
+        F("cases.py", {
+          L: "test", s: "6 casi del parser: domanda → <code>MovieDbQuery</code> attesa e titoli attesi.",
+          d: `<code>EVAL_OVERRIDES</code> abbassa <code>min_ratings</code> a 2 per il mini dataset. <code>EvalCase.equivalent_operations()</code> accetta <code>by_genre_year</code> al posto di <code>top_rated</code> (e viceversa) solo con un genere e senza anni.`,
+          dep: [M + "tool/models.py"],
+        }),
+        F("run_eval.py", {
+          L: "test", s: "Esegue i 6 casi con <code>MovieDbTool</code> sul DB fixture.",
+          d: `Di default il parser è sostituito da <code>ScriptedParserClient</code> (nessuna API). Con <code>--live-parser</code> usa il parser reale. L'operazione equivalente vale solo se SQL e parametri eseguiti sono identici a quelli attesi.`,
+          dep: [M + "harness/evaluation/cases.py", M + "harness/fixtures/build_fixture_db.py", M + "tool/movie_db_tool.py", M + "tool/sql/queries.py", "app.py"],
+          cmd: "python -m movie_db.harness.evaluation.run_eval\npython -m movie_db.harness.evaluation.run_eval --live-parser",
+          n: ["<code>--live-parser</code>: 6 chiamate a <code>gpt-5.6-luna</code>.", "Anche in modalità offline richiede <code>OPENAI_API_KEY</code> (importa <code>app.py</code>)."],
+        }),
+        F("routing_cases.py", {
+          L: "test", s: "10 domande di routing: 5 DB, 4 RAG, 1 follow-up con history.",
+          d: `Per il follow-up (“E degli anni '90?”) la query autonoma deve contenere “horror” e “90”.`,
+        }),
+        F("run_routing_eval.py", {
+          L: "test", api: 1, s: "Routing DB/RAG con classificatore e planner reali, senza eseguire i tool.",
+          d: `Per ogni domanda chiama solo <code>classify_query_domain</code> e <code>LLMOrchestrator._plan_turn</code>. <code>RecordingClient</code> salva l'output grezzo del planner, così un fallback silenzioso a <code>rag_search</code> (JSON non valido, tool sconosciuto, confidenza bassa, chiamata fallita) conta come fallimento anche se il tool è giusto. Retry automatici disattivati.`,
+          dep: [M + "harness/evaluation/routing_cases.py", "app.py", "orchestrator.py", Q + "query_classifier/query_classifier.py"],
+          cmd: "python -m movie_db.harness.evaluation.run_routing_eval --live",
+          x: ["openai"],
+          n: ["Costa 20 chiamate: 10 a <code>gpt-4o-mini</code> e 10 a <code>gpt-5.6-luna</code>. <code>--live</code> è obbligatorio."],
         }),
       ]),
     ]),
@@ -542,10 +718,17 @@ const TREE = D("NetflixScout", {}, [
       d: `Il canale lo dichiara l'entry point che riceve l'input, perché è l'unico a sapere da dove arriva. <code>python app.py</code> esegue <code>if __name__ == "__main__": main()</code> e legge con <code>input()</code> dal terminale, quindi usa <code>terminal</code>. La futura route FastAPI importa <code>app.handle_query</code> (lì <code>__name__</code> non è <code>"__main__"</code>), riceve la domanda nella richiesta HTTP e usa <code>web</code>.`,
       n: ["<code>sys.stdin.isatty()</code> non viene usato di proposito: è falso con le pipe (<code>echo … | python app.py</code>), in Docker senza <code>-t</code>, in alcuni runner degli IDE e nei test."],
     }),
+    F("movie_db_view.py", {
+      L: "out", s: "Vista condivisa dello step <code>db_query</code>: la usano sia il terminale sia il web.",
+      d: `Unico punto che interpreta <code>step.data</code> del tool DB, così i due canali mostrano le stesse query. <code>format_sql(sql, params)</code> inserisce i parametri nel testo solo per la lettura (mai eseguito), lasciando stare i <code>?</code> dentro le stringhe. Non importa il package <code>movie_db</code>.`,
+      it: [["db_query_view(step)", "→ <code>DbQueryView(title, queries)</code>."], ["DbQueryItem.display_sql", "La query con i valori inseriti."], ["format_sql(sql, params)", "Se segnaposto e parametri non corrispondono restituisce il SQL originale."]],
+      dep: ["turn.py"],
+      x: ["pydantic"],
+    }),
     D("terminal", {
       L: "out",
       s: "Canale terminale: stampa tutto il procedimento, come faceva la chat prima dell'orchestratore.",
-      d: `Usato da <code>python app.py</code>. Ordine dell'output a ogni turno: 🔁 query usata (riscritta se è un follow-up) → 🛠️ tool scelto → 🔎 testo usato per l'embedding e generi richiesti → 📚 K LARGO (i candidati recuperati) → 🏆 RERANKING (i chunk finali con score, generi, cast e anteprima) → 🤖 risposta finale → eventuale avviso di compattazione. Header e modalità vengono stampati una volta, all'avvio.`,
+      d: `Usato da <code>python app.py</code>. Ordine dell'output a ogni turno: 🔁 query usata (riscritta se è un follow-up) → 🛠️ tool scelto → 🔎 testo usato per l'embedding e generi richiesti → 📚 K LARGO (i candidati recuperati) → 🏆 RERANKING (i chunk finali con score, generi, cast e anteprima) → 🤖 risposta finale → eventuale avviso di compattazione. Per il tool DB, dopo il tool scelto compare 🗄️ QUERY DB con il SQL eseguito (da <code>terminal/movie_db/</code>) al posto di embedding, K LARGO e RERANKING. Header e modalità vengono stampati una volta, all'avvio.`,
     }, [
       F("__init__.py", {
         L: "out", s: "API del canale terminale.",
@@ -571,13 +754,21 @@ const TREE = D("NetflixScout", {}, [
         L: "out", s: "<code>render(turn)</code>: trasforma gli step del <code>TurnResult</code> in blocchi stampati.",
         d: `Scorre <code>turn.steps</code> e per ogni <code>kind</code> usa la funzione registrata in <code>STEP_RENDERERS</code>: <code>query_rewrite</code> → riga della query usata, <code>tool_selection</code> → riga del tool, <code>retrieval</code> → testo dell'embedding + generi + K LARGO, <code>rerank</code> → RERANKING, <code>classification</code> → niente (resta nei dati, come prima del refactor). Un <code>kind</code> sconosciuto viene stampato con il fallback generico, così un tool nuovo non rompe il terminale. Alla fine stampa la risposta e l'eventuale avviso di compattazione.`,
         it: [["STEP_RENDERERS", "Mappa <code>kind → funzione</code>: è il punto da estendere per i tool futuri."], ["render(turn)", "Entry point del canale terminale."]],
-        dep: ["presenters/terminal/blocks.py", "turn.py"],
+        dep: ["presenters/terminal/blocks.py", "presenters/terminal/movie_db/__init__.py", "turn.py"],
       }),
+      D("movie_db", {
+        L: "out", s: "Output da terminale dello step <code>db_query</code>.",
+        d: `Box 🗄️ QUERY DB con il numero di query e, per ognuna, 🔹 QUERY #n e 🧾 il SQL con i valori inseriti, a capo ogni 64 caratteri. Non mostra righe di risultato.`,
+      }, [
+        F("__init__.py", { L: "out", s: "Re-esporta <code>render_db_query</code>.", d: `Registrato in <code>STEP_RENDERERS</code> di <code>terminal/renderer.py</code>.`, dep: ["presenters/terminal/movie_db/renderer.py"] }),
+        F("blocks.py", { L: "out", s: "<code>print_db_queries(title, sql_statements)</code>.", d: `Stesso stile a box di <code>terminal/blocks.py</code>; senza query stampa “Nessuna query eseguita.”.` }),
+        F("renderer.py", { L: "out", s: "<code>render_db_query(step)</code>.", d: `Legge lo step con <code>movie_db_view</code> e lo passa a <code>blocks.print_db_queries</code>.`, dep: ["presenters/movie_db_view.py", "presenters/terminal/movie_db/blocks.py", "turn.py"] }),
+      ]),
     ]),
     D("web", {
       L: "out",
       s: "Canale web: predisposto per la futura FastAPI, non ancora implementato.",
-      d: `Restituirà al frontend una struttura dati, non testo formattato. Verrà implementato quando ci saranno altri tool oltre alla RAG, così lo schema degli step si potrà progettare per tutti insieme.`,
+      d: `Restituirà al frontend una struttura dati, non testo formattato. <code>to_payload</code> non è ancora implementato; la serializzazione dello step del tool DB è già pronta in <code>web/movie_db/</code>.`,
     }, [
       F("__init__.py", {
         L: "out", s: "Re-esporta <code>to_payload</code>.",
@@ -590,6 +781,13 @@ const TREE = D("NetflixScout", {}, [
         dep: ["turn.py"],
         n: ["Predisposto ma non implementato, per scelta: chiamarlo oggi solleva <code>NotImplementedError</code> (verificato in <code>tests/test_presenters.py</code>)."],
       }),
+      D("movie_db", {
+        L: "out", s: "Serializzazione JSON dello step <code>db_query</code>, pronta per il futuro <code>to_payload</code>.",
+        d: `Non è ancora collegata a <code>payload.py</code>, che continua a sollevare <code>NotImplementedError</code>.`,
+      }, [
+        F("__init__.py", { L: "out", s: "Re-esporta <code>serialize_db_query_step</code>.", d: `API del sotto-canale.`, dep: ["presenters/web/movie_db/serializer.py"] }),
+        F("serializer.py", { L: "out", s: "<code>serialize_db_query_step(step)</code> → <code>{kind, title, queries: [{sql, params, display_sql}]}</code>.", d: `Stesso contenuto del terminale, da <code>movie_db_view</code>; <code>display_sql</code> coincide con il testo stampato (verificato in <code>tests/test_movie_db_presenters.py</code>).`, dep: ["presenters/movie_db_view.py", "turn.py"] }),
+      ]),
     ]),
   ]),
 
@@ -597,11 +795,11 @@ const TREE = D("NetflixScout", {}, [
     L: "test",
     s: "Test pytest: unit test offline + test di integrazione.",
     d: `Si eseguono dalla root con <code>python -m pytest</code>. I test di unità mockano OpenAI con <code>monkeypatch</code>; il test del contratto del tool invece usa API reali e il DB.`,
-    cmd: "python -m pytest tests/test_query_language.py tests/test_presenters.py tests/test_orchestrator.py tests/test_retrieval.py -q   # offline\npython -m pytest -q   # include l'integrazione",
+    cmd: "python -m pytest tests/test_query_language.py tests/test_presenters.py tests/test_orchestrator.py tests/test_retrieval.py tests/test_movie_db_*.py -q   # offline\npython -m pytest -q   # include l'integrazione",
   }, [
     F("test_query_language.py", {
       L: "test", s: "Unit test offline del classificatore e della lingua del blocco.",
-      d: `<code>test_block_language_uses_classification_flag</code> verifica la scelta it/en. <code>test_cinema_question_uses_openai_classifier</code> sostituisce il client OpenAI con un fake via <code>monkeypatch</code> e controlla il parsing e l'uso di <code>gpt-4o-mini</code>. <code>test_classifier_without_history_sends_only_the_query</code> verifica che senza history i messaggi siano <code>[system, query]</code>; <code>test_classifier_with_history_sends_context_before_the_query</code> che con la history il contesto arrivi prima e la domanda resti l'ultimo messaggio. Nessuna chiamata di rete.`,
+      d: `<code>test_block_language_uses_classification_flag</code> verifica la scelta it/en. <code>test_cinema_question_uses_openai_classifier</code> sostituisce il client OpenAI con un fake via <code>monkeypatch</code> e controlla il parsing e l'uso di <code>gpt-4o-mini</code>. <code>test_classifier_without_history_sends_only_the_query</code> verifica che senza history i messaggi siano <code>[system, query]</code>; <code>test_classifier_with_history_sends_context_before_the_query</code> che con la history il contesto arrivi prima e la domanda resti l'ultimo messaggio. <code>test_classifier_prompt_covers_film_statistics_without_the_word_film</code> verifica che il prompt copra le domande statistiche (“Qual è il genere con il voto medio più alto?”) e conservi le protezioni anti jailbreak. Nessuna chiamata di rete.`,
       dep: [Q + "chat.py", Q + "query_classifier/query_classifier.py"],
       x: ["pytest"],
     }),
@@ -630,6 +828,72 @@ const TREE = D("NetflixScout", {}, [
       x: ["pytest"],
       n: ["<code>test_rag_tool_returns_structured_results</code> chiama davvero OpenAI e Cohere e richiede un DB popolato: costa crediti."],
     }),
+    F("conftest.py", {
+      L: "test", s: "Fixture <code>movie_db_config</code>: DB MovieLens mini costruito una volta per sessione.",
+      d: `Costruisce il DB in una cartella temporanea con il vero codice di ingestion e restituisce un <code>MovieDbConfig</code> ottenuto da <code>build_runtime_config</code> con <code>EVAL_OVERRIDES</code>. Nessuna chiamata di rete.`,
+      dep: [M + "harness/fixtures/build_fixture_db.py", M + "config.py", "app.py"],
+      x: ["pytest"],
+    }),
+    F("test_movie_db_app.py", {
+      L: "test", s: "Integrazione offline in <code>app.py</code> e confini tra i package.",
+      d: `Registrazione del tool con <code>enabled</code> attivo o disattivo, istruzioni e fallback in <code>CONFIG</code>, step <code>db_query</code> in <code>TurnResult</code> con client finti; via AST verifica che <code>app.py</code> e <code>movie_db/tool</code> non importino <code>harness</code>, che i presenter non importino <code>movie_db</code> e che solo l'ingestion apra connessioni scrivibili. Nessuna chiamata di rete.`,
+      dep: ["app.py", M + "tool/movie_db_tool.py", "orchestrator.py"],
+      x: ["pytest"],
+    }),
+    F("test_movie_db_config.py", {
+      L: "test", s: "<code>CONFIG[\"movie_db\"]</code> e <code>MovieDbConfig</code>.",
+      d: `Sezione presente senza toccare le altre, override con <code>build_runtime_config</code>, chiavi sconosciute e limiti incoerenti rifiutati, nessun default, <code>ui_exposed</code> nello schema JSON. Nessuna chiamata di rete.`,
+      dep: ["app.py", M + "config.py"],
+      x: ["pytest"],
+    }),
+    F("test_movie_db_eval.py", {
+      L: "test", s: "Valutazione del parser offline e regola di equivalenza.",
+      d: `I 6 casi passano con il parser scriptato; <code>by_genre_year</code> vale come <code>top_rated</code> solo con SQL identico; con anni, senza genere o con un'altra operazione non c'è equivalenza. Nessuna chiamata di rete.`,
+      dep: [M + "harness/evaluation/run_eval.py", M + "harness/evaluation/cases.py"],
+      x: ["pytest"],
+    }),
+    F("test_movie_db_ingestion.py", {
+      L: "test", s: "Parsing dei CSV e build offline.",
+      d: `Anno e articolo dal titolo, generi assenti, virgolette e UTF-8; tabelle, indici e <code>movie_stats</code> coerenti con <code>ratings</code>; nessuna sovrascrittura senza <code>--force</code>; errore con istruzioni se mancano i CSV. Nessuna chiamata di rete.`,
+      dep: [M + "harness/ingestion/build.py", M + "harness/ingestion/load_csv.py"],
+      x: ["pytest"],
+    }),
+    F("test_movie_db_parser.py", {
+      L: "test", s: "Parser con client OpenAI finto.",
+      d: `JSON valido → <code>MovieDbQuery</code> con genere canonico; JSON tra <code>\`\`\`</code> accettato; operazioni ignote, chiave <code>sql</code>, generi o anni non validi, testo non JSON ed errori della chiamata → <code>MovieDbParseError</code>. Nessuna chiamata di rete.`,
+      dep: [M + "tool/parser.py"],
+      x: ["pytest"],
+    }),
+    F("test_movie_db_presenters.py", {
+      L: "test", s: "Output terminale e web dello step <code>db_query</code>.",
+      d: `<code>format_sql</code>, registrazione in <code>STEP_RENDERERS</code> con il fallback ancora attivo, nessuna riga di risultato stampata, JSON del serializer coerente con il terminale, <code>to_payload</code> ancora <code>NotImplementedError</code>. Nessuna chiamata di rete.`,
+      dep: ["presenters/movie_db_view.py", "presenters/terminal/movie_db/renderer.py", "presenters/web/movie_db/serializer.py"],
+      x: ["pytest"],
+    }),
+    F("test_movie_db_readonly.py", {
+      L: "test", s: "Sicurezza: la connessione non può scrivere.",
+      d: `16 tentativi (INSERT/UPDATE/DELETE, DDL, tabelle temporanee, ATTACH, PRAGMA, VACUUM INTO, BEGIN, <code>load_extension</code>, CTE ricorsiva, più istruzioni) falliscono e l'hash SHA-256 del file resta identico; lettura di <code>sqlite_master</code> negata, timeout, DB mancante non creato. Nessuna chiamata di rete.`,
+      dep: [M + "tool/sql/connection.py", M + "tool/sql/guard.py"],
+      x: ["pytest"],
+    }),
+    F("test_movie_db_repository.py", {
+      L: "test", s: "Query whitelistate sul DB fixture.",
+      d: `Risultati di ogni operazione, <code>min_ratings</code>, limite ridotto a <code>max_limit</code>, tag senza distinzione di maiuscole; tentativi di SQL injection restano parametri letterali, producono lo stesso SQL di un titolo innocuo e non cambiano il file. Nessuna chiamata di rete.`,
+      dep: [M + "tool/sql/repository.py", M + "tool/sql/queries.py"],
+      x: ["pytest"],
+    }),
+    F("test_movie_db_routing_eval.py", {
+      L: "test", s: "Valutazione del routing offline, con client scriptati.",
+      d: `Una scelta esplicita passa; JSON non valido, confidenza bassa e chiamata fallita vengono riconosciuti come fallback e falliscono; il follow-up richiede la query riscritta; i casi coprono entrambi i tool. Nessuna chiamata di rete.`,
+      dep: [M + "harness/evaluation/run_routing_eval.py", M + "harness/evaluation/routing_cases.py", "orchestrator.py"],
+      x: ["pytest"],
+    }),
+    F("test_movie_db_tool.py", {
+      L: "test", s: "Contratto di <code>MovieDbTool</code>.",
+      d: `Rispetta il <code>Tool</code> Protocol; restituisce <code>chunks</code>, <code>metadata</code> e una sola trace con <code>{sql, params}</code>, senza percorsi e senza stampare; i chunk sono leggibili da <code>_build_final_context</code>; errori del parser o DB mancante → risultato vuoto con <code>metadata.error</code>; gli argomenti del planner non arrivano al SQL. Nessuna chiamata di rete.`,
+      dep: [M + "tool/movie_db_tool.py", "orchestrator.py", "turn.py"],
+      x: ["pytest"],
+    }),
   ]),
 
   F(".env", {
@@ -645,32 +909,33 @@ const TREE = D("NetflixScout", {}, [
   }),
   F(".gitignore", {
     L: "cfg", s: "Cosa resta fuori da git: segreti, venv, dataset, DB vettoriali, cache.",
-    d: `Esclude <code>.env*</code> (tranne <code>.env.example</code>), <code>.venv/</code>, <code>__pycache__/</code>, <code>dataset/</code>, <code>datasets/*</code>, <code>dbVettoriale/*</code>, <code>semanticDb/</code> e le cartelle tipiche dei vector store (<code>chroma/</code>, <code>qdrant_storage/</code>, <code>faiss_index/</code>…).`,
+    d: `Esclude <code>.env*</code> (tranne <code>.env.example</code>), <code>.venv/</code>, <code>__pycache__/</code>, <code>dataset/</code>, <code>datasets/*</code>, <code>dbVettoriale/*</code>, <code>movie_db/data/*</code> (tranne <code>.gitkeep</code>: CSV e DB MovieLens non si redistribuiscono), <code>semanticDb/</code> e le cartelle tipiche dei vector store (<code>chroma/</code>, <code>qdrant_storage/</code>, <code>faiss_index/</code>…).`,
   }),
   F("AGENTS.md", {
     L: "cfg", s: "Guida per gli agenti IA: stack, comandi, convenzioni, regole.",
-    d: `Riassume contesto, comandi (setup, build del DB, avvio, test), stile del codice, pattern architetturali (config-driven, <code>Tool</code> Protocol, query autonoma per i follow-up, contesto del classificatore, testo dell'embedding) e regole di ingaggio: test con mock, niente modifiche a <code>.env</code>, niente build distruttive o chiamate API senza permesso, stile dei commit.`,
+    d: `Riassume contesto, comandi (setup, build del DB, avvio, test), stile del codice, pattern architetturali (config-driven, <code>Tool</code> Protocol, query autonoma per i follow-up, contesto del classificatore, testo dell'embedding, DB MovieLens read-only, trace <code>db_query</code>, valutazioni live e relativi costi) e regole di ingaggio: test con mock, niente modifiche a <code>.env</code>, niente build distruttive o chiamate API senza permesso, stile dei commit.`,
   }),
   F("README.md", {
     L: "cfg", s: "Documentazione per gli umani: setup, dataset, build del DB, API.",
-    d: `Spiega come scaricare il corpus CMU, come costruire <code>dbVettoriale/</code> e come avviare la chat.`,
+    d: `Spiega come scaricare il corpus CMU, come costruire <code>dbVettoriale/</code> e come avviare la chat. La sezione “MovieLens DB Tool” spiega cosa scaricare e scompattare dopo il clone, come costruire il DB, le garanzie di sola lettura e i comandi di valutazione con il loro costo in chiamate API.`,
     n: ["La sezione “Retrieval Notes” descrive <code>semantic_query</code>, generi e boost.", "In parte superato: descrive <code>run_rag</code>/<code>execute_tool</code> esposti da <code>app.py</code> e la compattazione a 60.000 token, mentre ora <code>app.py</code> usa l'orchestratore e compatta ogni 12 messaggi."],
   }),
   F("app.py", {
     L: "entry",
     s: "Entry point: <code>CONFIG</code>, nucleo <code>handle_query()</code> senza output e chat da terminale.",
-    d: `<code>CONFIG</code> contiene tutti i parametri del sistema: la sezione <code>orchestrator</code> (modello, istruzioni, tool consentiti, soglia di confidenza, finestra di memoria, <code>classifier_context_messages</code>, compattazione) e la sezione <code>rag</code> (retrieval <code>semantic</code> con pool <code>fetch_k</code> 50, <code>genre_boost</code> 0.15, k_largo 10 → k_finale 3, rerank Cohere <code>rerank-v3.5</code>, prompt di generazione, embedding <code>text-embedding-3-small</code>, collection <code>netflix_scout</code>).<br><br><b>Nucleo</b> – <code>handle_query(app, query, history)</code> non stampa nulla e restituisce un <code>TurnResult</code> (<code>turn.py</code>): 1) classifica la domanda passando al classificatore anche gli ultimi <code>classifier_context_messages</code> messaggi della history, così i follow-up non vengono bloccati (step <code>classification</code>); se non riguarda il cinema ritorna subito con <code>blocked=True</code> e il messaggio fisso nella lingua dell'utente; 2) chiama <code>orchestrator.run</code> e registra lo step <code>query_rewrite</code> (domanda originale e query autonoma usata dai tool), lo step <code>tool_selection</code> e gli step della <code>trace</code> del tool (<code>retrieval</code>, <code>rerank</code>); 3) aggiorna la history e la compatta quando arriva a <code>memory_window_size</code> messaggi. È la funzione che chiamerà anche la futura route FastAPI.<br><br><b>Terminale</b> – <code>run_terminal_chat</code> è solo il loop di I/O: legge la domanda, chiama <code>handle_query</code> e passa il risultato a <code>present(turn, OutputChannel.terminal)</code>. Il canale lo dichiara questo entry point, perché è l'unico a sapere che l'input arriva da <code>input()</code> sul terminale.`,
+    d: `<code>CONFIG</code> contiene tutti i parametri del sistema: la sezione <code>orchestrator</code> (modello, istruzioni, tool consentiti, soglia di confidenza, finestra di memoria, <code>classifier_context_messages</code>, compattazione) e la sezione <code>rag</code> (retrieval <code>semantic</code> con pool <code>fetch_k</code> 50, <code>genre_boost</code> 0.15, k_largo 10 → k_finale 3, rerank Cohere <code>rerank-v3.5</code>, prompt di generazione, embedding <code>text-embedding-3-small</code>, collection <code>netflix_scout</code>) e la sezione <code>movie_db</code> (DB SQLite MovieLens in <code>movie_db/data/</code>, limiti delle query, parser, ingestion). <code>allowed_tools</code> contiene <code>rag_search</code> e <code>movie_db_search</code>; il fallback resta <code>rag_search</code>.<br><br><b>Nucleo</b> – <code>handle_query(app, query, history)</code> non stampa nulla e restituisce un <code>TurnResult</code> (<code>turn.py</code>): 1) classifica la domanda passando al classificatore anche gli ultimi <code>classifier_context_messages</code> messaggi della history, così i follow-up non vengono bloccati (step <code>classification</code>); se non riguarda il cinema ritorna subito con <code>blocked=True</code> e il messaggio fisso nella lingua dell'utente; 2) chiama <code>orchestrator.run</code> e registra lo step <code>query_rewrite</code> (domanda originale e query autonoma usata dai tool), lo step <code>tool_selection</code> e gli step della <code>trace</code> del tool (<code>retrieval</code>, <code>rerank</code>); 3) aggiorna la history e la compatta quando arriva a <code>memory_window_size</code> messaggi. È la funzione che chiamerà anche la futura route FastAPI.<br><br><b>Terminale</b> – <code>run_terminal_chat</code> è solo il loop di I/O: legge la domanda, chiama <code>handle_query</code> e passa il risultato a <code>present(turn, OutputChannel.terminal)</code>. Il canale lo dichiara questo entry point, perché è l'unico a sapere che l'input arriva da <code>input()</code> sul terminale.`,
     it: [
       ["CONFIG", "Unica fonte di verità per modelli, k, backend e prompt."],
       ["NON_CINEMA_BLOCK_MESSAGES", "Risposte fisse in it/en per le domande non cinematografiche."],
       ["CONFIG[\"orchestrator\"][\"classifier_context_messages\"]", "Quanti messaggi finali della history vede il classificatore (default 2 = ultimo scambio; 0 = nessun contesto)."],
       ["build_runtime_config(overrides)", "Deep merge degli override sopra CONFIG (pensato per future richieste web/SSE)."],
-      ["build_app(overrides)", "Crea <code>LLMOrchestrator</code> con <code>RagTool</code>."],
+      ["build_app(overrides)", "Crea <code>LLMOrchestrator</code> con <code>RagTool</code> e, se <code>CONFIG[\"movie_db\"][\"enabled\"]</code>, <code>MovieDbTool</code>."],
+      ["CONFIG[\"movie_db\"]", "Percorsi di DB e CSV, limiti e timeout delle query, modello e prompt del parser, opzioni di ingestion (validati da <code>MovieDbConfig</code>)."],
       ["ensure_collection_ready(runtime_rag)", "Errore esplicito se il DB vettoriale è vuoto (vale per ogni canale)."],
       ["handle_query(app, query, history, openai_client=None)", "Nucleo senza print → <code>TurnResult</code> con risposta, step e history aggiornata."],
-      ["run_terminal_chat() · main()", "Loop REPL: <code>handle_query</code> → <code>present(…, OutputChannel.terminal)</code> (<code>exit</code>/<code>quit</code> per uscire)."],
+      ["run_terminal_chat() · main()", "All'avvio controlla Chroma e, se il tool DB è attivo, <code>ensure_db_ready</code>. Loop REPL: <code>handle_query</code> → <code>present(…, OutputChannel.terminal)</code> (<code>exit</code>/<code>quit</code> per uscire)."],
     ],
-    dep: ["orchestrator.py", "presenters/__init__.py", "turn.py", Q + "query_classifier/query_classifier.py", Q + "chat.py", Q + "conversation.py", Q + "runtime.py", Q + "models.py", Q + "tool_interface.py", Q + "vectorstore.py"],
+    dep: ["orchestrator.py", "presenters/__init__.py", "turn.py", M + "config.py", M + "tool/movie_db_tool.py", M + "tool/sql/connection.py", Q + "query_classifier/query_classifier.py", Q + "chat.py", Q + "conversation.py", Q + "runtime.py", Q + "models.py", Q + "tool_interface.py", Q + "vectorstore.py"],
     x: ["openai"],
     cmd: "python app.py",
     n: ["<code>max_iterations</code>, <code>max_execution_time</code> e <code>token_budget</code> sono in CONFIG ma il codice non li legge ancora."],
@@ -681,6 +946,13 @@ const TREE = D("NetflixScout", {}, [
     dep: [E + "buildSemanticDb.py"],
     cmd: "python buildSemanticDb.py --embedding-backend openai\npython buildSemanticDb.py --embedding-backend local",
     n: ["Distruttivo e costoso: ricrea <code>dbVettoriale/&lt;backend&gt;/</code> da zero."],
+  }),
+  F("buildMovieDb.py", {
+    L: "off", s: "Shim in root: avvia la build del DB MovieLens.",
+    d: `Re-esporta <code>movie_db.harness.ingestion.build</code> e, se lanciato come script, chiama <code>main()</code>. Legge i CSV da <code>movie_db/data/raw/ml-32m/</code> e scrive <code>movie_db/data/movielens32m.sqlite3</code>.`,
+    dep: [M + "harness/ingestion/build.py"],
+    cmd: "python buildMovieDb.py\npython buildMovieDb.py --force   # ricostruisce un DB esistente",
+    n: ["Non distruttivo senza <code>--force</code>; circa 3-4 minuti, nessuna chiamata API, ma serve <code>OPENAI_API_KEY</code> in <code>.env</code> (vedi <code>harness/ingestion/build.py</code>)."],
   }),
   F("imports.txt", {
     L: "cfg", s: "Elenco di tutti gli import usati nel progetto (appunti, non usato dal codice).",
@@ -716,7 +988,7 @@ const TREE = D("NetflixScout", {}, [
     it: [
       ["TraceStep", "Un passaggio: <code>kind</code>, <code>title</code>, <code>data</code>."],
       ["TurnResult", "Tutto ciò che è successo in un turno di chat."],
-      ["STEP_CLASSIFICATION · STEP_QUERY_REWRITE · STEP_TOOL_SELECTION · STEP_RETRIEVAL · STEP_RERANK", "I <code>kind</code> conosciuti. I tool futuri possono aggiungerne altri."],
+      ["STEP_CLASSIFICATION · STEP_QUERY_REWRITE · STEP_TOOL_SELECTION · STEP_RETRIEVAL · STEP_RERANK · STEP_DB_QUERY", "I <code>kind</code> conosciuti (<code>db_query</code> è lo step del tool MovieLens). I tool futuri possono aggiungerne altri."],
     ],
     x: ["pydantic"],
   }),
@@ -747,7 +1019,7 @@ const sortKids = (a, b) =>
 })(TREE, null);
 
 // Stato git (git status --short): aggiornalo qui quando cambia.
-const GIT = {};  // albero pulito dopo cdcfb26
+const GIT = {};  // albero pulito dopo 6fd1d30
 for (const [p, g] of Object.entries(GIT)) if (BY_PATH.has(p)) BY_PATH.get(p).g = g;
 
 // "Usato da" = dipendenze al contrario
@@ -1042,6 +1314,12 @@ const NODES = [
   { id: "rag", x: 620, y: 552, w: 120, k: "rt", t: "rag.py", s: "recupera()", p: Q + "rag.py" },
   { id: "vs2", x: 760, y: 552, w: 110, k: "rt", t: "vectorstore.py", s: "search()", p: Q + "vectorstore.py" },
   { id: "db2", x: 890, y: 544, w: 90, h: 62, k: "data", t: "dbVettoriale/", s: "stesso DB", p: "dbVettoriale", cyl: true },
+  // ③ tool DB MovieLens
+  { id: "dbtool", x: 290, y: 692, w: 140, k: "db", t: "movie_db_tool.py", s: "movie_db_search", p: M + "tool/movie_db_tool.py" },
+  { id: "parser", x: 466, y: 692, w: 136, k: "db", t: "parser.py", s: "domanda → MovieDbQuery", p: M + "tool/parser.py", api: 1 },
+  { id: "sql", x: 626, y: 692, w: 132, k: "db", t: "tool/sql/", s: "SQL whitelist · read-only", p: M + "tool/sql" },
+  { id: "mldb", x: 776, y: 684, w: 108, h: 62, k: "data", t: "movie_db/data/", s: "SQLite", p: M + "data", cyl: true },
+  { id: "mlbuild", x: 896, y: 692, w: 90, k: "off", t: "buildMovieDb", s: "CSV → SQLite", p: "buildMovieDb.py" },
 ];
 const EDGES = [
   { f: "build", t: "loaders", dash: 1, dir: "v" }, { f: "build", t: "vs1", dash: 1, dir: "v" },
@@ -1063,12 +1341,17 @@ const EDGES = [
   { f: "orch", t: "turn", l: "handle_query()", dir: "v" },
   { f: "turn", t: "pres", l: "present()", dir: "v" },
   { f: "pres", t: "term", l: "terminale" },
-  { f: "pres", t: "web", l: "web", dash: 1, lp: [353, 566] },
+  { f: "pres", t: "web", l: "web", dash: 1, lp: [410, 614] },
   { f: "tool", t: "models", l: "valida input", dir: "v", dash: 1 },
   { f: "retr", t: "hyb", dir: "v", l: "bm25 · hybrid", lp: [560, 522] },
   { f: "retr", t: "rag", dir: "v", l: "semantic", lp: [714, 537] },
   { f: "rag", t: "vs2" },
   { f: "vs2", t: "db2" },
+  { f: "orch", t: "dbtool", via: [[340, 390], [352, 390], [352, 692]], both: 1, l: "movie_db_search", lp: [352, 640] },
+  { f: "dbtool", t: "parser", l: "LLM" },
+  { f: "parser", t: "sql" },
+  { f: "sql", t: "mldb" },
+  { f: "mlbuild", t: "mldb", dash: 1 },
 ];
 const KIND = {
   off:   { fill: "#10302c", stroke: "#2bb3a0" },
@@ -1077,6 +1360,7 @@ const KIND = {
   entry: { fill: "#271f3d", stroke: "#b48cff" },
   data:  { fill: "#33280f", stroke: "#e0a43a" },
   out:   { fill: "#0f2f33", stroke: "#56d4dd" },
+  db:    { fill: "#331f17", stroke: "#f78c6c" },
   ext:   { fill: "#232323", stroke: "#7a7a7a", dash: "4 3" },
 };
 
@@ -1134,7 +1418,7 @@ function renderDiagram() {
       `<text x="${cx}" y="${ty}" text-anchor="middle" style="font-family:var(--mono)" font-size="${n.bar ? 11.5 : n.cyl ? 10.5 : 11}" font-weight="600" fill="#ececec">${esc(n.t)}</text>` +
       (n.s ? `<text x="${cx}" y="${sy}" text-anchor="middle" font-size="10" fill="#a9a9a9">${esc(n.s)}</text>` : "") + api + `</g>`;
   }
-  return `<svg viewBox="0 0 1000 640" role="img" aria-label="Architettura di NetflixScout" style="font-family:var(--sans)">
+  return `<svg viewBox="0 0 1000 772" role="img" aria-label="Architettura di NetflixScout" style="font-family:var(--sans)">
     <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8b949e"/></marker></defs>
     <rect x="8" y="8" width="984" height="200" rx="10" fill="#1a2322" stroke="#2bb3a033"/>
     <text x="24" y="31" font-size="11" font-weight="700" letter-spacing=".06em" fill="#2bb3a0">① INDICIZZAZIONE OFFLINE</text>
@@ -1142,6 +1426,9 @@ function renderDiagram() {
     <rect x="8" y="222" width="984" height="410" rx="10" fill="#1c1f27" stroke="#4a9eff33"/>
     <text x="24" y="245" font-size="11" font-weight="700" letter-spacing=".06em" fill="#4a9eff">② RUNTIME</text>
     <text x="110" y="245" font-size="11" fill="#8b8b8b" style="font-family:var(--mono)">python app.py</text>
+    <rect x="8" y="648" width="984" height="116" rx="10" fill="#241c1a" stroke="#f78c6c33"/>
+    <text x="24" y="671" font-size="11" font-weight="700" letter-spacing=".06em" fill="#f78c6c">③ TOOL DB MOVIELENS</text>
+    <text x="466" y="671" font-size="11" fill="#8b8b8b" style="font-family:var(--mono)">python buildMovieDb.py (offline, una volta)</text>
     ${edges}${nodes}${labels}
   </svg>`;
 }
@@ -1151,23 +1438,24 @@ function renderOverview() {
   return `<div class="page" style="max-width:1120px">
     <h1><span style="color:#3794ff">◈</span>NetflixScout</h1>
     <div class="path">Mappa del progetto · grafico della struttura</div>
-    <p class="lead">Assistente da terminale che consiglia film con una pipeline RAG sul CMU Movie Summary Corpus: ChromaDB per la ricerca, Cohere per il rerank, OpenAI per classificazione, segnali, embedding e risposta.</p>
+    <p class="lead">Assistente da terminale che consiglia film con una pipeline RAG sul CMU Movie Summary Corpus (ChromaDB per la ricerca, Cohere per il rerank, OpenAI per classificazione, segnali, embedding e risposta) e risponde a domande su voti e classifiche con un database SQLite read-only di MovieLens 32M.</p>
     <p style="color:var(--muted)">Clicca un riquadro del grafico, oppure un file o una cartella nell'explorer a sinistra, per leggerne la spiegazione.</p>
     <div class="diagram" id="diagram">${renderDiagram()}</div>
     <div class="legend">
-      ${L("off", "Indicizzazione offline")}${L("rt", "Runtime RAG")}${L("orch", "Orchestrazione / guardrail")}${L("out", "Output / presenter")}${L("entry", "Entry point")}${L("data", "Dati locali")}${L("ext", "Esterno / non è un file")}
+      ${L("off", "Indicizzazione offline")}${L("rt", "Runtime RAG")}${L("orch", "Orchestrazione / guardrail")}${L("out", "Output / presenter")}${L("db", "Tool DB MovieLens")}${L("entry", "Entry point")}${L("data", "Dati locali")}${L("ext", "Esterno / non è un file")}
       <span><i style="background:#c2732a;border-color:#c2732a;border-radius:7px"></i>chiama un'API a pagamento</span>
     </div>
 
-    <h2>Il flusso in 7 passi</h2>
+    <h2>Il flusso in 8 passi</h2>
     <ol class="steps">
       <li><b>Indicizzazione (una volta sola).</b> <a class="vscode" href="#buildSemanticDb.py">buildSemanticDb.py</a> legge <code>dataset/</code>. Ogni trama diventa un chunk con titolo, anno, generi e cast; gli embedding finiscono in Chroma, in <code>dbVettoriale/&lt;backend&gt;/</code>.</li>
-      <li><b>Guardrail.</b> <a class="vscode" href="#app.py">app.py</a> riceve la domanda e <a class="vscode" href="#${Q}query_classifier/query_classifier.py">query_classifier</a> (gpt-4o-mini) blocca quelle che non riguardano il cinema, rispondendo in italiano o in inglese. Vede anche l'ultimo scambio della conversazione (<code>classifier_context_messages = 2</code>), così un follow-up come “ne puoi trovare 3 più recenti?” non viene scambiato per off-topic; giudica comunque solo l'ultima domanda.</li>
-      <li><b>Orchestrazione.</b> <a class="vscode" href="#orchestrator.py">orchestrator.py</a>, con una sola chiamata LLM, riscrive le domande di follow-up in una query autonoma usando la history (“e uno più recente?” → “film di fantascienza con robot più recenti”) e sceglie il tool. Oggi c'è solo <code>rag_search</code>, che è anche il fallback; la query autonoma vale per qualunque tool.</li>
+      <li><b>Guardrail.</b> <a class="vscode" href="#app.py">app.py</a> riceve la domanda e <a class="vscode" href="#${Q}query_classifier/query_classifier.py">query_classifier</a> (gpt-4o-mini) blocca quelle che non riguardano il cinema, rispondendo in italiano o in inglese. Vede anche l'ultimo scambio della conversazione (<code>classifier_context_messages = 2</code>), così un follow-up come “ne puoi trovare 3 più recenti?” non viene scambiato per off-topic; giudica comunque solo l'ultima domanda. Considera cinematografiche anche le domande statistiche su voti, classifiche e generi.</li>
+      <li><b>Orchestrazione.</b> <a class="vscode" href="#orchestrator.py">orchestrator.py</a>, con una sola chiamata LLM, riscrive le domande di follow-up in una query autonoma usando la history (“e uno più recente?” → “film di fantascienza con robot più recenti”) e sceglie il tool: <code>rag_search</code> per trame, atmosfere e consigli (è anche il fallback), <code>movie_db_search</code> per classifiche, voti medi, numero di voti, generi per anno e tag. La query autonoma vale per qualunque tool.</li>
       <li><b>Retrieval.</b> <a class="vscode" href="#${Q}retrieval.py">retrieval.py</a> estrae i segnali in inglese dalla query (cosa vuoi, cosa evitare, cosa escludere, la frase da embeddare <code>semantic_query</code> e i generi), fa l'embedding di <code>semantic_query</code>, dà un boost (<code>genre_boost = 0.15</code>) ai film del genere richiesto su un pool di <code>fetch_k = 50</code> e tiene fino a <code>k_largo = 10</code> candidati, in modalità <code>semantic</code>, <code>bm25</code> o <code>hybrid</code>.</li>
       <li><b>Rerank.</b> <a class="vscode" href="#${Q}rerank.py">rerank.py</a> riordina con Cohere <code>rerank-v3.5</code>, mostrandogli titolo, anno e generi prima della trama, e tiene i primi <code>k_finale = 3</code>.</li>
+      <li><b>Tool DB.</b> <a class="vscode" href="#${M}tool/movie_db_tool.py">movie_db_tool.py</a> fa convertire la domanda dal <a class="vscode" href="#${M}tool/parser.py">parser</a> in un'operazione whitelistata (<code>MovieDbQuery</code>, mai SQL), e <a class="vscode" href="#${M}tool/sql">tool/sql/</a> la esegue con SQL fisso e parametri bind su <code>movie_db/data/movielens32m.sqlite3</code>, aperto in sola lettura (<code>mode=ro</code>, <code>query_only</code>, authorizer). Le righe diventano chunk per la risposta; la trace contiene solo le query eseguite.</li>
       <li><b>Risposta.</b> L'orchestratore scrive la risposta usando solo i chunk ricevuti. Ogni 12 messaggi <a class="vscode" href="#${Q}conversation.py">conversation.py</a> compatta la history.</li>
-      <li><b>Output.</b> <code>handle_query</code> in <a class="vscode" href="#app.py">app.py</a> non stampa nulla: impacchetta risposta e passaggi in un <a class="vscode" href="#turn.py">TurnResult</a>. Poi <a class="vscode" href="#presenters">presenters/</a> lo mostra in base al canale dichiarato dall'entry point: a terminale il resoconto completo (query usata, tool, testo dell'embedding e generi, K LARGO, RERANKING, risposta); per il web (predisposto, non ancora implementato) una struttura dati per il frontend.</li>
+      <li><b>Output.</b> <code>handle_query</code> in <a class="vscode" href="#app.py">app.py</a> non stampa nulla: impacchetta risposta e passaggi in un <a class="vscode" href="#turn.py">TurnResult</a>. Poi <a class="vscode" href="#presenters">presenters/</a> lo mostra in base al canale dichiarato dall'entry point: a terminale il resoconto completo (query usata, tool, testo dell'embedding e generi, K LARGO, RERANKING oppure 🗄️ QUERY DB con il SQL eseguito, risposta); per il web (predisposto, non ancora implementato) una struttura dati per il frontend.</li>
     </ol>
 
     <h2>Punti di attenzione nel codice</h2>
@@ -1176,6 +1464,8 @@ function renderOverview() {
       <li>Il commit “migrate db to Qdrant” non corrisponde al codice, che usa solo ChromaDB.</li>
       <li>In modalità bm25/hybrid l'indice BM25 viene ricostruito su tutto il corpus a ogni query (<a class="vscode" href="#${Q}hybrid.py">hybrid.py</a>).</li>
       <li><code>max_iterations</code>, <code>max_execution_time</code> e <code>token_budget</code> sono in CONFIG ma il codice non li usa.</li>
+      <li>La build del DB MovieLens e <code>run_eval</code> offline non fanno chiamate API, ma richiedono <code>OPENAI_API_KEY</code>: leggono <code>CONFIG</code> da <code>app.py</code>, i cui import creano il client OpenAI.</li>
+      <li>Limiti noti dei dati MovieLens: nelle classifiche compaiono serie TV (Firefly, Planet Earth II…), l'articolo finale resta in fondo nei titoli con titolo alternativo tra parentesi, <code>by_title</code> cerca per sottostringa. Il terminale scrive “RAG PIPELINE COMPLETATA” anche dopo un turno DB.</li>
     </ul></div>
   </div>`;
 }
