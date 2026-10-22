@@ -16,6 +16,13 @@ HTTP_TIMEOUT_SECONDS = 8.0
 # by the API maximum.
 SEARCH_FETCH_FACTOR = 3
 SEARCH_FETCH_MAX = 50
+# IDs per `/videos` call (API maximum): one call per run, the rest keeps search data only.
+VIDEO_IDS_MAX = 50
+# Description excerpt passed to the LLM (the full description is never needed).
+DESCRIPTION_EXCERPT_CHARS = 300
+# Country named in the `blocked_in:<code>` note from `regionRestriction`: a note only,
+# no search is restricted by country.
+NOTE_REGION = "IT"
 
 # The API has no "is a Short" field and duration alone does not identify one (Shorts last
 # up to 3 minutes; teasers and short interviews can last under a minute). Duration never

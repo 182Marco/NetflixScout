@@ -117,6 +117,40 @@ class YoutubeToolInput(BaseModel):
         return self
 
 
+class VideoHit(BaseModel):
+    """One video kept for a kind. `title` and `channel` are the API values, unchanged
+    (from `/videos`; from the search snippet with HTML entities decoded when `/videos`
+    could not be read, noted `title_from_search`). `url` is the only value built by the
+    tool, from a validated video ID."""
+
+    video_id: str
+    url: str
+    title: str
+    channel: str
+    published_at: str | None = None
+    description_excerpt: str | None = None
+    duration_seconds: int | None = None
+    matched_on: list[str] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
+class KindOutcome(BaseModel):
+    """What happened to one requested kind.
+
+    `status`: `searched` (then `result` is `ok`, `empty` or `error`) or `not_searched`
+    (then `reason` is `turn_limit` or the error that stopped the run, e.g. `quota_exceeded`).
+    """
+
+    kind: VideoKind
+    status: str
+    result: str | None = None
+    reason: str | None = None
+    error: str | None = None
+    returned: int = 0
+    filtered_out: dict[str, int] = Field(default_factory=dict)
+    hits: list[VideoHit] = Field(default_factory=list)
+
+
 def describe_validation_errors(exc: ValidationError) -> list[dict[str, Any]]:
     """Safe summary of a validation failure: field and error type, never the input values.
 

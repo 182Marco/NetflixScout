@@ -60,6 +60,78 @@ def make_session(
     return session, transport
 
 
+def make_tool(
+    routes: dict[str, Route] | None = None,
+    *,
+    max_results: int = 3,
+    max_searches: int = 2,
+    latch: QuotaLatch | None = None,
+):
+    from youtube.config import YoutubeConfig
+    from youtube.tool import YoutubeTool
+
+    transport = FakeTransport(routes)
+    tool = YoutubeTool(
+        config=YoutubeConfig(max_results=max_results, max_searches_per_turn=max_searches),
+        credentials=credentials(),
+        transport=transport,
+        latch=latch or QuotaLatch(),
+    )
+    return tool, transport
+
+
+def search_item(
+    video_id: str,
+    title: str,
+    *,
+    description: str = "",
+    channel: str = "Channel",
+    published_at: str = "2024-02-20T10:00:00Z",
+) -> dict[str, Any]:
+    return {
+        "kind": "youtube#searchResult",
+        "id": {"kind": "youtube#video", "videoId": video_id},
+        "snippet": {"title": title, "description": description, "channelTitle": channel, "publishedAt": published_at},
+    }
+
+
+def video_item(
+    video_id: str,
+    title: str,
+    *,
+    channel: str = "Channel",
+    description: str = "",
+    duration: str = "PT5M",
+    region: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    content: dict[str, Any] = {"duration": duration}
+    if region is not None:
+        content["regionRestriction"] = region
+    return {
+        "kind": "youtube#video",
+        "id": video_id,
+        "snippet": {"title": title, "channelTitle": channel, "description": description},
+        "contentDetails": content,
+    }
+
+
+def by_kind(answers: dict[str, Any]) -> Callable[[dict[str, str]], Any]:
+    """`/search` route answering by the first kind word found in `q` (e.g. "making")."""
+
+    def _route(params: dict[str, str]) -> Any:
+        for word, answer in answers.items():
+            if word in params.get("q", ""):
+                return answer
+        return {"items": []}
+
+    return _route
+
+
+def run_tool(tool, **arguments: Any) -> dict[str, Any]:
+    params = {"title": "Dune: Part Two", "kinds": ["making_of"], **arguments}
+    return tool.run(query="domanda", params=params, conversation_history=[])
+
+
 def error_body(
     status: int,
     reason: str | None = None,
