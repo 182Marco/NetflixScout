@@ -217,6 +217,22 @@ def _pool_chunk(title, genres):
     return {"id": title, "testo": "plot", "score": 0.5, "title": title, "genres": genres}
 
 
+def test_reranker_gets_the_semantic_query(monkeypatch) -> None:
+    signals = QuerySignals(semantic_query="A film about the right to die of a paralysed man")
+
+    result, sent = _run_rag_with(monkeypatch, signals, [])
+
+    assert sent == "A film about the right to die of a paralysed man"
+    assert result.rerank_query == sent
+
+
+def test_reranker_falls_back_to_the_query_without_a_semantic_query(monkeypatch) -> None:
+    result, sent = _run_rag_with(monkeypatch, QuerySignals(), [])
+
+    assert sent == "Mare dentro mi ha colpito. Temi simili?"
+    assert result.constraints == {}
+
+
 def test_excluded_genres_drop_chunks_from_the_pool(monkeypatch) -> None:
     _capture_embed(monkeypatch)
 
@@ -243,3 +259,27 @@ def test_constraint_report_is_attached_to_the_result(monkeypatch) -> None:
     assert check["type"] == "excluded_genre"
     assert check["results"]["Exit (?)"]["status"] == "verified"
     assert check["results"]["Senza generi (?)"]["status"] == "not_verifiable"
+
+
+def test_rag_tool_keeps_the_user_query_and_passes_the_planner_rewrite_as_a_hint(monkeypatch) -> None:
+    """Real case 13 (v3): a vague planner rewrite must not replace the user's request."""
+    received: dict = {}
+
+    def fake_run_rag(*, config, query, history=None, query_hint=None):
+        received.update(query=query, hint=query_hint)
+        return pipeline.RagResult(query=query, search_mode=SearchMode.semantic, rerank_backend=RerankBackend.cohere,
+                                  chunks=[], rerank_query="themes", constraints={"x": 1})
+
+    monkeypatch.setattr("rag.FromQueryEmbeddingToRes.tool_interface.run_rag", fake_run_rag)
+    from rag.FromQueryEmbeddingToRes.tool_interface import RagTool
+
+    user = "Mare dentro mi ha colpito molto. Mi consigli altri film che affrontano temi simili?"
+    vague = "Consiglia film simili a Mare dentro, che affrontino temi e atmosfere analoghi."
+    planned = RagTool(config={}).run(query=user, params={"query": vague, "turn_language": "it"})
+
+    assert received == {"query": user, "hint": vague}
+    assert planned["query"] == user
+    assert planned["trace"][0]["data"]["planner_query"] == vague
+    assert planned["trace"][1]["data"]["rerank_query"] == "themes"
+    RagTool(config={}).run(query=user, params={"query": user})
+    assert received["hint"] is None  # identical rewrite: no hint

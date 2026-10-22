@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 
 from openai import OpenAI
 
@@ -14,7 +15,7 @@ from .vectorstore import apri_collection, has_excluded_genre
 _signal_client = OpenAI()
 
 
-def _extract_query_signals(query: str, llm_model: str) -> QuerySignals:
+def _extract_query_signals(query: str, llm_model: str, hint: str | None = None) -> QuerySignals:
     if not os.getenv("OPENAI_API_KEY"):
         return QuerySignals(positive_signals=[], negative_signals=[], hard_exclusions=[])
 
@@ -41,13 +42,24 @@ def _extract_query_signals(query: str, llm_model: str) -> QuerySignals:
         "- Expressions like 'that made history', 'classics' or 'cult' mean influential or iconic "
         "movies, not historical movies.\n"
         "- If a list is not present, return [] for that list.\n"
+        "- Requests about the answer (ratings, reviews, number of results) are not signals.\n"
+        "- semantic_query and positive_signals must keep every explicit attribute the user gives: "
+        "country or nationality, decade or years, genres, setting or place.\n"
+        "- When the user cites a movie only as a reference ('like X', 'the themes of X'), "
+        "semantic_query describes the themes, situations and setting of X in plain words and "
+        "never just says 'similar to X'; put X in hard_exclusions.\n"
+        "- A 'Planner rewrite' may follow the user query: use it only to add context; the "
+        "user's own words win and nothing they asked may be dropped.\n"
         "- Return JSON only matching the schema.\n"
     )
+    text = query
+    if hint and hint.strip() and hint.strip() != query.strip():
+        text = f"{query}\n\nPlanner rewrite: {hint.strip()}"
     try:
         response = _signal_client.responses.parse(
             model=llm_model,
             instructions=prompt,
-            input=query,
+            input=text,
             text_format=QuerySignals,
         )
         parsed = response.output_parsed
@@ -75,9 +87,9 @@ def _normalize_signal_list(values: list[str]) -> list[str]:
     return normalized
 
 
-def _build_signal_aware_query(query: str, config: dict) -> QuerySignals:
+def _build_signal_aware_query(query: str, config: dict, hint: str | None = None) -> QuerySignals:
     model = config["generation"]["model"]
-    extracted = _extract_query_signals(query, llm_model=model)
+    extracted = _extract_query_signals(query, llm_model=model, hint=hint)
     return QuerySignals(
         positive_signals=_normalize_signal_list(extracted.positive_signals),
         negative_signals=_normalize_signal_list(extracted.negative_signals),
@@ -86,6 +98,35 @@ def _build_signal_aware_query(query: str, config: dict) -> QuerySignals:
         genres=_normalize_signal_list(extracted.genres),
         excluded_genres=_normalize_signal_list(extracted.excluded_genres),
     )
+
+
+def _signal_words(text: str) -> list[str]:
+    return re.findall(r"[a-z0-9]+", text.lower())
+
+
+# Requests about the answer ("indicami anche i voti"), not about the movie: never reranked on.
+_ANSWER_REQUEST_WORDS = frozenset({"rating", "ratings", "review", "reviews", "vote", "votes", "score", "scores"})
+
+
+def compose_rerank_query(signals: QuerySignals, query: str) -> str:
+    """Semantic query plus the explicit requirements it left out, for the reranker.
+
+    The semantic sentence states the intent in English, but the parser sometimes drops an
+    explicit attribute (real case: "1950s" missing from "A Japanese science fiction comedy
+    set on Mars…"). Every requested genre and positive signal whose key words do not all
+    appear in the sentence is appended, so the reranker sees decade, country, genre and
+    setting too. No extra call: the text is built from signals already extracted.
+    """
+    base = (signals.semantic_query or query).strip()
+    present = set(_signal_words(base))
+    missing = []
+    for item in [*signals.positive_signals, *signals.genres]:
+        words = [w for w in _signal_words(item) if len(w) >= 4 or any(ch.isdigit() for ch in w)]
+        if set(words) & _ANSWER_REQUEST_WORDS:
+            continue
+        if words and not all(word in present for word in words) and item not in missing:
+            missing.append(item)
+    return f"{base} Must match: {'; '.join(missing)}." if missing else base
 
 
 def _light_rerank(query: str, chunks: list[dict], signals: QuerySignals) -> list[dict]:

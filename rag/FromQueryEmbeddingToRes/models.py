@@ -56,6 +56,8 @@ class RagResult(BaseModel):
     output_tokens: int | None = None
     signals: QuerySignals | None = None
     embedded_text: str | None = None
+    # Text sent to the reranker (`retrieval.compose_rerank_query`).
+    rerank_query: str | None = None
     # Status of each extracted constraint on the final chunks (`constraints.constraint_report`).
     constraints: dict[str, Any] = Field(default_factory=dict)
 
