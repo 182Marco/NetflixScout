@@ -1,12 +1,40 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import TypedDict
 
 from openai import OpenAI
 
 
 CHEAP_MODEL = 'gpt-4o-mini'
+
+# Function words of each language. Titles add foreign words to a question ("Chi ha diretto
+# The Godfather?"), so the markers decide only with 2+ hits and none of the other language;
+# otherwise the classifier's `is_italian` stands. Words common in Italian titles ("la",
+# "lo", "le") and words shared by both languages ("a", "in", "me", "film") are left out.
+_ITALIAN_MARKERS = frozenset(
+    'chi che cosa come quanto quanta quanti quando dove perché perche qual quale quali il gli '
+    'del della dello dei degli delle di da un una uno è e non mi ti ci ha hai ho l sono per con '
+    'su ma più anche dura diretto recita consigliami consigli parlami dimmi qualcosa vedere '
+    'vedo posso puoi'.split()
+)
+_ENGLISH_MARKERS = frozenset(
+    'the who what which when where how is are was were did does do you your my and with for '
+    'from could can would please tell about directed long watch it this that of to'.split()
+)
+
+
+def detect_language_markers(query: str) -> str | None:
+    """'it' or 'en' when the function words leave no doubt, else None."""
+    words = re.findall(r'[a-zàèéìíòóùú]+', query.casefold())
+    italian = sum(word in _ITALIAN_MARKERS for word in words)
+    english = sum(word in _ENGLISH_MARKERS for word in words)
+    if italian >= 2 and english == 0:
+        return 'it'
+    if english >= 2 and italian == 0:
+        return 'en'
+    return None
 
 
 class QueryClassification(TypedDict):
@@ -45,7 +73,9 @@ def classify_query_domain(
                     '(trama, dettagli, cast, riassunto, traduzione), '
                     "es. 'Could you give me the plot of the movie you just advised?'. "
                     "Classifica sempre l'ultima query: se cambia argomento rispetto al cinema, is_cinema è false. "
-                    "is_italian si riferisce solo all'ultima query. "
+                    "is_italian si riferisce solo all'ultima query: i titoli citati nella "
+                    "conversazione o nella query possono essere in altre lingue e non indicano la "
+                    "lingua dell'utente. "
                     'Ritorna solo JSON valido con le chiavi is_cinema e is_italian.'
                 ),
             },
@@ -63,7 +93,12 @@ def classify_query_domain(
     except json.JSONDecodeError as exc:
         raise RuntimeError('Classifier response is not valid JSON.') from exc
 
-    return _validate_classification(parsed)
+    classification = _validate_classification(parsed)
+    # The history resolves references; it never decides the language of the latest query.
+    detected = detect_language_markers(query)
+    if detected is not None:
+        classification['is_italian'] = detected == 'it'
+    return classification
 
 
 def _context_messages(history: list[dict[str, str]] | None) -> list[dict[str, str]]:
