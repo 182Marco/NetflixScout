@@ -68,9 +68,33 @@ def test_final_instructions_use_enrichment_sources_and_names_faithfully() -> Non
     assert "stesso ordine" in final and "Non attribuire mai a un film i dati di un altro" in final
     assert "fonte dei voti" in final
     assert "candidates" in final and "quale versione" in final
-    assert "alfabeto non latino" in final and "dichiarandola come tale" in final
-    assert "work_type_verified false" in final
+    # Non-Latin names: always the original plus a declared transliteration, never invented.
+    assert "alfabeto non latino" in final and "aggiungi sempre" in final and "senza" in final
+    # Sources: the RAG only when it ran; no unverified match described; MovieLens type caveat.
+    assert "nomina il RAG solo se il tool è rag_search" in final
+    assert "'unverified_match'" in final and "work_type_verified false" in final
+    assert "episode_runtime_minutes" in final
+
+
+def test_final_instructions_fix_the_unfounded_sentences_of_the_real_runs() -> None:
+    """D7 regressions from the real e2e runs of 2026-10-22, one assertion each."""
+    final = app_module.CONFIG["orchestrator"]["final_instructions"]
+
+    # Cases 1, 6, 17: synopses enriched with themes not in the overview ("esplora memoria, coscienza").
+    assert "riformula solo il testo ricevuto" in final and "anche se li conosci" in final
+    # Case 13: "secondo i risultati del RAG, affrontano temi vicini a Mare dentro".
+    assert "dagli elementi delle loro trame" in final
+    assert "senza scrivere che il RAG o i risultati giudicano un film simile" in final
+    assert "deve venire dai risultati del RAG" not in final
+    # Case 15.2: the field name "created_by" shown to the user.
+    assert "Non mostrare all'utente nomi tecnici di campi" in final
+    # D5 statuses and D1 alternative titles are explained to the model.
+    # D5: the per-film summary is reported as given, with no inference of the model's own.
     assert "constraints_summary" in final and "senza aggiungere deduzioni tue" in final
+    assert "non dedurre nazionalità dai personaggi né il finale dalla trama" in final
+    assert "un vincolo 'contraddetto' va" in final
+    assert "'alternative_title_match'" in final and "matched_by 'alternative_title'" in final
+    assert "'year_from_release_dates'" in final and "riporta entrambi gli anni" in final
 
 
 def test_planner_can_ask_for_clarification_instead_of_searching() -> None:
