@@ -121,6 +121,18 @@ def test_presenters_never_import_the_tmdb_package() -> None:
                 assert not node.module.startswith("tmdb"), (path, node.module)
 
 
+def test_presenters_live_only_in_the_root_folder_split_by_channel_and_tool() -> None:
+    stray = [
+        path.relative_to(ROOT)
+        for path in ROOT.rglob("presenters")
+        if path.is_dir() and path != ROOT / "presenters" and ".venv" not in path.parts
+    ]
+    assert not stray
+    for channel in ("terminal", "web"):
+        for tool in ("rag", "db", "api"):
+            assert (ROOT / "presenters" / channel / tool / "__init__.py").is_file(), (channel, tool)
+
+
 def test_web_channel_is_still_not_implemented() -> None:
     with pytest.raises(NotImplementedError):
         present(_turn(_step()), OutputChannel.web)

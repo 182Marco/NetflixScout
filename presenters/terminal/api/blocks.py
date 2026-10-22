@@ -1,15 +1,12 @@
-"""Terminal print blocks for TMDb (same box style as `presenters/terminal/blocks.py`)."""
+"""Terminal print blocks for TMDb (same box style as `terminal/box.py`)."""
 from __future__ import annotations
 
 from ...api_view import TMDB_NOTICE, TmdbCallsView
+from ..box import print_box
 
 
 def print_tmdb_calls(view: TmdbCallsView) -> None:
-    print("\n")
-    print("╔" + "═" * 68 + "╗")
-    header = f"{view.title} — {len(view.calls)}"
-    print(f"║  🎞️  {header.upper():<62}║")
-    print("╚" + "═" * 68 + "╝")
+    print_box("🎞️", f"{view.title} — {len(view.calls)}")
     if not view.calls:
         print(f"\n  {view.empty_message}")
     for url in view.calls:

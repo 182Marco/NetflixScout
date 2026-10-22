@@ -1,4 +1,8 @@
-"""Render a `TurnResult` as the full step-by-step report on the terminal."""
+"""Render a `TurnResult` as the full step-by-step report on the terminal.
+
+Glue only: the flow steps shared by every tool are rendered here, each tool step is
+delegated to the renderer in its own folder (`rag/`, `db/`, `api/`) via `STEP_RENDERERS`.
+"""
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -17,32 +21,18 @@ from turn import (
 
 from .api import render_tmdb_calls
 from .blocks import (
-    _print_chunks,
-    _print_retrieval_compact,
     print_classification,
     print_compact_notice,
     print_final_answer,
     print_generic_step,
     print_query_used,
-    print_retrieval_query,
     print_tool_selection,
 )
 from .db import render_db_query
+from .rag import render_rerank, render_retrieval
 
 # A renderer gets the step and the turn language ("it" | "en") for its labels.
 StepRenderer = Callable[[TraceStep, str], None]
-
-
-def _render_retrieval(step: TraceStep, language: str) -> None:
-    signals = step.data.get("signals") or {}
-    print_retrieval_query(step.data.get("embedded_text"), signals.get("genres") or [])
-    chunks = step.data.get("chunks", [])
-    _print_retrieval_compact(f"K LARGO — {len(chunks)} CHUNK RECUPERATI", chunks, "📚")
-
-
-def _render_rerank(step: TraceStep, language: str) -> None:
-    chunks = step.data.get("chunks", [])
-    _print_chunks(f"RERANKING — {len(chunks)} CHUNK SELEZIONATI", chunks, "🏆")
 
 
 def _render_query_rewrite(step: TraceStep, language: str) -> None:
@@ -70,8 +60,8 @@ STEP_RENDERERS: dict[str, StepRenderer] = {
     STEP_CLASSIFICATION: _render_classification,
     STEP_QUERY_REWRITE: _render_query_rewrite,
     STEP_TOOL_SELECTION: _render_tool_selection,
-    STEP_RETRIEVAL: _render_retrieval,
-    STEP_RERANK: _render_rerank,
+    STEP_RETRIEVAL: render_retrieval,
+    STEP_RERANK: render_rerank,
     STEP_DB_QUERY: render_db_query,
     STEP_TMDB_CALLS: render_tmdb_calls,
 }

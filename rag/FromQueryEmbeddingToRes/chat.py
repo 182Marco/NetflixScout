@@ -2,13 +2,9 @@ from __future__ import annotations
 
 from openai import OpenAI
 
-from presenters.terminal.blocks import (
-    _print_chunks,
-    _print_retrieval_compact,
-    print_final_answer,
-    print_header,
-    print_mode,
-)
+from presenters.terminal.blocks import print_final_answer
+from presenters.terminal.rag import print_chunks, print_retrieval_compact
+from presenters.terminal.session import print_header, print_mode
 from .conversation import _compact_history, _rewrite_query_with_history
 from .query_classifier.query_classifier import classify_query_domain
 from .rag import genera
@@ -77,14 +73,14 @@ def run_conversation_loop(
         effective_query = _rewrite_query_with_history(query, history, runtime_config, openai_client)
 
         retrieved = _retrieve(effective_query, runtime_config)
-        _print_retrieval_compact(
+        print_retrieval_compact(
             f"K LARGO — {len(retrieved)} CHUNK RECUPERATI",
             retrieved,
             "📚",
         )
 
         final_chunks = _rerank(effective_query, retrieved, runtime_config)
-        _print_chunks(
+        print_chunks(
             f"RERANKING — {len(final_chunks)} CHUNK SELEZIONATI",
             final_chunks,
             "🏆",

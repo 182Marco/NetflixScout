@@ -1,17 +1,15 @@
-"""Terminal print blocks for the movie DB queries (same box style as `terminal/blocks.py`)."""
+"""Terminal print blocks for the movie DB queries (same box style as `terminal/box.py`)."""
 from __future__ import annotations
 
 import textwrap
+
+from ..box import print_box
 
 _SQL_WIDTH = 64
 
 
 def print_db_queries(title: str, sql_statements: list[str]) -> None:
-    print("\n")
-    print("╔" + "═" * 68 + "╗")
-    header = f"{title} — {len(sql_statements)} QUERY ESEGUITE"
-    print(f"║  🗄️  {header.upper():<62}║")
-    print("╚" + "═" * 68 + "╝")
+    print_box("🗄️", f"{title} — {len(sql_statements)} QUERY ESEGUITE")
 
     if not sql_statements:
         print("\n  Nessuna query eseguita.")
