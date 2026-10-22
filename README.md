@@ -26,8 +26,15 @@ This repository integrates the RAG modules into a reproducible local pipeline an
 │   ├── models/         # enums, per-operation rules, tool input, normalized results
 │   ├── operations/     # resolve, reference, movies, tv, people, collections, discovery, lists
 │   ├── normalize/      # raw JSON → entities with capped facets
-│   ├── presenters/     # terminal/ and web/ output of the tmdb_calls step
 │   └── harness/        # optional live smoke check (never imported at runtime)
+├── presenters/         # the only output layer: present(turn, channel)
+│   ├── channel.py      # OutputChannel (terminal | web)
+│   ├── db_view.py      # channel-neutral view of the db_query step
+│   ├── api_view.py     # channel-neutral view of the tmdb_calls step + TMDb notice
+│   ├── terminal/       # box.py, session.py, blocks.py (turn flow), renderer.py (STEP_RENDERERS)
+│   │   └── rag/ db/ api/   # blocks.py + renderer.py per tool
+│   └── web/            # payload.py (not implemented yet)
+│       └── rag/ db/ api/   # serializer.py per tool (rag/ reserved)
 ├── app.py              # public API + RAG Tool facade
 ├── buildSemanticDb.py  # reproducible semantic DB builder
 ├── buildMovieDb.py     # MovieLens SQLite builder
@@ -226,7 +233,8 @@ Read-only by construction, never by prompt:
 3. The connection is `mode=ro` + `PRAGMA query_only`, with an SQLite authorizer that allows only SELECT on the known tables and whitelisted functions; `max_limit` and `timeout_ms` bound every call.
 
 Each run adds one `db_query` trace step with only the SQL executed (`{sql, params}`), no rows:
-the terminal prints it in `presenters/terminal/movie_db/`, `presenters/web/movie_db/` serializes it for the future API.
+the terminal prints it in `presenters/terminal/db/`, `presenters/web/db/` serializes it for the future API
+(both read it through `presenters/db_view.py`).
 
 ### Evaluation
 
@@ -296,8 +304,8 @@ appended translations as fallback; the answer language is up to the LLM.
 
 Each run adds one `tmdb_calls` step with only the endpoints called, key masked
 (`Chiamato: https://api.themoviedb.org/3/movie/157336?api_key=***`; no credential at all with a
-Bearer token), labels in Italian or English after the question. `tmdb/presenters/web/` serializes
-the same step for the future API (`presenters/web/to_payload` is still not implemented).
+Bearer token), labels in Italian or English after the question, printed by `presenters/terminal/api/`.
+`presenters/web/api/` serializes the same step for the future API (`presenters/web/to_payload` is still not implemented).
 
 Optional live check of undocumented behaviours (3 real calls): `python -m tmdb.harness.live_smoke --live`.
 

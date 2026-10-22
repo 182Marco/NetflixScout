@@ -383,8 +383,8 @@ const TREE = D("NetflixScout", {}, [
           ["_choose_block_language(query, classification)", `<code>"it"</code> se il classificatore dice <code>is_italian</code>, altrimenti <code>"en"</code>.`],
           ["run_conversation_loop(*, config, exit_commands, compact_notice)", "Chat RAG completa senza orchestratore (stampa anche i chunk intermedi)."],
         ],
-        dep: ["presenters/terminal/blocks.py", Q + "conversation.py", Q + "query_classifier/query_classifier.py", Q + "rag.py", Q + "retrieval.py", Q + "runtime.py", Q + "vectorstore.py", "app.py"],
-        n: ["Importa <code>NON_CINEMA_BLOCK_MESSAGES</code> da <code>app.py</code> dentro la funzione, per evitare un import circolare.", "Il loop legacy stampa direttamente con i blocchi di <code>presenters/terminal/blocks.py</code>: è l'unica eccezione alla regola “il nucleo non stampa”."],
+        dep: ["presenters/terminal/blocks.py", "presenters/terminal/rag/__init__.py", "presenters/terminal/session.py", Q + "conversation.py", Q + "query_classifier/query_classifier.py", Q + "rag.py", Q + "retrieval.py", Q + "runtime.py", Q + "vectorstore.py", "app.py"],
+        n: ["Importa <code>NON_CINEMA_BLOCK_MESSAGES</code> da <code>app.py</code> dentro la funzione, per evitare un import circolare.", "Il loop legacy stampa direttamente con i blocchi di <code>presenters/terminal/</code> (<code>session.py</code>, <code>blocks.py</code>, <code>rag/</code>): è l'unica eccezione alla regola “il nucleo non stampa”."],
       }),
       F("conversation.py", {
         L: "rt", s: "Memoria della conversazione: compattazione e riscrittura della query.",
@@ -710,9 +710,9 @@ const TREE = D("NetflixScout", {}, [
 
   D("presenters", {
     L: "out",
-    s: "Lo strato di output: come mostrare un <code>TurnResult</code>, separato per canale.",
-    d: `Il nucleo (<code>app.handle_query</code>) produce solo dati. Questa cartella decide come presentarli, e <code>present(turn, channel)</code> in <code>__init__.py</code> è <b>l'unico <code>if</code></b> che distingue terminale e web. Ogni canale ha la sua sottocartella: <code>terminal/</code> stampa il resoconto completo del procedimento, <code>web/</code> è predisposto per restituire una struttura dati al frontend.`,
-    n: ["Il canale non viene “indovinato” con <code>sys.stdin.isatty()</code>: lo dichiara l'entry point (vedi <code>channel.py</code>)."],
+    s: "L'unico strato di output: come mostrare un <code>TurnResult</code>, diviso per canale e, dentro ogni canale, per tool.",
+    d: `Il nucleo (<code>app.handle_query</code>) produce solo dati. Questa cartella decide come presentarli, e <code>present(turn, channel)</code> in <code>__init__.py</code> è <b>l'unico <code>if</code></b> che distingue terminale e web. Nessun tool ha una propria cartella di presenter: tutto sta qui. Ogni canale (<code>terminal/</code>, <code>web/</code>) ha una sottocartella per tool (<code>rag/</code>, <code>db/</code>, <code>api/</code> per TMDb); fuori dalle cartelle dei tool restano solo il collante del flusso (classificatore, query usata, tool scelto, risposta finale, registro dei renderer) e le viste condivise tra i due canali (<code>db_view.py</code>, <code>api_view.py</code>). Un tool nuovo aggiunge <code>terminal/&lt;tool&gt;/</code> e <code>web/&lt;tool&gt;/</code> e registra il renderer in <code>STEP_RENDERERS</code>.`,
+    n: ["Il canale non viene “indovinato” con <code>sys.stdin.isatty()</code>: lo dichiara l'entry point (vedi <code>channel.py</code>).", "La struttura (nessuna cartella <code>presenters/</code> fuori dalla root, una sottocartella per tool in entrambi i canali) e i confini di import (mai il package <code>tmdb</code> né <code>movie_db</code>) sono verificati da <code>tests/test_tmdb_presenters.py</code> e <code>tests/test_movie_db_app.py</code>."],
   }, [
     F("__init__.py", {
       L: "out", s: "<code>present(turn, channel)</code>: l'unico punto in cui si sceglie terminale o web.",
@@ -725,57 +725,95 @@ const TREE = D("NetflixScout", {}, [
       d: `Il canale lo dichiara l'entry point che riceve l'input, perché è l'unico a sapere da dove arriva. <code>python app.py</code> esegue <code>if __name__ == "__main__": main()</code> e legge con <code>input()</code> dal terminale, quindi usa <code>terminal</code>. La futura route FastAPI importa <code>app.handle_query</code> (lì <code>__name__</code> non è <code>"__main__"</code>), riceve la domanda nella richiesta HTTP e usa <code>web</code>.`,
       n: ["<code>sys.stdin.isatty()</code> non viene usato di proposito: è falso con le pipe (<code>echo … | python app.py</code>), in Docker senza <code>-t</code>, in alcuni runner degli IDE e nei test."],
     }),
-    F("movie_db_view.py", {
-      L: "out", s: "Vista condivisa dello step <code>db_query</code>: la usano sia il terminale sia il web.",
+    F("db_view.py", {
+      L: "out", s: "Vista condivisa dello step <code>db_query</code>: la usano sia <code>terminal/db/</code> sia <code>web/db/</code>.",
       d: `Unico punto che interpreta <code>step.data</code> del tool DB, così i due canali mostrano le stesse query. <code>format_sql(sql, params)</code> inserisce i parametri nel testo solo per la lettura (mai eseguito), lasciando stare i <code>?</code> dentro le stringhe. Non importa il package <code>movie_db</code>.`,
       it: [["db_query_view(step)", "→ <code>DbQueryView(title, queries)</code>."], ["DbQueryItem.display_sql", "La query con i valori inseriti."], ["format_sql(sql, params)", "Se segnaposto e parametri non corrispondono restituisce il SQL originale."]],
+      dep: ["turn.py"],
+      x: ["pydantic"],
+    }),
+    F("api_view.py", {
+      L: "out", s: "Vista condivisa dello step <code>tmdb_calls</code> ed etichette it/en: la usano <code>terminal/api/</code> e <code>web/api/</code>.",
+      d: `<code>tmdb_calls_view(step, language)</code> → titolo, URL chiamati (solo quelli <code>https://</code> costruiti dal tool, chiave già mascherata), attribuzioni. Contiene <code>TMDB_NOTICE</code>, l'avviso richiesto dai Termini TMDb, in inglese come nei Termini. Le etichette seguono la lingua del turno e non influenzano la lingua della risposta. Importa solo <code>turn</code> e pydantic, mai il runtime TMDb (HTTP, auth, cache).`,
       dep: ["turn.py"],
       x: ["pydantic"],
     }),
     D("terminal", {
       L: "out",
       s: "Canale terminale: stampa tutto il procedimento, come faceva la chat prima dell'orchestratore.",
-      d: `Usato da <code>python app.py</code>. Ordine dell'output a ogni turno: 🔁 query usata (riscritta se è un follow-up) → 🛠️ tool scelto → 🔎 testo usato per l'embedding e generi richiesti → 📚 K LARGO (i candidati recuperati) → 🏆 RERANKING (i chunk finali con score, generi, cast e anteprima) → 🤖 risposta finale → eventuale avviso di compattazione. Per il tool DB, dopo il tool scelto compare 🗄️ QUERY DB con il SQL eseguito (da <code>terminal/movie_db/</code>) al posto di embedding, K LARGO e RERANKING; per il tool TMDb compare 🎞️ CHIAMATE TMDB con gli URL chiamati (chiave mascherata) e l'eventuale attribuzione JustWatch (da <code>tmdb/presenters/terminal/</code>). Header, avviso TMDb e modalità vengono stampati una volta, all'avvio.`,
+      d: `Usato da <code>python app.py</code>. Ordine dell'output a ogni turno: 🧭 classificatore → 🔁 query usata (riscritta se è un follow-up) → 🛠️ tool scelto → per il RAG (<code>rag/</code>) 🔎 testo usato per l'embedding e generi richiesti, 📚 K LARGO e 🏆 RERANKING; per il tool DB (<code>db/</code>) 🗄️ QUERY DB con il SQL eseguito; per TMDb (<code>api/</code>) 🎞️ CHIAMATE TMDB con gli URL chiamati (chiave mascherata) e l'eventuale attribuzione JustWatch → 🤖 risposta finale → eventuale avviso di compattazione. Header, avviso TMDb e modalità vengono stampati una volta, all'avvio.`,
     }, [
       F("__init__.py", {
         L: "out", s: "API del canale terminale.",
-        d: `Re-esporta <code>render</code> e i blocchi usati dal loop di <code>app.py</code>: <code>print_header</code>, <code>print_mode</code>, <code>print_goodbye</code>, <code>read_query</code>.`,
-        dep: ["presenters/terminal/blocks.py", "presenters/terminal/renderer.py"],
+        d: `Re-esporta <code>render</code> e i blocchi usati dal loop di <code>app.py</code>: <code>print_header</code>, <code>print_mode</code>, <code>print_tmdb_notice</code>, <code>print_goodbye</code>, <code>read_query</code>.`,
+        dep: ["presenters/terminal/renderer.py", "presenters/terminal/session.py", "presenters/terminal/api/__init__.py"],
       }),
-      F("blocks.py", {
-        L: "out", s: "I blocchi di stampa: box, header, modalità, liste di chunk, risposta.",
-        d: `È l'ex <code>rag/FromQueryEmbeddingToRes/cli.py</code>, spostato qui perché è output e non logica RAG. Accetta chunk sia come <code>dict</code> sia come modelli Pydantic (con <code>model_dump()</code>) <b>senza importare il package <code>rag</code></b>: così i presenter restano indipendenti dal nucleo e non ci sono import circolari.`,
+      F("box.py", {
+        L: "out", s: "<code>print_box(emoji, title)</code>: l'intestazione a box comune a tutti i blocchi.",
+        d: `Usata dai blocchi di <code>rag/</code>, <code>db/</code>, <code>api/</code> e dal fallback generico, così ogni tool stampa con lo stesso stile.`,
+      }),
+      F("session.py", {
+        L: "out", s: "Blocchi della sessione: banner, modalità, input, saluto.",
         it: [
           ["print_header() · print_mode(runtime_config)", "Banner e configurazione di ricerca, stampati all'avvio."],
-          ["print_retrieval_query(embedded_text, genres)", "Righe “🔎 Testo usato per l'embedding” e “Generi richiesti”, sopra il K LARGO."],
-          ["_print_retrieval_compact(title, chunks, emoji)", "Lista compatta titolo (anno): il blocco 📚 K LARGO."],
-          ["_print_chunks(title, chunks, emoji)", "Scheda dettagliata di ogni chunk: il blocco 🏆 RERANKING."],
+          ["read_query()", "Legge la domanda con <code>input()</code> (I/O da terminale)."],
+          ["print_goodbye()", "Uscita."],
+        ],
+      }),
+      F("blocks.py", {
+        L: "out", s: "Blocchi del flusso comuni a tutti i tool: classificatore, query, tool scelto, risposta.",
+        it: [
+          ["print_classification(is_cinema, is_italian)", "Riga “🧭 Classificatore”."],
           ["print_query_used(original, used, rewritten)", "Riga “🔁 Query riscritta con il contesto” (con la domanda originale) oppure “🔁 Query usata”."],
           ["print_tool_selection(tool_name)", "Riga “🛠️ Tool scelto dall'orchestratore”."],
           ["print_generic_step(title, data)", "Fallback per i passaggi di tool futuri senza un renderer dedicato."],
-          ["print_final_answer · print_compact_notice · print_goodbye", "Risposta, avviso di compattazione, uscita."],
-          ["read_query()", "Legge la domanda con <code>input()</code> (I/O da terminale)."],
+          ["print_final_answer · print_compact_notice", "Risposta e avviso di compattazione."],
         ],
+        dep: ["presenters/terminal/box.py"],
       }),
       F("renderer.py", {
-        L: "out", s: "<code>render(turn)</code>: trasforma gli step del <code>TurnResult</code> in blocchi stampati.",
-        d: `Scorre <code>turn.steps</code> e per ogni <code>kind</code> usa la funzione registrata in <code>STEP_RENDERERS</code>: <code>query_rewrite</code> → riga della query usata, <code>tool_selection</code> → riga del tool, <code>retrieval</code> → testo dell'embedding + generi + K LARGO, <code>rerank</code> → RERANKING, <code>classification</code> → <code>is_cinema</code>/<code>is_italian</code>, <code>db_query</code> → QUERY DB, <code>tmdb_calls</code> → CHIAMATE TMDB. Ogni renderer riceve <code>(step, language)</code>, con <code>language</code> = <code>TurnResult.language</code> per le etichette. Un <code>kind</code> sconosciuto viene stampato con il fallback generico, così un tool nuovo non rompe il terminale. Alla fine stampa la risposta e l'eventuale avviso di compattazione. Con <code>clarification</code> la riga del tool dice “nessuno: richiesta di chiarimento”.`,
+        L: "out", s: "<code>render(turn)</code>: collante che trasforma gli step del <code>TurnResult</code> in blocchi stampati.",
+        d: `Scorre <code>turn.steps</code> e per ogni <code>kind</code> usa la funzione registrata in <code>STEP_RENDERERS</code>. Qui ci sono solo i renderer del flusso (<code>classification</code>, <code>query_rewrite</code>, <code>tool_selection</code>); quelli dei tool arrivano dalle loro cartelle: <code>retrieval</code>/<code>rerank</code> da <code>rag/</code>, <code>db_query</code> da <code>db/</code>, <code>tmdb_calls</code> da <code>api/</code>. Ogni renderer riceve <code>(step, language)</code>, con <code>language</code> = <code>TurnResult.language</code> per le etichette. Un <code>kind</code> sconosciuto viene stampato con il fallback generico, così un tool nuovo non rompe il terminale. Alla fine stampa la risposta e l'eventuale avviso di compattazione. Con <code>clarification</code> la riga del tool dice “nessuno: richiesta di chiarimento”.`,
         it: [["STEP_RENDERERS", "Mappa <code>kind → funzione (step, language)</code>: è il punto da estendere per i tool futuri."], ["render(turn)", "Entry point del canale terminale."]],
-        dep: ["presenters/terminal/blocks.py", "presenters/terminal/movie_db/__init__.py", T + "presenters/terminal/__init__.py", "turn.py"],
+        dep: ["presenters/terminal/blocks.py", "presenters/terminal/rag/__init__.py", "presenters/terminal/db/__init__.py", "presenters/terminal/api/__init__.py", "turn.py"],
       }),
-      D("movie_db", {
+      D("rag", {
+        L: "out", s: "Output da terminale degli step <code>retrieval</code> e <code>rerank</code>.",
+        d: `Accetta chunk sia come <code>dict</code> sia come modelli Pydantic (con <code>model_dump()</code>) <b>senza importare il package <code>rag</code></b>: così i presenter restano indipendenti dal nucleo e non ci sono import circolari.`,
+      }, [
+        F("__init__.py", { L: "out", s: "Re-esporta <code>render_retrieval</code>, <code>render_rerank</code> e i blocchi dei chunk.", d: `I blocchi servono anche al loop legacy di <code>chat.py</code>.`, dep: ["presenters/terminal/rag/blocks.py", "presenters/terminal/rag/renderer.py"] }),
+        F("blocks.py", {
+          L: "out", s: "Blocchi dei chunk RAG.",
+          it: [
+            ["print_retrieval_query(embedded_text, genres)", "Righe “🔎 Testo usato per l'embedding” e “Generi richiesti”, sopra il K LARGO."],
+            ["print_retrieval_compact(title, chunks, emoji)", "Lista compatta titolo (anno): il blocco 📚 K LARGO."],
+            ["print_chunks(title, chunks, emoji)", "Scheda dettagliata di ogni chunk: il blocco 🏆 RERANKING."],
+          ],
+          dep: ["presenters/terminal/box.py"],
+        }),
+        F("renderer.py", { L: "out", s: "<code>render_retrieval(step, language)</code> · <code>render_rerank(step, language)</code>.", d: `Leggono <code>embedded_text</code>, <code>signals.genres</code> e <code>chunks</code> dallo step e li passano ai blocchi.`, dep: ["presenters/terminal/rag/blocks.py", "turn.py"] }),
+      ]),
+      D("db", {
         L: "out", s: "Output da terminale dello step <code>db_query</code>.",
         d: `Box 🗄️ QUERY DB con il numero di query e, per ognuna, 🔹 QUERY #n e 🧾 il SQL con i valori inseriti, a capo ogni 64 caratteri. Non mostra righe di risultato.`,
       }, [
-        F("__init__.py", { L: "out", s: "Re-esporta <code>render_db_query</code>.", d: `Registrato in <code>STEP_RENDERERS</code> di <code>terminal/renderer.py</code>.`, dep: ["presenters/terminal/movie_db/renderer.py"] }),
-        F("blocks.py", { L: "out", s: "<code>print_db_queries(title, sql_statements)</code>.", d: `Stesso stile a box di <code>terminal/blocks.py</code>; senza query stampa “Nessuna query eseguita.”.` }),
-        F("renderer.py", { L: "out", s: "<code>render_db_query(step, language=None)</code>.", d: `Legge lo step con <code>movie_db_view</code> e lo passa a <code>blocks.print_db_queries</code>. Le etichette sono solo in italiano: <code>language</code> serve a rispettare la firma comune dei renderer.`, dep: ["presenters/movie_db_view.py", "presenters/terminal/movie_db/blocks.py", "turn.py"] }),
+        F("__init__.py", { L: "out", s: "Re-esporta <code>render_db_query</code>.", d: `Registrato in <code>STEP_RENDERERS</code> di <code>terminal/renderer.py</code>.`, dep: ["presenters/terminal/db/renderer.py"] }),
+        F("blocks.py", { L: "out", s: "<code>print_db_queries(title, sql_statements)</code>.", d: `Box di <code>terminal/box.py</code>; senza query stampa “Nessuna query eseguita.”.`, dep: ["presenters/terminal/box.py"] }),
+        F("renderer.py", { L: "out", s: "<code>render_db_query(step, language=None)</code>.", d: `Legge lo step con <code>db_view</code> e lo passa a <code>blocks.print_db_queries</code>. Le etichette sono solo in italiano: <code>language</code> serve a rispettare la firma comune dei renderer.`, dep: ["presenters/db_view.py", "presenters/terminal/db/blocks.py", "turn.py"] }),
+      ]),
+      D("api", {
+        L: "out", s: "Output da terminale del tool TMDb: box 🎞️ CHIAMATE TMDB e avviso all'avvio.",
+        d: `Mostra solo gli URL chiamati (già mascherati) e le attribuzioni, con etichette it/en da <code>TurnResult.language</code>. Non importa mai il package <code>tmdb</code>.`,
+      }, [
+        F("__init__.py", { L: "out", s: "Re-esporta <code>render_tmdb_calls</code> e <code>print_tmdb_notice</code>.", d: `<code>render_tmdb_calls</code> è registrato in <code>STEP_RENDERERS</code>; <code>print_tmdb_notice</code> lo chiama <code>run_terminal_chat</code> all'avvio (tramite <code>presenters.terminal</code>).`, dep: ["presenters/terminal/api/blocks.py", "presenters/terminal/api/renderer.py"] }),
+        F("blocks.py", { L: "out", s: "<code>print_tmdb_calls(view)</code> · <code>print_tmdb_notice()</code>.", d: `Stampa \"Chiamato: URL\" per ogni chiamata (o \"Nessuna chiamata a TMDb in questo turno: dati già in cache.\") e l'attribuzione JustWatch quando i dati sullo streaming entrano nel contesto.`, dep: ["presenters/api_view.py", "presenters/terminal/box.py"] }),
+        F("renderer.py", { L: "out", s: "<code>render_tmdb_calls(step, language)</code>.", d: `Legge lo step con <code>api_view</code> e lo passa a <code>blocks.print_tmdb_calls</code>.`, dep: ["presenters/api_view.py", "presenters/terminal/api/blocks.py", "turn.py"] }),
       ]),
     ]),
     D("web", {
       L: "out",
       s: "Canale web: predisposto per la futura FastAPI, non ancora implementato.",
-      d: `Restituirà al frontend una struttura dati, non testo formattato. <code>to_payload</code> non è ancora implementato; la serializzazione dello step del tool DB è già pronta in <code>web/movie_db/</code>.`,
+      d: `Restituirà al frontend una struttura dati, non testo formattato. <code>to_payload</code> non è ancora implementato; la serializzazione degli step dei tool DB e TMDb è già pronta in <code>web/db/</code> e <code>web/api/</code>, <code>web/rag/</code> è riservata.`,
     }, [
       F("__init__.py", {
         L: "out", s: "Re-esporta <code>to_payload</code>.",
@@ -788,12 +826,25 @@ const TREE = D("NetflixScout", {}, [
         dep: ["turn.py"],
         n: ["Predisposto ma non implementato, per scelta: chiamarlo oggi solleva <code>NotImplementedError</code> (verificato in <code>tests/test_presenters.py</code>)."],
       }),
-      D("movie_db", {
+      D("rag", {
+        L: "out", s: "Riservata alla serializzazione degli step <code>retrieval</code> e <code>rerank</code>.",
+        d: `Contiene solo la docstring del package: nessun serializer ancora.`,
+      }, [
+        F("__init__.py", { L: "out", s: "Docstring del package.", d: `Nessun codice.` }),
+      ]),
+      D("db", {
         L: "out", s: "Serializzazione JSON dello step <code>db_query</code>, pronta per il futuro <code>to_payload</code>.",
         d: `Non è ancora collegata a <code>payload.py</code>, che continua a sollevare <code>NotImplementedError</code>.`,
       }, [
-        F("__init__.py", { L: "out", s: "Re-esporta <code>serialize_db_query_step</code>.", d: `API del sotto-canale.`, dep: ["presenters/web/movie_db/serializer.py"] }),
-        F("serializer.py", { L: "out", s: "<code>serialize_db_query_step(step)</code> → <code>{kind, title, queries: [{sql, params, display_sql}]}</code>.", d: `Stesso contenuto del terminale, da <code>movie_db_view</code>; <code>display_sql</code> coincide con il testo stampato (verificato in <code>tests/test_movie_db_presenters.py</code>).`, dep: ["presenters/movie_db_view.py", "turn.py"] }),
+        F("__init__.py", { L: "out", s: "Re-esporta <code>serialize_db_query_step</code>.", d: `API del sotto-canale.`, dep: ["presenters/web/db/serializer.py"] }),
+        F("serializer.py", { L: "out", s: "<code>serialize_db_query_step(step)</code> → <code>{kind, title, queries: [{sql, params, display_sql}]}</code>.", d: `Stesso contenuto del terminale, da <code>db_view</code>; <code>display_sql</code> coincide con il testo stampato (verificato in <code>tests/test_movie_db_presenters.py</code>).`, dep: ["presenters/db_view.py", "turn.py"] }),
+      ]),
+      D("api", {
+        L: "out", s: "Serializzazione JSON dello step <code>tmdb_calls</code>, pronta per il futuro <code>to_payload</code>.",
+        d: `Non è collegata a <code>payload.py</code>, che solleva ancora <code>NotImplementedError</code>.`,
+      }, [
+        F("__init__.py", { L: "out", s: "Re-esporta <code>serialize_tmdb_calls_step</code>.", d: `API del sotto-canale.`, dep: ["presenters/web/api/serializer.py"] }),
+        F("serializer.py", { L: "out", s: "<code>serialize_tmdb_calls_step(step, language)</code>.", d: `Stesso contenuto del terminale, da <code>api_view</code>. Il frontend dovrà mostrare anche il logo TMDb e l'avviso in una sezione About/Credits (Termini §3).`, dep: ["presenters/api_view.py", "turn.py"] }),
       ]),
     ]),
   ]),
@@ -867,22 +918,6 @@ const TREE = D("NetflixScout", {}, [
       F("entities.py", { L: "tmdb", s: "Oggetti TMDb → <code>Entity</code>: identità (P0), essenziali (P1), facet (P2).", d: `Un normalizzatore per film, serie, stagione, episodio, persona, raccolta, casa di produzione ed elemento di lista. Trama e titolo vuoti nella lingua del turno vengono presi dalle <code>translations</code>, con <code>overview_language</code>. Le durate pari a 0 diventano assenti (<code>positive_minutes</code>); per le serie <code>episode_runtime_minutes</code> compare solo se TMDb lo fornisce, e non c'è mai una regia di serie.`, dep: [T + "normalize/common.py", T + "normalize/facets.py", T + "models/results.py"] }),
       F("facets.py", { L: "tmdb", s: "Normalizzatori delle facet con limiti fissi per lista.", d: `Ogni builder restituisce <code>{lista: (elementi, totale prima del limite)}</code>, così il packer può dire al modello quanto è stato omesso. Raccomandazioni e simili usano <code>max_results</code>; gli altri limiti (cast, troupe, video, recensioni, immagini…) sono costanti interne. Lo streaming è filtrato per regione.`, dep: [T + "normalize/common.py", T + "endpoints.py"] }),
       F("common.py", { L: "tmdb", s: "Helper condivisi: pulizia del testo, troncamento, anno, URL immagini, lingua.", d: `<code>clean_text</code>, <code>truncate</code>, <code>year_of</code>, <code>image_url</code>, <code>language_code</code>, <code>localized</code>, <code>names</code>, <code>normalize_name</code>. Inoltre <code>strict_name</code> (conserva gli accenti), <code>article_free_name</code> e <code>positive_minutes</code>; <code>normalize_name</code> legge “&amp;” come “and”.`, dep: [T + "settings.py"] }),
-    ]),
-    D("presenters", {
-      L: "out", s: "Output dello step <code>tmdb_calls</code> per terminale e web.",
-      d: `Importano solo <code>turn</code> e pydantic, mai il runtime TMDb (HTTP, auth, cache). Mostrano solo gli URL chiamati (già mascherati) e le attribuzioni, con etichette it/en da <code>TurnResult.language</code>.`,
-    }, [
-      F("__init__.py", { L: "out", s: "Docstring del package.", d: `Nessun codice.` }),
-      F("view.py", { L: "out", s: "Vista condivisa dello step <code>tmdb_calls</code> ed etichette it/en.", d: `<code>tmdb_calls_view(step, language)</code> → titolo, URL chiamati, attribuzioni. Contiene <code>TMDB_NOTICE</code>, l'avviso richiesto dai Termini TMDb, in inglese come nei Termini. Le etichette seguono la lingua del turno e non influenzano la lingua della risposta.`, dep: ["turn.py"], x: ["pydantic"] }),
-      D("terminal", { L: "out", s: "Box 🎞️ CHIAMATE TMDB e avviso all'avvio.", d: `Stesso stile a box di <code>presenters/terminal/blocks.py</code>.` }, [
-        F("__init__.py", { L: "out", s: "Re-esporta <code>render_tmdb_calls</code> e <code>print_tmdb_notice</code>.", d: `<code>render_tmdb_calls</code> è registrato in <code>STEP_RENDERERS</code>; <code>print_tmdb_notice</code> lo chiama <code>run_terminal_chat</code> all'avvio.`, dep: [T + "presenters/terminal/blocks.py", T + "presenters/terminal/renderer.py"] }),
-        F("blocks.py", { L: "out", s: "<code>print_tmdb_calls(view)</code> · <code>print_tmdb_notice()</code>.", d: `Stampa \"Chiamato: URL\" per ogni chiamata (o \"Nessuna chiamata a TMDb in questo turno: dati già in cache.\") e l'attribuzione JustWatch quando i dati sullo streaming entrano nel contesto.`, dep: [T + "presenters/view.py"] }),
-        F("renderer.py", { L: "out", s: "<code>render_tmdb_calls(step, language)</code>.", d: `Legge lo step con <code>view.py</code> e lo passa a <code>blocks.print_tmdb_calls</code>.`, dep: [T + "presenters/view.py", T + "presenters/terminal/blocks.py"] }),
-      ]),
-      D("web", { L: "out", s: "Serializzazione JSON dello step, pronta per il futuro <code>to_payload</code>.", d: `Non è collegata a <code>presenters/web/payload.py</code>, che solleva ancora <code>NotImplementedError</code>.` }, [
-        F("__init__.py", { L: "out", s: "Re-esporta <code>serialize_tmdb_calls_step</code>.", d: `API del sotto-canale.`, dep: [T + "presenters/web/serializer.py"] }),
-        F("serializer.py", { L: "out", s: "<code>serialize_tmdb_calls_step(step, language)</code>.", d: `Stesso contenuto del terminale, dalla vista condivisa. Il frontend dovrà mostrare anche il logo TMDb e l'avviso in una sezione About/Credits (Termini §3).`, dep: [T + "presenters/view.py"] }),
-      ]),
     ]),
     D("harness", { L: "test", s: "Strumenti offline, mai importati a runtime.", d: `Lo verifica <code>tests/test_tmdb_app.py</code>.` }, [
       F("__init__.py", { L: "test", s: "Docstring del package.", d: `Nessun codice.` }),
@@ -970,7 +1005,7 @@ const TREE = D("NetflixScout", {}, [
     F("test_movie_db_presenters.py", {
       L: "test", s: "Output terminale e web dello step <code>db_query</code>.",
       d: `<code>format_sql</code>, registrazione in <code>STEP_RENDERERS</code> con il fallback ancora attivo, nessuna riga di risultato stampata, JSON del serializer coerente con il terminale, <code>to_payload</code> ancora <code>NotImplementedError</code>. Nessuna chiamata di rete.`,
-      dep: ["presenters/movie_db_view.py", "presenters/terminal/movie_db/renderer.py", "presenters/web/movie_db/serializer.py"],
+      dep: ["presenters/db_view.py", "presenters/terminal/db/renderer.py", "presenters/web/db/serializer.py"],
       x: ["pytest"],
     }),
     F("test_movie_db_readonly.py", {
@@ -1005,7 +1040,7 @@ const TREE = D("NetflixScout", {}, [
     F("test_tmdb_http.py", { L: "test", s: "Budget, cache, memo, 429 e unicità del punto di I/O.", d: `Riserva atomica del budget; TTL, LRU e cache disattivata; chiave di cache senza credenziale; conteggio esatto delle chiamate e hit gratis tra i turni; memo del turno anche senza cache; budget rispettato per qualunque limite; chiamate opzionali saltate a budget finito; 429 → pausa senza retry; 401 ferma le chiamate successive; un test AST verifica che <code>http.py</code> sia l'unico punto di I/O.`, dep: [T + "http.py", T + "budget.py", T + "cache.py", T + "cooldown.py"], x: ["pytest"] }),
     F("test_tmdb_language.py", { L: "test", s: "Lingua del turno e fallback di traduzione.", d: `<code>it-IT</code>/<code>en-US</code> dalla lingua del turno; <code>translations</code> sempre in append per i campi vuoti; fallback di lingua per immagini e video nella stessa chiamata; recensioni italiane vuote → una chiamata in inglese contata; la lingua fa parte della chiave di cache; <code>turn_language</code> non è nello schema LLM.`, dep: [T + "tool.py", T + "operations/details.py"], x: ["pytest"] }),
     F("test_tmdb_operations.py", { L: "test", s: "Un caso per famiglia di operazioni, con le chiamate esatte.", d: `Dettagli film con facet in una chiamata; fallback dei provider contato; raccolta del film; stagioni ed episodi; persona con <code>combined_credits</code>; facet delle raccolte opzionali; casa di produzione; discover con nomi risolti, non eseguito con filtri irrisolti o senza budget; trending, classifiche, ricerca e dati di riferimento.`, dep: [T + "operations"], x: ["pytest"] }),
-    F("test_tmdb_presenters.py", { L: "test", s: "Output terminale e web dello step <code>tmdb_calls</code>.", d: `Solo URL chiamati, con etichette it/en; attribuzione JustWatch in entrambi i canali, anche con dati in cache; serializer coerente con il terminale; nessun parametro o JSON grezzo mostrato; avviso all'avvio con il testo dei Termini; confini di import dei presenter; <code>to_payload</code> ancora <code>NotImplementedError</code>.`, dep: [T + "presenters/view.py", T + "presenters/terminal/renderer.py", T + "presenters/web/serializer.py"], x: ["pytest"] }),
+    F("test_tmdb_presenters.py", { L: "test", s: "Output terminale e web dello step <code>tmdb_calls</code>.", d: `Solo URL chiamati, con etichette it/en; attribuzione JustWatch in entrambi i canali, anche con dati in cache; serializer coerente con il terminale; nessun parametro o JSON grezzo mostrato; avviso all'avvio con il testo dei Termini; confini di import dei presenter (mai il package <code>tmdb</code>) e struttura <code>presenters/{terminal,web}/{rag,db,api}</code> senza altre cartelle <code>presenters/</code>; <code>to_payload</code> ancora <code>NotImplementedError</code>.`, dep: ["presenters/api_view.py", "presenters/terminal/api/renderer.py", "presenters/web/api/serializer.py"], x: ["pytest"] }),
     F("test_tmdb_prompt_budget.py", { L: "test", s: "Contesto TMDb limitato, deterministico, con omissioni segnalate.", d: `Quattro richieste con tutte le facet restano nel limite; packing deterministico; risultati piccoli non tagliati; liste oltre 10 chunk diventano righe compatte; gli essenziali tolgono tagline e URL prima di accorciare la trama.`, dep: [T + "prompt_budget.py"], x: ["pytest"] }),
     F("test_tmdb_resolve.py", { L: "test", s: "Risoluzione degli ID.", d: `ID TMDb senza chiamate; ID esterni con <code>/find</code>; titolo e anno esatti vincono e l'ambiguità viene riportata; anno ±1 con ricerca senza anno contata; persona scelta per dipartimento; stesso titolo cercato una volta per turno; nessun risultato → errore della richiesta, non un crash.`, dep: [T + "operations/resolve.py"], x: ["pytest"] }),
     F("test_tmdb_tool.py", { L: "test", s: "Contratto di <code>TmdbTool</code>.", d: `Rispetta il <code>Tool</code> Protocol con schema da Pydantic; trace fuori da <code>metadata</code>; richiesta piatta accettata; risultati parziali se altre richieste falliscono; una richiesta fallita non riparte nello stesso turno; credenziali mancanti → errore senza HTTP; cache condivisa tra le run di uno stesso tool.`, dep: [T + "tool.py", "orchestrator.py"], x: ["pytest"] }),
@@ -1054,7 +1089,7 @@ const TREE = D("NetflixScout", {}, [
       ["handle_query(app, query, history, openai_client=None)", "Nucleo senza print → <code>TurnResult</code> con risposta, step e history aggiornata."],
       ["run_terminal_chat() · main()", "All'avvio controlla Chroma e, se il tool DB è attivo, <code>ensure_db_ready</code>; stampa l'avviso TMDb (<code>print_tmdb_notice</code>). Loop REPL: <code>handle_query</code> → <code>present(…, OutputChannel.terminal)</code> (<code>exit</code>/<code>quit</code> per uscire)."],
     ],
-    dep: ["orchestrator.py", "presenters/__init__.py", "turn.py", M + "config.py", M + "tool/movie_db_tool.py", M + "tool/sql/connection.py", Q + "query_classifier/query_classifier.py", Q + "chat.py", Q + "conversation.py", Q + "runtime.py", Q + "models.py", Q + "tool_interface.py", Q + "vectorstore.py", T + "config.py", T + "tool.py", T + "presenters/terminal/__init__.py"],
+    dep: ["orchestrator.py", "presenters/__init__.py", "turn.py", M + "config.py", M + "tool/movie_db_tool.py", M + "tool/sql/connection.py", Q + "query_classifier/query_classifier.py", Q + "chat.py", Q + "conversation.py", Q + "runtime.py", Q + "models.py", Q + "tool_interface.py", Q + "vectorstore.py", T + "config.py", T + "tool.py", "presenters/terminal/__init__.py"],
     x: ["openai"],
     cmd: "python app.py",
     n: ["<code>max_iterations</code>, <code>max_execution_time</code> e <code>token_budget</code> sono in CONFIG ma il codice non li legge ancora."],
