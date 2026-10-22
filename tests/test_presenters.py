@@ -171,3 +171,28 @@ def test_handle_query_gives_recent_history_to_the_classifier(monkeypatch) -> Non
 
     size = app_module.CONFIG["orchestrator"]["classifier_context_messages"]
     assert captured["history"] == history[-size:]
+
+
+class _ClarifyingOrchestrator:
+    def run(self, *, query, conversation_history=None, tool_overrides=None):
+        return {
+            "tool": None,
+            "clarification": True,
+            "standalone_query": query,
+            "result": {"query": query, "chunks": [], "metadata": {}, "trace": []},
+            "final_answer": "Quale film di Sorrentino intendi?",
+        }
+
+
+def test_clarification_turn_is_recorded_and_printed_without_a_tool(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
+    fake_app = {"config": app_module.build_runtime_config(), "orchestrator": _ClarifyingOrchestrator()}
+
+    turn = app_module.handle_query(fake_app, "chi c'era in quel film di Sorrentino?", history=[])
+    present(turn, OutputChannel.terminal)
+
+    assert turn.tool is None and turn.answer == "Quale film di Sorrentino intendi?"
+    assert turn.steps[2].data == {"tool": None, "clarification": True}
+    assert turn.history[-1] == {"role": "assistant", "content": "Quale film di Sorrentino intendi?"}
+    out = capsys.readouterr().out
+    assert "nessuno: richiesta di chiarimento" in out

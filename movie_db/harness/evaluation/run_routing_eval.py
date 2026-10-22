@@ -20,6 +20,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from orchestrator import CLARIFICATION
 from tmdb.models.requests import TmdbRequest, TmdbToolInput, describe_validation_errors
 from turn import TOOL_PARAM_TURN_LANGUAGE
 
@@ -125,6 +126,8 @@ def _planning_source(raw: str, tool: str, orchestrator: Any) -> tuple[str, float
         return "fallback: invalid JSON", None
     chosen = payload.get("tool_name") or payload.get("tool")
     confidence = payload.get("confidence")
+    if tool == CLARIFICATION and payload.get("needs_clarification") is True:
+        return "planner", confidence
     if chosen != tool:
         threshold = float(orchestrator.orchestrator_config.get("tool_confidence_threshold", 0.6))
         if chosen not in orchestrator._allowed_tool_names():

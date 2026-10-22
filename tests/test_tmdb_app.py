@@ -72,6 +72,14 @@ def test_final_instructions_use_enrichment_sources_and_names_faithfully() -> Non
     assert "work_type_verified false" in final
 
 
+def test_planner_can_ask_for_clarification_instead_of_searching() -> None:
+    instructions = app_module.CONFIG["orchestrator"]["instructions"]
+
+    assert "needs_clarification, clarification_question" in instructions
+    assert "0) Chiarimento" in instructions and "Sorrentino" in instructions
+    assert "Non dedurre un titolo dalla sola menzione di una persona" in instructions
+
+
 def test_build_app_registers_the_tool(monkeypatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", "test")
 

@@ -44,12 +44,22 @@ CONFIG = {
         "instructions": (
             "Sei l'orchestratore di un sistema multi-tool. "
             "Scegli il tool più adatto alla query e alle informazioni disponibili. "
-            "Ritorna solo JSON con chiavi: standalone_query, tool_name, arguments, confidence. "
+            "Ritorna solo JSON con chiavi: standalone_query, tool_name, arguments, confidence, "
+            "needs_clarification, clarification_question. "
             "standalone_query è l'ultima richiesta dell'utente riscritta in modo autonomo, "
             "risolvendo con la conversazione precedente i riferimenti impliciti "
             "(es. 'e uno più recente?', 'qualcosa di simile'); non inventare fatti e non rispondere "
             "alla domanda. Se la richiesta è già autonoma, ripetila uguale. "
             "Scegli il tool con queste regole, che prevalgono su ogni altra indicazione. "
+            "0) Chiarimento: se l'utente chiede informazioni su un film o una serie precisi ma né "
+            "la richiesta né la conversazione precedente bastano a identificarli (es. 'chi c'era "
+            "in quel film di Sorrentino?' senza altri indizi), non scegliere alcun tool: ritorna "
+            "needs_clarification true, tool_name null e in clarification_question una sola domanda "
+            "breve, nella lingua dell'utente, che chiede il dato mancante (titolo, anno, un attore, "
+            "la trama). Non dedurre un titolo dalla sola menzione di una persona e non fare "
+            "ricerche per tentativi. Non chiedere chiarimenti se la conversazione identifica il "
+            "film, se l'utente dà un titolo (anche ambiguo) o se chiede raccomandazioni o ricerche "
+            "per trama, temi, emozioni o somiglianze; negli altri casi needs_clarification è false. "
             "1) tmdb_search è il punto di partenza per ogni richiesta informativa su un film o una "
             "serie identificati da un titolo o da riferimenti sufficienti a individuarli: domande "
             "generiche come 'parlami di Arrival' o 'dimmi qualcosa su Dune', di cosa parla, chi ha "
@@ -298,7 +308,10 @@ def handle_query(
             data={"original": query, "used": standalone_query, "rewritten": standalone_query != query},
         )
     )
-    steps.append(TraceStep(kind=STEP_TOOL_SELECTION, title="Tool scelto", data={"tool": decision["tool"]}))
+    selection = {"tool": decision["tool"]}
+    if decision.get("clarification"):
+        selection["clarification"] = True
+    steps.append(TraceStep(kind=STEP_TOOL_SELECTION, title="Tool scelto", data=selection))
     steps.extend(TraceStep(**step) for step in decision["result"].get("trace", []))
 
     history.extend(

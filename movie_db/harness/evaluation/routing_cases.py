@@ -10,6 +10,8 @@ from dataclasses import dataclass, field
 DB = "movie_db_search"
 RAG = "rag_search"
 TMDB = "tmdb_search"
+# No tool: the planner asks the user for the missing title (orchestrator.CLARIFICATION).
+CLARIFY = "clarification"
 
 
 @dataclass(frozen=True)
@@ -146,4 +148,6 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
         standalone_must_contain=("shawshank",),
         expected_request=RequestExpectation("movie_details", fields=(("title", "shawshank"),)),
     ),
+    # A person, no title and no history: ask instead of searching (went to rag_search before).
+    RoutingCase("Oh, ma chi c'era in quel film di Sorrentino…", CLARIFY),
 )

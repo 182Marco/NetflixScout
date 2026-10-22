@@ -182,3 +182,50 @@ def test_final_instructions_come_from_config_with_the_previous_default() -> None
 
     assert default_client.calls[-1]["instructions"].startswith("Sei l'orchestratore di un sistema multi-tool.")
     assert custom_client.calls[-1]["instructions"] == "Istruzioni finali di prova."
+
+
+CLARIFY_PLAN = {
+    "standalone_query": "Chi c'era in quel film di Sorrentino?",
+    "tool_name": None,
+    "arguments": {},
+    "confidence": 0.9,
+    "needs_clarification": True,
+    "clarification_question": "Quale film di Sorrentino intendi? Ricordi il titolo o l'anno?",
+}
+
+
+def test_clarification_runs_no_tool_and_answers_with_the_question() -> None:
+    orch, tools, client = _orchestrator(CLARIFY_PLAN, tools=("rag_search", "tmdb_search"))
+
+    decision = orch.run(query="Oh, ma chi c'era in quel film di Sorrentino…", conversation_history=[])
+
+    assert decision["tool"] is None and decision["clarification"] is True
+    assert decision["final_answer"] == CLARIFY_PLAN["clarification_question"]
+    assert decision["result"] == {"query": decision["standalone_query"], "chunks": [], "metadata": {}, "trace": []}
+    assert all(tool.queries == [] for tool in tools.values())
+    assert len(client.calls) == 1  # planning only: no final-answer call
+
+
+def test_clarification_without_a_question_falls_back_to_a_tool() -> None:
+    plan = {**CLARIFY_PLAN, "tool_name": "rag_search", "clarification_question": "  "}
+    orch, tools, _ = _orchestrator(plan)
+
+    decision = orch.run(query="film di Sorrentino", conversation_history=[])
+
+    assert decision["tool"] == "rag_search" and tools["rag_search"].queries == ["film di Sorrentino"]
+
+
+def test_required_tools_are_never_replaced_by_a_clarification() -> None:
+    orch, tools, _ = _orchestrator(CLARIFY_PLAN, required_tools=["rag_search"])
+
+    decision = orch.run(query="e quello?", conversation_history=HISTORY)
+
+    assert decision["tool"] == "rag_search" and len(tools["rag_search"].queries) == 1
+
+
+def test_normal_turns_ignore_a_false_clarification_flag() -> None:
+    plan = {"standalone_query": "x", "tool_name": "rag_search", "confidence": 0.9, "needs_clarification": False,
+            "clarification_question": "?"}
+    orch, tools, _ = _orchestrator(plan)
+
+    assert orch.run(query="film con robot", conversation_history=[])["tool"] == "rag_search"

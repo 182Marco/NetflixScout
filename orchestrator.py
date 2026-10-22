@@ -13,6 +13,11 @@ DEFAULT_FINAL_INSTRUCTIONS = (
     "Scrivi una risposta finale chiara, utile e veritiera per l'utente."
 )
 
+# Planner decision with no tool: the request cannot be answered without information only the
+# user has (e.g. "that Sorrentino movie" with no history). The planner's question is the answer.
+CLARIFICATION = "clarification"
+
+
 @runtime_checkable
 class Tool(Protocol):
     name: str
@@ -186,7 +191,9 @@ class LLMOrchestrator:
         Returns (tool_name, arguments, standalone_query). The standalone query is a
         property of the turn, not of the tool: it is used whatever tool runs, also when
         the tool comes from `required_tools` or from the fallback. If the LLM call fails,
-        the original query is used.
+        the original query is used. `CLARIFICATION` (with `{"question": ...}`) means no
+        tool: the planner set `needs_clarification` and wrote the question. Never with
+        `required_tools`.
         """
         allowed = self._allowed_tool_names()
         if not allowed:
@@ -230,6 +237,11 @@ class LLMOrchestrator:
 
         if required:
             return required[0], {}, standalone_query
+
+        question = str(payload.get("clarification_question") or "").strip()
+        if payload.get("needs_clarification") is True and question:
+            return CLARIFICATION, {"question": question}, standalone_query
+
         tool_name = payload.get("tool_name") or payload.get("tool") or allowed[0]
         arguments = payload.get("arguments") or {}
         confidence = payload.get("confidence")
@@ -260,6 +272,15 @@ class LLMOrchestrator:
             query=query,
             conversation_history=conversation_history,
         )
+        if tool_name == CLARIFICATION:
+            # No tool and no final-answer call: nothing was looked up, so nothing is shown.
+            return {
+                "tool": None,
+                "clarification": True,
+                "standalone_query": standalone_query,
+                "result": {"query": standalone_query, "chunks": [], "metadata": {}, "trace": []},
+                "final_answer": args["question"],
+            }
         tool = self.tools[tool_name]
         tool_result = tool.run(
             query=standalone_query,

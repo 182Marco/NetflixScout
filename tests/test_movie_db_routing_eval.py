@@ -103,7 +103,7 @@ def test_cases_cover_every_tool_and_follow_ups() -> None:
 
     assert tools.count(DB) >= 5 and tools.count(RAG) >= 5 and tools.count(TMDB) >= 10
     assert any(case.history and case.expected_tool == TMDB for case in ROUTING_CASES)
-    assert len(ROUTING_CASES) == 22
+    assert len(ROUTING_CASES) == 23
 
 
 def test_every_tmdb_case_has_a_valid_request_expectation() -> None:
@@ -205,3 +205,15 @@ def test_any_acceptable_request_passes_and_none_fails() -> None:
     assert check_any_request(dune.expected_request, details, "q") is None
     assert check_any_request(dune.expected_request, search, "q") is None
     assert check_any_request(dune.expected_request, trending, "q").startswith("no request matches")
+
+
+def test_clarification_is_an_explicit_planner_choice() -> None:
+    sorrentino = next(case for case in ROUTING_CASES if "Sorrentino" in case.question)
+    plan = json.dumps({"standalone_query": "q", "tool_name": None, "arguments": {}, "confidence": 0.9,
+                       "needs_clarification": True, "clarification_question": "Quale film?"})
+
+    [asked] = _run((sorrentino,), [plan])
+    [searched] = _run((sorrentino,), [_plan(RAG)])
+
+    assert asked.tool == "clarification" and asked.source == "planner" and asked.passed
+    assert not searched.passed

@@ -49,7 +49,16 @@ def _render_query_rewrite(step: TraceStep, language: str) -> None:
     print_query_used(step.data.get("original", ""), step.data.get("used", ""), bool(step.data.get("rewritten")))
 
 
+CLARIFICATION_LABELS = {
+    "it": "nessuno: richiesta di chiarimento",
+    "en": "none: asking for clarification",
+}
+
+
 def _render_tool_selection(step: TraceStep, language: str) -> None:
+    if step.data.get("clarification"):
+        print_tool_selection(CLARIFICATION_LABELS.get(language, CLARIFICATION_LABELS["en"]))
+        return
     print_tool_selection(step.data.get("tool", "?"))
 
 
