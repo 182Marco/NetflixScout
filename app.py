@@ -243,6 +243,11 @@ CONFIG = {
         "max_calls_per_turn": 6,
         "cache_ttl": 3600,
     },
+    # Only these two: the search quota of the Google project is 100 search.list calls a day.
+    "you_tube": {
+        "max_results": 3,
+        "max_searches_per_turn": 2,
+    },
 }
 
 
