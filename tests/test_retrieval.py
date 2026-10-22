@@ -170,7 +170,7 @@ def test_run_rag_returns_signals_and_embedded_text(monkeypatch) -> None:
     signals = QuerySignals(semantic_query="Influential science fiction movies", genres=["Science Fiction"])
     monkeypatch.setattr(pipeline, "_resolve_runtime_config", lambda config: config)
     monkeypatch.setattr(pipeline, "apri_collection", lambda *a, **k: FakeCollection(ROWS))
-    monkeypatch.setattr(pipeline, "_build_signal_aware_query", lambda query, config: signals)
+    monkeypatch.setattr(pipeline, "_build_signal_aware_query", lambda query, config, hint=None: signals)
     received: dict = {}
 
     def fake_retrieve(query, config, signals=None):
@@ -190,3 +190,56 @@ def test_run_rag_returns_signals_and_embedded_text(monkeypatch) -> None:
     assert received["signals"] is signals
     assert result.signals == signals
     assert result.embedded_text == "Influential science fiction movies"
+
+
+def _run_rag_with(monkeypatch, signals, retrieved):
+    """run_rag with fake signals and pool; returns (result, query sent to the reranker)."""
+    monkeypatch.setattr(pipeline, "_resolve_runtime_config", lambda config: config)
+    monkeypatch.setattr(pipeline, "apri_collection", lambda *a, **k: FakeCollection(ROWS))
+    monkeypatch.setattr(pipeline, "_build_signal_aware_query", lambda query, config, hint=None: signals)
+    monkeypatch.setattr(pipeline, "_retrieve", lambda query, config, signals=None: retrieved)
+    sent: dict = {}
+
+    def fake_rerank(query, chunks, config):
+        sent["query"] = query
+        return chunks
+
+    monkeypatch.setattr(pipeline, "_rerank", fake_rerank)
+    config = {
+        "retrieval": {"search_mode": SearchMode.semantic},
+        "rerank": {"backend": RerankBackend.cohere},
+        "vectorstore": {"collection": "c", "db_dir": "x"},
+    }
+    return pipeline.run_rag(config=config, query="Mare dentro mi ha colpito. Temi simili?"), sent["query"]
+
+
+def _pool_chunk(title, genres):
+    return {"id": title, "testo": "plot", "score": 0.5, "title": title, "genres": genres}
+
+
+def test_excluded_genres_drop_chunks_from_the_pool(monkeypatch) -> None:
+    _capture_embed(monkeypatch)
+
+    results = vectorstore.search(
+        FakeCollection(ROWS), QUERY, 3, backend="openai", model="m", excluded_genres=["Science Fiction"]
+    )
+
+    assert [r["title"] for r in results] == ["Gente di Roma", "1860"]
+
+
+def test_excluded_genre_needs_whole_words() -> None:
+    assert vectorstore.has_excluded_genre({"genres": "Sci-Fi;Science Fiction Western"}, ["Science Fiction"])
+    assert not vectorstore.has_excluded_genre({"genres": "Melodrama"}, ["Drama"])
+    assert not vectorstore.has_excluded_genre({"genres": ""}, ["Drama"])
+
+
+def test_constraint_report_is_attached_to_the_result(monkeypatch) -> None:
+    signals = QuerySignals(excluded_genres=["Science Fiction"])
+    pool = [_pool_chunk("Exit", "Drama"), _pool_chunk("Senza generi", "")]
+
+    result, _ = _run_rag_with(monkeypatch, signals, pool)
+
+    [check] = result.constraints["checks"]
+    assert check["type"] == "excluded_genre"
+    assert check["results"]["Exit (?)"]["status"] == "verified"
+    assert check["results"]["Senza generi (?)"]["status"] == "not_verifiable"

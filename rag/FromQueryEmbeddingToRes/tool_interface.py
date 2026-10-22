@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from .constraints import constraint_summary
 from .models import RagToolInput
 from .pipeline import run_rag
 
@@ -46,6 +47,9 @@ class RagTool:
                 "rerank_backend": result.rerank_backend.value,
                 "k_finale": self.config.get("retrieval", {}).get("k_finale"),
                 "collection": self.config.get("vectorstore", {}).get("collection"),
+                # The prompt gets one readable line per film and constraint; the full report
+                # (statuses, evidence) stays in the trace.
+                **({"constraints_summary": constraint_summary(result.constraints)} if result.constraints else {}),
             },
             # Procedure steps for the presenters (same shape as turn.TraceStep).
             # Kept outside "metadata": the orchestrator puts metadata in the LLM prompt.
@@ -65,6 +69,7 @@ class RagTool:
                     "title": "Reranking",
                     "data": {
                         "backend": result.rerank_backend.value,
+                        "constraints": result.constraints,
                         "chunks": chunks,
                     },
                 },

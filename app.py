@@ -103,6 +103,12 @@ CONFIG = {
             "Se i Metadata hanno work_type_verified false (MovieLens), chiama i risultati "
             "'titoli', non 'film', e dichiara che MovieLens non distingue film e serie TV, quindi "
             "un titolo potrebbe essere una serie. "
+            "Se i Metadata hanno constraints_summary, per ogni film riporta lo stato di ogni "
+            "vincolo esattamente come indicato lì, senza aggiungere deduzioni tue: un vincolo "
+            "'probabile' non è confermato, un vincolo 'non verificabile' non è né rispettato né "
+            "violato (non dedurre nazionalità dai personaggi né il finale dalla trama, e non "
+            "trasformare l'assenza di un'informazione in un 'no'), un vincolo 'contraddetto' va "
+            "sempre dichiarato. "
             "Riporta i nomi di persone come compaiono nei dati; se un nome è in un alfabeto non "
             "latino puoi aggiungere tra parentesi la traslitterazione, dichiarandola come tale."
         ),

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from .constraints import constraint_report
 from .models import RagChunk, RagResult
 from .retrieval import _build_signal_aware_query, _rerank, _retrieve
 from .runtime import _resolve_runtime_config
@@ -40,4 +41,5 @@ def run_rag(
         output_tokens=None,
         signals=signals,
         embedded_text=signals.semantic_query or query,
+        constraints=constraint_report(signals, final_chunks),
     )

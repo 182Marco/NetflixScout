@@ -116,6 +116,16 @@ def _count_negative_matches(result, negative_signals):
     return matches
 
 
+def has_excluded_genre(result, excluded_genres):
+    """True if a `;`-separated chunk genre contains an excluded genre as whole words."""
+    chunk_genres = [g.strip().lower() for g in str(result.get("genres") or "").split(";") if g.strip()]
+    return any(
+        re.search(rf"\b{re.escape(genre.lower())}\b", chunk_genre)
+        for genre in excluded_genres or []
+        for chunk_genre in chunk_genres
+    )
+
+
 def _matches_genres(result, genres):
     """True if any requested genre appears in the chunk's `;`-separated genres metadata."""
     if not genres:
@@ -143,13 +153,14 @@ def search(
     semantic_query=None,
     genres=None,
     genre_boost=0.0,
+    excluded_genres=None,
 ):
     """Return the top-k most similar documents for a query.
 
     The embedded text is `semantic_query` when given, otherwise `query`. Keyword signals
     are never embedded: a bag of keywords (often not in the corpus language) drifts away
     from the user's intent. Chunks matching `genres` get `genre_boost` added to their score
-    before the fetch_k pool is cut to k.
+    before the fetch_k pool is cut to k. Chunks with an `excluded_genres` genre are dropped.
     """
     negative_signals = _normalize_signals(negative_signals)
     hard_exclusions = _normalize_signals(hard_exclusions)
@@ -176,6 +187,8 @@ def search(
             risultato.update(ris["metadatas"][0][i])
 
         if _is_hard_excluded(risultato, hard_exclusions):
+            continue
+        if has_excluded_genre(risultato, excluded_genres):
             continue
 
         negative_matches = _count_negative_matches(risultato, negative_signals)

@@ -70,6 +70,7 @@ def test_final_instructions_use_enrichment_sources_and_names_faithfully() -> Non
     assert "candidates" in final and "quale versione" in final
     assert "alfabeto non latino" in final and "dichiarandola come tale" in final
     assert "work_type_verified false" in final
+    assert "constraints_summary" in final and "senza aggiungere deduzioni tue" in final
 
 
 def test_planner_can_ask_for_clarification_instead_of_searching() -> None:

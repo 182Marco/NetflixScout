@@ -24,6 +24,7 @@ def recupera(
     semantic_query=None,
     genres=None,
     genre_boost=0.0,
+    excluded_genres=None,
 ):
     """Retrieve the top-k chunks for a query from a vector collection."""
     collection = vectorstore.apri_collection(
@@ -43,6 +44,7 @@ def recupera(
         semantic_query=semantic_query,
         genres=genres,
         genre_boost=genre_boost,
+        excluded_genres=excluded_genres,
     )
 
 

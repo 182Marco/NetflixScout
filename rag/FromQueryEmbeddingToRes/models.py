@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -39,6 +40,9 @@ class QuerySignals(BaseModel):
     semantic_query: str = ""
     # Requested genres, in the corpus vocabulary (e.g. "Science Fiction").
     genres: list[str] = Field(default_factory=list)
+    # Genres the user rules out ("senza fantascienza"), same vocabulary: checked on the
+    # chunk genres metadata, unlike `hard_exclusions`, which only filter titles.
+    excluded_genres: list[str] = Field(default_factory=list)
 
 
 class RagResult(BaseModel):
@@ -52,6 +56,8 @@ class RagResult(BaseModel):
     output_tokens: int | None = None
     signals: QuerySignals | None = None
     embedded_text: str | None = None
+    # Status of each extracted constraint on the final chunks (`constraints.constraint_report`).
+    constraints: dict[str, Any] = Field(default_factory=dict)
 
 
 class RagToolInput(BaseModel):

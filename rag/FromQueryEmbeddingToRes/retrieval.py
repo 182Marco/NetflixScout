@@ -8,7 +8,7 @@ from .hybrid import cerca_bm25, cerca_hybrid, costruisci_indice_bm25
 from .models import QuerySignals, RerankBackend, SearchMode
 from .rag import recupera
 from .rerank import rerank_cohere, rerank_llm
-from .vectorstore import apri_collection
+from .vectorstore import apri_collection, has_excluded_genre
 
 
 _signal_client = OpenAI()
@@ -31,7 +31,10 @@ def _extract_query_signals(query: str, llm_model: str) -> QuerySignals:
         "(e.g. '3', 'best').\n"
         "5) genres: the requested genres using the corpus genre names (e.g. 'Science Fiction', "
         "'Horror', 'Comedy', 'Drama', 'Thriller', 'Romance Film', 'Animation', 'Documentary', "
-        "'War film', 'Western', 'Crime Fiction', 'Fantasy').\n\n"
+        "'War film', 'Western', 'Crime Fiction', 'Fantasy').\n"
+        "6) excluded_genres: genres the user explicitly rules out (e.g. 'without science fiction' "
+        "-> 'Science Fiction'), with the same corpus genre names; never list them in genres or "
+        "hard_exclusions.\n\n"
         "Rules:\n"
         "- Keep each item short (1-5 words), lowercase when natural.\n"
         "- Do not invent facts.\n"
@@ -81,6 +84,7 @@ def _build_signal_aware_query(query: str, config: dict) -> QuerySignals:
         hard_exclusions=_normalize_signal_list(extracted.hard_exclusions),
         semantic_query=extracted.semantic_query.strip(),
         genres=_normalize_signal_list(extracted.genres),
+        excluded_genres=_normalize_signal_list(extracted.excluded_genres),
     )
 
 
@@ -151,13 +155,14 @@ def _retrieve(query: str, config: dict, signals: QuerySignals | None = None) -> 
             semantic_query=signals.semantic_query,
             genres=signals.genres,
             genre_boost=retrieval_config.get("genre_boost", 0.0),
+            excluded_genres=signals.excluded_genres,
         )
         return _light_rerank(query, base_results, signals)
 
     indice_bm25 = costruisci_indice_bm25(collection)
 
     def _apply_hard_exclusions(chunks: list[dict]) -> list[dict]:
-        if not signals.hard_exclusions:
+        if not signals.hard_exclusions and not signals.excluded_genres:
             return chunks
         exclusions = [s.lower() for s in signals.hard_exclusions]
         filtrati = []
@@ -166,6 +171,8 @@ def _retrieve(query: str, config: dict, signals: QuerySignals | None = None) -> 
             movie_id = str(chunk.get("movie_id") or "").lower()
             source = str(chunk.get("source") or "").lower()
             if any(sig in title or sig in movie_id or sig in source for sig in exclusions):
+                continue
+            if has_excluded_genre(chunk, signals.excluded_genres):
                 continue
             filtrati.append(chunk)
         return filtrati
@@ -185,6 +192,7 @@ def _retrieve(query: str, config: dict, signals: QuerySignals | None = None) -> 
             semantic_query=signals.semantic_query,
             genres=signals.genres,
             genre_boost=retrieval_config.get("genre_boost", 0.0),
+            excluded_genres=signals.excluded_genres,
         )
         risultati_bm25 = cerca_bm25(query, indice_bm25, config["retrieval"]["k_largo"])
         risultati_bm25 = _apply_hard_exclusions(risultati_bm25)
