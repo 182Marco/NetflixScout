@@ -15,6 +15,15 @@ from .trace import build_db_query_trace
 
 MOVIE_DB_TOOL_NAME = "movie_db_search"
 
+# MovieLens has no work type: TV series and miniseries (e.g. "Planet Earth II") are in the
+# catalog, and `links.tmdb_id` always points at TMDb's movie namespace, so no reliable
+# filter exists. Movie rows carry this flag instead, and the final answer must not call
+# them verified films.
+WORK_TYPE_UNVERIFIED = {
+    "work_type_verified": False,
+    "work_type_note": "MovieLens non distingue film e serie TV: un titolo può essere una serie o una miniserie.",
+}
+
 
 @dataclass(kw_only=True)
 class MovieDbTool:
@@ -52,6 +61,8 @@ class MovieDbTool:
             "operation": parsed.operation.value if parsed else None,
             "row_count": len(rows),
         }
+        if any("movie_id" in row for row in rows):
+            metadata.update(WORK_TYPE_UNVERIFIED)
         if error:
             metadata["error"] = error
         return {

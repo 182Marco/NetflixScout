@@ -90,6 +90,9 @@ CONFIG = {
             "descritto e cita le altre con il loro anno. "
             "Indica sempre la fonte dei voti (voto TMDb o voto medio MovieLens) e non presentare "
             "un voto di una fonte come se fosse dell'altra. "
+            "Se i Metadata hanno work_type_verified false (MovieLens), chiama i risultati "
+            "'titoli', non 'film', e dichiara che MovieLens non distingue film e serie TV, quindi "
+            "un titolo potrebbe essere una serie. "
             "Riporta i nomi di persone come compaiono nei dati; se un nome è in un alfabeto non "
             "latino puoi aggiungere tra parentesi la traslitterazione, dichiarandola come tale."
         ),

@@ -69,6 +69,7 @@ def test_final_instructions_use_enrichment_sources_and_names_faithfully() -> Non
     assert "fonte dei voti" in final
     assert "candidates" in final and "quale versione" in final
     assert "alfabeto non latino" in final and "dichiarandola come tale" in final
+    assert "work_type_verified false" in final
 
 
 def test_build_app_registers_the_tool(monkeypatch) -> None:

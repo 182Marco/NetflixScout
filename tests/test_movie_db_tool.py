@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from movie_db.tool.movie_db_tool import MOVIE_DB_TOOL_NAME, MovieDbTool
+from movie_db.tool.movie_db_tool import MOVIE_DB_TOOL_NAME, WORK_TYPE_UNVERIFIED, MovieDbTool
 from orchestrator import LLMOrchestrator, Tool
 from turn import STEP_DB_QUERY, TraceStep
 
@@ -36,7 +36,7 @@ def test_run_returns_chunks_metadata_and_a_queries_only_trace(movie_db_config, c
 
     assert set(result) == {"query", "chunks", "metadata", "trace"}
     assert [c["title"] for c in result["chunks"]] == ["The Matrix", "Blade Runner"]
-    assert result["metadata"] == {"operation": "top_rated", "row_count": 2}
+    assert result["metadata"] == {"operation": "top_rated", "row_count": 2, **WORK_TYPE_UNVERIFIED}
     assert len(result["trace"]) == 1
     step = TraceStep(**result["trace"][0])
     assert step.kind == STEP_DB_QUERY
@@ -65,9 +65,12 @@ def test_chunks_are_readable_by_the_orchestrator(movie_db_config) -> None:
 def test_genre_stats_become_chunks(movie_db_config) -> None:
     tool = _tool(movie_db_config, {"operation": "stats_by_genre", "limit": 1})
 
-    chunk = tool.run(query="genere migliore", params={})["chunks"][0]
+    result = tool.run(query="genere migliore", params={})
+    chunk = result["chunks"][0]
 
     assert chunk["title"] == "Action"
+    # Genre statistics are not titles: no work-type caveat.
+    assert "work_type_verified" not in result["metadata"]
     assert chunk["testo"].startswith("Genere Action:")
 
 
@@ -100,3 +103,13 @@ def test_llm_arguments_cannot_inject_operations(movie_db_config) -> None:
     result = tool.run(query="x", params={"sql": "DROP TABLE movies", "operation": "drop"})
 
     assert result["metadata"]["operation"] == "most_rated"
+
+
+def test_movie_rows_are_never_presented_as_verified_films(movie_db_config) -> None:
+    """MovieLens lists series too (e.g. Planet Earth II): the type is declared unverified."""
+    tool = _tool(movie_db_config, {"operation": "top_rated", "limit": 1})
+
+    result = tool.run(query="il film con il voto più alto", params={})
+
+    assert result["metadata"]["work_type_verified"] is False
+    assert "serie" in result["metadata"]["work_type_note"]
