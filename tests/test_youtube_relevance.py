@@ -120,6 +120,40 @@ def test_a_one_word_title_is_confirmed_by_year_director_or_release_period(title,
     assert result.kept and anchor in result.matched_on
 
 
+@pytest.mark.parametrize("kind", [K.trailer, K.making_of, K.behind_the_scenes])
+def test_release_period_confirms_promotional_videos(kind) -> None:
+    result = check(req("Arrival", year=2016, director="Denis Villeneuve"), kind, "Arrival", published_at="2016-11-10T00:00:00Z")
+
+    assert result.kept and "release_period" in result.matched_on
+
+
+@pytest.mark.parametrize("kind", [K.director_interview, K.author_commentary])
+def test_release_period_never_confirms_interviews_or_commentaries(kind) -> None:
+    # Published in the release year, but nothing in the text confirms it is this "Arrival".
+    result = check(
+        req("Arrival", year=2016, director="Denis Villeneuve"),
+        kind,
+        "Arrival interview with Amy Adams",
+        published_at="2016-11-10T00:00:00Z",
+    )
+
+    assert (result.kept, result.reason) == (False, "homonym_risk")
+    assert "release_period" not in result.matched_on
+
+
+def test_interviews_are_confirmed_by_text_anchors() -> None:
+    request_ = req("Arrival", year=2016, director="Denis Villeneuve")
+
+    assert check(request_, K.director_interview, "Arrival (2016) cast interview").kept
+    assert check(request_, K.director_interview, "Arrival interview", "Denis Villeneuve on the film").kept
+
+
+def test_one_word_interview_with_nothing_to_check_is_kept_unchecked() -> None:
+    result = check(req("Arrival"), K.director_interview, "Arrival interview with Amy Adams", published_at="2016-11-10T00:00:00Z")
+
+    assert result.kept and "homonym_unchecked" in result.notes
+
+
 def test_words_match_whole_not_by_inclusion() -> None:
     # "Dune" is not in "Dunes"; "Three" is not in "Threesome".
     assert check(req("Dune"), K.making_of, "Sand dunes: making of a documentary").reason == "no_anchor"

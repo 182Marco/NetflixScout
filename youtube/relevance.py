@@ -9,7 +9,8 @@ Permissive by design: a result is dropped only on strong evidence, with one reas
   than one, and no year in parentheses matches;
 - `homonym_risk`: the title anchor is weak (a one-word title such as "Arrival", or only the
   main title before a subtitle) and none of the known year, director or release period
-  confirms it; with no year and no director to check, the result is kept and noted;
+  (trailers, making-of and behind the scenes only) confirms it; with no year and no
+  director to check, the result is kept and noted (`homonym_unchecked`);
 - `short_video`: the video declares itself a Short (#shorts) and is not longer than a Short
   can be. Never for trailers, never by duration alone (see `settings.MIN_DURATION_SECONDS`).
 
@@ -33,6 +34,9 @@ NEGATIVE_TITLE_PATTERNS = ("reaction", "reactions", "parody", "fan made", "fanma
 _ARTICLES = frozenset({"the", "a", "an", "il", "lo", "la", "i", "gli", "le", "l", "un", "uno", "una"})
 # Release period that confirms a weak anchor: from one year before to three years after.
 RELEASE_WINDOW = (-1, 3)
+# Only promotional videos are tied to the release date; interviews and commentaries can
+# come out at any time (retrospectives, anniversaries).
+RELEASE_PERIOD_KINDS = frozenset({VideoKind.trailer, VideoKind.making_of, VideoKind.behind_the_scenes})
 MIN_SURNAME_CHARS = 4
 
 _PAREN_YEAR = re.compile(r"\((\d{4})\)")
@@ -123,7 +127,8 @@ def screen(
             matched.append("year")
         published = _published_year(published_at)
         low, high = RELEASE_WINDOW
-        if published is not None and request.year + low <= published <= request.year + high:
+        in_window = published is not None and request.year + low <= published <= request.year + high
+        if in_window and kind in RELEASE_PERIOD_KINDS:
             matched.append("release_period")
 
     weak = not strong and (generic or "main_title" in matched)
