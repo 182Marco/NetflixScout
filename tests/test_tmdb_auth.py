@@ -9,7 +9,7 @@ from presenters import OutputChannel, present
 from tmdb.auth import AuthMode, authorize, detect_mode, load_credentials, validate_base_url
 from tmdb.calls import display_url
 from tmdb.errors import TmdbConfigError
-from tmdb.presenters.web import serialize_tmdb_calls_step
+from presenters.web.api import serialize_tmdb_calls_step
 from turn import TraceStep, TurnResult
 
 

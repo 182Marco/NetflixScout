@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from tmdb.presenters.terminal import render_tmdb_calls
 from turn import (
     STEP_CLASSIFICATION,
     STEP_DB_QUERY,
@@ -16,6 +15,7 @@ from turn import (
     TurnResult,
 )
 
+from .api import render_tmdb_calls
 from .blocks import (
     _print_chunks,
     _print_retrieval_compact,

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from turn import TraceStep
 
-from ..view import tmdb_calls_view
+from ...api_view import tmdb_calls_view
 from .blocks import print_tmdb_calls
 
 

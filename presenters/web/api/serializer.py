@@ -10,7 +10,7 @@ from typing import Any
 
 from turn import TraceStep
 
-from ..view import TMDB_NOTICE, tmdb_calls_view
+from ...api_view import TMDB_NOTICE, tmdb_calls_view
 
 
 def serialize_tmdb_calls_step(step: TraceStep, language: str | None = None) -> dict[str, Any]:

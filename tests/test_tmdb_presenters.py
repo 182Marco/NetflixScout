@@ -9,9 +9,9 @@ from tmdb_support import BASE, MOVIE_ID, make_tool, movie_payload, providers_pay
 
 from presenters import OutputChannel, present
 from presenters.terminal.renderer import STEP_RENDERERS
-from tmdb.presenters.terminal import print_tmdb_notice
-from tmdb.presenters.view import TMDB_NOTICE
-from tmdb.presenters.web import serialize_tmdb_calls_step
+from presenters.api_view import TMDB_NOTICE
+from presenters.terminal import print_tmdb_notice
+from presenters.web.api import serialize_tmdb_calls_step
 from turn import STEP_TMDB_CALLS, TraceStep, TurnResult
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -102,20 +102,23 @@ def test_startup_notice_uses_the_terms_wording(capsys) -> None:
 
 
 def test_tmdb_presenters_import_only_turn_and_their_own_view() -> None:
-    for path in sorted((ROOT / "tmdb" / "presenters").rglob("*.py")):
+    paths = [ROOT / "presenters" / "api_view.py"]
+    for channel in ("terminal", "web"):
+        paths += sorted((ROOT / "presenters" / channel / "api").rglob("*.py"))
+    for path in paths:
         tree = ast.parse(path.read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
                 assert node.module in {"__future__", "typing", "pydantic", "turn"}, (path, node.module)
-            if isinstance(node, ast.ImportFrom) and node.level > 0:
-                assert node.level == 1 or (node.module or "").startswith("view"), (path, node.module)
+            if isinstance(node, ast.ImportFrom) and node.level > 1:
+                assert (node.module or "") in {"api_view", "box"}, (path, node.module)
 
 
-def test_root_presenters_import_only_the_tmdb_presenters() -> None:
+def test_presenters_never_import_the_tmdb_package() -> None:
     for path in sorted((ROOT / "presenters").rglob("*.py")):
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
-            if isinstance(node, ast.ImportFrom) and node.module and node.module.startswith("tmdb"):
-                assert node.module.startswith("tmdb.presenters"), (path, node.module)
+            if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+                assert not node.module.startswith("tmdb"), (path, node.module)
 
 
 def test_web_channel_is_still_not_implemented() -> None:

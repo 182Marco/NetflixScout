@@ -19,7 +19,6 @@ from rag.FromQueryEmbeddingToRes.tool_interface import RagTool
 from rag.FromQueryEmbeddingToRes.vectorstore import apri_collection
 from tmdb.config import load_tmdb_config
 from tmdb.enrich import TmdbRagEnricher
-from tmdb.presenters.terminal import print_tmdb_notice
 from tmdb.tool import TmdbTool
 from turn import (
     STEP_CLASSIFICATION,
@@ -388,7 +387,7 @@ def run_terminal_chat() -> None:
     history: list[dict[str, str]] = []
     openai_client = OpenAI()
     terminal.print_header()
-    print_tmdb_notice()
+    terminal.print_tmdb_notice()
     terminal.print_mode(runtime_rag)
 
     while True:

@@ -1,7 +1,7 @@
 """Terminal print blocks for TMDb (same box style as `presenters/terminal/blocks.py`)."""
 from __future__ import annotations
 
-from ..view import TMDB_NOTICE, TmdbCallsView
+from ...api_view import TMDB_NOTICE, TmdbCallsView
 
 
 def print_tmdb_calls(view: TmdbCallsView) -> None:
