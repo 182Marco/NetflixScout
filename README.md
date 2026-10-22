@@ -19,6 +19,15 @@ This repository integrates the RAG modules into a reproducible local pipeline an
 │   ├── tool/           # runtime: MovieDbTool, parser, read-only SQL (tool/sql/)
 │   ├── harness/        # offline only: ingestion/, fixtures/, evaluation/
 │   └── data/           # MovieLens CSV + SQLite DB (not versioned)
+├── tmdb/               # TMDb API tool (tmdb_search)
+│   ├── config.py       # validated view of CONFIG["tmdb"] (3 settings)
+│   ├── tool.py         # TmdbTool: validate → run requests → pack context → trace
+│   ├── http.py         # the only HTTP module: memo → cache → cooldown → budget → send
+│   ├── models/         # enums, per-operation rules, tool input, normalized results
+│   ├── operations/     # resolve, reference, movies, tv, people, collections, discovery, lists
+│   ├── normalize/      # raw JSON → entities with capped facets
+│   ├── presenters/     # terminal/ and web/ output of the tmdb_calls step
+│   └── harness/        # optional live smoke check (never imported at runtime)
 ├── app.py              # public API + RAG Tool facade
 ├── buildSemanticDb.py  # reproducible semantic DB builder
 ├── buildMovieDb.py     # MovieLens SQLite builder
@@ -36,7 +45,13 @@ Note: a legacy `datasets/` folder may exist in older clones, but the new build p
 ```env
 OPENAI_API_KEY=...
 COHERE_API_KEY=...
+VUE_APP_TMDB_API_KEY=...        # TMDb v3 API key or v4 read access token
+VUE_APP_TMDB_BASE_URL=https://api.themoviedb.org/3
 ```
+
+The TMDb key is read only by the Python backend (`tmdb/auth.py`). The `VUE_APP_` prefix is
+the Vue CLI convention for variables exposed to client bundles: never point a Vue frontend at
+this `.env`, or rename the variables (one constant each in `tmdb/auth.py`).
 
 `COHERE_API_KEY` is required when `rerank_backend` is `cohere` (default in `app.py`).
 
@@ -125,11 +140,12 @@ Automatic compaction:
 
 ## Retrieval Notes
 
-1. An LLM parser turns the user query into English `QuerySignals`: `semantic_query`, `genres`, and positive/negative signals plus hard exclusions.
+1. An LLM parser turns the user query into English `QuerySignals`: `semantic_query`, `genres`, `excluded_genres`, and positive/negative signals plus hard exclusions. `rag_search` runs on the standalone query; the planner's `arguments.query` is only a hint for the parser.
 2. The embedding is computed on `semantic_query` (falling back to the original query), never on a bag of keywords: the corpus is English plot summaries.
 3. Chunks whose metadata `genres` match the requested genres get `retrieval.genre_boost` on a pool of `retrieval.fetch_k` candidates, before cutting to `k_largo`.
-4. The reranker sees `Title (year)` and `Genres` before the plot.
-5. The terminal shows the text used for the embedding and the requested genres above the K LARGO list.
+4. The reranker sees `Title (year)` and `Genres` before the plot, and is queried with `semantic_query` (falling back to the query) plus a "Must match:" list of the requested genres and positive signals (decade, country, setting) the sentence left out.
+5. `excluded_genres` ("without science fiction") drop chunks by their `genres` metadata; `hard_exclusions` only filter titles. `pipeline.run_rag` gives each constraint a status per film (full report in the `rerank` trace step; the prompt gets one readable line per film and constraint in `metadata.constraints_summary`): `verified` (genres/year metadata), `probable` (key terms in the plot), `not_verifiable` (endings, tone, missing terms) or `contradicted`; plot constraints such as "no tragic ending" are never presented as verified.
+6. The terminal shows the text used for the embedding and the requested genres above the K LARGO list.
 
 ## Public Runtime API
 
@@ -218,7 +234,8 @@ the terminal prints it in `presenters/terminal/movie_db/`, `presenters/web/movie
 |---|---|---|
 | `python -m movie_db.harness.evaluation.run_eval` | 6 cases: SQL, guard and results on the bundled mini dataset, scripted parser | none |
 | `python -m movie_db.harness.evaluation.run_eval --live-parser` | same 6 cases with the real LLM parser | 6 × `gpt-5.6-luna` |
-| `python -m movie_db.harness.evaluation.run_routing_eval --live` | 10 questions (5 DB, 4 RAG, 1 follow-up): domain classifier + orchestrator planning only, no tool runs | 10 × `gpt-4o-mini` + 10 × `gpt-5.6-luna` |
+| `python -m movie_db.harness.evaluation.run_routing_eval --live` | 23 questions (6 DB, 5 RAG, 11 TMDb, 1 clarification; 4 are follow-ups): domain classifier + orchestrator planning only, no tool runs | 23 × `gpt-4o-mini` + 23 × `gpt-5.6-luna` |
+| `python -m movie_db.harness.evaluation.run_routing_eval --live --tool tmdb_search` | only the 11 TMDb questions; the planned `requests` are also validated offline (operation, title, facets), the tool never runs | 11 × `gpt-4o-mini` + 11 × `gpt-5.6-luna` |
 
 The parser evaluation accepts `by_genre_year` in place of `top_rated` (and vice versa) only for a genre
 without a year range, and only if the executed SQL and parameters are identical to the expected ones.
@@ -228,6 +245,73 @@ Both live runs disable automatic retries. Cases live in `movie_db/harness/evalua
 `routing_cases.py`.
 
 MovieLens is licensed for non-commercial use without redistribution: never commit or serve `movie_db/data/`.
+
+## TMDb Tool (`tmdb_search`)
+
+A third orchestrator tool queries The Movie Database API for up-to-date facts: cast and crew,
+release dates, streaming providers, trailers, images, reviews, recommendations, TV series with
+seasons and episodes, people and filmographies, collections, companies, discover by filters,
+trending and charts, genres and certifications (17 typed operations, see
+`tmdb/models/operation_rules.py`). Account, session, write, list, `changes` and deprecated
+endpoints are deliberately not exposed.
+
+The planner fills `arguments.requests` (1 to 4 operations) from the tool schema shown in the
+planning prompt; the model never builds URLs. Python validates every request before any call,
+resolves titles and names to IDs (TMDb ID → IMDb/TVDB/Wikidata via `/find` → search), maps each
+operation to a fixed endpoint and uses `append_to_response` (max 20) for facets.
+
+Routing priority: any request for information on a film or series identified by its title goes to
+`tmdb_search` ("tell me about Arrival", "who directed…", streaming, cast); ratings and rankings go
+to `movie_db_search`; recommendations and plot/theme/mood searches go to `rag_search`, also when a
+title is only a reference ("films like X"). When a specific film is meant but neither the question
+nor the history identifies it ("who was in that Sorrentino film…"), the planner asks a clarifying
+question instead: no tool and no TMDb call run in that turn.
+
+After `rag_search`, `tmdb/enrich.py` completes the movies the RAG selected (the final reranked
+chunks, at most `CONFIG["orchestrator"]["rag_enrichment"]["max_candidates"]`, in RAG order) with
+TMDb title, year, director, cast and overview. Metadata is attached only when the title equals the
+TMDb title or original title (never by containment: "The Sinner" is not "The Sinners") and a known
+year is confirmed within ±1, with a single such match; otherwise the candidate is marked
+`unverified`/`not_found`/`skipped` and nothing is attributed. `tmdb_search` applies the same rule
+to movies and series: without an exact title it accepts a result only if TMDb lists the
+requested title among the translated or alternative titles of that same work (year ±1; e.g.
+"Survival Island" → "Three", 2005), otherwise it returns `unverified_match` with the closest
+results as unverified `candidates` instead of the most popular result. MovieLens rankings carry
+`work_type_verified: false`: the catalog mixes films and TV series and has no reliable type. The RAG ranking is never changed, and the turn still makes at most one TMDb run.
+
+`CONFIG["tmdb"]` has exactly three settings:
+
+| Setting | Default | Meaning |
+|---|---|---|
+| `max_results` | 5 | items returned by searches, discover, trending, charts and related-title lists |
+| `max_calls_per_turn` | 6 | HTTP attempts per turn: the only call limit, enforced in `tmdb/budget.py` |
+| `cache_ttl` | 3600 | seconds a response is reused across turns (0 = per-turn memo only) |
+
+Cache and memo hits cost nothing; every attempt sent counts, also when it fails; a 429 pauses
+calls for `Retry-After` without retries; failures become partial results, never a broken turn.
+The data passed to the LLM is bounded (`tmdb/prompt_budget.py`): identity and essentials are
+always kept, long lists are capped and omissions are listed in `metadata.tmdb.omitted`. TMDb
+data is requested in the turn language (`it-IT` for Italian questions, `en-US` otherwise) with
+appended translations as fallback; the answer language is up to the LLM.
+
+Each run adds one `tmdb_calls` step with only the endpoints called, key masked
+(`Chiamato: https://api.themoviedb.org/3/movie/157336?api_key=***`; no credential at all with a
+Bearer token), labels in Italian or English after the question. `tmdb/presenters/web/` serializes
+the same step for the future API (`presenters/web/to_payload` is still not implemented).
+
+Optional live check of undocumented behaviours (3 real calls): `python -m tmdb.harness.live_smoke --live`.
+
+### Credits
+
+This application uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise
+approved by TMDB.
+
+TMDB logo: add one of the approved logos from https://www.themoviedb.org/about/logos-attribution
+here (less prominent than the NetflixScout name, as the TMDb terms require). The terminal cannot
+show images, so the logo lives in this README and, later, in the web frontend's About section.
+
+Streaming availability data is provided by JustWatch: the terminal shows the credit in every
+turn whose answer may use it.
 
 ## Git Notes
 
