@@ -17,8 +17,13 @@ HTTP_TIMEOUT_SECONDS = 8.0
 SEARCH_FETCH_FACTOR = 3
 SEARCH_FETCH_MAX = 50
 
-# Below this duration a video is a Short: dropped for every kind except trailers (teasers).
+# The API has no "is a Short" field and duration alone does not identify one (Shorts last
+# up to 3 minutes; teasers and short interviews can last under a minute). Duration never
+# drops a video: under MIN_DURATION_SECONDS it only gets the note `very_short`. A video is
+# dropped as a Short only when it declares itself one (#shorts) and is not longer than
+# SHORTS_MAX_SECONDS, and never for trailers (see `relevance.py`).
 MIN_DURATION_SECONDS = 60
+SHORTS_MAX_SECONDS = 180
 
 # Daily quotas reset at midnight Pacific Time (developers.google.com/youtube/v3/determine_quota_cost).
 QUOTA_TIMEZONE = "America/Los_Angeles"
