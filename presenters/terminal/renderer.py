@@ -27,7 +27,7 @@ from .blocks import (
     print_retrieval_query,
     print_tool_selection,
 )
-from .movie_db import render_db_query
+from .db import render_db_query
 
 # A renderer gets the step and the turn language ("it" | "en") for its labels.
 StepRenderer = Callable[[TraceStep, str], None]

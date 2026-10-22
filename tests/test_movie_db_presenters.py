@@ -5,9 +5,9 @@ import json
 import pytest
 
 from presenters import OutputChannel, present
-from presenters.movie_db_view import db_query_view, format_sql
+from presenters.db_view import db_query_view, format_sql
 from presenters.terminal.renderer import STEP_RENDERERS
-from presenters.web.movie_db import serialize_db_query_step
+from presenters.web.db import serialize_db_query_step
 from turn import STEP_DB_QUERY, TraceStep, TurnResult
 
 SQL = "SELECT m.title FROM movies m WHERE m.year >= ? AND m.clean_title LIKE ? ESCAPE '\\' LIMIT ?"

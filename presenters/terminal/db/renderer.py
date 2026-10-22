@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from turn import TraceStep
 
-from ...movie_db_view import db_query_view
+from ...db_view import db_query_view
 from .blocks import print_db_queries
 
 
