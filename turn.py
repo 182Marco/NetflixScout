@@ -16,6 +16,11 @@ STEP_TOOL_SELECTION = "tool_selection"
 STEP_RETRIEVAL = "retrieval"
 STEP_RERANK = "rerank"
 STEP_DB_QUERY = "db_query"
+STEP_TMDB_CALLS = "tmdb_calls"
+
+# Tool parameter set by `handle_query` with the turn language ("it" | "en") from the
+# classifier. Tools that do not use it ignore it.
+TOOL_PARAM_TURN_LANGUAGE = "turn_language"
 
 
 class TraceStep(BaseModel):
