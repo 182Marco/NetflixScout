@@ -1,7 +1,7 @@
 """Render a `TurnResult` as the full step-by-step report on the terminal.
 
 Glue only: the flow steps shared by every tool are rendered here, each tool step is
-delegated to the renderer in its own folder (`rag/`, `db/`, `api/`) via `STEP_RENDERERS`.
+delegated to the renderer in its own folder (`rag/`, `db/`, `api/`, `youtube/`) via `STEP_RENDERERS`.
 """
 from __future__ import annotations
 
@@ -15,6 +15,7 @@ from turn import (
     STEP_RETRIEVAL,
     STEP_TMDB_CALLS,
     STEP_TOOL_SELECTION,
+    STEP_YOUTUBE_CALLS,
     TraceStep,
     TurnResult,
 )
@@ -30,6 +31,7 @@ from .blocks import (
 )
 from .db import render_db_query
 from .rag import render_rerank, render_retrieval
+from .youtube import render_youtube_calls
 
 # A renderer gets the step and the turn language ("it" | "en") for its labels.
 StepRenderer = Callable[[TraceStep, str], None]
@@ -64,6 +66,7 @@ STEP_RENDERERS: dict[str, StepRenderer] = {
     STEP_RERANK: render_rerank,
     STEP_DB_QUERY: render_db_query,
     STEP_TMDB_CALLS: render_tmdb_calls,
+    STEP_YOUTUBE_CALLS: render_youtube_calls,
 }
 
 

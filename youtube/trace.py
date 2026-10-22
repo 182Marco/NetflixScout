@@ -52,6 +52,7 @@ def build_youtube_trace(
                 "channel": hit.channel,
                 "url": hit.url,
                 "published_at": hit.published_at,
+                "notes": list(hit.notes),
             }
             for outcome in outcomes
             for hit in outcome.hits
