@@ -130,3 +130,55 @@ def test_final_context_includes_genres() -> None:
     messages = orch._build_final_context(query="fantascienza", tool_result=tool_result)
 
     assert "generi=Science Fiction" in messages[-1]["content"]
+
+
+def test_one_tool_run_per_turn() -> None:
+    """The TMDb call budget is created per `tool.run` (tmdb/budget.py): it is per turn only
+    while the orchestrator runs exactly one tool per turn. A multi-step loop must move the
+    budget to a turn-scoped context before this test is changed."""
+    plan = {"standalone_query": "x", "tool_name": "rag_search", "confidence": 0.9}
+    orch, tools, _ = _orchestrator(plan)
+
+    orch.run(query="film con robot", conversation_history=HISTORY)
+
+    assert len(tools["rag_search"].queries) == 1
+
+
+def test_planning_prompt_includes_the_catalog_of_allowed_tools() -> None:
+    plan = {"standalone_query": "x", "tool_name": "rag_search", "confidence": 0.9}
+    orch, tools, client = _orchestrator(plan, tools=("rag_search", "other_tool"), allowed_tools=["rag_search"])
+    tools["rag_search"].input_schema = {"type": "object", "properties": {"query": {"type": "string"}}}
+
+    orch.run(query="film con robot", conversation_history=HISTORY)
+
+    instructions = client.calls[0]["instructions"]
+    assert '{"name":"rag_search","description":"fake","parameters":{"type":"object"' in instructions
+    assert "other_tool" not in instructions
+
+
+def test_a_failing_enricher_never_breaks_the_turn() -> None:
+    class Broken:
+        def enrich(self, *, tool_result):
+            raise RuntimeError("boom")
+
+    plan = {"standalone_query": "x", "tool_name": "rag_search", "confidence": 0.9}
+    orch, tools, client = _orchestrator(plan)
+    orch.enrichers = {"rag_search": Broken()}
+
+    decision = orch.run(query="film con robot", conversation_history=HISTORY)
+
+    assert decision["final_answer"] == "Risposta finale."
+    assert decision["result"]["metadata"] == {"enrichment_error": True}
+    assert len(tools["rag_search"].queries) == 1
+
+
+def test_final_instructions_come_from_config_with_the_previous_default() -> None:
+    plan = {"standalone_query": "x", "tool_name": "rag_search", "confidence": 0.9}
+    default_orch, _, default_client = _orchestrator(plan)
+    custom_orch, _, custom_client = _orchestrator(plan, final_instructions="Istruzioni finali di prova.")
+
+    default_orch.run(query="q", conversation_history=[])
+    custom_orch.run(query="q", conversation_history=[])
+
+    assert default_client.calls[-1]["instructions"].startswith("Sei l'orchestratore di un sistema multi-tool.")
+    assert custom_client.calls[-1]["instructions"] == "Istruzioni finali di prova."

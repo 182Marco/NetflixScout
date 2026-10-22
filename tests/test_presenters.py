@@ -41,9 +41,11 @@ def test_rag_tool_returns_trace_outside_metadata(monkeypatch) -> None:
 class _FakeOrchestrator:
     def __init__(self) -> None:
         self.calls = 0
+        self.tool_overrides = None
 
-    def run(self, *, query, conversation_history=None):
+    def run(self, *, query, conversation_history=None, tool_overrides=None):
         self.calls += 1
+        self.tool_overrides = tool_overrides
         return {
             "tool": "rag_search",
             "standalone_query": "film di fantascienza con robot più recenti",
@@ -70,6 +72,16 @@ def test_handle_query_records_steps_in_order(monkeypatch) -> None:
     assert turn.answer == "Guarda Matrix."
     assert turn.tool == "rag_search"
     assert turn.history[-1] == {"role": "assistant", "content": "Guarda Matrix."}
+
+
+def test_handle_query_passes_the_turn_language_to_the_tools(monkeypatch) -> None:
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": False})
+    fake_app = _fake_app()
+
+    turn = app_module.handle_query(fake_app, "Who directed Dune?", history=[])
+
+    assert turn.language == "en"
+    assert fake_app["orchestrator"].tool_overrides == {"turn_language": "en"}
 
 
 def test_handle_query_blocks_non_cinema_without_orchestrator(monkeypatch) -> None:

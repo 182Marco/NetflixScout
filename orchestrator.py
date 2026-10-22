@@ -1,10 +1,17 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Protocol, Sequence, runtime_checkable
+from typing import Any, Mapping, Protocol, Sequence, runtime_checkable
 
 from openai import OpenAI
 
+DEFAULT_FINAL_INSTRUCTIONS = (
+    "Sei l'orchestratore di un sistema multi-tool. "
+    "Usa esclusivamente i risultati strutturati ricevuti dal tool. "
+    "Non inventare informazioni. "
+    "Se i risultati non contengono dati sufficienti, rispondi in modo trasparente. "
+    "Scrivi una risposta finale chiara, utile e veritiera per l'utente."
+)
 
 @runtime_checkable
 class Tool(Protocol):
@@ -22,6 +29,18 @@ class Tool(Protocol):
         ...
 
 
+@runtime_checkable
+class Enricher(Protocol):
+    """Completes the result of one tool before the final answer (e.g. TMDb metadata for RAG hits).
+
+    It must keep the tool result contract (`query`, `chunks`, `metadata`, `trace`) and must
+    not reorder `chunks`.
+    """
+
+    def enrich(self, *, tool_result: dict[str, Any]) -> dict[str, Any]:
+        ...
+
+
 class LLMOrchestrator:
     def __init__(
         self,
@@ -29,10 +48,13 @@ class LLMOrchestrator:
         config: dict[str, Any],
         tools: Sequence[Tool],
         client: OpenAI | None = None,
+        enrichers: Mapping[str, Enricher] | None = None,
     ) -> None:
         self.config = config
         self.tools = {tool.name: tool for tool in tools}
         self.client = client or OpenAI()
+        # Tool name -> enricher run on that tool's result, in the same turn.
+        self.enrichers = dict(enrichers or {})
         self.orchestrator_config = config.get("orchestrator", {})
 
     def _build_final_context(
@@ -81,13 +103,7 @@ class LLMOrchestrator:
         try:
             response = self.client.responses.create(
                 model=self.orchestrator_config.get("llm_model", "gpt-5.6-luna"),
-                instructions=(
-                    "Sei l'orchestratore di un sistema multi-tool. "
-                    "Usa esclusivamente i risultati strutturati ricevuti dal tool. "
-                    "Non inventare informazioni. "
-                    "Se i risultati non contengono dati sufficienti, rispondi in modo trasparente. "
-                    "Scrivi una risposta finale chiara, utile e veritiera per l'utente."
-                ),
+                instructions=self.orchestrator_config.get("final_instructions") or DEFAULT_FINAL_INSTRUCTIONS,
                 input=self._build_final_context(
                     query=query,
                     tool_result=tool_result,
@@ -144,6 +160,21 @@ class LLMOrchestrator:
         fallback = self.orchestrator_config.get("fallback_tool") or allowed[0]
         return fallback if fallback in self.tools else allowed[0]
 
+    def _catalog_text(self, tool_names: list[str]) -> str:
+        """Name, description and parameters of the allowed tools, for the planning prompt."""
+        return "\n".join(
+            json.dumps(
+                {
+                    "name": name,
+                    "description": self.tools[name].description,
+                    "parameters": self.tools[name].input_schema,
+                },
+                ensure_ascii=False,
+                separators=(",", ":"),
+            )
+            for name in tool_names
+        )
+
     def _plan_turn(
         self,
         *,
@@ -180,6 +211,8 @@ class LLMOrchestrator:
                     self.orchestrator_config.get("instructions", decision_prompt)
                     + "\nAllowed tools: "
                     + ", ".join(allowed)
+                    + "\nTool catalog (arguments must follow the tool parameters):\n"
+                    + self._catalog_text(allowed)
                 ),
                 # Full history, unchanged and in order: a stable prompt prefix lets the
                 # provider's prompt caching reuse it across turns.
@@ -197,7 +230,6 @@ class LLMOrchestrator:
 
         if required:
             return required[0], {}, standalone_query
-
         tool_name = payload.get("tool_name") or payload.get("tool") or allowed[0]
         arguments = payload.get("arguments") or {}
         confidence = payload.get("confidence")
@@ -205,6 +237,17 @@ class LLMOrchestrator:
         if tool_name in allowed and (confidence is None or confidence >= threshold):
             return tool_name, arguments, standalone_query
         return self._fallback_tool_name(allowed), {}, standalone_query
+
+    def _enrich(self, tool_name: str, tool_result: dict[str, Any]) -> dict[str, Any]:
+        """Run the tool's enricher, if any; a failing enricher never breaks the turn."""
+        enricher = self.enrichers.get(tool_name)
+        if enricher is None:
+            return tool_result
+        try:
+            return enricher.enrich(tool_result=tool_result)
+        except Exception:
+            metadata = {**(tool_result.get("metadata") or {}), "enrichment_error": True}
+            return {**tool_result, "metadata": metadata}
 
     def run(
         self,
@@ -223,6 +266,7 @@ class LLMOrchestrator:
             params={**(tool_overrides or {}), **args},
             conversation_history=conversation_history,
         )
+        tool_result = self._enrich(tool_name, tool_result)
 
         final_answer = self._generate_final_answer(
             query=query,

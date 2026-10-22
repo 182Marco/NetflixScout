@@ -18,6 +18,10 @@ to be mapped directly by the frontend. Intended shape:
 It will be implemented when more tools than the RAG exist, so the step schema can
 be designed across all of them. Conversation history stays out of the payload: the
 web caller keeps it and sends it back on the next request.
+
+TMDb Terms of Use (§3): the web frontend must show the TMDb logo and the notice in
+`tmdb.presenters.view.TMDB_NOTICE` (About/Credits), and every `tmdb_calls` step must keep
+its `attributions` (JustWatch for streaming data) visible next to the answer.
 """
 from __future__ import annotations
 

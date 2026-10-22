@@ -17,7 +17,18 @@ from rag.FromQueryEmbeddingToRes.runtime import _resolve_runtime_config
 from rag.FromQueryEmbeddingToRes.models import RerankBackend, SearchMode
 from rag.FromQueryEmbeddingToRes.tool_interface import RagTool
 from rag.FromQueryEmbeddingToRes.vectorstore import apri_collection
-from turn import STEP_CLASSIFICATION, STEP_QUERY_REWRITE, STEP_TOOL_SELECTION, TraceStep, TurnResult
+from tmdb.config import load_tmdb_config
+from tmdb.enrich import TmdbRagEnricher
+from tmdb.presenters.terminal import print_tmdb_notice
+from tmdb.tool import TmdbTool
+from turn import (
+    STEP_CLASSIFICATION,
+    STEP_QUERY_REWRITE,
+    STEP_TOOL_SELECTION,
+    TOOL_PARAM_TURN_LANGUAGE,
+    TraceStep,
+    TurnResult,
+)
 
 NON_CINEMA_BLOCK_MESSAGES = {
     "it": "Non rispondo a domande non cinematografiche",
@@ -38,9 +49,49 @@ CONFIG = {
             "risolvendo con la conversazione precedente i riferimenti impliciti "
             "(es. 'e uno più recente?', 'qualcosa di simile'); non inventare fatti e non rispondere "
             "alla domanda. Se la richiesta è già autonoma, ripetila uguale. "
-            "Usa il tool RAG per domande su film, trama, generi, cast e recommendation. "
-            "Usa il tool movie_db_search per classifiche, voti medi, numero di voti, "
-            "film per genere e anno e tag degli utenti."
+            "Scegli il tool con queste regole, che prevalgono su ogni altra indicazione. "
+            "1) tmdb_search è il punto di partenza per ogni richiesta informativa su un film o una "
+            "serie identificati da un titolo o da riferimenti sufficienti a individuarli: domande "
+            "generiche come 'parlami di Arrival' o 'dimmi qualcosa su Dune', di cosa parla, chi ha "
+            "diretto, chi recita nel cast, troupe, durata, data di uscita, dettagli, dove vederlo in "
+            "streaming, trailer, immagini, recensioni, stagioni ed episodi, persone e filmografie, "
+            "saghe, case di produzione, trending, novità e ricerche con filtri. Per un film o una "
+            "serie indicati per titolo, anche ambiguo, usa movie_details o tv_details con il titolo: "
+            "il tool sceglie la versione dai risultati di TMDb e riporta le alternative. Non "
+            "scegliere tu una versione e indica l'anno solo se l'utente lo ha dato. Usa "
+            "l'operazione search solo quando l'utente chiede un elenco di titoli. Per tmdb_search "
+            "compila arguments.requests secondo i parametri del tool nel catalogo. "
+            "2) movie_db_search è il punto di partenza per voti, valutazioni, classifiche, numero di "
+            "voti, confronti basati sui punteggi, film per genere e anno ordinati per voto e tag "
+            "degli utenti di MovieLens. "
+            "3) rag_search è il punto di partenza per raccomandazioni e ricerche semantiche basate su "
+            "trama, temi, emozioni, atmosfera, situazioni narrative e somiglianze tra film, e per "
+            "riconoscere un film descritto dalla trama senza titolo. Se un titolo è citato solo come "
+            "riferimento per descrivere cosa si cerca ('film come X', 'con gli stessi temi di X'), "
+            "scegli rag_search e non tmdb_search. Dopo rag_search il sistema aggiunge da solo i "
+            "metadati TMDb dei film trovati: non scegliere tmdb_search per questo. "
+            "4) Richieste miste: esegui un solo tool per turno, quello che soddisfa il bisogno "
+            "principale della richiesta."
+        ),
+        # Final answer prompt (`LLMOrchestrator._generate_final_answer`).
+        "final_instructions": (
+            "Sei l'orchestratore di un sistema multi-tool. "
+            "Usa esclusivamente i risultati strutturati ricevuti dal tool. "
+            "Non inventare informazioni. "
+            "Se i risultati non contengono dati sufficienti, rispondi in modo trasparente. "
+            "Scrivi una risposta finale chiara, utile e veritiera per l'utente. "
+            "Se nei Metadata c'è tmdb_enrichment, i film da presentare restano quelli dei "
+            "risultati del RAG, nello stesso ordine, e il motivo del consiglio deve venire dai "
+            "risultati del RAG. Per ogni candidato con status 'matched' presenta titolo, anno, "
+            "regista e cast principale presi dal suo blocco tmdb e una breve sinossi; per i "
+            "candidati con altro status usa solo i dati del RAG e non indicare regista o cast. "
+            "Non attribuire mai a un film i dati di un altro. "
+            "Se i metadata TMDb riportano candidates (titolo ambiguo), dichiara quale versione hai "
+            "descritto e cita le altre con il loro anno. "
+            "Indica sempre la fonte dei voti (voto TMDb o voto medio MovieLens) e non presentare "
+            "un voto di una fonte come se fosse dell'altra. "
+            "Riporta i nomi di persone come compaiono nei dati; se un nome è in un alfabeto non "
+            "latino puoi aggiungere tra parentesi la traslitterazione, dichiarandola come tale."
         ),
         "max_iterations": 3,
         "max_execution_time": 30,
@@ -48,10 +99,15 @@ CONFIG = {
         "memory_window_size": 12,
         # Last history messages shown to the domain classifier, so follow-ups are not blocked.
         "classifier_context_messages": 2,
-        "allowed_tools": ["rag_search", "movie_db_search"],
+        "allowed_tools": ["rag_search", "movie_db_search", "tmdb_search"],
         "required_tools": [],
         "tool_confidence_threshold": 0.6,
         "fallback_tool": "rag_search",
+        # After rag_search, TMDb metadata for the movies the RAG selected (tmdb/enrich.py).
+        "rag_enrichment": {
+            "enabled": True,
+            "max_candidates": 3,
+        },
         "verbose": False,
         "conversation": {
             "token_threshold": 40000,
@@ -134,6 +190,12 @@ CONFIG = {
             "include_tags": True,
         },
     },
+    # Only these three: timeouts, cache size and context limits are internal to tmdb/.
+    "tmdb": {
+        "max_results": 5,
+        "max_calls_per_turn": 6,
+        "cache_ttl": 3600,
+    },
 }
 
 
@@ -165,9 +227,16 @@ def build_app(overrides: dict[str, Any] | None = None) -> dict[str, Any]:
     movie_db_config = load_movie_db_config(runtime_config["movie_db"])
     if movie_db_config.enabled:
         tools.append(MovieDbTool(config=movie_db_config))
+    tmdb_tool = TmdbTool(config=load_tmdb_config(runtime_config["tmdb"]))
+    tools.append(tmdb_tool)
+    enrichment = runtime_config["orchestrator"].get("rag_enrichment") or {}
+    enrichers = {}
+    if enrichment.get("enabled"):
+        enrichers["rag_search"] = TmdbRagEnricher(tool=tmdb_tool, max_candidates=int(enrichment["max_candidates"]))
     orchestrator = LLMOrchestrator(
         config=runtime_config,
         tools=tools,
+        enrichers=enrichers,
     )
     return {
         "config": runtime_config,
@@ -211,7 +280,12 @@ def handle_query(
             history=history,
         )
 
-    decision = app["orchestrator"].run(query=query, conversation_history=history)
+    decision = app["orchestrator"].run(
+        query=query,
+        conversation_history=history,
+        # The turn language selects localized TMDb data; it never sets the answer language.
+        tool_overrides={TOOL_PARAM_TURN_LANGUAGE: language},
+    )
     answer = decision["final_answer"]
     standalone_query = decision.get("standalone_query") or query
     steps.append(
@@ -263,6 +337,7 @@ def run_terminal_chat() -> None:
     history: list[dict[str, str]] = []
     openai_client = OpenAI()
     terminal.print_header()
+    print_tmdb_notice()
     terminal.print_mode(runtime_rag)
 
     while True:
