@@ -1,8 +1,8 @@
 """Deterministic relevance filter of YouTube search results for one film.
 Permissive by design: a result is dropped only on strong evidence, with one reason:
 
-- `no_anchor`: neither the film title (or an alternative title) nor the director's name
-  appears in the video title or description;
+- `no_anchor`: neither the film title (or an alternative title) nor the name of the director
+  or of a requested cast member appears in the video title or description;
 - `negative_pattern`: the video *title* says reaction, parody, fan made or concept trailer
   (the description is ignored: an interview may mention a "reaction");
 - `other_format`: the video *title* declares another format (review, full movie, trailer
@@ -11,9 +11,9 @@ Permissive by design: a result is dropped only on strong evidence, with one reas
 - `year_conflict`: a year in parentheses in the video title differs from the film's by more
   than one, and no year in parentheses matches;
 - `homonym_risk`: the title anchor is weak (a one-word title such as "Arrival", or only the
-  main title before a subtitle) and none of the known year, director or release period
-  (trailers, making-of and behind the scenes only) confirms it; with no year and no
-  director to check, the result is kept and noted (`homonym_unchecked`);
+  main title before a subtitle) and none of the known year, director, cast or release period
+  (trailers, making-of and behind the scenes only) confirms it; with no year and no person
+  to check, the result is kept and noted (`homonym_unchecked`);
 - `short_video`: the video declares itself a Short (#shorts) and is not longer than a Short
   can be. Never for trailers, never by duration alone (see `settings.MIN_DURATION_SECONDS`).
 
@@ -93,7 +93,7 @@ def _other_format(request: YoutubeToolInput, kind: VideoKind, video_title: str) 
         return False
     if any(_has(video_title, word) for word in _kind_words(kind)):
         return False
-    return not any(_has(video_title, name) for name in _director_names(request.director))
+    return not any(_has(video_title, name) for person in request.people for name in _director_names(person))
 
 
 def prescreen(request: YoutubeToolInput, *, title: str | None) -> Screening | None:
@@ -142,12 +142,13 @@ def screen(
             notes.append("title_in_description_only")
     elif mains:
         matched.append("main_title")
-    director = any(_has(both, name) for name in _director_names(request.director))
-    if director:
+    if any(_has(both, name) for name in _director_names(request.director)):
         matched.append("director")
+    if any(_has(both, name) for person in request.cast for name in _director_names(person)):
+        matched.append("cast")
     if not matched:
         return Screening(kept=False, reason="no_anchor")
-    if matched == ["director"]:
+    if set(matched) <= {"director", "cast"}:
         notes.append("film_title_absent")
 
     if request.year is not None:
@@ -164,9 +165,9 @@ def screen(
 
     weak = not strong and (generic or "main_title" in matched)
     if weak:
-        confirmations = {"director", "year", "release_period"} & set(matched)
+        confirmations = {"director", "cast", "year", "release_period"} & set(matched)
         if not confirmations:
-            if request.year is None and not request.director:
+            if request.year is None and not request.people:
                 notes.append("homonym_unchecked")
             else:
                 return Screening(kept=False, reason="homonym_risk")

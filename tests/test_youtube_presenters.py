@@ -85,7 +85,7 @@ def test_italian_labels_results_reasons_and_notes(capsys) -> None:
     assert f"Chiamato: {SEARCH_URL}" in out and f"Chiamato: {VIDEOS_URL}" in out
     assert 'Ricerca making-of: "Dune: Part Two" "making of" -reaction -parody' in out
     assert "9 ricevuti, 1 tenuti; scartati: film non nominato 3, possibile omonimo 1" in out
-    assert "Non cercati in questo turno: interviste (limite di ricerche per turno)" in out
+    assert "Non cercati in questo turno: interviste al regista (limite di ricerche per turno)" in out
     assert "▶ [making-of] Dune: Part Two – “Making of” & more — Warner Bros. Italia (2024-02-20)" in out
     assert URL1 in out
     assert "note: categoria non confermata dal titolo, non visibile in IT" in out
@@ -95,7 +95,7 @@ def test_english_labels(capsys) -> None:
     out = _render(_step(), "en", capsys)
 
     assert "Source: YouTube" in out and f"Called: {SEARCH_URL}" in out
-    assert "Not searched in this turn: interviews (per-turn search limit)" in out
+    assert "Not searched in this turn: director interviews (per-turn search limit)" in out
     assert "notes: category not confirmed by the title, not viewable in IT" in out
 
 
@@ -261,3 +261,19 @@ def test_other_format_drops_have_a_label(language, label, capsys) -> None:
     step.data["searches"][0]["filtered_out"] = {"other_format": 2}
 
     assert f"{label} (" in _render(step, language, capsys)
+
+
+@pytest.mark.parametrize(
+    ("language", "director", "cast"),
+    [("it", "interviste al regista", "interviste al cast"), ("en", "director interviews", "cast interviews")],
+)
+def test_director_and_cast_interviews_have_distinct_labels(language, director, cast, capsys) -> None:
+    step = _step(
+        not_searched=[{"kind": "cast_interview", "reason": "turn_limit"}],
+        videos=[{"kind": "director_interview", "title": "Nolan on Oppenheimer", "channel": "c", "url": URL1, "notes": []}],
+    )
+
+    out = _render(step, language, capsys)
+
+    assert f"[{director}] Nolan on Oppenheimer" in out
+    assert f"{cast} (" in out

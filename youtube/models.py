@@ -14,6 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_valida
 MAX_TITLE_CHARS = 200
 MAX_NAME_CHARS = 100
 MAX_ALTERNATIVE_TITLES = 3
+MAX_CAST = 5
 MAX_KINDS = 3
 MAX_REPORTED_ERRORS = 20
 
@@ -21,6 +22,7 @@ MAX_REPORTED_ERRORS = 20
 class VideoKind(str, Enum):
     trailer = "trailer"
     director_interview = "director_interview"
+    cast_interview = "cast_interview"
     making_of = "making_of"
     behind_the_scenes = "behind_the_scenes"
     author_commentary = "author_commentary"
@@ -82,14 +84,24 @@ class YoutubeToolInput(BaseModel):
         max_length=MAX_NAME_CHARS,
         description="Director's name, only if the user or the conversation gives it.",
     )
+    cast: list[str] = Field(
+        default_factory=list,
+        max_length=MAX_CAST,
+        description=(
+            "Up to 5 names of cast members that appear verbatim in the user's request or in the "
+            "conversation. Never add a name yourself, even a well-known one; leave empty when the "
+            "conversation names nobody."
+        ),
+    )
     kinds: list[VideoKind] = Field(
         min_length=1,
         max_length=MAX_KINDS,
         description=(
-            "Video categories, most important first: director_interview (interviews with the director "
-            "or the cast), making_of, behind_the_scenes (backstage, featurettes), author_commentary "
-            "(the authors explaining or commenting the film), trailer (only if the user explicitly "
-            "asks for YouTube or accepts searching it there)."
+            "Video categories, most important first: director_interview (interviews with the "
+            "director), cast_interview (interviews with the actors or the cast), making_of, "
+            "behind_the_scenes (backstage, featurettes), author_commentary (the authors explaining "
+            "or commenting the film), trailer (only if the user explicitly asks for YouTube or "
+            "accepts searching it there)."
         ),
     )
 
@@ -98,7 +110,7 @@ class YoutubeToolInput(BaseModel):
     def _strip(cls, value: Any) -> Any:
         return _clean(value) or None if isinstance(value, str) else value
 
-    @field_validator("alternative_titles", mode="before")
+    @field_validator("alternative_titles", "cast", mode="before")
     @classmethod
     def _strip_titles(cls, value: Any) -> Any:
         if not isinstance(value, list):
@@ -125,7 +137,21 @@ class YoutubeToolInput(BaseModel):
                 seen.add(key)
                 kept.append(title)
         self.alternative_titles = kept
+        # The same person written twice, or the director repeated among the cast, counts once.
+        people = {normalize_text(self.director)} if self.director else set()
+        cast = []
+        for name in self.cast:
+            key = normalize_text(name)
+            if key and key not in people:
+                people.add(key)
+                cast.append(name)
+        self.cast = cast
         return self
+
+    @property
+    def people(self) -> list[str]:
+        """Every known person of the film: the director first, then the cast."""
+        return [*([self.director] if self.director else []), *self.cast]
 
 
 class VideoHit(BaseModel):

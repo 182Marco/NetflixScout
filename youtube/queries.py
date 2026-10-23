@@ -27,6 +27,7 @@ from .settings import SEARCH_FETCH_FACTOR, SEARCH_FETCH_MAX
 KIND_TERMS: dict[VideoKind, tuple[str, ...]] = {
     VideoKind.trailer: ("trailer", "teaser", '"trailer ufficiale"'),
     VideoKind.director_interview: ("interview", "intervista", "director", "regista"),
+    VideoKind.cast_interview: ("interview", "intervista", "cast", '"red carpet"', "junket", '"press conference"'),
     VideoKind.making_of: ('"making of"', '"making-of"', '"come è stato girato"'),
     VideoKind.behind_the_scenes: ('"behind the scenes"', '"dietro le quinte"', "backstage", "featurette", '"on set"'),
     VideoKind.author_commentary: (
@@ -74,23 +75,38 @@ def person_group(name: str | None) -> str | None:
     return "|".join([full, surname] if surname else [full])
 
 
+def people_group(names: list[str]) -> str | None:
+    """Several people in one OR group (each as in `person_group`); None when nobody is known."""
+    groups = [group for name in names if (group := person_group(name))]
+    return "|".join(dict.fromkeys(part for group in groups for part in group.split("|"))) or None
+
+
+# The people an interview kind is about: their names are alternatives to the kind words
+# ("Denis Villeneuve on Dune", "Cillian Murphy talks Oppenheimer" have no kind word).
+_INTERVIEWED = {
+    VideoKind.director_interview: lambda request: [request.director] if request.director else [],
+    VideoKind.cast_interview: lambda request: list(request.cast),
+}
+
+
 def build_q(request: YoutubeToolInput, kind: VideoKind) -> str:
     """Titles in OR, then kind terms in OR, then the exclusions.
 
     A one-word title ("Her", "Barbie") matches unrelated videos, so when every title is a
-    single word and the director is known, the director becomes a required (AND) group:
-    `"Her" "Spike Jonze"|"Jonze" "making of"|...`. Without a known person nothing is added.
+    single word and a person of the film is known (director or cast), the people become a
+    required (AND) group: `"Her" "Spike Jonze"|"Jonze" "making of"|...`. Without a known
+    person nothing is added.
     """
     all_titles = (request.title, *request.alternative_titles)
     titles = [phrase(title) for title in all_titles]
     title_group = "|".join(dict.fromkeys(title for title in titles if title))
     terms = list(KIND_TERMS[kind])
-    person = person_group(request.director)
-    required_person = person is not None and all(is_one_word_title(title) for title in all_titles)
-    if kind is VideoKind.director_interview and person and not required_person:
-        # The director's name as an alternative: "Denis Villeneuve on Dune" has no kind word.
-        terms.append(phrase(request.director))
-    groups = [title_group, person] if required_person else [title_group]
+    people = people_group(request.people)
+    required_people = people is not None and all(is_one_word_title(title) for title in all_titles)
+    interviewed = _INTERVIEWED.get(kind, lambda request: [])(request)
+    if interviewed and not required_people:
+        terms.extend(dict.fromkeys(group for name in interviewed if (group := phrase(name))))
+    groups = [title_group, people] if required_people else [title_group]
     return " ".join([*groups, "|".join(terms), *EXCLUDED_TERMS])
 
 

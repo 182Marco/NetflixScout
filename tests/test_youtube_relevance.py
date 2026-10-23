@@ -409,3 +409,65 @@ def test_format_words_in_the_description_never_drop() -> None:
 def test_other_format_is_decided_on_the_title_only_not_in_prescreen() -> None:
     # Prescreen has no kind: a "trailer" title may be a valid trailer request.
     assert prescreen(req("Interstellar"), title="Interstellar | Teaser Trailer") is None
+
+
+
+# --- fix 3: cast members as people of the film ---------------------------------------------------
+
+
+def test_oppenheimer_historic_clip_is_a_homonym_once_the_cast_is_known() -> None:
+    """Live run 5: clips about the physicist kept for "interviews with the Oppenheimer cast"."""
+    request_ = req("Oppenheimer", cast=["Cillian Murphy"], kinds=["cast_interview"])
+
+    historic = check(request_, K.cast_interview, 'J. Robert Oppenheimer: "I am become Death, the destroyer of worlds."')
+    interview = check(request_, K.cast_interview, "Cillian Murphy on playing Oppenheimer")
+
+    assert (historic.kept, historic.reason) == (False, "homonym_risk")
+    assert interview.kept and interview.matched_on == ("title", "cast")
+
+
+def test_oppenheimer_without_names_stays_unchecked_known_limit() -> None:
+    """Nothing to check without a year or a person: kept and noted, as agreed (not invented)."""
+    result = check(req("Oppenheimer", kinds=["cast_interview"]), K.cast_interview, 'J. Robert Oppenheimer: "I am become Death"')
+
+    assert result.kept and {"homonym_unchecked", "kind_unconfirmed"} <= set(result.notes)
+
+
+def test_a_cast_member_alone_is_an_anchor_noted_as_film_title_absent() -> None:
+    result = check(req("Oppenheimer: the film", cast=["Cillian Murphy"]), K.cast_interview, "Cillian Murphy interview 2023")
+
+    assert result.kept and result.matched_on == ("cast",) and "film_title_absent" in result.notes
+
+
+def test_cast_surname_follows_the_same_rule_as_the_director() -> None:
+    request_ = req("Arrival", cast=["Amy Adams", "Ang Lee"])
+
+    assert "cast" in check(request_, K.cast_interview, "Adams talks Arrival").matched_on
+    assert check(request_, K.cast_interview, "Lee talks Arrival").reason == "homonym_risk"
+
+
+def test_cast_interview_kind_words() -> None:
+    request_ = req("Dune: Part Two")
+
+    assert "kind_unconfirmed" not in check(request_, K.cast_interview, "Dune: Part Two red carpet").notes
+    assert "kind_unconfirmed" not in check(request_, K.cast_interview, "Dune: Part Two cast interview").notes
+    assert "kind_unconfirmed" in check(request_, K.cast_interview, "Dune: Part Two | Zendaya").notes
+
+
+def test_a_review_naming_a_requested_cast_member_is_not_other_format() -> None:
+    # Same exemption as the director (fix 2): the requested person is named in the title.
+    request_ = req("Dune: Part Two", cast=["Zendaya"])
+
+    assert check(request_, K.cast_interview, "Zendaya reviews her Dune: Part Two trailer").kept
+    assert check(request_, K.cast_interview, "Dune: Part Two review").reason == "other_format"
+
+
+def test_release_period_still_never_confirms_cast_interviews() -> None:
+    result = check(
+        req("Arrival", year=2016, cast=["Amy Adams"]),
+        K.cast_interview,
+        "Arrival interview",
+        published_at="2016-11-10T00:00:00Z",
+    )
+
+    assert (result.kept, result.reason) == (False, "homonym_risk")

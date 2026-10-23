@@ -16,7 +16,7 @@ from youtube.models import (
     describe_validation_errors,
     normalize_text,
 )
-from youtube.queries import EXCLUDED_TERMS, KIND_TERMS, build_q, build_search_params, person_group, phrase
+from youtube.queries import EXCLUDED_TERMS, KIND_TERMS, build_q, build_search_params, people_group, person_group, phrase
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -294,3 +294,80 @@ def test_queries_and_models_never_import_tmdb_or_do_io() -> None:
         for node in ast.walk(tree):
             if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
                 assert node.module.split(".")[0] not in {"tmdb", "urllib", "http", "socket"}, (name, node.module)
+
+
+# --- fix 3: cast_interview and the `cast` field -------------------------------------------------
+
+
+def test_cast_field_schema_tells_the_planner_never_to_add_names() -> None:
+    schema = YoutubeToolInput.model_json_schema()
+    cast = schema["properties"]["cast"]
+
+    assert cast["maxItems"] == 5 and "cast" not in schema["required"]
+    assert "appear verbatim in the user's request or in the" in cast["description"]
+    assert "Never add a name yourself" in cast["description"]
+    kinds = schema["properties"]["kinds"]["description"]
+    assert "director_interview (interviews with the director)" in kinds
+    assert "cast_interview (interviews with the actors or the cast)" in kinds
+    assert "cast_interview" in json.dumps(schema["$defs"]["VideoKind"])
+
+
+def test_cast_is_optional_trimmed_deduplicated_and_capped() -> None:
+    assert request().cast == []
+    payload = request(director="Christopher Nolan", cast=[" Cillian  Murphy ", "cillian murphy", "", "Christopher Nolan", "Emily Blunt"])
+    assert payload.cast == ["Cillian Murphy", "Emily Blunt"]  # duplicates and the director dropped
+    assert payload.people == ["Christopher Nolan", "Cillian Murphy", "Emily Blunt"]
+    with pytest.raises(ValidationError):
+        request(cast=["A", "B", "C", "D", "E", "F"])
+    with pytest.raises(ValidationError):
+        request(cast="Cillian Murphy")
+
+
+def test_cast_interview_query_with_names_as_alternatives() -> None:
+    payload = request(title="Oppenheimer: the film", cast=["Cillian Murphy", "Emily Blunt"], kinds=["cast_interview"])
+
+    assert build_q(payload, VideoKind.cast_interview) == (
+        '"Oppenheimer: the film" interview|intervista|cast|"red carpet"|junket|"press conference"'
+        '|"Cillian Murphy"|"Emily Blunt" -reaction -parody'
+    )
+
+
+def test_cast_interview_query_without_names_invents_nothing() -> None:
+    q = build_q(request(title="Oppenheimer", kinds=["cast_interview"]), VideoKind.cast_interview)
+
+    assert q == '"Oppenheimer" interview|intervista|cast|"red carpet"|junket|"press conference" -reaction -parody'
+
+
+def test_one_word_title_requires_the_known_people_director_or_cast() -> None:
+    """Oppenheimer: a one-word title; with a cast name the people are required (fix 4 extended)."""
+    with_cast = request(title="Oppenheimer", cast=["Cillian Murphy"], kinds=["cast_interview"])
+    both = request(title="Oppenheimer", director="Christopher Nolan", cast=["Cillian Murphy"], kinds=["cast_interview"])
+
+    assert build_q(with_cast, VideoKind.cast_interview).startswith(
+        '"Oppenheimer" "Cillian Murphy"|"Murphy" interview|intervista|cast|'
+    )
+    assert build_q(both, VideoKind.making_of).startswith(
+        '"Oppenheimer" "Christopher Nolan"|"Nolan"|"Cillian Murphy"|"Murphy" "making of"'
+    )
+
+
+def test_director_interviews_do_not_list_the_cast_and_vice_versa() -> None:
+    payload = request(title="Dune: Part Two", director="Denis Villeneuve", cast=["Zendaya"], kinds=["director_interview"])
+
+    director_q = build_q(payload, VideoKind.director_interview)
+    cast_q = build_q(payload, VideoKind.cast_interview)
+
+    assert '"Denis Villeneuve"' in director_q and "Zendaya" not in director_q
+    assert '"Zendaya"' in cast_q and "Villeneuve" not in cast_q
+
+
+def test_without_cast_the_queries_of_the_previous_fixes_are_unchanged() -> None:
+    assert build_q(request(title="Her", director="Spike Jonze"), VideoKind.making_of) == (
+        '"Her" "Spike Jonze"|"Jonze" "making of"|"making-of"|"come è stato girato" -reaction -parody'
+    )
+
+
+def test_people_group() -> None:
+    assert people_group(["Christopher Nolan", "Cillian Murphy"]) == '"Christopher Nolan"|"Nolan"|"Cillian Murphy"|"Murphy"'
+    assert people_group(["Ang Lee", "Ang Lee"]) == '"Ang Lee"'
+    assert people_group([]) is None and people_group(["  "]) is None

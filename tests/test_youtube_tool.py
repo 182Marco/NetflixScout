@@ -612,3 +612,29 @@ def test_other_format_is_counted_and_judged_on_the_videos_title() -> None:
     assert [hit["video_id"] for hit in row["hits"]] == [ID3]
     assert row["filtered_out"] == {"other_format": 2}
     assert transport.calls[1][1]["id"] == f"{ID1},{ID2},{ID3}"  # decided after /videos, not on the snippet
+
+
+
+def test_cast_interview_end_to_end_with_names_from_the_request() -> None:
+    routes = {
+        "/search": {
+            "items": [
+                search_item(ID1, 'J. Robert Oppenheimer: "I am become Death"', published_at="2011-08-06T00:00:00Z"),
+                search_item(ID2, "Cillian Murphy on Oppenheimer", published_at="2023-07-20T00:00:00Z"),
+            ]
+        },
+        "/videos": {
+            "items": [
+                video_item(ID1, 'J. Robert Oppenheimer: "I am become Death"', description="1965 interview."),
+                video_item(ID2, "Cillian Murphy on Oppenheimer", description="The cast talks about the film."),
+            ]
+        },
+    }
+    tool, transport = make_tool(routes)
+
+    result = run_tool(tool, title="Oppenheimer", cast=["Cillian Murphy"], kinds=["cast_interview"])
+
+    assert transport.calls[0][1]["q"].startswith('"Oppenheimer" "Cillian Murphy"|"Murphy" interview|')
+    row = kinds(result)["cast_interview"]
+    assert [hit["video_id"] for hit in row["hits"]] == [ID2] and row["filtered_out"] == {"homonym_risk": 1}
+    assert row["hits"][0]["matched_on"] == ["title", "cast"]

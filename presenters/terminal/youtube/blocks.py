@@ -58,14 +58,16 @@ LABELS = {
 KIND_LABELS = {
     "it": {
         "trailer": "trailer",
-        "director_interview": "interviste",
+        "director_interview": "interviste al regista",
+        "cast_interview": "interviste al cast",
         "making_of": "making-of",
         "behind_the_scenes": "dietro le quinte",
         "author_commentary": "commenti degli autori",
     },
     "en": {
         "trailer": "trailer",
-        "director_interview": "interviews",
+        "director_interview": "director interviews",
+        "cast_interview": "cast interviews",
         "making_of": "making-of",
         "behind_the_scenes": "behind the scenes",
         "author_commentary": "authors' commentary",

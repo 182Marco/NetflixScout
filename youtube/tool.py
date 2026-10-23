@@ -31,11 +31,13 @@ YOUTUBE_TOOL_NAME = "youtube_search"
 
 _DESCRIPTION = (
     "Search YouTube (official Data API) for videos about one identified film: interviews with "
-    "the director or the cast, making-of, behind the scenes and featurettes, the authors' "
+    "the director (director_interview) or with the cast (cast_interview), making-of, behind the "
+    "scenes and featurettes, the authors' "
     "commentary. Trailers only when the user explicitly asks for YouTube or accepts searching "
     "there; otherwise trailers come from tmdb_search. Fill `title` and `kinds` (1-3, most "
-    "important first; only the first ones are searched in a turn); fill `year`, `director` and "
-    "`alternative_titles` only with values from the user or the conversation, never invented. "
+    "important first; only the first ones are searched in a turn); fill `year`, `director`, "
+    "`cast` and `alternative_titles` only with values from the user or the conversation, never "
+    "invented. "
     "Results are YouTube search results: not verified as official and not linked to a film ID."
 )
 
