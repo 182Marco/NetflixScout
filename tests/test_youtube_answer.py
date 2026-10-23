@@ -1,5 +1,5 @@
-"""Offline tests of the YouTube part of the final-answer prompt (`final_instructions`) and of
-what the final answer receives. No LLM call: the answer itself is checked live only."""
+"""Offline tests of the YouTube final-answer rules (`tool_final_instructions["youtube_search"]`)
+and of what the final answer receives. No LLM call: the answer itself is checked live only."""
 from __future__ import annotations
 
 import json
@@ -11,9 +11,7 @@ from orchestrator import LLMOrchestrator
 
 
 def _youtube_paragraph() -> str:
-    final = app_module.CONFIG["orchestrator"]["final_instructions"]
-    start = final.index("Se il tool usato è youtube_search")
-    return final[start:]
+    return app_module.CONFIG["orchestrator"]["tool_final_instructions"]["youtube_search"]
 
 
 def test_the_youtube_rules_apply_only_to_youtube_turns() -> None:
@@ -54,17 +52,11 @@ def test_turn_limit_wording_hints_and_conciseness() -> None:
     assert "Non mescolare link TMDb e YouTube" in text and "Rispondi in modo conciso" in text
 
 
-def test_the_previous_final_rules_are_unchanged() -> None:
+def test_the_shared_final_rules_do_not_carry_the_youtube_rules() -> None:
     final = app_module.CONFIG["orchestrator"]["final_instructions"]
 
-    assert final.index("Se il tool usato è youtube_search") > final.index("inventare grafie.")
+    assert "youtube_search" not in final and "verification" not in final
     assert "tmdb_enrichment" in final and "Non mostrare all'utente nomi tecnici di campi" in final
-
-
-def test_youtube_is_still_not_registered() -> None:
-    """Step 9 (registration and routing) is not part of this fix."""
-    assert "youtube_search" not in app_module.CONFIG["orchestrator"]["allowed_tools"]
-    assert "youtube_search" not in app_module.CONFIG["orchestrator"]["instructions"]
 
 
 class _NoClient:

@@ -28,6 +28,8 @@ from turn import (
     TraceStep,
     TurnResult,
 )
+from youtube.config import load_youtube_config
+from youtube.tool import YoutubeTool
 
 NON_CINEMA_BLOCK_MESSAGES = {
     "it": "Non rispondo a domande non cinematografiche",
@@ -63,13 +65,22 @@ CONFIG = {
             "serie identificati da un titolo o da riferimenti sufficienti a individuarli: domande "
             "generiche come 'parlami di Arrival' o 'dimmi qualcosa su Dune', di cosa parla, chi ha "
             "diretto, chi recita nel cast, troupe, durata, data di uscita, dettagli, dove vederlo in "
-            "streaming, trailer, immagini, recensioni, stagioni ed episodi, persone e filmografie, "
-            "saghe, case di produzione, trending, novità e ricerche con filtri. Per un film o una "
+            "streaming, trailer (link ufficiali TMDb), immagini, recensioni, stagioni ed episodi, "
+            "persone e filmografie, saghe, case di produzione, trending, novità e ricerche con "
+            "filtri. Per un film o una "
             "serie indicati per titolo, anche ambiguo, usa movie_details o tv_details con il titolo: "
             "il tool sceglie la versione dai risultati di TMDb e riporta le alternative. Non "
             "scegliere tu una versione e indica l'anno solo se l'utente lo ha dato. Usa "
             "l'operazione search solo quando l'utente chiede un elenco di titoli. Per tmdb_search "
             "compila arguments.requests secondo i parametri del tool nel catalogo. "
+            "1b) youtube_search è il punto di partenza per i video su un film identificato: "
+            "interviste al regista (director_interview) o al cast (cast_interview), making-of, dietro "
+            "le quinte, backstage e featurette, commenti o spiegazioni degli autori. Per i trailer "
+            "resta tmdb_search, salvo che l'utente chieda esplicitamente YouTube o accetti la "
+            "proposta di cercarli lì. Per youtube_search compila arguments con title e kinds (dal più "
+            "importante, solo le categorie richieste) e, solo se compaiono nella richiesta o nella "
+            "conversazione, year, director, cast e alternative_titles: non inventarli, non tradurli "
+            "e non dedurli. "
             "2) movie_db_search è il punto di partenza per voti, valutazioni, classifiche, numero di "
             "voti, confronti basati sui punteggi, film per genere e anno ordinati per voto e tag "
             "degli utenti di MovieLens. "
@@ -139,29 +150,37 @@ CONFIG = {
             "uniforme, e dichiara una sola volta che le forme tra parentesi sono traslitterazioni. "
             "Non sostituire il nome originale e, se non sai traslitterarlo, lascialo com'è senza "
             "inventare grafie. "
-            "Se il tool usato è youtube_search, presenta i video come risultati di ricerca YouTube, "
-            "divisi per categoria con questi nomi: interviste al regista (director_interview), "
-            "interviste al cast (cast_interview), making-of, dietro le quinte, commenti degli autori, "
-            "trailer. Per ogni video riporta titolo e canale esattamente come ricevuti, la data e il "
-            "link. In ogni categoria elenca prima i video con verification 'confirmed' e poi, sotto "
-            "'Da verificare', quelli con verification 'to_verify', ciascun gruppo nello stesso ordine "
-            "ricevuto, dicendo in poche parole cosa non è confermato (la categoria o il film); non "
-            "presentare mai un video da verificare come confermato. Non affermare che un video è "
-            "ufficiale e non descriverne contenuti che non compaiono nel titolo o nell'estratto della "
-            "descrizione. Per le categorie non cercate per turn_limit scrivi che non sono state "
-            "cercate per il limite di ricerche per turno; per gli altri motivi indica il motivo. "
-            "Dichiara le categorie senza risultati e gli errori di quota. Se hints contiene "
-            "'specify_year', suggerisci di indicare l'anno del film; se contiene 'original_title', "
-            "di' in una frase che indicare il titolo originale può aiutare, senza proporne uno. Non "
-            "mescolare link TMDb e YouTube. Rispondi in modo conciso."
+            "Se il tool usato è tmdb_search, sono stati chiesti i video e non risultano trailer, "
+            "dillo e proponi di cercarli su YouTube."
         ),
+        # Final rules of one tool, appended to `final_instructions` only on that tool's turns.
+        "tool_final_instructions": {
+            "youtube_search": (
+                "Se il tool usato è youtube_search, presenta i video come risultati di ricerca "
+                "YouTube, divisi per categoria con questi nomi: interviste al regista "
+                "(director_interview), interviste al cast (cast_interview), making-of, dietro le "
+                "quinte, commenti degli autori, trailer. Per ogni video riporta titolo e canale "
+                "esattamente come ricevuti, la data e il link. In ogni categoria elenca prima i "
+                "video con verification 'confirmed' e poi, sotto 'Da verificare', quelli con "
+                "verification 'to_verify', ciascun gruppo nello stesso ordine ricevuto, dicendo in "
+                "poche parole cosa non è confermato (la categoria o il film); non presentare mai "
+                "un video da verificare come confermato. Non affermare che un video è ufficiale e "
+                "non descriverne contenuti che non compaiono nel titolo o nell'estratto della "
+                "descrizione. Per le categorie non cercate per turn_limit scrivi che non sono "
+                "state cercate per il limite di ricerche per turno; per gli altri motivi indica il "
+                "motivo. Dichiara le categorie senza risultati e gli errori di quota. Se hints "
+                "contiene 'specify_year', suggerisci di indicare l'anno del film; se contiene "
+                "'original_title', di' in una frase che indicare il titolo originale può aiutare, "
+                "senza proporne uno. Non mescolare link TMDb e YouTube. Rispondi in modo conciso."
+            ),
+        },
         "max_iterations": 3,
         "max_execution_time": 30,
         "token_budget": 60000,
         "memory_window_size": 12,
         # Last history messages shown to the domain classifier, so follow-ups are not blocked.
         "classifier_context_messages": 2,
-        "allowed_tools": ["rag_search", "movie_db_search", "tmdb_search"],
+        "allowed_tools": ["rag_search", "movie_db_search", "tmdb_search", "youtube_search"],
         "required_tools": [],
         "tool_confidence_threshold": 0.6,
         "fallback_tool": "rag_search",
@@ -296,6 +315,7 @@ def build_app(overrides: dict[str, Any] | None = None) -> dict[str, Any]:
         tools.append(MovieDbTool(config=movie_db_config))
     tmdb_tool = TmdbTool(config=load_tmdb_config(runtime_config["tmdb"]))
     tools.append(tmdb_tool)
+    tools.append(YoutubeTool(config=load_youtube_config(runtime_config["you_tube"])))
     enrichment = runtime_config["orchestrator"].get("rag_enrichment") or {}
     enrichers = {}
     if enrichment.get("enabled"):
@@ -408,6 +428,7 @@ def run_terminal_chat() -> None:
     openai_client = OpenAI()
     terminal.print_header()
     terminal.print_tmdb_notice()
+    terminal.print_youtube_notice()
     terminal.print_mode(runtime_rag)
 
     while True:

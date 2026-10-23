@@ -98,6 +98,13 @@ class LLMOrchestrator:
             {"role": "user", "content": message_payload},
         ]
 
+    def _final_instructions(self, tool_name: str | None) -> str:
+        """`final_instructions` plus the rules of the tool that ran, if it has any
+        (`tool_final_instructions`): turns of other tools do not carry them."""
+        base = self.orchestrator_config.get("final_instructions") or DEFAULT_FINAL_INSTRUCTIONS
+        extra = (self.orchestrator_config.get("tool_final_instructions") or {}).get(tool_name or "")
+        return f"{base} {extra}" if extra else base
+
     def _generate_final_answer(
         self,
         *,
@@ -108,7 +115,7 @@ class LLMOrchestrator:
         try:
             response = self.client.responses.create(
                 model=self.orchestrator_config.get("llm_model", "gpt-5.6-luna"),
-                instructions=self.orchestrator_config.get("final_instructions") or DEFAULT_FINAL_INSTRUCTIONS,
+                instructions=self._final_instructions(tool_result.get("tool_name")),
                 input=self._build_final_context(
                     query=query,
                     tool_result=tool_result,
