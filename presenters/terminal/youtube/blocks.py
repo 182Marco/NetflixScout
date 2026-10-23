@@ -36,6 +36,9 @@ LABELS = {
         "quota_paused": "Quota di ricerca YouTube esaurita (condivisa dal progetto Google) fino a",
         "no_videos": "Nessun video da mostrare.",
         "notes": "note",
+        "to_verify": "Da verificare (categoria o film non confermati):",
+        "specify_year": "Indica l'anno del film per escludere eventuali omonimi.",
+        "original_title": "Se il film ha un titolo originale diverso, indicarlo può aiutare.",
     },
     "en": {
         "title": "YOUTUBE",
@@ -52,6 +55,9 @@ LABELS = {
         "quota_paused": "YouTube search quota exhausted (shared by the Google project) until",
         "no_videos": "No video to show.",
         "notes": "notes",
+        "to_verify": "To verify (category or film not confirmed):",
+        "specify_year": "Give the film's year to rule out homonyms.",
+        "original_title": "If the film has a different original title, giving it can help.",
     },
 }
 
@@ -172,6 +178,7 @@ def print_youtube_calls(
     videos: list[dict[str, Any]],
     quota_paused_until: str | None,
     language: str | None,
+    hints: list[str] | None = None,
 ) -> None:
     text = labels(language)
     print_box("▶️", f"{text['title']} — {len(videos)} {text['videos']}")
@@ -205,16 +212,33 @@ def print_youtube_calls(
     print()
     if not videos:
         print(f"  {text['no_videos']}")
-    for video in videos:
-        date = printable(video.get("published_at"))[:10]
-        print(
-            f"  ▶ [{kind_label(video.get('kind'), language)}] {printable(video.get('title'))}"
-            f" — {printable(video.get('channel'))}" + (f" ({date})" if date else "")
-        )
-        print(f"     {printable(video.get('url'))}")
-        notes = [code_label(note, language) for note in video.get("notes") or []]
-        if notes:
-            print(f"     {text['notes']}: {', '.join(notes)}")
+    # Per kind, in the order received: confirmed videos first, then those to verify.
+    for kind in dict.fromkeys(video.get("kind") for video in videos):
+        rows = [video for video in videos if video.get("kind") == kind]
+        confirmed = [video for video in rows if video.get("verification") != "to_verify"]
+        uncertain = [video for video in rows if video.get("verification") == "to_verify"]
+        for video in confirmed:
+            _print_video(video, language, text)
+        if uncertain:
+            print(f"  ❔ [{kind_label(kind, language)}] {text['to_verify']}")
+        for video in uncertain:
+            _print_video(video, language, text)
+
+    for hint in hints or []:
+        if hint in ("specify_year", "original_title"):
+            print(f"\n  💡 {text[hint]}")
+
+
+def _print_video(video: dict[str, Any], language: str | None, text: dict[str, str]) -> None:
+    date = printable(video.get("published_at"))[:10]
+    print(
+        f"  ▶ [{kind_label(video.get('kind'), language)}] {printable(video.get('title'))}"
+        f" — {printable(video.get('channel'))}" + (f" ({date})" if date else "")
+    )
+    print(f"     {printable(video.get('url'))}")
+    notes = [code_label(note, language) for note in video.get("notes") or []]
+    if notes:
+        print(f"     {text['notes']}: {', '.join(notes)}")
 
 
 def print_youtube_notice() -> None:

@@ -412,6 +412,7 @@ def test_trace_lists_calls_queries_and_videos() -> None:
         "url": f"https://www.youtube.com/watch?v={ID1}",
         "published_at": "2024-02-20T10:00:00Z",
         "notes": [],
+        "verification": "confirmed",
     }
     assert "quota_paused_until" not in data
 
@@ -722,3 +723,103 @@ def test_the_planner_catalog_carries_the_alternative_titles_rule() -> None:
 
     assert "never deduce one from your own knowledge" in catalog
     assert "for a localized title with no other title written, leave it empty" in catalog
+
+
+
+# --- fix 6: confirmed and to-verify results, hints for the answer -----------------------------
+
+
+def test_each_hit_is_labelled_from_its_notes_and_the_api_order_is_kept() -> None:
+    routes = {
+        "/search": {
+            "items": [
+                search_item(ID1, "Dune: Part Two - Making of"),
+                search_item(ID2, "Dune: Part Two | Official Featurette"),  # no making-of word
+                search_item(ID3, "Dune: Part Two making of the sandworm"),
+            ]
+        },
+        "/videos": {
+            "items": [
+                video_item(ID1, "Dune: Part Two - Making of"),
+                video_item(ID2, "Dune: Part Two | Official Featurette"),
+                video_item(ID3, "Dune: Part Two making of the sandworm"),
+            ]
+        },
+    }
+    tool, _ = make_tool(routes)
+
+    result = run_tool(tool)
+
+    hits = kinds(result)["making_of"]["hits"]
+    assert [(hit["video_id"], hit["verification"]) for hit in hits] == [
+        (ID1, "confirmed"),
+        (ID2, "to_verify"),
+        (ID3, "confirmed"),
+    ]  # labels only: nothing reordered, nothing dropped
+    assert [video["verification"] for video in step(result)["videos"]] == ["confirmed", "to_verify", "confirmed"]
+
+
+@pytest.mark.parametrize(
+    ("notes", "label"),
+    [
+        ([], "confirmed"),
+        (["very_short", "duration_unknown", "title_from_search", "blocked_in:IT"], "confirmed"),
+        (["kind_unconfirmed"], "to_verify"),
+        (["homonym_unchecked"], "to_verify"),
+        (["film_title_absent"], "to_verify"),
+        (["title_in_description_only"], "to_verify"),
+    ],
+)
+def test_verification_comes_only_from_relevance_notes(notes, label) -> None:
+    from youtube.relevance import verification
+
+    assert verification(notes) == label
+
+
+def test_unchecked_one_word_title_asks_for_the_year_and_the_original_title() -> None:
+    routes = {"/search": {"items": [search_item(ID1, "Arrival - Behind the scenes")]}, "/videos": {"items": [video_item(ID1, "Arrival - Behind the scenes")]}}
+    tool, _ = make_tool(routes)
+
+    result = run_tool(tool, title="Arrival", kinds=["behind_the_scenes"])
+
+    hit = kinds(result)["behind_the_scenes"]["hits"][0]
+    assert hit["verification"] == "to_verify" and "homonym_unchecked" in hit["notes"]
+    assert meta(result)["hints"] == ["specify_year", "original_title"]
+    assert step(result)["hints"] == ["specify_year", "original_title"]
+
+
+def test_dropped_homonyms_without_a_year_also_ask_for_the_year() -> None:
+    routes = {"/search": {"items": [search_item(ID1, "Her - Making of")]}, "/videos": {"items": [video_item(ID1, "Her - Making of")]}}
+    tool, _ = make_tool(routes)
+
+    result = run_tool(tool, title="Her", director="Spike Jonze")
+
+    assert kinds(result)["making_of"]["filtered_out"] == {"homonym_risk": 1}
+    assert "specify_year" in meta(result)["hints"]
+
+
+def test_no_hints_when_everything_is_confirmed() -> None:
+    tool, _ = make_tool(making_of_routes())
+
+    result = run_tool(tool, kinds=["behind_the_scenes"], year=2024)
+
+    assert all(hit["verification"] == "confirmed" for hit in kinds(result)["behind_the_scenes"]["hits"])
+    assert meta(result)["hints"] == [] and "hints" not in step(result)
+
+
+def test_a_given_year_or_alternative_title_is_never_asked_again() -> None:
+    routes = {"/search": {"items": [search_item(ID1, "Some other video")]}, "/videos": {"items": [video_item(ID1, "Some other video")]}}
+    tool, _ = make_tool(routes)
+
+    result = run_tool(tool, title="Mare dentro", alternative_titles=["Mar adentro"], year=2004, kinds=["making_of"])
+
+    assert kinds(result)["making_of"]["result"] == "empty"
+    assert meta(result)["hints"] == []
+
+
+def test_empty_kind_without_alternatives_suggests_the_original_title_only() -> None:
+    tool, _ = make_tool({"/search": {"items": []}})
+
+    result = run_tool(tool, title="Il favoloso mondo di Amélie", year=2001)
+
+    assert meta(result)["hints"] == ["original_title"]

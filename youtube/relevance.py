@@ -39,6 +39,10 @@ RELEASE_WINDOW = (-1, 3)
 # come out at any time (retrospectives, anniversaries).
 RELEASE_PERIOD_KINDS = frozenset({VideoKind.trailer, VideoKind.making_of, VideoKind.behind_the_scenes})
 
+# Notes that leave a kept video uncertain: shown under "to verify", never as confirmed.
+# Data notes (duration, region, title source) say nothing about relevance.
+UNCERTAIN_NOTES = frozenset({"kind_unconfirmed", "homonym_unchecked", "film_title_absent", "title_in_description_only"})
+
 _PAREN_YEAR = re.compile(r"\((\d{4})\)")
 _SHORTS_TAG = re.compile(r"#shorts?\b", re.IGNORECASE)
 _ISO_DURATION = re.compile(r"^P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$")
@@ -216,6 +220,11 @@ def screen_details(
     elif duration_seconds < MIN_DURATION_SECONDS:
         notes.append("very_short")
     return replace(screening, notes=tuple(notes))
+
+
+def verification(notes: list[str] | tuple[str, ...]) -> str:
+    """`to_verify` when a note leaves the category or the film uncertain, else `confirmed`."""
+    return "to_verify" if UNCERTAIN_NOTES & set(notes) else "confirmed"
 
 
 def count_reasons(screenings: list[Screening]) -> dict[str, int]:

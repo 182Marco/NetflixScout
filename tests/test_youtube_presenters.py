@@ -277,3 +277,63 @@ def test_director_and_cast_interviews_have_distinct_labels(language, director, c
 
     assert f"[{director}] Nolan on Oppenheimer" in out
     assert f"{cast} (" in out
+
+
+
+# --- fix 6: confirmed first, then "to verify", hints ------------------------------------------
+
+
+def _video(kind: str, title: str, verification: str, notes=()) -> dict:
+    return {"kind": kind, "title": title, "channel": "c", "url": URL1, "published_at": "2024-01-01", "notes": list(notes), "verification": verification}
+
+
+def test_confirmed_videos_come_first_then_to_verify_in_the_order_received(capsys) -> None:
+    step = _step(
+        videos=[
+            _video("director_interview", "A unsure", "to_verify", ["kind_unconfirmed"]),
+            _video("director_interview", "B sure", "confirmed"),
+            _video("director_interview", "C unsure", "to_verify", ["homonym_unchecked"]),
+            _video("cast_interview", "D sure", "confirmed"),
+            _video("director_interview", "E sure", "confirmed"),
+        ]
+    )
+
+    out = _render(step, "it", capsys)
+
+    order = [out.index(name) for name in ("B sure", "E sure", "Da verificare", "A unsure", "C unsure", "D sure")]
+    assert order == sorted(order)
+    assert "❔ [interviste al regista] Da verificare (categoria o film non confermati):" in out
+    assert "[interviste al cast] D sure" in out
+    assert out.count("Da verificare") == 1  # the cast kind has nothing to verify
+
+
+def test_only_confirmed_videos_have_no_to_verify_header(capsys) -> None:
+    out = _render(_step(videos=[_video("making_of", "Sure", "confirmed")]), "en", capsys)
+
+    assert "To verify" not in out and "Sure" in out
+
+
+def test_videos_without_a_label_are_shown_as_before(capsys) -> None:
+    # Older traces had no `verification`: they are not hidden.
+    out = _render(_step(), "it", capsys)
+
+    assert "Dune: Part Two – “Making of” & more" in out and "Da verificare" not in out
+
+
+@pytest.mark.parametrize(
+    ("language", "year", "original"),
+    [
+        ("it", "Indica l'anno del film per escludere eventuali omonimi.", "Se il film ha un titolo originale diverso, indicarlo può aiutare."),
+        ("en", "Give the film's year to rule out homonyms.", "If the film has a different original title, giving it can help."),
+    ],
+)
+def test_hints_are_shown_in_the_turn_language(language, year, original, capsys) -> None:
+    out = _render(_step(hints=["specify_year", "original_title", "unknown_hint"]), language, capsys)
+
+    assert year in out and original in out and "unknown_hint" not in out
+
+
+def test_turn_limit_is_called_a_search_limit(capsys) -> None:
+    out = _render(_step(), "it", capsys)
+
+    assert "limite di ricerche per turno" in out and "limite di turni" not in out

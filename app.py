@@ -138,7 +138,22 @@ CONFIG = {
             "prima occorrenza, una traslitterazione in caratteri latini, per tutti i nomi in modo "
             "uniforme, e dichiara una sola volta che le forme tra parentesi sono traslitterazioni. "
             "Non sostituire il nome originale e, se non sai traslitterarlo, lascialo com'è senza "
-            "inventare grafie."
+            "inventare grafie. "
+            "Se il tool usato è youtube_search, presenta i video come risultati di ricerca YouTube, "
+            "divisi per categoria con questi nomi: interviste al regista (director_interview), "
+            "interviste al cast (cast_interview), making-of, dietro le quinte, commenti degli autori, "
+            "trailer. Per ogni video riporta titolo e canale esattamente come ricevuti, la data e il "
+            "link. In ogni categoria elenca prima i video con verification 'confirmed' e poi, sotto "
+            "'Da verificare', quelli con verification 'to_verify', ciascun gruppo nello stesso ordine "
+            "ricevuto, dicendo in poche parole cosa non è confermato (la categoria o il film); non "
+            "presentare mai un video da verificare come confermato. Non affermare che un video è "
+            "ufficiale e non descriverne contenuti che non compaiono nel titolo o nell'estratto della "
+            "descrizione. Per le categorie non cercate per turn_limit scrivi che non sono state "
+            "cercate per il limite di ricerche per turno; per gli altri motivi indica il motivo. "
+            "Dichiara le categorie senza risultati e gli errori di quota. Se hints contiene "
+            "'specify_year', suggerisci di indicare l'anno del film; se contiene 'original_title', "
+            "di' in una frase che indicare il titolo originale può aiutare, senza proporne uno. Non "
+            "mescolare link TMDb e YouTube. Rispondi in modo conciso."
         ),
         "max_iterations": 3,
         "max_execution_time": 30,

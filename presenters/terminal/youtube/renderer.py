@@ -24,6 +24,7 @@ def render_youtube_calls(step: TraceStep, language: str | None = None) -> None:
     data = step.data
     calls = data.get("calls")
     paused = data.get("quota_paused_until")
+    hints = data.get("hints")
     print_youtube_calls(
         calls=[url for url in calls if _https(url)] if isinstance(calls, list) else [],
         searches=_rows(data.get("searches")),
@@ -31,4 +32,5 @@ def render_youtube_calls(step: TraceStep, language: str | None = None) -> None:
         videos=[video for video in _rows(data.get("videos")) if _https(video.get("url"))],
         quota_paused_until=paused if isinstance(paused, str) else None,
         language=language,
+        hints=[hint for hint in hints if isinstance(hint, str)] if isinstance(hints, list) else [],
     )

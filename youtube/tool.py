@@ -23,7 +23,7 @@ from .http import HttpSession, Transport, get_json, urllib_transport
 from .models import KindOutcome, VideoHit, VideoKind, YoutubeToolInput, describe_validation_errors
 from .queries import build_search_params
 from .quota import QuotaBucket, QuotaLatch
-from .relevance import parse_duration, prescreen, screen, screen_details
+from .relevance import parse_duration, prescreen, screen, screen_details, verification
 from .settings import DESCRIPTION_EXCERPT_CHARS, NOTE_REGION, VIDEO_IDS_MAX, WATCH_URL
 from .trace import build_youtube_trace
 
@@ -114,6 +114,25 @@ def _region_note(content: dict[str, Any]) -> str | None:
 
 def _count(counts: dict[str, int], reason: str) -> None:
     counts[reason] = counts.get(reason, 0) + 1
+
+
+def answer_hints(request: YoutubeToolInput, outcomes: list[KindOutcome]) -> list[str]:
+    """What the user could add to get surer results; never a value the tool made up.
+
+    - `specify_year`: no year was given and the film identity could not be checked
+      (`homonym_unchecked`) or unconfirmed homonyms were dropped (`homonym_risk`);
+    - `original_title`: no alternative title was given and a searched kind has no confirmed
+      video (the answer may say that the original title can help, without proposing one).
+    """
+    searched = [o for o in outcomes if o.status == "searched" and o.result in ("ok", "empty")]
+    hints = []
+    unchecked = any("homonym_unchecked" in hit.notes for o in searched for hit in o.hits)
+    if request.year is None and (unchecked or any(o.filtered_out.get("homonym_risk") for o in searched)):
+        hints.append("specify_year")
+    weak = any(not any(hit.verification == "confirmed" for hit in o.hits) for o in searched)
+    if not request.alternative_titles and weak:
+        hints.append("original_title")
+    return hints
 
 
 def overall_status(outcomes: list[KindOutcome]) -> str:
@@ -269,6 +288,7 @@ class _Run:
             duration_seconds=duration,
             matched_on=list(screening.matched_on),
             notes=notes,
+            verification=verification(notes),
         )
 
 
@@ -317,11 +337,13 @@ class YoutubeTool:
         run.search()
         run.finish(*run.lookup())
 
+        hints = answer_hints(request, run.outcomes)
         metadata: dict[str, Any] = {
             "status": overall_status(run.outcomes),
             "source": "YouTube",
             "kinds": [outcome.model_dump(mode="json") for outcome in run.outcomes],
             "not_searched": [o.kind.value for o in run.outcomes if o.status == "not_searched"],
+            "hints": hints,
         }
         if run.details_error:
             metadata["details_error"] = run.details_error
@@ -334,5 +356,7 @@ class YoutubeTool:
             "chunks": [],
             "metadata": {"youtube": metadata},
             # Outside "metadata": the orchestrator puts metadata in the LLM prompt.
-            "trace": build_youtube_trace(session.recorder.calls, run.outcomes, run.queries, quota_paused_until=paused),
+            "trace": build_youtube_trace(
+                session.recorder.calls, run.outcomes, run.queries, hints=hints, quota_paused_until=paused
+            ),
         }

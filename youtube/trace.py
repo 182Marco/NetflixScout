@@ -22,6 +22,7 @@ def build_youtube_trace(
     outcomes: list[KindOutcome],
     queries: dict[str, str],
     *,
+    hints: list[str] | None = None,
     quota_paused_until: float | None = None,
 ) -> list[dict[str, Any]]:
     searches = [
@@ -53,11 +54,14 @@ def build_youtube_trace(
                 "url": hit.url,
                 "published_at": hit.published_at,
                 "notes": list(hit.notes),
+                "verification": hit.verification,
             }
             for outcome in outcomes
             for hit in outcome.hits
         ],
     }
+    if hints:
+        data["hints"] = list(hints)
     if quota_paused_until is not None:
         data["quota_paused_until"] = datetime.fromtimestamp(quota_paused_until, timezone.utc).isoformat()
     return [{"kind": STEP_YOUTUBE_CALLS, "title": YOUTUBE_CALLS_TITLE, "data": data}]

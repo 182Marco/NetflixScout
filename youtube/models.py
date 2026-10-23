@@ -172,6 +172,9 @@ class VideoHit(BaseModel):
     duration_seconds: int | None = None
     matched_on: list[str] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
+    # `confirmed` | `to_verify` (`relevance.verification`, from the notes): a label for the
+    # answer and the presenters, not a score; the API order is kept within each group.
+    verification: str = "confirmed"
 
 
 class KindOutcome(BaseModel):
