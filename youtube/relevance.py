@@ -28,19 +28,16 @@ import html
 import re
 from dataclasses import dataclass, field, replace
 
-from .models import VideoKind, YoutubeToolInput, normalize_text
+from .models import MIN_SURNAME_CHARS, VideoKind, YoutubeToolInput, is_one_word_title, normalize_text
 from .queries import FORMAT_KINDS, KIND_TERMS, TITLE_FORMATS
 from .settings import MIN_DURATION_SECONDS, SHORTS_MAX_SECONDS
 
 NEGATIVE_TITLE_PATTERNS = ("reaction", "reactions", "parody", "fan made", "fanmade", "concept trailer")
-# Articles ignored when deciding whether a title is a single, generic word.
-_ARTICLES = frozenset({"the", "a", "an", "il", "lo", "la", "i", "gli", "le", "l", "un", "uno", "una"})
 # Release period that confirms a weak anchor: from one year before to three years after.
 RELEASE_WINDOW = (-1, 3)
 # Only promotional videos are tied to the release date; interviews and commentaries can
 # come out at any time (retrospectives, anniversaries).
 RELEASE_PERIOD_KINDS = frozenset({VideoKind.trailer, VideoKind.making_of, VideoKind.behind_the_scenes})
-MIN_SURNAME_CHARS = 4
 
 _PAREN_YEAR = re.compile(r"\((\d{4})\)")
 _SHORTS_TAG = re.compile(r"#shorts?\b", re.IGNORECASE)
@@ -63,10 +60,6 @@ def _norm(text: str | None) -> str:
 
 def _has(haystack: str, needle: str) -> bool:
     return bool(needle) and f" {needle} " in f" {haystack} "
-
-
-def _is_generic(title: str) -> bool:
-    return len([word for word in normalize_text(title).split() if word not in _ARTICLES]) <= 1
 
 
 def _main_title(title: str) -> str | None:
@@ -140,8 +133,8 @@ def screen(
     matched: list[str] = []
     notes: list[str] = []
     film_titles = [request.title, *request.alternative_titles]
-    strong = [t for t in film_titles if _has(both, normalize_text(t)) and not _is_generic(t)]
-    generic = [t for t in film_titles if _has(both, normalize_text(t)) and _is_generic(t)]
+    strong = [t for t in film_titles if _has(both, normalize_text(t)) and not is_one_word_title(t)]
+    generic = [t for t in film_titles if _has(both, normalize_text(t)) and is_one_word_title(t)]
     mains = [m for t in film_titles if (m := _main_title(t)) and _has(both, normalize_text(m))]
     if strong or generic:
         matched.append("title")

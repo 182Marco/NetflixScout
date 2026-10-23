@@ -16,7 +16,7 @@ from youtube.models import (
     describe_validation_errors,
     normalize_text,
 )
-from youtube.queries import EXCLUDED_TERMS, KIND_TERMS, build_q, build_search_params, phrase
+from youtube.queries import EXCLUDED_TERMS, KIND_TERMS, build_q, build_search_params, person_group, phrase
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -157,12 +157,85 @@ def test_alternative_titles_are_or_alternatives_of_the_title() -> None:
 
 
 def test_director_is_an_alternative_term_only_for_interviews() -> None:
-    payload = request(director="Denis Villeneuve", kinds=["director_interview", "making_of"])
+    # Multi-word title: the director stays an OR alternative (unchanged by fix 4).
+    payload = request(title="Dune: Part Two", director="Denis Villeneuve", kinds=["director_interview", "making_of"])
 
     assert build_q(payload, VideoKind.director_interview) == (
-        '"Dune" interview|intervista|director|regista|"Denis Villeneuve" -reaction -parody'
+        '"Dune: Part Two" interview|intervista|director|regista|"Denis Villeneuve" -reaction -parody'
     )
     assert "Villeneuve" not in build_q(payload, VideoKind.making_of)
+
+
+# --- fix 4: one-word titles with a known person -------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("kind", "expected"),
+    [
+        (VideoKind.making_of, '"Her" "Spike Jonze"|"Jonze" "making of"|"making-of"|"come è stato girato" -reaction -parody'),
+        (
+            VideoKind.behind_the_scenes,
+            '"Her" "Spike Jonze"|"Jonze" "behind the scenes"|"dietro le quinte"|backstage|featurette|"on set" -reaction -parody',
+        ),
+        # Interviews: the person is required, so it is no longer repeated among the kind terms.
+        (VideoKind.director_interview, '"Her" "Spike Jonze"|"Jonze" interview|intervista|director|regista -reaction -parody'),
+    ],
+)
+def test_one_word_title_with_known_director_requires_the_person(kind, expected) -> None:
+    assert build_q(request(title="Her", director="Spike Jonze", kinds=[kind.value]), kind) == expected
+
+
+def test_articles_do_not_count_as_words() -> None:
+    q = build_q(request(title="The Heat", director="Paul Feig"), VideoKind.making_of)
+
+    # "The Heat" is one significant word: the person is required ("Feig" has 4 letters).
+    assert q.startswith('"The Heat" "Paul Feig"|"Feig" "making of"')
+
+
+def test_one_word_title_without_a_person_keeps_the_current_query() -> None:
+    assert build_q(request(title="Barbie"), VideoKind.behind_the_scenes) == (
+        '"Barbie" "behind the scenes"|"dietro le quinte"|backstage|featurette|"on set" -reaction -parody'
+    )
+    # A blank director is no person: nothing is invented.
+    assert build_q(request(title="Barbie", director="  "), VideoKind.making_of).startswith('"Barbie" "making of"')
+
+
+@pytest.mark.parametrize("title", ["Dune: Part Two", "Mad Max: Fury Road", "La grande bellezza", "Blade Runner 2049"])
+def test_multi_word_titles_never_require_the_person(title) -> None:
+    q = build_q(request(title=title, director="Some Director"), VideoKind.making_of)
+
+    assert "Director" not in q
+    assert q.startswith(f'"{title}" "making of"')
+
+
+def test_a_longer_alternative_title_keeps_the_person_optional() -> None:
+    # "Barbie: The Movie" has several words: the OR group already contains a precise title.
+    payload = request(title="Barbie", alternative_titles=["Barbie: The Movie"], director="Greta Gerwig")
+
+    assert build_q(payload, VideoKind.making_of) == '"Barbie"|"Barbie: The Movie" "making of"|"making-of"|"come è stato girato" -reaction -parody'
+
+
+def test_one_word_alternatives_still_require_the_person() -> None:
+    payload = request(title="Her", alternative_titles=["Lei"], director="Spike Jonze")
+
+    assert build_q(payload, VideoKind.making_of).startswith('"Her"|"Lei" "Spike Jonze"|"Jonze" "making of"')
+
+
+@pytest.mark.parametrize(
+    ("name", "group"),
+    [
+        ("Spike Jonze", '"Spike Jonze"|"Jonze"'),
+        ("Bong Joon-ho", '"Bong Joon-ho"'),  # normalized surname "ho": too short, as in the filter
+        ("Alejandro Amenábar", '"Alejandro Amenábar"|"Amenábar"'),
+        ("Ang Lee", '"Ang Lee"'),  # surname too short to be distinctive
+        ("Madonna", '"Madonna"'),  # one-word name
+        ('Spike "Jonze" | x', '"Spike Jonze x"'),  # operators removed, last word "x" too short
+        (None, None),
+        ("   ", None),
+    ],
+)
+def test_person_group(name, group) -> None:
+    assert person_group(name) == group
 
 
 def test_year_is_never_a_search_term() -> None:

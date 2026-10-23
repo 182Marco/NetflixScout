@@ -14,7 +14,14 @@ remove a valid video because of its description.
 """
 from __future__ import annotations
 
-from .models import MAX_TITLE_CHARS, VideoKind, YoutubeToolInput
+from .models import (
+    MAX_TITLE_CHARS,
+    MIN_SURNAME_CHARS,
+    VideoKind,
+    YoutubeToolInput,
+    is_one_word_title,
+    normalize_text,
+)
 from .settings import SEARCH_FETCH_FACTOR, SEARCH_FETCH_MAX
 
 KIND_TERMS: dict[VideoKind, tuple[str, ...]] = {
@@ -53,14 +60,38 @@ def phrase(text: str) -> str | None:
     return f'"{cleaned}"' if cleaned else None
 
 
+def person_group(name: str | None) -> str | None:
+    """`"Spike Jonze"|"Jonze"`: the full name or the surname (when long enough to be
+    distinctive, as in the relevance filter); None when no name is given."""
+    full = phrase(name or "")
+    if full is None:
+        return None
+    words = full.strip('"').split()
+    # Same rule as the relevance filter, on the normalized surname ("Joon-ho" -> "ho": too short).
+    normalized = normalize_text(words[-1]).split()
+    distinctive = len(words) > 1 and bool(normalized) and len(normalized[-1]) >= MIN_SURNAME_CHARS
+    surname = phrase(words[-1]) if distinctive else None
+    return "|".join([full, surname] if surname else [full])
+
+
 def build_q(request: YoutubeToolInput, kind: VideoKind) -> str:
-    titles = [phrase(title) for title in (request.title, *request.alternative_titles)]
+    """Titles in OR, then kind terms in OR, then the exclusions.
+
+    A one-word title ("Her", "Barbie") matches unrelated videos, so when every title is a
+    single word and the director is known, the director becomes a required (AND) group:
+    `"Her" "Spike Jonze"|"Jonze" "making of"|...`. Without a known person nothing is added.
+    """
+    all_titles = (request.title, *request.alternative_titles)
+    titles = [phrase(title) for title in all_titles]
     title_group = "|".join(dict.fromkeys(title for title in titles if title))
     terms = list(KIND_TERMS[kind])
-    if kind is VideoKind.director_interview and request.director and phrase(request.director):
+    person = person_group(request.director)
+    required_person = person is not None and all(is_one_word_title(title) for title in all_titles)
+    if kind is VideoKind.director_interview and person and not required_person:
         # The director's name as an alternative: "Denis Villeneuve on Dune" has no kind word.
         terms.append(phrase(request.director))
-    return " ".join([title_group, "|".join(terms), *EXCLUDED_TERMS])
+    groups = [title_group, person] if required_person else [title_group]
+    return " ".join([*groups, "|".join(terms), *EXCLUDED_TERMS])
 
 
 def build_search_params(request: YoutubeToolInput, kind: VideoKind, *, max_results: int) -> dict[str, str]:

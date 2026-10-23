@@ -35,6 +35,17 @@ def normalize_text(text: Any) -> str:
     return " ".join(kept.split())
 
 
+# Articles ignored when deciding whether a title is a single, generic word.
+ARTICLES = frozenset({"the", "a", "an", "il", "lo", "la", "i", "gli", "le", "l", "un", "uno", "una"})
+# A surname alone identifies a person only from this length ("Lee" is too common).
+MIN_SURNAME_CHARS = 4
+
+
+def is_one_word_title(title: str) -> bool:
+    """"Her", "Arrival", "The Heat": one significant word, so the title alone is ambiguous."""
+    return len([word for word in normalize_text(title).split() if word not in ARTICLES]) <= 1
+
+
 def _clean(value: Any) -> Any:
     return " ".join(value.split()) if isinstance(value, str) else value
 
