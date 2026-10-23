@@ -254,8 +254,9 @@ the terminal prints it in `presenters/terminal/db/`, `presenters/web/db/` serial
 |---|---|---|
 | `python -m movie_db.harness.evaluation.run_eval` | 6 cases: SQL, guard and results on the bundled mini dataset, scripted parser | none |
 | `python -m movie_db.harness.evaluation.run_eval --live-parser` | same 6 cases with the real LLM parser | 6 × `gpt-5.6-luna` |
-| `python -m movie_db.harness.evaluation.run_routing_eval --live` | 23 questions (6 DB, 5 RAG, 11 TMDb, 1 clarification; 4 are follow-ups): domain classifier + orchestrator planning only, no tool runs | 23 × `gpt-4o-mini` + 23 × `gpt-5.6-luna` |
+| `python -m movie_db.harness.evaluation.run_routing_eval --live` | 30 questions (6 DB, 5 RAG, 11 TMDb, 7 YouTube, 1 clarification; 5 are follow-ups): domain classifier + orchestrator planning only, no tool runs | 30 × `gpt-4o-mini` + 30 × `gpt-5.6-luna` |
 | `python -m movie_db.harness.evaluation.run_routing_eval --live --tool tmdb_search` | only the 11 TMDb questions; the planned `requests` are also validated offline (operation, title, facets), the tool never runs | 11 × `gpt-4o-mini` + 11 × `gpt-5.6-luna` |
+| `python -m movie_db.harness.evaluation.run_routing_eval --live --tool youtube_search` | only the 7 YouTube questions; the planned arguments are also validated offline as `YoutubeToolInput` (title, kinds, and no year, director, cast or alternative title the conversation does not give), the tool never runs | 7 × `gpt-4o-mini` + 7 × `gpt-5.6-luna` |
 
 The parser evaluation accepts `by_genre_year` in place of `top_rated` (and vice versa) only for a genre
 without a year range, and only if the executed SQL and parameters are identical to the expected ones.
@@ -379,7 +380,7 @@ until the web channel exists.
 Verification status: the offline tests (`tests/test_youtube_*.py`) cover the tool without network.
 A live E2E run of 20 questions (2026-10-23, before the relevance fixes) routed 20/20 to
 `youtube_search` with 6 OK, 10 partial and 4 failed answers. Still pending: a live run after the
-fixes, YouTube cases in the routing evaluation, a live smoke check (none exists yet), and live
+fixes, a live run of the YouTube routing cases (prepared offline, not run yet), a live smoke check (none exists yet), and live
 confirmation of the query operator precedence and of the API error reasons.
 
 ### Credits and policies
