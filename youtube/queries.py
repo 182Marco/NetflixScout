@@ -31,6 +31,17 @@ KIND_TERMS: dict[VideoKind, tuple[str, ...]] = {
     ),
 }
 
+# Formats a video title can declare, as a closed set (not a blacklist): a title declaring
+# one of them is a different kind of video only when it also has no word of the requested
+# kind and does not name the requested person (`relevance.screen`, reason `other_format`).
+# Trailers are a format and a kind: a trailer title is compatible with a trailer request.
+TITLE_FORMATS: dict[str, tuple[str, ...]] = {
+    "review": ("review", "reviews", "recensione", "recensioni", "reseña", "critique"),
+    "full_movie": ("full movie", "full film", "film completo", "película completa", "film complet"),
+    "trailer": ("trailer", "trailers", "teaser"),
+}
+FORMAT_KINDS: dict[str, VideoKind] = {"trailer": VideoKind.trailer}
+
 # The only exclusions sent to the API (see the module docstring).
 EXCLUDED_TERMS = ("-reaction", "-parody")
 

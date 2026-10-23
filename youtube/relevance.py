@@ -5,6 +5,9 @@ Permissive by design: a result is dropped only on strong evidence, with one reas
   appears in the video title or description;
 - `negative_pattern`: the video *title* says reaction, parody, fan made or concept trailer
   (the description is ignored: an interview may mention a "reaction");
+- `other_format`: the video *title* declares another format (review, full movie, trailer
+  for a non-trailer request; `queries.TITLE_FORMATS`) and has no word of the requested kind
+  and does not name the requested person;
 - `year_conflict`: a year in parentheses in the video title differs from the film's by more
   than one, and no year in parentheses matches;
 - `homonym_risk`: the title anchor is weak (a one-word title such as "Arrival", or only the
@@ -26,7 +29,7 @@ import re
 from dataclasses import dataclass, field, replace
 
 from .models import VideoKind, YoutubeToolInput, normalize_text
-from .queries import KIND_TERMS
+from .queries import FORMAT_KINDS, KIND_TERMS, TITLE_FORMATS
 from .settings import MIN_DURATION_SECONDS, SHORTS_MAX_SECONDS
 
 NEGATIVE_TITLE_PATTERNS = ("reaction", "reactions", "parody", "fan made", "fanmade", "concept trailer")
@@ -84,6 +87,22 @@ def _kind_words(kind: VideoKind) -> list[str]:
     return [normalize_text(term) for term in KIND_TERMS[kind]]
 
 
+def _other_format(request: YoutubeToolInput, kind: VideoKind, video_title: str) -> bool:
+    """The title declares a format incompatible with `kind`, with no word of `kind` and
+    without naming the requested person: e.g. "Recensione Dune" for an interview, "Full
+    Movie" for a trailer. "Villeneuve reviews the Dune trailer" names the director: kept."""
+    declared = [
+        name
+        for name, words in TITLE_FORMATS.items()
+        if FORMAT_KINDS.get(name) is not kind and any(_has(video_title, normalize_text(word)) for word in words)
+    ]
+    if not declared:
+        return False
+    if any(_has(video_title, word) for word in _kind_words(kind)):
+        return False
+    return not any(_has(video_title, name) for name in _director_names(request.director))
+
+
 def prescreen(request: YoutubeToolInput, *, title: str | None) -> Screening | None:
     """Early drop on the search snippet, from the video title only: the checks that need no
     description (`negative_pattern`, `year_conflict`). None when the video goes on to `screen`.
@@ -115,6 +134,8 @@ def screen(
 
     if any(_has(video_title, normalize_text(pattern)) for pattern in NEGATIVE_TITLE_PATTERNS):
         return Screening(kept=False, reason="negative_pattern")
+    if _other_format(request, kind, video_title):
+        return Screening(kept=False, reason="other_format")
 
     matched: list[str] = []
     notes: list[str] = []

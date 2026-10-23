@@ -253,3 +253,11 @@ def test_web_folder_is_reserved_without_a_serializer() -> None:
 def test_web_channel_is_still_not_implemented() -> None:
     with pytest.raises(NotImplementedError):
         present(_turn(_step()), OutputChannel.web)
+
+
+@pytest.mark.parametrize(("language", "label"), [("it", "altro formato"), ("en", "another format")])
+def test_other_format_drops_have_a_label(language, label, capsys) -> None:
+    step = _step()
+    step.data["searches"][0]["filtered_out"] = {"other_format": 2}
+
+    assert f"{label} (" in _render(step, language, capsys)

@@ -585,3 +585,30 @@ def test_a_video_dropped_for_one_kind_can_be_kept_for_another() -> None:
 
     assert [hit["video_id"] for hit in kinds(result)["making_of"]["hits"]] == [ID1]
     assert kinds(result)["behind_the_scenes"]["filtered_out"] == {"duplicate_of_other_kind": 1}
+
+
+def test_other_format_is_counted_and_judged_on_the_videos_title() -> None:
+    """End to end: the review and the full movie are dropped, the interview stays."""
+    routes = {
+        "/search": {
+            "items": [
+                search_item(ID1, "Parasite review", description="Bong Joon-ho..."),
+                search_item(ID2, "PARASITE Full Movie"),
+                search_item(ID3, "Bong Joon-ho interview on Parasite"),
+            ]
+        },
+        "/videos": {
+            "items": [
+                video_item(ID1, "Parasite review", description="Bong Joon-ho's film reviewed."),
+                video_item(ID2, "PARASITE Full Movie"),
+                video_item(ID3, "Bong Joon-ho interview on Parasite"),
+            ]
+        },
+    }
+    tool, transport = make_tool(routes)
+
+    row = kinds(run_tool(tool, title="Parasite", director="Bong Joon-ho", kinds=["director_interview"]))["director_interview"]
+
+    assert [hit["video_id"] for hit in row["hits"]] == [ID3]
+    assert row["filtered_out"] == {"other_format": 2}
+    assert transport.calls[1][1]["id"] == f"{ID1},{ID2},{ID3}"  # decided after /videos, not on the snippet

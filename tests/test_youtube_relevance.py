@@ -331,3 +331,81 @@ def test_prescreen_never_decides_anchors_or_homonyms(title) -> None:
 def test_prescreen_reads_only_the_title() -> None:
     # No description parameter: the truncated snippet description can never drop a video.
     assert list(inspect.signature(prescreen).parameters) == ["request", "title"]
+
+
+# --- other_format: the title declares another format (fix 2 after the live run) ---------------
+# Titles paraphrase the false positives of the live run (real API data is not kept in the repo).
+
+
+@pytest.mark.parametrize(
+    ("request_", "kind", "title"),
+    [
+        # Run 1: a review kept as an interview.
+        (req("Dune: Parte Due", director="Denis Villeneuve"), K.director_interview, "MovieBlog 900: Recensione Dune: Parte Due"),
+        # Run 7: the Italian trailer kept as an interview.
+        (req("Parasite", year=2019, director="Bong Joon-ho"), K.director_interview, "PARASITE - Trailer Italiano Ufficiale (2019)"),
+        # Run 9: a review of an Italian film, director not in the request.
+        (req("C'è ancora domani"), K.director_interview, "C'è ancora domani - Recensione e Analisi"),
+        # Run 17: a full movie upload kept as an interview.
+        (req("Mare dentro", alternative_titles=["Mar adentro"]), K.director_interview, "MAR ADENTRO PELÍCULA COMPLETA EN ESPAÑOL"),
+        # Run 20: a full movie kept as a trailer.
+        (req("The Dungeon of Harrow", year=1962), K.trailer, "The Dungeon of Harrow (1962) | Full Movie"),
+        # A trailer breakdown is not a making-of.
+        (req("Interstellar"), K.making_of, "Interstellar | Teaser Trailer"),
+        (req("Interstellar"), K.behind_the_scenes, "Interstellar Movie Review"),
+        (req("Interstellar"), K.author_commentary, "Interstellar - film completo in italiano"),
+    ],
+)
+def test_other_format_titles_are_dropped(request_, kind, title) -> None:
+    result = check(request_, kind, title, "", "2019-06-01T00:00:00Z")
+
+    assert (result.kept, result.reason) == (False, "other_format")
+
+
+@pytest.mark.parametrize(
+    ("request_", "kind", "title"),
+    [
+        # The requested person is named in the title.
+        (req("Dune: Part Two", director="Denis Villeneuve"), K.director_interview, "Denis Villeneuve reviews the Dune: Part Two trailer"),
+        (req("Arrival", director="Denis Villeneuve"), K.director_interview, "Villeneuve on the Arrival trailer"),
+        # A word of the requested kind is in the title.
+        (req("Dune: Part Two"), K.director_interview, "Dune: Part Two | Official Trailer & Interview"),
+        (req("Interstellar"), K.making_of, "Making of the Interstellar trailer"),
+        (req("Interstellar"), K.behind_the_scenes, "Interstellar review and behind the scenes"),
+        (req("Inception"), K.author_commentary, "Inception review: Nolan explains the ending"),
+        # A trailer title is compatible with a trailer request.
+        (req("Dune: Part Two"), K.trailer, "Dune: Part Two | Official Trailer"),
+        (req("Dune: Part Two"), K.trailer, "Dune: Part Two teaser trailer review"),
+        # Whole words only: "preview" is not "review", "trailerpark" is not "trailer".
+        # (no word of the requested kind here, so only whole-word matching keeps them)
+        (req("Interstellar"), K.behind_the_scenes, "Interstellar exclusive preview"),
+        (req("Interstellar"), K.making_of, "Interstellar at the Trailerpark festival"),
+    ],
+)
+def test_mixed_titles_stay_valid(request_, kind, title) -> None:
+    assert check(request_, kind, title).kept
+
+
+def test_a_review_naming_the_director_stays_known_limit() -> None:
+    """Run 17 residue: the person exemption keeps a review that names the director in its title."""
+    request_ = req("Mare dentro", alternative_titles=["Mar adentro"], director="Alejandro Amenábar")
+
+    assert check(request_, K.director_interview, "Sea Inside Movie Review (Mar adentro) - Alejandro Amenábar").kept
+
+
+def test_a_declared_format_without_conflict_keeps_the_previous_behaviour() -> None:
+    # No format word: the title is judged by the usual anchors (kept, kind not confirmed).
+    result = check(req("Dune: Parte Due", director="Denis Villeneuve"), K.director_interview, "Dune: Parte Due (2024) di Denis Villeneuve")
+
+    assert result.kept and "kind_unconfirmed" in result.notes
+
+
+def test_format_words_in_the_description_never_drop() -> None:
+    result = check(req("Dune: Part Two"), K.making_of, "Dune: Part Two making of", "Full movie review and trailer below.")
+
+    assert result.kept
+
+
+def test_other_format_is_decided_on_the_title_only_not_in_prescreen() -> None:
+    # Prescreen has no kind: a "trailer" title may be a valid trailer request.
+    assert prescreen(req("Interstellar"), title="Interstellar | Teaser Trailer") is None
