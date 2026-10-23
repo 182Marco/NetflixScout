@@ -305,7 +305,9 @@ def test_filtered_out_results_are_counted_by_reason() -> None:
         {"id": {"kind": "youtube#channel", "channelId": "UC123"}, "snippet": {"title": "Dune channel"}},
         search_item("bad id", "Dune: Part Two making of"),
     ]
-    tool, transport = make_tool({"/search": {"items": items}})
+    tool, transport = make_tool(
+        {"/search": {"items": items}, "/videos": {"items": [video_item(ID2, "Making of a sci-fi epic", description="Desert.")]}}
+    )
 
     result = run_tool(tool)
 
@@ -313,7 +315,9 @@ def test_filtered_out_results_are_counted_by_reason() -> None:
     assert row["returned"] == 4 and row["result"] == "empty"
     assert row["filtered_out"] == {"invalid_id": 2, "negative_pattern": 1, "no_anchor": 1}
     assert step(result)["searches"][0]["filtered_out"] == row["filtered_out"]
-    assert transport.paths == ["/search"]
+    # The reaction is dropped on its snippet title; the other one is judged on `/videos` data.
+    assert transport.paths == ["/search", "/videos"]
+    assert transport.calls[1][1]["id"] == ID2
 
 
 def test_a_video_kept_for_one_kind_is_not_repeated_for_another() -> None:
@@ -450,3 +454,134 @@ def test_overall_status() -> None:
     assert overall_status([error]) == "error"
     assert overall_status([skipped]) == "error"
 
+
+
+# --- relevance on the full `/videos` data (fix 1 after the live run) -------------------------
+
+# The search snippet description is truncated by the API (about 160 characters).
+TRUNCATED = "A look at how the film about a man who falls in love with an operating system was made, from the first..."
+FULL_WITH_DIRECTOR = TRUNCATED + " Interviews with writer-director Spike Jonze, Joaquin Phoenix and the crew."
+
+
+def her_routes(full_description: str, videos=None):
+    return {
+        "/search": {"items": [search_item(ID1, "Her - Making of", description=TRUNCATED, published_at="2014-01-10T00:00:00Z")]},
+        "/videos": videos if videos is not None else {"items": [video_item(ID1, "Her - Making of", description=full_description)]},
+    }
+
+
+def her(tool):
+    return run_tool(tool, title="Her", director="Spike Jonze")
+
+
+def test_the_director_in_the_full_description_confirms_a_one_word_title() -> None:
+    tool, transport = make_tool(her_routes(FULL_WITH_DIRECTOR))
+
+    row = kinds(her(tool))["making_of"]
+
+    assert [hit["video_id"] for hit in row["hits"]] == [ID1]
+    assert row["hits"][0]["matched_on"] == ["title", "director"]
+    assert "title_from_search" not in row["hits"][0]["notes"]
+    assert transport.paths == ["/search", "/videos"]
+
+
+def test_without_the_director_anywhere_a_one_word_title_is_a_homonym_risk() -> None:
+    tool, _ = make_tool(her_routes(TRUNCATED + " A short film by a student about a summer romance."))
+
+    row = kinds(her(tool))["making_of"]
+
+    assert row["hits"] == [] and row["filtered_out"] == {"homonym_risk": 1}
+
+
+def test_the_lookup_covers_every_video_not_dropped_by_its_title_in_one_call() -> None:
+    search = by_kind(
+        {
+            "making": {"items": [search_item(ID1, "Her - Making of", description=TRUNCATED), search_item(ID2, "Her making of REACTION")]},
+            "behind": {"items": [search_item(ID3, "Her | behind the scenes", description=TRUNCATED)]},
+        }
+    )
+    videos = {
+        "items": [
+            video_item(ID1, "Her - Making of", description=FULL_WITH_DIRECTOR),
+            video_item(ID3, "Her | behind the scenes", description="Spike Jonze on set."),
+        ]
+    }
+    tool, transport = make_tool({"/search": search, "/videos": videos})
+
+    result = run_tool(tool, title="Her", director="Spike Jonze", kinds=["making_of", "behind_the_scenes"])
+
+    assert transport.paths == ["/search", "/search", "/videos"]
+    assert transport.calls[2][1]["id"] == f"{ID1},{ID3}"  # the reaction never reaches the lookup
+    assert kinds(result)["making_of"]["filtered_out"] == {"negative_pattern": 1}
+    assert [hit["video_id"] for row in meta(result)["kinds"] for hit in row["hits"]] == [ID1, ID3]
+
+
+def test_full_description_also_confirms_a_one_word_title_for_behind_the_scenes() -> None:
+    """Barbie behind the scenes: no year, director named only in the full description."""
+    routes = {
+        "/search": {"items": [search_item(ID1, "Barbie - Behind the Scenes", description="Go behind the scenes of the pink...")]},
+        "/videos": {"items": [video_item(ID1, "Barbie - Behind the Scenes", description="Go behind the scenes of the pink world built by Greta Gerwig.")]},
+    }
+    tool, _ = make_tool(routes)
+
+    row = kinds(run_tool(tool, title="Barbie", director="Greta Gerwig", kinds=["behind_the_scenes"]))["behind_the_scenes"]
+
+    assert [hit["video_id"] for hit in row["hits"]] == [ID1] and "director" in row["hits"][0]["matched_on"]
+
+
+@pytest.mark.parametrize("failure", [error_body(500), error_body(403, "quotaExceeded"), TimeoutError("t")])
+def test_failed_lookup_falls_back_to_the_snippet_as_before(failure) -> None:
+    tool, _ = make_tool(her_routes(FULL_WITH_DIRECTOR, videos=failure))
+
+    result = her(tool)
+
+    # The truncated snippet does not name the director: same verdict as before the fix.
+    assert kinds(result)["making_of"]["filtered_out"] == {"homonym_risk": 1}
+    assert meta(result)["details_error"] in {"http_error", "quota_exceeded", "timeout"}
+
+
+def test_failed_lookup_keeps_videos_the_snippet_confirms() -> None:
+    routes = {
+        "/search": {"items": [search_item(ID1, "Her - Making of", description="Spike Jonze on making Her.")]},
+        "/videos": error_body(500),
+    }
+    tool, _ = make_tool(routes)
+
+    hit = kinds(her(tool))["making_of"]["hits"][0]
+
+    assert "title_from_search" in hit["notes"] and hit["matched_on"] == ["title", "director"]
+
+
+def test_videos_beyond_the_lookup_limit_are_judged_on_the_snippet(monkeypatch) -> None:
+    monkeypatch.setattr(tool_module, "VIDEO_IDS_MAX", 1)
+    routes = {
+        "/search": {
+            "items": [
+                search_item(ID1, "Her - Making of", description=TRUNCATED),
+                search_item(ID2, "Her making of", description="Spike Jonze explains."),
+            ]
+        },
+        "/videos": {"items": [video_item(ID1, "Her - Making of", description=FULL_WITH_DIRECTOR)]},
+    }
+    tool, transport = make_tool(routes)
+
+    hits = kinds(her(tool))["making_of"]["hits"]
+
+    assert transport.calls[1][1]["id"] == ID1
+    assert [(hit["video_id"], "title_from_search" in hit["notes"]) for hit in hits] == [(ID1, False), (ID2, True)]
+
+
+def test_a_video_dropped_for_one_kind_can_be_kept_for_another() -> None:
+    """Duplicates are checked on what was shown, not on what was searched."""
+    same = search_item(ID1, "Barbie | featurette", description="Greta Gerwig...")
+    tool, _ = make_tool(
+        {
+            "/search": {"items": [same]},
+            "/videos": {"items": [video_item(ID1, "Barbie | featurette", description="Greta Gerwig and the cast.")]},
+        }
+    )
+
+    result = run_tool(tool, title="Barbie", director="Greta Gerwig", kinds=["making_of", "behind_the_scenes"])
+
+    assert [hit["video_id"] for hit in kinds(result)["making_of"]["hits"]] == [ID1]
+    assert kinds(result)["behind_the_scenes"]["filtered_out"] == {"duplicate_of_other_kind": 1}

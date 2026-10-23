@@ -84,6 +84,22 @@ def _kind_words(kind: VideoKind) -> list[str]:
     return [normalize_text(term) for term in KIND_TERMS[kind]]
 
 
+def prescreen(request: YoutubeToolInput, *, title: str | None) -> Screening | None:
+    """Early drop on the search snippet, from the video title only: the checks that need no
+    description (`negative_pattern`, `year_conflict`). None when the video goes on to `screen`.
+
+    Anchors, homonyms and kind are never decided here: the snippet description is truncated
+    by the API (about 160 characters) and often misses the director named further down.
+    """
+    if any(_has(_norm(title), normalize_text(pattern)) for pattern in NEGATIVE_TITLE_PATTERNS):
+        return Screening(kept=False, reason="negative_pattern")
+    if request.year is not None:
+        years = [int(y) for y in _PAREN_YEAR.findall(html.unescape(title or ""))]
+        if years and all(abs(y - request.year) > 1 for y in years):
+            return Screening(kept=False, reason="year_conflict")
+    return None
+
+
 def screen(
     request: YoutubeToolInput,
     kind: VideoKind,
@@ -92,7 +108,8 @@ def screen(
     description: str | None,
     published_at: str | None,
 ) -> Screening:
-    """First pass, on the search snippet (no duration yet)."""
+    """Full check on the most complete texts available: the `/videos` title and full
+    description, or the search snippet when `/videos` could not be read."""
     video_title, video_text = _norm(title), _norm(description)
     both = f"{video_title} {video_text}"
 

@@ -23,7 +23,7 @@ from .http import HttpSession, Transport, get_json, urllib_transport
 from .models import KindOutcome, VideoHit, VideoKind, YoutubeToolInput, describe_validation_errors
 from .queries import build_search_params
 from .quota import QuotaBucket, QuotaLatch
-from .relevance import Screening, parse_duration, screen, screen_details
+from .relevance import parse_duration, prescreen, screen, screen_details
 from .settings import DESCRIPTION_EXCERPT_CHARS, NOTE_REGION, VIDEO_IDS_MAX, WATCH_URL
 from .trace import build_youtube_trace
 
@@ -66,7 +66,6 @@ class _Candidate:
     channel: str
     description: str
     published_at: str | None
-    screening: Screening
 
 
 def _text(value: Any) -> str:
@@ -125,7 +124,12 @@ def overall_status(outcomes: list[KindOutcome]) -> str:
 
 @dataclass
 class _Run:
-    """One tool run: searches, one `/videos` lookup, relevance filter, outcomes."""
+    """One tool run: searches, one `/videos` lookup, relevance filter, outcomes.
+
+    The search snippet only drops what its title already proves (`prescreen`); anchors,
+    homonyms and kind are decided after `/videos`, on the full description, or on the
+    snippet when `/videos` could not be read.
+    """
 
     config: YoutubeConfig
     session: HttpSession
@@ -138,7 +142,6 @@ class _Run:
     def search(self) -> None:
         limit = self.config.max_searches_per_turn
         stop: str | None = None
-        seen: set[str] = set()
         for position, kind in enumerate(self.request.kinds):
             if position >= limit:
                 self.outcomes.append(KindOutcome(kind=kind, status="not_searched", reason=TURN_LIMIT))
@@ -163,20 +166,10 @@ class _Run:
                 outcome.filtered_out["invalid_id"] = invalid
             kept: list[_Candidate] = []
             for video in videos:
-                if video["video_id"] in seen:
-                    _count(outcome.filtered_out, "duplicate_of_other_kind")
+                dropped = prescreen(self.request, title=_text(video.get("title")))
+                if dropped is not None:
+                    _count(outcome.filtered_out, dropped.reason or "filtered")
                     continue
-                screening = screen(
-                    self.request,
-                    kind,
-                    title=_text(video.get("title")),
-                    description=_text(video.get("description")),
-                    published_at=_text(video.get("publishedAt")) or None,
-                )
-                if not screening.kept:
-                    _count(outcome.filtered_out, screening.reason or "filtered")
-                    continue
-                seen.add(video["video_id"])
                 kept.append(
                     _Candidate(
                         video_id=video["video_id"],
@@ -184,7 +177,6 @@ class _Run:
                         channel=_text(video.get("channelTitle")),
                         description=_text(video.get("description")),
                         published_at=_text(video.get("publishedAt")) or None,
-                        screening=screening,
                     )
                 )
             self.candidates[kind] = kept
@@ -201,15 +193,21 @@ class _Run:
             return {}, set()
 
     def finish(self, details: dict[str, dict[str, Any]], looked_up: set[str]) -> None:
+        # A video shown for an earlier kind is not repeated for a later one.
+        shown: set[str] = set()
         for outcome in self.outcomes:
             if outcome.status != "searched" or outcome.result == "error":
                 continue
             for candidate in self.candidates.get(outcome.kind, []):
                 if len(outcome.hits) >= self.config.max_results:
                     break
+                if candidate.video_id in shown:
+                    _count(outcome.filtered_out, "duplicate_of_other_kind")
+                    continue
                 hit = self._hit(outcome, candidate, details, looked_up)
                 if hit is not None:
                     outcome.hits.append(hit)
+                    shown.add(hit.video_id)
             outcome.result = "ok" if outcome.hits else "empty"
 
     def _hit(
@@ -239,8 +237,15 @@ class _Run:
             description = html.unescape(candidate.description)
             duration, region = None, None
             notes.append("title_from_search")
+        screening = screen(
+            self.request,
+            outcome.kind,
+            title=title,
+            description=description,
+            published_at=candidate.published_at,
+        )
         screening = screen_details(
-            candidate.screening,
+            screening,
             outcome.kind,
             title=title,
             description=description,

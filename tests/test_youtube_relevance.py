@@ -2,10 +2,12 @@
 test per drop reason. Titles are shaped like real YouTube results."""
 from __future__ import annotations
 
+import inspect
+
 import pytest
 
 from youtube.models import VideoKind, YoutubeToolInput
-from youtube.relevance import Screening, count_reasons, parse_duration, screen, screen_details
+from youtube.relevance import Screening, count_reasons, parse_duration, prescreen, screen, screen_details
 
 K = VideoKind
 
@@ -295,3 +297,37 @@ def test_count_reasons_for_the_trace() -> None:
     ]
 
     assert count_reasons(screenings) == {"no_anchor": 2, "homonym_risk": 1}
+
+
+# --- prescreen: what the snippet title alone may decide ---------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("title", "reason"),
+    [
+        ("Dune: Part Two REACTION", "negative_pattern"),
+        ("Dune: Part Two | Fan Made trailer", "negative_pattern"),
+        ("The Arrival (1996) Making of", "year_conflict"),
+    ],
+)
+def test_prescreen_drops_only_what_the_title_proves(title, reason) -> None:
+    dropped = prescreen(req("Arrival", year=2016), title=title)
+
+    assert dropped is not None and (dropped.kept, dropped.reason) == (False, reason)
+
+
+@pytest.mark.parametrize(
+    "title",
+    [
+        "Making of a sci-fi epic",  # no anchor in the title: decided later on the full description
+        "Her - Making of",  # one-word title: the director may be in the full description
+        "Arrival (2017) making of",  # within one year
+    ],
+)
+def test_prescreen_never_decides_anchors_or_homonyms(title) -> None:
+    assert prescreen(req("Arrival", year=2016, director="Denis Villeneuve"), title=title) is None
+
+
+def test_prescreen_reads_only_the_title() -> None:
+    # No description parameter: the truncated snippet description can never drop a video.
+    assert list(inspect.signature(prescreen).parameters) == ["request", "title"]
