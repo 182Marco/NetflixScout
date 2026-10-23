@@ -71,7 +71,9 @@ def test_the_tool_follows_the_orchestrator_contract() -> None:
 
     assert isinstance(tool, Tool)
     assert tool.name == YOUTUBE_TOOL_NAME == "youtube_search"
-    assert tool.input_schema == YoutubeToolInput.model_json_schema()
+    full = YoutubeToolInput.model_json_schema()
+    full.pop("description")
+    assert tool.input_schema == full  # the model schema without the class docstring
     assert "tmdb_search" in tool.description and "never invented" in tool.description
 
     result = run_tool(tool)
@@ -722,7 +724,8 @@ def test_the_planner_catalog_carries_the_alternative_titles_rule() -> None:
     catalog = orchestrator._catalog_text(["youtube_search"])
 
     assert "never deduce one from your own knowledge" in catalog
-    assert "for a localized title with no other title written, leave it empty" in catalog
+    # The rule now lives once, in the field description (no copy in the tool description).
+    assert "If the user gives only a localized title" in catalog and "leave this empty" in catalog
 
 
 
@@ -823,3 +826,63 @@ def test_empty_kind_without_alternatives_suggests_the_original_title_only() -> N
     result = run_tool(tool, title="Il favoloso mondo di Amélie", year=2001)
 
     assert meta(result)["hints"] == ["original_title"]
+
+
+
+# --- catalog cleanup: no stale docstring, no duplicated sentence -------------------------------
+
+
+def test_planner_schema_drops_only_the_class_docstring() -> None:
+    from youtube.tool import planner_schema
+
+    schema = planner_schema()
+    full = YoutubeToolInput.model_json_schema()
+
+    assert "description" not in schema and "description" in full
+    assert {key: value for key, value in full.items() if key != "description"} == schema
+    assert planner_schema() is not planner_schema()  # a fresh dict: callers cannot alter the next one
+
+
+def test_catalog_entry_has_no_stale_or_duplicated_text() -> None:
+    from orchestrator import LLMOrchestrator
+
+    import app as app_module
+
+    tool, _ = make_tool()
+    entry = LLMOrchestrator(config=app_module.build_runtime_config(), tools=[tool], client=object())._catalog_text(
+        ["youtube_search"]
+    )
+
+    # The old docstring said only "interviews" and did not know cast_interview.
+    assert "trailers only when the user explicitly asks for YouTube." not in entry
+    assert entry.count("leave this empty") == 1 and "leave it empty" not in entry
+    assert "each field says where its values may come from" in entry
+    assert len(entry) <= 3_150  # was 3,473 characters before the cleanup
+
+
+def test_every_planner_rule_is_still_in_the_catalog() -> None:
+    from youtube.tool import planner_schema
+
+    text = json.dumps({"description": make_tool()[0].description, "schema": planner_schema()}, ensure_ascii=False)
+
+    for rule in (
+        "director_interview",
+        "cast_interview",
+        "otherwise trailers come from tmdb_search",
+        "never invented",
+        "Never invent or translate a title yourself",
+        "never deduce one from your own knowledge",
+        "Never add a name yourself",
+        "only if the user or the conversation gives it",
+    ):
+        assert rule in text, rule
+
+
+def test_validation_still_uses_the_full_model() -> None:
+    tool, transport = make_tool(making_of_routes())
+
+    extra = tool.run(query="q", params={"title": "Dune", "kinds": ["making_of"], "url": "x"}, conversation_history=[])
+    unknown_kind = tool.run(query="q", params={"title": "Dune", "kinds": ["bloopers"]}, conversation_history=[])
+
+    assert meta(extra)["error"] == meta(unknown_kind)["error"] == "invalid_request"
+    assert transport.calls == []

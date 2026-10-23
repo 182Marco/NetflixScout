@@ -37,9 +37,7 @@ _DESCRIPTION = (
     "there; otherwise trailers come from tmdb_search. Fill `title` and `kinds` (1-3, most "
     "important first; only the first ones are searched in a turn); fill `year`, `director`, "
     "`cast` and `alternative_titles` only with values from the user or the conversation, never "
-    "invented. Put an original or other title in `alternative_titles` only when it is written in "
-    "the request or the conversation (e.g. given by an earlier answer); for a localized title "
-    "with no other title written, leave it empty. "
+    "invented (each field says where its values may come from). "
     "Results are YouTube search results: not verified as official and not linked to a film ID."
 )
 
@@ -51,6 +49,15 @@ _RUN_STOPPING = frozenset(
     {YoutubeQuotaExceeded.code, YoutubeRateLimited.code, YoutubeAuthError.code, YoutubeApiNotEnabled.code}
 )
 TURN_LIMIT = "turn_limit"
+
+
+def planner_schema() -> dict[str, Any]:
+    """`YoutubeToolInput` JSON schema for the planner catalog, without the class docstring:
+    the tool `description` already says what the tool does. Validation is unchanged (it uses
+    the model, not this dict)."""
+    schema = YoutubeToolInput.model_json_schema()
+    schema.pop("description", None)
+    return schema
 
 
 def _failure(query: str, error: str, **details: Any) -> dict[str, Any]:
@@ -299,7 +306,7 @@ class YoutubeTool:
     config: YoutubeConfig
     name: str = YOUTUBE_TOOL_NAME
     description: str = _DESCRIPTION
-    input_schema: dict[str, Any] = field(default_factory=lambda: YoutubeToolInput.model_json_schema())
+    input_schema: dict[str, Any] = field(default_factory=planner_schema)
     # Loaded from `.env` on first use; injected in tests.
     credentials: YoutubeCredentials | None = None
     transport: Transport = urllib_transport
