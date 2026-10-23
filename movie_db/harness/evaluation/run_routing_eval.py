@@ -1,11 +1,12 @@
-"""Evaluate DB/RAG/TMDb routing with the real classifier and planner (costs API credits).
+"""Evaluate DB/RAG/TMDb/YouTube routing with the real classifier and planner (costs API credits).
 
 Per case: one classifier call (`gpt-4o-mini`) and one planning call; tools never run.
 The planner client is wrapped to record its raw output, so a silent fallback to
 `fallback_tool` (invalid JSON, unknown tool, low confidence) is told apart from an
 explicit choice. The orchestrator core is used as is. For TMDb cases the planned
 arguments are also validated offline as `TmdbToolInput` (no HTTP) and must contain the
-case's `expected_request`.
+case's `expected_request`; for YouTube cases they are validated as `YoutubeToolInput` and
+must match the case's `expected_video` (kinds, and no year, people or titles not given).
 
     python -m movie_db.harness.evaluation.run_routing_eval --live
     python -m movie_db.harness.evaluation.run_routing_eval --live --tool tmdb_search
@@ -23,8 +24,13 @@ from pydantic import ValidationError
 from orchestrator import CLARIFICATION
 from tmdb.models.requests import TmdbRequest, TmdbToolInput, describe_validation_errors
 from turn import TOOL_PARAM_TURN_LANGUAGE
+from youtube.models import YoutubeToolInput
+from youtube.models import describe_validation_errors as describe_video_errors
 
-from .routing_cases import ROUTING_CASES, RequestExpectation, RoutingCase
+from .routing_cases import ROUTING_CASES, RequestExpectation, RoutingCase, VideoExpectation
+
+# Optional `youtube_search` fields that must come from the request or the conversation.
+_VIDEO_GIVEN_FIELDS = ("year", "director", "cast", "alternative_titles")
 
 
 class RecordingClient:
@@ -54,10 +60,14 @@ class RoutingResult:
 
     @property
     def requests_problem(self) -> str | None:
-        """Why the planned TMDb arguments are wrong; None when fine or not checked."""
-        if self.case.expected_request is None or self.tool != self.case.expected_tool:
+        """Why the planned TMDb or YouTube arguments are wrong; None when fine or not checked."""
+        if self.tool != self.case.expected_tool:
             return None
-        return check_any_request(self.case.expected_request, self.arguments, self.standalone_query)
+        if self.case.expected_request is not None:
+            return check_any_request(self.case.expected_request, self.arguments, self.standalone_query)
+        if self.case.expected_video is not None:
+            return check_any_video(self.case.expected_video, self.arguments, self.standalone_query)
+        return None
 
     @property
     def standalone_ok(self) -> bool:
@@ -76,6 +86,13 @@ class RoutingResult:
         )
 
 
+def _planned_payload(arguments: dict, standalone_query: str) -> dict:
+    """The arguments as the tool receives them: no turn language, the standalone query."""
+    payload = {key: value for key, value in arguments.items() if key != TOOL_PARAM_TURN_LANGUAGE}
+    payload["query"] = standalone_query
+    return payload
+
+
 def _matches(expected: RequestExpectation, request: TmdbRequest) -> bool:
     if request.operation.value != expected.operation:
         return False
@@ -91,10 +108,8 @@ def check_requests(expected: RequestExpectation, arguments: Any, standalone_quer
     """Validate planned arguments as `TmdbTool.run` would, without running the tool."""
     if not isinstance(arguments, dict):
         return "arguments is not an object"
-    payload = {key: value for key, value in arguments.items() if key != TOOL_PARAM_TURN_LANGUAGE}
-    payload["query"] = standalone_query
     try:
-        parsed = TmdbToolInput.model_validate(payload)
+        parsed = TmdbToolInput.model_validate(_planned_payload(arguments, standalone_query))
     except ValidationError as exc:
         return f"invalid requests: {describe_validation_errors(exc)}"
     if any(_matches(expected, request) for request in parsed.requests):
@@ -110,6 +125,48 @@ def check_any_request(
     """None when any of the acceptable expectations matches; otherwise the first problem."""
     options = expected if isinstance(expected, tuple) else (expected,)
     problems = [check_requests(option, arguments, standalone_query) for option in options]
+    return None if any(problem is None for problem in problems) else problems[0]
+
+
+def _video_problem(expected: VideoExpectation, request: YoutubeToolInput) -> str | None:
+    if expected.title not in request.title.casefold():
+        return f"title {request.title!r} does not contain {expected.title!r}"
+    kinds = [kind.value for kind in request.kinds]
+    missing = [kind for kind in expected.kinds if kind not in kinds]
+    if missing:
+        return f"missing kinds {missing}"
+    unexpected = [kind for kind in kinds if kind not in expected.kinds + expected.extra_kinds]
+    if unexpected:
+        return f"kinds not requested {unexpected}"
+    for name in _VIDEO_GIVEN_FIELDS:
+        value = getattr(request, name)
+        values = value if isinstance(value, list) else [] if value is None else [value]
+        fragments = [fragment for field_name, fragment in expected.allowed if field_name == name]
+        for item in values:
+            if not any(fragment in str(item).casefold() for fragment in fragments):
+                return f"{name} not given in the conversation"
+    return None
+
+
+def check_video(expected: VideoExpectation, arguments: Any, standalone_query: str) -> str | None:
+    """Validate planned arguments as `YoutubeTool.run` would, without running the tool."""
+    if not isinstance(arguments, dict):
+        return "arguments is not an object"
+    try:
+        request = YoutubeToolInput.model_validate(_planned_payload(arguments, standalone_query))
+    except ValidationError as exc:
+        return f"invalid arguments: {describe_video_errors(exc)}"
+    return _video_problem(expected, request)
+
+
+def check_any_video(
+    expected: VideoExpectation | tuple[VideoExpectation, ...],
+    arguments: Any,
+    standalone_query: str,
+) -> str | None:
+    """None when any of the acceptable expectations matches; otherwise the first problem."""
+    options = expected if isinstance(expected, tuple) else (expected,)
+    problems = [check_video(option, arguments, standalone_query) for option in options]
     return None if any(problem is None for problem in problems) else problems[0]
 
 
@@ -176,7 +233,7 @@ def run_routing_cases(
 
 
 def main(argv: list[str] | None = None) -> None:
-    parser = argparse.ArgumentParser(description="Evaluate DB/RAG/TMDb routing with real LLM calls.")
+    parser = argparse.ArgumentParser(description="Evaluate DB/RAG/TMDb/YouTube routing with real LLM calls.")
     parser.add_argument("--live", action="store_true", required=True, help="Required: this run costs API credits.")
     parser.add_argument(
         "--tool",
@@ -216,7 +273,8 @@ def main(argv: list[str] | None = None) -> None:
         )
         if result.case.history or result.standalone_query != result.case.question:
             print(f"   standalone: {result.standalone_query}")
-        if result.case.expected_request is not None and result.tool == result.case.expected_tool:
+        expects_arguments = result.case.expected_request is not None or result.case.expected_video is not None
+        if expects_arguments and result.tool == result.case.expected_tool:
             print(f"   arguments: {json.dumps(result.arguments, ensure_ascii=False)}")
             print(f"   requests: {result.requests_problem or 'ok'}")
         if result.error:

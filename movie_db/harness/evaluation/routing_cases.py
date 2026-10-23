@@ -1,4 +1,5 @@
-"""Routing cases: does the orchestrator pick `movie_db_search`, `rag_search` or `tmdb_search`?
+"""Routing cases: does the orchestrator pick `movie_db_search`, `rag_search`, `tmdb_search` or
+`youtube_search`?
 
 Each case runs only the domain classifier and the planning call (`_plan_turn`): no
 tool is executed, so no SQL, embedding or rerank call happens.
@@ -10,6 +11,7 @@ from dataclasses import dataclass, field
 DB = "movie_db_search"
 RAG = "rag_search"
 TMDB = "tmdb_search"
+YOUTUBE = "youtube_search"
 # No tool: the planner asks the user for the missing title (orchestrator.CLARIFICATION).
 CLARIFY = "clarification"
 
@@ -28,6 +30,23 @@ class RequestExpectation:
 
 
 @dataclass(frozen=True)
+class VideoExpectation:
+    """Planned `youtube_search` arguments that answer the question.
+
+    The arguments must validate as `YoutubeToolInput`, `title` must contain the lowercase
+    fragment and the planned kinds must include every one of `kinds`, plus at most those of
+    `extra_kinds`. `year`, `director`, `cast` and `alternative_titles` must stay empty unless
+    `allowed` lists them: then each planned value must contain one of the fragments given for
+    that field (values copied from the request or the conversation, never invented).
+    """
+
+    title: str
+    kinds: tuple[str, ...]
+    extra_kinds: tuple[str, ...] = ()
+    allowed: tuple[tuple[str, str], ...] = ()
+
+
+@dataclass(frozen=True)
 class RoutingCase:
     question: str
     expected_tool: str
@@ -37,6 +56,8 @@ class RoutingCase:
     # TMDb cases only: the planned arguments must contain a coherent request; a tuple lists
     # acceptable alternatives (e.g. details or a search for an ambiguous title).
     expected_request: RequestExpectation | tuple[RequestExpectation, ...] | None = None
+    # YouTube cases only: the planned arguments; a tuple lists acceptable alternatives.
+    expected_video: VideoExpectation | tuple[VideoExpectation, ...] | None = None
 
 
 _HORROR_80S = (
@@ -57,6 +78,14 @@ _TOP_RATED = (
 _INTERSTELLAR = (
     {"role": "user", "content": "Consigliami un film di fantascienza sui viaggi nello spazio"},
     {"role": "assistant", "content": "Ti consiglio Interstellar (2014) di Christopher Nolan."},
+)
+
+_AFTERSUN_NO_TRAILER = (
+    {"role": "user", "content": "Mostrami il trailer di Aftersun"},
+    {
+        "role": "assistant",
+        "content": "TMDb non riporta trailer per Aftersun (2022). Vuoi che lo cerchi su YouTube?",
+    },
 )
 
 ROUTING_CASES: tuple[RoutingCase, ...] = (
@@ -102,6 +131,7 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
         TMDB,
         expected_request=RequestExpectation("trending", fields=(("media", "movie"), ("window", "week"))),
     ),
+    # Trailers stay on TMDb (official links) unless the user asks for YouTube (rule 1b).
     RoutingCase(
         "Mostrami il trailer di Past Lives",
         TMDB,
@@ -150,4 +180,61 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
     ),
     # A person, no title and no history: ask instead of searching (went to rag_search before).
     RoutingCase("Oh, ma chi c'era in quel film di Sorrentino…", CLARIFY),
+    # Videos about an identified film start from YouTube (rule 1b). The director is not named:
+    # `director` stays empty, even if the planner knows who directed the film.
+    RoutingCase(
+        "Trovami un'intervista al regista di Past Lives",
+        YOUTUBE,
+        expected_video=VideoExpectation("past lives", kinds=("director_interview",)),
+    ),
+    RoutingCase(
+        "Ci sono interviste a Cillian Murphy su Oppenheimer?",
+        YOUTUBE,
+        expected_video=VideoExpectation(
+            "oppenheimer",
+            kinds=("cast_interview",),
+            allowed=(("cast", "cillian murphy"),),
+        ),
+    ),
+    RoutingCase(
+        "Ci sono video del dietro le quinte di Barbie?",
+        YOUTUBE,
+        expected_video=(
+            VideoExpectation("barbie", kinds=("behind_the_scenes",), extra_kinds=("making_of",)),
+            VideoExpectation("barbie", kinds=("making_of",), extra_kinds=("behind_the_scenes",)),
+        ),
+    ),
+    RoutingCase(
+        "Cercami su YouTube il trailer di Past Lives",
+        YOUTUBE,
+        expected_video=VideoExpectation("past lives", kinds=("trailer",)),
+    ),
+    # TMDb had no trailer and the answer offered YouTube: accepting the offer searches there.
+    RoutingCase(
+        "Sì, cercalo pure",
+        YOUTUBE,
+        history=_AFTERSUN_NO_TRAILER,
+        standalone_must_contain=("aftersun",),
+        expected_video=VideoExpectation("aftersun", kinds=("trailer",), allowed=(("year", "2022"),)),
+    ),
+    # Only the Italian title is given: no original or English title, year, director or cast
+    # may be added from the planner's own knowledge.
+    RoutingCase(
+        "Ci sono interviste al cast di Il ragazzo e l'airone?",
+        YOUTUBE,
+        expected_video=VideoExpectation("airone", kinds=("cast_interview",)),
+    ),
+    # A title written in parentheses by the user may be copied, nothing else.
+    RoutingCase(
+        "Vorrei un'intervista al regista di La zona d'interesse (The Zone of Interest)",
+        YOUTUBE,
+        expected_video=(
+            VideoExpectation(
+                "zona d", kinds=("director_interview",), allowed=(("alternative_titles", "zone of interest"),),
+            ),
+            VideoExpectation(
+                "zone of interest", kinds=("director_interview",), allowed=(("alternative_titles", "zona d"),),
+            ),
+        ),
+    ),
 )
