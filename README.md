@@ -27,14 +27,22 @@ This repository integrates the RAG modules into a reproducible local pipeline an
 │   ├── operations/     # resolve, reference, movies, tv, people, collections, discovery, lists
 │   ├── normalize/      # raw JSON → entities with capped facets
 │   └── harness/        # optional live smoke check (never imported at runtime)
+├── youtube/            # YouTube Data API tool (youtube_search), in-process, no MCP
+│   ├── config.py       # validated view of CONFIG["you_tube"] (2 settings)
+│   ├── tool.py         # YoutubeTool: validate → search per kind → one /videos → filter → trace
+│   ├── http.py         # the only HTTP module: run memo → quota latch → send (/search, /videos)
+│   ├── quota.py        # in-memory pause per quota bucket after an observed quota error
+│   ├── queries.py      # search queries from constant fragments
+│   ├── relevance.py    # deterministic relevance filter and confirmed / to-verify label
+│   └── models.py       # VideoKind, YoutubeToolInput, VideoHit, KindOutcome
 ├── presenters/         # the only output layer: present(turn, channel)
 │   ├── channel.py      # OutputChannel (terminal | web)
 │   ├── db_view.py      # channel-neutral view of the db_query step
 │   ├── api_view.py     # channel-neutral view of the tmdb_calls step + TMDb notice
 │   ├── terminal/       # box.py, session.py, blocks.py (turn flow), renderer.py (STEP_RENDERERS)
-│   │   └── rag/ db/ api/   # blocks.py + renderer.py per tool
+│   │   └── rag/ db/ api/ youtube/   # blocks.py + renderer.py per tool
 │   └── web/            # payload.py (not implemented yet)
-│       └── rag/ db/ api/   # serializer.py per tool (rag/ reserved)
+│       └── rag/ db/ api/ youtube/   # serializer.py per tool (rag/ and youtube/ reserved)
 ├── app.py              # public API + RAG Tool facade
 ├── buildSemanticDb.py  # reproducible semantic DB builder
 ├── buildMovieDb.py     # MovieLens SQLite builder
@@ -54,7 +62,11 @@ OPENAI_API_KEY=...
 COHERE_API_KEY=...
 VUE_APP_TMDB_API_KEY=...        # TMDb v3 API key or v4 read access token
 VUE_APP_TMDB_BASE_URL=https://api.themoviedb.org/3
+YOUTUBE_API_KEY=...             # YouTube Data API v3 key (Google Cloud project)
 ```
+
+`YOUTUBE_API_KEY` is read only by `youtube/auth.py`, on the first YouTube search; the base URL is
+a constant (`https://www.googleapis.com/youtube/v3`), never read from the environment.
 
 The TMDb key is read only by the Python backend (`tmdb/auth.py`). The `VUE_APP_` prefix is
 the Vue CLI convention for variables exposed to client bundles: never point a Vue frontend at
@@ -320,6 +332,63 @@ show images, so the logo lives in this README and, later, in the web frontend's 
 
 Streaming availability data is provided by JustWatch: the terminal shows the credit in every
 turn whose answer may use it.
+
+## YouTube Tool (`youtube_search`)
+
+A fourth orchestrator tool searches YouTube for videos about one identified film: interviews with
+the director (`director_interview`) or the cast (`cast_interview`), making-of, behind the scenes and
+featurettes, the authors' commentary. Trailers stay with `tmdb_search` (official links tied to the
+TMDb ID) unless the user explicitly asks for YouTube or accepts the offer after TMDb found none. It
+is an in-process tool that follows the internal `Tool` Protocol of `orchestrator.py`: there is no MCP
+server or client, and no new dependency.
+
+The planner fills `title` and `kinds` (1–3, most important first) and, only with values written in
+the request or the conversation, `year`, `director`, `cast` (up to 5 names) and `alternative_titles`
+(up to 3). Python validates the input before any call and builds each search from constant
+fragments (title phrases in OR, kind words in OR, `-reaction -parody`); for a one-word title with a
+known person the person is required. No `regionCode` or `relevanceLanguage` is sent.
+
+`CONFIG["you_tube"]` has exactly two settings:
+
+| Setting | Default | Meaning |
+|---|---|---|
+| `max_results` | 3 | videos returned per searched kind |
+| `max_searches_per_turn` | 2 | `search.list` calls per turn (one per kind); later kinds are reported as not searched |
+
+Quota: `search.list` has its own bucket of **100 calls a day** per Google Cloud project (1 unit each),
+shared with every other client of the same project; `videos.list` uses the 10,000-unit bucket. With
+the defaults a turn spends at most 2 searches and 1 `/videos` call, so roughly 50 YouTube turns a day
+at most, fewer if anything else uses the project (a dedicated project is advisable). There is no
+local counter: after an observed `quotaExceeded` the tool pauses that bucket until midnight Pacific
+Time, in memory only. There is no cache across turns.
+
+Relevance: the snippet title can only drop reactions, parodies, fan-made videos, concept trailers
+and conflicting years; everything else is judged on the full `/videos` data. A video is dropped only on strong
+evidence (film and people not named, another declared format such as a review or a full movie,
+unconfirmed homonym, self-declared Short, no longer available), otherwise it is kept in API order
+and labelled `confirmed` or `to_verify`. The answer lists confirmed videos first and the others
+under "Da verificare", and may suggest giving the film's year or its original title (never
+proposing one).
+
+Each run adds one `youtube_calls` step: masked calls (`https://www.googleapis.com/youtube/v3/search?key=***`),
+the query of each kind with the drops per reason, kinds not searched and why, and the videos with
+titles and channels exactly as returned. The terminal prints it in `presenters/terminal/youtube/`
+(control characters removed from the printed copy only); `presenters/web/youtube/` is reserved
+until the web channel exists.
+
+Verification status: the offline tests (`tests/test_youtube_*.py`) cover the tool without network.
+A live E2E run of 20 questions (2026-10-23, before the relevance fixes) routed 20/20 to
+`youtube_search` with 6 OK, 10 partial and 4 failed answers. Still pending: a live run after the
+fixes, YouTube cases in the routing evaluation, a live smoke check (none exists yet), and live
+confirmation of the query operator precedence and of the API error reasons.
+
+### Credits and policies
+
+This application uses YouTube API Services: the terminal names YouTube as the source of every
+video result and prints, at startup, links to the YouTube Terms of Service
+(https://www.youtube.com/t/terms) and the Google Privacy Policy (https://policies.google.com/privacy).
+The YouTube API Services Developer Policies (III.A.2) also require the application's own privacy
+policy: not written yet for this personal project.
 
 ## Git Notes
 
