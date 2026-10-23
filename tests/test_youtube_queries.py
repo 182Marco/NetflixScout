@@ -94,7 +94,7 @@ def test_schema_tells_the_planner_never_to_invent_alternative_titles() -> None:
     alternative = schema["properties"]["alternative_titles"]
 
     assert alternative["maxItems"] == 3 and "alternative_titles" not in schema["required"]
-    assert "verbatim in the conversation" in alternative["description"]
+    assert "copied verbatim from the user's request or from earlier messages" in alternative["description"]
     assert "Never invent or translate" in alternative["description"]
     assert set(schema["required"]) == {"query", "title", "kinds"}
     assert schema["additionalProperties"] is False
@@ -371,3 +371,31 @@ def test_people_group() -> None:
     assert people_group(["Christopher Nolan", "Cillian Murphy"]) == '"Christopher Nolan"|"Nolan"|"Cillian Murphy"|"Murphy"'
     assert people_group(["Ang Lee", "Ang Lee"]) == '"Ang Lee"'
     assert people_group([]) is None and people_group(["  "]) is None
+
+
+# --- fix 5: alternative and original titles only from the conversation --------------------------
+
+
+def test_alternative_titles_description_forbids_deducing_and_covers_localized_titles() -> None:
+    description = YoutubeToolInput.model_json_schema()["properties"]["alternative_titles"]["description"]
+
+    assert "a title the user wrote in parentheses, or one given in a previous answer" in description
+    assert "never deduce one from your own knowledge, not even a well-known original title" in description
+    assert "If the user gives only a localized title" in description and "leave this empty" in description
+
+
+def test_a_localized_title_alone_gets_no_alternatives() -> None:
+    """Live run 15: only the Italian title was given; nothing is derived from it."""
+    payload = request(title="Il favoloso mondo di Amélie")
+
+    assert payload.alternative_titles == []
+    q = build_q(payload, VideoKind.making_of)
+    assert q.startswith('"Il favoloso mondo di Amélie" "making of"')
+    assert '"Amélie"' not in q and "|" not in q.split('"making of"')[0]
+
+
+def test_the_tool_never_adds_titles_of_its_own() -> None:
+    # Only the given titles reach the query: no short form, no subtitle split, no translation.
+    payload = request(title="Dune: Parte Due", alternative_titles=["Dune: Part Two"])
+
+    assert build_q(payload, VideoKind.making_of).startswith('"Dune: Parte Due"|"Dune: Part Two" "making of"')

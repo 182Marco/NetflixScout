@@ -68,9 +68,12 @@ class YoutubeToolInput(BaseModel):
         default_factory=list,
         max_length=MAX_ALTERNATIVE_TITLES,
         description=(
-            "Up to 3 other titles of the same film (original, Italian or English title) that appear "
-            "verbatim in the conversation or in the user's request. Never invent or translate a title "
-            "yourself; leave empty when the conversation has none."
+            "Up to 3 other titles of the same film (original-language, Italian or English title), "
+            "copied verbatim from the user's request or from earlier messages of the conversation: "
+            "a title the user wrote in parentheses, or one given in a previous answer. Never invent "
+            "or translate a title yourself and never deduce one from your own knowledge, not even a "
+            "well-known original title. If the user gives only a localized title and no other title "
+            "is written in the conversation, leave this empty: the search uses `title` as given."
         ),
     )
     year: int | None = Field(

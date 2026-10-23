@@ -37,7 +37,9 @@ _DESCRIPTION = (
     "there; otherwise trailers come from tmdb_search. Fill `title` and `kinds` (1-3, most "
     "important first; only the first ones are searched in a turn); fill `year`, `director`, "
     "`cast` and `alternative_titles` only with values from the user or the conversation, never "
-    "invented. "
+    "invented. Put an original or other title in `alternative_titles` only when it is written in "
+    "the request or the conversation (e.g. given by an earlier answer); for a localized title "
+    "with no other title written, leave it empty. "
     "Results are YouTube search results: not verified as official and not linked to a film ID."
 )
 

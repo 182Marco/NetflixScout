@@ -638,3 +638,87 @@ def test_cast_interview_end_to_end_with_names_from_the_request() -> None:
     row = kinds(result)["cast_interview"]
     assert [hit["video_id"] for hit in row["hits"]] == [ID2] and row["filtered_out"] == {"homonym_risk": 1}
     assert row["hits"][0]["matched_on"] == ["title", "cast"]
+
+
+# --- fix 5: original title from the conversation reaches the search ----------------------------
+
+
+class _PlannerClient:
+    """Planning call -> `plan`; final answer otherwise. Records the planner input."""
+
+    def __init__(self, plan: dict) -> None:
+        self.outputs = [json.dumps(plan), "Risposta finale."]
+        self.calls: list[dict] = []
+        self.responses = self
+
+    def create(self, **kwargs):
+        self.calls.append(kwargs)
+        return type("Response", (), {"output_text": self.outputs.pop(0)})()
+
+
+_SEA_INSIDE_HISTORY = [
+    {"role": "user", "content": "Parlami di Mare dentro"},
+    {"role": "assistant", "content": "Mare dentro (titolo originale Mar adentro, 2004) è diretto da Alejandro Amenábar."},
+]
+
+
+def _orchestrated(plan: dict, history: list[dict]):
+    from orchestrator import LLMOrchestrator
+
+    import app as app_module
+
+    tool, transport = make_tool({"/search": {"items": []}})
+    client = _PlannerClient(plan)
+    config = app_module.build_runtime_config({"orchestrator": {"allowed_tools": ["youtube_search"]}})
+    orchestrator = LLMOrchestrator(config=config, tools=[tool], client=client)
+    decision = orchestrator.run(query="E un'intervista al regista?", conversation_history=history)
+    return decision, transport, client
+
+
+def test_original_title_from_the_history_reaches_the_query() -> None:
+    plan = {
+        "standalone_query": "Cerca un'intervista al regista di Mare dentro",
+        "tool_name": "youtube_search",
+        "arguments": {
+            "title": "Mare dentro",
+            "alternative_titles": ["Mar adentro"],
+            "director": "Alejandro Amenábar",
+            "kinds": ["director_interview"],
+        },
+        "confidence": 0.9,
+    }
+
+    decision, transport, client = _orchestrated(plan, _SEA_INSIDE_HISTORY)
+
+    # The planner saw the history that contains the original title...
+    assert any("Mar adentro" in message["content"] for message in client.calls[0]["input"])
+    # ...and its arguments reach the search unchanged.
+    assert decision["tool"] == "youtube_search"
+    assert transport.calls[0][1]["q"].startswith('"Mare dentro"|"Mar adentro" interview|')
+
+
+def test_without_alternatives_in_the_plan_the_search_uses_the_title_as_given() -> None:
+    plan = {
+        "standalone_query": "Making of di Il favoloso mondo di Amélie",
+        "tool_name": "youtube_search",
+        "arguments": {"title": "Il favoloso mondo di Amélie", "kinds": ["making_of"]},
+        "confidence": 0.9,
+    }
+
+    _, transport, _ = _orchestrated(plan, [])
+
+    assert transport.calls[0][1]["q"].startswith('"Il favoloso mondo di Amélie" "making of"')
+
+
+def test_the_planner_catalog_carries_the_alternative_titles_rule() -> None:
+    from orchestrator import LLMOrchestrator
+
+    import app as app_module
+
+    tool, _ = make_tool()
+    orchestrator = LLMOrchestrator(config=app_module.build_runtime_config(), tools=[tool], client=_PlannerClient({}))
+
+    catalog = orchestrator._catalog_text(["youtube_search"])
+
+    assert "never deduce one from your own knowledge" in catalog
+    assert "for a localized title with no other title written, leave it empty" in catalog
