@@ -80,7 +80,7 @@ def test_notes_say_what_matched_and_what_did_not() -> None:
 
 
 def test_a_generic_title_with_nothing_to_check_is_kept_and_noted() -> None:
-    result = check(req("Heat"), K.making_of, "Heat - Making of")
+    result = check(req("Heat"), K.making_of, "Heat - Making of", "Making of the film.")
 
     assert result.kept and "homonym_unchecked" in result.notes
 
@@ -564,3 +564,72 @@ def test_one_word_titles_with_film_context_stay_unchecked(film, kind, title, des
 
     assert result.kept and "homonym_unchecked" in result.notes
 
+
+
+# --- live rerun 2026-10-24: film context is separate from the kind -----------------------------
+
+
+@pytest.mark.parametrize(
+    ("film", "kind", "title", "description"),
+    [
+        # Case 14 rerun: "Director" in a TV drama clip is no film context for "Her".
+        ("Her", K.director_interview, "She Targeted Gloria… Then the Director Turned on Her!", "Drama clip with the full cast."),
+        # Case 5 rerun: a music edit.
+        ("Parasite", K.author_commentary,
+         "The Parasite Is Living In Him | Goosebumps | Song - House Of Memories #edit #slowed", "slowed + reverb"),
+        # Kind words and roles alone are no film context.
+        ("Heat", K.making_of, "Heat - Making of", ""),
+        ("Arrival", K.behind_the_scenes, "Arrival - Behind the scenes | Featurette", "Cast and director on set."),
+        # Known limit: a one-word trailer with no film word, no year and no person is dropped.
+        ("Her", K.trailer, "Her - Official Trailer", ""),
+        # Styled letters (fan edits, case 2) are not another script.
+        ("Her", K.cast_interview, "Her edit | 𝗔𝘀𝘁𝗿𝗼𝘅", ""),
+        # Another script, but the film title only in the description: no Latin title in the title.
+        ("Parasite", K.author_commentary, "লোভের কারণে মানুষ কতটা নিচে নামতে পারে", "parasite"),
+    ],
+)
+def test_kind_words_and_generic_roles_are_no_film_context(film, kind, title, description) -> None:
+    result = check(req(film, kinds=[kind.value]), kind, title, description)
+
+    assert (result.kept, result.reason) == (False, "homonym_risk")
+
+
+@pytest.mark.parametrize(
+    ("film", "kind", "title", "description"),
+    [
+        # Case 5 rerun: the film title in quotes, any quote style.
+        ("Parasite", K.author_commentary, "The Ending Of 'Parasite' Explained | Pop Culture Decoded", ""),
+        ("Parasite", K.cast_interview, "The Cast of “Parasite” at the SAG Awards", ""),
+        ("Her", K.director_interview, "Spike Jonze parla di «Her»", ""),
+        # Case 5 first run: a Bengali analysis naming the film in Latin letters.
+        ("Parasite", K.author_commentary,
+         "লোভের কারণে মানুষ কতটা নিচে নামতে পারে ? | Parasite Explained In Bangla | CINEMAR GOLPO", ""),
+        # Film words in other languages.
+        ("Parasite", K.author_commentary, "Parasite | Análisis de la película", ""),
+        ("Parasite", K.director_interview, "Parasite - Il film matematico", ""),
+        ("Her", K.director_interview, "Spike Jonze über Her", "Ein Film von Spike Jonze."),
+    ],
+)
+def test_film_context_keeps_unverifiable_one_word_titles(film, kind, title, description) -> None:
+    result = check(req(film, kinds=[kind.value]), kind, title, description)
+
+    assert result.kept and "homonym_unchecked" in result.notes
+
+
+def test_film_context_never_confirms_the_kind() -> None:
+    result = check(req("Parasite", kinds=["director_interview"]), K.director_interview, "Parasite - Il film matematico")
+
+    assert result.kept and {"homonym_unchecked", "kind_unconfirmed"} <= set(result.notes)
+    assert verification(result.notes) == "to_verify"
+
+
+def test_the_case_17_podcast_stays_unconfirmed_with_film_context() -> None:
+    request_ = req("Il ragazzo e l'airone", kinds=["cast_interview"])
+    podcast = check(
+        request_,
+        K.cast_interview,
+        "Deadpool & Wolverine, Il Ragazzo e l'Airone, CENTO CHILI DI MUSICAL | 🍕 PPP 295",
+        "Il cast del podcast parla dei film e dei movie della settimana, con intervista finale.",
+    )
+
+    assert podcast.kept and "kind_unconfirmed" in podcast.notes and verification(podcast.notes) == "to_verify"

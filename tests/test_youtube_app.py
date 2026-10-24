@@ -157,7 +157,7 @@ def test_a_planned_youtube_turn_reaches_the_presenter(monkeypatch, capsys) -> No
     tool, transport = make_tool(
         {
             "/search": {"items": [search_item("vid00000001", "Interstellar - Making of")]},
-            "/videos": {"items": [video_item("vid00000001", "Interstellar - Making of")]},
+            "/videos": {"items": [video_item("vid00000001", "Interstellar - Making of", description="Making of the film.")]},
         }
     )
     plan = {"standalone_query": "Making of di Interstellar", "tool_name": "youtube_search", "arguments": {"title": "Interstellar", "kinds": ["making_of"]}, "confidence": 0.9}

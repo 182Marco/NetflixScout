@@ -780,7 +780,10 @@ def test_verification_comes_only_from_relevance_notes(notes, label) -> None:
 
 
 def test_unchecked_one_word_title_asks_for_the_year_and_the_original_title() -> None:
-    routes = {"/search": {"items": [search_item(ID1, "Arrival - Behind the scenes")]}, "/videos": {"items": [video_item(ID1, "Arrival - Behind the scenes")]}}
+    routes = {
+        "/search": {"items": [search_item(ID1, "Arrival - Behind the scenes")]},
+        "/videos": {"items": [video_item(ID1, "Arrival - Behind the scenes", description="On the set of the film.")]},
+    }
     tool, _ = make_tool(routes)
 
     result = run_tool(tool, title="Arrival", kinds=["behind_the_scenes"])

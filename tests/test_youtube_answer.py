@@ -66,7 +66,9 @@ class _NoClient:
 def test_the_final_answer_receives_labels_and_hints_in_metadata() -> None:
     routes = {
         "/search": {"items": [search_item("vid00000001", "Arrival - Behind the scenes"), search_item("vid00000002", "Arrival - Featurette")]},
-        "/videos": {"items": [video_item("vid00000001", "Arrival - Behind the scenes"), video_item("vid00000002", "Arrival - Featurette")]},
+        # A film word in the descriptions: kind words alone are no film context for "Arrival".
+        "/videos": {"items": [video_item("vid00000001", "Arrival - Behind the scenes", description="On the set of the film."),
+                              video_item("vid00000002", "Arrival - Featurette", description="Official film featurette.")]},
     }
     tool, _ = make_tool(routes)
     result = run_tool(tool, title="Arrival", kinds=["behind_the_scenes"])
