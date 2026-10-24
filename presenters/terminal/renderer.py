@@ -9,6 +9,7 @@ from collections.abc import Callable
 
 from turn import (
     STEP_CLASSIFICATION,
+    STEP_PLANNING,
     STEP_DB_QUERY,
     STEP_QUERY_REWRITE,
     STEP_RERANK,
@@ -22,10 +23,10 @@ from turn import (
 
 from .api import render_tmdb_calls
 from .blocks import (
-    print_classification,
     print_compact_notice,
     print_final_answer,
     print_generic_step,
+    print_planning,
     print_query_used,
     print_tool_selection,
 )
@@ -54,14 +55,20 @@ def _render_tool_selection(step: TraceStep, language: str) -> None:
     print_tool_selection(step.data.get("tool", "?"))
 
 
+def _render_planning(step: TraceStep, language: str) -> None:
+    data = step.data
+    print_planning(data.get("parts") or [], data.get("tools") or [], data.get("pending") or [], data.get("stop_reason", "?"))
+
+
 def _render_classification(step: TraceStep, language: str) -> None:
-    print_classification(step.data.get("is_cinema"), step.data.get("is_italian"))
+    """The classifier verdict stays in the trace but is not printed: only a block message shows."""
 
 
 STEP_RENDERERS: dict[str, StepRenderer] = {
     STEP_CLASSIFICATION: _render_classification,
     STEP_QUERY_REWRITE: _render_query_rewrite,
     STEP_TOOL_SELECTION: _render_tool_selection,
+    STEP_PLANNING: _render_planning,
     STEP_RETRIEVAL: render_retrieval,
     STEP_RERANK: render_rerank,
     STEP_DB_QUERY: render_db_query,

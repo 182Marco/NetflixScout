@@ -13,15 +13,18 @@ def print_query_used(original: str, used: str, rewritten: bool) -> None:
         print(f"\n🔁 Query usata: {used}")
 
 
-def print_classification(is_cinema: bool | None, is_italian: bool | None) -> None:
-    def _yes_no(value: bool | None) -> str:
-        return "?" if value is None else ("sì" if value else "no")
-
-    print(f"\n🧭 Classificatore: cinema={_yes_no(is_cinema)}, italiano={_yes_no(is_italian)}")
-
-
 def print_tool_selection(tool_name: str) -> None:
     print(f"\n🛠️  Tool scelto dall'orchestratore: {tool_name}")
+
+
+def print_planning(parts: list[dict], tools: list[str], pending: list[dict], stop_reason: str) -> None:
+    print("\n🧩 Pianificazione del turno")
+    for part in parts:
+        print(f"  parte: {part.get('part')} → {part.get('tool')}")
+    print(f"  tool eseguiti: {', '.join(tools) or 'nessuno'}")
+    if pending:
+        print("  non eseguite: " + "; ".join(f"{p.get('part')} ({p.get('tool')})" for p in pending))
+    print(f"  stop: {stop_reason}")
 
 
 def print_generic_step(title: str, data: dict) -> None:
@@ -38,9 +41,6 @@ def print_final_answer(answer: str) -> None:
     print()
     print(answer)
     print()
-    print("═" * 70)
-    print("✅ RAG PIPELINE COMPLETATA")
-    print("═" * 70)
 
 
 def print_compact_notice() -> None:

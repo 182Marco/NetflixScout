@@ -135,7 +135,8 @@ def test_terminal_channel_prints_full_procedure(capsys) -> None:
 
     out = capsys.readouterr().out
     assert "rag_search" in out
-    assert "Classificatore: cinema=sì, italiano=sì" in out
+    assert "Classificatore" not in out
+    assert "RAG PIPELINE COMPLETATA" not in out
     assert "Query riscritta con il contesto: film con robot recenti" in out
     assert "Testo usato per l'embedding: Movies about robots" in out
     assert "Generi richiesti: Science Fiction" in out
@@ -196,3 +197,72 @@ def test_clarification_turn_is_recorded_and_printed_without_a_tool(monkeypatch, 
     assert turn.history[-1] == {"role": "assistant", "content": "Quale film di Sorrentino intendi?"}
     out = capsys.readouterr().out
     assert "nessuno: richiesta di chiarimento" in out
+
+
+def test_handle_query_records_one_selection_per_tool_each_followed_by_its_trace(monkeypatch) -> None:
+    """A multi-tool turn shows only the steps of the tools that ran (no RAG steps here)."""
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
+
+    class _TwoTools(_FakeOrchestrator):
+        def run(self, *, query, conversation_history=None, tool_overrides=None):
+            return {
+                "tool": "tmdb_search",
+                "tools": ["tmdb_search", "youtube_search"],
+                "calls": [
+                    {"tool": "tmdb_search", "arguments": {}, "result": {"trace": [{"kind": "tmdb_calls", "title": "TMDb", "data": {}}]}},
+                    {"tool": "youtube_search", "arguments": {}, "result": {"trace": [{"kind": "youtube_calls", "title": "YouTube", "data": {}}]}},
+                ],
+                "standalone_query": query,
+                "result": {"trace": []},
+                "final_answer": "Ecco film e intervista.",
+            }
+
+    app = {"config": app_module.build_runtime_config(), "orchestrator": _TwoTools()}
+
+    turn = app_module.handle_query(app, "un film con DiCaprio e un'intervista", history=[])
+
+    assert [s.kind for s in turn.steps] == [
+        "classification", "query_rewrite", "tool_selection", "tmdb_calls", "tool_selection", "youtube_calls",
+    ]
+    assert [s.data["tool"] for s in turn.steps if s.kind == "tool_selection"] == ["tmdb_search", "youtube_search"]
+    assert turn.tool == "tmdb_search" and turn.tools == ["tmdb_search", "youtube_search"]
+    assert not any(s.kind in ("retrieval", "rerank") for s in turn.steps)
+
+
+def test_planning_step_is_recorded_and_printed_when_a_part_was_not_run(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
+
+    class _Pending(_FakeOrchestrator):
+        def run(self, *, query, conversation_history=None, tool_overrides=None):
+            part = {"part": "un'intervista", "tool": "youtube_search"}
+            return {
+                "tool": "tmdb_search",
+                "tools": ["tmdb_search"],
+                "calls": [{"tool": "tmdb_search", "arguments": {}, "result": {"trace": []}}],
+                "planning": {
+                    "parts": [{"part": "un film", "tool": "tmdb_search"}, part],
+                    "tools": ["tmdb_search"],
+                    "pending": [part],
+                    "stop_reason": "done",
+                },
+                "standalone_query": query,
+                "result": {"trace": []},
+                "final_answer": "Ecco il film.",
+            }
+
+    app = {"config": app_module.build_runtime_config(), "orchestrator": _Pending()}
+
+    turn = app_module.handle_query(app, "un film e un'intervista", history=[])
+    present(turn, OutputChannel.terminal)
+
+    assert turn.steps[-1].kind == "planning" and turn.steps[-1].data["stop_reason"] == "done"
+    out = capsys.readouterr().out
+    assert "non eseguite: un'intervista (youtube_search)" in out and "stop: done" in out
+
+
+def test_a_single_tool_turn_has_no_planning_step(monkeypatch) -> None:
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
+
+    turn = app_module.handle_query(_fake_app(), "un film con robot", history=[])
+
+    assert "planning" not in [s.kind for s in turn.steps]

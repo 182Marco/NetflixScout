@@ -13,6 +13,8 @@ from pydantic import BaseModel, Field
 STEP_CLASSIFICATION = "classification"
 STEP_QUERY_REWRITE = "query_rewrite"
 STEP_TOOL_SELECTION = "tool_selection"
+# Multi-tool turns only: the parts of the request, the tools that ran and why the loop stopped.
+STEP_PLANNING = "planning"
 STEP_RETRIEVAL = "retrieval"
 STEP_RERANK = "rerank"
 STEP_DB_QUERY = "db_query"
@@ -44,6 +46,8 @@ class TurnResult(BaseModel):
     blocked: bool
     answer: str
     tool: str | None = None
+    # Every tool run in the turn, in execution order (`tool` is the first one).
+    tools: list[str] = Field(default_factory=list)
     steps: list[TraceStep] = Field(default_factory=list)
     history: list[dict[str, str]] = Field(default_factory=list)
     history_compacted: bool = False

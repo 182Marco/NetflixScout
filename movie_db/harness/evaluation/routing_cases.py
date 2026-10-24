@@ -237,4 +237,18 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
             ),
         ),
     ),
+    # Real failure (2026-10-24): a film by actor judged by critics went to movie_db_search, which
+    # has no people nor critics, and the interview was never looked for. The first step is TMDb
+    # (discover by person); the interview is a later step of the same turn.
+    RoutingCase(
+        "Voglio un film con Leonardo Di Caprio accolto male dalla critica. "
+        "Trovami anche un'intervista all'attore che parla di quel film",
+        TMDB,
+        expected_request=RequestExpectation("discover_movies"),
+    ),
+    RoutingCase(
+        "Quali sono i film di Leonardo DiCaprio con i voti più bassi?",
+        TMDB,
+        expected_request=RequestExpectation("discover_movies"),
+    ),
 )

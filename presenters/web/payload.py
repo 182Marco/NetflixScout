@@ -15,6 +15,10 @@ to be mapped directly by the frontend. Intended shape:
         ],
     }
 
+The `classification` step (is_cinema/is_italian) is internal: like the terminal, the frontend
+should not show it, only the block message of a blocked turn. RAG steps appear only when the
+orchestrator ran `rag_search`.
+
 It will be implemented when more tools than the RAG exist, so the step schema can
 be designed across all of them. Conversation history stays out of the payload: the
 web caller keeps it and sends it back on the next request.

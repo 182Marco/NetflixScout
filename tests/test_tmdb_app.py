@@ -58,7 +58,11 @@ def test_routing_rules_are_prioritized_by_need() -> None:
     assert rag.startswith("3) rag_search") and all(topic in rag for topic in ("raccomandazioni", "temi", "somiglianze"))
     assert "solo come riferimento" in rag and "non tmdb_search" in rag
     assert "cast" not in rag and "diretto" not in rag
-    assert "un solo tool per turno" in mixed
+    assert mixed.startswith("4) Richieste composte") and "un solo tool per turno" not in mixed
+    assert "more_steps" in mixed and "mai un tool in più" in mixed
+    # MovieLens has no people nor critics; the RAG is never a fallback for them.
+    assert "nessun attore" in db and "giudizio della critica" in db
+    assert "Non usare rag_search per filmografie" in rag
 
 
 def test_final_instructions_use_enrichment_sources_and_names_faithfully() -> None:
@@ -180,3 +184,13 @@ def test_runtime_never_imports_the_tmdb_harness() -> None:
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
             if isinstance(node, ast.ImportFrom) and node.module:
                 assert "harness" not in node.module, path
+
+
+def test_final_instructions_do_not_invent_missing_steps_or_trailers() -> None:
+    """Real run (2026-10-24): the answer said "no interview found" without searching, and
+    "no trailers" without being asked."""
+    final = app_module.CONFIG["orchestrator"]["final_instructions"]
+
+    assert "non ha chiesto video o trailer non parlarne" in final
+    assert "NON eseguite" in final and "mai 'non trovate'" in final
+    assert "applied_filters" in final and "voti sono del pubblico TMDb, mai della critica" in final

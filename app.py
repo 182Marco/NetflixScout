@@ -23,6 +23,7 @@ from tmdb.tool import TmdbTool
 from turn import (
     STEP_CLASSIFICATION,
     STEP_QUERY_REWRITE,
+    STEP_PLANNING,
     STEP_TOOL_SELECTION,
     TOOL_PARAM_TURN_LANGUAGE,
     TraceStep,
@@ -46,7 +47,7 @@ CONFIG = {
             "Sei l'orchestratore di un sistema multi-tool. "
             "Scegli il tool più adatto alla query e alle informazioni disponibili. "
             "Ritorna solo JSON con chiavi: standalone_query, tool_name, arguments, confidence, "
-            "needs_clarification, clarification_question. "
+            "parts, more_steps, needs_clarification, clarification_question. "
             "standalone_query è l'ultima richiesta dell'utente riscritta in modo autonomo, "
             "risolvendo con la conversazione precedente i riferimenti impliciti "
             "(es. 'e uno più recente?', 'qualcosa di simile'); non inventare fatti e non rispondere "
@@ -67,7 +68,9 @@ CONFIG = {
             "diretto, chi recita nel cast, troupe, durata, data di uscita, dettagli, dove vederlo in "
             "streaming, trailer (link ufficiali TMDb), immagini, recensioni, stagioni ed episodi, "
             "persone e filmografie, saghe, case di produzione, trending, novità e ricerche con "
-            "filtri. Per un film o una "
+            "filtri. I film di un attore o di un regista e i giudizi della critica (film accolti "
+            "bene o male, i meglio o peggio valutati di una persona) sono una ricerca con filtri "
+            "su TMDb (discover con people e voto massimo o minimo, ordinati per voto). Per un film o una "
             "serie indicati per titolo, anche ambiguo, usa movie_details o tv_details con il titolo: "
             "il tool sceglie la versione dai risultati di TMDb e riporta le alternative. Non "
             "scegliere tu una versione e indica l'anno solo se l'utente lo ha dato. Usa "
@@ -80,10 +83,12 @@ CONFIG = {
             "proposta di cercarli lì. Per youtube_search compila arguments con title e kinds (dal più "
             "importante, solo le categorie richieste) e, solo se compaiono nella richiesta o nella "
             "conversazione, year, director, cast e alternative_titles: non inventarli, non tradurli "
-            "e non dedurli. "
+            "e non dedurli: fanno eccezione i dati già ottenuti dai passi precedenti del turno "
+            "(es. il titolo del film trovato con tmdb_search). "
             "2) movie_db_search è il punto di partenza per voti, valutazioni, classifiche, numero di "
             "voti, confronti basati sui punteggi, film per genere e anno ordinati per voto e tag "
-            "degli utenti di MovieLens. "
+            "degli utenti di MovieLens. MovieLens contiene solo voti e tag degli utenti: nessun "
+            "attore, regista o cast, nessun giudizio della critica, nessun filtro per persona. "
             "3) rag_search è il punto di partenza per raccomandazioni e ricerche semantiche basate su "
             "trama, temi, emozioni, atmosfera, situazioni narrative e somiglianze tra film, e per "
             "riconoscere un film descritto dalla trama senza titolo. Se un titolo è citato solo come "
@@ -92,8 +97,16 @@ CONFIG = {
             "una richiesta di ricerca autonoma e più esplicita (es. i temi del film citato), senza "
             "aggiungere vincoli che l'utente non ha espresso. Dopo rag_search il sistema aggiunge da solo i "
             "metadati TMDb dei film trovati: non scegliere tmdb_search per questo. "
-            "4) Richieste miste: esegui un solo tool per turno, quello che soddisfa il bisogno "
-            "principale della richiesta."
+            "Non usare rag_search per filmografie, attori, registi, voti o giudizi della critica, né "
+            "come ripiego o per completezza quando un altro tool ha già risposto. "
+            "4) Richieste composte: se servono più fonti, i tool girano uno per passo e ogni passo "
+            "usa i dati già ottenuti (es. il film trovato con tmdb_search diventa il titolo di "
+            "youtube_search). In parts elenca le parti della richiesta, ognuna come "
+            "{\"part\": ..., \"tool\": ...} con il tool che la risolve (es. un film da cercare con "
+            "tmdb_search e un'intervista da cercare con youtube_search): il sistema esegue "
+            "tutti i tool elencati, uno dopo l'altro, e tu scegli ora il primo. Imposta more_steps "
+            "true se serve un altro tool dopo questo. Scegli solo i tool necessari a rispondere a "
+            "tutta la richiesta, mai un tool in più."
         ),
         # Final answer prompt (`LLMOrchestrator._generate_final_answer`).
         "final_instructions": (
@@ -131,6 +144,12 @@ CONFIG = {
             "notes (o year_note) indicano 'year_from_release_dates', l'anno richiesto coincide "
             "con una delle date di uscita registrate da TMDb e non con quella principale: "
             "riporta entrambi gli anni. "
+            "Se i Metadata hanno error_kind 'unsupported_request' (MovieLens), il database non può "
+            "rispondere a questa richiesta (non contiene attori, registi, cast né giudizi della "
+            "critica): dillo in una frase, senza parlare di errori nei dati, e non inventare "
+            "risultati. Se un tool ha error_kind 'parser_failed' dichiara che la ricerca non è "
+            "riuscita. Se i tool usati sono più di uno, rispondi a ogni parte della richiesta con "
+            "i dati del tool che l'ha prodotta e dichiara le parti per cui nessun tool ha dati. "
             "Se i Metadata hanno work_type_verified false (MovieLens), chiama i risultati "
             "'titoli', non 'film', e dichiara che MovieLens non distingue film e serie TV, quindi "
             "un titolo potrebbe essere una serie. "
@@ -151,7 +170,13 @@ CONFIG = {
             "Non sostituire il nome originale e, se non sai traslitterarlo, lascialo com'è senza "
             "inventare grafie. "
             "Se il tool usato è tmdb_search, sono stati chiesti i video e non risultano trailer, "
-            "dillo e proponi di cercarli su YouTube."
+            "dillo e proponi di cercarli su YouTube; se l'utente non ha chiesto video o trailer "
+            "non parlarne. Se il contesto elenca parti della richiesta NON eseguite, di' che non "
+            "sono state cercate (mai 'non trovate' o 'non risultano') e proponi di farlo. Per i "
+            "film elencati da una ricerca TMDb con applied_filters, descrivi la lista con quei "
+            "filtri (persone risolte, ordinamento, intervallo di voti) e non dire che manca la "
+            "prova del filtro; i voti sono del pubblico TMDb, mai della critica: se la richiesta "
+            "parla di critica dichiaralo."
         ),
         # Final rules of one tool, appended to `final_instructions` only on that tool's turns.
         "tool_final_instructions": {
@@ -177,6 +202,9 @@ CONFIG = {
         "max_iterations": 3,
         "max_execution_time": 30,
         "token_budget": 60000,
+        # Ceiling of tool runs in one turn: the loop limit and, with the per-turn TMDb and
+        # YouTube limits, the API spend limit.
+        "max_tool_calls_per_turn": 10,
         "memory_window_size": 12,
         # Last history messages shown to the domain classifier, so follow-ups are not blocked.
         "classifier_context_messages": 2,
@@ -382,11 +410,26 @@ def handle_query(
             data={"original": query, "used": standalone_query, "rewritten": standalone_query != query},
         )
     )
-    selection = {"tool": decision["tool"]}
     if decision.get("clarification"):
-        selection["clarification"] = True
-    steps.append(TraceStep(kind=STEP_TOOL_SELECTION, title="Tool scelto", data=selection))
-    steps.extend(TraceStep(**step) for step in decision["result"].get("trace", []))
+        steps.append(
+            TraceStep(
+                kind=STEP_TOOL_SELECTION,
+                title="Tool scelto",
+                data={"tool": decision["tool"], "clarification": True},
+            )
+        )
+    # One tool_selection step per call, each followed by the trace of that call.
+    calls = decision.get("calls")
+    if calls is None and decision.get("tool"):
+        # Single-call decision (no `calls` list).
+        calls = [{"tool": decision["tool"], "result": decision["result"]}]
+    for call in calls or []:
+        steps.append(TraceStep(kind=STEP_TOOL_SELECTION, title="Tool scelto", data={"tool": call["tool"]}))
+        steps.extend(TraceStep(**step) for step in call["result"].get("trace", []))
+    planning = decision.get("planning")
+    if planning and (len(planning["tools"]) > 1 or planning["pending"]):
+        # After the calls: it says what ran, what did not, and why the loop stopped.
+        steps.append(TraceStep(kind=STEP_PLANNING, title="Pianificazione", data=dict(planning)))
 
     history.extend(
         [
@@ -410,6 +453,7 @@ def handle_query(
         blocked=False,
         answer=answer,
         tool=decision["tool"],
+        tools=list(decision.get("tools") or []),
         steps=steps,
         history=history,
         history_compacted=compacted,
