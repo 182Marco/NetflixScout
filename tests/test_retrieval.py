@@ -283,3 +283,29 @@ def test_rag_tool_keeps_the_user_query_and_passes_the_planner_rewrite_as_a_hint(
     assert planned["trace"][1]["data"]["rerank_query"] == "themes"
     RagTool(config={}).run(query=user, params={"query": user})
     assert received["hint"] is None  # identical rewrite: no hint
+
+
+def test_bm25_index_reads_the_collection_in_pages_and_is_cached(monkeypatch) -> None:
+    from rag.FromQueryEmbeddingToRes import hybrid
+
+    monkeypatch.setattr(hybrid, "_BM25_PAGE_SIZE", 2)
+    hybrid._BM25_CACHE.clear()
+    calls: list[tuple[int, int]] = []
+
+    class FakeCollection:
+        name = "fake"
+
+        def count(self):
+            return 5
+
+        def get(self, limit, offset):
+            calls.append((limit, offset))
+            ids = [f"c{i}" for i in range(offset, min(offset + limit, 5))]
+            return {"ids": ids, "documents": [f"plot {i}" for i in ids], "metadatas": [{"title": i} for i in ids]}
+
+    index = hybrid.costruisci_indice_bm25(FakeCollection())
+
+    assert [c["id"] for c in index["chunks"]] == ["c0", "c1", "c2", "c3", "c4"]
+    assert calls == [(2, 0), (2, 2), (2, 4)]
+    assert hybrid.costruisci_indice_bm25(FakeCollection()) is index and len(calls) == 3
+    hybrid._BM25_CACHE.clear()

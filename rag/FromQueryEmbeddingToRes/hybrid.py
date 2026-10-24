@@ -8,21 +8,36 @@ def tokenizza(testo):
     return re.findall(r"\w+", testo.lower())
 
 
+# Chroma rejects a single get() of tens of thousands of rows ("too many SQL variables").
+_BM25_PAGE_SIZE = 5000
+_BM25_CACHE: dict[tuple[str, int], dict] = {}
+
+
 def costruisci_indice_bm25(collection):
-    """Build a BM25 index from every document stored in a collection."""
-    dati = collection.get()
+    """Build a BM25 index from every document stored in a collection.
+
+    Documents are read page by page, and the index is kept per collection and size so a
+    second keyword query in the same session does not rebuild it.
+    """
+    key = (str(getattr(collection, "name", id(collection))), collection.count())
+    if key in _BM25_CACHE:
+        return _BM25_CACHE[key]
     chunks = []
-    for i in range(len(dati["ids"])):
-        chunks.append({
-            "id": dati["ids"][i],
-            "testo": dati["documents"][i],
-            **(dati["metadatas"][i] or {}),
-        })
+    for offset in range(0, key[1], _BM25_PAGE_SIZE):
+        dati = collection.get(limit=_BM25_PAGE_SIZE, offset=offset)
+        for i in range(len(dati["ids"])):
+            chunks.append({
+                "id": dati["ids"][i],
+                "testo": dati["documents"][i],
+                **(dati["metadatas"][i] or {}),
+            })
     corpus_token = [tokenizza(chunk["testo"]) for chunk in chunks]
-    return {
+    indice = {
         "bm25": BM25Okapi(corpus_token),
         "chunks": chunks,
     }
+    _BM25_CACHE[key] = indice
+    return indice
 
 
 def cerca_bm25(query, indice, k):
