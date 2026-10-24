@@ -168,6 +168,12 @@ class _Run:
     queries: dict[str, str] = field(default_factory=dict)
     candidates: dict[VideoKind, list[_Candidate]] = field(default_factory=dict)
     details_error: str | None = None
+    # Titles dropped by the relevance filter, with the reason: trace only, to spot false negatives.
+    dropped: list[dict[str, str]] = field(default_factory=list)
+
+    def _drop(self, outcome: KindOutcome, title: str, reason: str) -> None:
+        _count(outcome.filtered_out, reason)
+        self.dropped.append({"kind": outcome.kind.value, "title": title, "reason": reason})
 
     def search(self) -> None:
         limit = self.config.max_searches_per_turn
@@ -198,7 +204,7 @@ class _Run:
             for video in videos:
                 dropped = prescreen(self.request, title=_text(video.get("title")))
                 if dropped is not None:
-                    _count(outcome.filtered_out, dropped.reason or "filtered")
+                    self._drop(outcome, html.unescape(_text(video.get("title"))), dropped.reason or "filtered")
                     continue
                 kept.append(
                     _Candidate(
@@ -250,7 +256,7 @@ class _Run:
         row = details.get(candidate.video_id)
         if row is None and candidate.video_id in looked_up:
             # `/videos` answered without it: removed or private since the search.
-            _count(outcome.filtered_out, "unavailable")
+            self._drop(outcome, html.unescape(candidate.title), "unavailable")
             return None
         notes: list[str] = []
         if row is not None:
@@ -282,7 +288,7 @@ class _Run:
             duration_seconds=duration,
         )
         if not screening.kept:
-            _count(outcome.filtered_out, screening.reason or "filtered")
+            self._drop(outcome, title, screening.reason or "filtered")
             return None
         notes = [*screening.notes, *notes, *([region] if region else [])]
         return VideoHit(
@@ -364,6 +370,11 @@ class YoutubeTool:
             "metadata": {"youtube": metadata},
             # Outside "metadata": the orchestrator puts metadata in the LLM prompt.
             "trace": build_youtube_trace(
-                session.recorder.calls, run.outcomes, run.queries, hints=hints, quota_paused_until=paused
+                session.recorder.calls,
+                run.outcomes,
+                run.queries,
+                hints=hints,
+                quota_paused_until=paused,
+                dropped=run.dropped,
             ),
         }

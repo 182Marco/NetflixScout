@@ -3,7 +3,9 @@
 Kept outside `metadata` (which goes into the LLM prompt): the presenters show the video
 titles, channels and URLs exactly as returned by the API, with the YouTube attribution,
 never left to the model. The search `q` is listed for debugging, like the SQL of `db_query`;
-the key never appears (calls are display URLs).
+the key never appears (calls are display URLs). `dropped` lists the titles the relevance
+filter removed, with the reason, to spot false negatives in tests and evaluations; the
+presenters do not print it.
 """
 from __future__ import annotations
 
@@ -24,6 +26,7 @@ def build_youtube_trace(
     *,
     hints: list[str] | None = None,
     quota_paused_until: float | None = None,
+    dropped: list[dict[str, str]] | None = None,
 ) -> list[dict[str, Any]]:
     searches = [
         {
@@ -59,6 +62,7 @@ def build_youtube_trace(
             for outcome in outcomes
             for hit in outcome.hits
         ],
+        "dropped": [dict(row) for row in dropped or []],
     }
     if hints:
         data["hints"] = list(hints)
