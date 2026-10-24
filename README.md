@@ -368,7 +368,9 @@ and conflicting years; everything else is judged on the full `/videos` data. A v
 evidence (film and people not named, another declared format such as a review or a full movie,
 unconfirmed homonym, self-declared Short, no longer available), otherwise it is kept in API order
 and labelled `confirmed` or `to_verify`. The kind is confirmed only by a word of the kind in the
-video title (descriptions list credits such as "director" or "cast"). A one-word title with no
+video title (descriptions list credits such as "director" or "cast"), or, for an interview, when a
+named person speaks in the title ("Celine Song talks …") and the description gives that same
+person the requested role next to the name ("writer-director Celine Song"). A one-word title with no
 year or person to check is kept, as to verify, only with film context: a film word in the title
 or description (film, movie, película, IMDb, "directed by"...), the film title in quotes, or the
 Latin film title inside a title in another script. Kind words and roles ("trailer", "making of",
