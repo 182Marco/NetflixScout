@@ -84,7 +84,7 @@ def test_italian_labels_results_reasons_and_notes(capsys) -> None:
     assert f"Chiamato: {SEARCH_URL}" in out and f"Chiamato: {VIDEOS_URL}" in out
     assert 'Ricerca making-of: "Dune: Part Two" "making of" -reaction -parody' in out
     assert "9 ricevuti, 1 tenuti; scartati: film non nominato 3, possibile omonimo 1" in out
-    assert "Non cercati in questo turno: interviste al regista (limite di ricerche per turno)" in out
+    assert "Non cercato: interviste al regista" in out and "limite di ricerche" not in out
     assert "▶ [making-of] Dune: Part Two – “Making of” & more — Warner Bros. Italia (2024-02-20)" in out
     assert URL1 in out
     assert "note: categoria non confermata dal titolo, non visibile in IT" in out
@@ -94,7 +94,7 @@ def test_english_labels(capsys) -> None:
     out = _render(_step(), "en", capsys)
 
     assert "Source: YouTube" in out and f"Called: {SEARCH_URL}" in out
-    assert "Not searched in this turn: director interviews (per-turn search limit)" in out
+    assert "Not searched: director interviews" in out and "search limit" not in out
     assert "notes: category not confirmed by the title, not viewable in IT" in out
 
 
@@ -110,7 +110,7 @@ def test_errors_and_quota_pause_are_shown(capsys) -> None:
     out = _render(step, "it", capsys)
 
     assert "errore: quota giornaliera esaurita" in out
-    assert "dietro le quinte (quota giornaliera esaurita)" in out
+    assert "Non cercato: dietro le quinte" in out
     assert "Quota di ricerca YouTube esaurita (condivisa dal progetto Google) fino a 2026-10-24T07:00:00+00:00" in out
     assert "Nessun video da mostrare." in out
 
@@ -119,12 +119,6 @@ def test_no_calls_in_the_turn(capsys) -> None:
     out = _render(_step(calls=[], searches=[], videos=[]), "en", capsys)
 
     assert "No YouTube call in this turn." in out
-
-
-def test_unknown_codes_are_shown_as_they_are(capsys) -> None:
-    step = _step(not_searched=[{"kind": "making_of", "reason": "something_new"}])
-
-    assert "making-of (something_new)" in _render(step, "it", capsys)
 
 
 def test_only_https_urls_and_well_formed_rows_are_shown(capsys) -> None:
@@ -239,10 +233,11 @@ def test_web_serializer_shows_the_same_view_as_the_terminal() -> None:
 
     step = _step()
 
-    assert serialize_youtube_calls_step(step, "it") == {
-        "kind": step.kind,
-        **youtube_calls_view(step, "it").model_dump(mode="json"),
-    }
+    view = youtube_calls_view(step, "it").model_dump(mode="json", exclude={"not_searched"})
+    view["labels"].pop("not_searched")
+
+    # Same view, except the terminal-only "not searched" line.
+    assert serialize_youtube_calls_step(step, "it") == {"kind": step.kind, **view}
 
 
 def test_web_channel_returns_a_payload_with_the_step() -> None:
@@ -272,7 +267,7 @@ def test_director_and_cast_interviews_have_distinct_labels(language, director, c
     out = _render(step, language, capsys)
 
     assert f"[{director}] Nolan on Oppenheimer" in out
-    assert f"{cast} (" in out
+    assert f"{'Non cercato' if language == 'it' else 'Not searched'}: {cast}" in out
 
 
 
@@ -329,7 +324,32 @@ def test_hints_are_shown_in_the_turn_language(language, year, original, capsys) 
     assert year in out and original in out and "unknown_hint" not in out
 
 
-def test_turn_limit_is_called_a_search_limit(capsys) -> None:
-    out = _render(_step(), "it", capsys)
+def test_categories_not_searched_are_a_short_line_without_the_reason(capsys) -> None:
+    out = _render(_step(not_searched=[{"kind": "cast_interview", "reason": "turn_limit"}, {"kind": "making_of", "reason": "x"}]), "it", capsys)
 
-    assert "limite di ricerche per turno" in out and "limite di turni" not in out
+    assert "Non cercato: interviste al cast, making-of" in out and "turn_limit" not in out
+
+
+def test_the_web_payload_has_no_not_searched_note() -> None:
+    from presenters.web.youtube import serialize_youtube_calls_step
+
+    payload = serialize_youtube_calls_step(_step(not_searched=[{"kind": "cast_interview", "reason": "turn_limit"}]), "it")
+
+    assert "not_searched" not in payload and "not_searched" not in payload["labels"]
+    assert "cast" not in repr({k: v for k, v in payload.items() if k not in ("groups", "searches", "labels")}).lower()
+
+
+def test_dropped_titles_are_not_printed(capsys) -> None:
+    routes = {
+        "/search": {"items": [search_item("vid00000001", "Dune: Part Two | Making of"), search_item("vid00000002", "Dune: Part Two reaction")]},
+        "/videos": {"items": [video_item("vid00000001", "Dune: Part Two | Making of")]},
+    }
+    tool, _ = make_tool(routes)
+    result = run_tool(tool)
+    [step] = result["trace"]
+    assert step["data"]["dropped"]
+
+    render_youtube_calls(TraceStep(**step), "it")
+
+    out = capsys.readouterr().out
+    assert "Dune: Part Two | Making of" in out and "Dune: Part Two reaction" not in out

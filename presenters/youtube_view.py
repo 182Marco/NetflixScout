@@ -29,7 +29,7 @@ LABELS = {
         "kept": "tenuti",
         "dropped": "scartati",
         "error": "errore",
-        "not_searched": "Non cercati in questo turno",
+        "not_searched": "Non cercato",
         "quota_paused": "Quota di ricerca YouTube esaurita (condivisa dal progetto Google) fino a",
         "no_videos": "Nessun video da mostrare.",
         "notes": "note",
@@ -48,7 +48,7 @@ LABELS = {
         "kept": "kept",
         "dropped": "dropped",
         "error": "error",
-        "not_searched": "Not searched in this turn",
+        "not_searched": "Not searched",
         "quota_paused": "YouTube search quota exhausted (shared by the Google project) until",
         "no_videos": "No video to show.",
         "notes": "notes",
@@ -260,13 +260,9 @@ def youtube_calls_view(step: TraceStep, language: str | None) -> YoutubeCallsVie
         labels=text,
         calls=[printable(url) for url in raw_calls if _https(url)] if isinstance(raw_calls, list) else [],
         searches=searches,
-        not_searched=(
-            ", ".join(
-                f"{kind_label(row.get('kind'), language)} ({code_label(row.get('reason'), language)})"
-                for row in not_searched
-            )
-            or None
-        ),
+        # Terminal only, and short: the categories, not the reasons (errors and the quota
+        # pause have their own lines). The web serializer leaves it out.
+        not_searched=", ".join(kind_label(row.get("kind"), language) for row in not_searched) or None,
         quota_paused=f"{text['quota_paused']} {printable(paused)}" if isinstance(paused, str) and paused else None,
         groups=groups,
         hints=[text[hint] for hint in hints if hint in ("specify_year", "original_title")] if isinstance(hints, list) else [],
