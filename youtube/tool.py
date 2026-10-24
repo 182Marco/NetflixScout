@@ -7,7 +7,14 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from turn import TOOL_PARAM_TURN_ID, TOOL_PARAM_TURN_LANGUAGE
+from turn import (
+    OUTCOME_EMPTY,
+    OUTCOME_ERROR,
+    OUTCOME_OK,
+    TOOL_PARAM_TURN_ID,
+    TOOL_PARAM_TURN_LANGUAGE,
+    tool_outcome,
+)
 
 from .auth import YoutubeCredentials, load_credentials
 from .config import YoutubeConfig
@@ -64,6 +71,7 @@ def _failure(query: str, error: str, **details: Any) -> dict[str, Any]:
     return {
         "query": query,
         "chunks": [],
+        "outcome": tool_outcome(OUTCOME_ERROR, error),
         "metadata": {"youtube": {"status": "error", "error": error, **details}},
         # No step: nothing was called.
         "trace": [],
@@ -381,8 +389,14 @@ class YoutubeTool:
         paused = None
         if self.latch.blocked(QuotaBucket.search) == YoutubeQuotaExceeded.code:
             paused = self.latch.paused_until(QuotaBucket.search)
+        status = metadata["status"]
+        if status == "error":
+            outcome = tool_outcome(OUTCOME_ERROR, next((o.error or o.reason for o in run.outcomes if o.error or o.reason), None))
+        else:
+            outcome = tool_outcome(OUTCOME_EMPTY if status == "empty" else OUTCOME_OK)
         return {
             "query": request.query,
+            "outcome": outcome,
             # Everything is in metadata (all of it reaches the prompt, URLs included).
             "chunks": [],
             "metadata": {"youtube": metadata},

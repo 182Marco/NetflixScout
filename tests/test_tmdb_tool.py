@@ -22,7 +22,8 @@ def test_result_shape_keeps_trace_outside_metadata() -> None:
 
     result = run(tool, {"operation": "movie_details", "tmdb_id": MOVIE_ID})
 
-    assert set(result) == {"query", "chunks", "metadata", "trace"}
+    assert set(result) == {"query", "chunks", "metadata", "trace", "outcome"}
+    assert result["outcome"]["status"] == "ok" and result["outcome"]["reason"] is None
     assert "trace" not in result["metadata"] and "calls" not in repr(result["metadata"])
     assert result["trace"][0]["kind"] == "tmdb_calls"
     chunk = result["chunks"][0]

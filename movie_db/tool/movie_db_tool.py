@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from movie_db.config import MovieDbConfig
+from turn import OUTCOME_EMPTY, OUTCOME_ERROR, OUTCOME_OK, tool_outcome
 
 from .models import ExecutedQuery, MovieDbQuery, MovieDbToolInput
 from .parser import MovieDbParseError, parse_query
@@ -68,9 +69,14 @@ class MovieDbTool:
             metadata["error"] = error
         if error_kind:
             metadata["error_kind"] = error_kind
+        if error or error_kind:
+            outcome = tool_outcome(OUTCOME_ERROR, error_kind or "error")
+        else:
+            outcome = tool_outcome(OUTCOME_OK if rows else OUTCOME_EMPTY)
         return {
             "query": query,
             "chunks": [row_to_chunk(row) for row in rows],
+            "outcome": outcome,
             "metadata": metadata,
             # Outside "metadata": the orchestrator puts metadata in the LLM prompt.
             "trace": build_db_query_trace(executed),

@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from turn import OUTCOME_EMPTY, OUTCOME_OK, tool_outcome
+
 from .constraints import constraint_summary
 from .models import RagToolInput
 from .pipeline import run_rag
@@ -46,6 +48,7 @@ class RagTool:
         return {
             "query": result.query,
             "chunks": chunks,
+            "outcome": tool_outcome(OUTCOME_OK if chunks else OUTCOME_EMPTY),
             "metadata": {
                 "search_mode": result.search_mode.value,
                 "rerank_backend": result.rerank_backend.value,

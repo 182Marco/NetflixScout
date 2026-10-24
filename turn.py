@@ -29,6 +29,16 @@ TOOL_PARAM_TURN_LANGUAGE = "turn_language"
 # so per-turn limits (TMDb calls, YouTube searches) are counted per `turn_id`, not per run.
 TOOL_PARAM_TURN_ID = "turn_id"
 
+# Result of one tool run, set by the tool in `result["outcome"]` (outside `metadata`, so it
+# never reaches the LLM prompt). `reason` is a short code the presenters turn into a sentence.
+OUTCOME_OK = "ok"
+OUTCOME_EMPTY = "empty"
+OUTCOME_ERROR = "error"
+
+
+def tool_outcome(status: str, reason: str | None = None) -> dict[str, str | None]:
+    return {"status": status, "reason": reason}
+
 
 class TraceStep(BaseModel):
     """One step of the procedure, in execution order."""

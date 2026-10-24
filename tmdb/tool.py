@@ -5,7 +5,14 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from turn import TOOL_PARAM_TURN_ID, TOOL_PARAM_TURN_LANGUAGE
+from turn import (
+    OUTCOME_EMPTY,
+    OUTCOME_ERROR,
+    OUTCOME_OK,
+    TOOL_PARAM_TURN_ID,
+    TOOL_PARAM_TURN_LANGUAGE,
+    tool_outcome,
+)
 
 from .auth import TmdbCredentials, load_credentials
 from .budget import CallBudget
@@ -42,10 +49,15 @@ def _failure(query: str, error: str, **details: Any) -> dict[str, Any]:
     return {
         "query": query,
         "chunks": [],
+        "outcome": tool_outcome(OUTCOME_ERROR, error),
         "metadata": {"tmdb": {"status": "error", "error": error, **details}},
         # No step: nothing was called.
         "trace": [],
     }
+
+
+def _first_error(outcomes: list[Any]) -> str | None:
+    return next((outcome.error for outcome in outcomes if outcome.error), None)
 
 
 @dataclass(kw_only=True)
@@ -124,9 +136,15 @@ class TmdbTool:
         ctx = self.new_context(credentials, api_language=api_language_for(turn_language), turn_id=turn_id)
         outcomes = run_requests(ctx, payload.requests)
         packed = pack_context(outcomes, api_language=ctx.api_language, status=overall_status(outcomes))
+        status = overall_status(outcomes)
+        if status == "error":
+            outcome = tool_outcome(OUTCOME_ERROR, _first_error(outcomes))
+        else:
+            outcome = tool_outcome(OUTCOME_OK if packed.chunks else OUTCOME_EMPTY)
         return {
             "query": payload.query,
             "chunks": packed.chunks,
+            "outcome": outcome,
             "metadata": {"tmdb": packed.metadata},
             # Outside "metadata": the orchestrator puts metadata in the LLM prompt.
             "trace": build_tmdb_trace(ctx.recorder.calls, packed.attributions),

@@ -34,8 +34,9 @@ def test_run_returns_chunks_metadata_and_a_queries_only_trace(movie_db_config, c
 
     result = tool.run(query="i migliori sci-fi", params={}, conversation_history=[])
 
-    assert set(result) == {"query", "chunks", "metadata", "trace"}
+    assert set(result) == {"query", "chunks", "metadata", "trace", "outcome"}
     assert [c["title"] for c in result["chunks"]] == ["The Matrix", "Blade Runner"]
+    assert result["outcome"] == {"status": "ok", "reason": None}
     assert result["metadata"] == {"operation": "top_rated", "row_count": 2, **WORK_TYPE_UNVERIFIED}
     assert len(result["trace"]) == 1
     step = TraceStep(**result["trace"][0])
@@ -84,6 +85,7 @@ def test_parser_error_gives_empty_result_without_queries(movie_db_config) -> Non
     assert "error" in result["metadata"]
     # The parser answered but nothing in the whitelist fits (e.g. a filter by actor).
     assert result["metadata"]["error_kind"] == "unsupported_request"
+    assert result["outcome"] == {"status": "error", "reason": "unsupported_request"}
     assert result["trace"][0]["data"] == {"queries": []}
 
 

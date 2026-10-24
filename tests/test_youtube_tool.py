@@ -78,8 +78,9 @@ def test_the_tool_follows_the_orchestrator_contract() -> None:
 
     result = run_tool(tool)
 
-    assert set(result) == {"query", "chunks", "metadata", "trace"}
+    assert set(result) == {"query", "chunks", "metadata", "trace", "outcome"}
     assert result["query"] == "domanda" and result["chunks"] == []
+    assert result["outcome"]["status"] in ("ok", "empty", "error")
     json.dumps(result)  # JSON-ready: metadata goes into the prompt, trace to the presenters
 
 
