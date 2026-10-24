@@ -124,7 +124,7 @@ def test_cases_cover_every_tool_and_follow_ups() -> None:
     assert tools.count(YOUTUBE) == 7
     assert any(case.history and case.expected_tool == TMDB for case in ROUTING_CASES)
     assert any(case.history and case.expected_tool == YOUTUBE for case in ROUTING_CASES)
-    assert len(ROUTING_CASES) == 32
+    assert len(ROUTING_CASES) == 35
 
 
 def test_every_tmdb_case_has_a_valid_request_expectation() -> None:
@@ -343,3 +343,24 @@ def test_turn_language_is_ignored_like_the_tool_does() -> None:
 
 def test_select_cases_includes_youtube() -> None:
     assert select_cases(YOUTUBE) == YOUTUBE_CASES
+
+
+def test_check_rag_requires_the_asked_count() -> None:
+    from movie_db.harness.evaluation.routing_cases import RagExpectation
+    from movie_db.harness.evaluation.run_routing_eval import check_rag
+
+    assert check_rag(RagExpectation(k_finale=5), {"query": "x", "k_finale": 5}) is None
+    assert "k_finale" in check_rag(RagExpectation(k_finale=5), {"k_finale": 3})
+    assert check_rag(RagExpectation(k_finale=(None, 1)), {"query": "x"}) is None
+
+
+def test_rag_params_verdict_counts_only_objective_gains() -> None:
+    from movie_db.harness.evaluation.run_rag_params_eval import AbCase, verdict
+
+    arm = {"returned": 3, "verified": 1, "contradicted": 0, "title_rank": None}
+    asked = AbCase("dammi 5 film", count=5)
+    assert verdict(arm, {**arm, "returned": 5}, asked) == "better"
+    assert verdict({**arm, "returned": 5}, arm, asked) == "worse"
+    assert verdict(arm, {**arm}, AbCase("x")) == "same"
+    named = AbCase("quel film", title="truman")
+    assert verdict(arm, {**arm, "title_rank": 1}, named) == "better"

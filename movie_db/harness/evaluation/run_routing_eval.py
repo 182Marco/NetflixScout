@@ -27,7 +27,7 @@ from turn import TOOL_PARAM_TURN_LANGUAGE
 from youtube.models import YoutubeToolInput
 from youtube.models import describe_validation_errors as describe_video_errors
 
-from .routing_cases import ROUTING_CASES, RequestExpectation, RoutingCase, VideoExpectation
+from .routing_cases import ROUTING_CASES, RagExpectation, RequestExpectation, RoutingCase, VideoExpectation
 
 # Optional `youtube_search` fields that must come from the request or the conversation.
 _VIDEO_GIVEN_FIELDS = ("year", "director", "cast", "alternative_titles")
@@ -67,6 +67,8 @@ class RoutingResult:
             return check_any_request(self.case.expected_request, self.arguments, self.standalone_query)
         if self.case.expected_video is not None:
             return check_any_video(self.case.expected_video, self.arguments, self.standalone_query)
+        if self.case.expected_rag is not None:
+            return check_rag(self.case.expected_rag, self.arguments)
         return None
 
     @property
@@ -168,6 +170,16 @@ def check_any_video(
     options = expected if isinstance(expected, tuple) else (expected,)
     problems = [check_video(option, arguments, standalone_query) for option in options]
     return None if any(problem is None for problem in problems) else problems[0]
+
+
+def check_rag(expected: RagExpectation, arguments: Any) -> str | None:
+    """Check the `k_finale` the planner set, as `RagTool.run` would read it."""
+    if not isinstance(arguments, dict):
+        return "arguments is not an object"
+    counts = expected.k_finale if isinstance(expected.k_finale, tuple) else (expected.k_finale,)
+    if arguments.get("k_finale") not in counts:
+        return f"k_finale {arguments.get('k_finale')!r} not in {counts}"
+    return None
 
 
 def select_cases(tool: str | None) -> tuple[RoutingCase, ...]:
@@ -273,7 +285,11 @@ def main(argv: list[str] | None = None) -> None:
         )
         if result.case.history or result.standalone_query != result.case.question:
             print(f"   standalone: {result.standalone_query}")
-        expects_arguments = result.case.expected_request is not None or result.case.expected_video is not None
+        expects_arguments = (
+            result.case.expected_request is not None
+            or result.case.expected_video is not None
+            or result.case.expected_rag is not None
+        )
         if expects_arguments and result.tool == result.case.expected_tool:
             print(f"   arguments: {json.dumps(result.arguments, ensure_ascii=False)}")
             print(f"   requests: {result.requests_problem or 'ok'}")

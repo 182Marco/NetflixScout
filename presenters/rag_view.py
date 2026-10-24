@@ -35,6 +35,9 @@ class RagStepView(BaseModel):
     title: str
     embedded_text: str | None = None
     genres: list[str] = Field(default_factory=list)
+    # Retrieval settings of the call and which ones the planner changed (retrieval step only).
+    params: dict[str, Any] = Field(default_factory=dict)
+    overridden: list[str] = Field(default_factory=list)
     chunks: list[ChunkView] = Field(default_factory=list)
 
 
@@ -72,6 +75,8 @@ def retrieval_view(step: TraceStep) -> RagStepView:
         title=RETRIEVAL_TITLE.format(n=len(chunks)),
         embedded_text=step.data.get("embedded_text"),
         genres=list(signals.get("genres") or []),
+        params=dict((step.data.get("retrieval_params") or {}).get("effective") or {}),
+        overridden=list((step.data.get("retrieval_params") or {}).get("overridden") or []),
         chunks=chunks,
     )
 

@@ -44,3 +44,10 @@ def print_retrieval_query(embedded_text: str | None, genres: list[str]) -> None:
         print(f"\n🔎 Testo usato per l'embedding: {embedded_text}")
     if genres:
         print(f"   Generi richiesti: {', '.join(genres)}")
+
+
+def print_retrieval_params(params: dict, overridden: list[str]) -> None:
+    if not params:
+        return
+    parts = [f"{k}={v}{'*' if k in overridden else ''}" for k, v in params.items()]
+    print(f"\n⚙️  Parametri di ricerca: {', '.join(parts)}" + ("  (* scelti dal planner)" if overridden else ""))

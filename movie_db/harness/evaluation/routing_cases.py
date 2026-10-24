@@ -47,6 +47,16 @@ class VideoExpectation:
 
 
 @dataclass(frozen=True)
+class RagExpectation:
+    """The `k_finale` the planner should set for a `rag_search` call.
+
+    None means "must be left null" (the configured default); a tuple lists acceptable values.
+    """
+
+    k_finale: int | None | tuple[int | None, ...] = None
+
+
+@dataclass(frozen=True)
 class RoutingCase:
     question: str
     expected_tool: str
@@ -58,6 +68,8 @@ class RoutingCase:
     expected_request: RequestExpectation | tuple[RequestExpectation, ...] | None = None
     # YouTube cases only: the planned arguments; a tuple lists acceptable alternatives.
     expected_video: VideoExpectation | tuple[VideoExpectation, ...] | None = None
+    # RAG cases only: the retrieval parameters in the planned arguments.
+    expected_rag: RagExpectation | None = None
 
 
 _HORROR_80S = (
@@ -250,5 +262,21 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
         "Quali sono i film di Leonardo DiCaprio con i voti più bassi?",
         TMDB,
         expected_request=RequestExpectation("discover_movies"),
+    ),
+    # `k_finale` chosen by the planner (RagToolInput): the count asked for, nothing otherwise.
+    RoutingCase(
+        "Dammi 5 film sul rapporto tra un padre e un figlio, malinconici e lenti",
+        RAG,
+        expected_rag=RagExpectation(k_finale=5),
+    ),
+    RoutingCase(
+        "Consigliami un film sulla solitudine nello spazio",
+        RAG,
+        expected_rag=RagExpectation(k_finale=(None, 1)),
+    ),
+    RoutingCase(
+        "Qual è quel film in cui il protagonista si chiama Truman Burbank e vive in uno show televisivo?",
+        RAG,
+        expected_rag=RagExpectation(k_finale=(None, 1)),
     ),
 )

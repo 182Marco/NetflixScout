@@ -181,6 +181,8 @@ Automatic compaction:
 
 The chosen mode is propagated to the runtime retrieval components (`rag` / `hybrid`) and does not rely on fake APIs.
 
+In the chat, the orchestrator's planner sets one retrieval setting per turn: `k_finale`, the number of films the user asked for (clamped to `rag.retrieval.limits.k_finale`; null keeps the configured default). The other retrieval settings stay fixed in `CONFIG`.
+
 ## RAG Tool (OpenAI Function Calling Ready)
 
 `app.py` also exposes a first tool-ready interface:

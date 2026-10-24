@@ -99,6 +99,8 @@ CONFIG = {
             "una richiesta di ricerca autonoma e più esplicita (es. i temi del film citato), senza "
             "aggiungere vincoli che l'utente non ha espresso. Dopo rag_search il sistema aggiunge da solo i "
             "metadati TMDb dei film trovati: non scegliere tmdb_search per questo. "
+            "Per rag_search imposta k_finale al numero di film che l'utente chiede ('un film' = 1, "
+            "'dammi 5 film' = 5); se non indica un numero lascialo null. "
             "Non usare rag_search per filmografie, attori, registi, voti o giudizi della critica, né "
             "come ripiego o per completezza quando un altro tool ha già risposto. "
             "4) Richieste composte: se servono più fonti, i tool girano uno per passo e ogni passo "
@@ -239,6 +241,9 @@ CONFIG = {
             "fetch_k": 50,
             "genre_boost": 0.15,
             "rrf_costante": 60,
+            # The planner chooses only `k_finale` per turn (`RagToolInput`); the rest are fixed
+            # defaults. `limits` bounds that choice.
+            "limits": {"k_finale": {"min": 1, "max": 10}},
         },
         "rerank": {
             "backend": RerankBackend.cohere,

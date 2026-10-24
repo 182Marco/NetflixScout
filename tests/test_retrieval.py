@@ -285,6 +285,35 @@ def test_rag_tool_keeps_the_user_query_and_passes_the_planner_rewrite_as_a_hint(
     assert received["hint"] is None  # identical rewrite: no hint
 
 
+def test_rag_tool_applies_the_planner_retrieval_params_to_a_copy_of_the_config(monkeypatch) -> None:
+    seen: dict = {}
+
+    def fake_run_rag(*, config, query, history=None, query_hint=None):
+        seen.update(config["retrieval"])
+        return pipeline.RagResult(query=query, search_mode=config["retrieval"]["search_mode"],
+                                  rerank_backend=RerankBackend.cohere, chunks=[])
+
+    monkeypatch.setattr("rag.FromQueryEmbeddingToRes.tool_interface.run_rag", fake_run_rag)
+    from rag.FromQueryEmbeddingToRes.tool_interface import RagTool
+
+    config = {"retrieval": {
+        "search_mode": SearchMode.semantic, "k_largo": 10, "k_finale": 3, "fetch_k": 50,
+        "genre_boost": 0.15, "limits": {"k_finale": {"min": 1, "max": 10}},
+    }}
+    tool = RagTool(config=config)
+    planned = tool.run(
+        query="dammi 5 film",
+        params={"query": "dammi 5 film", "k_finale": 50, "search_mode": "bm25", "turn_id": "t1"},  # extras ignored
+    )
+
+    assert seen["k_finale"] == 10 and seen["search_mode"] == SearchMode.semantic
+    assert config["retrieval"]["k_finale"] == 3
+    data = planned["trace"][0]["data"]["retrieval_params"]
+    assert data["overridden"] == ["k_finale"]
+    assert data["effective"]["search_mode"] == "semantic"
+    assert planned["metadata"]["k_finale"] == 10
+
+
 def test_bm25_index_reads_the_collection_in_pages_and_is_cached(monkeypatch) -> None:
     from rag.FromQueryEmbeddingToRes import hybrid
 

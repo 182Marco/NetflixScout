@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class SearchMode(str, Enum):
@@ -63,6 +63,20 @@ class RagResult(BaseModel):
 
 
 class RagToolInput(BaseModel):
-    """Run the NetflixScout RAG pipeline on a natural language query."""
+    """Run the NetflixScout RAG pipeline on a natural language query.
+
+    `k_finale` is the only retrieval setting the planner chooses (A/B 2026-10-24: search mode,
+    candidate pool sizes and genre boost showed no measurable gain); null means the default.
+    Out-of-range values are clamped (`retrieval_params.resolve_retrieval`).
+    """
+
+    model_config = ConfigDict(extra="forbid")
 
     query: str = Field(min_length=1)
+    k_finale: int | None = Field(
+        default=None,
+        description=(
+            "How many films to return: the number the user asked for ('un film' = 1, 'dammi 5 film' = 5), "
+            "null when no number is given."
+        ),
+    )
