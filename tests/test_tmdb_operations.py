@@ -238,3 +238,64 @@ def test_reference_operations() -> None:
     assert providers["reference_total"] == 8
     assert [c["certification"] for c in certifications["reference"]] == ["T", "VM14"]
     assert result["trace"][0]["data"]["attributions"] == ["justwatch"]
+
+
+def test_discover_can_sort_the_worst_rated_first_with_a_vote_floor() -> None:
+    tool, transport = make_tool(
+        {
+            "/search/person": {"results": [{"id": 6193, "name": "Leonardo DiCaprio", "popularity": 50}]},
+            "/discover/movie": _list(4),
+        },
+    )
+
+    run(
+        tool,
+        {
+            "operation": "discover_movies",
+            "filters": {"people": ["Leonardo DiCaprio"], "sort": "rating_asc", "max_rating": 6},
+        },
+    )
+
+    params = transport.params("/discover/movie")
+    assert params["sort_by"] == "vote_average.asc" and params["with_people"] == "6193"
+    assert params["vote_average.lte"] == "6.0" and params["vote_count.gte"] == "200"
+
+
+def test_discover_reports_the_filters_it_really_applied() -> None:
+    """The list alone does not say what it is a list of: the answer needs the resolved names."""
+    tool, transport = make_tool(
+        {
+            "/search/person": {"results": [{"id": 6193, "name": "Leonardo DiCaprio", "popularity": 50}]},
+            "/discover/movie": _list(3),
+        },
+    )
+
+    result = run(
+        tool,
+        {
+            "operation": "discover_movies",
+            "filters": {"cast": ["Leonardo Di Caprio"], "sort": "rating_asc", "max_rating": 6},
+        },
+    )
+
+    params = transport.params("/discover/movie")
+    assert params["with_cast"] == "6193" and "with_people" not in params
+    request = tmdb_meta(result)["requests"][0]
+    assert request["applied_filters"] == {
+        "sort": "rating_asc",
+        "cast": [{"name": "Leonardo DiCaprio", "tmdb_id": 6193}],
+        "max_rating": 6.0,
+        "vote_count": 200,
+    }
+    # TMDb has no critics' scores.
+    assert "ratings_are_tmdb_user_votes" in request["notes"]
+
+
+def test_the_cast_filter_is_for_movies_only() -> None:
+    import pytest
+    from pydantic import ValidationError
+
+    from tmdb.models.requests import TmdbRequest
+
+    with pytest.raises(ValidationError):
+        TmdbRequest.model_validate({"operation": "discover_tv", "filters": {"cast": ["Leonardo DiCaprio"]}})

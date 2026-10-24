@@ -3,6 +3,8 @@ providers) are resolved to IDs first; if any cannot be resolved, discover is not
 because partial filters would return wrong results."""
 from __future__ import annotations
 
+from typing import Any
+
 from .. import endpoints
 from ..context import TmdbContext
 from ..errors import TmdbNotFound, TmdbUnresolvedFilter
@@ -28,6 +30,7 @@ _SORTS = {
     MediaType.movie: {
         DiscoverSort.popularity_desc: "popularity.desc",
         DiscoverSort.rating_desc: "vote_average.desc",
+        DiscoverSort.rating_asc: "vote_average.asc",
         DiscoverSort.votes_desc: "vote_count.desc",
         DiscoverSort.release_date_desc: "primary_release_date.desc",
         DiscoverSort.release_date_asc: "primary_release_date.asc",
@@ -36,6 +39,7 @@ _SORTS = {
     MediaType.tv: {
         DiscoverSort.popularity_desc: "popularity.desc",
         DiscoverSort.rating_desc: "vote_average.desc",
+        DiscoverSort.rating_asc: "vote_average.asc",
         DiscoverSort.votes_desc: "vote_count.desc",
         DiscoverSort.release_date_desc: "first_air_date.desc",
         DiscoverSort.release_date_asc: "first_air_date.asc",
@@ -44,15 +48,30 @@ _SORTS = {
 _DATE_FIELD = {MediaType.movie: "primary_release_date", MediaType.tv: "first_air_date"}
 
 
-def _ids(ctx: TmdbContext, kind: SearchKind, names: list[str]) -> list[str]:
+def _resolved(ctx: TmdbContext, kind: SearchKind, names: list[str]) -> list[tuple[str, str]]:
+    """(name, TMDb ID) per requested name; the name is the one TMDb matched."""
     try:
-        return [str(resolve(ctx, kind, text=name).tmdb_id) for name in names]
+        resolutions = [(name, resolve(ctx, kind, text=name)) for name in names]
     except TmdbNotFound:
         raise TmdbUnresolvedFilter(f"A {kind.value} name in the filters could not be resolved.") from None
+    return [(found.title or name, str(found.tmdb_id)) for name, found in resolutions]
 
 
-def build_params(ctx: TmdbContext, media: MediaType, filters: DiscoverFilters) -> dict[str, str]:
+def _ids(ctx: TmdbContext, kind: SearchKind, names: list[str]) -> list[str]:
+    return [tmdb_id for _, tmdb_id in _resolved(ctx, kind, names)]
+
+
+def build_params(
+    ctx: TmdbContext,
+    media: MediaType,
+    filters: DiscoverFilters,
+    applied: dict[str, Any] | None = None,
+) -> dict[str, str]:
+    """Query parameters of `/discover`. `applied`, when given, receives what the filters
+    resolved to (names as TMDb matched them, IDs, sort, rating range, vote floor)."""
+    applied = applied if applied is not None else {}
     sort = filters.sort or DiscoverSort.popularity_desc
+    applied["sort"] = sort.value
     params = {"language": ctx.api_language, "sort_by": _SORTS[media][sort]}
     if media is MediaType.movie:
         params["include_video"] = "false"
@@ -64,8 +83,12 @@ def build_params(ctx: TmdbContext, media: MediaType, filters: DiscoverFilters) -
     # Genres and people: all must match (","); companies, keywords, providers: any (|).
     if filters.genres:
         params["with_genres"] = ",".join(str(i) for i in reference.genre_ids(ctx, media, filters.genres))
-    if filters.people:
-        params["with_people"] = ",".join(_ids(ctx, SearchKind.person, filters.people))
+    for field, param in (("people", "with_people"), ("cast", "with_cast")):
+        names = getattr(filters, field)
+        if names:
+            found = _resolved(ctx, SearchKind.person, names)
+            params[param] = ",".join(tmdb_id for _, tmdb_id in found)
+            applied[field] = [{"name": name, "tmdb_id": int(tmdb_id)} for name, tmdb_id in found]
     if filters.companies:
         params["with_companies"] = "|".join(_ids(ctx, SearchKind.company, filters.companies))
     if filters.keywords:
@@ -76,8 +99,19 @@ def build_params(ctx: TmdbContext, media: MediaType, filters: DiscoverFilters) -
         params["vote_average.lte"] = str(filters.max_rating)
     if filters.min_votes is not None:
         params["vote_count.gte"] = str(filters.min_votes)
-    elif sort is DiscoverSort.rating_desc:
+    elif sort in (DiscoverSort.rating_desc, DiscoverSort.rating_asc):
         params["vote_count.gte"] = str(MIN_VOTES_FOR_RATING_SORT)
+    for field, param in (
+        ("min_rating", "vote_average.gte"),
+        ("max_rating", "vote_average.lte"),
+        ("vote_count", "vote_count.gte"),
+    ):
+        if param in params:
+            applied[field] = float(params[param]) if "rating" in field else int(params[param])
+    for field in ("genres", "year_from", "year_to"):
+        value = getattr(filters, field)
+        if value:
+            applied[field] = value
     if filters.min_runtime is not None:
         params["with_runtime.gte"] = str(filters.min_runtime)
     if filters.max_runtime is not None:
@@ -107,8 +141,12 @@ def build_params(ctx: TmdbContext, media: MediaType, filters: DiscoverFilters) -
 
 def _discover(ctx: TmdbContext, request: TmdbRequest, media: MediaType) -> RequestOutcome:
     filters = request.filters or DiscoverFilters()
-    data = get_json(ctx, endpoints.discover(media, build_params(ctx, media, filters)))
+    applied: dict[str, Any] = {}
+    data = get_json(ctx, endpoints.discover(media, build_params(ctx, media, filters, applied)))
     outcome = list_outcome(ctx, request, data, kind=media.value)
+    outcome.applied_filters = applied
+    # TMDb has no critics' scores: the ratings used for filtering and sorting are user votes.
+    outcome.notes.append("ratings_are_tmdb_user_votes")
     if filters.watch_providers:
         outcome.attribution = reference.JUSTWATCH
     return outcome

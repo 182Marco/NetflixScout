@@ -48,5 +48,8 @@ class RequestOutcome(BaseModel):
     candidates: list[dict[str, Any]] = Field(default_factory=list)
     skipped_for_budget: list[str] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
+    # Filters a discover really applied (resolved names and IDs, sort, rating range): the answer
+    # must be able to say what the list is a list of.
+    applied_filters: dict[str, Any] = Field(default_factory=dict)
     # Data source that must be credited when this outcome reaches the user.
     attribution: str | None = None

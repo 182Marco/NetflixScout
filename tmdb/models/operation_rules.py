@@ -147,7 +147,8 @@ RULES: dict[TmdbOperation, OperationRule] = {
         fields=("tmdb_id", "name"),
     ),
     TmdbOperation.discover_movies: OperationRule(
-        "Movies matching filters (genres, years, people, companies, keywords, ratings, providers).",
+        "Movies matching filters (genres, years, cast, people, companies, keywords, ratings, providers). "
+        "Ratings are TMDb user votes, not critics' reviews.",
         fields=("filters", "limit"),
     ),
     TmdbOperation.discover_tv: OperationRule(
@@ -186,7 +187,7 @@ RULES: dict[TmdbOperation, OperationRule] = {
     ),
 }
 
-MOVIE_ONLY_FILTERS = frozenset({"people", "certification", "certification_country", "release_types", "region"})
+MOVIE_ONLY_FILTERS = frozenset({"people", "cast", "certification", "certification_country", "release_types", "region"})
 TV_ONLY_FILTERS = frozenset({"tv_status", "tv_type"})
 
 

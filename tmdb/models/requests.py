@@ -74,7 +74,14 @@ class DiscoverFilters(BaseModel):
     genres: list[Name] = Field(default_factory=list, max_length=5, description="English genre names.")
     year_from: int | None = Field(default=None, ge=1870, le=2100)
     year_to: int | None = Field(default=None, ge=1870, le=2100)
-    people: list[Name] = Field(default_factory=list, max_length=5, description="Movies only; all must appear.")
+    people: list[Name] = Field(
+        default_factory=list, max_length=5, description="Movies only; cast or crew, all must appear."
+    )
+    cast: list[Name] = Field(
+        default_factory=list,
+        max_length=5,
+        description="Movies only; actors in the cast (not crew), all must appear. Use it for 'films with <actor>'.",
+    )
     companies: list[Name] = Field(default_factory=list, max_length=5)
     keywords: list[Name] = Field(default_factory=list, max_length=5, description="English keywords.")
     min_rating: float | None = Field(default=None, ge=0, le=10)

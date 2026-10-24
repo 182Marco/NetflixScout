@@ -139,6 +139,7 @@ def _request_meta(outcome: RequestOutcome) -> dict[str, Any]:
         "candidates": outcome.candidates,
         "skipped_for_budget": outcome.skipped_for_budget,
         "notes": outcome.notes,
+        "applied_filters": outcome.applied_filters,
     }
     meta.update({key: value for key, value in optional.items() if value not in (None, [])})
     essentials = {entity.key: {"essentials": fit_essentials(entity.essentials)} for entity in outcome.entities}

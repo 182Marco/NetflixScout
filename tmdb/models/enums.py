@@ -119,6 +119,7 @@ class Facet(str, Enum):
 class DiscoverSort(str, Enum):
     popularity_desc = "popularity_desc"
     rating_desc = "rating_desc"
+    rating_asc = "rating_asc"
     votes_desc = "votes_desc"
     release_date_desc = "release_date_desc"
     release_date_asc = "release_date_asc"
