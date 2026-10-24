@@ -37,12 +37,12 @@ This repository integrates the RAG modules into a reproducible local pipeline an
 │   └── models.py       # VideoKind, YoutubeToolInput, VideoHit, KindOutcome
 ├── presenters/         # the only output layer: present(turn, channel)
 │   ├── channel.py      # OutputChannel (terminal | web)
-│   ├── db_view.py      # channel-neutral view of the db_query step
-│   ├── api_view.py     # channel-neutral view of the tmdb_calls step + TMDb notice
-│   ├── terminal/       # box.py, session.py, blocks.py (turn flow), renderer.py (STEP_RENDERERS)
+│   ├── story_view.py   # the turn story: a few plain sentences (what, where, how it went), it/en
+│   ├── rag_view.py db_view.py api_view.py youtube_view.py   # channel-neutral views of the tool steps
+│   ├── terminal/       # box.py, session.py, blocks.py, renderer.py (TerminalObserver, STEP_RENDERERS)
 │   │   └── rag/ db/ api/ youtube/   # blocks.py + renderer.py per tool
-│   └── web/            # payload.py (not implemented yet)
-│       └── rag/ db/ api/ youtube/   # serializer.py per tool (rag/ and youtube/ reserved)
+│   └── web/            # payload.py (to_payload, STEP_SERIALIZERS)
+│       └── rag/ db/ api/ youtube/   # serializer.py per tool, same shared view as the terminal
 ├── app.py              # public API + RAG Tool facade
 ├── buildSemanticDb.py  # reproducible semantic DB builder
 ├── buildMovieDb.py     # MovieLens SQLite builder
@@ -318,14 +318,11 @@ appended translations as fallback; the answer language is up to the LLM.
 Each run adds one `tmdb_calls` step with only the endpoints called, key masked
 (`Chiamato: https://api.themoviedb.org/3/movie/157336?api_key=***`; no credential at all with a
 Bearer token), labels in Italian or English after the question, printed by `presenters/terminal/api/`.
-`presenters/web/api/` serializes the same step for the future API (`presenters/web/to_payload` is still not implemented).
+`presenters/web/api/` serializes the same step for the future API (`presenters/web/payload.to_payload` builds the JSON-ready form of a turn, no route yet).
 
 Optional live check of undocumented behaviours (3 real calls): `python -m tmdb.harness.live_smoke --live`.
 
 ### Credits
-
-This application uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise
-approved by TMDB.
 
 TMDB logo: add one of the approved logos from https://www.themoviedb.org/about/logos-attribution
 here (less prominent than the NetflixScout name, as the TMDb terms require). The terminal cannot
@@ -382,8 +379,8 @@ Each run adds one `youtube_calls` step: masked calls (`https://www.googleapis.co
 the query of each kind with the drops per reason, kinds not searched and why, the videos with
 titles and channels exactly as returned, and the dropped titles with their reason (`dropped`: not
 printed, kept for tests and evaluations to spot false negatives). The terminal prints it in `presenters/terminal/youtube/`
-(control characters removed from the printed copy only); `presenters/web/youtube/` is reserved
-until the web channel exists.
+(control characters removed from the printed copy only); `presenters/web/youtube/` serializes the same
+shared view (`presenters/youtube_view.py`) for the web.
 
 Verification status: the offline tests (`tests/test_youtube_*.py`) cover the tool without network.
 A live E2E run of 20 questions (2026-10-23, before the relevance fixes) routed 20/20 to
@@ -394,8 +391,7 @@ confirmation of the query operator precedence and of the API error reasons.
 ### Credits and policies
 
 This application uses YouTube API Services: the terminal names YouTube as the source of every
-video result and prints, at startup, links to the YouTube Terms of Service
-(https://www.youtube.com/t/terms) and the Google Privacy Policy (https://policies.google.com/privacy).
+video result.
 The YouTube API Services Developer Policies (III.A.2) also require the application's own privacy
 policy: not written yet for this personal project.
 
