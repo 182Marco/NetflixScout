@@ -414,6 +414,7 @@ def test_trace_lists_calls_queries_and_videos() -> None:
         "channel": "Warner Bros. Italia",
         "url": f"https://www.youtube.com/watch?v={ID1}",
         "published_at": "2024-02-20T10:00:00Z",
+        "description_excerpt": None,
         "notes": [],
         "verification": "confirmed",
     }

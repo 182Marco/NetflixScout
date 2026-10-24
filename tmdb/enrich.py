@@ -32,7 +32,7 @@ from .normalize.common import clean_text, normalize_name, positive_minutes, trun
 from .runner import run_requests
 from .settings import REFERENCE_LANGUAGE
 from .tool import TmdbTool
-from .trace import build_tmdb_trace
+from .trace import build_tmdb_trace, tmdb_cards
 
 ENRICHMENT_KEY = "tmdb_enrichment"
 OVERVIEW_CHARS = 400
@@ -197,4 +197,12 @@ class TmdbRagEnricher:
             "status": "ok" if matched == len(rows) else "partial" if matched else "none",
             "candidates": rows,
         }
-        return _attach(tool_result, enrichment, build_tmdb_trace(ctx.recorder.calls, []))
+        # Cards only for the verified matches: an unverified TMDb result is not the RAG film.
+        matched_outcomes = [
+            outcomes[position]
+            for row, position in zip(rows, positions)
+            if row["status"] == "matched" and position is not None
+        ]
+        return _attach(
+            tool_result, enrichment, build_tmdb_trace(ctx.recorder.calls, [], tmdb_cards(matched_outcomes))
+        )

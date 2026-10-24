@@ -87,6 +87,8 @@ def movie(data: dict[str, Any], options: FacetOptions) -> Entity:
         summary=truncate(overview.get("overview"), SUMMARY_CHARS),
         genres=names(data.get("genres")),
         score=data.get("vote_average"),
+        release_date=data.get("release_date") or None,
+        poster_path=data.get("poster_path") or None,
         essentials=_compact(
             {
                 **overview,
@@ -123,6 +125,8 @@ def tv(data: dict[str, Any], options: FacetOptions) -> Entity:
         summary=truncate(overview.get("overview"), SUMMARY_CHARS),
         genres=names(data.get("genres")),
         score=data.get("vote_average"),
+        release_date=data.get("first_air_date") or None,
+        poster_path=data.get("poster_path") or None,
         essentials=_compact(
             {
                 **overview,
@@ -300,4 +304,6 @@ def list_item(raw: dict[str, Any], *, kind: str, genre_names: dict[int, str]) ->
         summary=summary,
         genres=[genre_names[g] for g in raw.get("genre_ids") or [] if g in genre_names],
         score=raw.get("vote_average") if raw.get("vote_count") else None,
+        release_date=raw.get("release_date") or raw.get("first_air_date") or None,
+        poster_path=raw.get("poster_path") or None,
     )

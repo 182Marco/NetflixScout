@@ -27,7 +27,7 @@ from .models.requests import TmdbToolInput, describe_validation_errors
 from .prompt_budget import pack_context
 from .runner import overall_status, run_requests
 from .settings import API_LANGUAGES, DEFAULT_API_LANGUAGE
-from .trace import build_tmdb_trace
+from .trace import build_tmdb_trace, tmdb_cards
 
 TMDB_TOOL_NAME = "tmdb_search"
 
@@ -147,5 +147,5 @@ class TmdbTool:
             "outcome": outcome,
             "metadata": {"tmdb": packed.metadata},
             # Outside "metadata": the orchestrator puts metadata in the LLM prompt.
-            "trace": build_tmdb_trace(ctx.recorder.calls, packed.attributions),
+            "trace": build_tmdb_trace(ctx.recorder.calls, packed.attributions, tmdb_cards(outcomes)),
         }

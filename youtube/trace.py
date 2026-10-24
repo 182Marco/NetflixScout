@@ -56,6 +56,7 @@ def build_youtube_trace(
                 "channel": hit.channel,
                 "url": hit.url,
                 "published_at": hit.published_at,
+                "description_excerpt": hit.description_excerpt,
                 "notes": list(hit.notes),
                 "verification": hit.verification,
             }

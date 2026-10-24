@@ -95,6 +95,16 @@ def test_each_candidate_gets_only_its_own_metadata_and_ranking_is_unchanged() ->
     assert all(url.endswith("?api_key=***") for url in result["trace"][-1]["data"]["calls"])
 
 
+def test_trace_items_hold_only_the_verified_matches() -> None:
+    search = {("Arrival", "2016"): [_search_result(501)], ("Contact", "1997"): [_search_result(505)]}
+
+    result, _, _ = _enrich([_chunk("Arrival", 2016), _chunk("Contact", 1997)], search)
+
+    assert [row["status"] for row in _rows(result)] == ["matched", "unverified"]
+    items = result["trace"][-1]["data"]["items"]
+    assert [(item["id"], item["media_type"]) for item in items] == [(501, "movie")]
+
+
 def test_year_mismatch_is_not_attributed() -> None:
     search = {("Contact", "1997"): [], ("Contact", None): [_search_result(506)]}
 

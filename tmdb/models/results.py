@@ -23,6 +23,9 @@ class Entity(BaseModel):
     summary: str | None = None
     genres: list[str] = Field(default_factory=list)
     score: float | None = None
+    # Raw TMDb values for the web cards (`tmdb/trace.py`); not part of the LLM context.
+    release_date: str | None = None
+    poster_path: str | None = None
     essentials: dict[str, Any] = Field(default_factory=dict)
     facets: dict[str, list[Any]] = Field(default_factory=dict)
     # Items TMDb returned per facet, before the per-list cap.
