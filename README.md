@@ -367,7 +367,11 @@ Relevance: the snippet title can only drop reactions, parodies, fan-made videos,
 and conflicting years; everything else is judged on the full `/videos` data. A video is dropped only on strong
 evidence (film and people not named, another declared format such as a review or a full movie,
 unconfirmed homonym, self-declared Short, no longer available), otherwise it is kept in API order
-and labelled `confirmed` or `to_verify`. The answer lists confirmed videos first and the others
+and labelled `confirmed` or `to_verify`. The kind is confirmed only by a word of the kind in the
+video title (descriptions list credits such as "director" or "cast"). A one-word title with no
+year or person to check is kept, as to verify, only if its title or description has a word of
+film context (film, movie, trailer, director, making of...): "Parasite" or "Her" alone also match
+unrelated videos. The answer lists confirmed videos first and the others
 under "Da verificare", and may suggest giving the film's year or its original title (never
 proposing one).
 
