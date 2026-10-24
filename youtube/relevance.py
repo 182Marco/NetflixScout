@@ -13,9 +13,12 @@ Permissive by design: a result is dropped only on strong evidence, with one reas
 - `homonym_risk`: the title anchor is weak (a one-word title such as "Arrival", or only the
   main title before a subtitle) and none of the known year, director, cast or release period
   (trailers, making-of and behind the scenes only) confirms it; with no year and no person
-  to check, the result is kept and noted (`homonym_unchecked`) only if its title or
-  description has a word of film context (`FILM_CONTEXT_WORDS`): "Parasite" alone also
-  matches videos about parasites, "Her" any text with the pronoun;
+  to check, the result is kept and noted (`homonym_unchecked`) only with film context, which
+  never comes from kind words ("director", "cast", "trailer", "making of" also describe music,
+  TV and cooking videos): a film word in the title or description (`FILM_CONTEXT_WORDS`,
+  several languages), the film title in quotes in the video title ("'Parasite'"), or the
+  Latin film title inside a video title in another script ("… | Parasite Explained In
+  Bangla"). "Parasite" alone also matches videos about parasites, "Her" the pronoun;
 - `short_video`: the video declares itself a Short (#shorts) and is not longer than a Short
   can be. Never for trailers, never by duration alone (see `settings.MIN_DURATION_SECONDS`).
 
@@ -29,6 +32,7 @@ from __future__ import annotations
 
 import html
 import re
+import unicodedata
 from dataclasses import dataclass, field, replace
 
 from .models import MIN_SURNAME_CHARS, VideoKind, YoutubeToolInput, is_one_word_title, normalize_text
@@ -42,13 +46,16 @@ RELEASE_WINDOW = (-1, 3)
 # come out at any time (retrospectives, anniversaries).
 RELEASE_PERIOD_KINDS = frozenset({VideoKind.trailer, VideoKind.making_of, VideoKind.behind_the_scenes})
 
-# Words that show a video is about a film: required to keep a weak anchor that nothing can
-# confirm (no year, no person). Whole words or phrases of the normalized title or description.
+# Words that say a video is about a film, in several languages: required to keep a weak anchor
+# that nothing can confirm (no year, no person). Whole words or phrases of the normalized title
+# or description. No kind word and no role alone ("director", "cast"): see the module docstring.
 FILM_CONTEXT_WORDS = (
-    "film", "films", "movie", "movies", "cinema", "trailer", "teaser", "director", "directed",
-    "regista", "regia", "cast", "actor", "actress", "attore", "attrice", "oscar", "oscars", "imdb",
-    "making of", "behind the scenes", "dietro le quinte", "featurette", "on set",
+    "film", "films", "movie", "movies", "cinema", "filmmaker", "filmmaking", "imdb", "oscar",
+    "oscars", "academy award", "academy awards", "box office", "screenplay", "directed by", "a film by",
+    "diretto da", "regia di", "un film di", "película", "películas", "filme", "filmes", "kino",
 )
+_FILM_CONTEXT = tuple(normalize_text(word) for word in FILM_CONTEXT_WORDS)
+_QUOTES = "\"'‘’“”«»„"
 
 # Notes that leave a kept video uncertain: shown under "to verify", never as confirmed.
 # Data notes (duration, region, title source) say nothing about relevance.
@@ -93,6 +100,25 @@ def _director_names(director: str | None) -> list[str]:
 
 def _kind_words(kind: VideoKind) -> list[str]:
     return [normalize_text(term) for term in KIND_TERMS[kind]]
+
+
+def _is_latin(text: str) -> bool:
+    return all(unicodedata.name(char, "").startswith("LATIN") for char in text if char.isalpha())
+
+
+def _film_context(film_names: list[str], title: str | None, both: str) -> bool:
+    """Evidence that a weak anchor names a film, independent of the requested kind: a film
+    word, the film title in quotes, or the Latin film title in a title written in another
+    script. NFKC first, so styled letters ("𝗔𝘀𝘁𝗿𝗼𝘅") are not another script."""
+    if any(_has(both, word) for word in _FILM_CONTEXT):
+        return True
+    raw = unicodedata.normalize("NFKC", html.unescape(title or "")).casefold()
+    names = [unicodedata.normalize("NFKC", name).casefold() for name in film_names if name]
+    quoted = (rf"[{_QUOTES}]\s*{re.escape(name)}\s*[{_QUOTES}]" for name in names)
+    if any(re.search(pattern, raw) for pattern in quoted):
+        return True
+    in_title = [name for name in names if _has(normalize_text(raw), normalize_text(name)) and _is_latin(name)]
+    return bool(in_title) and not _is_latin(raw)
 
 
 def _other_format(request: YoutubeToolInput, kind: VideoKind, video_title: str) -> bool:
@@ -183,7 +209,8 @@ def screen(
         confirmations = {"director", "cast", "year", "release_period"} & set(matched)
         if not confirmations:
             unverifiable = request.year is None and not request.people
-            if unverifiable and any(_has(both, normalize_text(word)) for word in FILM_CONTEXT_WORDS):
+            names = [*film_titles, *(m for t in film_titles if (m := _main_title(t)))]
+            if unverifiable and _film_context(names, title, both):
                 notes.append("homonym_unchecked")
             else:
                 return Screening(kept=False, reason="homonym_risk")
