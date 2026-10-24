@@ -1,7 +1,7 @@
 """JSON-ready form of the `youtube_calls` step. Same content as the terminal (shared view).
 
 The frontend must name YouTube as the source (`source`), show titles, channels and URLs as
-they are and link the YouTube Terms of Service and the Google Privacy Policy (`notice`).
+they are.
 """
 from __future__ import annotations
 

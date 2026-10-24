@@ -479,9 +479,6 @@ def run_terminal_chat() -> None:
     history: list[dict[str, str]] = []
     openai_client = OpenAI()
     terminal.print_header()
-    terminal.print_tmdb_notice()
-    terminal.print_youtube_notice()
-    terminal.print_mode(runtime_rag)
 
     while True:
         query = terminal.read_query()

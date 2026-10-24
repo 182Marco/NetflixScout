@@ -14,13 +14,6 @@ from pydantic import BaseModel, Field
 
 from turn import TraceStep
 
-# Notice for the YouTube API Services Developer Policies III.A (links to the YouTube Terms
-# of Service and the Google Privacy Policy) and III.F (YouTube named as the source).
-YOUTUBE_NOTICE = (
-    "This application uses YouTube API Services. YouTube Terms of Service: "
-    "https://www.youtube.com/t/terms · Google Privacy Policy: https://policies.google.com/privacy"
-)
-
 # Whitespace controls become a space so words do not merge; every other control is removed.
 _WHITESPACE_CONTROLS = {"\t", "\n", "\r", "\x0b", "\x0c", "\x85"}
 
@@ -206,7 +199,6 @@ class YoutubeCallsView(BaseModel):
     quota_paused: str | None = None
     groups: list[VideoGroup] = Field(default_factory=list)
     hints: list[str] = Field(default_factory=list)
-    notice: str = YOUTUBE_NOTICE
 
 
 def _rows(raw: Any) -> list[dict[str, Any]]:

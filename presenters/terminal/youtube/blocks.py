@@ -6,10 +6,10 @@ drive the terminal; the trace, the metadata and the LLM prompt keep the API valu
 """
 from __future__ import annotations
 
-from ...youtube_view import YOUTUBE_NOTICE, VideoView, YoutubeCallsView, printable
+from ...youtube_view import VideoView, YoutubeCallsView, printable
 from ..box import print_box
 
-__all__ = ["YOUTUBE_NOTICE", "printable", "print_youtube_calls", "print_youtube_notice"]
+__all__ = ["printable", "print_youtube_calls"]
 
 
 def print_youtube_calls(view: YoutubeCallsView) -> None:
@@ -57,7 +57,3 @@ def _print_video(video: VideoView, text: dict[str, str]) -> None:
     if video.notes:
         print(f"     {text['notes']}: {', '.join(video.notes)}")
 
-
-def print_youtube_notice() -> None:
-    """Startup notice: YouTube Terms of Service and Google Privacy Policy links."""
-    print(f"ℹ️  {YOUTUBE_NOTICE}\n")

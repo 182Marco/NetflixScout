@@ -1,7 +1,7 @@
 """Channel-neutral view of a `tmdb_calls` step, shared by the terminal and web presenters.
 
 Shows only the endpoints actually called (credential already masked by the tool) and the
-sources that must be credited. Labels are Italian when the turn is Italian, English
+sources that must be credited (JustWatch). Labels are Italian when the turn is Italian, English
 otherwise; this never affects the language of the LLM answer.
 """
 from __future__ import annotations
@@ -11,12 +11,6 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from turn import TraceStep
-
-# Notice required by the TMDb API Terms of Use (§3 Attribution, updated 2023-10-20).
-TMDB_NOTICE = (
-    "This application uses TMDB and the TMDB APIs but is not endorsed, certified, "
-    "or otherwise approved by TMDB."
-)
 
 ATTRIBUTION_SOURCES = {"justwatch": "JustWatch"}
 

@@ -23,14 +23,13 @@ Live progress: pass a `TurnObserver` (see `turn.py`) to `app.handle_query`; its 
 `status` calls are what a Server-Sent Events route would send while the turn runs. Conversation
 history stays out of the payload: the web caller keeps it and sends it back on the next request.
 
-TMDb Terms of Use (§3): the web frontend must show the TMDb logo and the notice in
-`presenters.api_view.TMDB_NOTICE` (About/Credits), and every `tmdb_calls` step must keep
-its `attributions` (JustWatch for streaming data) visible next to the answer.
+Every `tmdb_calls` step must keep its `attributions` (JustWatch for streaming data)
+visible next to the answer.
 
 YouTube API Services Developer Policies (III.A, III.C.5, III.F): every `youtube_calls` step
 must name YouTube as the source and show video titles, channels and URLs exactly as in the
 step (only control characters may be removed for display, as `presenters/youtube_view.py`
-does), and the frontend must link the YouTube Terms of Service and the Google Privacy Policy.
+does).
 """
 from __future__ import annotations
 

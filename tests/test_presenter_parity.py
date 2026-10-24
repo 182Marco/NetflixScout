@@ -91,10 +91,10 @@ def test_every_step_has_its_web_form_with_the_data_the_terminal_shows() -> None:
     assert steps["retrieval"]["embedded_text"] == "robots" and steps["retrieval"]["chunks"][0]["title"] == "Matrix"
     assert steps["rerank"]["chunks"][0]["year"] == "1999"
     assert steps["db_query"]["queries"][0]["display_sql"] == "SELECT 1 "
-    assert steps["tmdb_calls"]["attributions"][0]["source"] == "JustWatch" and steps["tmdb_calls"]["notice"]
+    assert steps["tmdb_calls"]["attributions"][0]["source"] == "JustWatch"
     video = steps["youtube_calls"]["groups"][0]["confirmed"][0]
     assert video["url"] == "https://www.youtube.com/watch?v=abcdefghijk" and video["channel"] == "Canale"
-    assert steps["youtube_calls"]["notice"] and steps["youtube_calls"]["source"]
+    assert steps["youtube_calls"]["source"]
 
 
 def test_an_unknown_step_is_passed_on_in_both_channels(capsys) -> None:

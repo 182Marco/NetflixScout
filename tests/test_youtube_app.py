@@ -174,24 +174,3 @@ def test_a_planned_youtube_turn_reaches_the_presenter(monkeypatch, capsys) -> No
     # The turn language reached the tool and was ignored without a validation error.
     assert turn.answer == "Risposta finale."
 
-
-# --- startup notice ------------------------------------------------------------------------------
-
-
-def test_terminal_chat_prints_the_youtube_notice_after_the_tmdb_notice(monkeypatch, capsys) -> None:
-    printed: list[str] = []
-    monkeypatch.setattr(app_module, "build_app", lambda: {"config": app_module.build_runtime_config({"movie_db": {"enabled": False}})})
-    monkeypatch.setattr(app_module, "_resolve_runtime_config", lambda rag: rag)
-    monkeypatch.setattr(app_module, "ensure_collection_ready", lambda rag: None)
-    monkeypatch.setattr(app_module, "OpenAI", lambda: object())
-    terminal = app_module.terminal
-    monkeypatch.setattr(terminal, "print_header", lambda: printed.append("header"))
-    monkeypatch.setattr(terminal, "print_tmdb_notice", lambda: printed.append("tmdb"))
-    monkeypatch.setattr(terminal, "print_youtube_notice", lambda: printed.append("youtube"))
-    monkeypatch.setattr(terminal, "print_mode", lambda runtime: printed.append("mode"))
-    monkeypatch.setattr(terminal, "read_query", lambda: "exit")
-    monkeypatch.setattr(terminal, "print_goodbye", lambda: printed.append("bye"))
-
-    app_module.run_terminal_chat()
-
-    assert printed == ["header", "tmdb", "youtube", "mode", "bye"]

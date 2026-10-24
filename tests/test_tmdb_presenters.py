@@ -9,8 +9,6 @@ from tmdb_support import BASE, MOVIE_ID, make_tool, movie_payload, providers_pay
 
 from presenters import OutputChannel, present
 from presenters.terminal.renderer import STEP_RENDERERS
-from presenters.api_view import TMDB_NOTICE
-from presenters.terminal import print_tmdb_notice
 from presenters.web.api import serialize_tmdb_calls_step
 from turn import STEP_TMDB_CALLS, TraceStep, TurnResult
 
@@ -68,9 +66,8 @@ def test_web_serializer_matches_terminal_and_is_json_ready(capsys) -> None:
     out = capsys.readouterr().out
 
     assert json.loads(json.dumps(payload)) == payload
-    assert set(payload) == {"kind", "title", "calls", "attributions", "notice"}
+    assert set(payload) == {"kind", "title", "calls", "attributions"}
     assert all(f"Chiamato: {call['url']}" in out for call in payload["calls"])
-    assert payload["notice"] == TMDB_NOTICE
 
 
 def test_presenters_never_show_parameters_or_raw_json(capsys) -> None:
@@ -93,12 +90,6 @@ def test_end_to_end_step_from_the_tool_with_providers(capsys) -> None:
     out = capsys.readouterr().out
     assert f"Chiamato: {URL}" in out and "JustWatch" in out
     assert "append_to_response" not in out and "it-IT" not in out
-
-
-def test_startup_notice_uses_the_terms_wording(capsys) -> None:
-    print_tmdb_notice()
-
-    assert "uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB" in capsys.readouterr().out
 
 
 def test_tmdb_presenters_import_only_turn_and_their_own_view() -> None:

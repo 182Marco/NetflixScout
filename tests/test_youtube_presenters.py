@@ -1,4 +1,4 @@
-"""Offline tests of the YouTube presenters: terminal renderer, web serializer, notice."""
+"""Offline tests of the YouTube presenters: terminal renderer, web serializer."""
 from __future__ import annotations
 
 import ast
@@ -10,10 +10,9 @@ import pytest
 from youtube_support import SECRET, make_tool, run_tool, search_item, video_item
 
 from presenters import OutputChannel, present
-from presenters.terminal import print_youtube_notice
 from presenters.terminal.renderer import STEP_RENDERERS
 from presenters.terminal.youtube import render_youtube_calls
-from presenters.terminal.youtube.blocks import YOUTUBE_NOTICE, printable
+from presenters.terminal.youtube.blocks import printable
 from turn import STEP_YOUTUBE_CALLS, TraceStep, TurnResult
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -212,14 +211,6 @@ def test_the_key_never_reaches_the_terminal(capsys) -> None:
 
 
 # --- notice and isolation ------------------------------------------------------------------------
-
-
-def test_startup_notice_links_the_youtube_terms_and_google_privacy_policy(capsys) -> None:
-    print_youtube_notice()
-
-    out = capsys.readouterr().out
-    assert "YouTube API Services" in out and YOUTUBE_NOTICE in out
-    assert "https://www.youtube.com/t/terms" in out and "https://policies.google.com/privacy" in out
 
 
 def test_youtube_presenters_import_only_turn_and_their_own_modules() -> None:
