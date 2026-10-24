@@ -889,3 +889,79 @@ def test_validation_still_uses_the_full_model() -> None:
 
     assert meta(extra)["error"] == meta(unknown_kind)["error"] == "invalid_request"
     assert transport.calls == []
+
+
+# --- dropped titles in the trace (to spot false negatives) ---------------------------------------
+
+
+def _dropping_routes() -> dict:
+    """One video per drop point: prescreen (reaction), screen (homonym, no anchor), unavailable."""
+    titles = {
+        ID1: "Her | Director interview",
+        ID2: "Her - Movie Reaction",
+        ID3: "Tracee Ellis Ross says loving her appearance was a choice",
+        ID4: "Spike Jonze on directing Her",
+    }
+    return {
+        "/search": {"items": [search_item(i, t) for i, t in titles.items()]},
+        "/videos": {"items": [
+            video_item(ID1, titles[ID1], description="Spike Jonze on his 2013 film."),
+            video_item(ID3, titles[ID3], description="A conversation about self-love."),
+            # ID4 is missing from /videos: removed since the search.
+        ]},
+    }
+
+
+def test_dropped_titles_and_reasons_are_in_the_trace() -> None:
+    tool, _ = make_tool(_dropping_routes())
+
+    result = run_tool(tool, title="Her", kinds=["director_interview"])
+
+    dropped = step(result)["dropped"]
+    assert {(row["title"], row["reason"]) for row in dropped} == {
+        ("Her - Movie Reaction", "negative_pattern"),
+        ("Tracee Ellis Ross says loving her appearance was a choice", "homonym_risk"),
+        ("Spike Jonze on directing Her", "unavailable"),
+    }
+    assert all(row["kind"] == "director_interview" for row in dropped)
+    assert [v["title"] for v in step(result)["videos"]] == ["Her | Director interview"]
+
+
+def test_dropped_titles_match_the_counts_per_reason() -> None:
+    tool, _ = make_tool(_dropping_routes())
+
+    data = step(run_tool(tool, title="Her", kinds=["director_interview"]))
+
+    counts: dict[str, int] = {}
+    for row in data["dropped"]:
+        counts[row["reason"]] = counts.get(row["reason"], 0) + 1
+    assert counts == data["searches"][0]["filtered_out"]
+
+
+def test_a_possible_false_negative_is_visible_in_the_trace() -> None:
+    """A real interview without film context is dropped as a homonym: the title is in the trace."""
+    routes = {
+        "/search": {"items": [search_item(ID1, "Spike Jonze talks about Her")]},
+        "/videos": {"items": [video_item(ID1, "Spike Jonze talks about Her", description="Watch the full conversation.")]},
+    }
+    tool, _ = make_tool(routes)
+
+    data = step(run_tool(tool, title="Her", kinds=["director_interview"]))
+
+    assert data["videos"] == []
+    assert data["dropped"] == [{"kind": "director_interview", "title": "Spike Jonze talks about Her", "reason": "homonym_risk"}]
+
+
+def test_dropped_titles_never_reach_the_prompt_metadata() -> None:
+    tool, _ = make_tool(_dropping_routes())
+
+    result = run_tool(tool, title="Her", kinds=["director_interview"])
+
+    prompt_part = json.dumps(result["metadata"], ensure_ascii=False)
+    assert "Tracee Ellis Ross" not in prompt_part and "Movie Reaction" not in prompt_part
+
+
+def test_dropped_is_empty_when_nothing_is_dropped() -> None:
+    tool, _ = make_tool(making_of_routes())
+
+    assert step(run_tool(tool))["dropped"] == []

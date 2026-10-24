@@ -337,3 +337,19 @@ def test_turn_limit_is_called_a_search_limit(capsys) -> None:
     out = _render(_step(), "it", capsys)
 
     assert "limite di ricerche per turno" in out and "limite di turni" not in out
+
+
+def test_dropped_titles_are_not_printed(capsys) -> None:
+    routes = {
+        "/search": {"items": [search_item("vid00000001", "Dune: Part Two | Making of"), search_item("vid00000002", "Dune: Part Two reaction")]},
+        "/videos": {"items": [video_item("vid00000001", "Dune: Part Two | Making of")]},
+    }
+    tool, _ = make_tool(routes)
+    result = run_tool(tool)
+    [step] = result["trace"]
+    assert step["data"]["dropped"]
+
+    render_youtube_calls(TraceStep(**step), "it")
+
+    out = capsys.readouterr().out
+    assert "Dune: Part Two | Making of" in out and "Dune: Part Two reaction" not in out
