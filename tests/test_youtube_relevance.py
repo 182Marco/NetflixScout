@@ -633,3 +633,103 @@ def test_the_case_17_podcast_stays_unconfirmed_with_film_context() -> None:
     )
 
     assert podcast.kept and "kind_unconfirmed" in podcast.notes and verification(podcast.notes) == "to_verify"
+
+
+# --- interviews confirmed by who speaks (live run case 1: Celine Song) ------------------------
+# The Etalk title is the real one; descriptions are illustrative (the live descriptions were
+# not saved).
+
+ETALK = "Celine Song talks Christopher Nolan, Martin Scorsese's praise for 'Past Lives' | Etalk"
+
+
+@pytest.mark.parametrize(
+    "description",
+    [
+        "Past Lives writer-director Celine Song talks to Etalk about the praise of her peers.",
+        "Directed by Celine Song. Etalk sits down with the filmmaker.",
+        "La regista Celine Song racconta il film.",
+    ],
+)
+def test_celine_song_interview_is_confirmed_by_the_speaker_and_her_role(description) -> None:
+    result = check(req("Past Lives", kinds=["director_interview"]), K.director_interview, ETALK, description)
+
+    assert result.kept and "kind_unconfirmed" not in result.notes
+    assert verification(result.notes) == "confirmed"
+
+
+@pytest.mark.parametrize(
+    ("kind", "title", "description"),
+    [
+        # A role word that is not next to the speaker's name is a credit.
+        (K.director_interview, ETALK, "The director of the film and the cast talk to Etalk."),
+        (K.director_interview, ETALK, ""),
+        # Case 1 false positive: nobody named speaks, even with the director in the description.
+        (K.director_interview, "The Cast of Past Lives Talk About Their Past Lives",
+         "Greta Lee, Teo Yoo and John Magaro join writer-director Celine Song."),
+        # The speaker's role is not the requested one.
+        (K.cast_interview, ETALK, "Past Lives writer-director Celine Song talks to Etalk."),
+    ],
+)
+def test_a_speaker_without_the_requested_role_next_to_the_name_stays_unconfirmed(kind, title, description) -> None:
+    result = check(req("Past Lives", kinds=[kind.value]), kind, title, description)
+
+    assert result.kept and "kind_unconfirmed" in result.notes
+
+
+def test_the_speaker_must_be_the_requested_person_when_known() -> None:
+    title, description = "Christopher Nolan on 'Past Lives'", "Director Christopher Nolan praises the film."
+
+    unknown = check(req("Past Lives", kinds=["director_interview"]), K.director_interview, title, description)
+    known = check(req("Past Lives", director="Celine Song", kinds=["director_interview"]), K.director_interview, title,
+                  description)
+
+    # Known limit: with no director in the request, any director speaking about the film confirms.
+    assert "kind_unconfirmed" not in unknown.notes
+    assert known.kept and "kind_unconfirmed" in known.notes
+
+
+def test_cast_interviews_use_the_same_speaker_rule() -> None:
+    title, description = "Greta Lee talks Past Lives", "Past Lives star Greta Lee on the film."
+
+    assert "kind_unconfirmed" not in check(req("Past Lives", kinds=["cast_interview"]), K.cast_interview, title, description).notes
+    other = check(req("Past Lives", cast=["Teo Yoo"], kinds=["cast_interview"]), K.cast_interview, title, description)
+    assert "kind_unconfirmed" in other.notes
+
+
+@pytest.mark.parametrize(
+    ("film", "kind", "title", "description", "expected"),
+    [
+        # Parasite: the IMDb interview names the role away from the speaker; homonyms stay out.
+        ("Parasite", K.director_interview, "Bong Joon-Ho Reveals Where He Got the Idea for 'Parasite'",
+         "The director of the film talks to IMDb.", "to_verify"),
+        ("Parasite", K.director_interview,
+         "Hulda Clark talks about the mighty green hulls of the black walnut as a powerful #parasite cleanse.",
+         "Director Hulda Clark on natural health.", "dropped"),
+        # Her: a speaker with a role but no film context is still a homonym.
+        ("Her", K.director_interview, "Tracee Ellis Ross talks about loving her appearance",
+         "Actress and director Tracee Ellis Ross on self-love.", "dropped"),
+        ("Her", K.director_interview, "She Targeted Gloria… Then the Director Turned on Her!",
+         "Drama clip with the director.", "dropped"),
+    ],
+)
+def test_speaker_rule_keeps_the_corrected_false_positives_out(film, kind, title, description, expected) -> None:
+    result = check(req(film, kinds=[kind.value]), kind, title, description)
+
+    assert ("dropped" if not result.kept else verification(result.notes)) == expected, result
+
+
+@pytest.mark.parametrize(
+    ("request_", "title"),
+    [
+        (req("Il ragazzo e l'airone", kinds=["cast_interview"]),
+         "Deadpool & Wolverine, Il Ragazzo e l'Airone, CENTO CHILI DI MUSICAL | 🍕 PPP 295"),
+        (req("The Boy and the Heron", kinds=["cast_interview"]),
+         "Deadpool & Wolverine, The Boy and the Heron, ONE HUNDRED KILOS OF MUSICAL | 🍕 PPP 295"),
+    ],
+)
+def test_the_heron_podcast_stays_unconfirmed_even_with_roles_in_the_description(request_, title) -> None:
+    description = "Con l'attrice ospite e il regista della settimana: intervista, cast e film."
+
+    result = check(request_, K.cast_interview, title, description)
+
+    assert result.kept and "kind_unconfirmed" in result.notes and verification(result.notes) == "to_verify"
