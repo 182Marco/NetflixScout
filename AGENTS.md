@@ -171,6 +171,7 @@ Non c'è uno step di build o packaging: il progetto si esegue da sorgente, dalla
 - Aggiungi o aggiorna test `pytest` per ogni modifica di logica. Mocka OpenAI/Cohere con `monkeypatch` (vedi `tests/test_query_language.py`); i nuovi unit test non devono fare chiamate di rete.
 - Prima di chiudere un task esegui almeno `python -m pytest tests/test_query_language.py tests/test_presenters.py tests/test_orchestrator.py tests/test_retrieval.py tests/test_rag_constraints.py tests/test_rerank_query.py tests/test_answer_constraints.py tests/test_movie_db_*.py tests/test_tmdb_*.py tests/test_youtube_*.py tests/test_story_view.py tests/test_presenter_parity.py -q` più i test che hai aggiunto.
 - Mantieni la retrocompatibilità del contratto `RagTool.run` e della forma di `CONFIG` (`tests/test_tool_contract.py` la verifica).
+- Per aggiungere un tool (nuova API o fonte dati) o una nuova operazione di un tool, segui la skill `.claude/skills/new-netflixscout-tool/SKILL.md`: criteri di progetto (tool interno vs MCP, struttura per concern, funzioni pure), ordine di implementazione per commit atomici e verifiche offline. Non duplica questo file: rimanda alle sue sezioni.
 - Se cambi comandi, struttura o API pubbliche, aggiorna `README.md` e questo file.
 
 **Non fare senza un permesso esplicito**
