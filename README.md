@@ -369,9 +369,10 @@ evidence (film and people not named, another declared format such as a review or
 unconfirmed homonym, self-declared Short, no longer available), otherwise it is kept in API order
 and labelled `confirmed` or `to_verify`. The kind is confirmed only by a word of the kind in the
 video title (descriptions list credits such as "director" or "cast"). A one-word title with no
-year or person to check is kept, as to verify, only if its title or description has a word of
-film context (film, movie, trailer, director, making of...): "Parasite" or "Her" alone also match
-unrelated videos. The answer lists confirmed videos first and the others
+year or person to check is kept, as to verify, only with film context: a film word in the title
+or description (film, movie, película, IMDb, "directed by"...), the film title in quotes, or the
+Latin film title inside a title in another script. Kind words and roles ("trailer", "making of",
+"director", "cast") never count: "Parasite" or "Her" alone also match unrelated videos. The answer lists confirmed videos first and the others
 under "Da verificare", and may suggest giving the film's year or its original title (never
 proposing one).
 
