@@ -1,13 +1,26 @@
 from __future__ import annotations
 
 import json
+import time
 import uuid
 from dataclasses import dataclass, field
 from typing import Any, Mapping, Protocol, Sequence, runtime_checkable
 
 from openai import OpenAI
 
-from turn import TOOL_PARAM_TURN_ID
+from turn import (
+    OUTCOME_EMPTY,
+    OUTCOME_OK,
+    STAGE_ANSWERING,
+    STEP_PLANNING,
+    STEP_QUERY_REWRITE,
+    STEP_TOOL_OUTCOME,
+    STEP_TOOL_SELECTION,
+    TOOL_PARAM_TURN_ID,
+    NullObserver,
+    TraceStep,
+    TurnObserver,
+)
 
 DEFAULT_FINAL_INSTRUCTIONS = (
     "Sei l'orchestratore di un sistema multi-tool. "
@@ -37,6 +50,17 @@ class _Plan:
     more_steps: bool = False
     # Parts of the request, each with the tool that answers it: [{"part": ..., "tool": ...}].
     parts: list[dict[str, str]] = field(default_factory=list)
+    # Why the planner could not decide and a default tool was used (None: it decided).
+    fallback: str | None = None
+
+
+# Codes of `decision["planning"]["fallbacks"]`: moments the turn went on with less than planned.
+FALLBACK_PLANNER_FAILED = "planner_failed"
+FALLBACK_LOW_CONFIDENCE = "low_confidence"
+FALLBACK_UNKNOWN_TOOL = "unknown_tool"
+FALLBACK_NEXT_STEP = "next_step_failed"
+FALLBACK_MAX_CALLS = "max_tool_calls"
+FALLBACK_ANSWER = "answer_failed"
 
 MAX_PARTS = 6
 
@@ -186,7 +210,9 @@ class LLMOrchestrator:
         conversation_history: list[dict[str, str]] | None = None,
         tool_results: list[dict[str, Any]] | None = None,
         unexecuted: list[str] | None = None,
+        failures: list[str] | None = None,
     ) -> str:
+        """The answer text; a failure of the LLM call is appended to `failures` when given."""
         results = tool_results or [tool_result or {}]
         try:
             response = self.client.responses.create(
@@ -202,6 +228,8 @@ class LLMOrchestrator:
             )
             return (response.output_text or "").strip() or "Non ho abbastanza informazioni per rispondere."
         except Exception:
+            if failures is not None:
+                failures.append(FALLBACK_ANSWER)
             chunks = [
                 chunk
                 for result in results
@@ -314,7 +342,12 @@ class LLMOrchestrator:
             )
             payload = json.loads(response.output_text.strip())
         except Exception:
-            return _Plan(required[0] if required else self._fallback_tool_name(allowed), {}, query)
+            return _Plan(
+                required[0] if required else self._fallback_tool_name(allowed),
+                {},
+                query,
+                fallback=None if required else FALLBACK_PLANNER_FAILED,
+            )
 
         rewritten = str(payload.get("standalone_query") or "").strip()
         standalone_query = rewritten if history and rewritten else query
@@ -335,7 +368,12 @@ class LLMOrchestrator:
             # A part for another tool means another step, whatever `more_steps` says.
             more_steps = payload.get("more_steps") is True or any(p["tool"] != tool_name for p in parts)
             return _Plan(tool_name, arguments, standalone_query, more_steps, parts)
-        return _Plan(self._fallback_tool_name(allowed), {}, standalone_query)
+        return _Plan(
+            self._fallback_tool_name(allowed),
+            {},
+            standalone_query,
+            fallback=FALLBACK_UNKNOWN_TOOL if tool_name not in allowed else FALLBACK_LOW_CONFIDENCE,
+        )
 
     def _plan_turn(
         self,
@@ -434,12 +472,43 @@ class LLMOrchestrator:
             metadata = {**(tool_result.get("metadata") or {}), "enrichment_error": True}
             return {**tool_result, "metadata": metadata}
 
+    @staticmethod
+    def _emit(observer: TurnObserver, step: TraceStep) -> None:
+        """Give a step to the observer as it happens; a broken observer never breaks the turn."""
+        try:
+            observer.step(step)
+        except Exception:
+            pass
+
+    @staticmethod
+    def _emit_status(observer: TurnObserver, stage: str) -> None:
+        try:
+            observer.status(stage)
+        except Exception:
+            pass
+
+    @staticmethod
+    def _purpose(plan: _Plan, calls: list[_Call], parts: list[dict[str, str]], standalone_query: str) -> str:
+        """What this step looks for, in words: the planner's part for this tool, else the query."""
+        done = sum(call.tool == plan.tool for call in calls)
+        mine = [part["part"] for part in parts if part["tool"] == plan.tool]
+        return mine[done] if done < len(mine) else standalone_query[:160]
+
+    @staticmethod
+    def _outcome(tool_result: dict[str, Any]) -> dict[str, Any]:
+        """The tool's own `outcome`; tools that set none are judged by having chunks."""
+        outcome = tool_result.get("outcome")
+        if isinstance(outcome, dict) and outcome.get("status"):
+            return {"status": outcome["status"], "reason": outcome.get("reason")}
+        return {"status": OUTCOME_OK if tool_result.get("chunks") else OUTCOME_EMPTY, "reason": None}
+
     def run(
         self,
         *,
         query: str,
         conversation_history: list[dict[str, str]] | None = None,
         tool_overrides: dict[str, Any] | None = None,
+        observer: TurnObserver | None = None,
     ) -> dict[str, Any]:
         """Run the tools the request needs, one after the other, then answer.
 
@@ -447,11 +516,29 @@ class LLMOrchestrator:
         later step is planned from the results so far. The loop ends when the planner is done,
         repeats a step, or `max_tool_calls_per_turn` runs have happened. The result keeps
         `tool` and `result` of the first call; `tools` and `calls` list every call in order.
+
+        `observer` gets every step as it happens (`query_rewrite`, then per tool a
+        `tool_selection` before the call and a `tool_outcome` plus the tool trace after it,
+        `planning` last), so a channel can show the work while the user waits. The returned
+        dict does not depend on it.
         """
+        observer = observer or NullObserver()
         plan = self._plan_first(query=query, conversation_history=conversation_history)
         standalone_query = plan.standalone_query
+        self._emit(
+            observer,
+            TraceStep(
+                kind=STEP_QUERY_REWRITE,
+                title="Query usata dai tool",
+                data={"original": query, "used": standalone_query, "rewritten": standalone_query != query},
+            ),
+        )
         if plan.tool == CLARIFICATION:
             # No tool and no final-answer call: nothing was looked up, so nothing is shown.
+            self._emit(
+                observer,
+                TraceStep(kind=STEP_TOOL_SELECTION, title="Tool scelto", data={"tool": None, "clarification": True}),
+            )
             return {
                 "tool": None,
                 "tools": [],
@@ -467,6 +554,7 @@ class LLMOrchestrator:
         calls: list[_Call] = []
         seen: set[str] = set()
         parts = plan.parts
+        fallbacks: list[str] = [plan.fallback] if plan.fallback else []
         stop_reason = "complete"
         current: _Plan | None = plan
         while current is not None:
@@ -475,6 +563,19 @@ class LLMOrchestrator:
                 stop_reason = "repeated_step"
                 break
             seen.add(key)
+            self._emit(
+                observer,
+                TraceStep(
+                    kind=STEP_TOOL_SELECTION,
+                    title="Tool scelto",
+                    data={
+                        "tool": current.tool,
+                        "purpose": self._purpose(current, calls, parts, standalone_query),
+                        "arguments": current.arguments,
+                    },
+                ),
+            )
+            started = time.monotonic()
             tool_result = self.tools[current.tool].run(
                 query=standalone_query,
                 params={**(tool_overrides or {}), TOOL_PARAM_TURN_ID: turn_id, **current.arguments},
@@ -482,7 +583,19 @@ class LLMOrchestrator:
             )
             tool_result = self._enrich(current.tool, {**tool_result, "turn_id": turn_id})
             tool_result.pop("turn_id", None)
+            elapsed_ms = int((time.monotonic() - started) * 1000)
             calls.append(_Call(current.tool, current.arguments, tool_result))
+            outcome = self._outcome(tool_result)
+            self._emit(
+                observer,
+                TraceStep(
+                    kind=STEP_TOOL_OUTCOME,
+                    title="Esito",
+                    data={"tool": current.tool, "elapsed_ms": elapsed_ms, **outcome},
+                ),
+            )
+            for trace_step in tool_result.get("trace", []):
+                self._emit(observer, TraceStep(**trace_step))
             if self._required_tool_names():
                 stop_reason = "required_tools"
                 break
@@ -500,22 +613,32 @@ class LLMOrchestrator:
                 parts=parts,
             )
 
+        if stop_reason == "max_tool_calls":
+            fallbacks.append(FALLBACK_MAX_CALLS)
+        elif stop_reason in ("planner_failed", "unknown_tool_or_low_confidence"):
+            fallbacks.append(FALLBACK_NEXT_STEP)
         pending = _pending_parts(parts, calls)
         unexecuted = [f"{p['part']} (tool previsto: {p['tool']}, motivo: {stop_reason})" for p in pending]
         results = [{"tool_name": call.tool, **call.result} for call in calls]
+        self._emit_status(observer, STAGE_ANSWERING)
         final_answer = self._generate_final_answer(
             query=query,
             tool_result=results[0] if len(results) == 1 else None,
             tool_results=results if len(results) > 1 else None,
             conversation_history=conversation_history,
             unexecuted=unexecuted,
+            failures=fallbacks,
         )
         planning = {
             "parts": parts,
             "tools": [call.tool for call in calls],
             "pending": pending,
             "stop_reason": stop_reason,
+            "fallbacks": fallbacks,
         }
+        if len(calls) > 1 or pending or fallbacks:
+            # After the answer is written (a failed answer is only known now), before it is shown.
+            self._emit(observer, TraceStep(kind=STEP_PLANNING, title="Pianificazione", data=dict(planning)))
 
         return {
             "tool": calls[0].tool,

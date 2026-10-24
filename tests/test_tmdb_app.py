@@ -148,7 +148,7 @@ def test_tmdb_step_reaches_the_turn_with_the_turn_language(monkeypatch) -> None:
     turn = app_module.handle_query(_app(tool, client), "Chi ha diretto Interstellar?", history=[])
 
     assert turn.tool == TMDB_TOOL_NAME and turn.answer == "Risposta finale."
-    assert [s.kind for s in turn.steps] == ["classification", "query_rewrite", "tool_selection", "tmdb_calls"]
+    assert [s.kind for s in turn.steps] == ["classification", "query_rewrite", "tool_selection", "tool_outcome", "tmdb_calls"]
     assert turn.steps[-1].data["calls"][-1].endswith(f"/movie/{MOVIE_ID}?api_key=***")
     assert transport.params(f"/movie/{MOVIE_ID}")["language"] == "it-IT"
     final_prompt = client.calls[-1]["input"][-1]["content"]
@@ -175,7 +175,9 @@ def test_invalid_planner_arguments_still_produce_an_answer_without_http(monkeypa
     turn = app_module.handle_query(_app(tool, client), "domanda", history=[])
 
     assert transport.calls == [] and turn.answer == "Risposta finale."
-    assert [s.kind for s in turn.steps][-1] == "tool_selection"  # no calls step: nothing was called
+    assert [s.kind for s in turn.steps][-2:] == ["tool_selection", "tool_outcome"]  # no calls step: nothing was called
+    assert turn.steps[-1].data["status"] == "error" and turn.steps[-1].data["reason"] == "invalid_request"
+    assert "invalid_request" not in " ".join(line.text for line in turn.story)  # told in plain words
 
 
 def test_runtime_never_imports_the_tmdb_harness() -> None:

@@ -5,7 +5,7 @@ channel in `presenters/` decides how to show it (terminal text, web payload, ...
 """
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, Field
 
@@ -15,6 +15,8 @@ STEP_QUERY_REWRITE = "query_rewrite"
 STEP_TOOL_SELECTION = "tool_selection"
 # Multi-tool turns only: the parts of the request, the tools that ran and why the loop stopped.
 STEP_PLANNING = "planning"
+# One per tool run, after it: how long it took and whether it found something.
+STEP_TOOL_OUTCOME = "tool_outcome"
 STEP_RETRIEVAL = "retrieval"
 STEP_RERANK = "rerank"
 STEP_DB_QUERY = "db_query"
@@ -28,6 +30,7 @@ TOOL_PARAM_TURN_LANGUAGE = "turn_language"
 # Tool parameter set by the orchestrator: identifies the turn. A turn can run several tools,
 # so per-turn limits (TMDb calls, YouTube searches) are counted per `turn_id`, not per run.
 TOOL_PARAM_TURN_ID = "turn_id"
+
 
 # Result of one tool run, set by the tool in `result["outcome"]` (outside `metadata`, so it
 # never reaches the LLM prompt). `reason` is a short code the presenters turn into a sentence.
@@ -48,6 +51,46 @@ class TraceStep(BaseModel):
     data: dict[str, Any] = Field(default_factory=dict)
 
 
+# Moments of a turn that have no step of their own, shown while the user waits.
+STAGE_UNDERSTANDING = "understanding"
+STAGE_ANSWERING = "answering"
+
+
+class StoryLine(BaseModel):
+    """One short, non-technical sentence of the turn story, the same for every channel.
+
+    `level` is how to show it (the terminal picks an emoji, the web an icon): `progress`
+    (work in progress), `info`, `ok`, `warn`.
+    """
+
+    level: Literal["progress", "info", "ok", "warn"]
+    text: str
+    tool: str | None = None
+
+
+class TurnObserver(Protocol):
+    """Receives the turn while it happens. The core never prints: a channel implements this.
+
+    `step` gets every `TraceStep` as soon as it exists; `status` gets a passing stage
+    (`STAGE_*`) that is not a step and is not kept in `TurnResult.steps`. Implementations
+    must be quick: they run inside the turn.
+    """
+
+    def step(self, step: TraceStep) -> None:
+        ...
+
+    def status(self, stage: str) -> None:
+        ...
+
+
+class NullObserver:
+    def step(self, step: TraceStep) -> None:
+        pass
+
+    def status(self, stage: str) -> None:
+        pass
+
+
 class TurnResult(BaseModel):
     """Everything that happened while answering one user query."""
 
@@ -59,5 +102,7 @@ class TurnResult(BaseModel):
     # Every tool run in the turn, in execution order (`tool` is the first one).
     tools: list[str] = Field(default_factory=list)
     steps: list[TraceStep] = Field(default_factory=list)
+    # The same story the observer showed live (see `presenters/story_view.py`).
+    story: list[StoryLine] = Field(default_factory=list)
     history: list[dict[str, str]] = Field(default_factory=list)
     history_compacted: bool = False

@@ -7,6 +7,7 @@ from presenters import OutputChannel, present
 from rag.FromQueryEmbeddingToRes.models import QuerySignals, RagChunk, RagResult, RerankBackend, SearchMode
 from rag.FromQueryEmbeddingToRes.tool_interface import RagTool
 from turn import TraceStep, TurnResult
+from turn_support import stream_decision
 
 
 def _chunk(idx: int, title: str) -> RagChunk:
@@ -43,15 +44,17 @@ class _FakeOrchestrator:
         self.calls = 0
         self.tool_overrides = None
 
-    def run(self, *, query, conversation_history=None, tool_overrides=None):
+    def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None):
         self.calls += 1
         self.tool_overrides = tool_overrides
-        return {
+        decision = {
             "tool": "rag_search",
             "standalone_query": "film di fantascienza con robot più recenti",
             "result": {"trace": [{"kind": "retrieval", "title": "K largo", "data": {"chunks": []}}]},
             "final_answer": "Guarda Matrix.",
         }
+        stream_decision(observer, query, decision)
+        return decision
 
 
 def _fake_app() -> dict:
@@ -63,7 +66,7 @@ def test_handle_query_records_steps_in_order(monkeypatch) -> None:
 
     turn = app_module.handle_query(_fake_app(), "un film con robot", history=[])
 
-    assert [s.kind for s in turn.steps] == ["classification", "query_rewrite", "tool_selection", "retrieval"]
+    assert [s.kind for s in turn.steps] == ["classification", "query_rewrite", "tool_selection", "tool_outcome", "retrieval"]
     assert turn.steps[1].data == {
         "original": "un film con robot",
         "used": "film di fantascienza con robot più recenti",
@@ -116,6 +119,11 @@ def _sample_turn() -> TurnResult:
             ),
             TraceStep(kind="tool_selection", title="Tool scelto", data={"tool": "rag_search"}),
             TraceStep(
+                kind="tool_outcome",
+                title="Esito",
+                data={"tool": "rag_search", "elapsed_ms": 2400, "status": "ok", "reason": None},
+            ),
+            TraceStep(
                 kind="retrieval",
                 title="K largo",
                 data={
@@ -134,10 +142,11 @@ def test_terminal_channel_prints_full_procedure(capsys) -> None:
     assert present(_sample_turn(), OutputChannel.terminal) is None
 
     out = capsys.readouterr().out
-    assert "rag_search" in out
+    assert "Cerco tra le trame dei film" in out
+    assert "Trame: trovato, 2 s" in out
     assert "Classificatore" not in out
     assert "RAG PIPELINE COMPLETATA" not in out
-    assert "Query riscritta con il contesto: film con robot recenti" in out
+    assert "Ho inteso la domanda così: film con robot recenti" in out
     assert "Testo usato per l'embedding: Movies about robots" in out
     assert "Generi richiesti: Science Fiction" in out
     assert "K LARGO — 2 CHUNK RECUPERATI" in out
@@ -175,14 +184,16 @@ def test_handle_query_gives_recent_history_to_the_classifier(monkeypatch) -> Non
 
 
 class _ClarifyingOrchestrator:
-    def run(self, *, query, conversation_history=None, tool_overrides=None):
-        return {
+    def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None):
+        decision = {
             "tool": None,
             "clarification": True,
             "standalone_query": query,
             "result": {"query": query, "chunks": [], "metadata": {}, "trace": []},
             "final_answer": "Quale film di Sorrentino intendi?",
         }
+        stream_decision(observer, query, decision)
+        return decision
 
 
 def test_clarification_turn_is_recorded_and_printed_without_a_tool(monkeypatch, capsys) -> None:
@@ -196,7 +207,7 @@ def test_clarification_turn_is_recorded_and_printed_without_a_tool(monkeypatch, 
     assert turn.steps[2].data == {"tool": None, "clarification": True}
     assert turn.history[-1] == {"role": "assistant", "content": "Quale film di Sorrentino intendi?"}
     out = capsys.readouterr().out
-    assert "nessuno: richiesta di chiarimento" in out
+    assert "Mi serve un chiarimento prima di cercare." in out
 
 
 def test_handle_query_records_one_selection_per_tool_each_followed_by_its_trace(monkeypatch) -> None:
@@ -204,8 +215,8 @@ def test_handle_query_records_one_selection_per_tool_each_followed_by_its_trace(
     monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
 
     class _TwoTools(_FakeOrchestrator):
-        def run(self, *, query, conversation_history=None, tool_overrides=None):
-            return {
+        def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None):
+            decision = {
                 "tool": "tmdb_search",
                 "tools": ["tmdb_search", "youtube_search"],
                 "calls": [
@@ -216,13 +227,16 @@ def test_handle_query_records_one_selection_per_tool_each_followed_by_its_trace(
                 "result": {"trace": []},
                 "final_answer": "Ecco film e intervista.",
             }
+            stream_decision(observer, query, decision)
+            return decision
 
     app = {"config": app_module.build_runtime_config(), "orchestrator": _TwoTools()}
 
     turn = app_module.handle_query(app, "un film con DiCaprio e un'intervista", history=[])
 
     assert [s.kind for s in turn.steps] == [
-        "classification", "query_rewrite", "tool_selection", "tmdb_calls", "tool_selection", "youtube_calls",
+        "classification", "query_rewrite", "tool_selection", "tool_outcome", "tmdb_calls",
+        "tool_selection", "tool_outcome", "youtube_calls",
     ]
     assert [s.data["tool"] for s in turn.steps if s.kind == "tool_selection"] == ["tmdb_search", "youtube_search"]
     assert turn.tool == "tmdb_search" and turn.tools == ["tmdb_search", "youtube_search"]
@@ -233,9 +247,9 @@ def test_planning_step_is_recorded_and_printed_when_a_part_was_not_run(monkeypat
     monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
 
     class _Pending(_FakeOrchestrator):
-        def run(self, *, query, conversation_history=None, tool_overrides=None):
+        def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None):
             part = {"part": "un'intervista", "tool": "youtube_search"}
-            return {
+            decision = {
                 "tool": "tmdb_search",
                 "tools": ["tmdb_search"],
                 "calls": [{"tool": "tmdb_search", "arguments": {}, "result": {"trace": []}}],
@@ -249,6 +263,8 @@ def test_planning_step_is_recorded_and_printed_when_a_part_was_not_run(monkeypat
                 "result": {"trace": []},
                 "final_answer": "Ecco il film.",
             }
+            stream_decision(observer, query, decision)
+            return decision
 
     app = {"config": app_module.build_runtime_config(), "orchestrator": _Pending()}
 
@@ -257,7 +273,7 @@ def test_planning_step_is_recorded_and_printed_when_a_part_was_not_run(monkeypat
 
     assert turn.steps[-1].kind == "planning" and turn.steps[-1].data["stop_reason"] == "done"
     out = capsys.readouterr().out
-    assert "non eseguite: un'intervista (youtube_search)" in out and "stop: done" in out
+    assert "Non ho cercato: un'intervista" in out
 
 
 def test_a_single_tool_turn_has_no_planning_step(monkeypatch) -> None:

@@ -431,3 +431,136 @@ def test_a_single_tool_turn_has_no_pending_parts() -> None:
 
     assert planning["pending"] == [] and planning["stop_reason"] == "complete"
 
+
+class _Recorder:
+    """Observer that logs, in one list, what it receives and what the orchestrator does."""
+
+    def __init__(self, log: list) -> None:
+        self.log = log
+
+    def step(self, step) -> None:
+        self.log.append(step.kind)
+
+    def status(self, stage) -> None:
+        self.log.append(f"status:{stage}")
+
+
+def test_steps_reach_the_observer_while_the_turn_runs() -> None:
+    log: list = []
+    orch, tools, client = _multi(
+        [_step("tmdb_search", True), _step("youtube_search", False, title="Il film"), "Risposta finale."]
+    )
+    for tool in tools.values():
+        original = tool.run
+        tool.run = lambda *, _o=original, _n=tool.name, **kw: (log.append(f"run:{_n}"), _o(**kw))[1]
+    original_create = client.create
+    client.create = lambda **kw: (log.append("llm"), original_create(**kw))[1]
+
+    orch.run(query="film e intervista", conversation_history=[], observer=_Recorder(log))
+
+    # The tool is announced before it runs; its outcome follows it; the answer comes last.
+    assert log == [
+        "llm", "query_rewrite",
+        "tool_selection", "run:tmdb_search", "tool_outcome",
+        "llm",
+        "tool_selection", "run:youtube_search", "tool_outcome",
+        "status:answering", "llm", "planning",
+    ]
+
+
+def test_each_step_says_what_it_looks_for_how_long_and_how_it_went() -> None:
+    steps = []
+
+    class _Keep(_Recorder):
+        def step(self, step) -> None:
+            steps.append(step)
+
+    orch, _, _ = _multi([_plan_with_parts("tmdb_search", [FILM_AND_INTERVIEW[0]])])
+    orch.run(query="x", conversation_history=[], observer=_Keep([]))
+
+    selection = next(s for s in steps if s.kind == "tool_selection")
+    outcome = next(s for s in steps if s.kind == "tool_outcome")
+    assert selection.data["tool"] == "tmdb_search" and selection.data["purpose"] == FILM_AND_INTERVIEW[0]["part"]
+    assert selection.data["arguments"] == {}
+    assert outcome.data["tool"] == "tmdb_search" and isinstance(outcome.data["elapsed_ms"], int)
+    assert outcome.data["status"] == "empty"  # the fake tool returns no chunks and sets no outcome
+
+
+def test_the_outcome_set_by_the_tool_is_reported() -> None:
+    steps = []
+
+    class _Keep(_Recorder):
+        def step(self, step) -> None:
+            steps.append(step)
+
+    orch, tools, _ = _orchestrator({"tool_name": "rag_search", "confidence": 0.9})
+    tools["rag_search"].run = lambda **kw: {
+        "query": "q", "chunks": [], "outcome": {"status": "error", "reason": "unsupported_request"},
+    }
+    orch.run(query="x", conversation_history=[], observer=_Keep([]))
+
+    outcome = next(s for s in steps if s.kind == "tool_outcome")
+    assert (outcome.data["status"], outcome.data["reason"]) == ("error", "unsupported_request")
+
+
+def test_a_broken_observer_never_breaks_the_turn() -> None:
+    class _Broken:
+        def step(self, step) -> None:
+            raise RuntimeError("channel down")
+
+        def status(self, stage) -> None:
+            raise RuntimeError("channel down")
+
+    orch, _, _ = _orchestrator({"tool_name": "rag_search", "confidence": 0.9})
+
+    assert orch.run(query="x", conversation_history=[], observer=_Broken())["final_answer"] == "Risposta finale."
+
+
+@pytest.mark.parametrize(
+    ("plan", "fallback"),
+    [
+        (RuntimeError("down"), "planner_failed"),
+        ({"tool_name": "tmdb_search", "confidence": 0.1}, "low_confidence"),
+        ({"tool_name": "nope", "confidence": 0.9}, "unknown_tool"),
+    ],
+)
+def test_a_silent_fallback_to_the_default_tool_is_recorded(plan, fallback) -> None:
+    orch, _, _ = _orchestrator(plan, tools=("rag_search", "tmdb_search"))
+
+    planning = orch.run(query="x", conversation_history=[])["planning"]
+
+    assert planning["fallbacks"] == [fallback]
+
+
+def test_a_failed_final_answer_is_recorded() -> None:
+    steps = []
+
+    class _Keep(_Recorder):
+        def step(self, step) -> None:
+            steps.append(step)
+
+    class _AnswerFails(FakeClient):
+        def create(self, **kwargs):
+            if self.calls:
+                raise RuntimeError("down")
+            return super().create(**kwargs)
+
+    orch, _, _ = _orchestrator({"tool_name": "rag_search", "confidence": 0.9})
+    orch.client = _AnswerFails({"tool_name": "rag_search", "confidence": 0.9})
+    decision = orch.run(query="x", conversation_history=[], observer=_Keep([]))
+
+    assert decision["planning"]["fallbacks"] == ["answer_failed"]
+    assert steps[-1].kind == "planning"
+
+
+def test_a_normal_single_tool_turn_has_no_fallback_and_no_planning_step() -> None:
+    steps = []
+
+    class _Keep(_Recorder):
+        def step(self, step) -> None:
+            steps.append(step)
+
+    orch, _, _ = _orchestrator({"tool_name": "rag_search", "confidence": 0.9})
+    decision = orch.run(query="x", conversation_history=[], observer=_Keep([]))
+
+    assert decision["planning"]["fallbacks"] == [] and "planning" not in [s.kind for s in steps]

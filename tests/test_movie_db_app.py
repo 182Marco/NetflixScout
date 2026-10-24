@@ -59,7 +59,7 @@ def test_db_query_step_reaches_the_turn_result(monkeypatch, movie_db_config) -> 
     turn = app_module.handle_query(app, "film più votati", history=[])
 
     assert turn.tool == MOVIE_DB_TOOL_NAME
-    assert [s.kind for s in turn.steps] == ["classification", "query_rewrite", "tool_selection", "db_query"]
+    assert [s.kind for s in turn.steps] == ["classification", "query_rewrite", "tool_selection", "tool_outcome", "db_query"]
     assert turn.steps[-1].data["queries"][0]["sql"].startswith("SELECT")
     assert turn.answer == "Risposta finale."
 

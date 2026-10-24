@@ -10,6 +10,7 @@ from movie_db.tool.movie_db_tool import MovieDbTool
 from movie_db.tool.sql.connection import ensure_db_ready
 from orchestrator import LLMOrchestrator
 from presenters import OutputChannel, present, terminal
+from presenters.story_view import StoryBuilder
 from rag.FromQueryEmbeddingToRes.chat import _choose_block_language
 from rag.FromQueryEmbeddingToRes.conversation import _compact_history
 from rag.FromQueryEmbeddingToRes.query_classifier.query_classifier import classify_query_domain
@@ -21,12 +22,13 @@ from tmdb.config import load_tmdb_config
 from tmdb.enrich import TmdbRagEnricher
 from tmdb.tool import TmdbTool
 from turn import (
+    STAGE_UNDERSTANDING,
     STEP_CLASSIFICATION,
-    STEP_QUERY_REWRITE,
-    STEP_PLANNING,
-    STEP_TOOL_SELECTION,
     TOOL_PARAM_TURN_LANGUAGE,
+    NullObserver,
+    StoryLine,
     TraceStep,
+    TurnObserver,
     TurnResult,
 )
 from youtube.config import load_youtube_config
@@ -370,20 +372,51 @@ def ensure_collection_ready(runtime_rag: dict[str, Any]) -> None:
         )
 
 
+class _TurnRecorder:
+    """Keeps the steps and the story of a turn and passes both on to the channel's observer."""
+
+    def __init__(self, observer: TurnObserver) -> None:
+        self.observer = observer
+        self.steps: list[TraceStep] = []
+        self.story: list[StoryLine] = []
+        self._story = StoryBuilder()
+
+    def step(self, step: TraceStep) -> None:
+        self.steps.append(step)
+        self.story.extend(self._story.step(step))
+        try:
+            self.observer.step(step)
+        except Exception:
+            pass  # a broken channel never breaks the turn
+
+    def status(self, stage: str) -> None:
+        try:
+            self.observer.status(stage)
+        except Exception:
+            pass
+
+
 def handle_query(
     app: dict[str, Any],
     query: str,
     history: list[dict[str, str]] | None = None,
     openai_client: OpenAI | None = None,
+    observer: TurnObserver | None = None,
 ) -> TurnResult:
-    """Answer one query and record every step. Never prints: output is up to presenters/."""
+    """Answer one query and record every step. Never prints: output is up to presenters/.
+
+    `observer` receives the steps while they happen (the orchestrator streams them), so a
+    channel can show the work during the wait; `TurnResult` has the same steps and story.
+    """
     runtime_config = app["config"]
     history = list(history or [])
+    recorder = _TurnRecorder(observer or NullObserver())
 
+    recorder.status(STAGE_UNDERSTANDING)
     context_size = runtime_config["orchestrator"].get("classifier_context_messages", 0)
     classification = classify_query_domain(query, history[-context_size:] if context_size else [])
     language = _choose_block_language(query, classification)
-    steps = [TraceStep(kind=STEP_CLASSIFICATION, title="Classificazione", data=dict(classification))]
+    recorder.step(TraceStep(kind=STEP_CLASSIFICATION, title="Classificazione", data={**classification, "language": language}))
 
     if not classification["is_cinema"]:
         return TurnResult(
@@ -391,7 +424,8 @@ def handle_query(
             language=language,
             blocked=True,
             answer=NON_CINEMA_BLOCK_MESSAGES[language],
-            steps=steps,
+            steps=recorder.steps,
+            story=recorder.story,
             history=history,
         )
 
@@ -400,36 +434,9 @@ def handle_query(
         conversation_history=history,
         # The turn language selects localized TMDb data; it never sets the answer language.
         tool_overrides={TOOL_PARAM_TURN_LANGUAGE: language},
+        observer=recorder,
     )
     answer = decision["final_answer"]
-    standalone_query = decision.get("standalone_query") or query
-    steps.append(
-        TraceStep(
-            kind=STEP_QUERY_REWRITE,
-            title="Query usata dai tool",
-            data={"original": query, "used": standalone_query, "rewritten": standalone_query != query},
-        )
-    )
-    if decision.get("clarification"):
-        steps.append(
-            TraceStep(
-                kind=STEP_TOOL_SELECTION,
-                title="Tool scelto",
-                data={"tool": decision["tool"], "clarification": True},
-            )
-        )
-    # One tool_selection step per call, each followed by the trace of that call.
-    calls = decision.get("calls")
-    if calls is None and decision.get("tool"):
-        # Single-call decision (no `calls` list).
-        calls = [{"tool": decision["tool"], "result": decision["result"]}]
-    for call in calls or []:
-        steps.append(TraceStep(kind=STEP_TOOL_SELECTION, title="Tool scelto", data={"tool": call["tool"]}))
-        steps.extend(TraceStep(**step) for step in call["result"].get("trace", []))
-    planning = decision.get("planning")
-    if planning and (len(planning["tools"]) > 1 or planning["pending"]):
-        # After the calls: it says what ran, what did not, and why the loop stopped.
-        steps.append(TraceStep(kind=STEP_PLANNING, title="Pianificazione", data=dict(planning)))
 
     history.extend(
         [
@@ -454,7 +461,8 @@ def handle_query(
         answer=answer,
         tool=decision["tool"],
         tools=list(decision.get("tools") or []),
-        steps=steps,
+        steps=recorder.steps,
+        story=recorder.story,
         history=history,
         history_compacted=compacted,
     )
@@ -483,8 +491,8 @@ def run_terminal_chat() -> None:
             terminal.print_goodbye()
             break
 
-        turn = handle_query(app, query, history, openai_client)
-        present(turn, OutputChannel.terminal)
+        turn = handle_query(app, query, history, openai_client, observer=terminal.TerminalObserver())
+        present(turn, OutputChannel.terminal, streamed=True)
         history = turn.history
 
 
