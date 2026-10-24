@@ -69,6 +69,7 @@ def test_web_serializer_is_json_ready_and_matches_terminal(capsys) -> None:
         assert query.display_sql in terminal_text.replace("🧾 ", "")
 
 
-def test_web_channel_is_still_not_implemented() -> None:
-    with pytest.raises(NotImplementedError):
-        present(_turn(STEP), OutputChannel.web)
+def test_web_channel_returns_a_payload_with_the_step() -> None:
+    payload = present(_turn(STEP), OutputChannel.web)
+
+    assert payload["steps"] and payload["steps"][0]["kind"] == "db_query"

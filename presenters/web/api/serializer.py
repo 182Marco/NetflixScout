@@ -1,7 +1,7 @@
 """JSON-ready form of the `tmdb_calls` step for a future web response.
 
-Not wired into `presenters.web.to_payload` yet (still `NotImplementedError`, no FastAPI
-route exists). Same content as the terminal, from the shared view. A web frontend must
+Wired into `payload.STEP_SERIALIZERS` (no FastAPI route exists yet). Same content as the
+terminal, from the shared view. A web frontend must
 also show the TMDb logo and `notice` in an About/Credits section (TMDb Terms §3).
 """
 from __future__ import annotations

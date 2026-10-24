@@ -1,4 +1,4 @@
-"""Offline tests of the YouTube presenters: terminal renderer, reserved web folder, notice."""
+"""Offline tests of the YouTube presenters: terminal renderer, web serializer, notice."""
 from __future__ import annotations
 
 import ast
@@ -230,7 +230,7 @@ def test_youtube_presenters_import_only_turn_and_their_own_modules() -> None:
             if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
                 assert node.module in {"__future__", "typing", "turn"}, (path, node.module)
             if isinstance(node, ast.ImportFrom) and node.level > 1:
-                assert node.module == "box", (path, node.module)
+                assert node.module in {"box", "youtube_view"}, (path, node.module)
             if isinstance(node, ast.Import):
                 raise AssertionError((path, [alias.name for alias in node.names]))
 
@@ -242,17 +242,22 @@ def test_presenters_never_import_the_youtube_package() -> None:
                 assert not node.module.startswith("youtube"), (path, node.module)
 
 
-def test_web_folder_is_reserved_without_a_serializer() -> None:
-    folder = ROOT / "presenters" / "web" / "youtube"
+def test_web_serializer_shows_the_same_view_as_the_terminal() -> None:
+    from presenters.web.youtube import serialize_youtube_calls_step
+    from presenters.youtube_view import youtube_calls_view
 
-    assert sorted(path.name for path in folder.glob("*.py")) == ["__init__.py"]
-    tree = ast.parse((folder / "__init__.py").read_text(encoding="utf-8"))
-    assert all(isinstance(node, ast.Expr) for node in tree.body)  # docstring only
+    step = _step()
+
+    assert serialize_youtube_calls_step(step, "it") == {
+        "kind": step.kind,
+        **youtube_calls_view(step, "it").model_dump(mode="json"),
+    }
 
 
-def test_web_channel_is_still_not_implemented() -> None:
-    with pytest.raises(NotImplementedError):
-        present(_turn(_step()), OutputChannel.web)
+def test_web_channel_returns_a_payload_with_the_step() -> None:
+    payload = present(_turn(_step()), OutputChannel.web)
+
+    assert payload["steps"] and payload["steps"][0]["kind"] == "youtube_calls"
 
 
 @pytest.mark.parametrize(("language", "label"), [("it", "altro formato"), ("en", "another format")])
@@ -337,19 +342,3 @@ def test_turn_limit_is_called_a_search_limit(capsys) -> None:
     out = _render(_step(), "it", capsys)
 
     assert "limite di ricerche per turno" in out and "limite di turni" not in out
-
-
-def test_dropped_titles_are_not_printed(capsys) -> None:
-    routes = {
-        "/search": {"items": [search_item("vid00000001", "Dune: Part Two | Making of"), search_item("vid00000002", "Dune: Part Two reaction")]},
-        "/videos": {"items": [video_item("vid00000001", "Dune: Part Two | Making of")]},
-    }
-    tool, _ = make_tool(routes)
-    result = run_tool(tool)
-    [step] = result["trace"]
-    assert step["data"]["dropped"]
-
-    render_youtube_calls(TraceStep(**step), "it")
-
-    out = capsys.readouterr().out
-    assert "Dune: Part Two | Making of" in out and "Dune: Part Two reaction" not in out

@@ -133,6 +133,7 @@ def test_presenters_live_only_in_the_root_folder_split_by_channel_and_tool() -> 
             assert (ROOT / "presenters" / channel / tool / "__init__.py").is_file(), (channel, tool)
 
 
-def test_web_channel_is_still_not_implemented() -> None:
-    with pytest.raises(NotImplementedError):
-        present(_turn(_step()), OutputChannel.web)
+def test_web_channel_returns_a_payload_with_the_step() -> None:
+    payload = present(_turn(_step()), OutputChannel.web)
+
+    assert payload["steps"] and payload["steps"][0]["kind"] == "tmdb_calls"

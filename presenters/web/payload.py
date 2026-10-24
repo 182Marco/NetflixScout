@@ -1,27 +1,27 @@
-"""Web output channel (prepared, not implemented yet).
+"""Web output channel: the JSON-ready form of a `TurnResult` for the FastAPI response.
 
-It will turn a `TurnResult` into a JSON-ready dict for the FastAPI response, built
-to be mapped directly by the frontend. Intended shape:
+Same content as the terminal, in another format. Both read the same shared views
+(`presenters/story_view.py`, `rag_view.py`, `db_view.py`, `api_view.py`, `youtube_view.py`),
+so the story, the steps and their data are the same; the web has no emoji and no `═` titles,
+the frontend picks icons from `story[].level`.
 
     {
-        "answer": str,
-        "blocked": bool,
-        "language": "it" | "en",
-        "tool": str | None,
-        "steps": [
-            {"kind": "classification" | "query_rewrite" | "tool_selection" | "retrieval" | "rerank" | ...,
-             "title": str,
-             "data": {...}}   # typed per kind, e.g. retrieval/rerank -> {"chunks": [RagChunk]}
-        ],
+        "answer": str, "blocked": bool, "language": "it" | "en",
+        "tool": str | None, "tools": [str],
+        "story": [{"level": "progress" | "info" | "ok" | "warn", "text": str, "tool": str | None}],
+        "steps": [{"kind": ..., ...}]   # tool steps only, in order (see STEP_SERIALIZERS)
     }
 
-The `classification` step (is_cinema/is_italian) is internal: like the terminal, the frontend
-should not show it, only the block message of a blocked turn. RAG steps appear only when the
-orchestrator ran `rag_search`.
+`story` tells the turn in a few plain sentences (what is searched and where, whether it was
+found, how long it took, when the system went on with less than planned). The flow steps
+(`classification`, `query_rewrite`, `tool_selection`, `tool_outcome`, `planning`) are told by
+`story`, so they are not in `steps`; the `classification` verdict is internal, only the block
+message of a blocked turn is shown. A step kind without a serializer is passed on as
+`{"kind", "title", "data"}`, like the terminal's generic block.
 
-It will be implemented when more tools than the RAG exist, so the step schema can
-be designed across all of them. Conversation history stays out of the payload: the
-web caller keeps it and sends it back on the next request.
+Live progress: pass a `TurnObserver` (see `turn.py`) to `app.handle_query`; its `step` and
+`status` calls are what a Server-Sent Events route would send while the turn runs. Conversation
+history stays out of the payload: the web caller keeps it and sends it back on the next request.
 
 TMDb Terms of Use (§3): the web frontend must show the TMDb logo and the notice in
 `presenters.api_view.TMDB_NOTICE` (About/Credits), and every `tmdb_calls` step must keep
@@ -29,15 +29,57 @@ its `attributions` (JustWatch for streaming data) visible next to the answer.
 
 YouTube API Services Developer Policies (III.A, III.C.5, III.F): every `youtube_calls` step
 must name YouTube as the source and show video titles, channels and URLs exactly as in the
-step (only control characters may be removed for display, as `presenters/terminal/youtube/`
+step (only control characters may be removed for display, as `presenters/youtube_view.py`
 does), and the frontend must link the YouTube Terms of Service and the Google Privacy Policy.
 """
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
 
-from turn import TurnResult
+from turn import (
+    STEP_DB_QUERY,
+    STEP_RERANK,
+    STEP_RETRIEVAL,
+    STEP_TMDB_CALLS,
+    STEP_YOUTUBE_CALLS,
+    TraceStep,
+    TurnResult,
+)
+
+from ..story_view import STORY_STEP_KINDS, build_story
+from .api import serialize_tmdb_calls_step
+from .db import serialize_db_query_step
+from .rag import serialize_rag_step
+from .youtube import serialize_youtube_calls_step
+
+Serializer = Callable[[TraceStep, str | None], dict[str, Any]]
+
+# Same kinds as the terminal's STEP_RENDERERS (checked by tests/test_presenter_parity.py).
+STEP_SERIALIZERS: dict[str, Serializer] = {
+    STEP_RETRIEVAL: serialize_rag_step,
+    STEP_RERANK: serialize_rag_step,
+    STEP_DB_QUERY: serialize_db_query_step,
+    STEP_TMDB_CALLS: serialize_tmdb_calls_step,
+    STEP_YOUTUBE_CALLS: serialize_youtube_calls_step,
+}
+
+
+def _serialize_step(step: TraceStep, language: str) -> dict[str, Any]:
+    serializer = STEP_SERIALIZERS.get(step.kind)
+    if serializer is None:
+        return {"kind": step.kind, "title": step.title, "data": step.data}
+    return serializer(step, language)
 
 
 def to_payload(turn: TurnResult) -> dict[str, Any]:
-    raise NotImplementedError("Web output channel is not implemented yet.")
+    return {
+        "answer": turn.answer,
+        "blocked": turn.blocked,
+        "language": turn.language,
+        "tool": turn.tool,
+        "tools": list(turn.tools),
+        # Rebuilt from the steps, like the terminal's replay: the same text for both channels.
+        "story": [line.model_dump(mode="json") for line in build_story(turn.steps, turn.language)],
+        "steps": [_serialize_step(step, turn.language) for step in turn.steps if step.kind not in STORY_STEP_KINDS],
+    }

@@ -156,10 +156,12 @@ def test_terminal_channel_prints_full_procedure(capsys) -> None:
     assert out.index("K LARGO") < out.index("RERANKING") < out.index("Guarda Matrix.")
 
 
-def test_web_channel_is_prepared_but_not_implemented(capsys) -> None:
-    with pytest.raises(NotImplementedError):
-        present(_sample_turn(), OutputChannel.web)
+def test_web_channel_returns_the_payload_without_printing(capsys) -> None:
+    payload = present(_sample_turn(), OutputChannel.web)
+
     assert capsys.readouterr().out == ""
+    assert payload["answer"] == "Guarda Matrix." and payload["tool"] == "rag_search"
+    assert [step["kind"] for step in payload["steps"]] == ["retrieval", "rerank", "future_tool_step"]
 
 
 def test_handle_query_gives_recent_history_to_the_classifier(monkeypatch) -> None:

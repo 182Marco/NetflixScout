@@ -1,68 +1,42 @@
 """Terminal print blocks for the RAG chunks.
 
-Chunks may be dicts or Pydantic models (e.g. `RagChunk`): this module does not import
-the RAG package, so presenters stay independent from the core and import cycles are avoided.
+The content comes from the shared `presenters/rag_view.py` (the web shows the same data);
+this module only decides the terminal format and does not import the RAG package.
 """
 from __future__ import annotations
 
-from typing import Any
-
+from ...rag_view import RagStepView
 from ..box import print_box
 
 
-def print_chunks(
-    title: str,
-    chunks: list[Any],
-    emoji: str,
-) -> None:
-    print_box(emoji, title)
+def print_chunks(view: RagStepView, emoji: str) -> None:
+    print_box(emoji, view.title)
 
-    for index, chunk in enumerate(chunks, start=1):
-        if hasattr(chunk, "model_dump"):
-            chunk = chunk.model_dump()
-        chunk_id = chunk.get("id")
-        score = chunk.get("score")
-        source = chunk.get("source")
-        testo = chunk.get("testo", "")
-        movie_id = chunk.get("movie_id")
-        chunk_title = chunk.get("title")
-        release_date = chunk.get("release_date")
-        release_year = chunk.get("release_year")
-        genres = chunk.get("genres")
-        cast = chunk.get("cast")
-
-        preview = testo[:200] + "..."
-
+    for index, chunk in enumerate(view.chunks, start=1):
         print()
         print(f"  🔹 CHUNK #{index}")
         print("  " + "─" * 64)
-        print(f"  🆔 ID       : {chunk_id}")
-        print(f"  📊 SCORE    : {score:.4f}")
-        print(f"  📁 SOURCE   : {source}")
-        if movie_id:
-            print(f"  🎬 MOVIE ID : {movie_id}")
-        if chunk_title:
-            print(f"  🎞️ TITLE    : {chunk_title}")
-        if release_year or release_date:
-            print(f"  📅 YEAR     : {release_year or release_date}")
-        if genres:
-            print(f"  🏷️ GENRES   : {genres}")
-        if cast:
-            print(f"  👥 CAST     : {cast}")
-        print(f'  📝 TESTO    : "{preview}"')
+        print(f"  🆔 ID       : {chunk.id}")
+        print(f"  📊 SCORE    : {chunk.score:.4f}" if chunk.score is not None else "  📊 SCORE    : N/A")
+        print(f"  📁 SOURCE   : {chunk.source}")
+        if chunk.movie_id:
+            print(f"  🎬 MOVIE ID : {chunk.movie_id}")
+        if chunk.title:
+            print(f"  🎞️ TITLE    : {chunk.title}")
+        if chunk.year:
+            print(f"  📅 YEAR     : {chunk.year}")
+        if chunk.genres:
+            print(f"  🏷️ GENRES   : {chunk.genres}")
+        if chunk.cast:
+            print(f"  👥 CAST     : {chunk.cast}")
+        print(f'  📝 TESTO    : "{chunk.preview}"')
 
 
-def print_retrieval_compact(
-    title: str,
-    chunks: list[dict],
-    emoji: str,
-) -> None:
-    print_box(emoji, title)
+def print_retrieval_compact(view: RagStepView, emoji: str) -> None:
+    print_box(emoji, view.title)
 
-    for chunk in chunks:
-        chunk_title = chunk.get("title") or "N/A"
-        year = chunk.get("release_year") or chunk.get("release_date") or "N/A"
-        print(f"  {chunk_title} ({year})")
+    for chunk in view.chunks:
+        print(f"  {chunk.title or 'N/A'} ({chunk.year or 'N/A'})")
 
 
 def print_retrieval_query(embedded_text: str | None, genres: list[str]) -> None:
