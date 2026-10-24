@@ -82,6 +82,8 @@ def test_parser_error_gives_empty_result_without_queries(movie_db_config) -> Non
     assert result["chunks"] == []
     assert result["metadata"]["operation"] is None
     assert "error" in result["metadata"]
+    # The parser answered but nothing in the whitelist fits (e.g. a filter by actor).
+    assert result["metadata"]["error_kind"] == "unsupported_request"
     assert result["trace"][0]["data"] == {"queries": []}
 
 

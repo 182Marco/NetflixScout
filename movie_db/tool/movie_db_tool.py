@@ -56,6 +56,7 @@ class MovieDbTool:
         executed: list[ExecutedQuery],
         rows: list[dict[str, Any]],
         error: str | None = None,
+        error_kind: str | None = None,
     ) -> dict[str, Any]:
         metadata: dict[str, Any] = {
             "operation": parsed.operation.value if parsed else None,
@@ -65,6 +66,8 @@ class MovieDbTool:
             metadata.update(WORK_TYPE_UNVERIFIED)
         if error:
             metadata["error"] = error
+        if error_kind:
+            metadata["error_kind"] = error_kind
         return {
             "query": query,
             "chunks": [row_to_chunk(row) for row in rows],
@@ -88,7 +91,9 @@ class MovieDbTool:
         try:
             parsed = parse_query(payload.query, self.config.parser, self._client())
         except MovieDbParseError as exc:
-            return self._result(payload.query, parsed=None, executed=[], rows=[], error=str(exc))
+            return self._result(
+                payload.query, parsed=None, executed=[], rows=[], error=str(exc), error_kind=exc.kind
+            )
 
         try:
             with readonly_connection(self.config.db_path, timeout_ms=self.config.query.timeout_ms) as conn:

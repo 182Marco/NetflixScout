@@ -18,7 +18,16 @@ from .models import MovieDbQuery
 
 
 class MovieDbParseError(ValueError):
-    """The request could not be turned into a whitelisted operation."""
+    """The request could not be turned into a whitelisted operation.
+
+    `kind` is `unsupported_request` when the parser answered but nothing in the whitelist
+    fits (e.g. a filter by actor, or critics' reviews: MovieLens has neither) and
+    `parser_failed` when the parser call itself failed.
+    """
+
+    def __init__(self, message: str, *, kind: str = "unsupported_request") -> None:
+        super().__init__(message)
+        self.kind = kind
 
 
 def _instructions(settings: ParserConfig) -> str:
@@ -46,7 +55,7 @@ def parse_query(query: str, settings: ParserConfig, client: Any) -> MovieDbQuery
     except MovieDbParseError:
         raise
     except Exception as exc:
-        raise MovieDbParseError(f"Parser call failed: {exc}") from exc
+        raise MovieDbParseError(f"Parser call failed: {exc}", kind="parser_failed") from exc
 
     try:
         return MovieDbQuery.model_validate(payload)
