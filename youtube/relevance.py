@@ -13,13 +13,16 @@ Permissive by design: a result is dropped only on strong evidence, with one reas
 - `homonym_risk`: the title anchor is weak (a one-word title such as "Arrival", or only the
   main title before a subtitle) and none of the known year, director, cast or release period
   (trailers, making-of and behind the scenes only) confirms it; with no year and no person
-  to check, the result is kept and noted (`homonym_unchecked`);
+  to check, the result is kept and noted (`homonym_unchecked`) only if its title or
+  description has a word of film context (`FILM_CONTEXT_WORDS`): "Parasite" alone also
+  matches videos about parasites, "Her" any text with the pronoun;
 - `short_video`: the video declares itself a Short (#shorts) and is not longer than a Short
   can be. Never for trailers, never by duration alone (see `settings.MIN_DURATION_SECONDS`).
 
 Every other result is kept, with notes on what could not be confirmed (`kind_unconfirmed`
-when no kind word appears: the API also matches metadata we do not see). Results keep the
-API order; nothing is scored or reordered. Texts are compared in normalized form only: the
+when the video *title* has no word of the kind: a kind word only in the description does
+not confirm it, as descriptions list credits and tags such as "director" or "cast").
+Results keep the API order; nothing is scored or reordered. Texts are compared in normalized form only: the
 values shown to the user are never changed here.
 """
 from __future__ import annotations
@@ -38,6 +41,14 @@ RELEASE_WINDOW = (-1, 3)
 # Only promotional videos are tied to the release date; interviews and commentaries can
 # come out at any time (retrospectives, anniversaries).
 RELEASE_PERIOD_KINDS = frozenset({VideoKind.trailer, VideoKind.making_of, VideoKind.behind_the_scenes})
+
+# Words that show a video is about a film: required to keep a weak anchor that nothing can
+# confirm (no year, no person). Whole words or phrases of the normalized title or description.
+FILM_CONTEXT_WORDS = (
+    "film", "films", "movie", "movies", "cinema", "trailer", "teaser", "director", "directed",
+    "regista", "regia", "cast", "actor", "actress", "attore", "attrice", "oscar", "oscars", "imdb",
+    "making of", "behind the scenes", "dietro le quinte", "featurette", "on set",
+)
 
 # Notes that leave a kept video uncertain: shown under "to verify", never as confirmed.
 # Data notes (duration, region, title source) say nothing about relevance.
@@ -171,12 +182,13 @@ def screen(
     if weak:
         confirmations = {"director", "cast", "year", "release_period"} & set(matched)
         if not confirmations:
-            if request.year is None and not request.people:
+            unverifiable = request.year is None and not request.people
+            if unverifiable and any(_has(both, normalize_text(word)) for word in FILM_CONTEXT_WORDS):
                 notes.append("homonym_unchecked")
             else:
                 return Screening(kept=False, reason="homonym_risk")
 
-    if not any(_has(both, word) for word in _kind_words(kind)):
+    if not any(_has(video_title, word) for word in _kind_words(kind)):
         notes.append("kind_unconfirmed")
     return Screening(kept=True, matched_on=tuple(matched), notes=tuple(notes))
 
