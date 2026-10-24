@@ -24,7 +24,11 @@ Permissive by design: a result is dropped only on strong evidence, with one reas
 
 Every other result is kept, with notes on what could not be confirmed (`kind_unconfirmed`
 when the video *title* has no word of the kind: a kind word only in the description does
-not confirm it, as descriptions list credits and tags such as "director" or "cast").
+not confirm it, as descriptions list credits and tags such as "director" or "cast"). An
+interview without a kind word in its title is confirmed only when a named person speaks in
+the title ("Celine Song talks …") and the description gives that same person the requested
+role next to the name ("writer-director Celine Song"); a requested director or cast member
+must be that person.
 Results keep the API order; nothing is scored or reordered. Texts are compared in normalized form only: the
 values shown to the user are never changed here.
 """
@@ -55,6 +59,20 @@ FILM_CONTEXT_WORDS = (
     "diretto da", "regia di", "un film di", "película", "películas", "filme", "filmes", "kino",
 )
 _FILM_CONTEXT = tuple(normalize_text(word) for word in FILM_CONTEXT_WORDS)
+
+# A person speaking in a video title: "Celine Song talks …", "Bong Joon-ho reveals …",
+# "Denis Villeneuve on …". The verb follows a capitalized name of 2-4 words at the start of a
+# title segment.
+SPEAKER_VERBS = frozenset(
+    {"talks", "talk", "discusses", "explains", "reveals", "speaks", "on", "racconta", "parla", "spiega", "habla"}
+)
+# Role written next to the speaker's name in the description ("writer-director Celine Song",
+# "directed by …", "Greta Lee, star of …"): the only description evidence of an interview kind.
+ROLE_MARKERS: dict[VideoKind, tuple[str, ...]] = {
+    VideoKind.director_interview: ("director", "directed by", "regista", "regia di", "diretto da", "filmmaker"),
+    VideoKind.cast_interview: ("actor", "actress", "star", "attore", "attrice"),
+}
+_SEGMENTS = re.compile(r"\s*(?:\||:|\s-\s|\s–\s|\s—\s)\s*")
 _QUOTES = "\"'‘’“”«»„"
 
 # Notes that leave a kept video uncertain: shown under "to verify", never as confirmed.
@@ -119,6 +137,32 @@ def _film_context(film_names: list[str], title: str | None, both: str) -> bool:
         return True
     in_title = [name for name in names if _has(normalize_text(raw), normalize_text(name)) and _is_latin(name)]
     return bool(in_title) and not _is_latin(raw)
+
+
+def _speakers(title: str | None) -> list[str]:
+    """Normalized names of the people speaking in the title, at the start of a segment."""
+    names = []
+    for segment in _SEGMENTS.split(html.unescape(title or "")):
+        words = segment.split()
+        for size in range(2, 5):
+            name, rest = words[:size], words[size:]
+            if rest and len(name) == size and all(word[0].isupper() for word in name):
+                if normalize_text(rest[0]) in SPEAKER_VERBS:
+                    names.append(normalize_text(" ".join(name)))
+    return names
+
+
+def _speaker_has_role(request: YoutubeToolInput, kind: VideoKind, title: str | None, description: str) -> bool:
+    """An interview kind confirmed by who speaks: the speaker of the title has the requested
+    role next to the name in the description, and is the requested person when one is known."""
+    roles = [normalize_text(role) for role in ROLE_MARKERS.get(kind, ())]
+    known = request.cast if kind is VideoKind.cast_interview else [request.director] if request.director else []
+    for speaker in _speakers(title):
+        if known and not any(_has(speaker, name) for person in known for name in _director_names(person)):
+            continue
+        if any(_has(description, f"{role} {speaker}") or _has(description, f"{speaker} {role}") for role in roles):
+            return True
+    return False
 
 
 def _other_format(request: YoutubeToolInput, kind: VideoKind, video_title: str) -> bool:
@@ -215,7 +259,9 @@ def screen(
             else:
                 return Screening(kept=False, reason="homonym_risk")
 
-    if not any(_has(video_title, word) for word in _kind_words(kind)):
+    if not any(_has(video_title, word) for word in _kind_words(kind)) and not _speaker_has_role(
+        request, kind, title, video_text
+    ):
         notes.append("kind_unconfirmed")
     return Screening(kept=True, matched_on=tuple(matched), notes=tuple(notes))
 
