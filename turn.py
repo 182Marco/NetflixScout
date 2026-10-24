@@ -106,3 +106,5 @@ class TurnResult(BaseModel):
     story: list[StoryLine] = Field(default_factory=list)
     history: list[dict[str, str]] = Field(default_factory=list)
     history_compacted: bool = False
+    # Web only: raw list references from the final answer call, checked by `web_lists`.
+    item_refs: list[Any] = Field(default_factory=list)

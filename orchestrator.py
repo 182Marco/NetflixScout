@@ -120,6 +120,16 @@ class Enricher(Protocol):
         ...
 
 
+def _split_structured_output(text: str) -> tuple[str, list[Any]]:
+    """`(answer, lists)` of the structured final output; ValueError if it is not usable."""
+    payload = json.loads(text)
+    answer = payload.get("answer") if isinstance(payload, dict) else None
+    if not isinstance(answer, str) or not answer.strip():
+        raise ValueError("structured final output without an answer")
+    lists = payload.get("lists")
+    return answer.strip(), lists if isinstance(lists, list) else []
+
+
 class LLMOrchestrator:
     def __init__(
         self,
@@ -211,13 +221,26 @@ class LLMOrchestrator:
         tool_results: list[dict[str, Any]] | None = None,
         unexecuted: list[str] | None = None,
         failures: list[str] | None = None,
+        final_output: Mapping[str, Any] | None = None,
+        lists_out: list[Any] | None = None,
     ) -> str:
-        """The answer text; a failure of the LLM call is appended to `failures` when given."""
+        """The answer text; a failure of the LLM call is appended to `failures` when given.
+
+        With `final_output` (web only: `{"text_format", "instructions"}`) the same call asks for
+        a strict JSON `{"answer", "lists"}`; `answer` is returned and the raw `lists` are added
+        to `lists_out`. Any failure (call, JSON, empty answer, refusal, incomplete output) takes
+        the fallback below, with no second call and no lists.
+        """
         results = tool_results or [tool_result or {}]
+        instructions = self._final_instructions([r.get("tool_name") for r in results])
+        extra: dict[str, Any] = {}
+        if final_output:
+            instructions = f"{instructions} {final_output['instructions']}"
+            extra["text"] = {"format": final_output["text_format"]}
         try:
             response = self.client.responses.create(
                 model=self.orchestrator_config.get("llm_model", "gpt-5.6-luna"),
-                instructions=self._final_instructions([r.get("tool_name") for r in results]),
+                instructions=instructions,
                 input=self._build_final_context(
                     query=query,
                     tool_result=tool_result,
@@ -225,8 +248,15 @@ class LLMOrchestrator:
                     conversation_history=conversation_history,
                     unexecuted=unexecuted,
                 ),
+                **extra,
             )
-            return (response.output_text or "").strip() or "Non ho abbastanza informazioni per rispondere."
+            text = (response.output_text or "").strip()
+            if final_output:
+                answer, lists = _split_structured_output(text)
+                if lists_out is not None:
+                    lists_out.extend(lists)
+                return answer
+            return text or "Non ho abbastanza informazioni per rispondere."
         except Exception:
             if failures is not None:
                 failures.append(FALLBACK_ANSWER)
@@ -509,6 +539,7 @@ class LLMOrchestrator:
         conversation_history: list[dict[str, str]] | None = None,
         tool_overrides: dict[str, Any] | None = None,
         observer: TurnObserver | None = None,
+        final_output: Mapping[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Run the tools the request needs, one after the other, then answer.
 
@@ -521,6 +552,10 @@ class LLMOrchestrator:
         `tool_selection` before the call and a `tool_outcome` plus the tool trace after it,
         `planning` last), so a channel can show the work while the user waits. The returned
         dict does not depend on it.
+
+        `final_output` (web channel only, see `web_lists.final_output`) makes the final answer
+        call return the answer plus structured list references in the same call; they come
+        back as `final_lists`. Without it nothing changes.
         """
         observer = observer or NullObserver()
         plan = self._plan_first(query=query, conversation_history=conversation_history)
@@ -621,6 +656,7 @@ class LLMOrchestrator:
         unexecuted = [f"{p['part']} (tool previsto: {p['tool']}, motivo: {stop_reason})" for p in pending]
         results = [{"tool_name": call.tool, **call.result} for call in calls]
         self._emit_status(observer, STAGE_ANSWERING)
+        final_lists: list[Any] = []
         final_answer = self._generate_final_answer(
             query=query,
             tool_result=results[0] if len(results) == 1 else None,
@@ -628,6 +664,8 @@ class LLMOrchestrator:
             conversation_history=conversation_history,
             unexecuted=unexecuted,
             failures=fallbacks,
+            final_output=final_output,
+            lists_out=final_lists,
         )
         planning = {
             "parts": parts,
@@ -648,4 +686,5 @@ class LLMOrchestrator:
             "result": calls[0].result,
             "planning": planning,
             "final_answer": final_answer,
+            "final_lists": final_lists,
         }

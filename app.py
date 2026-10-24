@@ -407,8 +407,12 @@ def handle_query(
     history: list[dict[str, str]] | None = None,
     openai_client: OpenAI | None = None,
     observer: TurnObserver | None = None,
+    final_output: dict[str, Any] | None = None,
 ) -> TurnResult:
     """Answer one query and record every step. Never prints: output is up to presenters/.
+
+    `final_output` is set by the web entry point only (`web_lists.final_output()`): the final
+    answer call then also returns the list references (`TurnResult.item_refs`).
 
     `observer` receives the steps while they happen (the orchestrator streams them), so a
     channel can show the work during the wait; `TurnResult` has the same steps and story.
@@ -440,6 +444,8 @@ def handle_query(
         # The turn language selects localized TMDb data; it never sets the answer language.
         tool_overrides={TOOL_PARAM_TURN_LANGUAGE: language},
         observer=recorder,
+        # Only when given: the terminal call stays exactly as it was.
+        **({"final_output": final_output} if final_output else {}),
     )
     answer = decision["final_answer"]
 
@@ -470,6 +476,7 @@ def handle_query(
         story=recorder.story,
         history=history,
         history_compacted=compacted,
+        item_refs=list(decision.get("final_lists") or []),
     )
 
 
