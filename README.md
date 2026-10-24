@@ -379,8 +379,9 @@ under "Da verificare", and may suggest giving the film's year or its original ti
 proposing one).
 
 Each run adds one `youtube_calls` step: masked calls (`https://www.googleapis.com/youtube/v3/search?key=***`),
-the query of each kind with the drops per reason, kinds not searched and why, and the videos with
-titles and channels exactly as returned. The terminal prints it in `presenters/terminal/youtube/`
+the query of each kind with the drops per reason, kinds not searched and why, the videos with
+titles and channels exactly as returned, and the dropped titles with their reason (`dropped`: not
+printed, kept for tests and evaluations to spot false negatives). The terminal prints it in `presenters/terminal/youtube/`
 (control characters removed from the printed copy only); `presenters/web/youtube/` is reserved
 until the web channel exists.
 
