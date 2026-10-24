@@ -7,7 +7,15 @@ import inspect
 import pytest
 
 from youtube.models import VideoKind, YoutubeToolInput
-from youtube.relevance import Screening, count_reasons, parse_duration, prescreen, screen, screen_details
+from youtube.relevance import (
+    Screening,
+    count_reasons,
+    parse_duration,
+    prescreen,
+    screen,
+    screen_details,
+    verification,
+)
 
 K = VideoKind
 
@@ -150,10 +158,13 @@ def test_interviews_are_confirmed_by_text_anchors() -> None:
     assert check(request_, K.director_interview, "Arrival interview", "Denis Villeneuve on the film").kept
 
 
-def test_one_word_interview_with_nothing_to_check_is_kept_unchecked() -> None:
-    result = check(req("Arrival"), K.director_interview, "Arrival interview with Amy Adams", published_at="2016-11-10T00:00:00Z")
+def test_one_word_interview_with_nothing_to_check_is_kept_unchecked_only_with_film_context() -> None:
+    title = "Arrival interview with Amy Adams"
+    with_context = check(req("Arrival"), K.director_interview, title, "The cast of the movie on set.", "2016-11-10T00:00:00Z")
+    without_context = check(req("Arrival"), K.director_interview, title, published_at="2016-11-10T00:00:00Z")
 
-    assert result.kept and "homonym_unchecked" in result.notes
+    assert with_context.kept and "homonym_unchecked" in with_context.notes
+    assert (without_context.kept, without_context.reason) == (False, "homonym_risk")
 
 
 def test_words_match_whole_not_by_inclusion() -> None:
@@ -383,7 +394,8 @@ def test_other_format_titles_are_dropped(request_, kind, title) -> None:
     ],
 )
 def test_mixed_titles_stay_valid(request_, kind, title) -> None:
-    assert check(request_, kind, title).kept
+    # Film context in the description: one-word titles with nothing to check need it.
+    assert check(request_, kind, title, "A film by Christopher Nolan.").kept
 
 
 def test_a_review_naming_the_director_stays_known_limit() -> None:
@@ -426,11 +438,15 @@ def test_oppenheimer_historic_clip_is_a_homonym_once_the_cast_is_known() -> None
     assert interview.kept and interview.matched_on == ("title", "cast")
 
 
-def test_oppenheimer_without_names_stays_unchecked_known_limit() -> None:
-    """Nothing to check without a year or a person: kept and noted, as agreed (not invented)."""
-    result = check(req("Oppenheimer", kinds=["cast_interview"]), K.cast_interview, 'J. Robert Oppenheimer: "I am become Death"')
+def test_oppenheimer_without_names_needs_film_context() -> None:
+    """Nothing to check without a year or a person (never invented): a clip about the physicist
+    with no word of film context is a homonym; with film context it is kept and noted."""
+    request_ = req("Oppenheimer", kinds=["cast_interview"])
+    historic = check(request_, K.cast_interview, 'J. Robert Oppenheimer: "I am become Death"', "Archive footage, 1965.")
+    film = check(request_, K.cast_interview, "Oppenheimer cast interview", "The cast of the Christopher Nolan film.")
 
-    assert result.kept and {"homonym_unchecked", "kind_unconfirmed"} <= set(result.notes)
+    assert (historic.kept, historic.reason) == (False, "homonym_risk")
+    assert film.kept and "homonym_unchecked" in film.notes
 
 
 def test_a_cast_member_alone_is_an_anchor_noted_as_film_title_absent() -> None:
@@ -471,3 +487,80 @@ def test_release_period_still_never_confirms_cast_interviews() -> None:
     )
 
     assert (result.kept, result.reason) == (False, "homonym_risk")
+
+
+# --- live E2E 2026-10-24: wrong confirmations and homonyms -------------------------------------
+# Titles are the real ones of the live run; the full descriptions were not saved, so the
+# descriptions below are illustrative credits and tags.
+
+
+def test_a_kind_word_only_in_the_description_does_not_confirm_the_kind() -> None:
+    """Case 1: a cast video confirmed as a director interview by credits in the description."""
+    request_ = req("Past Lives", kinds=["director_interview"])
+    cast_video = check(
+        request_,
+        K.director_interview,
+        "The Cast of Past Lives Talk About Their Past Lives",
+        "Greta Lee, Teo Yoo and John Magaro on the film by writer-director Celine Song.",
+    )
+
+    assert cast_video.kept and "kind_unconfirmed" in cast_video.notes
+    assert verification(cast_video.notes) == "to_verify"
+
+
+def test_a_podcast_naming_the_film_is_not_a_confirmed_cast_interview() -> None:
+    """Case 17: a podcast episode listing several films, confirmed as a cast interview."""
+    request_ = req("Il ragazzo e l'airone", kinds=["cast_interview"])
+    podcast = check(
+        request_,
+        K.cast_interview,
+        "Deadpool & Wolverine, Il Ragazzo e l'Airone, CENTO CHILI DI MUSICAL | 🍕 PPP 295",
+        "Il cast di Power Pizza parla dei film della settimana.",
+    )
+
+    assert podcast.kept and "kind_unconfirmed" in podcast.notes
+    assert verification(podcast.notes) == "to_verify"
+
+
+def test_a_kind_word_in_the_title_still_confirms() -> None:
+    request_ = req("Anatomia di una caduta", alternative_titles=["Anatomie d'une chute"], kinds=["cast_interview"])
+    result = check(request_, K.cast_interview, "Anatomie d’une chute – Press Conference - EV – Cannes 2023")
+
+    assert result.kept and verification(result.notes) == "confirmed"
+
+
+@pytest.mark.parametrize(
+    ("title", "kind", "description"),
+    [
+        # Case 5 ("Parasite", no year, no person).
+        ("Parasite Explains Circularity on GameSir G7", K.author_commentary, "Testing the stick drift of a gamepad."),
+        ("This Parasite Replaces a Fish’s Tongue With Its Own Body", K.author_commentary, "Nature is weird."),
+        ("Hulda Clark talks about the mighty green hulls of the black walnut as a powerful #parasite cleanse.",
+         K.director_interview, "Natural health tips."),
+        # Case 14 ("Her", no year, no person): the pronoun matches.
+        ("H.E.R. Surprises 10-Year-Old Viral Singer After Seeing Her ‘Best Part’ Cover!", K.director_interview,
+         "Watch the full episode of the show."),
+        ("Tracee Ellis Ross says loving her appearance was a choice", K.director_interview, "A conversation about self-love."),
+    ],
+)
+def test_unverifiable_one_word_homonyms_without_film_context_are_dropped(title, kind, description) -> None:
+    film = "Parasite" if "arasite" in title else "Her"
+    result = check(req(film, kinds=[kind.value]), kind, title, description)
+
+    assert (result.kept, result.reason) == (False, "homonym_risk")
+
+
+@pytest.mark.parametrize(
+    ("film", "kind", "title", "description"),
+    [
+        ("Parasite", K.director_interview, "Bong Joon-Ho Reveals Where He Got the Idea for 'Parasite'",
+         "The director of the film talks to IMDb."),
+        ("Parasite", K.cast_interview, "The Cast of 'Parasite' Talks Celebrity Sightings | SAG Awards 2020", ""),
+        ("Her", K.director_interview, "Spike Jonze on Her", "The director on his 2013 movie."),
+    ],
+)
+def test_one_word_titles_with_film_context_stay_unchecked(film, kind, title, description) -> None:
+    result = check(req(film, kinds=[kind.value]), kind, title, description)
+
+    assert result.kept and "homonym_unchecked" in result.notes
+
