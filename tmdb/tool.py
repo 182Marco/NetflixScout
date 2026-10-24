@@ -5,7 +5,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from turn import TOOL_PARAM_TURN_LANGUAGE
+from turn import TOOL_PARAM_TURN_ID, TOOL_PARAM_TURN_LANGUAGE
 
 from .auth import TmdbCredentials, load_credentials
 from .budget import CallBudget
@@ -62,6 +62,8 @@ class TmdbTool:
     # Shared across turns (one tool per app); created from `cache_ttl` when not given.
     cache: TtlCache | None = None
     cooldown: Cooldown = field(default_factory=Cooldown)
+    _budget: CallBudget | None = field(default=None, init=False, repr=False)
+    _budget_turn_id: str | None = field(default=None, init=False, repr=False)
 
     def __post_init__(self) -> None:
         if self.cache is None:
@@ -72,15 +74,28 @@ class TmdbTool:
             self.credentials = load_credentials()
         return self.credentials
 
-    def new_context(self, credentials: TmdbCredentials, *, api_language: str) -> TmdbContext:
-        """Context of one run with a fresh call budget: the only reader of the call limit."""
+    def _turn_budget(self, turn_id: str | None) -> CallBudget:
+        """The budget of the turn: shared by every run (and RAG enrichment) with the same id."""
+        if turn_id is None or turn_id != self._budget_turn_id:
+            self._budget = CallBudget(self.config.max_calls_per_turn)
+            self._budget_turn_id = turn_id
+        return self._budget
+
+    def new_context(
+        self,
+        credentials: TmdbCredentials,
+        *,
+        api_language: str,
+        turn_id: str | None = None,
+    ) -> TmdbContext:
+        """Context of one run: the only reader of the call limit. Runs of the same turn
+        (same `turn_id`) draw on one budget; without an id the run gets a fresh one."""
         return TmdbContext(
             config=self.config,
             credentials=credentials,
             cache=self.cache,
             cooldown=self.cooldown,
-            # One budget per run: one TMDb run per turn (see `budget.py`).
-            budget=CallBudget(self.config.max_calls_per_turn),
+            budget=self._turn_budget(turn_id),
             transport=self.transport,
             api_language=api_language,
         )
@@ -94,6 +109,7 @@ class TmdbTool:
     ) -> dict[str, Any]:
         arguments = dict(params or {})
         turn_language = arguments.pop(TOOL_PARAM_TURN_LANGUAGE, None)
+        turn_id = arguments.pop(TOOL_PARAM_TURN_ID, None)
         if query:
             arguments["query"] = query
         try:
@@ -105,7 +121,7 @@ class TmdbTool:
         except TmdbConfigError as exc:
             return _failure(payload.query, exc.code, detail=str(exc))
 
-        ctx = self.new_context(credentials, api_language=api_language_for(turn_language))
+        ctx = self.new_context(credentials, api_language=api_language_for(turn_language), turn_id=turn_id)
         outcomes = run_requests(ctx, payload.requests)
         packed = pack_context(outcomes, api_language=ctx.api_language, status=overall_status(outcomes))
         return {

@@ -7,7 +7,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from turn import TOOL_PARAM_TURN_LANGUAGE
+from turn import TOOL_PARAM_TURN_ID, TOOL_PARAM_TURN_LANGUAGE
 
 from .auth import YoutubeCredentials, load_credentials
 from .config import YoutubeConfig
@@ -164,6 +164,8 @@ class _Run:
     config: YoutubeConfig
     session: HttpSession
     request: YoutubeToolInput
+    # Searches this run may still send in the turn (`max_searches_per_turn` minus earlier runs).
+    search_limit: int = 0
     outcomes: list[KindOutcome] = field(default_factory=list)
     queries: dict[str, str] = field(default_factory=dict)
     candidates: dict[VideoKind, list[_Candidate]] = field(default_factory=dict)
@@ -176,7 +178,7 @@ class _Run:
         self.dropped.append({"kind": outcome.kind.value, "title": title, "reason": reason})
 
     def search(self) -> None:
-        limit = self.config.max_searches_per_turn
+        limit = self.search_limit
         stop: str | None = None
         for position, kind in enumerate(self.request.kinds):
             if position >= limit:
@@ -318,6 +320,15 @@ class YoutubeTool:
     transport: Transport = urllib_transport
     # Shared across the turns of this tool (one tool per app); forgotten on restart.
     latch: QuotaLatch = field(default_factory=QuotaLatch)
+    _searches_turn_id: str | None = field(default=None, init=False, repr=False)
+    _searches_used: int = field(default=0, init=False, repr=False)
+
+    def _searches_left(self, turn_id: str | None) -> int:
+        """`max_searches_per_turn` is per turn, not per run: runs of one `turn_id` share it."""
+        if turn_id is None or turn_id != self._searches_turn_id:
+            self._searches_turn_id = turn_id
+            self._searches_used = 0
+        return max(self.config.max_searches_per_turn - self._searches_used, 0)
 
     def _credentials(self) -> YoutubeCredentials:
         if self.credentials is None:
@@ -334,6 +345,7 @@ class YoutubeTool:
         arguments = dict(params or {})
         # Searches are not restricted by language: the turn language is not used.
         arguments.pop(TOOL_PARAM_TURN_LANGUAGE, None)
+        turn_id = arguments.pop(TOOL_PARAM_TURN_ID, None)
         if query:
             arguments["query"] = query
         try:
@@ -346,8 +358,14 @@ class YoutubeTool:
             return _failure(request.query, exc.code, detail=str(exc))
 
         session = HttpSession(credentials=credentials, transport=self.transport, latch=self.latch)
-        run = _Run(config=self.config, session=session, request=request)
+        run = _Run(
+            config=self.config,
+            session=session,
+            request=request,
+            search_limit=self._searches_left(turn_id),
+        )
         run.search()
+        self._searches_used += sum(o.status == "searched" for o in run.outcomes)
         run.finish(*run.lookup())
 
         hints = answer_hints(request, run.outcomes)

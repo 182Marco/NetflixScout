@@ -1,10 +1,8 @@
 """Per-turn budget of HTTP attempts: the only TMDb call limit.
 
-`TmdbTool.new_context` creates one `CallBudget` per run. A turn has at most one TMDb run:
-the orchestrator runs exactly one tool per turn (guarded by `tests/test_orchestrator.py`),
-and the RAG enrichment (`tmdb/enrich.py`) runs only after `rag_search`, never in a
-`tmdb_search` turn. If a multi-step agent loop is ever added, the budget must move to a
-turn-scoped context.
+`TmdbTool.new_context` creates one `CallBudget` per turn: a turn can run several tools
+(`orchestrator.max_tool_calls_per_turn`), so every TMDb run and the RAG enrichment
+(`tmdb/enrich.py`) of the same `turn_id` draw on the same budget.
 """
 from __future__ import annotations
 

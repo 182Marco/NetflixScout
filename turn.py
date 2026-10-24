@@ -23,6 +23,10 @@ STEP_YOUTUBE_CALLS = "youtube_calls"
 # classifier. Tools that do not use it ignore it.
 TOOL_PARAM_TURN_LANGUAGE = "turn_language"
 
+# Tool parameter set by the orchestrator: identifies the turn. A turn can run several tools,
+# so per-turn limits (TMDb calls, YouTube searches) are counted per `turn_id`, not per run.
+TOOL_PARAM_TURN_ID = "turn_id"
+
 
 class TraceStep(BaseModel):
     """One step of the procedure, in execution order."""

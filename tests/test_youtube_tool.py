@@ -965,3 +965,28 @@ def test_dropped_is_empty_when_nothing_is_dropped() -> None:
     tool, _ = make_tool(making_of_routes())
 
     assert step(run_tool(tool))["dropped"] == []
+
+
+def test_runs_of_the_same_turn_share_the_search_limit() -> None:
+    from turn import TOOL_PARAM_TURN_ID
+
+    tool, transport = make_tool(making_of_routes(), max_searches=2)
+
+    first = run_tool(tool, kinds=["making_of"], **{TOOL_PARAM_TURN_ID: "t1"})
+    second = run_tool(tool, kinds=["making_of", "behind_the_scenes"], **{TOOL_PARAM_TURN_ID: "t1"})
+
+    assert transport.paths.count("/search") == 2
+    assert kinds(first)["making_of"]["status"] == "searched"
+    assert kinds(second)["making_of"]["status"] == "searched"
+    assert kinds(second)["behind_the_scenes"]["reason"] == "turn_limit"
+
+
+def test_a_new_turn_resets_the_search_limit() -> None:
+    from turn import TOOL_PARAM_TURN_ID
+
+    tool, transport = make_tool(making_of_routes(), max_searches=1)
+
+    run_tool(tool, kinds=["making_of"], **{TOOL_PARAM_TURN_ID: "t1"})
+    run_tool(tool, kinds=["making_of"], **{TOOL_PARAM_TURN_ID: "t2"})
+
+    assert transport.paths.count("/search") == 2

@@ -168,7 +168,12 @@ class TmdbRagEnricher:
             rows = [{"rank": c.rank, "rag_title": c.title, "rag_year": c.year, "status": "skipped", "reason": exc.code} for c in candidates]
             return _attach(tool_result, {"source": "TMDb", "status": "error", "error": exc.code, "candidates": rows}, [])
 
-        ctx = self.tool.new_context(credentials, api_language=REFERENCE_LANGUAGE)
+        # The orchestrator puts the turn id in the result so the enrichment shares the turn budget.
+        ctx = self.tool.new_context(
+            credentials,
+            api_language=REFERENCE_LANGUAGE,
+            turn_id=tool_result.get("turn_id"),
+        )
         ctx.strict_identity = True
         requests: list[TmdbRequest] = []
         positions: list[int | None] = []
