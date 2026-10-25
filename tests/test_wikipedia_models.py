@@ -96,3 +96,10 @@ def test_a_year_in_parentheses_at_the_end_of_the_topic_becomes_the_year(topic, y
     request = _input(topic=topic, **({"year": year} if year else {}))
 
     assert (request.topic, request.year) == (expected_topic, expected_year)
+
+
+def test_the_topic_asks_for_the_title_of_the_edition_and_forbids_inventing_one() -> None:
+    description = WikipediaToolInput.model_fields["topic"].description
+
+    assert "edition searched" in description and "English title if known for sure" in description
+    assert "never invent one" in description and "the user's words" in description

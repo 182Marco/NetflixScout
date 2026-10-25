@@ -627,3 +627,14 @@ def test_a_year_in_parentheses_in_the_topic_is_searched_as_the_year_and_finds_th
     assert transport.calls[0][1]["gsrsearch"] == '"Kwaidan" film 1964'
     assert transport.calls[1][1]["titles"] == "Kwaidan (film)"  # the article was opened: the title was recognized
     assert _meta(result)["pages"][0]["verification"] == "confirmed" and "candidates" not in _meta(result)
+
+
+def test_an_empty_search_summary_suggests_the_english_title_without_proposing_one() -> None:
+    tool, _ = _en_tool(handler=lambda language, params: lookup_answer())
+
+    result = run_tool(tool, topic="trilogia della vendetta di Park Chan-wook", kind="topic")
+
+    summary = result[RESULT_FOLLOW_UP]["summary"]
+    assert result[RESULT_FOLLOW_UP]["reasons"] == ["empty"]
+    assert "titolo inglese o originale (solo se noto con certezza o dato da un altro passo)" in summary
+    assert "Vengeance" not in summary  # the tool never makes up a title for the planner

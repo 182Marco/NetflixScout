@@ -62,7 +62,7 @@ class WikipediaToolInput(BaseModel):
     topic: str = Field(
         min_length=1,
         max_length=MAX_TOPIC_CHARS,
-        description="The person, film or subject to look up, as the user or the conversation names it.",
+        description="Title of the page in the edition searched (English by default): the English title if known for sure, else the user's words; never invent one.",
     )
     kind: Subject = Field(
         default=Subject.topic,

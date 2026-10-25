@@ -116,6 +116,23 @@ def test_rule_1c_covers_trilogies_and_makes_tmdb_cast_data_part_of_the_plan() ->
     assert "trilogia o serie di film che non è una raccolta TMDb" in _rule("1", "1b")
 
 
+def test_rule_1c_asks_for_the_english_title_of_the_page_without_inventing_one() -> None:
+    rule = _rule("1c", "2")
+
+    assert "topic (il titolo della pagina nell'edizione cercata" in rule
+    assert "per l'edizione inglese, che è quella predefinita, il titolo inglese o originale" in rule
+    assert "se lo conosci con certezza o se lo ha dato TMDb o la conversazione" in rule
+    assert "non una traduzione letterale" in rule and "non inventare un titolo" in rule
+    assert "se non lo conosci usa le parole dell'utente" in rule
+    assert "topic (come lo scrive l'utente)" not in rule  # the old wording, which sent Italian titles to English
+
+
+def test_the_empty_result_tells_the_planner_to_try_the_english_title_only_if_it_is_known() -> None:
+    from wikipedia.trace import REASON_TEXT
+
+    assert "titolo inglese o originale" in REASON_TEXT["empty"] and "solo se noto con certezza" in REASON_TEXT["empty"]
+
+
 def test_the_final_rules_tell_the_answer_about_unopened_candidates() -> None:
     assert "metadata hanno candidates" in FINAL_RULES[WIKIPEDIA_TOOL_NAME]
     assert "non attribuire loro fatti" in FINAL_RULES[WIKIPEDIA_TOOL_NAME]

@@ -19,7 +19,7 @@ from .settings import LICENSE_NAME, LICENSE_URL, PLANNER_SUMMARY_CHARS
 WIKIPEDIA_CALLS_TITLE = "Wikipedia"
 
 REASON_TEXT = {
-    "empty": "nessuna pagina trovata: si può cercare con un altro titolo, tipo o lingua",
+    "empty": "nessuna pagina trovata: si può cercare con il titolo inglese o originale (solo se noto con certezza o dato da un altro passo), un altro tipo o l'altra edizione",
     "ambiguous": "solo pagine di disambiguazione: serve più contesto (ruolo, anno) per scegliere",
     "unverified": "nessuna pagina combacia con certezza col titolo cercato",
     "more_in_page": "la pagina ha altre sezioni non ancora lette",
