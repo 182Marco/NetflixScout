@@ -238,7 +238,8 @@ def wikipedia_calls_view(step: TraceStep, language: str | None) -> WikipediaCall
     return WikipediaCallsView(
         title=f"{text['title']} — {len(pages)} {text['page'] if len(pages) == 1 else text['pages']}",
         source=text["source"].format(license=license_name),
-        labels=text,
+        # `source` is a template filled above: the channels get the finished line, not the template.
+        labels={key: value for key, value in text.items() if key != "source"},
         calls=[printable(url) for url in raw_calls if _https(url)] if isinstance(raw_calls, list) else [],
         reused=reused if isinstance(reused, int) else 0,
         searches=searches,

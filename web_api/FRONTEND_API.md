@@ -17,7 +17,7 @@ uvicorn web_api.main:app --reload --host 127.0.0.1 --port 8000
 All'avvio il server fa gli stessi controlli del terminale: la collection vettoriale e il database MovieLens
 devono esistere, altrimenti si ferma con un messaggio operativo. Le chiavi (`OPENAI_API_KEY`, `COHERE_API_KEY`,
 `VUE_APP_TMDB_API_KEY`, `YOUTUBE_API_KEY`) stanno nel `.env` del backend: il frontend non invia nessuna chiave e
-non c'è autenticazione.
+non c'è autenticazione. Wikipedia non richiede nessuna chiave.
 
 URL base di sviluppo: `http://localhost:8000`. La documentazione OpenAPI della parte REST è su `/docs`.
 
@@ -125,11 +125,22 @@ Ogni `status` è accompagnato da una `story` di livello `progress`.
 ```
 
 ### `step`
-Il risultato di un tool, già serializzato per il web; `kind` è `retrieval`, `rerank`, `db_query`, `tmdb_calls` o
-`youtube_calls`; gli altri campi dipendono dal tipo (sono quelli di `presenters/web/<tool>/serializer.py`).
+Il risultato di un tool, già serializzato per il web; `kind` è `retrieval`, `rerank`, `db_query`, `tmdb_calls`,
+`youtube_calls` o `wikipedia_calls`; gli altri campi dipendono dal tipo (sono quelli di
+`presenters/web/<tool>/serializer.py`). Un turno può avere **più passi dello stesso tool** (per esempio due
+`wikipedia_calls`: prima l'introduzione, poi altre sezioni della pagina): ognuno è un evento `step` a sé.
 Un `kind` sconosciuto va mostrato in modo generico o ignorato.
 ```json event=step
 {"kind":"tmdb_calls","title":"CHIAMATE TMDB","calls":[{"label":"Chiamato","url":"https://api.themoviedb.org/3/movie/157336?api_key=***"}],"attributions":[{"source":"JustWatch","text":"Dati sulla disponibilità in streaming: JustWatch"}]}
+```
+
+Lo step `wikipedia_calls` porta le fonti del testo di Wikipedia: `pages[]` (`title`, `language`, `url` pubblico di
+Wikipedia, `verification` `confirmed` o `to_verify`, `notes`, `sections` lette, `omitted` = numero di sezioni non lette,
+`chars` = caratteri letti sul totale della pagina), `source` (riga di fonte già scritta), `license` (`name` e `url`
+della licenza CC BY-SA), `calls` (le richieste inviate in questo passo: vuoto se i dati vengono dalla cache, e allora
+`reused` è maggiore di 0), `searches`, `opens` e `hints`. Esempio (in italiano):
+```json step=wikipedia_calls
+{"kind":"wikipedia_calls","title":"WIKIPEDIA — 1 pagina","source":"Fonte: Wikipedia, testo riformulato e abbreviato, licenza CC BY-SA 4.0","labels":{"title":"WIKIPEDIA","page":"pagina","pages":"pagine","called":"Chiamato","none":"Nessuna chiamata a Wikipedia in questo passo: dati già in cache.","search":"Ricerca","open":"Pagina aperta","received":"ricevuti","kept":"tenuti","dropped":"scartati","error":"errore","notes":"note","sections":"Sezioni lette","omitted":"sezioni non lette","license":"Licenza","to_verify":"Da verificare (pagina non confermata):","no_pages":"Nessuna pagina da mostrare.","specify_year":"Indica l'anno del film per scegliere la pagina giusta.","add_context":"Aggiungi un dettaglio (ruolo, nazionalità, anno) per distinguere le pagine omonime."},"calls":["https://it.wikipedia.org/w/api.php"],"reused":0,"searches":[{"language":"it","q":"\"Park Chan-wook\"","summary":"3 ricevuti, 2 tenuti; scartati: pagina di disambiguazione 1","error":null}],"opens":[{"language":"it","title":"Park Chan-wook","result":"letta","error":null}],"pages":[{"title":"Park Chan-wook","language":"it","url":"https://it.wikipedia.org/wiki/Park_Chan-wook","verification":"confirmed","notes":[],"sections":["Introduzione","Biografia","Carriera"],"omitted":6,"chars":"5230/18420"}],"license":{"name":"CC BY-SA 4.0","url":"https://creativecommons.org/licenses/by-sa/4.0/"},"hints":[]}
 ```
 
 ### `answer_delta`
@@ -186,7 +197,10 @@ rinviato. Il messaggio è generico (nessun dettaglio interno).
 
 - **Attribuzioni**: mostrare le `attributions` (JustWatch) degli step `tmdb_calls` accanto ai dati di streaming. Per i
   video YouTube (step `youtube_calls` e video in `lists`) mostrare titolo, canale e URL esattamente come ricevuti e
-  indicare YouTube come fonte.
+  indicare YouTube come fonte. Per le pagine Wikipedia (step `wikipedia_calls`) mostrare titolo, lingua e link di
+  ogni pagina, la riga `source` e la licenza (`license.name` con il link `license.url`): il testo è CC BY-SA e chiede
+  di accreditare le pagine, indicare la licenza e dire che il testo è stato riformulato. I link vanno aperti in una
+  nuova scheda (`target="_blank" rel="noopener noreferrer"`).
 - Concatenare i `answer_delta` senza riscriverli; applicare `replace` se non è `null`; mostrare `lists` dopo `answer_end`.
 - Ignorare gli eventi e i campi sconosciuti (il contratto può aggiungerne) e le righe di commento `:`.
 - Un solo messaggio alla volta per conversazione.

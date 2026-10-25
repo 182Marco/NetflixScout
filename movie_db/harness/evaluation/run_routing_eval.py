@@ -1,4 +1,4 @@
-"""Evaluate DB/RAG/TMDb/YouTube routing with the real classifier and planner (costs API credits).
+"""Evaluate DB/RAG/TMDb/YouTube/Wikipedia routing with the real classifier and planner (costs API credits).
 
 Per case: one classifier call (`gpt-4o-mini`) and one planning call; tools never run.
 The planner client is wrapped to record its raw output, so a silent fallback to
@@ -6,7 +6,9 @@ The planner client is wrapped to record its raw output, so a silent fallback to
 explicit choice. The orchestrator core is used as is. For TMDb cases the planned
 arguments are also validated offline as `TmdbToolInput` (no HTTP) and must contain the
 case's `expected_request`; for YouTube cases they are validated as `YoutubeToolInput` and
-must match the case's `expected_video` (kinds, and no year, people or titles not given).
+must match the case's `expected_video` (kinds, and no year, people or titles not given); for
+Wikipedia cases they are validated as `WikipediaToolInput` and must match `expected_wikipedia`
+(topic, kind, depth, and no year, language, page or sections not given).
 
     python -m movie_db.harness.evaluation.run_routing_eval --live
     python -m movie_db.harness.evaluation.run_routing_eval --live --tool tmdb_search
@@ -24,13 +26,24 @@ from pydantic import ValidationError
 from orchestrator import CLARIFICATION
 from tmdb.models.requests import TmdbRequest, TmdbToolInput, describe_validation_errors
 from turn import TOOL_PARAM_TURN_LANGUAGE
+from wikipedia.models import WikipediaToolInput
+from wikipedia.models import describe_validation_errors as describe_wikipedia_errors
 from youtube.models import YoutubeToolInput
 from youtube.models import describe_validation_errors as describe_video_errors
 
-from .routing_cases import ROUTING_CASES, RagExpectation, RequestExpectation, RoutingCase, VideoExpectation
+from .routing_cases import (
+    ROUTING_CASES,
+    RagExpectation,
+    RequestExpectation,
+    RoutingCase,
+    VideoExpectation,
+    WikipediaExpectation,
+)
 
 # Optional `youtube_search` fields that must come from the request or the conversation.
 _VIDEO_GIVEN_FIELDS = ("year", "director", "cast", "alternative_titles")
+# Optional `wikipedia_search` fields that must come from the request or the conversation.
+_WIKIPEDIA_GIVEN_FIELDS = ("year", "language", "page", "sections")
 
 
 class RecordingClient:
@@ -67,6 +80,8 @@ class RoutingResult:
             return check_any_request(self.case.expected_request, self.arguments, self.standalone_query)
         if self.case.expected_video is not None:
             return check_any_video(self.case.expected_video, self.arguments, self.standalone_query)
+        if self.case.expected_wikipedia is not None:
+            return check_any_wikipedia(self.case.expected_wikipedia, self.arguments, self.standalone_query)
         if self.case.expected_rag is not None:
             return check_rag(self.case.expected_rag, self.arguments)
         return None
@@ -172,6 +187,46 @@ def check_any_video(
     return None if any(problem is None for problem in problems) else problems[0]
 
 
+def _wikipedia_problem(expected: WikipediaExpectation, request: WikipediaToolInput) -> str | None:
+    if expected.topic not in request.topic.casefold():
+        return f"topic {request.topic!r} does not contain {expected.topic!r}"
+    if request.kind.value not in expected.kinds:
+        return f"kind {request.kind.value!r} not in {expected.kinds}"
+    if request.depth.value not in expected.depths:
+        return f"depth {request.depth.value!r} not in {expected.depths}"
+    for name in _WIKIPEDIA_GIVEN_FIELDS:
+        value = getattr(request, name)
+        values = value if isinstance(value, list) else [] if value is None else [value]
+        fragments = [fragment for field_name, fragment in expected.allowed if field_name == name]
+        for item in values:
+            text = item.casefold() if isinstance(item, str) else str(item)
+            if not any(fragment in text for fragment in fragments):
+                return f"{name} not given in the conversation"
+    return None
+
+
+def check_wikipedia(expected: WikipediaExpectation, arguments: Any, standalone_query: str) -> str | None:
+    """Validate planned arguments as `WikipediaTool.run` would, without running the tool."""
+    if not isinstance(arguments, dict):
+        return "arguments is not an object"
+    try:
+        request = WikipediaToolInput.model_validate(_planned_payload(arguments, standalone_query))
+    except ValidationError as exc:
+        return f"invalid arguments: {describe_wikipedia_errors(exc)}"
+    return _wikipedia_problem(expected, request)
+
+
+def check_any_wikipedia(
+    expected: WikipediaExpectation | tuple[WikipediaExpectation, ...],
+    arguments: Any,
+    standalone_query: str,
+) -> str | None:
+    """None when any of the acceptable expectations matches; otherwise the first problem."""
+    options = expected if isinstance(expected, tuple) else (expected,)
+    problems = [check_wikipedia(option, arguments, standalone_query) for option in options]
+    return None if any(problem is None for problem in problems) else problems[0]
+
+
 def check_rag(expected: RagExpectation, arguments: Any) -> str | None:
     """Check the `k_finale` the planner set, as `RagTool.run` would read it."""
     if not isinstance(arguments, dict):
@@ -245,7 +300,7 @@ def run_routing_cases(
 
 
 def main(argv: list[str] | None = None) -> None:
-    parser = argparse.ArgumentParser(description="Evaluate DB/RAG/TMDb/YouTube routing with real LLM calls.")
+    parser = argparse.ArgumentParser(description="Evaluate DB/RAG/TMDb/YouTube/Wikipedia routing with real LLM calls.")
     parser.add_argument("--live", action="store_true", required=True, help="Required: this run costs API credits.")
     parser.add_argument(
         "--tool",
@@ -288,6 +343,7 @@ def main(argv: list[str] | None = None) -> None:
         expects_arguments = (
             result.case.expected_request is not None
             or result.case.expected_video is not None
+            or result.case.expected_wikipedia is not None
             or result.case.expected_rag is not None
         )
         if expects_arguments and result.tool == result.case.expected_tool:

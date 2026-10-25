@@ -1,5 +1,5 @@
-"""Routing cases: does the orchestrator pick `movie_db_search`, `rag_search`, `tmdb_search` or
-`youtube_search`?
+"""Routing cases: does the orchestrator pick `movie_db_search`, `rag_search`, `tmdb_search`,
+`youtube_search` or `wikipedia_search`?
 
 Each case runs only the domain classifier and the planning call (`_plan_turn`): no
 tool is executed, so no SQL, embedding or rerank call happens.
@@ -12,6 +12,7 @@ DB = "movie_db_search"
 RAG = "rag_search"
 TMDB = "tmdb_search"
 YOUTUBE = "youtube_search"
+WIKIPEDIA = "wikipedia_search"
 # No tool: the planner asks the user for the missing title (orchestrator.CLARIFICATION).
 CLARIFY = "clarification"
 
@@ -47,6 +48,23 @@ class VideoExpectation:
 
 
 @dataclass(frozen=True)
+class WikipediaExpectation:
+    """Planned `wikipedia_search` arguments that answer the question.
+
+    The arguments must validate as `WikipediaToolInput`, `topic` must contain the lowercase
+    fragment, `kind` and `depth` must be among those listed. `year`, `language`, `page` and
+    `sections` must stay empty unless `allowed` lists them: then each planned value must contain
+    one of the fragments given for that field (values copied from the request or the
+    conversation, never invented).
+    """
+
+    topic: str
+    kinds: tuple[str, ...]
+    depths: tuple[str, ...] = ("intro", "sections", "full")
+    allowed: tuple[tuple[str, str], ...] = ()
+
+
+@dataclass(frozen=True)
 class RagExpectation:
     """The `k_finale` the planner should set for a `rag_search` call.
 
@@ -68,6 +86,8 @@ class RoutingCase:
     expected_request: RequestExpectation | tuple[RequestExpectation, ...] | None = None
     # YouTube cases only: the planned arguments; a tuple lists acceptable alternatives.
     expected_video: VideoExpectation | tuple[VideoExpectation, ...] | None = None
+    # Wikipedia cases only: the planned arguments; a tuple lists acceptable alternatives.
+    expected_wikipedia: WikipediaExpectation | tuple[WikipediaExpectation, ...] | None = None
     # RAG cases only: the retrieval parameters in the planned arguments.
     expected_rag: RagExpectation | None = None
 
@@ -98,6 +118,11 @@ _AFTERSUN_NO_TRAILER = (
         "role": "assistant",
         "content": "TMDb non riporta trailer per Aftersun (2022). Vuoi che lo cerchi su YouTube?",
     },
+)
+
+_PARK_CHAN_WOOK = (
+    {"role": "user", "content": "Chi è Park Chan-wook?"},
+    {"role": "assistant", "content": "Park Chan-wook è un regista sudcoreano, autore di Oldboy (2003)."},
 )
 
 ROUTING_CASES: tuple[RoutingCase, ...] = (
@@ -310,4 +335,36 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
     RoutingCase("Qual è il film con il voto medio più alto del 2005?", DB),
     RoutingCase("Quali sono i film più votati usciti nel 2021?", DB),
     RoutingCase("Consigliami un film del 2008 su un robot che si innamora di un umano", RAG),
+    # Encyclopedic information TMDb does not have (rule 1c): depth is the planner's first guess.
+    RoutingCase(
+        "Raccontami la vita e la carriera di Park Chan-wook",
+        WIKIPEDIA,
+        expected_wikipedia=WikipediaExpectation("park chan-wook", kinds=("person",), depths=("sections", "full")),
+    ),
+    RoutingCase(
+        "Com'è nata la Nouvelle Vague e quali sono state le sue influenze?",
+        WIKIPEDIA,
+        expected_wikipedia=WikipediaExpectation("nouvelle vague", kinds=("topic",)),
+    ),
+    RoutingCase(
+        "Come è stato prodotto Blade Runner? Voglio la storia della lavorazione",
+        WIKIPEDIA,
+        expected_wikipedia=WikipediaExpectation("blade runner", kinds=("film",), depths=("sections", "full")),
+    ),
+    # A follow-up on a person named in the conversation: the title may come from the history.
+    RoutingCase(
+        "Parlami meglio della sua formazione",
+        WIKIPEDIA,
+        history=_PARK_CHAN_WOOK,
+        standalone_must_contain=("park chan-wook",),
+        expected_wikipedia=WikipediaExpectation(
+            "park chan-wook", kinds=("person",), depths=("sections", "full"), allowed=(("page", "park chan-wook"),)
+        ),
+    ),
+    # Boundary: a filmography is a TMDb search by person, not an encyclopedic reading.
+    RoutingCase(
+        "Dammi la filmografia di Park Chan-wook",
+        TMDB,
+        expected_request=(RequestExpectation("person_details"), RequestExpectation("discover_movies")),
+    ),
 )

@@ -124,3 +124,29 @@ def run_tool(tool, *, query: str = "domanda", **arguments: Any) -> dict[str, Any
     # The turn language is Italian unless a test says otherwise (the fake pages are Italian).
     params = {"topic": "Park Chan-wook", "turn_language": "it", **arguments}
     return tool.run(query=query, params=params, conversation_history=[])
+
+
+def doc_step():
+    """The `wikipedia_calls` step whose web form is the example in `web_api/FRONTEND_API.md`."""
+    from turn import STEP_WIKIPEDIA_CALLS, TraceStep
+
+    return TraceStep(
+        kind=STEP_WIKIPEDIA_CALLS,
+        title="Wikipedia",
+        data={
+            "calls": ["https://it.wikipedia.org/w/api.php"],
+            "reused": 0,
+            "searches": [
+                {"language": "it", "q": '"Park Chan-wook"', "result": "ok", "error": None, "returned": 3, "kept": 2,
+                 "filtered_out": {"disambiguation": 1}}
+            ],
+            "opens": [{"language": "it", "title": "Park Chan-wook", "result": "ok", "error": None}],
+            "pages": [
+                {"title": "Park Chan-wook", "language": "it", "url": "https://it.wikipedia.org/wiki/Park_Chan-wook",
+                 "verification": "confirmed", "notes": [], "last_revised": "2026-09-30T10:12:00Z",
+                 "total_chars": 18420, "delivered_chars": 5230, "sections": ["Introduzione", "Biografia", "Carriera"],
+                 "omitted": 6}
+            ],
+            "license": {"name": "CC BY-SA 4.0", "url": "https://creativecommons.org/licenses/by-sa/4.0/"},
+        },
+    )

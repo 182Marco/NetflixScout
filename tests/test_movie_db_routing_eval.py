@@ -50,7 +50,7 @@ class ScriptedClient:
 
 
 def _run(cases, outputs):
-    tools = [RAG, DB, TMDB, YOUTUBE]
+    tools = [RAG, DB, TMDB, YOUTUBE, "wikipedia_search"]
     config = {"orchestrator": {"fallback_tool": RAG, "tool_confidence_threshold": 0.6, "allowed_tools": tools}}
     orchestrator = LLMOrchestrator(
         config=config,
@@ -124,11 +124,11 @@ def test_cases_cover_every_tool_and_follow_ups() -> None:
     assert tools.count(YOUTUBE) == 7
     assert any(case.history and case.expected_tool == TMDB for case in ROUTING_CASES)
     assert any(case.history and case.expected_tool == YOUTUBE for case in ROUTING_CASES)
-    assert len(ROUTING_CASES) == 43
+    assert len(ROUTING_CASES) == 48  # 43 before the Wikipedia cases (4 for it, 1 boundary for TMDb)
 
 
 def test_every_tmdb_case_has_a_valid_request_expectation() -> None:
-    assert len(TMDB_CASES) == 18
+    assert len(TMDB_CASES) == 19  # 18 before the Wikipedia boundary case (filmography)
     for case in TMDB_CASES:
         assert case.expected_request is not None
         options = case.expected_request if isinstance(case.expected_request, tuple) else (case.expected_request,)
