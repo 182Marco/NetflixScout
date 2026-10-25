@@ -105,6 +105,17 @@ def test_rule_1_sends_the_parts_tmdb_lacks_to_rule_1c_without_naming_the_other_t
     assert "wikipedia" not in rule.lower()
 
 
+def test_rule_1c_covers_trilogies_and_makes_tmdb_cast_data_part_of_the_plan() -> None:
+    rule = _rule("1c", "2")
+
+    assert "(e) l'elenco e l'ordine di uscita di una trilogia o di una serie di film" in rule
+    assert "che non è una raccolta TMDb" in rule
+    assert "Chi interpreta quale personaggio è un dato strutturato di TMDb" in rule
+    assert "elenca in parts tmdb_search (facet credits)" in rule and "Wikipedia da sola non basta" in rule
+    assert "Se tmdb_search non trova ciò che serve, scegli wikipedia_search" in rule
+    assert "trilogia o serie di film che non è una raccolta TMDb" in _rule("1", "1b")
+
+
 def test_the_final_rules_tell_the_answer_about_unopened_candidates() -> None:
     assert "metadata hanno candidates" in FINAL_RULES[WIKIPEDIA_TOOL_NAME]
     assert "non attribuire loro fatti" in FINAL_RULES[WIKIPEDIA_TOOL_NAME]

@@ -92,6 +92,11 @@ class RoutingCase:
     expected_wikipedia: WikipediaExpectation | tuple[WikipediaExpectation, ...] | None = None
     # RAG cases only: the retrieval parameters in the planned arguments.
     expected_rag: RagExpectation | None = None
+    # Other tools accepted as the FIRST step (the case is still judged on `expected_tool`'s arguments only
+    # when that tool is the one chosen).
+    alternative_first_tools: tuple[str, ...] = ()
+    # Tools the plan must use in the turn: the first one or any `parts` entry of the planner's answer.
+    also_uses: tuple[str, ...] = ()
 
 
 _HORROR_80S = (
@@ -420,6 +425,26 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
         "Chi ha diretto Solaris, quello del 1972?",
         TMDB,
         expected_request=RequestExpectation("movie_details", fields=(("title", "solaris"),)),
+    ),
+    # Needs both tools: who plays whom is structured data (TMDb credits), the episodes are not.
+    RoutingCase(
+        "Quali episodi compongono The Ballad of Buster Scruggs (2018) e quali attori interpretano i "
+        "protagonisti di ciascun episodio?",
+        WIKIPEDIA,
+        alternative_first_tools=(TMDB,),
+        also_uses=(WIKIPEDIA, TMDB),
+        expected_wikipedia=WikipediaExpectation(
+            "buster scruggs", kinds=("film",), depths=("sections", "full"), allowed=(("year", "2018"),)
+        ),
+    ),
+    # A trilogy that is not a TMDb collection: it starts from Wikipedia (TMDb answered not_found).
+    RoutingCase(
+        "Quali film compongono la trilogia della vendetta di Park Chan-wook e in quale ordine sono usciti?",
+        WIKIPEDIA,
+        expected_wikipedia=tuple(
+            WikipediaExpectation(fragment, kinds=("topic", "film", "person"))
+            for fragment in ("vengeance", "vendetta", "park chan")
+        ),
     ),
     # Boundary: a filmography is a TMDb search by person, not an encyclopedic reading.
     RoutingCase(

@@ -6,6 +6,8 @@ costs API credits and has to be authorized separately.
 """
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from movie_db.harness.evaluation.routing_cases import ROUTING_CASES, TMDB, WIKIPEDIA, WikipediaExpectation
@@ -23,7 +25,7 @@ def _arguments_for(option: WikipediaExpectation, **extra) -> dict:
 
 
 def test_there_are_wikipedia_cases_with_a_follow_up_and_a_boundary_with_tmdb() -> None:
-    assert len(WIKI_CASES) == 9
+    assert len(WIKI_CASES) == 11
     assert any(case.history for case in WIKI_CASES)
     assert BY_QUESTION["Dammi la filmografia di Park Chan-wook"].expected_tool == TMDB
 
@@ -134,3 +136,78 @@ def test_a_plan_that_stays_on_the_given_year_passes_and_an_invented_year_fails()
 def test_simple_structured_questions_about_the_same_films_are_tmdb_controls() -> None:
     for question in ("Quanto dura Paris, je t'aime?", "Chi recita in The Congress?", "Chi ha diretto Solaris, quello del 1972?"):
         assert BY_QUESTION[question].expected_tool == TMDB and BY_QUESTION[question].expected_request is not None
+
+
+# --- plans that must use both tools, and the trilogy that is not a TMDb collection ----------------------------
+
+BUSTER = "Quali episodi compongono The Ballad of Buster Scruggs (2018) e quali attori interpretano i protagonisti di ciascun episodio?"
+TRILOGY = "Quali film compongono la trilogia della vendetta di Park Chan-wook e in quale ordine sono usciti?"
+
+
+class _Tool:
+    description, input_schema = "fake", {}
+
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+    def run(self, **kwargs):
+        raise AssertionError("routing eval must not run tools")
+
+
+class _Planner:
+    def __init__(self, outputs: list[str]) -> None:
+        self.outputs, self.responses = outputs, self
+
+    def create(self, **kwargs):
+        return type("Response", (), {"output_text": self.outputs.pop(0)})()
+
+
+def _run(case, plan: dict):
+    from movie_db.harness.evaluation.routing_cases import DB, RAG, YOUTUBE
+    from movie_db.harness.evaluation.run_routing_eval import RecordingClient, run_routing_cases
+    from orchestrator import LLMOrchestrator
+
+    tools = [RAG, DB, TMDB, YOUTUBE, WIKIPEDIA]
+    orch = LLMOrchestrator(
+        config={"orchestrator": {"fallback_tool": RAG, "tool_confidence_threshold": 0.6, "allowed_tools": tools}},
+        tools=[_Tool(name) for name in tools],
+        client=RecordingClient(_Planner([json.dumps({"standalone_query": case.question, "confidence": 0.9, **plan})])),
+    )
+    (result,) = run_routing_cases(
+        (case,), orchestrator=orch, classify=lambda q, h: {"is_cinema": True, "is_italian": True}, context_size=0
+    )
+    return result
+
+
+def _wiki_args(**fields):
+    return {"topic": "The Ballad of Buster Scruggs", "kind": "film", "year": 2018, "depth": "sections", **fields}
+
+
+def test_the_cast_by_episode_case_needs_both_tools_in_the_plan() -> None:
+    case = BY_QUESTION[BUSTER]
+    both_wiki_first = _run(case, {"tool_name": WIKIPEDIA, "arguments": _wiki_args(),
+                                  "parts": [{"part": "episodi", "tool": WIKIPEDIA}, {"part": "attori", "tool": TMDB}]})
+    both_tmdb_first = _run(case, {"tool_name": TMDB, "arguments": {"requests": [{"operation": "movie_details", "title": "x"}]},
+                                  "parts": [{"part": "attori", "tool": TMDB}, {"part": "episodi", "tool": WIKIPEDIA}]})
+    wikipedia_only = _run(case, {"tool_name": WIKIPEDIA, "arguments": _wiki_args(), "parts": [{"part": "episodi", "tool": WIKIPEDIA}]})
+    tmdb_only = _run(case, {"tool_name": TMDB, "arguments": {"requests": [{"operation": "movie_details", "title": "x"}]}})
+
+    assert both_wiki_first.passed and both_tmdb_first.passed
+    assert not wikipedia_only.passed and wikipedia_only.uses_problem == "plan does not use ['tmdb_search']"
+    assert not tmdb_only.passed and tmdb_only.uses_problem == "plan does not use ['wikipedia_search']"
+
+
+def test_the_cast_by_episode_case_accepts_tmdb_as_the_first_step_only_when_wikipedia_follows() -> None:
+    case = BY_QUESTION[BUSTER]
+
+    assert case.alternative_first_tools == (TMDB,) and case.also_uses == (WIKIPEDIA, TMDB)
+    assert _run(case, {"tool_name": "rag_search", "arguments": {}}).passed is False
+
+
+def test_the_trilogy_case_starts_from_wikipedia_and_a_tmdb_collection_search_fails_it() -> None:
+    case = BY_QUESTION[TRILOGY]
+    right = _run(case, {"tool_name": WIKIPEDIA, "arguments": {"topic": "Vengeance Trilogy", "kind": "topic", "depth": "intro"}})
+    local = _run(case, {"tool_name": WIKIPEDIA, "arguments": {"topic": "trilogia della vendetta", "kind": "topic", "depth": "full"}})
+    wrong = _run(case, {"tool_name": TMDB, "arguments": {"requests": [{"operation": "collection_details", "name": "Vengeance Trilogy"}]}})
+
+    assert right.passed and local.passed and not wrong.passed

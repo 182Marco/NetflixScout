@@ -70,6 +70,22 @@ class RoutingResult:
     confidence: float | None = None
     error: str | None = None
     arguments: Any = None
+    # The planner's raw answer of the case (for the tools it plans besides the first one).
+    raw: str = ""
+
+    @property
+    def uses_problem(self) -> str | None:
+        """Why the plan misses a tool the case needs (`also_uses`); None when fine or not required."""
+        if not self.case.also_uses:
+            return None
+        try:
+            payload = json.loads(self.raw.strip())
+        except (json.JSONDecodeError, AttributeError):
+            payload = {}
+        parts = payload.get("parts") if isinstance(payload, dict) else None
+        planned = {self.tool} | {p.get("tool") for p in parts or [] if isinstance(p, dict)}
+        missing = [tool for tool in self.case.also_uses if tool not in planned]
+        return f"plan does not use {missing}" if missing else None
 
     @property
     def requests_problem(self) -> str | None:
@@ -96,10 +112,11 @@ class RoutingResult:
         return (
             self.error is None
             and self.is_cinema is True
-            and self.tool == self.case.expected_tool
+            and (self.tool == self.case.expected_tool or self.tool in self.case.alternative_first_tools)
             and self.source == "planner"
             and self.standalone_ok
             and self.requests_problem is None
+            and self.uses_problem is None
         )
 
 
@@ -296,6 +313,7 @@ def run_routing_cases(
                 source=source,
                 confidence=confidence,
                 arguments=arguments,
+                raw=recorder.outputs[-1] if len(recorder.outputs) > before else "",
             )
         )
     return results
@@ -351,6 +369,8 @@ def main(argv: list[str] | None = None) -> None:
         if expects_arguments and result.tool == result.case.expected_tool:
             print(f"   arguments: {json.dumps(result.arguments, ensure_ascii=False)}")
             print(f"   requests: {result.requests_problem or 'ok'}")
+        if result.case.also_uses:
+            print(f"   uses {result.case.also_uses}: {result.uses_problem or 'ok'}")
         if result.error:
             print(f"   error: {result.error}")
     passed = sum(result.passed for result in results)
