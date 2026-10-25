@@ -41,8 +41,9 @@ This repository integrates the RAG modules into a reproducible local pipeline an
 │   ├── rag_view.py db_view.py api_view.py youtube_view.py   # channel-neutral views of the tool steps
 │   ├── terminal/       # box.py, session.py, blocks.py, renderer.py (TerminalObserver, STEP_RENDERERS)
 │   │   └── rag/ db/ api/ youtube/   # blocks.py + renderer.py per tool
-│   └── web/            # payload.py (to_payload, STEP_SERIALIZERS)
+│   └── web/            # observer.py (WebObserver, live events), payload.py (to_payload, STEP_SERIALIZERS)
 │       └── rag/ db/ api/ youtube/   # serializer.py per tool, same shared view as the terminal
+├── web_api/            # HTTP/SSE server (FastAPI): conversations, streamed answer, web_lists; see FRONTEND_API.md
 ├── app.py              # public API + RAG Tool facade
 ├── buildSemanticDb.py  # reproducible semantic DB builder
 ├── buildMovieDb.py     # MovieLens SQLite builder
@@ -400,3 +401,26 @@ policy: not written yet for this personal project.
 ## Git Notes
 
 `dataset/`, `dbVettoriale/` and `movie_db/data/` are local artifacts and are ignored by Git.
+
+## HTTP / SSE server (for a web frontend)
+
+The Netflix-clone frontend (a separate project by Marco Milza) talks to NetflixScout only through this
+server: it works end to end, and it needs this command running. Start it from the repository root and
+keep it running while the frontend is in use:
+
+```bash
+source .venv/bin/activate
+uvicorn web_api.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Use ONE process (no `--workers`): conversations live in its memory. The frontend then reaches the API at
+`http://127.0.0.1:8000`; the origins allowed by CORS (`WEB_API_CORS_ORIGINS`) default to
+`http://localhost:8080` and `http://localhost:5173`, so serve the frontend from one of them or set the
+variable in `.env`. The API keys stay in the backend `.env`; the frontend sends none.
+
+All FastAPI code lives in `web_api/`. A frontend opens a conversation (`POST /conversations`), sends
+messages (`POST /conversations/{id}/messages`) and reads a Server-Sent Events stream: live progress
+(`story`, `step`), the answer text as the model writes it (`answer_delta`), then `answer_end`, the
+`web_lists` structured lists (`lists`) and `done`. The terminal gets the same progressive text. The
+contract, payloads, errors, CORS and environment variables are in `web_api/FRONTEND_API.md`. There is
+no authentication: the backend key and its budget are the only protection (portfolio project).
