@@ -14,6 +14,7 @@ from data_coverage import coverage_rule
 from turn import (
     OUTCOME_EMPTY,
     OUTCOME_OK,
+    RESULT_FOLLOW_UP,
     STAGE_ANSWERING,
     STEP_PLANNING,
     STEP_QUERY_REWRITE,
@@ -84,6 +85,12 @@ def _pending_parts(parts: list[dict[str, str]], calls: list[_Call]) -> list[dict
     """Parts whose tool has not run yet in this turn."""
     ran = {call.tool for call in calls}
     return [part for part in parts if part["tool"] not in ran]
+
+
+def _follow_up(tool_result: dict[str, Any]) -> dict[str, Any] | None:
+    """The tool's offer to give more (`turn.RESULT_FOLLOW_UP`), only when it says it is available."""
+    follow_up = tool_result.get(RESULT_FOLLOW_UP)
+    return follow_up if isinstance(follow_up, dict) and follow_up.get("available") is True else None
 
 
 @dataclass
@@ -517,9 +524,13 @@ class LLMOrchestrator:
         return plan.tool, plan.arguments, plan.standalone_query
 
     def _summarize_call(self, call: _Call) -> str:
+        # A tool that offers more describes its result itself (`follow_up.summary`): the planner
+        # needs to see what was given and what was left out, not the first characters of it.
+        follow_up = call.result.get(RESULT_FOLLOW_UP)
+        summary = follow_up.get("summary") if isinstance(follow_up, dict) else None
         lines = [
             f"Tool {call.tool}, arguments: {json.dumps(call.arguments, ensure_ascii=False, default=str)}",
-            *self._result_lines(call.result),
+            *([summary] if isinstance(summary, str) and summary else self._result_lines(call.result)),
         ]
         return "\n".join(lines)[:STEP_SUMMARY_CHARS]
 
@@ -548,6 +559,15 @@ class LLMOrchestrator:
             if pending
             else ""
         )
+        follow_up = _follow_up(calls[-1].result)
+        follow_up_text = (
+            f"Il tool {calls[-1].tool} indica che può dare altro ({', '.join(map(str, follow_up.get('reasons') or []))}). "
+            "Valuta se ciò che hai basta per la richiesta dell'utente: se no, scegli il passo "
+            "successivo (con questo o un altro tool) usando i titoli e le sezioni elencati sopra; "
+            "se sì, ritorna done.\n\n"
+            if follow_up
+            else ""
+        )
         try:
             response = self.client.responses.create(
                 model=self.orchestrator_config.get("llm_model", "gpt-5.6-luna"),
@@ -558,7 +578,7 @@ class LLMOrchestrator:
                     {
                         "role": "user",
                         "content": (
-                            f"Passi già eseguiti in questo turno:\n{done}\n\n{pending_text}"
+                            f"Passi già eseguiti in questo turno:\n{done}\n\n{pending_text}{follow_up_text}"
                             "Se i dati bastano a rispondere a tutta la richiesta, ritorna "
                             '{"done": true}. Altrimenti ritorna il passo successivo come JSON '
                             "con chiavi tool_name, arguments, confidence, more_steps (true solo "
@@ -751,7 +771,7 @@ class LLMOrchestrator:
             if self._required_tool_names():
                 stop_reason = "required_tools"
                 break
-            if not (current.more_steps or _pending_parts(parts, calls)):
+            if not (current.more_steps or _pending_parts(parts, calls) or _follow_up(tool_result)):
                 stop_reason = "complete"
                 break
             if len(calls) >= limit:
