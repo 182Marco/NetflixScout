@@ -365,6 +365,9 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
     RoutingCase(
         "Dammi la filmografia di Park Chan-wook",
         TMDB,
-        expected_request=(RequestExpectation("person_details"), RequestExpectation("discover_movies")),
+        expected_request=(
+            RequestExpectation("person_details", fields=(("name", "park chan-wook"),)),
+            RequestExpectation("discover_movies"),
+        ),
     ),
 )
