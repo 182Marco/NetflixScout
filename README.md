@@ -164,15 +164,15 @@ When the collection is available, `app.py` starts an interactive terminal chat.
 Conversation flow:
 
 1. Type a query in terminal.
-2. The app runs retrieval + reranking + generation.
-3. The answer is printed.
+2. The domain classifier blocks off-topic and jailbreak requests; otherwise the orchestrator (`orchestrator.py`) rewrites the query as standalone, picks a tool (`rag_search`, `movie_db_search`, `tmdb_search`, `youtube_search`, `wikipedia_search`) and may chain more tools in the same turn.
+3. Each step is narrated while it happens, then the final answer is streamed (one LLM call, written only from the tool results).
 4. Conversation history is updated and reused in the next turns.
 5. Type `exit` or `quit` to close.
 
 Automatic compaction:
 
-1. After each completed answer, input context tokens are checked.
-2. If they are `>= 60000`, history is compacted and replaced (not appended).
+1. After each completed answer, the history length is checked.
+2. If it reaches `CONFIG["orchestrator"]["memory_window_size"]` messages (12), history is compacted and replaced (not appended).
 3. A short user-friendly notice is printed in terminal.
 
 ## Retrieval Notes
@@ -186,10 +186,13 @@ Automatic compaction:
 
 ## Public Runtime API
 
-`app.py` is the stable integration layer. It exposes:
+`app.py` is the integration layer. It exposes:
 
-1. `RAG_CONFIG`.
-2. `run_rag(config=RAG_CONFIG, query=QUERY, history=None)`.
+1. `CONFIG` and `build_runtime_config(overrides)` (deep merge of the overrides).
+2. `build_app(overrides)`: builds the tools and the `LLMOrchestrator`.
+3. `handle_query(...)`: runs one turn without printing and returns a `TurnResult`; the channel (`presenters/`) decides how to show it.
+
+`run_rag` lives in `tool/rag/FromQueryEmbeddingToRes/pipeline.py` and returns only evidence (retrieve + rerank, no generation); the final answer is always written by the orchestrator.
 
 `search_mode` is strictly validated to:
 
@@ -201,16 +204,9 @@ The chosen mode is propagated to the runtime retrieval components (`rag` / `hybr
 
 In the chat, the orchestrator's planner sets one retrieval setting per turn: `k_finale`, the number of films the user asked for (clamped to `rag.retrieval.limits.k_finale`; null keeps the configured default). The other retrieval settings stay fixed in `CONFIG`.
 
-## RAG Tool (OpenAI Function Calling Ready)
+## RAG Tool (`rag_search`)
 
-`app.py` also exposes a first tool-ready interface:
-
-1. `RAG_TOOL_NAME`
-2. `RAG_TOOL` (JSON schema generated from the Pydantic model `RagToolInput.model_json_schema()`)
-3. `REGISTERED_TOOLS`
-4. `execute_tool(name, arguments, config=RAG_CONFIG)`
-
-This is designed so future tools can be added without refactoring the runtime core.
+`RagTool` (`tool/rag/FromQueryEmbeddingToRes/tool_interface.py`) follows the `Tool` Protocol of `orchestrator.py`; its input schema is generated from the Pydantic model `RagToolInput.model_json_schema()` (query and `k_finale`). `build_app` registers it together with the other tools and `CONFIG["orchestrator"]["allowed_tools"]` lists the names the planner may choose, so new tools are added without refactoring the runtime core.
 
 ## MovieLens DB Tool (`movie_db_search`)
 

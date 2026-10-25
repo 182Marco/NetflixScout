@@ -1984,7 +1984,7 @@ const TREE = D("NetflixScout", {}, [
   F("README.md", {
     L: "cfg", s: "Documentazione per gli umani: setup, dataset, build del DB, API.",
     d: `Spiega come scaricare il corpus CMU, come costruire <code>dbVettoriale/</code> e come avviare la chat. La sezione “MovieLens DB Tool” spiega cosa scaricare e scompattare dopo il clone, come costruire il DB, le garanzie di sola lettura e i comandi di valutazione con il loro costo in chiamate API. La sezione su TMDb descrive le 17 operazioni, la configurazione, il budget delle chiamate, lo smoke test live e il logo richiesto dai Termini. La sezione su YouTube descrive categorie, configurazione, quota da 100 ricerche al giorno, filtro, output, crediti e verifiche ancora pendenti.<br><br>L'albero «Project Layout» mostra <code>tool/</code>, <code>web_api/</code>, <code>web_lists/</code> e i file del nucleo; ricorda che un nuovo tool va in <code>tool/&lt;nome&gt;/</code>.`,
-    n: ["La sezione “Retrieval Notes” descrive <code>semantic_query</code>, generi e boost.", "In parte superato: descrive <code>run_rag</code>/<code>execute_tool</code> esposti da <code>app.py</code> e la compattazione a 60.000 token, mentre ora <code>app.py</code> usa l'orchestratore e compatta ogni 12 messaggi."],
+    n: ["La sezione “Retrieval Notes” descrive <code>semantic_query</code>, generi e boost."],
   }),
   F("answer_stream.py", {
     L: "orch",
@@ -2634,7 +2634,6 @@ function renderOverview() {
 
     <h2>Punti di attenzione nel codice</h2>
     <div class="callout"><ul>
-      <li>Il README è in parte superato rispetto ad <code>app.py</code> e <code>orchestrator.py</code>.</li>
       <li>Il commit “migrate db to Qdrant” non corrisponde al codice, che usa solo ChromaDB.</li>
       <li>In modalità bm25/hybrid l'indice BM25 è letto a pagine e tenuto in cache per collection (<a class="vscode" href="#${Q}hybrid.py">hybrid.py</a>); la modalità resta <code>semantic</code>: il planner non la sceglie più (A/B del 2026-10-24 senza benefici) e l'utilità di bm25/hybrid non è dimostrata.</li>
       <li><code>max_iterations</code>, <code>max_execution_time</code> e <code>token_budget</code> sono in CONFIG ma il codice non li usa.</li>
