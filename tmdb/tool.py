@@ -9,6 +9,7 @@ from turn import (
     OUTCOME_EMPTY,
     OUTCOME_ERROR,
     OUTCOME_OK,
+    RESULT_FOLLOW_UP,
     TOOL_PARAM_TURN_ID,
     TOOL_PARAM_TURN_LANGUAGE,
     tool_outcome,
@@ -54,6 +55,33 @@ def _failure(query: str, error: str, **details: Any) -> dict[str, Any]:
         # No step: nothing was called.
         "trace": [],
     }
+
+
+# Errors that mean "TMDb has nothing for this": the answer may be elsewhere, so the planner is asked
+# (`turn.RESULT_FOLLOW_UP`) instead of the turn ending on the failure. Other errors (limits, keys,
+# network) have no other place to look and are not offered.
+UNRESOLVED_ERRORS = ("not_found", "unverified_match")
+
+
+def _request_label(request: Any) -> str:
+    subject = getattr(request, "title", None) or getattr(request, "name", None) or getattr(request, "search_query", None) or ""
+    return f"{request.operation.value} «{str(subject)[:60]}»"
+
+
+def _unresolved_follow_up(requests: list[Any], outcomes: list[Any], *, empty: bool) -> dict[str, Any] | None:
+    """The offer to look elsewhere when a request found nothing on TMDb (or all returned empty)."""
+    failed = [o for o in outcomes if o.error in UNRESOLVED_ERRORS]
+    if not failed and not empty:
+        return None
+    # `RequestOutcome.index` counts from 1 (runner.py).
+    labels = [_request_label(requests[o.index - 1]) + f" ({o.error})" for o in failed if 0 < o.index <= len(requests)]
+    resolved = sum(o.status == "ok" for o in outcomes)
+    summary = (
+        "TMDb non ha trovato dati per: " + (", ".join(labels) or "la richiesta") + f". Richieste risolte: {resolved}. "
+        "Se l'informazione può stare altrove (un'opera, una trilogia o una serie di film che non è una raccolta "
+        "TMDb, un dettaglio di trama o di struttura), scegli un altro tool con i dati già ottenuti; altrimenti ritorna done."
+    )
+    return {"available": True, "reasons": [o.error for o in failed] or ["empty"], "summary": summary}
 
 
 def _first_error(outcomes: list[Any]) -> str | None:
@@ -141,7 +169,7 @@ class TmdbTool:
             outcome = tool_outcome(OUTCOME_ERROR, _first_error(outcomes))
         else:
             outcome = tool_outcome(OUTCOME_OK if packed.chunks else OUTCOME_EMPTY)
-        return {
+        result = {
             "query": payload.query,
             "chunks": packed.chunks,
             "outcome": outcome,
@@ -149,3 +177,7 @@ class TmdbTool:
             # Outside "metadata": the orchestrator puts metadata in the LLM prompt.
             "trace": build_tmdb_trace(ctx.recorder.calls, packed.attributions, tmdb_cards(outcomes)),
         }
+        follow_up = _unresolved_follow_up(payload.requests, outcomes, empty=outcome["status"] == OUTCOME_EMPTY)
+        if follow_up is not None:
+            result[RESULT_FOLLOW_UP] = follow_up
+        return result
