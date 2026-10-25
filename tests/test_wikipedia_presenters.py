@@ -248,7 +248,9 @@ def test_the_wikipedia_package_never_imports_the_presenters() -> None:
 
 
 def test_there_is_no_print_in_the_wikipedia_package_or_the_web_presenter() -> None:
-    paths = sorted((ROOT / "wikipedia").rglob("*.py")) + sorted((ROOT / "presenters" / "web" / "wikipedia").rglob("*.py"))
+    # The live smoke script (wikipedia/harness/) is a manual tool that prints on purpose.
+    paths = [p for p in sorted((ROOT / "wikipedia").rglob("*.py")) if "harness" not in p.parts]
+    paths += sorted((ROOT / "presenters" / "web" / "wikipedia").rglob("*.py"))
     paths.append(ROOT / "presenters" / "wikipedia_view.py")
     for path in paths:
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):

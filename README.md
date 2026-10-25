@@ -27,6 +27,13 @@ This repository integrates the RAG modules into a reproducible local pipeline an
 │   ├── operations/     # resolve, reference, movies, tv, people, collections, discovery, lists
 │   ├── normalize/      # raw JSON → entities with capped facets
 │   └── harness/        # optional live smoke check (never imported at runtime)
+├── wikipedia/          # Wikipedia (MediaWiki API) tool (wikipedia_search), in-process, no MCP, no key
+│   ├── config.py       # validated view of CONFIG["wikipedia"] (4 settings)
+│   ├── tool.py         # WikipediaTool: validate → lookup or whole article → sections within the budget → trace + follow_up
+│   ├── http.py         # the only HTTP module: memo → turn failures → cache → pause → budget → send
+│   ├── sections.py     # split an article by headings, pick the sections a question needs
+│   ├── budget.py       # per-turn state: HTTP calls, context handed out, sections already delivered
+│   └── harness/        # optional live smoke check (never imported at runtime)
 ├── youtube/            # YouTube Data API tool (youtube_search), in-process, no MCP
 │   ├── config.py       # validated view of CONFIG["you_tube"] (2 settings)
 │   ├── tool.py         # YoutubeTool: validate → search per kind → one /videos → filter → trace
@@ -38,11 +45,11 @@ This repository integrates the RAG modules into a reproducible local pipeline an
 ├── presenters/         # the only output layer: present(turn, channel)
 │   ├── channel.py      # OutputChannel (terminal | web)
 │   ├── story_view.py   # the turn story: a few plain sentences (what, where, how it went), it/en
-│   ├── rag_view.py db_view.py api_view.py youtube_view.py   # channel-neutral views of the tool steps
+│   ├── rag_view.py db_view.py api_view.py youtube_view.py wikipedia_view.py   # channel-neutral views of the tool steps
 │   ├── terminal/       # box.py, session.py, blocks.py, renderer.py (TerminalObserver, STEP_RENDERERS)
-│   │   └── rag/ db/ api/ youtube/   # blocks.py + renderer.py per tool
+│   │   └── rag/ db/ api/ youtube/ wikipedia/   # blocks.py + renderer.py per tool
 │   └── web/            # observer.py (WebObserver, live events), payload.py (to_payload, STEP_SERIALIZERS)
-│       └── rag/ db/ api/ youtube/   # serializer.py per tool, same shared view as the terminal
+│       └── rag/ db/ api/ youtube/ wikipedia/   # serializer.py per tool, same shared view as the terminal
 ├── web_api/            # HTTP/SSE server (FastAPI): conversations, streamed answer, web_lists; see FRONTEND_API.md
 ├── app.py              # public API + RAG Tool facade
 ├── buildSemanticDb.py  # reproducible semantic DB builder
@@ -259,6 +266,7 @@ the terminal prints it in `presenters/terminal/db/`, `presenters/web/db/` serial
 | `python -m movie_db.harness.evaluation.run_eval --live-parser` | same 6 cases with the real LLM parser | 6 × `gpt-5.6-luna` |
 | `python -m movie_db.harness.evaluation.run_routing_eval --live` | 30 questions (6 DB, 5 RAG, 11 TMDb, 7 YouTube, 1 clarification; 5 are follow-ups): domain classifier + orchestrator planning only, no tool runs | 30 × `gpt-4o-mini` + 30 × `gpt-5.6-luna` |
 | `python -m movie_db.harness.evaluation.run_routing_eval --live --tool tmdb_search` | only the 11 TMDb questions; the planned `requests` are also validated offline (operation, title, facets), the tool never runs | 11 × `gpt-4o-mini` + 11 × `gpt-5.6-luna` |
+| `python -m movie_db.harness.evaluation.run_routing_eval --live --tool wikipedia_search` | only the 4 Wikipedia questions; the planned arguments are validated offline as `WikipediaToolInput` (topic, kind, depth, nothing invented); never run yet | 4 classifier + 4 planner |
 | `python -m movie_db.harness.evaluation.run_routing_eval --live --tool youtube_search` | only the 7 YouTube questions; the planned arguments are also validated offline as `YoutubeToolInput` (title, kinds, and no year, director, cast or alternative title the conversation does not give), the tool never runs | 7 × `gpt-4o-mini` + 7 × `gpt-5.6-luna` |
 
 The parser evaluation accepts `by_genre_year` in place of `top_rated` (and vice versa) only for a genre
@@ -390,6 +398,38 @@ A live E2E run of 20 questions (2026-10-23, before the relevance fixes) routed 2
 `youtube_search` with 6 OK, 10 partial and 4 failed answers. Still pending: a live run after the
 fixes, a live run of the YouTube routing cases (prepared offline, not run yet), a live smoke check (none exists yet), and live
 confirmation of the query operator precedence and of the API error reasons.
+
+## Wikipedia Tool (`wikipedia_search`)
+
+A fifth orchestrator tool reads Wikipedia (MediaWiki Action API, no key needed) for encyclopedic
+information that TMDb does not have: in-depth biographies and careers, the history and production
+of a film, cinema movements. Cast, crew, release dates, plots, streaming, ratings and short
+biographies stay with TMDb; videos with YouTube.
+
+How much text is read depends on the question and on what the first reading showed:
+- `depth: intro` reads the lead of the best pages (one request); `sections` and `full` open ONE
+  page, whose whole article is downloaded once and kept in the cache (`cache_ttl`), then split by
+  headings; the sections that answer the question are handed out first.
+- `context_chars_per_turn` (default 40,000) caps the text that enters the final prompt in one turn,
+  not what can be fetched: whatever does not fit is listed (title and size) and can be asked for.
+- After each step the tool describes what it gave and what it left out; if more could help, the
+  orchestrator asks the planner whether to read another step (more sections of the page, another
+  page, a new search) or to answer (`follow_up`, see `orchestrator.py`). A turn that reads only the
+  lead therefore costs one more planning call.
+- Rate limits and replication lag (`maxlag`, answered with HTTP 200) never make the turn wait: the
+  step fails at once, the next requests are paused for a few seconds, nothing is retried.
+
+Each step adds a `wikipedia_calls` step: base URLs, the pages read (title, language, public URL,
+sections read, sections left out), and the credit the licence requires. Wikipedia text is CC BY-SA
+4.0: the terminal and the web name the source, link every page and the licence, and say the text
+was reworded and shortened. The text of an article is third-party data and is never treated as
+instructions. The web frontend must render the new step (`web_api/FRONTEND_API.md`).
+
+Requests carry the User-Agent `NetflixScout/1.0 (https://github.com/182Marco/NetflixScout;
+marcomilza@gmail.com) python-urllib`, as the Wikimedia policy asks. Offline tests:
+`tests/test_wikipedia_*.py` and `tests/test_orchestrator_follow_up.py`. Not run yet:
+`python -m wikipedia.harness.live_smoke --live` (3 requests) and the Wikipedia routing cases
+(`run_routing_eval --live --tool wikipedia_search`).
 
 ### Credits and policies
 
