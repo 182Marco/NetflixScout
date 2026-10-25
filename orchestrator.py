@@ -87,17 +87,81 @@ def _pending_parts(parts: list[dict[str, str]], calls: list[_Call]) -> list[dict
     return [part for part in parts if part["tool"] not in ran]
 
 
-# Words a planner may use, instead of a tool name, to say that no further step is needed.
-_NO_TOOL_WORDS = frozenset({"", "done", "none", "null", "stop", "nessuno", "fine"})
+# Contract of the next-step answer (stated to the planner in `NEXT_STEP_FORMAT`): `{"done": true}` ends the
+# turn. A null or empty `tool_name`, or one of these words, is the same signal ONLY because the contract says
+# so, and only if the planner does not also say `done: false` or `more_steps: true`. Anything else that names
+# no tool (`{}`, a lone `confidence`, `done: false`, a string for `done`...) is an incomplete answer.
+STOP_TOOL_NAMES = frozenset({"done", "none", "stop"})
+
+NEXT_STEP_FORMAT = (
+    "\nFormato di QUESTA risposta (prevale su quello indicato sopra per il primo passo; non scrivere "
+    "standalone_query, parts né needs_clarification): per concludere rispondi {\"done\": true}. Equivale a "
+    "concludere anche {\"tool_name\": null}, oppure un tool_name uguale a \"done\", \"none\" o \"stop\", "
+    "purché more_steps non sia true e done non sia false. Per continuare rispondi con tool_name, arguments, "
+    "confidence e more_steps. Non rispondere mai con un oggetto privo sia di done sia di tool_name."
+)
+
+NEXT_DONE = "done"
+NEXT_STEP = "step"
+NEXT_INCOMPLETE = "incomplete"
 
 
-def _says_done(value: Any) -> bool:
-    return value is True or (isinstance(value, str) and value.strip().lower() == "true")
+def _classify_next_step(payload: dict[str, Any]) -> tuple[str, str | None]:
+    """`(kind, tool_name)` of the planner's answer for the next step.
+
+    `done`: `{"done": true}` (a real boolean), or a stop signal of the contract (`tool_name` null, empty or
+    `done`/`none`/`stop`) not contradicted by `done: false` or `more_steps: true`. `step`: a tool is named.
+    `incomplete`: anything else, a contradiction included. Pure.
+    """
+    if payload.get("done") is True:
+        return NEXT_DONE, None
+    if "done" in payload and payload["done"] is not False and payload["done"] is not None:
+        return NEXT_INCOMPLETE, None  # "true", 1...: not the boolean the contract asks for
+    keys = [key for key in ("tool_name", "tool") if key in payload]
+    if not keys:
+        return NEXT_INCOMPLETE, None
+    values = [payload[key] for key in keys]
+    named = next((v.strip() for v in values if isinstance(v, str) and v.strip().lower() not in STOP_TOOL_NAMES | {""}), None)
+    if named is not None:
+        return NEXT_STEP, named
+    stop_signal = all(v is None or (isinstance(v, str) and v.strip().lower() in STOP_TOOL_NAMES | {""}) for v in values)
+    if stop_signal and payload.get("done") is not False and payload.get("more_steps") is not True:
+        return NEXT_DONE, None
+    return NEXT_INCOMPLETE, None
 
 
-def _names_no_tool(tool_name: Any) -> bool:
-    """No tool requested: absent, null, empty or one of the words of `_NO_TOOL_WORDS`."""
-    return tool_name is None or (isinstance(tool_name, str) and tool_name.strip().lower() in _NO_TOOL_WORDS)
+# Keys of the planner's answers the loop knows; any other key is reported as `<key>`.
+_PLANNER_KEYS = frozenset(
+    {
+        "standalone_query", "tool_name", "tool", "arguments", "confidence", "parts", "more_steps", "done",
+        "needs_clarification", "clarification_question",
+    }
+)
+
+
+def _scalar(value: Any) -> Any:
+    """Booleans, numbers and null as they are; any string only by its type (never free text)."""
+    if value is None or isinstance(value, (bool, int, float)):
+        return value
+    return f"<{type(value).__name__}>"
+
+
+def _planner_detail(payload: Any, known_tools: Iterable[str]) -> dict[str, Any]:
+    """What the planner answered for the next step, for the diagnostics, without free text or arguments:
+    the known key names (others as `<key>`), the scalar fields the loop reads, and the tool name only if it
+    is one of the app's tools or a stop word of the contract (else `<str>`)."""
+    if not isinstance(payload, dict):
+        return {"type": type(payload).__name__}
+    detail: dict[str, Any] = {"keys": [key if key in _PLANNER_KEYS else "<key>" for key in list(payload)[:12]]}
+    for name in ("done", "confidence", "more_steps"):
+        if name in payload:
+            detail[name] = _scalar(payload[name])
+    for name in ("tool_name", "tool"):
+        if name in payload:
+            value = payload[name]
+            known = isinstance(value, str) and (value in set(known_tools) or value.strip().lower() in STOP_TOOL_NAMES | {""})
+            detail[name] = value if known else _scalar(value)
+    return detail
 
 
 def _follow_up(tool_result: dict[str, Any]) -> dict[str, Any] | None:
@@ -555,11 +619,12 @@ class LLMOrchestrator:
         conversation_history: list[dict[str, str]] | None,
         calls: list[_Call],
         parts: list[dict[str, str]] | None = None,
-    ) -> tuple[_Plan | None, str]:
+    ) -> tuple[_Plan | None, str, dict[str, Any] | None]:
         """Next step of the turn after `calls` and why the turn stops when there is none.
 
         Never falls back to a tool: if the planner fails or is unsure, the turn answers with
-        what it already has. Returns (plan, "") or (None, stop_reason).
+        what it already has. Returns (plan, "", detail) or (None, stop_reason, detail); `detail` is the
+        sanitized description of the planner's answer (`_planner_detail`), None if there was no answer.
         """
         allowed = self._allowed_tool_names()
         done = "\n\n".join(f"[Passo {i}] {self._summarize_call(c)}" for i, c in enumerate(calls, start=1))
@@ -585,7 +650,7 @@ class LLMOrchestrator:
         try:
             response = self.client.responses.create(
                 model=self.orchestrator_config.get("llm_model", "gpt-5.6-luna"),
-                instructions=self._planning_instructions(allowed, ""),
+                instructions=self._planning_instructions(allowed, "") + NEXT_STEP_FORMAT,
                 input=[
                     *list(conversation_history or []),
                     {"role": "user", "content": query},
@@ -604,22 +669,22 @@ class LLMOrchestrator:
             )
             payload = json.loads(response.output_text.strip())
         except Exception:
-            return None, "planner_failed"
+            return None, "planner_failed", None
 
+        detail = _planner_detail(payload, allowed)
         if not isinstance(payload, dict):
-            return None, "planner_failed"
-        tool_name = payload.get("tool_name") or payload.get("tool")
-        # The normal end of a turn: the planner says `done`, or names no tool at all (it often answers
-        # with the first-step format and `tool_name: null`). Only a tool that is NAMED and not allowed,
-        # or named with too little confidence, is an error worth a warning.
-        if _says_done(payload.get("done")) or _names_no_tool(tool_name):
-            return None, "done"
+            return None, "planner_failed", detail
+        kind, tool_name = _classify_next_step(payload)
+        if kind == NEXT_DONE:
+            return None, "done", detail
+        if kind == NEXT_INCOMPLETE:
+            return None, "planner_incomplete", detail
         confidence = payload.get("confidence")
         threshold = float(self.orchestrator_config.get("tool_confidence_threshold", 0.6))
         if tool_name not in allowed or (confidence is not None and confidence < threshold):
-            return None, "unknown_tool_or_low_confidence"
+            return None, "unknown_tool_or_low_confidence", detail
         plan = _Plan(tool_name, payload.get("arguments") or {}, standalone_query, payload.get("more_steps") is True)
-        return plan, ""
+        return plan, "", detail
 
     def _enrich(self, tool_name: str, tool_result: dict[str, Any]) -> dict[str, Any]:
         """Run the tool's enricher, if any; a failing enricher never breaks the turn."""
@@ -654,14 +719,19 @@ class LLMOrchestrator:
         pending: list[dict[str, str]],
         stop_reason: str,
         fallbacks: list[str],
+        planner_output: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        return {
+        planning = {
             "parts": parts,
             "tools": [call.tool for call in calls],
             "pending": pending,
             "stop_reason": stop_reason,
             "fallbacks": list(fallbacks),
         }
+        if planner_output is not None:
+            # What the planner last answered for the next step, sanitized (no free text, no arguments).
+            planning["planner_output"] = planner_output
+        return planning
 
     @staticmethod
     def _emit_delta(observer: TurnObserver, text: str) -> None:
@@ -746,6 +816,7 @@ class LLMOrchestrator:
         fallbacks: list[str] = [plan.fallback] if plan.fallback else []
         stop_reason = "complete"
         current: _Plan | None = plan
+        planner_output: dict[str, Any] | None = None
         while current is not None:
             key = f"{current.tool}:{json.dumps(current.arguments, sort_keys=True, default=str)}"
             if key in seen:
@@ -794,7 +865,7 @@ class LLMOrchestrator:
             if len(calls) >= limit:
                 stop_reason = "max_tool_calls"
                 break
-            current, stop_reason = self._plan_next(
+            current, stop_reason, planner_output = self._plan_next(
                 query=query,
                 standalone_query=standalone_query,
                 conversation_history=conversation_history,
@@ -804,7 +875,7 @@ class LLMOrchestrator:
 
         if stop_reason == "max_tool_calls":
             fallbacks.append(FALLBACK_MAX_CALLS)
-        elif stop_reason in ("planner_failed", "unknown_tool_or_low_confidence"):
+        elif stop_reason in ("planner_failed", "planner_incomplete", "unknown_tool_or_low_confidence"):
             fallbacks.append(FALLBACK_NEXT_STEP)
         pending = _pending_parts(parts, calls)
         unexecuted = [f"{p['part']} (tool previsto: {p['tool']}, motivo: {stop_reason})" for p in pending]
@@ -817,7 +888,7 @@ class LLMOrchestrator:
                 TraceStep(
                     kind=STEP_PLANNING,
                     title="Pianificazione",
-                    data=self._planning(parts, calls, pending, stop_reason, fallbacks),
+                    data=self._planning(parts, calls, pending, stop_reason, fallbacks, planner_output),
                 ),
             )
         self._emit_status(observer, STAGE_ANSWERING)
@@ -844,7 +915,7 @@ class LLMOrchestrator:
                 ),
             )
         fallbacks.extend(answer_failures)
-        planning = self._planning(parts, calls, pending, stop_reason, fallbacks)
+        planning = self._planning(parts, calls, pending, stop_reason, fallbacks, planner_output)
 
         return {
             "tool": calls[0].tool,

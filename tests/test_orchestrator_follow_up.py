@@ -186,41 +186,174 @@ def test_a_composite_turn_with_pending_parts_and_an_offer_plans_once_per_step() 
 
 # --- the normal end of a turn is not an error ---------------------------------------------------------
 
-END_WITHOUT_A_TOOL = [
+# Explicit conclusions, as the contract of the next-step answer defines them (`orchestrator.NEXT_STEP_FORMAT`).
+EXPLICIT_CONCLUSIONS = [
     '{"done": true}',
-    '{"done": "true"}',
-    '{"done": "True"}',
+    '{"done": true, "more_steps": false}',
+    '{"tool_name": null}',
     '{"tool_name": null, "confidence": 1}',
     '{"tool_name": ""}',
     '{"tool_name": "done"}',
+    '{"tool_name": "STOP"}',
     '{"tool_name": "none", "confidence": 0.9}',
     '{"standalone_query": "q", "tool_name": null, "arguments": {}, "confidence": 0.9, "parts": [], "more_steps": false}',
+    '{"done": null, "tool_name": null}',
+]
+
+# Answers that conclude nothing: empty, partial, contradictory or not in the contract's form.
+INCOMPLETE_ANSWERS = [
     "{}",
+    '{"confidence": 0.9}',
+    '{"more_steps": false}',
+    '{"arguments": {}}',
+    '{"standalone_query": "q"}',
+    '{"done": false}',
     '{"done": false, "tool_name": null}',
+    '{"done": false, "tool_name": "done"}',
+    '{"tool_name": null, "more_steps": true}',
+    '{"tool_name": "done", "more_steps": true}',
+    '{"done": "true"}',
+    '{"done": "True"}',
+    '{"done": 1}',
+    '{"tool_name": 5}',
+    '{"tool_name": ["wikipedia_search"]}',
 ]
 
 
-@pytest.mark.parametrize("planner_output", END_WITHOUT_A_TOOL)
-def test_a_planner_that_names_no_tool_ends_the_turn_without_a_warning(planner_output) -> None:
+class _Recorder:
+    def __init__(self) -> None:
+        self.steps: list = []
+
+    def step(self, step): self.steps.append(step)
+    def status(self, stage): pass
+    def answer_delta(self, text): pass
+
+
+def _warnings(steps) -> list[str]:
     from presenters.story_view import build_story
-    from turn import STEP_PLANNING, TraceStep
+
+    return [line.text for line in build_story(steps, "it") if "pianificare" in line.text]
+
+
+@pytest.mark.parametrize("planner_output", EXPLICIT_CONCLUSIONS)
+def test_an_explicit_conclusion_ends_the_turn_without_a_warning(planner_output) -> None:
+    from turn import STEP_PLANNING
 
     orch, tool, _ = _orch([_step("wikipedia_search", topic="X"), planner_output, "ok"], [{RESULT_FOLLOW_UP: OFFER}])
-    steps: list[TraceStep] = []
+    observer = _Recorder()
 
-    class Observer:
-        def step(self, step): steps.append(step)
-        def status(self, stage): pass
-        def answer_delta(self, text): pass
-
-    decision = orch.run(query="parlami di X", conversation_history=[], observer=Observer())
+    decision = orch.run(query="parlami di X", conversation_history=[], observer=observer)
 
     assert len(tool.params) == 1 and decision["planning"]["stop_reason"] == "done"
-    assert decision["planning"]["fallbacks"] == []
-    assert decision["final_answer"] == "ok"
-    # (The fake tool has no chunks, so "no results" is told; no planning line is.)
-    assert not [line for line in build_story(steps, "it") if "pianificare" in line.text or "Non ho cercato" in line.text]
-    assert not any(step.kind == STEP_PLANNING and step.data.get("fallbacks") for step in steps)
+    assert decision["planning"]["fallbacks"] == [] and decision["final_answer"] == "ok"
+    assert not _warnings(observer.steps)
+    assert not any(step.kind == STEP_PLANNING and step.data.get("fallbacks") for step in observer.steps)
+
+
+@pytest.mark.parametrize("planner_output", INCOMPLETE_ANSWERS)
+def test_an_incomplete_or_contradictory_answer_is_not_a_conclusion(planner_output) -> None:
+    orch, tool, _ = _orch([_step("wikipedia_search", topic="X"), planner_output, "ok"], [{RESULT_FOLLOW_UP: OFFER}])
+    observer = _Recorder()
+
+    decision = orch.run(query="parlami di X", conversation_history=[], observer=observer)
+
+    assert len(tool.params) == 1 and decision["planning"]["stop_reason"] == "planner_incomplete"
+    assert decision["planning"]["fallbacks"] == ["next_step_failed"] and decision["final_answer"] == "ok"
+    assert len(_warnings(observer.steps)) == 1  # the existing warning, told once
+
+
+@pytest.mark.parametrize("planner_output", EXPLICIT_CONCLUSIONS)
+def test_every_explicit_conclusion_is_classified_done(planner_output) -> None:
+    from orchestrator import NEXT_DONE, _classify_next_step
+
+    assert _classify_next_step(json.loads(planner_output)) == (NEXT_DONE, None)
+
+
+@pytest.mark.parametrize("planner_output", INCOMPLETE_ANSWERS)
+def test_every_incomplete_answer_is_classified_incomplete(planner_output) -> None:
+    from orchestrator import NEXT_INCOMPLETE, _classify_next_step
+
+    assert _classify_next_step(json.loads(planner_output)) == (NEXT_INCOMPLETE, None)
+
+
+def test_a_named_tool_is_a_step_even_when_the_planner_also_says_not_done() -> None:
+    from orchestrator import NEXT_STEP, _classify_next_step
+
+    assert _classify_next_step({"tool_name": "wikipedia_search", "done": False}) == (NEXT_STEP, "wikipedia_search")
+    assert _classify_next_step({"tool": "tmdb_search", "more_steps": True}) == (NEXT_STEP, "tmdb_search")
+    assert _classify_next_step({"tool_name": None, "tool": "tmdb_search"}) == (NEXT_STEP, "tmdb_search")
+
+
+def test_the_contract_is_stated_to_the_planner_of_the_next_step_only() -> None:
+    from orchestrator import NEXT_STEP_FORMAT
+
+    orch, _, client = _orch([_step("wikipedia_search", topic="X"), '{"done": true}', "ok"], [{RESULT_FOLLOW_UP: OFFER}])
+
+    orch.run(query="parlami di X", conversation_history=[])
+
+    first, second = client.calls[0]["instructions"], client.calls[1]["instructions"]
+    assert NEXT_STEP_FORMAT not in first and second.endswith(NEXT_STEP_FORMAT)
+    assert 'per concludere rispondi {"done": true}' in second and "more_steps non sia true" in second
+    for word in ('"done"', '"none"', '"stop"'):
+        assert word in NEXT_STEP_FORMAT
+
+
+def test_the_planner_output_is_recorded_without_free_text_or_arguments() -> None:
+    secret = "TESTO-LIBERO-SEGRETO"
+    hostile = json.dumps(
+        {
+            "tool_name": "wikipedia_search",
+            "arguments": {"topic": secret, "keywords": [secret]},
+            "confidence": 0.1,
+            "more_steps": False,
+            "note": secret,
+            secret: "x",
+            "done": secret,
+        }
+    )
+    orch, _, _ = _orch([_step("wikipedia_search", topic="X"), hostile, "ok"], [{RESULT_FOLLOW_UP: OFFER}])
+    observer = _Recorder()
+
+    decision = orch.run(query="parlami di X", conversation_history=[], observer=observer)
+
+    detail = decision["planning"]["planner_output"]
+    assert secret not in json.dumps(decision["planning"]) and all(secret not in json.dumps(s.data) for s in observer.steps)
+    assert detail["tool_name"] == "wikipedia_search" and detail["confidence"] == 0.1 and detail["more_steps"] is False
+    assert detail["done"] == "<str>" and detail["keys"].count("<key>") == 2 and "arguments" in detail["keys"]
+    assert set(detail) == {"keys", "done", "confidence", "more_steps", "tool_name"}  # no arguments, no note
+
+
+def test_a_tool_name_outside_the_app_is_not_echoed() -> None:
+    orch, _, _ = _orch([_step("wikipedia_search", topic="X"), '{"tool_name": "frase-libera-senza-spazi", "confidence": 0.9}', "ok"], [{RESULT_FOLLOW_UP: OFFER}])
+
+    decision = orch.run(query="parlami di X", conversation_history=[])
+
+    assert decision["planning"]["planner_output"]["tool_name"] == "<str>"
+    assert decision["planning"]["stop_reason"] == "unknown_tool_or_low_confidence"
+
+
+def test_the_recorded_output_shows_what_a_real_conclusion_looked_like() -> None:
+    orch, _, _ = _orch([_step("wikipedia_search", topic="X"), '{"tool_name": null, "more_steps": false}', "ok"], [{RESULT_FOLLOW_UP: OFFER}])
+
+    decision = orch.run(query="parlami di X", conversation_history=[])
+
+    assert decision["planning"]["planner_output"] == {"keys": ["tool_name", "more_steps"], "tool_name": None, "more_steps": False}
+
+
+def test_a_planner_that_does_not_answer_with_an_object_leaves_only_its_type() -> None:
+    orch, _, _ = _orch([_step("wikipedia_search", topic="X"), '["done", "TESTO-LIBERO"]', "ok"], [{RESULT_FOLLOW_UP: OFFER}])
+
+    decision = orch.run(query="parlami di X", conversation_history=[])
+
+    assert decision["planning"]["planner_output"] == {"type": "list"} and decision["planning"]["stop_reason"] == "planner_failed"
+
+
+def test_turns_without_a_next_step_planning_call_have_no_planner_output() -> None:
+    orch, _, _ = _orch([_step("wikipedia_search", topic="X"), "ok"], [{RESULT_FOLLOW_UP: NO_OFFER}])
+
+    decision = orch.run(query="parlami di X", conversation_history=[])
+
+    assert "planner_output" not in decision["planning"]
 
 
 @pytest.mark.parametrize(
