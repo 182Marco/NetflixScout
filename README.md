@@ -406,6 +406,14 @@ information that TMDb does not have: in-depth biographies and careers, the histo
 of a film, cinema movements. Cast, crew, release dates, plots, streaming, ratings and short
 biographies stay with TMDb; videos with YouTube.
 
+The search starts in the **English** edition whatever the language of the question (it is the richest for
+film topics; `default_language` in `CONFIG["wikipedia"]`), and the answer is still written in the user's
+language. The Italian edition is never tried automatically: when English finds no page, the page is unsure, or a
+keyword of the question is in no section of the English article, the tool says so and the planner decides on a
+further step with `language: it` (same cache, same per-turn call and text budgets, no page downloaded twice).
+The planner translates the distinctive words of the question into English (`keywords`) so the right sections
+are picked from an English article.
+
 How much text is read depends on the question and on what the first reading showed:
 - `depth: intro` reads the lead of the best pages (one request); `sections` and `full` open ONE
   page, whose whole article is downloaded once and kept in the cache (`cache_ttl`), then split by
