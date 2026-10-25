@@ -1,0 +1,191 @@
+from __future__ import annotations
+
+import pytest
+
+from wikipedia.models import Section
+from wikipedia.sections import (
+    cut_at_sentence,
+    is_prose,
+    outline,
+    query_terms,
+    score,
+    select_sections,
+    split_sections,
+)
+
+ARTICLE = """Park Chan-wook è un regista sudcoreano. Ha diretto Oldboy.
+
+== Biografia ==
+Nato a Seul nel 1963, studiò filosofia all'università Sogang.
+
+=== Infanzia ===
+Crebbe in una famiglia borghese.
+
+== Carriera ==
+Esordì nel 1992 con The Moon Is... the Sun's Dream. Il successo arrivò con Joint Security Area.
+
+== Filmografia ==
+Elenco dei film diretti.
+
+== Note ==
+Nota 1.
+
+== Collegamenti esterni ==
+Sito ufficiale.
+"""
+
+
+def _sections():
+    return split_sections(ARTICLE, "it")
+
+
+def _titles(selection):
+    return [d.section.title for d in selection.delivered]
+
+
+def test_split_sections_keeps_the_lead_and_every_heading_with_its_level() -> None:
+    sections = _sections()
+
+    assert [(s.title, s.level) for s in sections] == [
+        ("Introduzione", 1),
+        ("Biografia", 2),
+        ("Infanzia", 3),
+        ("Carriera", 2),
+        ("Filmografia", 2),
+        ("Note", 2),
+        ("Collegamenti esterni", 2),
+    ]
+    assert sections[0].text.startswith("Park Chan-wook è un regista") and "== " not in sections[0].text
+    assert sections[1].text == "Nato a Seul nel 1963, studiò filosofia all'università Sogang."
+
+
+def test_an_article_without_headings_is_one_lead_in_the_language_of_the_edition() -> None:
+    assert [(s.title, s.chars) for s in split_sections("Solo testo.", "it")] == [("Introduzione", 11)]
+    assert split_sections("Only text.", "en")[0].title == "Introduction"
+    assert split_sections("  \n ", "en") == []
+
+
+def test_repeated_headings_stay_selectable_by_name() -> None:
+    sections = split_sections("Lead.\n\n== Cast ==\nA\n\n== Cast ==\nB\n", "en")
+
+    assert [s.title for s in sections] == ["Introduction", "Cast", "Cast (2)"]
+
+
+def test_headings_without_text_are_dropped() -> None:
+    assert [s.title for s in split_sections("Lead.\n\n== Vuota ==\n\n== Piena ==\nTesto\n", "it")] == ["Introduzione", "Piena"]
+
+
+def test_lists_notes_and_links_are_not_prose() -> None:
+    prose = {s.title for s in _sections() if is_prose(s, "it")}
+
+    assert prose == {"Introduzione", "Biografia", "Infanzia", "Carriera", "Filmografia"}
+
+
+def test_query_terms_drop_function_words_and_repeats() -> None:
+    assert query_terms("Parlami della vita e della carriera di Park Chan-wook", "Park Chan-wook") == [
+        "vita", "carriera", "park", "chan", "wook",
+    ]
+
+
+def test_score_weights_titles_above_text_and_caps_repeats() -> None:
+    carriera = Section(title="Carriera", level=2, text="x")
+    other = Section(title="Altro", level=2, text="carriera " * 10)
+
+    assert score(carriera, ["carriera"]) == 3
+    assert score(other, ["carriera"]) == 3  # capped at three hits in the text
+    assert score(other, ["assente"]) == 0
+
+
+def _select(depth, *, wanted=(), terms=(), already=(), budget=10_000):
+    return select_sections(
+        _sections(), depth=depth, wanted=list(wanted), terms=list(terms), already=set(already), budget=budget, language="it"
+    )
+
+
+def test_intro_delivers_only_the_lead() -> None:
+    selection = _select("intro")
+
+    assert _titles(selection) == ["Introduzione"]
+    assert [s.title for s in selection.omitted] == ["Biografia", "Infanzia", "Carriera", "Filmografia"]
+    assert not selection.budget_hit
+
+
+def test_sections_delivers_what_matches_the_question_in_article_order() -> None:
+    selection = _select("sections", terms=["carriera", "joint"])
+
+    assert _titles(selection) == ["Carriera"]
+
+
+def test_sections_without_a_match_falls_back_to_the_lead() -> None:
+    assert _titles(_select("sections", terms=["inesistente"])) == ["Introduzione"]
+
+
+def test_full_delivers_every_prose_section_in_article_order() -> None:
+    selection = _select("full", terms=["carriera"])
+
+    assert _titles(selection) == ["Introduzione", "Biografia", "Infanzia", "Carriera", "Filmografia"]
+    assert selection.omitted == ()
+
+
+def test_named_sections_are_delivered_even_if_they_are_not_prose_and_unknown_ones_are_reported() -> None:
+    selection = _select("sections", wanted=["note", "Premi"])
+
+    assert _titles(selection) == ["Note"] and selection.unknown == ("Premi",)
+
+
+def test_sections_already_delivered_in_the_turn_are_not_sent_again() -> None:
+    selection = _select("full", already={"introduzione", "biografia"})
+
+    assert _titles(selection) == ["Infanzia", "Carriera", "Filmografia"]
+    assert "Biografia" not in [s.title for s in selection.omitted]
+
+
+def test_the_budget_stops_the_delivery_and_the_rest_is_reported() -> None:
+    sections = _sections()
+    budget = sections[0].chars + sections[1].chars  # lead and Biografia, nothing more
+
+    selection = _select("full", budget=budget)
+
+    assert _titles(selection) == ["Introduzione", "Biografia"]
+    assert selection.budget_hit
+    assert [s.title for s in selection.omitted] == ["Infanzia", "Carriera", "Filmografia"]
+
+
+def test_a_first_section_too_big_for_the_budget_is_cut_at_a_sentence_not_skipped() -> None:
+    long_text = "Prima frase. " + "Seconda frase molto lunga. " * 100
+    sections = [Section(title="Introduzione", level=1, text=long_text)]
+
+    selection = select_sections(sections, depth="intro", wanted=[], terms=[], already=set(), budget=800, language="it")
+
+    (delivered,) = selection.delivered
+    assert delivered.truncated and len(delivered.text) <= 800 and delivered.text.endswith(".")
+    assert [s.title for s in selection.omitted] == ["Introduzione"]  # it still has text to give
+    assert selection.budget_hit
+
+
+def test_with_too_little_room_nothing_is_cut() -> None:
+    sections = [Section(title="Introduzione", level=1, text="x" * 2000)]
+
+    selection = select_sections(sections, depth="intro", wanted=[], terms=[], already=set(), budget=300, language="it")
+
+    assert selection.delivered == () and selection.budget_hit
+
+
+def test_cut_at_sentence() -> None:
+    assert cut_at_sentence("Una. Due. Tre.", 100) == "Una. Due. Tre."
+    assert cut_at_sentence("Una frase. Due frasi. Tre", 22) == "Una frase. Due frasi."
+    assert cut_at_sentence("senzapunti" * 10, 20) == "senzapuntisenzapunti"
+
+
+def test_outline_lists_prose_sections_with_their_state() -> None:
+    rows = outline(_sections(), {"introduzione"}, "it")
+
+    assert [(r["title"], r["delivered"]) for r in rows] == [
+        ("Introduzione", True), ("Biografia", False), ("Infanzia", False), ("Carriera", False), ("Filmografia", False),
+    ]
+    assert rows[1]["chars"] == len(_sections()[1].text)
+
+
+@pytest.mark.parametrize("depth", ["intro", "sections", "full"])
+def test_selection_is_deterministic(depth) -> None:
+    assert _select(depth, terms=["carriera"]) == _select(depth, terms=["carriera"])
