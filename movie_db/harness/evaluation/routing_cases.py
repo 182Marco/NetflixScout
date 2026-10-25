@@ -279,4 +279,35 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
         RAG,
         expected_rag=RagExpectation(k_finale=(None, 1)),
     ),
+    # Data coverage (`CONFIG["orchestrator"]["data_coverage"]`): films after the last year a local
+    # source covers must not start from RAG (to 2012) or MovieLens (to 2022).
+    RoutingCase(
+        "Quali sono i film più votati usciti nel 2024?",
+        TMDB,
+        expected_request=RequestExpectation("discover_movies"),
+    ),
+    RoutingCase(
+        "Consigliami un film horror uscito nel 2020 con atmosfera claustrofobica",
+        TMDB,
+        expected_request=RequestExpectation("discover_movies"),
+    ),
+    RoutingCase(
+        "Qual è il film con il voto medio più alto del 2023?",
+        TMDB,
+        expected_request=RequestExpectation("discover_movies"),
+    ),
+    RoutingCase(
+        "Dammi 3 film di fantascienza cupi usciti dopo il 2018",
+        TMDB,
+        expected_request=RequestExpectation("discover_movies"),
+    ),
+    RoutingCase(
+        "Quali sono le migliori commedie degli ultimi due anni?",
+        TMDB,
+        expected_request=RequestExpectation("discover_movies"),
+    ),
+    # Controls: inside the covered years the local sources stay the start.
+    RoutingCase("Qual è il film con il voto medio più alto del 2005?", DB),
+    RoutingCase("Quali sono i film più votati usciti nel 2021?", DB),
+    RoutingCase("Consigliami un film del 2008 su un robot che si innamora di un umano", RAG),
 )
