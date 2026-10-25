@@ -9,7 +9,8 @@ import re
 
 from pydantic import BaseModel, Field
 
-from .models import PageHit, Subject, WikipediaToolInput, normalize_text
+from .models import PageHit, PageResult, Subject, WikipediaToolInput, normalize_text
+from .settings import MIN_FOLLOW_UP_CHARS
 
 _QUALIFIER = re.compile(r"\s*\(([^()]*)\)\s*$")
 _YEAR = re.compile(r"\b(1[89]\d{2}|20\d{2})\b")
@@ -87,3 +88,41 @@ def lookup_hints(request: WikipediaToolInput, kept: list[Screened], dropped: dic
     if not kept and "disambiguation" in dropped:
         hints.append("add_context")
     return hints
+
+
+def follow_up_reasons(
+    *,
+    pages: list[PageResult],
+    searched: bool,
+    dropped: dict[str, int],
+    budget_hit: bool,
+    http_left: int,
+    context_left: int,
+) -> list[str]:
+    """Why another step could add something, only for what a step can still do.
+
+    - `empty`, `ambiguous`, `unverified`: a new search (or another page) needs a free HTTP call;
+    - `more_in_page`: the page has sections not handed out; after a lead it needs the article
+      (an HTTP call), once the article is read the sections come from the cache;
+    - `omitted_by_budget`: something chosen did not fit the context budget.
+    No reason is given when the room (calls or context) to act on it is gone.
+    """
+    room = context_left >= MIN_FOLLOW_UP_CHARS
+    reasons: list[str] = []
+    if not pages:
+        if searched and http_left > 0:
+            reasons.append("ambiguous" if dropped.get("disambiguation") else "empty")
+        return reasons
+    if all(page.verification == "to_verify" for page in pages) and http_left > 0:
+        reasons.append("unverified")
+    for page in pages:
+        if page.outline is None:
+            more = http_left > 0 and room
+        else:
+            more = bool(page.omitted) and room
+        if more:
+            reasons.append("more_in_page")
+            break
+    if budget_hit and room:
+        reasons.append("omitted_by_budget")
+    return reasons

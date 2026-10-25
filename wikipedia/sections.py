@@ -29,6 +29,15 @@ _STOPWORDS = frozenset(
 )
 
 
+def clean_extract(text: str) -> str:
+    """The extract without control characters (newlines and tabs stay): it is third-party text
+    that goes into the prompt, so nothing that could drive a terminal or hide text is kept."""
+    return "".join(
+        char for char in text.replace("\r\n", "\n").replace("\r", "\n")
+        if char in "\n\t" or (char.isprintable() or char == " ")
+    )
+
+
 def lead_title(language: str) -> str:
     return LEAD_TITLES.get(language, LEAD_TITLES["en"])
 
@@ -65,6 +74,13 @@ def query_terms(*texts: str) -> list[str]:
     """Distinctive words of the question, in order, without repeats."""
     words = [w for text in texts for w in normalize_text(text).split()]
     return list(dict.fromkeys(w for w in words if len(w) >= _TERM_MIN_CHARS and w not in _STOPWORDS))
+
+
+def question_terms(query: str, topic: str) -> list[str]:
+    """The distinctive words of the question without those of the topic: the topic names the page,
+    it does not tell which of its sections the question is about."""
+    subject = set(query_terms(topic))
+    return [term for term in query_terms(query) if term not in subject]
 
 
 def score(section: Section, terms: list[str]) -> int:

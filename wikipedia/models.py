@@ -68,7 +68,10 @@ class WikipediaToolInput(BaseModel):
     )
     language: Language | None = Field(
         default=None,
-        description="Wikipedia edition, only if the user asks for one; null = the language of the question.",
+        description=(
+            "Wikipedia edition, only if the user asks for one or to reopen a page of an earlier "
+            "result (copy its language); null = the language of the question, then the other one."
+        ),
     )
     depth: Depth = Field(
         default=Depth.intro,
@@ -122,6 +125,25 @@ class PageHit(BaseModel):
     extract: str = ""
     disambiguation: bool = False
     touched: str | None = None
+
+
+class PageResult(BaseModel):
+    """What the tool handed out for one page, with a description of what it left out."""
+
+    title: str
+    language: str
+    verification: str
+    notes: list[str] = Field(default_factory=list)
+    last_revised: str | None = None
+    # None until the whole article has been read (a search gives only the lead).
+    total_chars: int | None = None
+    delivered_chars: int = 0
+    sections: list[str] = Field(default_factory=list)
+    outline: list[dict[str, Any]] | None = None
+    omitted: list[dict[str, Any]] = Field(default_factory=list)
+    unknown_sections: list[str] = Field(default_factory=list)
+    truncated: bool = False
+    text: list[dict[str, str]] = Field(default_factory=list)
 
 
 class Section(BaseModel):

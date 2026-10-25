@@ -22,6 +22,7 @@ STEP_RERANK = "rerank"
 STEP_DB_QUERY = "db_query"
 STEP_TMDB_CALLS = "tmdb_calls"
 STEP_YOUTUBE_CALLS = "youtube_calls"
+STEP_WIKIPEDIA_CALLS = "wikipedia_calls"
 
 # Tool parameter set by `handle_query` with the turn language ("it" | "en") from the
 # classifier. Tools that do not use it ignore it.
@@ -37,6 +38,11 @@ TOOL_PARAM_TURN_ID = "turn_id"
 OUTCOME_OK = "ok"
 OUTCOME_EMPTY = "empty"
 OUTCOME_ERROR = "error"
+
+# Optional key of a tool result (outside `metadata`, so outside the final prompt): the tool says it
+# has more to give and describes what it already gave, so the orchestrator asks the planner whether
+# to go on (`{"available": bool, "reasons": [str], "summary": str}`). Tools without it are unaffected.
+RESULT_FOLLOW_UP = "follow_up"
 
 
 def tool_outcome(status: str, reason: str | None = None) -> dict[str, str | None]:

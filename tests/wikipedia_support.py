@@ -120,6 +120,7 @@ def error_body(code: str = "maxlag") -> dict[str, Any]:
     return {"error": {"code": code, "info": "Waiting for a database server: 7 seconds lagged.", "host": "db1"}}
 
 
-def run_tool(tool, **arguments: Any) -> dict[str, Any]:
-    params = {"topic": "Park Chan-wook", **arguments}
-    return tool.run(query="domanda", params=params, conversation_history=[])
+def run_tool(tool, *, query: str = "domanda", **arguments: Any) -> dict[str, Any]:
+    # The turn language is Italian unless a test says otherwise (the fake pages are Italian).
+    params = {"topic": "Park Chan-wook", "turn_language": "it", **arguments}
+    return tool.run(query=query, params=params, conversation_history=[])

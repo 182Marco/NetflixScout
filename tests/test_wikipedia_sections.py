@@ -8,6 +8,7 @@ from wikipedia.sections import (
     is_prose,
     outline,
     query_terms,
+    question_terms,
     score,
     select_sections,
     split_sections,
@@ -85,6 +86,11 @@ def test_query_terms_drop_function_words_and_repeats() -> None:
     assert query_terms("Parlami della vita e della carriera di Park Chan-wook", "Park Chan-wook") == [
         "vita", "carriera", "park", "chan", "wook",
     ]
+
+
+def test_the_words_of_the_topic_do_not_count_as_words_of_the_question() -> None:
+    assert question_terms("Come è iniziata la carriera di Park Chan-wook", "Park Chan-wook") == ["iniziata", "carriera"]
+    assert question_terms("Park Chan-wook", "Park Chan-wook") == []
 
 
 def test_score_weights_titles_above_text_and_caps_repeats() -> None:
