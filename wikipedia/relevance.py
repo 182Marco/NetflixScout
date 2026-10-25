@@ -37,14 +37,22 @@ def strip_qualifier(title: str) -> tuple[str, str | None]:
 
 
 def match_title(topic: str, title: str) -> str:
-    """`exact`, `qualified` (same name plus a parenthetical), `partial` or `differs`."""
-    wanted = _without_article(normalize_text(topic))
-    base, qualifier = strip_qualifier(title)
-    name = _without_article(normalize_text(base))
+    """`exact`, `qualified` (same name, a parenthetical on one side only), `partial` or `differs`.
+
+    The whole titles are compared first, punctuation and qualifiers included ("Kwaidan (film)" is
+    "Kwaidan (film)"); then the names without qualifier. Two different qualifiers ("Solaris (novel)"
+    and "Solaris (1972 film)") are the same name for different works: `partial`.
+    """
+    whole_topic, whole_title = _without_article(normalize_text(topic)), _without_article(normalize_text(title))
+    if whole_topic and whole_topic == whole_title:
+        return "exact"
+    topic_base, topic_qualifier = strip_qualifier(topic)
+    title_base, title_qualifier = strip_qualifier(title)
+    wanted, name = _without_article(normalize_text(topic_base)), _without_article(normalize_text(title_base))
     if not wanted or not name:
         return "differs"
     if name == wanted:
-        return "qualified" if qualifier else "exact"
+        return "partial" if topic_qualifier and title_qualifier else "qualified"
     wanted_words, name_words = set(wanted.split()), set(name.split())
     return "partial" if wanted_words <= name_words or name_words <= wanted_words else "differs"
 
@@ -64,14 +72,44 @@ def _notes(request: WikipediaToolInput, page: PageHit) -> list[str]:
     return notes
 
 
+def _lead_has_phrase(page: PageHit, topic: str) -> bool:
+    phrase = _without_article(normalize_text(strip_qualifier(topic)[0]))
+    return bool(phrase) and f" {phrase} " in f" {normalize_text(page.extract)} "
+
+
+def plausible(request: WikipediaToolInput, page: PageHit) -> bool:
+    """Whether a page whose title is not the one asked can still be about the subject, judging by its
+    lead (already fetched, free): the lead names the subject and, for a film with a given year, the year.
+    A page failing this is another thing that happens to share a word (a "Tokyo Anime Award" for "Tokyo!")."""
+    if not _lead_has_phrase(page, request.topic):
+        return False
+    if request.kind is Subject.film and request.year is not None:
+        return str(request.year) in page.extract
+    return True
+
+
 def screen_pages(request: WikipediaToolInput, pages: list[PageHit]) -> tuple[list[Screened], dict[str, int]]:
-    """Kept pages (confirmed first, search order inside each group) and the count of dropped ones."""
+    """Kept pages (confirmed first, search order inside each group) and the count of dropped ones.
+
+    Dropped, with the reason counted: `disambiguation`, `empty_extract`, `not_relevant` (title not the
+    one asked and a lead that does not support it, see `plausible`). Kept: `confirmed` (the title is
+    the one asked) or `to_verify` (plausible, not certain).
+    """
     kept: list[Screened] = []
     dropped: dict[str, int] = {}
+
+    def drop(reason: str) -> None:
+        dropped[reason] = dropped.get(reason, 0) + 1
+
     for page in sorted(pages, key=lambda hit: hit.index):
-        reason = "disambiguation" if page.disambiguation else ("empty_extract" if not page.extract.strip() else None)
-        if reason:
-            dropped[reason] = dropped.get(reason, 0) + 1
+        if page.disambiguation:
+            drop("disambiguation")
+            continue
+        if not page.extract.strip():
+            drop("empty_extract")
+            continue
+        if match_title(request.topic, page.title) in ("partial", "differs") and not plausible(request, page):
+            drop("not_relevant")
             continue
         notes = _notes(request, page)
         kept.append(Screened(page=page, verification=verification(notes), notes=notes))
@@ -100,10 +138,12 @@ def follow_up_reasons(
     context_left: int,
     other_language_untried: bool = False,
     keywords_absent: bool = False,
+    unopened_candidates: bool = False,
 ) -> list[str]:
     """Why another step could add something, only for what a step can still do.
 
-    - `empty`, `ambiguous`, `unverified`: a new search (or another page) needs a free HTTP call;
+    - `empty`, `ambiguous`, `unverified`: a new search (or another page) needs a free HTTP call
+      (`unverified`: candidates were found but none is certain enough to be opened automatically);
     - `more_in_page`: the page has sections not handed out; after a lead it needs the article
       (an HTTP call), once the article is read the sections come from the cache;
     - `omitted_by_budget`: something chosen did not fit the context budget;
@@ -115,7 +155,11 @@ def follow_up_reasons(
     reasons: list[str] = []
     if not pages:
         if searched and http_left > 0:
-            reasons.append("ambiguous" if dropped.get("disambiguation") else "empty")
+            # Pages found but none is certain enough to be opened: `unverified`, else nothing usable.
+            if unopened_candidates:
+                reasons.append("unverified")
+            else:
+                reasons.append("ambiguous" if dropped.get("disambiguation") else "empty")
         return reasons
     if all(page.verification == "to_verify" for page in pages) and http_left > 0:
         reasons.append("unverified")

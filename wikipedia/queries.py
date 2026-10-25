@@ -14,7 +14,7 @@ from __future__ import annotations
 from urllib.parse import quote
 
 from .models import MAX_TOPIC_CHARS, Subject, WikipediaToolInput
-from .settings import API_PATH, HOST, MAXLAG_SECONDS, PAGE_PATH
+from .settings import API_PATH, HOST, MAXLAG_SECONDS, PAGE_PATH, SEARCH_FETCH_FACTOR, SEARCH_FETCH_MAX
 
 _STRIPPED = '"\\~*'
 
@@ -48,7 +48,8 @@ def lookup_params(request: WikipediaToolInput, *, max_results: int) -> dict[str,
         **_base(),
         "generator": "search",
         "gsrsearch": search_term(request) or "",
-        "gsrlimit": str(max_results),
+        # More than will be shown: the pages dropped as unrelated must not take the places of the others.
+        "gsrlimit": str(min(max_results * SEARCH_FETCH_FACTOR, SEARCH_FETCH_MAX)),
         "gsrnamespace": "0",
         "prop": "extracts|pageprops|info",
         "exintro": "1",

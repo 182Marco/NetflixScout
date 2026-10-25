@@ -99,6 +99,8 @@ def build_planner_summary(
     edition: str | None = None,
     languages_tried: list[str] | None = None,
     other_edition: str | None = None,
+    candidates: list[dict[str, Any]] | None = None,
+    dropped: dict[str, int] | None = None,
 ) -> str:
     """Compact description of the step for the planner (at most `PLANNER_SUMMARY_CHARS`).
 
@@ -119,6 +121,14 @@ def build_planner_summary(
         f"{len(pages)} pagine; testo nel prompt {context_used}/{context_budget} caratteri; "
         f"chiamate HTTP rimaste {calls_left}."
     )
+    if dropped and dropped.get("not_relevant"):
+        lines.append(f"Pagine scartate perché non pertinenti: {dropped['not_relevant']}.")
+    if candidates:
+        listed = "; ".join(f"«{c['title']}» ({c['language']}, {c['verification']})" for c in candidates[:5])
+        lines.append(
+            f"Candidati non aperti perché non verificati: {listed}. Si apre uno con page (titolo esatto) "
+            "o si cerca con un altro titolo."
+        )
     for page in pages:
         total = f"/{page.total_chars}" if page.total_chars is not None else ""
         lines.append(

@@ -10,7 +10,7 @@ def _request(**fields) -> WikipediaToolInput:
     return WikipediaToolInput.model_validate({"query": "q", "topic": "Parasite", "kind": "film", **fields})
 
 
-def _page(title: str, index: int = 0, *, extract: str = "Testo.", disambiguation: bool = False) -> PageHit:
+def _page(title: str, index: int = 0, *, extract: str = "Parasite è un film.", disambiguation: bool = False) -> PageHit:
     return PageHit(pageid=index + 1, title=title, language="en", index=index, extract=extract, disambiguation=disambiguation)
 
 
@@ -127,3 +127,75 @@ def test_an_absent_keyword_comes_after_the_reasons_about_the_page() -> None:
     page = _read_page(omitted=[{"title": "Filmography", "chars": 900}])
 
     assert _reasons(pages=[page], other_language_untried=True, keywords_absent=True) == ["more_in_page", "keywords_absent"]
+
+
+# --- title matching and relevance of the pages found (the "Tokyo!" case) ---------------------------------
+
+
+@pytest.mark.parametrize(
+    ("topic", "title", "expected"),
+    [
+        ("Kwaidan (film)", "Kwaidan (film)", "exact"),
+        ("Solaris (novel)", "Solaris (novel)", "exact"),
+        ("Solaris", "Solaris (novel)", "qualified"),
+        ("Solaris (novel)", "Solaris (1972 film)", "partial"),
+        ("Tokyo!", "Tokyo!", "exact"),
+        ("Tokyo!", "Tokyo! (film)", "qualified"),
+        ("Paris, je t'aime", "Paris, je t'aime", "exact"),
+        ("Il ragazzo e l'airone", "Ragazzo e l'airone", "exact"),
+        ("Tokyo!", "Tokyo Anime Award", "partial"),
+        ("Tokyo!", "Interior Design (Tokyo!)", "differs"),
+    ],
+)
+def test_titles_are_compared_whole_then_without_the_qualifier(topic, title, expected) -> None:
+    assert match_title(topic, title) == expected
+
+
+TOKYO_PAGES = [
+    PageHit(title="Tokyo Anime Award", language="en", index=0, extract="The Tokyo Anime Award is an annual award for anime."),
+    PageHit(title="Tokyo Story", language="en", index=1, extract="Tokyo Story is a 1953 Japanese drama film."),
+    PageHit(title="Interior Design (Tokyo!)", language="en", index=2, extract="Interior Design is a segment of Tokyo!, a 2008 anthology film."),
+]
+
+
+def _tokyo(**fields):
+    return WikipediaToolInput.model_validate({"query": "q", "topic": "Tokyo!", "kind": "film", "year": 2008, **fields})
+
+
+def test_a_page_that_only_shares_a_word_is_dropped_not_kept_as_to_verify() -> None:
+    kept, dropped = screen_pages(_tokyo(), TOKYO_PAGES)
+
+    assert [row.page.title for row in kept] == ["Interior Design (Tokyo!)"]
+    assert kept[0].verification == "to_verify" and kept[0].notes == ["title_differs"]
+    assert dropped == {"not_relevant": 2}
+
+
+def test_the_exact_title_wins_over_everything_else() -> None:
+    exact = PageHit(title="Tokyo! (film)", language="en", index=5, extract="Tokyo! is a 2008 anthology film.")
+
+    kept, dropped = screen_pages(_tokyo(), [*TOKYO_PAGES, exact])
+
+    assert [(row.page.title, row.verification) for row in kept] == [
+        ("Tokyo! (film)", "confirmed"), ("Interior Design (Tokyo!)", "to_verify"),
+    ]
+    assert dropped == {"not_relevant": 2}
+
+
+def test_without_a_given_year_a_page_naming_the_subject_in_its_lead_is_kept_to_verify() -> None:
+    kept, dropped = screen_pages(_tokyo(year=None), TOKYO_PAGES)
+
+    titles = {row.page.title: row.verification for row in kept}
+    assert titles == {"Tokyo Anime Award": "to_verify", "Tokyo Story": "to_verify", "Interior Design (Tokyo!)": "to_verify"}
+    assert dropped == {}
+
+
+def test_for_a_person_the_year_does_not_matter_but_the_lead_must_name_the_subject() -> None:
+    request = WikipediaToolInput.model_validate({"query": "q", "topic": "Park Chan-wook", "kind": "person"})
+    pages = [
+        PageHit(title="Oldboy (2003 film)", language="en", index=0, extract="Oldboy is a film directed by Park Chan-wook."),
+        PageHit(title="Park Chan-wook filmography", language="en", index=1, extract="A list of works."),
+    ]
+
+    kept, dropped = screen_pages(request, pages)
+
+    assert [row.page.title for row in kept] == ["Oldboy (2003 film)"] and dropped == {"not_relevant": 1}

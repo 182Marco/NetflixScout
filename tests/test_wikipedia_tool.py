@@ -23,7 +23,8 @@ from wikipedia.settings import USER_AGENT
 from wikipedia.tool import WIKIPEDIA_TOOL_NAME, WikipediaTool, parse_pages, planner_schema
 
 LEAD = "Park Chan-wook è un regista sudcoreano. Ha diretto Oldboy."
-LOOKUP = lookup_answer(page("Park Chan-wook", LEAD, index=1), page("Oldboy (film 2003)", "Film del 2003.", index=2))
+OLDBOY_LEAD = "Oldboy è un film del 2003 diretto da Park Chan-wook."
+LOOKUP = lookup_answer(page("Park Chan-wook", LEAD, index=1), page("Oldboy (film 2003)", OLDBOY_LEAD, index=2))
 
 
 def _tool(**kwargs):
@@ -65,7 +66,7 @@ def test_intro_hands_out_the_leads_of_the_best_pages_in_one_request() -> None:
     first = meta["pages"][0]
     assert first["text"] == [{"section": "Introduzione", "text": LEAD}] or first["text"][0]["text"] == LEAD
     assert first["total_chars"] is None and first["outline"] is None and first["verification"] == "confirmed"
-    assert meta["context"]["used"] == len(LEAD) + len("Film del 2003.")
+    assert meta["context"]["used"] == len(LEAD) + len(OLDBOY_LEAD)
 
 
 def test_the_prompt_metadata_has_no_urls_user_agent_or_trace_data() -> None:
@@ -458,3 +459,100 @@ def test_the_planner_summary_of_a_second_step_does_not_repeat_the_text_already_g
     summary = second[RESULT_FOLLOW_UP]["summary"]
     assert "Born in Seoul" not in summary and "Joint Security Area" not in summary
     assert _meta(second)["pages"][0]["sections_delivered"] == ["Career"]
+
+
+# --- relevance of the pages: the "Tokyo!" case ----------------------------------------------------------
+
+TOKYO_SEGMENT = page("Interior Design (Tokyo!)", "Interior Design is a segment of Tokyo!, a 2008 anthology film.", index=3)
+TOKYO_NOISE = [
+    page("Tokyo Anime Award", "The Tokyo Anime Award is an annual award for anime.", index=1),
+    page("Tokyo Story", "Tokyo Story is a 1953 Japanese drama film.", index=2),
+]
+TOKYO_FILM = page("Tokyo! (film)", "Tokyo! is a 2008 anthology film by Michel Gondry, Leos Carax and Bong Joon-ho.", index=4)
+
+
+def _tokyo_tool(*pages, **kwargs):
+    return make_tool(
+        by_mode(lookup=lookup_answer(*pages), article=article_answer("Tokyo! (film)", text=EN_ARTICLE_TEXT)),
+        default_language="en",
+        **kwargs,
+    )
+
+
+def test_unrelated_pages_are_never_opened_or_given_as_sources() -> None:
+    tool, transport = _tokyo_tool(*TOKYO_NOISE)
+
+    result = run_tool(tool, topic="Tokyo!", kind="film", year=2008, depth="sections")
+
+    assert len(transport.calls) == 1  # the search only: no article was downloaded
+    assert result["outcome"] == {"status": "empty", "reason": None} and _meta(result)["pages"] == []
+    assert _meta(result)["not_relevant"] == 2 and "candidates" not in _meta(result)
+    assert result[RESULT_FOLLOW_UP]["reasons"] == ["empty"]
+    assert "Pagine scartate perché non pertinenti: 2" in result[RESULT_FOLLOW_UP]["summary"]
+    assert result["trace"][0]["data"]["searches"][0]["filtered_out"] == {"not_relevant": 2}
+
+
+def test_the_exact_page_is_opened_even_when_it_is_not_the_first_result() -> None:
+    tool, transport = _tokyo_tool(*TOKYO_NOISE, TOKYO_SEGMENT, TOKYO_FILM)
+
+    result = run_tool(tool, topic="Tokyo!", kind="film", year=2008, depth="sections", keywords=["debut"])
+
+    assert [("titles" in c[1]) for c in transport.calls] == [False, True]
+    assert transport.calls[1][1]["titles"] == "Tokyo! (film)"
+    page_meta = _meta(result)["pages"][0]
+    assert page_meta["verification"] == "confirmed"
+    assert result["trace"][0]["data"]["pages"][0]["url"] == "https://en.wikipedia.org/wiki/Tokyo!_(film)"
+
+
+def test_a_page_that_is_only_plausible_is_listed_not_downloaded() -> None:
+    tool, transport = _tokyo_tool(*TOKYO_NOISE, TOKYO_SEGMENT)
+
+    result = run_tool(tool, topic="Tokyo!", kind="film", year=2008, depth="full")
+
+    assert len(transport.calls) == 1 and result["outcome"]["status"] == "empty"
+    assert _meta(result)["candidates"] == [{"title": "Interior Design (Tokyo!)", "language": "en", "verification": "to_verify"}]
+    follow_up = result[RESULT_FOLLOW_UP]
+    assert follow_up["available"] and follow_up["reasons"] == ["unverified"]
+    assert "Candidati non aperti perché non verificati: «Interior Design (Tokyo!)» (en, to_verify)" in follow_up["summary"]
+
+
+def test_a_plausible_page_still_gives_its_lead_for_an_intro() -> None:
+    tool, _ = _tokyo_tool(*TOKYO_NOISE, TOKYO_SEGMENT)
+
+    result = run_tool(tool, topic="Tokyo!", kind="film", year=2008, depth="intro")
+
+    (page_meta,) = _meta(result)["pages"]
+    assert page_meta["title"] == "Interior Design (Tokyo!)" and page_meta["verification"] == "to_verify"
+    assert page_meta["notes"] == ["title_differs"]
+
+
+def test_the_planner_can_open_a_listed_candidate_by_title_and_the_article_is_then_cached() -> None:
+    tool, transport = _tokyo_tool(*TOKYO_NOISE, TOKYO_SEGMENT)
+    turn = {TOOL_PARAM_TURN_ID: "t"}
+
+    run_tool(tool, topic="Tokyo!", kind="film", year=2008, depth="full", **turn)
+    opened = run_tool(tool, topic="Tokyo!", page="Interior Design (Tokyo!)", depth="sections", **turn)
+    again = run_tool(tool, topic="Tokyo!", page="Interior Design (Tokyo!)", depth="sections", sections=["Career"], **turn)
+
+    assert len(transport.calls) == 2  # the search, then one download
+    assert _meta(opened)["pages"][0]["title"] == "Tokyo! (film)"  # the title the API returned for the page
+    assert again["trace"][0]["data"]["calls"] == [] and again["trace"][0]["data"]["reused"] == 1
+
+
+def test_a_listed_page_opened_by_its_exact_title_is_confirmed_even_with_a_qualifier() -> None:
+    tool, _ = make_tool(by_mode(lookup=LOOKUP, article=article_answer("Kwaidan (film)", text=EN_ARTICLE_TEXT)), default_language="en")
+
+    result = run_tool(tool, topic="Kwaidan", page="Kwaidan (film)", depth="sections")
+
+    assert _meta(result)["pages"][0]["verification"] == "confirmed" and _meta(result)["pages"][0]["notes"] == []
+
+
+def test_the_pages_shown_never_exceed_max_results_after_the_unrelated_ones_are_dropped() -> None:
+    related = [page(f"Park Chan-wook ({i})", f"Park Chan-wook is a director, entry {i}.", index=10 + i) for i in range(4)]
+    noise = [page(f"Other {i}", "Nothing to do with it.", index=i) for i in range(4)]
+    tool, transport = make_tool(by_mode(lookup=lookup_answer(*noise, *related), article={}), default_language="en", max_results=3)
+
+    result = run_tool(tool, topic="Park Chan-wook", kind="person")
+
+    assert transport.calls[0][1]["gsrlimit"] == "6"
+    assert len(_meta(result)["pages"]) == 3 and _meta(result)["not_relevant"] == 4

@@ -43,11 +43,16 @@ def test_a_topic_cannot_inject_search_operators() -> None:
 def test_lookup_params_ask_for_leads_of_several_pages_in_one_request() -> None:
     params = lookup_params(_request(kind="film", year=2019), max_results=3)
 
-    assert params["generator"] == "search" and params["gsrlimit"] == "3" and params["gsrnamespace"] == "0"
+    assert params["generator"] == "search" and params["gsrlimit"] == "6" and params["gsrnamespace"] == "0"
     assert params["gsrsearch"] == '"Parasite" film 2019'
     assert params["exintro"] == "1" and params["explaintext"] == "1" and params["exlimit"] == "max"
     assert params["redirects"] == "1" and params["maxlag"] == "5" and params["formatversion"] == "2"
     assert "exchars" not in params and "titles" not in params
+
+
+def test_the_search_asks_for_more_pages_than_it_shows_within_a_ceiling() -> None:
+    assert lookup_params(_request(), max_results=1)["gsrlimit"] == "2"
+    assert lookup_params(_request(), max_results=5)["gsrlimit"] == "10"
 
 
 def test_article_params_open_one_page_whole() -> None:

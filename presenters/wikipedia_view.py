@@ -71,6 +71,7 @@ CODE_LABELS = {
     "it": {
         "disambiguation": "pagina di disambiguazione",
         "empty_extract": "senza testo",
+        "not_relevant": "pagina non pertinente",
         "title_partial": "titolo solo in parte uguale",
         "title_differs": "titolo diverso da quello cercato",
         "year_conflict": "anno diverso",
@@ -87,6 +88,7 @@ CODE_LABELS = {
     "en": {
         "disambiguation": "disambiguation page",
         "empty_extract": "no text",
+        "not_relevant": "page not relevant",
         "title_partial": "title only partly the same",
         "title_differs": "title differs from the one searched",
         "year_conflict": "different year",

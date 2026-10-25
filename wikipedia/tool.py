@@ -40,6 +40,8 @@ from .sections import (
     split_sections,
 )
 from .settings import LANGUAGES, MIN_FOLLOW_UP_CHARS
+
+MAX_CANDIDATES_LISTED = 5
 from .trace import build_planner_summary, build_wikipedia_trace
 
 WIKIPEDIA_TOOL_NAME = "wikipedia_search"
@@ -125,6 +127,8 @@ class _Run:
     searched_ok: bool = False
     budget_hit: bool = False
     error: str | None = None
+    # Pages found by a search for `sections`/`full` but not opened, none being certain enough.
+    candidates: list[dict[str, Any]] = field(default_factory=list)
 
     @property
     def state(self) -> TurnState:
@@ -264,10 +268,18 @@ class _Run:
         if request.depth is Depth.intro:
             self._deliver_leads(self.edition)
             return
-        best = self.kept[0]
-        hit = self._open(self.edition, best.page.title)
+        # A whole article is downloaded only for a page whose title is the one asked. Otherwise nothing
+        # is downloaded: the candidates are listed and the planner picks one (`page`) or searches again.
+        confirmed = next((row for row in self.kept if row.verification == "confirmed"), None)
+        if confirmed is None:
+            self.candidates = [
+                {"title": row.page.title, "language": self.edition, "verification": row.verification}
+                for row in self.kept[:MAX_CANDIDATES_LISTED]
+            ]
+            return
+        hit = self._open(self.edition, confirmed.page.title)
         if hit is not None:
-            self._deliver_article(hit, (best.verification, best.notes))
+            self._deliver_article(hit, (confirmed.verification, confirmed.notes))
 
     # --- result -----------------------------------------------------------------------------
 
@@ -286,6 +298,7 @@ class _Run:
             context_left=self.context_left(),
             other_language_untried=other_edition is not None,
             keywords_absent=absent,
+            unopened_candidates=bool(self.candidates),
         )
         if self.pages:
             status = "ok"
@@ -324,6 +337,11 @@ class _Run:
             ],
             "hints": hints,
         }
+        if self.candidates:
+            # Titles only: nothing from these pages is a source until one is opened.
+            metadata["candidates"] = self.candidates
+        if self.dropped.get("not_relevant"):
+            metadata["not_relevant"] = self.dropped["not_relevant"]
         if self.error:
             metadata["error"] = self.error
         if status == "error":
@@ -349,6 +367,8 @@ class _Run:
                     edition=self.edition,
                     languages_tried=sorted(state.languages_tried),
                     other_edition=other_edition,
+                    candidates=self.candidates,
+                    dropped=self.dropped,
                 ),
             },
         }

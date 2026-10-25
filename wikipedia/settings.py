@@ -20,6 +20,11 @@ PAGE_PATH = "/wiki/"
 # `client/version (contact) framework`. Contact: the repository and the author's address.
 USER_AGENT = "NetflixScout/1.0 (https://github.com/182Marco/NetflixScout; marcomilza@gmail.com) python-urllib"
 
+# A search asks for more pages than it will show (`max_results * factor`, at most the max): pages
+# that turn out unrelated are dropped after the search, and must not take the places of the others.
+SEARCH_FETCH_FACTOR = 2
+SEARCH_FETCH_MAX = 10
+
 HTTP_TIMEOUT_SECONDS = 10.0
 # Replication lag (seconds) above which the server asks clients to wait.
 MAXLAG_SECONDS = 5
