@@ -87,6 +87,19 @@ def _pending_parts(parts: list[dict[str, str]], calls: list[_Call]) -> list[dict
     return [part for part in parts if part["tool"] not in ran]
 
 
+# Words a planner may use, instead of a tool name, to say that no further step is needed.
+_NO_TOOL_WORDS = frozenset({"", "done", "none", "null", "stop", "nessuno", "fine"})
+
+
+def _says_done(value: Any) -> bool:
+    return value is True or (isinstance(value, str) and value.strip().lower() == "true")
+
+
+def _names_no_tool(tool_name: Any) -> bool:
+    """No tool requested: absent, null, empty or one of the words of `_NO_TOOL_WORDS`."""
+    return tool_name is None or (isinstance(tool_name, str) and tool_name.strip().lower() in _NO_TOOL_WORDS)
+
+
 def _follow_up(tool_result: dict[str, Any]) -> dict[str, Any] | None:
     """The tool's offer to give more (`turn.RESULT_FOLLOW_UP`), only when it says it is available."""
     follow_up = tool_result.get(RESULT_FOLLOW_UP)
@@ -564,7 +577,8 @@ class LLMOrchestrator:
             f"Il tool {calls[-1].tool} indica che può dare altro ({', '.join(map(str, follow_up.get('reasons') or []))}). "
             "Valuta se ciò che hai basta per la richiesta dell'utente: se no, scegli il passo "
             "successivo (con questo o un altro tool) usando i titoli e le sezioni elencati sopra; "
-            "se sì, ritorna done.\n\n"
+            'se sì, rispondi esattamente {"done": true}, senza altre chiavi: il formato del primo '
+            "passo non vale per questa risposta.\n\n"
             if follow_up
             else ""
         )
@@ -594,9 +608,12 @@ class LLMOrchestrator:
 
         if not isinstance(payload, dict):
             return None, "planner_failed"
-        if payload.get("done") is True:
-            return None, "done"
         tool_name = payload.get("tool_name") or payload.get("tool")
+        # The normal end of a turn: the planner says `done`, or names no tool at all (it often answers
+        # with the first-step format and `tool_name: null`). Only a tool that is NAMED and not allowed,
+        # or named with too little confidence, is an error worth a warning.
+        if _says_done(payload.get("done")) or _names_no_tool(tool_name):
+            return None, "done"
         confidence = payload.get("confidence")
         threshold = float(self.orchestrator_config.get("tool_confidence_threshold", 0.6))
         if tool_name not in allowed or (confidence is not None and confidence < threshold):

@@ -68,7 +68,7 @@ def test_an_offer_makes_the_planner_decide_even_without_more_steps() -> None:
     assert tool.params[0][TOOL_PARAM_TURN_ID] == tool.params[1][TOOL_PARAM_TURN_ID]
     assert len(client.calls) == 3  # first plan, second plan, final answer
     second_plan = client.calls[1]["input"][-1]["content"]
-    assert "può dare altro (more_in_page)" in second_plan and "ritorna done" in second_plan
+    assert "può dare altro (more_in_page)" in second_plan and 'rispondi esattamente {"done": true}' in second_plan
 
 
 def test_the_planner_sees_the_summary_of_the_tool_not_its_metadata() -> None:
@@ -182,3 +182,82 @@ def test_a_composite_turn_with_pending_parts_and_an_offer_plans_once_per_step() 
     decision = orch.run(query="x", conversation_history=[])
 
     assert decision["tools"] == ["wikipedia_search", "tmdb_search"] and len(client.calls) == 3
+
+
+# --- the normal end of a turn is not an error ---------------------------------------------------------
+
+END_WITHOUT_A_TOOL = [
+    '{"done": true}',
+    '{"done": "true"}',
+    '{"done": "True"}',
+    '{"tool_name": null, "confidence": 1}',
+    '{"tool_name": ""}',
+    '{"tool_name": "done"}',
+    '{"tool_name": "none", "confidence": 0.9}',
+    '{"standalone_query": "q", "tool_name": null, "arguments": {}, "confidence": 0.9, "parts": [], "more_steps": false}',
+    "{}",
+    '{"done": false, "tool_name": null}',
+]
+
+
+@pytest.mark.parametrize("planner_output", END_WITHOUT_A_TOOL)
+def test_a_planner_that_names_no_tool_ends_the_turn_without_a_warning(planner_output) -> None:
+    from presenters.story_view import build_story
+    from turn import STEP_PLANNING, TraceStep
+
+    orch, tool, _ = _orch([_step("wikipedia_search", topic="X"), planner_output, "ok"], [{RESULT_FOLLOW_UP: OFFER}])
+    steps: list[TraceStep] = []
+
+    class Observer:
+        def step(self, step): steps.append(step)
+        def status(self, stage): pass
+        def answer_delta(self, text): pass
+
+    decision = orch.run(query="parlami di X", conversation_history=[], observer=Observer())
+
+    assert len(tool.params) == 1 and decision["planning"]["stop_reason"] == "done"
+    assert decision["planning"]["fallbacks"] == []
+    assert decision["final_answer"] == "ok"
+    # (The fake tool has no chunks, so "no results" is told; no planning line is.)
+    assert not [line for line in build_story(steps, "it") if "pianificare" in line.text or "Non ho cercato" in line.text]
+    assert not any(step.kind == STEP_PLANNING and step.data.get("fallbacks") for step in steps)
+
+
+@pytest.mark.parametrize(
+    ("planner_output", "stop_reason"),
+    [
+        ('{"tool_name": "not_a_tool", "confidence": 0.9}', "unknown_tool_or_low_confidence"),
+        ('{"tool_name": "wikipedia_search", "arguments": {"topic": "Y"}, "confidence": 0.1}', "unknown_tool_or_low_confidence"),
+        ("not json", "planner_failed"),
+        ('["done"]', "planner_failed"),
+        ('"done"', "planner_failed"),
+    ],
+)
+def test_a_real_planning_error_still_warns_and_still_answers(planner_output, stop_reason) -> None:
+    from presenters.story_view import build_story
+    from turn import TraceStep
+
+    orch, tool, _ = _orch([_step("wikipedia_search", topic="X"), planner_output, "ok"], [{RESULT_FOLLOW_UP: OFFER}])
+    steps: list[TraceStep] = []
+
+    class Observer:
+        def step(self, step): steps.append(step)
+        def status(self, stage): pass
+        def answer_delta(self, text): pass
+
+    decision = orch.run(query="parlami di X", conversation_history=[], observer=Observer())
+
+    assert len(tool.params) == 1 and decision["planning"]["stop_reason"] == stop_reason
+    assert decision["planning"]["fallbacks"] == ["next_step_failed"] and decision["final_answer"] == "ok"
+    assert any("Non ho potuto pianificare il passo successivo" in line.text for line in build_story(steps, "it"))
+
+
+def test_a_named_tool_with_a_missing_confidence_is_followed() -> None:
+    orch, tool, _ = _orch(
+        [_step("wikipedia_search", topic="X"), '{"tool_name": "wikipedia_search", "arguments": {"topic": "Y"}}', "ok"],
+        [{RESULT_FOLLOW_UP: OFFER}, {RESULT_FOLLOW_UP: NO_OFFER}],
+    )
+
+    decision = orch.run(query="parlami di X", conversation_history=[])
+
+    assert len(tool.params) == 2 and tool.params[1]["topic"] == "Y" and decision["planning"]["fallbacks"] == []
