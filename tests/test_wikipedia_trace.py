@@ -41,7 +41,8 @@ def test_the_summary_lists_what_was_read_what_was_not_and_the_keywords() -> None
 
     assert "[en] Park Chan-wook (confirmed): letti 5230/18420 caratteri." in text
     assert "Introduction* (800) · Career* (4430) · Awards (900)" in text and "Non lette: Awards (900)" in text
-    assert "«debut» lette; «awards» non lette (in: Awards); «dubbing» assenti dall'articolo" in text
+    assert "«debut» letta; «awards» non letta (in: Awards); «dubbing» non trovata nel testo." in text
+    assert "Una parola non trovata non prova che l'informazione manchi." in text
 
 
 def test_the_summary_says_why_more_could_help() -> None:
@@ -60,6 +61,7 @@ def test_a_lead_only_page_says_the_article_is_not_open_and_keywords_are_not_in_t
     text = _summary([lead], reasons=("more_in_page",))
 
     assert "Lette solo le introduzioni" in text and "«debut» non nell'introduzione (articolo non ancora aperto)" in text
+    assert "non prova" not in text
 
 
 def test_the_summary_stays_within_its_limit() -> None:

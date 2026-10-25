@@ -96,8 +96,9 @@ class WikipediaToolInput(BaseModel):
         default_factory=list,
         max_length=MAX_KEYWORDS,
         description=(
-            "Up to 6 distinctive words of the question, translated into the language of the edition "
-            "(English by default): they pick the sections and show which details the page lacks. Empty if none."
+            "Up to 6 distinctive words of the question (names, titles, rare terms) in the language of the "
+            "edition (English by default); never generic ones like episodes, actors, cast, order. They pick "
+            "the sections and show what the page lacks. Empty if none."
         ),
     )
     sections: list[str] = Field(

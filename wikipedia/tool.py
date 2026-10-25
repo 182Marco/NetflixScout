@@ -29,7 +29,15 @@ from .models import (
     normalize_text,
 )
 from .queries import article_params, lookup_params, search_term
-from .relevance import Screened, follow_up_reasons, lookup_hints, match_title, screen_pages, verification
+from .relevance import (
+    Screened,
+    follow_up_reasons,
+    keywords_mostly_absent,
+    lookup_hints,
+    match_title,
+    screen_pages,
+    verification,
+)
 from .sections import (
     clean_extract,
     keyword_report,
@@ -288,7 +296,7 @@ class _Run:
         hints = lookup_hints(self.request, self.kept, self.dropped) if self.searched_ok else []
         untried = [language for language in LANGUAGES if language not in state.languages_tried]
         other_edition = untried[0] if untried else None
-        absent = any(row["status"] == "absent" for page in self.pages for row in page.keywords or [])
+        absent = any(keywords_mostly_absent(page.keywords) for page in self.pages)
         reasons = [] if self.error == WikipediaRateLimited.code else follow_up_reasons(
             pages=self.pages,
             searched=self.searched_ok,

@@ -28,9 +28,9 @@ REASON_TEXT = {
 }
 
 KEYWORD_TEXT = {
-    "read": "lette",
-    "unread": "non lette",
-    "absent": "assenti dall'articolo",
+    "read": "letta",
+    "unread": "non letta",
+    "absent": "non trovata nel testo",
     "not_in_lead": "non nell'introduzione (articolo non ancora aperto)",
 }
 
@@ -86,7 +86,8 @@ def _keywords_line(page: PageResult) -> str | None:
         if row["status"] == "unread" and row.get("sections"):
             text += " (in: " + ", ".join(row["sections"]) + ")"
         parts.append(text)
-    return "  Parole chiave: " + "; ".join(parts)
+    note = " Una parola non trovata non prova che l'informazione manchi." if any(r["status"] == "absent" for r in page.keywords) else ""
+    return "  Parole chiave: " + "; ".join(parts) + "." + note
 
 
 def build_planner_summary(

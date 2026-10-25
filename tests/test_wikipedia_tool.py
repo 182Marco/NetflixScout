@@ -376,7 +376,7 @@ def test_an_absent_keyword_in_the_whole_english_article_offers_the_italian_editi
     rows = {row["keyword"]: row["status"] for row in _meta(result)["pages"][0]["keywords"]}
     assert rows == {"debut": "read", "dubbing": "absent"}
     assert result[RESULT_FOLLOW_UP]["available"] and result[RESULT_FOLLOW_UP]["reasons"] == ["keywords_absent"]
-    assert "«dubbing» assenti dall'articolo" in result[RESULT_FOLLOW_UP]["summary"]
+    assert "«dubbing» non trovata nel testo" in result[RESULT_FOLLOW_UP]["summary"]
     assert transport.languages == ["en", "en"]  # the search and the article, English only
 
 
@@ -556,3 +556,42 @@ def test_the_pages_shown_never_exceed_max_results_after_the_unrelated_ones_are_d
 
     assert transport.calls[0][1]["gsrlimit"] == "6"
     assert len(_meta(result)["pages"]) == 3 and _meta(result)["not_relevant"] == 4
+
+
+# --- the other edition is offered only on real evidence ------------------------------------------------
+
+
+def test_generic_keywords_never_make_the_italian_edition_look_necessary() -> None:
+    tool, _ = _en_tool()
+
+    result = run_tool(tool, depth="full", keywords=["episodes", "segments", "actors", "release order"], **{TOOL_PARAM_TURN_ID: "a"})
+
+    assert _meta(result)["pages"][0]["keywords"] == []
+    assert result[RESULT_FOLLOW_UP]["available"] is False and result[RESULT_FOLLOW_UP]["reasons"] == []
+
+
+def test_one_missing_word_among_several_found_is_a_different_wording_not_a_missing_fact() -> None:
+    tool, _ = _en_tool()
+
+    result = run_tool(tool, depth="full", keywords=["debut", "Joint Security Area", "dubbing"], **{TOOL_PARAM_TURN_ID: "a"})
+
+    statuses = {r["keyword"]: r["status"] for r in _meta(result)["pages"][0]["keywords"]}
+    assert statuses == {"debut": "read", "Joint Security Area": "read", "dubbing": "absent"}
+    assert result[RESULT_FOLLOW_UP]["reasons"] == []
+
+
+def test_half_of_the_distinctive_keywords_missing_offers_the_other_edition() -> None:
+    tool, _ = _en_tool()
+
+    result = run_tool(tool, depth="full", keywords=["debut", "dubbing", "episodes"], **{TOOL_PARAM_TURN_ID: "a"})
+
+    assert result[RESULT_FOLLOW_UP]["reasons"] == ["keywords_absent"]  # "episodes" is generic: 1 of 2 absent
+
+
+def test_an_inflected_form_counts_as_found() -> None:
+    tool, _ = _en_tool()
+
+    result = run_tool(tool, depth="full", keywords=["debuts", "filmographies"], **{TOOL_PARAM_TURN_ID: "a"})
+
+    assert {r["status"] for r in _meta(result)["pages"][0]["keywords"]} == {"read"}
+    assert result[RESULT_FOLLOW_UP]["reasons"] == []

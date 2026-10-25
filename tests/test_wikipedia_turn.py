@@ -290,6 +290,6 @@ def test_an_absent_detail_in_the_whole_english_article_lets_the_planner_try_ital
 
     events = _events(bot)
 
-    assert "«dubbing» assenti dall'articolo" in client.calls[1]["input"][-1]["content"]
+    assert "«dubbing» non trovata nel testo" in client.calls[1]["input"][-1]["content"]
     assert [s["pages"][0]["language"] for s in _steps(events)] == ["en", "it"]
     assert transport.languages == ["en", "en", "it", "it"]

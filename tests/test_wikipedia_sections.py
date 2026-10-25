@@ -5,6 +5,7 @@ import pytest
 from wikipedia.models import Section
 from wikipedia.sections import (
     count_term,
+    is_distinctive,
     cut_at_sentence,
     is_prose,
     keyword_report,
@@ -260,9 +261,11 @@ def test_keyword_report_tells_read_unread_and_absent() -> None:
 def test_with_only_the_lead_known_nothing_is_called_absent() -> None:
     lead = [Section(title="Introduction", level=1, text="Park Chan-wook is a South Korean film director.")]
 
-    rows = keyword_report(["director", "birthplace"], lead, {"introduction"}, whole_article=False)
+    rows = keyword_report(["Seoul", "birthplace"], lead, {"introduction"}, whole_article=False)
 
-    assert [(r["keyword"], r["status"]) for r in rows] == [("director", "read"), ("birthplace", "not_in_lead")]
+    assert [(r["keyword"], r["status"]) for r in rows] == [("Seoul", "not_in_lead"), ("birthplace", "not_in_lead")]
+    lead = [Section(title="Introduction", level=1, text="Park Chan-wook is a South Korean film director born in Seoul.")]
+    assert [r["status"] for r in keyword_report(["Seoul"], lead, {"introduction"}, whole_article=False)] == ["read"]
 
 
 def test_a_keyword_found_only_in_a_section_not_delivered_lists_at_most_three() -> None:
@@ -271,3 +274,47 @@ def test_a_keyword_found_only_in_a_section_not_delivered_lists_at_most_three() -
     (row,) = keyword_report(["oscar"], sections, set(), whole_article=True)
 
     assert row["status"] == "unread" and row["sections"] == ["Part 0", "Part 1", "Part 2"]
+
+
+# --- distinctive keywords and inflections ---------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("keyword", "expected"),
+    [
+        ("episodes", False), ("segments", False), ("actors", False), ("release order", False), ("cast", False),
+        ("three stories", False), ("main characters", False), ("episodi", False), ("registi", False),
+        ("Joint Security Area", True), ("Hoichi", True), ("military service", True), ("1992", True),
+        ("Sympathy for Mr. Vengeance", True), ("dubbing", True), ("", False),
+    ],
+)
+def test_only_keywords_that_name_something_specific_are_distinctive(keyword, expected) -> None:
+    assert is_distinctive(keyword) is expected
+
+
+@pytest.mark.parametrize(
+    ("text", "term", "count"),
+    [
+        ("the episode is short", "episodes", 1),
+        ("two episodes aired", "episode", 1),
+        ("he directed and directs", "directing", 2),
+        ("military services were", "military service", 1),
+        ("a glass of glasses", "glass", 2),
+        ("class and classes", "cla", 0),
+        ("class and classes", "class", 2),
+        ("this is it", "its", 0),
+    ],
+)
+def test_matching_tolerates_inflections_but_not_unrelated_words(text, term, count) -> None:
+    assert count_term(text, term) == count
+
+
+def test_generic_keywords_are_left_out_of_the_report_and_still_rank_sections() -> None:
+    sections = _en()
+
+    rows = keyword_report(["episodes", "actors", "Joint Security Area", "dubbing"], sections, {"career"}, whole_article=True)
+
+    assert [(r["keyword"], r["status"]) for r in rows] == [("Joint Security Area", "read"), ("dubbing", "absent")]
+    ranked = select_sections(sections, depth="sections", wanted=[], terms=scoring_terms(["career"], "q", "x"), already=set(),
+                             budget=10_000, language="en")
+    assert [d.section.title for d in ranked.delivered] == ["Career"]

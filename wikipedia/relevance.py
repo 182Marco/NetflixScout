@@ -128,6 +128,16 @@ def lookup_hints(request: WikipediaToolInput, kept: list[Screened], dropped: dic
     return hints
 
 
+def keywords_mostly_absent(rows: list[dict[str, object]] | None) -> bool:
+    """Enough evidence that the edition lacks the detail: at least one distinctive keyword, and at
+    least half of them found in no section of the whole article. One missing word among several that
+    were found is more likely a different wording than a missing fact."""
+    if not rows:
+        return False
+    absent = sum(row["status"] == "absent" for row in rows)
+    return absent > 0 and absent * 2 >= len(rows)
+
+
 def follow_up_reasons(
     *,
     pages: list[PageResult],
@@ -147,8 +157,9 @@ def follow_up_reasons(
     - `more_in_page`: the page has sections not handed out; after a lead it needs the article
       (an HTTP call), once the article is read the sections come from the cache;
     - `omitted_by_budget`: something chosen did not fit the context budget;
-    - `keywords_absent`: a keyword of the question is in no section of the article read and the other
-      edition has not been asked yet (a detail that may be local); needs a free HTTP call.
+    - `keywords_absent`: at least half of the distinctive keywords are in no section of the article read
+      (`keywords_mostly_absent`) and the other edition has not been asked yet (a detail that may be
+      local); needs a free HTTP call.
     No reason is given when the room (calls or context) to act on it is gone.
     """
     room = context_left >= MIN_FOLLOW_UP_CHARS

@@ -39,6 +39,33 @@ def clean_extract(text: str) -> str:
     )
 
 
+# Words that say what kind of thing is asked, not which thing: found (or not) in almost any article,
+# so their absence proves nothing. They still rank sections; they are not evidence in `keyword_report`.
+GENERIC_KEYWORDS = frozenset(
+    (
+        "episode episodes segment segments short shorts actor actors actress actresses cast film films movie movies "
+        "story stories plot character characters director directors order release released change changes difference "
+        "differences narrative narratives role roles part parts title titles year years information detail details "
+        "list main principal major one two three four five six seven eight nine ten first second third "
+        "episodio episodi segmento segmenti cortometraggio cortometraggi attore attori attrice attrici storia storie "
+        "trama personaggio personaggi regista registi ordine uscita cambiamento cambiamenti differenza differenze "
+        "ruolo ruoli parte parti titolo titoli anno anni informazioni dettagli elenco principale principali "
+        "uno due tre quattro cinque sei sette otto nove dieci primo secondo terzo"
+    ).split()
+)
+
+
+def is_distinctive(keyword: str) -> bool:
+    """A keyword names something specific (a name, a title, a rare term): at least one of its words is
+    neither generic nor a function word."""
+    return any(
+        (len(word) >= _TERM_MIN_CHARS or any(char.isdigit() for char in word))
+        and word not in GENERIC_KEYWORDS
+        and word not in _STOPWORDS
+        for word in normalize_text(keyword).split()
+    )
+
+
 def lead_title(language: str) -> str:
     return LEAD_TITLES.get(language, LEAD_TITLES["en"])
 
@@ -84,15 +111,40 @@ def question_terms(query: str, topic: str) -> list[str]:
     return [term for term in query_terms(query) if term not in subject]
 
 
+def _stem(word: str) -> str:
+    """A crude root so that "episodes"/"episode", "directed"/"directs"/"direct" meet. Only for matching."""
+    if len(word) > 5 and word.endswith("ies"):
+        return word[:-3] + "y"
+    if len(word) > 5 and word.endswith("ing"):
+        return word[:-3]
+    if len(word) > 4 and word.endswith("ed"):
+        return word[:-2]
+    if len(word) > 4 and word.endswith(("sses", "shes", "ches", "xes", "zes")):
+        return word[:-2]
+    if len(word) > 3 and word.endswith("s") and not word.endswith("ss"):
+        return word[:-1]
+    return word
+
+
+def _stem_text(text: str) -> str:
+    return " ".join(_stem(word) for word in text.split())
+
+
 def count_term(text: str, term: str) -> int:
-    """Occurrences of `term` in `text` (both normalized): a word matches itself and, from four
-    letters, longer words that start with it ("direct" finds "directed"); a phrase matches whole."""
+    """Occurrences of `term` in `text` (both normalized). A word matches itself, its inflections
+    ("episode" finds "episodes", "direct" finds "directed") and, from four letters, longer words that
+    start with it; a phrase matches its words in order, inflected or not."""
     if not term:
         return 0
     if " " in term:
-        return f" {text} ".count(f" {term} ")
+        return f" {_stem_text(text)} ".count(f" {_stem_text(term)} ")
+    root = _stem(term)
     prefix = len(term) >= _PREFIX_MIN_CHARS
-    return sum(1 for word in text.split() if word == term or (prefix and word.startswith(term)))
+    return sum(
+        1
+        for word in text.split()
+        if word == term or _stem(word) == root or (prefix and word.startswith(term))
+    )
 
 
 def scoring_terms(keywords: list[str], query: str, topic: str) -> list[str]:
@@ -115,14 +167,16 @@ def score(section: Section, terms: list[str]) -> int:
 def keyword_report(
     keywords: list[str], sections: list[Section], delivered: set[str], *, whole_article: bool
 ) -> list[dict[str, object]]:
-    """Where each keyword stands, so a later step knows what to read and what the edition lacks.
+    """Where each distinctive keyword stands (generic ones prove nothing and are left out), so a later
+    step knows what to read and what the edition lacks.
 
     `read`: in a section already handed out; `unread`: only in other sections (listed, at most
-    three); `absent`: in no section of the article; with only the lead known (`whole_article`
-    false) the last two are `not_in_lead`, since the rest of the page was not seen.
+    three); `absent`: the words are in no section of the article (the idea may still be there in
+    other words); with only the lead known (`whole_article` false) the last two are `not_in_lead`,
+    since the rest of the page was not seen.
     """
     rows: list[dict[str, object]] = []
-    for keyword in keywords:
+    for keyword in (k for k in keywords if is_distinctive(k)):
         term = normalize_text(keyword)
         found = [s for s in sections if count_term(normalize_text(f"{s.title} {s.text}"), term)]
         if any(normalize_text(s.title) in delivered for s in found):
