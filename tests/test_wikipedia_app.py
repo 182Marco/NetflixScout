@@ -73,7 +73,7 @@ def test_rule_1c_defines_the_boundaries_with_the_other_tools() -> None:
     for topic in ("biografia approfondita", "storia", "produzione", "movimenti"):
         assert topic in rule
     assert "restano a tmdb_search" in rule and "i video a youtube_search" in rule
-    assert "non usarlo come ripiego" in rule
+    assert "non usare wikipedia_search come ripiego" in rule
 
 
 def test_rule_1c_explains_the_depth_the_arguments_and_when_to_go_on() -> None:
@@ -82,6 +82,32 @@ def test_rule_1c_explains_the_depth_the_arguments_and_when_to_go_on() -> None:
     for word in ("intro", "sections", "full", "page e sections solo con i titoli già restituiti", "ritorna done"):
         assert word in rule
     assert "year solo se compare nella richiesta" in rule and "language resta null" in rule
+
+
+def test_rule_1c_lists_what_tmdb_does_not_have_and_gives_the_two_tools_complementary_roles() -> None:
+    rule = _rule("1c", "2")
+
+    for trigger in ("quale regista o attore appartiene a ciascun segmento", "film antologico o a episodi",
+                    "si alternano registri o formati", "romanzo o l'opera da cui deriva", "trama dettagliata"):
+        assert trigger in rule
+    assert "tmdb_search da solo non basta" in rule
+    assert "il primo tool è wikipedia_search e tmdb_search non serve" in rule
+    assert "elenca in parts sia tmdb_search sia wikipedia_search" in rule
+    assert "usa nel passo Wikipedia il titolo originale che ha restituito" in rule
+    assert "film non antologico, senza altre richieste, restano a tmdb_search" in rule
+
+
+def test_rule_1_sends_the_parts_tmdb_lacks_to_rule_1c_without_naming_the_other_tool() -> None:
+    rule = _rule("1", "1b")
+
+    assert "TMDb non fornisce la struttura interna di un film antologico o a episodi" in rule
+    assert "per queste parti vale la regola 1c" in rule
+    assert "wikipedia" not in rule.lower()
+
+
+def test_the_final_rules_tell_the_answer_about_unopened_candidates() -> None:
+    assert "metadata hanno candidates" in FINAL_RULES[WIKIPEDIA_TOOL_NAME]
+    assert "non attribuire loro fatti" in FINAL_RULES[WIKIPEDIA_TOOL_NAME]
 
 
 def test_rule_1c_starts_in_english_and_leaves_italian_to_a_later_decision() -> None:

@@ -372,6 +372,55 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
             WikipediaExpectation("doppiaggio", kinds=("topic",), languages=(None, "en", "it")),
         ),
     ),
+    # Regressions of the live run (2026-10-25): TMDb alone cannot say which director made which segment
+    # of an anthology, nor how live action and animation alternate; these stopped at `tmdb_search`.
+    RoutingCase(
+        "Quali cortometraggi compongono Three Extremes (2004) e chi ha diretto ciascun segmento?",
+        WIKIPEDIA,
+        expected_wikipedia=WikipediaExpectation(
+            "three extremes", kinds=("film",), depths=("sections", "full"), allowed=(("year", "2004"),)
+        ),
+    ),
+    RoutingCase(
+        "Chi ha diretto i singoli segmenti di Paris, je t'aime (2006) e quanti sono complessivamente?",
+        WIKIPEDIA,
+        expected_wikipedia=WikipediaExpectation(
+            "paris", kinds=("film",), depths=("sections", "full"), allowed=(("year", "2006"),)
+        ),
+    ),
+    RoutingCase(
+        "In The Congress (2013), come si alternano la parte in live action e quella animata, e quale "
+        "ruolo ha il personaggio interpretato da Robin Wright?",
+        WIKIPEDIA,
+        expected_wikipedia=WikipediaExpectation(
+            "congress", kinds=("film",), depths=("sections", "full"), allowed=(("year", "2013"),)
+        ),
+    ),
+    # A comparison with the work a film comes from.
+    RoutingCase(
+        "Quali sono i principali cambiamenti narrativi tra il romanzo Solaris di Stanisław Lem e il "
+        "film di Tarkovskij del 1972?",
+        WIKIPEDIA,
+        expected_wikipedia=WikipediaExpectation(
+            "solaris", kinds=("film", "topic"), depths=("sections", "full"), allowed=(("year", "1972"),)
+        ),
+    ),
+    # Controls: structured data TMDb gives well stays on TMDb, also for the same films.
+    RoutingCase(
+        "Quanto dura Paris, je t'aime?",
+        TMDB,
+        expected_request=RequestExpectation("movie_details", fields=(("title", "paris"),)),
+    ),
+    RoutingCase(
+        "Chi recita in The Congress?",
+        TMDB,
+        expected_request=RequestExpectation("movie_details", fields=(("title", "congress"),)),
+    ),
+    RoutingCase(
+        "Chi ha diretto Solaris, quello del 1972?",
+        TMDB,
+        expected_request=RequestExpectation("movie_details", fields=(("title", "solaris"),)),
+    ),
     # Boundary: a filmography is a TMDb search by person, not an encyclopedic reading.
     RoutingCase(
         "Dammi la filmografia di Park Chan-wook",

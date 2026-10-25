@@ -23,7 +23,7 @@ def _arguments_for(option: WikipediaExpectation, **extra) -> dict:
 
 
 def test_there_are_wikipedia_cases_with_a_follow_up_and_a_boundary_with_tmdb() -> None:
-    assert len(WIKI_CASES) == 5
+    assert len(WIKI_CASES) == 9
     assert any(case.history for case in WIKI_CASES)
     assert BY_QUESTION["Dammi la filmografia di Park Chan-wook"].expected_tool == TMDB
 
@@ -105,3 +105,32 @@ def test_the_planned_arguments_are_validated_against_the_tools_own_schema() -> N
     schema = WikipediaTool.__dataclass_fields__["input_schema"].default_factory()
 
     assert {"topic", "kind", "year", "language", "depth", "page", "sections", "keywords"} <= set(schema["properties"])
+
+
+REGRESSIONS = {
+    "Q1": "Quali cortometraggi compongono Three Extremes (2004) e chi ha diretto ciascun segmento?",
+    "Q5": "Chi ha diretto i singoli segmenti di Paris, je t'aime (2006) e quanti sono complessivamente?",
+    "Q8": "In The Congress (2013), come si alternano la parte in live action e quella animata, e quale "
+          "ruolo ha il personaggio interpretato da Robin Wright?",
+}
+
+
+def test_the_live_regressions_must_start_from_wikipedia_not_from_tmdb() -> None:
+    for name, question in REGRESSIONS.items():
+        case = BY_QUESTION[question]
+        assert case.expected_tool == WIKIPEDIA, name
+        option = case.expected_wikipedia
+        assert option.kinds == ("film",) and "intro" not in option.depths
+
+
+def test_a_plan_that_stays_on_the_given_year_passes_and_an_invented_year_fails() -> None:
+    case = BY_QUESTION[REGRESSIONS["Q1"]]
+    plan = {"topic": "Three Extremes", "kind": "film", "depth": "full", "year": 2004, "keywords": ["Fruit Chan"]}
+
+    assert check_any_wikipedia(case.expected_wikipedia, plan, "q") is None
+    assert check_any_wikipedia(case.expected_wikipedia, {**plan, "year": 2005}, "q") == "year not given in the conversation"
+
+
+def test_simple_structured_questions_about_the_same_films_are_tmdb_controls() -> None:
+    for question in ("Quanto dura Paris, je t'aime?", "Chi recita in The Congress?", "Chi ha diretto Solaris, quello del 1972?"):
+        assert BY_QUESTION[question].expected_tool == TMDB and BY_QUESTION[question].expected_request is not None

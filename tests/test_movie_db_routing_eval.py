@@ -124,11 +124,11 @@ def test_cases_cover_every_tool_and_follow_ups() -> None:
     assert tools.count(YOUTUBE) == 7
     assert any(case.history and case.expected_tool == TMDB for case in ROUTING_CASES)
     assert any(case.history and case.expected_tool == YOUTUBE for case in ROUTING_CASES)
-    assert len(ROUTING_CASES) == 49  # 43 before the Wikipedia cases (5 for it, 1 boundary for TMDb)
+    assert len(ROUTING_CASES) == 56  # 43 before the Wikipedia cases (9 for it, 4 more for TMDb)
 
 
 def test_every_tmdb_case_has_a_valid_request_expectation() -> None:
-    assert len(TMDB_CASES) == 19  # 18 before the Wikipedia boundary case (filmography)
+    assert len(TMDB_CASES) == 22  # 18 before the Wikipedia cases (filmography boundary and 3 controls)
     for case in TMDB_CASES:
         assert case.expected_request is not None
         options = case.expected_request if isinstance(case.expected_request, tuple) else (case.expected_request,)
