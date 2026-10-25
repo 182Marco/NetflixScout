@@ -35,8 +35,8 @@ def _requests() -> list[tuple[str, str, dict[str, str]]]:
     person = WikipediaToolInput(query="x", topic="Park Chan-wook", kind="person")
     homonym = WikipediaToolInput(query="x", topic="Parasite", kind="film")
     return [
-        ("lookup of a person", "it", lookup_params(person, max_results=3)),
-        ("whole article", "it", article_params("Park Chan-wook")),
+        ("lookup of a person", "en", lookup_params(person, max_results=3)),
+        ("whole article", "en", article_params("Park Chan-wook")),
         ("lookup of a homonym title", "en", lookup_params(homonym, max_results=5)),
     ]
 

@@ -8,7 +8,7 @@ arguments are also validated offline as `TmdbToolInput` (no HTTP) and must conta
 case's `expected_request`; for YouTube cases they are validated as `YoutubeToolInput` and
 must match the case's `expected_video` (kinds, and no year, people or titles not given); for
 Wikipedia cases they are validated as `WikipediaToolInput` and must match `expected_wikipedia`
-(topic, kind, depth, and no year, language, page or sections not given).
+(topic, kind, depth, language: English or null unless the case allows `it`; no year, page or sections not given).
 
     python -m movie_db.harness.evaluation.run_routing_eval --live
     python -m movie_db.harness.evaluation.run_routing_eval --live --tool tmdb_search
@@ -43,7 +43,7 @@ from .routing_cases import (
 # Optional `youtube_search` fields that must come from the request or the conversation.
 _VIDEO_GIVEN_FIELDS = ("year", "director", "cast", "alternative_titles")
 # Optional `wikipedia_search` fields that must come from the request or the conversation.
-_WIKIPEDIA_GIVEN_FIELDS = ("year", "language", "page", "sections")
+_WIKIPEDIA_GIVEN_FIELDS = ("year", "page", "sections")
 
 
 class RecordingClient:
@@ -194,6 +194,8 @@ def _wikipedia_problem(expected: WikipediaExpectation, request: WikipediaToolInp
         return f"kind {request.kind.value!r} not in {expected.kinds}"
     if request.depth.value not in expected.depths:
         return f"depth {request.depth.value!r} not in {expected.depths}"
+    if request.language not in expected.languages:
+        return f"language {request.language!r} not in {expected.languages}"
     for name in _WIKIPEDIA_GIVEN_FIELDS:
         value = getattr(request, name)
         values = value if isinstance(value, list) else [] if value is None else [value]

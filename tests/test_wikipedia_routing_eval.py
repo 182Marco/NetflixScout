@@ -23,7 +23,7 @@ def _arguments_for(option: WikipediaExpectation, **extra) -> dict:
 
 
 def test_there_are_wikipedia_cases_with_a_follow_up_and_a_boundary_with_tmdb() -> None:
-    assert len(WIKI_CASES) == 4
+    assert len(WIKI_CASES) == 5
     assert any(case.history for case in WIKI_CASES)
     assert BY_QUESTION["Dammi la filmografia di Park Chan-wook"].expected_tool == TMDB
 
@@ -54,7 +54,7 @@ def test_a_coherent_plan_passes() -> None:
         ({"topic": "Park Chan-wook", "kind": "film", "depth": "full"}, "kind 'film' not in ('person',)"),
         ({"topic": "Park Chan-wook", "kind": "person", "depth": "intro"}, "depth 'intro' not in ('sections', 'full')"),
         ({"topic": "Park Chan-wook", "kind": "person", "depth": "full", "year": 1963}, "year not given in the conversation"),
-        ({"topic": "Park Chan-wook", "kind": "person", "depth": "full", "language": "en"}, "language not given in the conversation"),
+        ({"topic": "Park Chan-wook", "kind": "person", "depth": "full", "language": "it"}, "language 'it' not in (None, 'en')"),
         ({"topic": "Park Chan-wook", "kind": "person", "depth": "full", "page": "Park Chan-wook"}, "page not given in the conversation"),
         ({"topic": "Park Chan-wook", "kind": "person", "depth": "full", "sections": ["Carriera"]}, "sections not given in the conversation"),
         ({"topic": "Park Chan-wook", "kind": "person", "depth": "everything"}, None),
@@ -66,6 +66,26 @@ def test_invalid_or_invented_arguments_fail(plan, problem) -> None:
     result = check_any_wikipedia(PARK.expected_wikipedia, plan, "q")
 
     assert result is not None and (problem is None or result == problem)
+
+
+def test_english_is_the_default_search_even_for_an_italian_question() -> None:
+    for case in (PARK, BY_QUESTION["Com'è nata la Nouvelle Vague e quali sono state le sue influenze?"]):
+        (option,) = case.expected_wikipedia if isinstance(case.expected_wikipedia, tuple) else (case.expected_wikipedia,)
+        assert option.languages == (None, "en")
+        plan = _arguments_for(option)
+        assert check_wikipedia(option, plan, "q") is None
+        assert check_wikipedia(option, {**plan, "language": "en"}, "q") is None
+        assert check_wikipedia(option, {**plan, "language": "it"}, "q") == "language 'it' not in (None, 'en')"
+
+
+def test_a_local_topic_may_ask_for_the_italian_edition_and_keywords_are_not_checked_as_given() -> None:
+    local = BY_QUESTION["Raccontami la storia del doppiaggio italiano nel cinema degli anni Trenta"]
+    plan = {"topic": "Italian dubbing", "kind": "topic", "depth": "full", "keywords": ["dubbing", "1930s"]}
+
+    assert check_any_wikipedia(local.expected_wikipedia, plan, "q") is None
+    assert check_any_wikipedia(local.expected_wikipedia, {**plan, "language": "it"}, "q") is None
+    assert check_any_wikipedia(local.expected_wikipedia, {**plan, "language": "en"}, "q") is None
+    assert check_any_wikipedia(local.expected_wikipedia, {**plan, "topic": "Neorealism"}, "q") is not None
 
 
 def test_a_page_or_section_copied_from_the_conversation_is_accepted() -> None:
@@ -84,4 +104,4 @@ def test_the_turn_language_is_ignored_like_the_tool_does() -> None:
 def test_the_planned_arguments_are_validated_against_the_tools_own_schema() -> None:
     schema = WikipediaTool.__dataclass_fields__["input_schema"].default_factory()
 
-    assert {"topic", "kind", "year", "language", "depth", "page", "sections"} <= set(schema["properties"])
+    assert {"topic", "kind", "year", "language", "depth", "page", "sections", "keywords"} <= set(schema["properties"])

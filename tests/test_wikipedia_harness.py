@@ -16,8 +16,8 @@ def test_the_smoke_requests_are_the_ones_the_tool_builds() -> None:
 
     assert len(requests) == 3
     language, lookup = requests["lookup of a person"]
-    assert language == "it" and lookup["generator"] == "search" and lookup["gsrsearch"] == '"Park Chan-wook"'
-    assert requests["whole article"][1]["titles"] == "Park Chan-wook"
+    assert language == "en" and lookup["generator"] == "search" and lookup["gsrsearch"] == '"Park Chan-wook"'
+    assert requests["whole article"][0] == "en" and requests["whole article"][1]["titles"] == "Park Chan-wook"
     assert requests["lookup of a homonym title"][1]["gsrsearch"] == '"Parasite" film'
 
 

@@ -52,7 +52,8 @@ class WikipediaExpectation:
     """Planned `wikipedia_search` arguments that answer the question.
 
     The arguments must validate as `WikipediaToolInput`, `topic` must contain the lowercase
-    fragment, `kind` and `depth` must be among those listed. `year`, `language`, `page` and
+    fragment, `kind`, `depth` and `language` must be among those listed (searches start in English
+    whatever the language of the question, so by default only null or `en` pass). `year`, `page` and
     `sections` must stay empty unless `allowed` lists them: then each planned value must contain
     one of the fragments given for that field (values copied from the request or the
     conversation, never invented).
@@ -61,6 +62,7 @@ class WikipediaExpectation:
     topic: str
     kinds: tuple[str, ...]
     depths: tuple[str, ...] = ("intro", "sections", "full")
+    languages: tuple[str | None, ...] = (None, "en")
     allowed: tuple[tuple[str, str], ...] = ()
 
 
@@ -359,6 +361,15 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
         standalone_must_contain=("park chan-wook",),
         expected_wikipedia=WikipediaExpectation(
             "park chan-wook", kinds=("person",), depths=("sections", "full"), allowed=(("page", "park chan-wook"),)
+        ),
+    ),
+    # A local topic: the Italian edition may be asked straight away, English is fine too.
+    RoutingCase(
+        "Raccontami la storia del doppiaggio italiano nel cinema degli anni Trenta",
+        WIKIPEDIA,
+        expected_wikipedia=(
+            WikipediaExpectation("dubbing", kinds=("topic",), languages=(None, "en", "it")),
+            WikipediaExpectation("doppiaggio", kinds=("topic",), languages=(None, "en", "it")),
         ),
     ),
     # Boundary: a filmography is a TMDb search by person, not an encyclopedic reading.
