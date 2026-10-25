@@ -203,6 +203,20 @@ CONFIG = {
                 "senza proporne uno. Non mescolare link TMDb e YouTube. Rispondi in modo conciso."
             ),
         },
+        # Last release year each local source covers fully; measured by `data_coverage.py`
+        # (tests/test_data_coverage.py checks these values against the datasets). The planner
+        # does not start from a source for films released after its year.
+        "data_coverage": {
+            "rag_search": {
+                "last_complete_year": 2012,
+                "note": "CMU Movie Summary Corpus, dump di Wikipedia del 2 novembre 2012; "
+                "dopo il 2012 solo pochi titoli annunciati",
+            },
+            "movie_db_search": {
+                "last_complete_year": 2022,
+                "note": "MovieLens 32M, voti fino al 12 ottobre 2023; il 2023 è parziale",
+            },
+        },
         "max_iterations": 3,
         "max_execution_time": 30,
         "token_budget": 60000,
