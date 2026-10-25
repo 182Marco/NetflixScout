@@ -4,12 +4,15 @@ import pytest
 
 from wikipedia.models import Section
 from wikipedia.sections import (
+    count_term,
     cut_at_sentence,
     is_prose,
+    keyword_report,
     outline,
     query_terms,
     question_terms,
     score,
+    scoring_terms,
     select_sections,
     split_sections,
 )
@@ -195,3 +198,76 @@ def test_outline_lists_prose_sections_with_their_state() -> None:
 @pytest.mark.parametrize("depth", ["intro", "sections", "full"])
 def test_selection_is_deterministic(depth) -> None:
     assert _select(depth, terms=["carriera"]) == _select(depth, terms=["carriera"])
+
+
+# --- keywords: matching, ranking and the report -------------------------------------------------
+
+EN_ARTICLE = """Park Chan-wook is a South Korean film director.
+
+== Early life ==
+Born in Seoul in 1963, he studied philosophy at Sogang University.
+
+== Career ==
+He debuted in 1992. His breakthrough was Joint Security Area, which he directed in 2000.
+
+== Filmography ==
+List of films directed.
+"""
+
+
+def _en():
+    return split_sections(EN_ARTICLE, "en")
+
+
+def test_count_term_matches_whole_words_prefixes_from_four_letters_and_phrases() -> None:
+    assert count_term("he directed films and directs", "direct") == 2
+    assert count_term("he directed", "dir") == 0  # too short for a prefix
+    assert count_term("he dir the film", "dir") == 1
+    assert count_term("military service in seoul", "military service") == 1
+    assert count_term("a military and service", "military service") == 0
+    assert count_term("anything", "") == 0
+
+
+def test_scoring_terms_put_the_planners_keywords_first_and_skip_the_topic() -> None:
+    terms = scoring_terms(["Early Life", "birth"], "Dove è nato Park Chan-wook?", "Park Chan-wook")
+
+    assert terms == ["early life", "birth", "dove", "nato"]
+
+
+def test_english_keywords_pick_the_right_section_for_an_italian_question() -> None:
+    sections = _en()
+
+    without = select_sections(sections, depth="sections", wanted=[], terms=question_terms("Quando ha esordito?", "Park Chan-wook"),
+                              already=set(), budget=10_000, language="en")
+    with_keywords = select_sections(sections, depth="sections", wanted=[], terms=scoring_terms(["debut", "breakthrough"], "Quando ha esordito?", "Park Chan-wook"),
+                                    already=set(), budget=10_000, language="en")
+
+    assert [d.section.title for d in without.delivered] == ["Introduction"]  # nothing matches: the lead
+    assert [d.section.title for d in with_keywords.delivered] == ["Career"]
+
+
+def test_keyword_report_tells_read_unread_and_absent() -> None:
+    rows = keyword_report(["philosophy", "military service", "Joint Security", "dubbing"], _en(), {"early life"}, whole_article=True)
+
+    assert {r["keyword"]: (r["status"], r["sections"]) for r in rows} == {
+        "philosophy": ("read", []),
+        "military service": ("absent", []),
+        "Joint Security": ("unread", ["Career"]),
+        "dubbing": ("absent", []),
+    }
+
+
+def test_with_only_the_lead_known_nothing_is_called_absent() -> None:
+    lead = [Section(title="Introduction", level=1, text="Park Chan-wook is a South Korean film director.")]
+
+    rows = keyword_report(["director", "birthplace"], lead, {"introduction"}, whole_article=False)
+
+    assert [(r["keyword"], r["status"]) for r in rows] == [("director", "read"), ("birthplace", "not_in_lead")]
+
+
+def test_a_keyword_found_only_in_a_section_not_delivered_lists_at_most_three() -> None:
+    sections = [Section(title=f"Part {i}", level=2, text="oscar night") for i in range(5)]
+
+    (row,) = keyword_report(["oscar"], sections, set(), whole_article=True)
+
+    assert row["status"] == "unread" and row["sections"] == ["Part 0", "Part 1", "Part 2"]

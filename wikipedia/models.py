@@ -15,6 +15,8 @@ MAX_TOPIC_CHARS = 200
 MAX_PAGE_CHARS = 200
 MAX_SECTION_CHARS = 120
 MAX_SECTIONS = 10
+MAX_KEYWORDS = 6
+MAX_KEYWORD_CHARS = 60
 MAX_REPORTED_ERRORS = 20
 
 Language = Literal["it", "en"]
@@ -69,8 +71,9 @@ class WikipediaToolInput(BaseModel):
     language: Language | None = Field(
         default=None,
         description=(
-            "Wikipedia edition, only if the user asks for one or to reopen a page of an earlier "
-            "result (copy its language); null = the language of the question, then the other one."
+            "Wikipedia edition. null = English (the default), even if the user writes in another language. "
+            "Use it only for a local topic, to reopen a page of an earlier result (copy its language), or to "
+            "try the other edition when the tool says English was not enough."
         ),
     )
     depth: Depth = Field(
@@ -89,6 +92,14 @@ class WikipediaToolInput(BaseModel):
             "the conversation; never invented. null = the best page for `topic`."
         ),
     )
+    keywords: list[str] = Field(
+        default_factory=list,
+        max_length=MAX_KEYWORDS,
+        description=(
+            "Up to 6 distinctive words of the question, translated into the language of the edition "
+            "(English by default): they pick the sections and show which details the page lacks. Empty if none."
+        ),
+    )
     sections: list[str] = Field(
         default_factory=list,
         max_length=MAX_SECTIONS,
@@ -102,6 +113,17 @@ class WikipediaToolInput(BaseModel):
     @classmethod
     def _strip(cls, value: Any) -> Any:
         return _clean(value) or None if isinstance(value, str) else value
+
+    @field_validator("keywords", mode="before")
+    @classmethod
+    def _strip_keywords(cls, value: Any) -> Any:
+        if not isinstance(value, list):
+            return value
+        seen: dict[str, str] = {}
+        for item in value:
+            if isinstance(item, str) and normalize_text(item) and len(_clean(item)) <= MAX_KEYWORD_CHARS:
+                seen.setdefault(normalize_text(item), _clean(item))
+        return list(seen.values())
 
     @field_validator("sections", mode="before")
     @classmethod
@@ -143,6 +165,9 @@ class PageResult(BaseModel):
     omitted: list[dict[str, Any]] = Field(default_factory=list)
     unknown_sections: list[str] = Field(default_factory=list)
     truncated: bool = False
+    # Per keyword of the request: `read`, `unread` (with the sections that mention it), `absent` from
+    # the whole article, or `not_in_lead` (only the lead was read). None without keywords.
+    keywords: list[dict[str, Any]] | None = None
     text: list[dict[str, str]] = Field(default_factory=list)
 
 

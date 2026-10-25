@@ -98,13 +98,17 @@ def follow_up_reasons(
     budget_hit: bool,
     http_left: int,
     context_left: int,
+    other_language_untried: bool = False,
+    keywords_absent: bool = False,
 ) -> list[str]:
     """Why another step could add something, only for what a step can still do.
 
     - `empty`, `ambiguous`, `unverified`: a new search (or another page) needs a free HTTP call;
     - `more_in_page`: the page has sections not handed out; after a lead it needs the article
       (an HTTP call), once the article is read the sections come from the cache;
-    - `omitted_by_budget`: something chosen did not fit the context budget.
+    - `omitted_by_budget`: something chosen did not fit the context budget;
+    - `keywords_absent`: a keyword of the question is in no section of the article read and the other
+      edition has not been asked yet (a detail that may be local); needs a free HTTP call.
     No reason is given when the room (calls or context) to act on it is gone.
     """
     room = context_left >= MIN_FOLLOW_UP_CHARS
@@ -125,4 +129,6 @@ def follow_up_reasons(
             break
     if budget_hit and room:
         reasons.append("omitted_by_budget")
+    if keywords_absent and other_language_untried and http_left > 0:
+        reasons.append("keywords_absent")
     return reasons

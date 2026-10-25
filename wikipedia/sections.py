@@ -19,6 +19,7 @@ _SENTENCE_END = re.compile(r"[.!?…][\"')\]]*(?:\s|$)")
 # A section that does not fit is cut at a sentence only if at least this much room is left.
 MIN_CUT_CHARS = 500
 _TERM_MIN_CHARS = 3
+_PREFIX_MIN_CHARS = 4
 _TERM_REPEAT_CAP = 3
 _TITLE_WEIGHT = 3
 _STOPWORDS = frozenset(
@@ -83,14 +84,56 @@ def question_terms(query: str, topic: str) -> list[str]:
     return [term for term in query_terms(query) if term not in subject]
 
 
+def count_term(text: str, term: str) -> int:
+    """Occurrences of `term` in `text` (both normalized): a word matches itself and, from four
+    letters, longer words that start with it ("direct" finds "directed"); a phrase matches whole."""
+    if not term:
+        return 0
+    if " " in term:
+        return f" {text} ".count(f" {term} ")
+    prefix = len(term) >= _PREFIX_MIN_CHARS
+    return sum(1 for word in text.split() if word == term or (prefix and word.startswith(term)))
+
+
+def scoring_terms(keywords: list[str], query: str, topic: str) -> list[str]:
+    """What the sections are ranked on: the planner's keywords (in the language of the edition), then
+    the distinctive words of the question itself, normalized and without repeats."""
+    own = [normalize_text(keyword) for keyword in keywords]
+    return list(dict.fromkeys(term for term in [*own, *question_terms(query, topic)] if term))
+
+
 def score(section: Section, terms: list[str]) -> int:
     """How well a section matches the terms: title hits weigh more than text hits."""
-    title = f" {normalize_text(section.title)} "
-    body = f" {normalize_text(section.text)} "
+    title = normalize_text(section.title)
+    body = normalize_text(section.text)
     total = 0
     for term in terms:
-        total += _TITLE_WEIGHT * (f" {term} " in title) + min(body.count(f" {term} "), _TERM_REPEAT_CAP)
+        total += _TITLE_WEIGHT * (count_term(title, term) > 0) + min(count_term(body, term), _TERM_REPEAT_CAP)
     return total
+
+
+def keyword_report(
+    keywords: list[str], sections: list[Section], delivered: set[str], *, whole_article: bool
+) -> list[dict[str, object]]:
+    """Where each keyword stands, so a later step knows what to read and what the edition lacks.
+
+    `read`: in a section already handed out; `unread`: only in other sections (listed, at most
+    three); `absent`: in no section of the article; with only the lead known (`whole_article`
+    false) the last two are `not_in_lead`, since the rest of the page was not seen.
+    """
+    rows: list[dict[str, object]] = []
+    for keyword in keywords:
+        term = normalize_text(keyword)
+        found = [s for s in sections if count_term(normalize_text(f"{s.title} {s.text}"), term)]
+        if any(normalize_text(s.title) in delivered for s in found):
+            rows.append({"keyword": keyword, "status": "read", "sections": []})
+        elif not whole_article:
+            rows.append({"keyword": keyword, "status": "not_in_lead", "sections": []})
+        elif found:
+            rows.append({"keyword": keyword, "status": "unread", "sections": [s.title for s in found[:3]]})
+        else:
+            rows.append({"keyword": keyword, "status": "absent", "sections": []})
+    return rows
 
 
 def cut_at_sentence(text: str, limit: int) -> str:

@@ -39,8 +39,6 @@ MIN_FOLLOW_UP_CHARS = 1_000
 MAX_OUTLINE_SECTIONS = 40
 # Characters of the planner summary (the orchestrator shows the planner at most 2,500 per step).
 PLANNER_SUMMARY_CHARS = 1_800
-# Start of each delivered section shown in the planner summary.
-PLANNER_SECTION_PREVIEW_CHARS = 160
 
 LICENSE_NAME = "CC BY-SA 4.0"
 LICENSE_URL = "https://creativecommons.org/licenses/by-sa/4.0/"

@@ -24,6 +24,8 @@ class TurnState:
     context_used: int = 0
     # Normalized titles of the sections already handed out, per article.
     delivered: dict[PageKey, set[str]] = field(default_factory=dict)
+    # Editions asked in this turn (a search or an opening was attempted there).
+    languages_tried: set[str] = field(default_factory=set)
     # Articles whose full text was read in this turn (downloaded or served from the cache).
     opened: set[PageKey] = field(default_factory=set)
     # Requests sent in this turn that failed: (error class, safe message) by request key.

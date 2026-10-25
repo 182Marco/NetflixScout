@@ -94,3 +94,36 @@ def test_only_disambiguation_results_suggest_adding_context() -> None:
     kept, dropped = screen_pages(request, [_page("John Smith", 0, disambiguation=True)])
 
     assert kept == [] and lookup_hints(request, kept, dropped) == ["add_context"]
+
+
+# --- follow-up reasons: the other edition -----------------------------------------------------------
+
+from wikipedia.models import PageResult  # noqa: E402
+from wikipedia.relevance import follow_up_reasons  # noqa: E402
+
+
+def _read_page(**fields) -> PageResult:
+    base = {"title": "Park Chan-wook", "language": "en", "verification": "confirmed", "total_chars": 100,
+            "delivered_chars": 100, "outline": [{"title": "Career", "delivered": True, "chars": 100}], "omitted": []}
+    return PageResult(**{**base, **fields})
+
+
+def _reasons(**fields):
+    base = {"pages": [_read_page()], "searched": True, "dropped": {}, "budget_hit": False, "http_left": 3, "context_left": 20_000}
+    return follow_up_reasons(**{**base, **fields})
+
+
+def test_a_fully_read_page_with_every_keyword_found_offers_nothing() -> None:
+    assert _reasons(other_language_untried=True, keywords_absent=False) == []
+
+
+def test_an_absent_keyword_offers_the_other_edition_only_while_it_is_untried_and_a_call_is_free() -> None:
+    assert _reasons(other_language_untried=True, keywords_absent=True) == ["keywords_absent"]
+    assert _reasons(other_language_untried=False, keywords_absent=True) == []
+    assert _reasons(other_language_untried=True, keywords_absent=True, http_left=0) == []
+
+
+def test_an_absent_keyword_comes_after_the_reasons_about_the_page() -> None:
+    page = _read_page(omitted=[{"title": "Filmography", "chars": 900}])
+
+    assert _reasons(pages=[page], other_language_untried=True, keywords_absent=True) == ["more_in_page", "keywords_absent"]

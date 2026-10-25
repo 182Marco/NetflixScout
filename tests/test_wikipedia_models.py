@@ -61,3 +61,18 @@ def test_normalize_text_folds_case_accents_and_punctuation() -> None:
     assert normalize_text("Amélie") == "amelie"
     assert normalize_text("Mars & Avril") == "mars and avril"
     assert normalize_text(None) == ""
+
+
+def test_keywords_are_cleaned_deduplicated_and_limited() -> None:
+    request = _input(keywords=["  Military   service ", "military service", "", "Dubbing", "x" * 61])
+
+    assert request.keywords == ["Military service", "Dubbing"]
+    with pytest.raises(ValidationError):
+        _input(keywords=[f"word{i}" for i in range(7)])
+    assert _input().keywords == []
+
+
+def test_the_language_is_optional_and_the_planner_is_told_english_is_the_default() -> None:
+    description = WikipediaToolInput.model_fields["language"].description
+
+    assert _input().language is None and "English" in description and "another language" in description
