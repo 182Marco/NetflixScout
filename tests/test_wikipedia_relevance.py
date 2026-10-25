@@ -145,6 +145,8 @@ def test_an_absent_keyword_comes_after_the_reasons_about_the_page() -> None:
         ("Il ragazzo e l'airone", "Ragazzo e l'airone", "exact"),
         ("Tokyo!", "Tokyo Anime Award", "partial"),
         ("Tokyo!", "Interior Design (Tokyo!)", "differs"),
+        ("Kwaidan (1964)", "Kwaidan (film)", "qualified"),  # a year is not a qualifier
+        ("The Congress (2013)", "The Congress (2013 film)", "qualified"),
     ],
 )
 def test_titles_are_compared_whole_then_without_the_qualifier(topic, title, expected) -> None:

@@ -371,10 +371,10 @@ def test_the_italian_step_shares_the_http_budget_of_the_turn() -> None:
 def test_an_absent_keyword_in_the_whole_english_article_offers_the_italian_edition() -> None:
     tool, transport = _en_tool()
 
-    result = run_tool(tool, depth="full", keywords=["debut", "dubbing"], **{TOOL_PARAM_TURN_ID: "a"})
+    result = run_tool(tool, depth="full", keywords=["debut", "dubbing", "overdub"], **{TOOL_PARAM_TURN_ID: "a"})
 
     rows = {row["keyword"]: row["status"] for row in _meta(result)["pages"][0]["keywords"]}
-    assert rows == {"debut": "read", "dubbing": "absent"}
+    assert rows == {"debut": "read", "dubbing": "absent", "overdub": "absent"}
     assert result[RESULT_FOLLOW_UP]["available"] and result[RESULT_FOLLOW_UP]["reasons"] == ["keywords_absent"]
     assert "«dubbing» non trovata nel testo" in result[RESULT_FOLLOW_UP]["summary"]
     assert transport.languages == ["en", "en"]  # the search and the article, English only
@@ -583,9 +583,19 @@ def test_one_missing_word_among_several_found_is_a_different_wording_not_a_missi
 def test_half_of_the_distinctive_keywords_missing_offers_the_other_edition() -> None:
     tool, _ = _en_tool()
 
-    result = run_tool(tool, depth="full", keywords=["debut", "dubbing", "episodes"], **{TOOL_PARAM_TURN_ID: "a"})
+    result = run_tool(tool, depth="full", keywords=["dubbing", "overdub", "episodes"], **{TOOL_PARAM_TURN_ID: "a"})
 
-    assert result[RESULT_FOLLOW_UP]["reasons"] == ["keywords_absent"]  # "episodes" is generic: 1 of 2 absent
+    assert result[RESULT_FOLLOW_UP]["reasons"] == ["keywords_absent"]  # "episodes" is generic: 2 of 2 absent
+
+
+def test_a_single_missing_word_never_offers_the_other_edition() -> None:
+    tool, _ = _en_tool()
+
+    result = run_tool(tool, depth="full", keywords=["dubbing"], **{TOOL_PARAM_TURN_ID: "a"})
+    other = run_tool(tool, depth="full", keywords=["Andrej Tarkovskij", "debut"], **{TOOL_PARAM_TURN_ID: "b"})
+
+    assert _meta(result)["pages"][0]["keywords"][0]["status"] == "absent" and result[RESULT_FOLLOW_UP]["reasons"] == []
+    assert other[RESULT_FOLLOW_UP]["reasons"] == []  # a name spelled another way is not a missing fact
 
 
 def test_an_inflected_form_counts_as_found() -> None:
@@ -595,3 +605,25 @@ def test_an_inflected_form_counts_as_found() -> None:
 
     assert {r["status"] for r in _meta(result)["pages"][0]["keywords"]} == {"read"}
     assert result[RESULT_FOLLOW_UP]["reasons"] == []
+
+
+# --- a year in parentheses in the topic is a year ("Kwaidan (1964)") ---------------------------------------
+
+
+def test_a_year_in_parentheses_in_the_topic_is_searched_as_the_year_and_finds_the_page() -> None:
+    tool, transport = make_tool(
+        by_mode(
+            lookup=lookup_answer(
+                page("Masaki Kobayashi", "Masaki Kobayashi directed Kwaidan (1964).", index=1),
+                page("Kwaidan (film)", "Kwaidan is a 1964 Japanese anthology film.", index=2),
+            ),
+            article=article_answer("Kwaidan (film)", text=EN_ARTICLE_TEXT),
+        ),
+        default_language="en",
+    )
+
+    result = run_tool(tool, topic="Kwaidan (1964)", kind="film", depth="sections")
+
+    assert transport.calls[0][1]["gsrsearch"] == '"Kwaidan" film 1964'
+    assert transport.calls[1][1]["titles"] == "Kwaidan (film)"  # the article was opened: the title was recognized
+    assert _meta(result)["pages"][0]["verification"] == "confirmed" and "candidates" not in _meta(result)

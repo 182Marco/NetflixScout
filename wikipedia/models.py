@@ -5,11 +5,12 @@ The field descriptions are part of the planning prompt (the orchestrator adds th
 """
 from __future__ import annotations
 
+import re
 import unicodedata
 from enum import Enum
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
 MAX_TOPIC_CHARS = 200
 MAX_PAGE_CHARS = 200
@@ -41,6 +42,11 @@ def normalize_text(text: Any) -> str:
     decomposed = unicodedata.normalize("NFKD", text.casefold().replace("&", " and "))
     kept = "".join(char if char.isalnum() else " " for char in decomposed if not unicodedata.combining(char))
     return " ".join(kept.split())
+
+
+# "Kwaidan (1964)": a year in parentheses at the end of the topic names the year, not a qualifier of the title.
+_TOPIC_YEAR = re.compile(r"^(?P<name>.*\S)\s*\((?P<year>1[89]\d{2}|20\d{2})\)\s*$")
+MIN_YEAR, MAX_YEAR = 1888, 2100
 
 
 def _clean(value: Any) -> Any:
@@ -109,6 +115,17 @@ class WikipediaToolInput(BaseModel):
             "empty = the tool picks the sections that match the question."
         ),
     )
+
+    @model_validator(mode="after")
+    def _year_in_the_topic(self) -> WikipediaToolInput:
+        """A trailing "(1964)" is moved from the topic to `year` (when `year` is not given): the planner often
+        writes "Kwaidan (1964)", which would never match a page title such as "Kwaidan (film)"."""
+        match = _TOPIC_YEAR.match(self.topic)
+        if match and MIN_YEAR <= int(match["year"]) <= MAX_YEAR:
+            self.topic = match["name"].strip()
+            if self.year is None:
+                self.year = int(match["year"])
+        return self
 
     @field_validator("topic", "page", mode="before")
     @classmethod

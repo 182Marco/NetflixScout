@@ -76,3 +76,23 @@ def test_the_language_is_optional_and_the_planner_is_told_english_is_the_default
     description = WikipediaToolInput.model_fields["language"].description
 
     assert _input().language is None and "English" in description and "another language" in description
+
+
+@pytest.mark.parametrize(
+    ("topic", "year", "expected_topic", "expected_year"),
+    [
+        ("Kwaidan (1964)", None, "Kwaidan", 1964),
+        ("The Congress (2013)", None, "The Congress", 2013),
+        ("Blade Runner 2049 (2017)", None, "Blade Runner 2049", 2017),
+        ("Kwaidan (1964)", 1965, "Kwaidan", 1965),  # a year given explicitly wins
+        ("Kwaidan (film)", None, "Kwaidan (film)", None),  # a real qualifier stays
+        ("The Congress (2013 film)", None, "The Congress (2013 film)", None),
+        ("Metropolis (1500)", None, "Metropolis (1500)", None),  # not a plausible year
+        ("(1964)", None, "(1964)", None),
+        ("1984 (1984)", None, "1984", 1984),
+    ],
+)
+def test_a_year_in_parentheses_at_the_end_of_the_topic_becomes_the_year(topic, year, expected_topic, expected_year) -> None:
+    request = _input(topic=topic, **({"year": year} if year else {}))
+
+    assert (request.topic, request.year) == (expected_topic, expected_year)

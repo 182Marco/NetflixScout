@@ -286,6 +286,11 @@ def test_a_keyword_found_only_in_a_section_not_delivered_lists_at_most_three() -
         ("three stories", False), ("main characters", False), ("episodi", False), ("registi", False),
         ("Joint Security Area", True), ("Hoichi", True), ("military service", True), ("1992", True),
         ("Sympathy for Mr. Vengeance", True), ("dubbing", True), ("", False),
+        # words seen as false signs in the live runs
+        ("protagonists", False), ("continuations", False), ("connected", False), ("original titles", False),
+        ("film adaptation", False), ("literary sources", False), ("narrative changes", False), ("collegati", False),
+        ("fonti letterarie", False), ("titolo originale", False), ("protagonisti", False), ("continuazioni", False),
+        ("Andrej Tarkovskij", True),
     ],
 )
 def test_only_keywords_that_name_something_specific_are_distinctive(keyword, expected) -> None:

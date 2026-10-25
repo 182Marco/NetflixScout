@@ -281,7 +281,7 @@ def test_an_absent_detail_in_the_whole_english_article_lets_the_planner_try_ital
         )(language, params)
 
     script = [
-        _plan(topic="Park Chan-wook", kind="person", depth="full", keywords=["debut", "dubbing"]),
+        _plan(topic="Park Chan-wook", kind="person", depth="full", keywords=["debut", "dubbing", "overdub"]),
         _plan(topic="Park Chan-wook", kind="person", depth="sections", language="it", keywords=["doppiaggio"]),
         '{"done": true}',
         FINAL,

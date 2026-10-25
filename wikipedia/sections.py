@@ -47,10 +47,18 @@ GENERIC_KEYWORDS = frozenset(
         "story stories plot character characters director directors order release released change changes difference "
         "differences narrative narratives role roles part parts title titles year years information detail details "
         "list main principal major one two three four five six seven eight nine ten first second third "
+        "protagonist protagonists continuation continuations sequel sequels prequel prequels connected connection "
+        "connections related relation relations relationship relationships link links linked original source "
+        "sources literary adaptation adaptations work works summary background history context theme themes "
+        "structure structures order ordering total number members "
         "episodio episodi segmento segmenti cortometraggio cortometraggi attore attori attrice attrici storia storie "
         "trama personaggio personaggi regista registi ordine uscita cambiamento cambiamenti differenza differenze "
         "ruolo ruoli parte parti titolo titoli anno anni informazioni dettagli elenco principale principali "
-        "uno due tre quattro cinque sei sette otto nove dieci primo secondo terzo"
+        "uno due tre quattro cinque sei sette otto nove dieci primo secondo terzo "
+        "protagonista protagonisti continuazione continuazioni sequel prequel collegato collegati collegamento "
+        "collegamenti correlato correlati relazione relazioni rapporto rapporti originale originali fonte fonti "
+        "letteraria letterarie letterario adattamento adattamenti opera opere riassunto contesto storia tema temi "
+        "struttura strutture numero totale membri"
     ).split()
 )
 
