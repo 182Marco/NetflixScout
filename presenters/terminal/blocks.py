@@ -20,12 +20,25 @@ def print_generic_step(title: str, data: dict) -> None:
         print(f"  {key}: {value}")
 
 
-def print_final_answer(answer: str) -> None:
+def print_answer_header() -> None:
     print("\n")
     print("╔" + "═" * 68 + "╗")
     print("║  🤖  RISPOSTA FINALE DELL'LLM" + " " * 38 + "║")
     print("╚" + "═" * 68 + "╝")
     print()
+
+
+def print_answer_text(text: str) -> None:
+    """A piece of the answer, without a newline: the answer is written as it arrives."""
+    print(text, end="", flush=True)
+
+
+def print_answer_end() -> None:
+    print("\n")
+
+
+def print_final_answer(answer: str) -> None:
+    print_answer_header()
     print(answer)
     print()
 

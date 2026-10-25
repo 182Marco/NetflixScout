@@ -72,7 +72,8 @@ class TurnObserver(Protocol):
     """Receives the turn while it happens. The core never prints: a channel implements this.
 
     `step` gets every `TraceStep` as soon as it exists; `status` gets a passing stage
-    (`STAGE_*`) that is not a step and is not kept in `TurnResult.steps`. Implementations
+    (`STAGE_*`) that is not a step and is not kept in `TurnResult.steps`; `answer_delta` gets
+    the text of the final answer as it is written. Implementations
     must be quick: they run inside the turn.
     """
 
@@ -82,12 +83,21 @@ class TurnObserver(Protocol):
     def status(self, stage: str) -> None:
         ...
 
+    def answer_delta(self, text: str) -> None:
+        """A piece of the final answer, in order, while the model writes it. Every answer
+        (also a block message, a clarification question or a fallback) arrives as one or more
+        deltas; a channel does not wait for `TurnResult.answer` to show it."""
+        ...
+
 
 class NullObserver:
     def step(self, step: TraceStep) -> None:
         pass
 
     def status(self, stage: str) -> None:
+        pass
+
+    def answer_delta(self, text: str) -> None:
         pass
 
 

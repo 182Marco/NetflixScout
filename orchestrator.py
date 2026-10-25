@@ -4,9 +4,11 @@ import json
 import time
 import uuid
 from dataclasses import dataclass, field
-from typing import Any, Mapping, Protocol, Sequence, runtime_checkable
+from typing import Any, Callable, Iterable, Mapping, Protocol, Sequence, runtime_checkable
 
 from openai import OpenAI
+
+from answer_stream import AnswerFieldStream
 
 from turn import (
     OUTCOME_EMPTY,
@@ -130,6 +132,50 @@ def _split_structured_output(text: str) -> tuple[str, list[Any]]:
     return answer.strip(), lists if isinstance(lists, list) else []
 
 
+FALLBACK_NO_ANSWER = "Non ho abbastanza informazioni per rispondere."
+
+# Events of the Responses API stream that end the answer (anything else is progress or ignored).
+EVENT_TEXT_DELTA = "response.output_text.delta"
+EVENT_REFUSAL = ("response.refusal.delta", "response.refusal.done")
+EVENT_COMPLETED = "response.completed"
+EVENT_ABNORMAL_END = ("response.incomplete", "response.failed", "error")
+
+
+def _consume_stream(
+    events: Iterable[Any],
+    raw: list[str],
+    show: Callable[[str], None],
+    decoder: AnswerFieldStream | None,
+) -> str | None:
+    """Read the stream of the final answer: the raw text goes to `raw`, the text to show goes
+    to `show` (decoded from the `answer` field when `decoder` is given). Returns None when the
+    response completed, else why it did not (`refusal`, the event type, `no_final_event`).
+    An exception of the stream propagates to the caller."""
+    refused = False
+    for event in events:
+        kind = getattr(event, "type", None)
+        if kind == EVENT_TEXT_DELTA:
+            delta = getattr(event, "delta", None) or ""
+            raw.append(delta)
+            show(decoder.feed(delta) if decoder else delta)
+        elif kind in EVENT_REFUSAL:
+            refused = True
+        elif kind == EVENT_COMPLETED:
+            return "refusal" if refused else None
+        elif kind in EVENT_ABNORMAL_END:
+            return kind
+    return "no_final_event"
+
+
+def _close(stream: Any) -> None:
+    close = getattr(stream, "close", None)
+    if callable(close):
+        try:
+            close()
+        except Exception:
+            pass
+
+
 class LLMOrchestrator:
     def __init__(
         self,
@@ -223,22 +269,40 @@ class LLMOrchestrator:
         failures: list[str] | None = None,
         final_output: Mapping[str, Any] | None = None,
         lists_out: list[Any] | None = None,
+        on_delta: Callable[[str], None] | None = None,
     ) -> str:
-        """The answer text; a failure of the LLM call is appended to `failures` when given.
+        """The answer text, written by ONE streamed call; a failure is appended to `failures`.
 
-        With `final_output` (web only: `{"text_format", "instructions"}`) the same call asks for
-        a strict JSON `{"answer", "lists"}`; `answer` is returned and the raw `lists` are added
-        to `lists_out`. Any failure (call, JSON, empty answer, refusal, incomplete output) takes
-        the fallback below, with no second call and no lists.
+        `on_delta` gets the text as the model writes it (with `final_output`, the decoded text of
+        the `answer` field of the JSON, never JSON). Every answer reaches it, also the fallback.
+
+        With `final_output` (web only: `{"text_format", "instructions", "answer_field"}`) the same
+        call asks for a strict JSON `{"answer", "lists"}`; `answer` is returned and the raw `lists`
+        are added to `lists_out`. If the stream fails (call, refusal, incomplete, invalid JSON):
+        the text already shown is the answer (no lists); with none shown, the fallback text. Never
+        a second call.
         """
         results = tool_results or [tool_result or {}]
         instructions = self._final_instructions([r.get("tool_name") for r in results])
         extra: dict[str, Any] = {}
+        decoder: AnswerFieldStream | None = None
         if final_output:
             instructions = f"{instructions} {final_output['instructions']}"
             extra["text"] = {"format": final_output["text_format"]}
+            decoder = AnswerFieldStream(final_output.get("answer_field", "answer"))
+
+        shown: list[str] = []
+
+        def show(text: str) -> None:
+            if text:
+                shown.append(text)
+                if on_delta:
+                    on_delta(text)
+
+        raw: list[str] = []
+        stream: Any = None
         try:
-            response = self.client.responses.create(
+            stream = self.client.responses.create(
                 model=self.orchestrator_config.get("llm_model", "gpt-5.6-luna"),
                 instructions=instructions,
                 input=self._build_final_context(
@@ -248,30 +312,53 @@ class LLMOrchestrator:
                     conversation_history=conversation_history,
                     unexecuted=unexecuted,
                 ),
+                stream=True,
                 **extra,
             )
-            text = (response.output_text or "").strip()
-            if final_output:
-                answer, lists = _split_structured_output(text)
-                if lists_out is not None:
-                    lists_out.extend(lists)
-                return answer
-            return text or "Non ho abbastanza informazioni per rispondere."
+            ended = _consume_stream(stream, raw, show, decoder)
         except Exception:
-            if failures is not None:
-                failures.append(FALLBACK_ANSWER)
-            chunks = [
-                chunk
-                for result in results
-                for chunk in (result.get("result", {}).get("chunks") or result.get("chunks") or [])
-            ]
-            if not chunks:
-                return "Non ho abbastanza informazioni per rispondere."
-            return "\n\n".join(
-                chunk.get("testo", "")
-                for chunk in chunks[:3]
-                if isinstance(chunk, dict) and (chunk.get("testo") or chunk.get("content"))
-            )
+            ended = "error"
+        finally:
+            _close(stream)
+
+        if ended is None:
+            text = "".join(raw).strip()
+            try:
+                if final_output:
+                    answer, lists = _split_structured_output(text)
+                    if lists_out is not None:
+                        lists_out.extend(lists)
+                    return answer
+                if text:
+                    return text
+                show(FALLBACK_NO_ANSWER)
+                return FALLBACK_NO_ANSWER
+            except ValueError:
+                pass  # invalid JSON or no answer: the failure path below
+
+        if failures is not None:
+            failures.append(FALLBACK_ANSWER)
+        already_shown = "".join(shown).strip()
+        if already_shown:
+            return already_shown  # the user saw it: that is the answer
+        fallback = self._fallback_answer(results)
+        show(fallback)
+        return fallback
+
+    @staticmethod
+    def _fallback_answer(results: list[dict[str, Any]]) -> str:
+        chunks = [
+            chunk
+            for result in results
+            for chunk in (result.get("result", {}).get("chunks") or result.get("chunks") or [])
+        ]
+        if not chunks:
+            return FALLBACK_NO_ANSWER
+        return "\n\n".join(
+            chunk.get("testo", "")
+            for chunk in chunks[:3]
+            if isinstance(chunk, dict) and (chunk.get("testo") or chunk.get("content"))
+        )
 
     def list_tools(self) -> list[dict[str, Any]]:
         return [
@@ -518,6 +605,29 @@ class LLMOrchestrator:
             pass
 
     @staticmethod
+    def _planning(
+        parts: list[dict[str, str]],
+        calls: list[_Call],
+        pending: list[dict[str, str]],
+        stop_reason: str,
+        fallbacks: list[str],
+    ) -> dict[str, Any]:
+        return {
+            "parts": parts,
+            "tools": [call.tool for call in calls],
+            "pending": pending,
+            "stop_reason": stop_reason,
+            "fallbacks": list(fallbacks),
+        }
+
+    @staticmethod
+    def _emit_delta(observer: TurnObserver, text: str) -> None:
+        try:
+            observer.answer_delta(text)
+        except Exception:
+            pass
+
+    @staticmethod
     def _purpose(plan: _Plan, calls: list[_Call], parts: list[dict[str, str]], standalone_query: str) -> str:
         """What this step looks for, in words: the planner's part for this tool, else the query."""
         done = sum(call.tool == plan.tool for call in calls)
@@ -574,6 +684,7 @@ class LLMOrchestrator:
                 observer,
                 TraceStep(kind=STEP_TOOL_SELECTION, title="Tool scelto", data={"tool": None, "clarification": True}),
             )
+            self._emit_delta(observer, plan.arguments["question"])
             return {
                 "tool": None,
                 "tools": [],
@@ -655,28 +766,42 @@ class LLMOrchestrator:
         pending = _pending_parts(parts, calls)
         unexecuted = [f"{p['part']} (tool previsto: {p['tool']}, motivo: {stop_reason})" for p in pending]
         results = [{"tool_name": call.tool, **call.result} for call in calls]
+        # Before the answer, so the lines about what was not searched come before the text. Only
+        # the failure of the answer itself is known later (second, minimal step below).
+        if len(calls) > 1 or pending or fallbacks:
+            self._emit(
+                observer,
+                TraceStep(
+                    kind=STEP_PLANNING,
+                    title="Pianificazione",
+                    data=self._planning(parts, calls, pending, stop_reason, fallbacks),
+                ),
+            )
         self._emit_status(observer, STAGE_ANSWERING)
         final_lists: list[Any] = []
+        answer_failures: list[str] = []
         final_answer = self._generate_final_answer(
             query=query,
             tool_result=results[0] if len(results) == 1 else None,
             tool_results=results if len(results) > 1 else None,
             conversation_history=conversation_history,
             unexecuted=unexecuted,
-            failures=fallbacks,
+            failures=answer_failures,
             final_output=final_output,
             lists_out=final_lists,
+            on_delta=lambda text: self._emit_delta(observer, text),
         )
-        planning = {
-            "parts": parts,
-            "tools": [call.tool for call in calls],
-            "pending": pending,
-            "stop_reason": stop_reason,
-            "fallbacks": fallbacks,
-        }
-        if len(calls) > 1 or pending or fallbacks:
-            # After the answer is written (a failed answer is only known now), before it is shown.
-            self._emit(observer, TraceStep(kind=STEP_PLANNING, title="Pianificazione", data=dict(planning)))
+        if answer_failures:
+            self._emit(
+                observer,
+                TraceStep(
+                    kind=STEP_PLANNING,
+                    title="Pianificazione",
+                    data=self._planning([], calls, [], stop_reason, answer_failures),
+                ),
+            )
+        fallbacks.extend(answer_failures)
+        planning = self._planning(parts, calls, pending, stop_reason, fallbacks)
 
         return {
             "tool": calls[0].tool,

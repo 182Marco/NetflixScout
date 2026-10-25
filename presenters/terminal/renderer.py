@@ -21,7 +21,15 @@ from turn import (
 
 from ..story_view import STORY_STEP_KINDS, StoryBuilder
 from .api import render_tmdb_calls
-from .blocks import print_compact_notice, print_final_answer, print_generic_step, print_story_line
+from .blocks import (
+    print_answer_end,
+    print_answer_header,
+    print_answer_text,
+    print_compact_notice,
+    print_final_answer,
+    print_generic_step,
+    print_story_line,
+)
 from .db import render_db_query
 from .rag import render_rerank, render_retrieval
 from .youtube import render_youtube_calls
@@ -50,6 +58,8 @@ class TerminalObserver:
     def __init__(self, language: str = "it") -> None:
         # Live, the language is learned from the `classification` step.
         self._story = StoryBuilder(language)
+        # The answer is printed as it arrives: the header comes with the first visible text.
+        self._answer_started = False
 
     def _show(self, lines: list[StoryLine]) -> None:
         for line in lines:
@@ -63,13 +73,25 @@ class TerminalObserver:
         if step.kind not in STORY_STEP_KINDS:
             STEP_RENDERERS.get(step.kind, _render_unknown)(step, self._story.language)
 
+    def answer_delta(self, text: str) -> None:
+        if not self._answer_started:
+            text = text.lstrip()  # no empty lines between the header and the answer
+            if not text:
+                return
+            print_answer_header()
+            self._answer_started = True
+        print_answer_text(text)
+
 
 def render(turn: TurnResult, *, streamed: bool = False) -> None:
-    """Print the end of a turn. `streamed`: a `TerminalObserver` already printed the steps."""
-    if not streamed:
+    """Print the end of a turn. `streamed`: a `TerminalObserver` already printed the steps and
+    the answer as they came, so only the end of the answer is left."""
+    if streamed:
+        print_answer_end()
+    else:
         observer = TerminalObserver(turn.language)
         for step in turn.steps:
             observer.step(step)
-    print_final_answer(turn.answer)
+        print_final_answer(turn.answer)
     if turn.history_compacted:
         print_compact_notice()

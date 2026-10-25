@@ -5,6 +5,7 @@ import json
 from typing import Any
 
 from turn import TraceStep, TurnResult
+from stream_support import reply
 
 TMDB_STEP = TraceStep(
     kind="tmdb_calls",
@@ -82,7 +83,7 @@ class FakeResponses:
         out = self.outputs[min(len(self.calls), len(self.outputs)) - 1]
         if isinstance(out, Exception):
             raise out
-        return type("Response", (), {"output_text": out})()
+        return reply(out, kwargs)
 
 
 class FakeClient:

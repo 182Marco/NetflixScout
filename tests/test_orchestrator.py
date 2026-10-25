@@ -5,6 +5,7 @@ import json
 import pytest
 
 from orchestrator import LLMOrchestrator
+from stream_support import reply
 
 HISTORY = [
     {"role": "user", "content": "Consigliami un film di fantascienza con robot"},
@@ -42,7 +43,7 @@ class FakeClient:
             text = json.dumps(self.plan)
         else:
             text = "Risposta finale."
-        return type("Response", (), {"output_text": text})()
+        return reply(text, kwargs)
 
 
 def _orchestrator(plan, tools=("rag_search",), **config):
@@ -155,7 +156,7 @@ class ScriptedClient:
     def create(self, **kwargs):
         self.calls.append(kwargs)
         text = self.texts.pop(0) if self.texts else "Risposta finale."
-        return type("Response", (), {"output_text": text})()
+        return reply(text, kwargs)
 
 
 class RecordingTool(FakeTool):
@@ -464,7 +465,7 @@ def test_steps_reach_the_observer_while_the_turn_runs() -> None:
         "tool_selection", "run:tmdb_search", "tool_outcome",
         "llm",
         "tool_selection", "run:youtube_search", "tool_outcome",
-        "status:answering", "llm", "planning",
+        "planning", "status:answering", "llm",
     ]
 
 

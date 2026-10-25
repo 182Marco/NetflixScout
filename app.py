@@ -400,6 +400,13 @@ class _TurnRecorder:
         except Exception:
             pass
 
+    def answer_delta(self, text: str) -> None:
+        # Not kept: the answer is `TurnResult.answer`; the channel only shows it as it comes.
+        try:
+            self.observer.answer_delta(text)
+        except Exception:
+            pass
+
 
 def handle_query(
     app: dict[str, Any],
@@ -428,6 +435,7 @@ def handle_query(
     recorder.step(TraceStep(kind=STEP_CLASSIFICATION, title="Classificazione", data={**classification, "language": language}))
 
     if not classification["is_cinema"]:
+        recorder.answer_delta(NON_CINEMA_BLOCK_MESSAGES[language])
         return TurnResult(
             query=query,
             language=language,
@@ -462,8 +470,11 @@ def handle_query(
             "generation": runtime_config["rag"]["generation"],
             "conversation": runtime_config["orchestrator"]["conversation"],
         }
-        history = _compact_history(history, compact_runtime, openai_client or OpenAI())
-        compacted = True
+        try:
+            history = _compact_history(history, compact_runtime, openai_client or OpenAI())
+            compacted = True
+        except Exception:
+            pass  # the answer was already shown: keep the whole history rather than lose the turn
 
     return TurnResult(
         query=query,
@@ -480,13 +491,20 @@ def handle_query(
     )
 
 
-def run_terminal_chat() -> None:
-    app = build_app()
+def build_ready_app(overrides: dict[str, Any] | None = None) -> dict[str, Any]:
+    """`build_app` plus the startup checks every entry point needs: it fails with an
+    operational message if the vector collection or the MovieLens database is missing."""
+    app = build_app(overrides)
     runtime_rag = _resolve_runtime_config(app["config"]["rag"])
     ensure_collection_ready(runtime_rag)
     movie_db_config = load_movie_db_config(app["config"]["movie_db"])
     if movie_db_config.enabled:
         ensure_db_ready(movie_db_config)
+    return app
+
+
+def run_terminal_chat() -> None:
+    app = build_ready_app()
 
     history: list[dict[str, str]] = []
     openai_client = OpenAI()

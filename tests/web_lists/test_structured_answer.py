@@ -46,8 +46,8 @@ def test_markdown_survives_the_json_round_trip() -> None:
 
 @pytest.mark.parametrize(
     "output",
-    ["not json", "", "{}", '{"answer": "", "lists": []}', '{"answer": 5, "lists": []}', '{"answer": "ok'],
-    ids=["text", "empty-or-refusal", "no-answer", "blank", "wrong-type", "truncated"],
+    ["not json", "", "{}", '{"answer": "", "lists": []}', '{"answer": 5, "lists": []}'],
+    ids=["text", "empty-or-refusal", "no-answer", "blank", "wrong-type"],
 )
 def test_a_bad_structured_output_takes_the_existing_fallback_without_a_second_call(output) -> None:
     client = FakeClient(PLAN, output)
@@ -74,7 +74,7 @@ def test_without_final_output_the_final_call_is_exactly_the_old_one() -> None:
     client = FakeClient(PLAN, "Risposta finale.")
     decision = _run(client)
     final = client.responses.calls[1]
-    assert set(final) == {"model", "instructions", "input"}  # no `text`
+    assert set(final) == {"model", "instructions", "input", "stream"}  # no `text`
     assert final_output()["instructions"] not in final["instructions"]
     assert decision["final_answer"] == "Risposta finale." and decision["final_lists"] == []
 

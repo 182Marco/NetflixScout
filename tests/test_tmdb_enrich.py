@@ -10,6 +10,7 @@ import tmdb.tool as tool_module
 from orchestrator import LLMOrchestrator
 from tmdb.enrich import ENRICHMENT_KEY, TmdbRagEnricher, select_candidates
 from tmdb.errors import TmdbConfigError
+from stream_support import reply
 
 MOVIES = {
     501: {"title": "Arrival", "year": 2016, "director": "Regista Uno", "cast": ["Attrice A", "Attore B"]},
@@ -198,7 +199,7 @@ class _Client:
     def create(self, **kwargs):
         self.calls.append(kwargs)
         text = json.dumps({"standalone_query": "q", "tool_name": "rag_search", "confidence": 0.9}) if len(self.calls) == 1 else "ok"
-        return type("Response", (), {"output_text": text})()
+        return reply(text, kwargs)
 
 
 def test_orchestrator_passes_the_verified_metadata_to_the_final_answer() -> None:
@@ -237,7 +238,7 @@ def test_enrichment_runs_only_after_rag(tool_name) -> None:
         def create(self, **kwargs):
             self.calls.append(kwargs)
             text = json.dumps({"standalone_query": "q", "tool_name": tool_name, "confidence": 0.9}) if len(self.calls) == 1 else "ok"
-            return type("Response", (), {"output_text": text})()
+            return reply(text, kwargs)
 
     orchestrator = LLMOrchestrator(
         config={"orchestrator": {"fallback_tool": "rag_search"}},

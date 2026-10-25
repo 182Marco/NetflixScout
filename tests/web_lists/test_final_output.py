@@ -8,7 +8,7 @@ from web_lists.json_schema import json_schema
 
 def test_final_output_is_plain_data_for_the_core() -> None:
     value = final_output()
-    assert set(value) == {"text_format", "instructions"}
+    assert set(value) == {"text_format", "instructions", "answer_field"}
     json.dumps(value)  # serializable as is
     assert value["text_format"]["strict"] is True and value["instructions"]
 

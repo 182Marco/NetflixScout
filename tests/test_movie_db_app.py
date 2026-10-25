@@ -7,6 +7,7 @@ from pathlib import Path
 import app as app_module
 from movie_db.tool.movie_db_tool import MOVIE_DB_TOOL_NAME, MovieDbTool
 from orchestrator import LLMOrchestrator
+from stream_support import reply
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -19,7 +20,7 @@ class FakeClient:
         self.responses = self
 
     def create(self, **kwargs):
-        return type("Response", (), {"output_text": self.outputs.pop(0)})()
+        return reply(self.outputs.pop(0), kwargs)
 
 
 def test_build_app_registers_the_tool_when_enabled(monkeypatch) -> None:

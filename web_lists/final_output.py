@@ -1,8 +1,10 @@
 """What the web entry point passes to `handle_query(final_output=...)`.
 
 The final answer call then returns `{"answer", "lists"}` in one strict JSON: the answer text
-(unchanged in content) plus references to the resources it presents. The references are only
-claims: `attach_lists` checks every one against the tool results of the turn.
+(unchanged in content) plus references to the resources it presents. The call is streamed: the
+text of `answer` reaches the channel while it is written, the lists only when the JSON is
+complete. The references are only claims: `attach_lists` checks every one against the tool
+results of the turn.
 """
 from __future__ import annotations
 
@@ -27,5 +29,10 @@ INSTRUCTIONS = (
 )
 
 
+# Name of the field with the answer text: the orchestrator streams its decoded text while the
+# JSON is written (it knows the name from this data, it never imports this package).
+ANSWER_FIELD = "answer"
+
+
 def final_output() -> dict[str, Any]:
-    return {"text_format": json_schema(), "instructions": INSTRUCTIONS}
+    return {"text_format": json_schema(), "instructions": INSTRUCTIONS, "answer_field": ANSWER_FIELD}

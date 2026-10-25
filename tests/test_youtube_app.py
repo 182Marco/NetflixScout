@@ -16,6 +16,7 @@ from orchestrator import LLMOrchestrator
 from presenters import OutputChannel, present
 from turn import STEP_YOUTUBE_CALLS
 from youtube.tool import YOUTUBE_TOOL_NAME, YoutubeTool
+from stream_support import reply
 
 INSTRUCTIONS = app_module.CONFIG["orchestrator"]["instructions"]
 
@@ -35,7 +36,7 @@ class FakeClient:
 
     def create(self, **kwargs):
         self.calls.append(kwargs)
-        return type("Response", (), {"output_text": self.outputs.pop(0)})()
+        return reply(self.outputs.pop(0), kwargs)
 
 
 # --- registration and availability -------------------------------------------------------------

@@ -10,6 +10,7 @@ import app as app_module
 from orchestrator import LLMOrchestrator
 from tmdb.enrich import TmdbRagEnricher
 from tmdb.tool import TMDB_TOOL_NAME, TmdbTool
+from stream_support import reply
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -24,7 +25,7 @@ class FakeClient:
 
     def create(self, **kwargs):
         self.calls.append(kwargs)
-        return type("Response", (), {"output_text": self.outputs.pop(0)})()
+        return reply(self.outputs.pop(0), kwargs)
 
 
 def _app(tool: TmdbTool, client: FakeClient) -> dict:
