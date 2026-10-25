@@ -57,7 +57,7 @@ def test_youtube_is_allowed_and_in_the_planner_catalog(monkeypatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", "test")
     orchestrator = app_module.build_app()["orchestrator"]
 
-    assert app_module.CONFIG["orchestrator"]["allowed_tools"][-1] == YOUTUBE_TOOL_NAME
+    assert YOUTUBE_TOOL_NAME in app_module.CONFIG["orchestrator"]["allowed_tools"]
     assert YOUTUBE_TOOL_NAME in orchestrator._allowed_tool_names()
     catalog = orchestrator._catalog_text(orchestrator._allowed_tool_names())
     assert '"name":"youtube_search"' in catalog and "cast_interview" in catalog

@@ -9,7 +9,7 @@ SKIPPED = {".venv", "__pycache__", "dbVettoriale", "dataset", "tests", ".git", "
 HTTP_PACKAGES = {"fastapi", "starlette", "uvicorn", "sse_starlette"}
 # Packages web_api may import from the project: the entry points of the bot, nothing deeper.
 ALLOWED_PROJECT_IMPORTS = {"app", "turn", "presenters", "web_lists", "web_api"}
-PROJECT_PACKAGES = {"app", "orchestrator", "turn", "presenters", "web_lists", "rag", "tmdb", "youtube", "movie_db", "answer_stream"}
+PROJECT_PACKAGES = {"app", "orchestrator", "turn", "presenters", "web_lists", "rag", "tmdb", "youtube", "wikipedia", "movie_db", "answer_stream"}
 
 
 def _modules(path: Path) -> set[str]:

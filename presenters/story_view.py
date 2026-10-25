@@ -63,12 +63,14 @@ TOOLS = {
         "movie_db_search": ("nei voti e nelle classifiche MovieLens", "Voti"),
         "tmdb_search": ("su TMDb", "TMDb"),
         "youtube_search": ("su YouTube", "YouTube"),
+        "wikipedia_search": ("su Wikipedia", "Wikipedia"),
     },
     "en": {
         "rag_search": ("among the movie plots", "Plots"),
         "movie_db_search": ("in the MovieLens ratings and charts", "Ratings"),
         "tmdb_search": ("on TMDb", "TMDb"),
         "youtube_search": ("on YouTube", "YouTube"),
+        "wikipedia_search": ("on Wikipedia", "Wikipedia"),
     },
 }
 
@@ -84,6 +86,8 @@ REASONS = {
         "rate_limited": "troppe richieste, riprova tra poco",
         "timeout": "tempo scaduto",
         "network_error": "errore di rete",
+        "http_error": "risposta non valida",
+        "response_too_large": "pagina troppo grande da leggere",
         "default": "non è andata a buon fine",
     },
     "en": {
@@ -96,6 +100,8 @@ REASONS = {
         "rate_limited": "too many requests, try again shortly",
         "timeout": "timed out",
         "network_error": "network error",
+        "http_error": "invalid answer",
+        "response_too_large": "page too large to read",
         "default": "it did not work",
     },
 }
