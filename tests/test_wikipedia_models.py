@@ -1,0 +1,63 @@
+from __future__ import annotations
+
+import pytest
+from pydantic import ValidationError
+
+from wikipedia.models import Depth, Subject, WikipediaToolInput, describe_validation_errors, normalize_text
+
+
+def _input(**fields) -> WikipediaToolInput:
+    return WikipediaToolInput.model_validate({"query": "domanda", "topic": "Park Chan-wook", **fields})
+
+
+def test_defaults_are_the_cheapest_reading() -> None:
+    request = _input()
+
+    assert request.kind is Subject.topic and request.depth is Depth.intro
+    assert request.year is None and request.language is None and request.page is None and request.sections == []
+
+
+def test_values_are_normalized_and_sections_deduplicated() -> None:
+    request = _input(topic="  Park   Chan-wook ", page=" Park  Chan-wook ", sections=["Carriera", "carriera", " Vita  privata ", ""])
+
+    assert request.topic == "Park Chan-wook" and request.page == "Park Chan-wook"
+    assert request.sections == ["Carriera", "Vita privata"]
+
+
+@pytest.mark.parametrize(
+    "fields",
+    [
+        {"topic": ""},
+        {"topic": "x" * 201},
+        {"kind": "company"},
+        {"depth": "everything"},
+        {"language": "fr"},
+        {"year": 1500},
+        {"sections": [f"s{i}" for i in range(11)]},
+        {"unknown": 1},
+    ],
+)
+def test_invalid_input_is_rejected(fields) -> None:
+    with pytest.raises(ValidationError):
+        _input(**fields)
+
+
+def test_a_blank_page_becomes_none() -> None:
+    assert _input(page="   ").page is None
+
+
+def test_validation_errors_never_contain_the_values() -> None:
+    secret = "VALORE-DELL-UTENTE" * 20
+    with pytest.raises(ValidationError) as caught:
+        _input(topic=secret, extra_field=secret)
+
+    rows = describe_validation_errors(caught.value)
+
+    assert {"field": "unknown_field", "error": "extra_forbidden"} in rows
+    assert secret not in repr(rows)
+
+
+def test_normalize_text_folds_case_accents_and_punctuation() -> None:
+    assert normalize_text("Amélie") == "amelie"
+    assert normalize_text("Mars & Avril") == "mars and avril"
+    assert normalize_text(None) == ""
