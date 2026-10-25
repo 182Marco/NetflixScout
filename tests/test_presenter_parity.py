@@ -66,14 +66,16 @@ def test_live_and_replay_print_the_same_steps(capsys) -> None:
     observer = TerminalObserver()
     for step in STEPS:
         observer.step(step)
+    observer.answer_delta("Risposta.")
     live = capsys.readouterr().out
     present(_turn(), OutputChannel.terminal)
     replay = capsys.readouterr().out
     present(_turn(), OutputChannel.terminal, streamed=True)
     streamed_end = capsys.readouterr().out
 
-    assert live and replay.startswith(live) and "Risposta." in replay
-    assert streamed_end.count("Risposta.") == 1 and "Matrix" not in streamed_end  # steps not printed twice
+    assert live and replay.startswith(live) and live.count("Risposta.") == 1
+    # The answer and the steps were printed live: the end of a streamed turn prints neither.
+    assert "Risposta." not in streamed_end and "Matrix" not in streamed_end
 
 
 @pytest.mark.parametrize("language", ["it", "en"])

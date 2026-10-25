@@ -19,9 +19,9 @@ found, how long it took, when the system went on with less than planned). The fl
 message of a blocked turn is shown. A step kind without a serializer is passed on as
 `{"kind", "title", "data"}`, like the terminal's generic block.
 
-Live progress: pass a `TurnObserver` (see `turn.py`) to `app.handle_query`; its `step` and
-`status` calls are what a Server-Sent Events route would send while the turn runs. Conversation
-history stays out of the payload: the web caller keeps it and sends it back on the next request.
+Live progress: `presenters/web/observer.py:WebObserver` is the web `TurnObserver` (see `turn.py`):
+pass it to `app.handle_query` and it reports status, story lines, tool steps and the answer text
+as they happen. Conversation history stays out of the payload: the web caller keeps it.
 
 Every `tmdb_calls` step must keep its `attributions` (JustWatch for streaming data)
 visible next to the answer.
@@ -64,7 +64,8 @@ STEP_SERIALIZERS: dict[str, Serializer] = {
 }
 
 
-def _serialize_step(step: TraceStep, language: str) -> dict[str, Any]:
+def serialize_step(step: TraceStep, language: str) -> dict[str, Any]:
+    """The web form of one tool step (also what the live `WebObserver` sends)."""
     serializer = STEP_SERIALIZERS.get(step.kind)
     if serializer is None:
         return {"kind": step.kind, "title": step.title, "data": step.data}
@@ -80,5 +81,5 @@ def to_payload(turn: TurnResult) -> dict[str, Any]:
         "tools": list(turn.tools),
         # Rebuilt from the steps, like the terminal's replay: the same text for both channels.
         "story": [line.model_dump(mode="json") for line in build_story(turn.steps, turn.language)],
-        "steps": [_serialize_step(step, turn.language) for step in turn.steps if step.kind not in STORY_STEP_KINDS],
+        "steps": [serialize_step(step, turn.language) for step in turn.steps if step.kind not in STORY_STEP_KINDS],
     }
