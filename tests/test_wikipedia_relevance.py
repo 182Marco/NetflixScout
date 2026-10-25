@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from wikipedia.models import PageHit, WikipediaToolInput
-from wikipedia.relevance import lookup_hints, match_title, screen_pages, strip_qualifier, verification
+from tool.wikipedia.models import PageHit, WikipediaToolInput
+from tool.wikipedia.relevance import lookup_hints, match_title, screen_pages, strip_qualifier, verification
 
 
 def _request(**fields) -> WikipediaToolInput:
@@ -98,8 +98,8 @@ def test_only_disambiguation_results_suggest_adding_context() -> None:
 
 # --- follow-up reasons: the other edition -----------------------------------------------------------
 
-from wikipedia.models import PageResult  # noqa: E402
-from wikipedia.relevance import follow_up_reasons  # noqa: E402
+from tool.wikipedia.models import PageResult  # noqa: E402
+from tool.wikipedia.relevance import follow_up_reasons  # noqa: E402
 
 
 def _read_page(**fields) -> PageResult:

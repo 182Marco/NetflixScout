@@ -17,9 +17,9 @@ from typing import Any
 
 from movie_db.config import MovieDbConfig, load_movie_db_config
 from movie_db.harness.fixtures.build_fixture_db import build_fixture_db
-from movie_db.tool.movie_db_tool import MovieDbTool
-from movie_db.tool.sql.queries import build_query
-from movie_db.tool.sql.repository import effective_limit
+from tool.movie_db.movie_db_tool import MovieDbTool
+from tool.movie_db.sql.queries import build_query
+from tool.movie_db.sql.repository import effective_limit
 
 from .cases import CASES, EVAL_OVERRIDES, EvalCase
 

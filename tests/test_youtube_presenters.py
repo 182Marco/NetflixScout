@@ -224,7 +224,7 @@ def test_presenters_never_import_the_youtube_package() -> None:
     for path in sorted((ROOT / "presenters").rglob("*.py")):
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
             if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
-                assert not node.module.startswith("youtube"), (path, node.module)
+                assert not node.module.startswith("tool"), (path, node.module)
 
 
 def test_web_serializer_shows_the_same_view_as_the_terminal() -> None:

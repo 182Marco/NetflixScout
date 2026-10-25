@@ -2,7 +2,7 @@
 
 `TmdbTool.new_context` creates one `CallBudget` per turn: a turn can run several tools
 (`orchestrator.max_tool_calls_per_turn`), so every TMDb run and the RAG enrichment
-(`tmdb/enrich.py`) of the same `turn_id` draw on the same budget.
+(`tool/tmdb/enrich.py`) of the same `turn_id` draw on the same budget.
 """
 from __future__ import annotations
 

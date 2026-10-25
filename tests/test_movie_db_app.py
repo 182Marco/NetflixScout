@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 import app as app_module
-from movie_db.tool.movie_db_tool import MOVIE_DB_TOOL_NAME, MovieDbTool
+from tool.movie_db.movie_db_tool import MOVIE_DB_TOOL_NAME, MovieDbTool
 from orchestrator import LLMOrchestrator
 from stream_support import reply
 
@@ -76,7 +76,7 @@ def _imported_modules(path: Path) -> set[str]:
 
 
 def test_runtime_never_imports_the_harness() -> None:
-    runtime_files = [ROOT / "app.py", *sorted((ROOT / "movie_db" / "tool").rglob("*.py"))]
+    runtime_files = [ROOT / "app.py", *sorted((ROOT / "tool" / "movie_db").rglob("*.py"))]
     runtime_files += [ROOT / "movie_db" / "config.py", ROOT / "movie_db" / "schema.py"]
 
     for path in runtime_files:
@@ -86,11 +86,13 @@ def test_runtime_never_imports_the_harness() -> None:
 
 def test_presenters_do_not_import_the_movie_db_package() -> None:
     for path in sorted((ROOT / "presenters").rglob("*.py")):
-        assert not {m for m in _imported_modules(path) if m.startswith("movie_db")}, path
+        assert not {m for m in _imported_modules(path) if m.startswith(("movie_db", "tool.movie_db"))}, path
 
 
 def test_only_ingestion_opens_writable_connections() -> None:
-    for path in sorted((ROOT / "movie_db").rglob("*.py")):
+    paths = sorted((ROOT / "movie_db").rglob("*.py")) + sorted((ROOT / "tool" / "movie_db").rglob("*.py"))
+    assert any("connection.py" in p.name for p in paths)
+    for path in paths:
         if "ingestion" in path.parts:
             continue
         source = path.read_text(encoding="utf-8")

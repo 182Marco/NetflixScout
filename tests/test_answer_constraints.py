@@ -10,8 +10,8 @@ from __future__ import annotations
 from answer_checks import check_answer
 
 from orchestrator import LLMOrchestrator
-from rag.FromQueryEmbeddingToRes.constraints import constraint_report, constraint_summary
-from rag.FromQueryEmbeddingToRes.models import QuerySignals
+from tool.rag.FromQueryEmbeddingToRes.constraints import constraint_report, constraint_summary
+from tool.rag.FromQueryEmbeddingToRes.models import QuerySignals
 
 TERMS = {
     "Japanese": ("giappones",), "Comedy": ("commedia",), "set on Mars": ("marte", "marzian"),

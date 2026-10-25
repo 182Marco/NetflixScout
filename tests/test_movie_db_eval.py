@@ -4,7 +4,7 @@ import json
 
 from movie_db.harness.evaluation.cases import CASES, EvalCase
 from movie_db.harness.evaluation.run_eval import ScriptedParserClient, run_cases
-from movie_db.tool.models import MovieDbOperation, MovieDbQuery
+from tool.movie_db.models import MovieDbOperation, MovieDbQuery
 
 
 def test_offline_evaluation_passes_on_the_fixture_db(movie_db_config) -> None:

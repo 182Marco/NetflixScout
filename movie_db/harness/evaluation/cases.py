@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from movie_db.tool.models import MovieDbOperation, MovieDbQuery
+from tool.movie_db.models import MovieDbOperation, MovieDbQuery
 
 EVAL_OVERRIDES = {"movie_db": {"query": {"min_ratings": 2}}}
 

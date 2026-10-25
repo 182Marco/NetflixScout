@@ -1,1 +1,1 @@
-from rag.EmbeddingProcess.movie_metadata import *
+from tool.rag.EmbeddingProcess.movie_metadata import *

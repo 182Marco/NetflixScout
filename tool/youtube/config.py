@@ -1,7 +1,7 @@
 """Typed, validated view of `CONFIG["you_tube"]`: only the two public settings.
 
-The values live only in `app.py` (no defaults here, like `tmdb/config.py`). Timeouts,
-fetch sizes and quota pauses are internal constants in `youtube/settings.py`.
+The values live only in `app.py` (no defaults here, like `tool/tmdb/config.py`). Timeouts,
+fetch sizes and quota pauses are internal constants in `tool/youtube/settings.py`.
 """
 from __future__ import annotations
 

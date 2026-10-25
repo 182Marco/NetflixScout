@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from movie_db.tool.sql.connection import ensure_db_ready, open_readonly, readonly_connection
-from movie_db.tool.sql.guard import install_guard
+from tool.movie_db.sql.connection import ensure_db_ready, open_readonly, readonly_connection
+from tool.movie_db.sql.guard import install_guard
 
 WRITE_ATTEMPTS = [
     "INSERT INTO movies (movie_id, title, clean_title) VALUES (999, 'x', 'x')",

@@ -7,7 +7,7 @@ import pytest
 from pydantic import ValidationError
 
 import app as app_module
-from tmdb.config import TmdbConfig, load_tmdb_config
+from tool.tmdb.config import TmdbConfig, load_tmdb_config
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -44,8 +44,8 @@ def test_invalid_or_extra_settings_are_rejected(override) -> None:
 def test_only_the_budget_reads_the_call_limit() -> None:
     """No second HTTP limit: `max_calls_per_turn` is read only where the budget is created."""
     readers = set()
-    for path in sorted((ROOT / "tmdb").rglob("*.py")):
+    for path in sorted((ROOT / "tool" / "tmdb").rglob("*.py")):
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
             if isinstance(node, ast.Attribute) and node.attr == "max_calls_per_turn":
                 readers.add(path.relative_to(ROOT).as_posix())
-    assert readers == {"tmdb/tool.py"}
+    assert readers == {"tool/tmdb/tool.py"}

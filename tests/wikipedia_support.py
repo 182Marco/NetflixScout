@@ -7,8 +7,8 @@ from collections.abc import Callable
 from typing import Any
 from urllib.parse import parse_qsl, urlsplit
 
-from wikipedia.budget import TurnRegistry, TurnState
-from wikipedia.http import HttpSession, RateLimitPause, TtlCache
+from tool.wikipedia.budget import TurnRegistry, TurnState
+from tool.wikipedia.http import HttpSession, RateLimitPause, TtlCache
 
 Route = dict[str, Any] | tuple[int, dict[str, str], Any] | Exception | Callable[[dict[str, str]], Any]
 
@@ -87,8 +87,8 @@ def make_session(transport: FakeTransport, *, max_calls: int = 6, state: TurnSta
 
 def make_tool(handler=None, *, default_language: str = "it", max_results: int = 3, max_calls: int = 6,
               cache_ttl: int = 3600, context_chars: int = 40_000, **routes):
-    from wikipedia.config import WikipediaConfig
-    from wikipedia.tool import WikipediaTool
+    from tool.wikipedia.config import WikipediaConfig
+    from tool.wikipedia.tool import WikipediaTool
 
     transport = FakeTransport(handler, **routes)
     tool = WikipediaTool(

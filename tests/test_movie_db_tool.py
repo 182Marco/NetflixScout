@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from movie_db.tool.movie_db_tool import MOVIE_DB_TOOL_NAME, WORK_TYPE_UNVERIFIED, MovieDbTool
+from tool.movie_db.movie_db_tool import MOVIE_DB_TOOL_NAME, WORK_TYPE_UNVERIFIED, MovieDbTool
 from orchestrator import LLMOrchestrator, Tool
 from turn import STEP_DB_QUERY, TraceStep
 

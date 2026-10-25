@@ -1,9 +1,9 @@
 """Optional live check of how YouTube reads the `q` operators (7 `search.list` calls).
 
-    python -m youtube.harness.live_smoke --live
+    python -m tool.youtube.harness.live_smoke --live
 
 `search.list` has its own quota bucket of 100 calls a day per Google project (1 unit each):
-this run uses 7. It answers the question left open in `youtube/queries.py` ("assumed
+this run uses 7. It answers the question left open in `tool/youtube/queries.py` ("assumed
 precedence, to confirm with the live smoke test") by sending, for a film with almost no
 interviews (Critters 3) and for a control with many (Oppenheimer), the query the tool builds
 and simpler variants of it, and printing only how many raw results each one returned and

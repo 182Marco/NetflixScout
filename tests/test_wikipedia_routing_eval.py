@@ -12,7 +12,7 @@ import pytest
 
 from movie_db.harness.evaluation.routing_cases import ROUTING_CASES, TMDB, WIKIPEDIA, WikipediaExpectation
 from movie_db.harness.evaluation.run_routing_eval import check_any_wikipedia, check_wikipedia, main, select_cases
-from wikipedia.tool import WikipediaTool
+from tool.wikipedia.tool import WikipediaTool
 
 WIKI_CASES = select_cases(WIKIPEDIA)
 BY_QUESTION = {case.question: case for case in ROUTING_CASES}

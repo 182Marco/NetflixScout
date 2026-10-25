@@ -54,7 +54,7 @@ def test_an_internal_error_is_contained(monkeypatch) -> None:
 
 
 def test_no_network_or_llm_client_is_reachable_from_web_lists() -> None:
-    banned = ("openai", "urllib.request", "requests", "httpx", "http.client", "socket", "tmdb", "youtube")
+    banned = ("openai", "urllib.request", "requests", "httpx", "http.client", "socket", "tool", "tmdb", "youtube")
     for path in (ROOT / "web_lists").rglob("*.py"):
         for node in ast.walk(ast.parse(path.read_text())):
             if isinstance(node, ast.Import):

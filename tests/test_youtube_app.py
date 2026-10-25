@@ -15,7 +15,7 @@ import app as app_module
 from orchestrator import LLMOrchestrator
 from presenters import OutputChannel, present
 from turn import STEP_YOUTUBE_CALLS
-from youtube.tool import YOUTUBE_TOOL_NAME, YoutubeTool
+from tool.youtube.tool import YOUTUBE_TOOL_NAME, YoutubeTool
 from stream_support import reply
 
 INSTRUCTIONS = app_module.CONFIG["orchestrator"]["instructions"]

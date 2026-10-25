@@ -6,8 +6,8 @@ import pytest
 from pydantic import ValidationError
 
 import app as app_module
-from wikipedia import errors, settings
-from wikipedia.config import WikipediaConfig, load_wikipedia_config
+from tool.wikipedia import errors, settings
+from tool.wikipedia.config import WikipediaConfig, load_wikipedia_config
 
 
 def test_config_has_exactly_the_five_public_settings() -> None:

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from wikipedia.models import Section
-from wikipedia.sections import (
+from tool.wikipedia.models import Section
+from tool.wikipedia.sections import (
     count_term,
     is_distinctive,
     cut_at_sentence,

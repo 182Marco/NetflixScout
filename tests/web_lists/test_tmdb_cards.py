@@ -1,9 +1,9 @@
 """The `tmdb_calls` step carries the cards `web_lists` hydrates from."""
 from __future__ import annotations
 
-from tmdb.models.results import Entity, RequestOutcome
-from tmdb.normalize.entities import list_item
-from tmdb.trace import build_tmdb_trace, tmdb_cards
+from tool.tmdb.models.results import Entity, RequestOutcome
+from tool.tmdb.normalize.entities import list_item
+from tool.tmdb.trace import build_tmdb_trace, tmdb_cards
 
 
 def test_cards_cover_movies_and_series_once_in_order() -> None:

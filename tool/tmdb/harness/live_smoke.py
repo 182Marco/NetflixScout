@@ -1,6 +1,6 @@
 """Optional live check of TMDb behaviours the docs do not spell out (3 real HTTP calls).
 
-    python -m tmdb.harness.live_smoke --live
+    python -m tool.tmdb.harness.live_smoke --live
 
 Checks, on Interstellar (157336):
 1. `watch/providers` is accepted as an `append_to_response` value;

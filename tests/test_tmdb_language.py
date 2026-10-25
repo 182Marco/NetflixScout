@@ -79,7 +79,7 @@ def test_language_is_part_of_the_cache_key() -> None:
 
 
 def test_turn_language_is_not_part_of_the_llm_schema() -> None:
-    from tmdb.models.requests import TmdbToolInput
+    from tool.tmdb.models.requests import TmdbToolInput
 
     schema = repr(TmdbToolInput.model_json_schema())
     assert "turn_language" not in schema

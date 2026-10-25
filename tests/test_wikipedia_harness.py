@@ -4,7 +4,7 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-from wikipedia.harness.live_smoke import _requests, main
+from tool.wikipedia.harness.live_smoke import _requests, main
 
 import pytest
 
@@ -27,7 +27,7 @@ def test_the_script_needs_live() -> None:
 
 
 def test_runtime_never_imports_the_wikipedia_harness() -> None:
-    runtime_files = [ROOT / "app.py", *[p for p in sorted((ROOT / "wikipedia").rglob("*.py")) if "harness" not in p.parts]]
+    runtime_files = [ROOT / "app.py", *[p for p in sorted((ROOT / "tool" / "wikipedia").rglob("*.py")) if "harness" not in p.parts]]
     for path in runtime_files:
         for node in ast.walk(ast.parse(path.read_text())):
             if isinstance(node, ast.ImportFrom) and node.module:

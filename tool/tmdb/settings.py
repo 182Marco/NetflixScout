@@ -1,7 +1,7 @@
 """Internal TMDb settings, deliberately kept out of `CONFIG`.
 
 None of these limits HTTP calls: the only call limit is
-`CONFIG["tmdb"]["max_calls_per_turn"]`, enforced by `tmdb/budget.py`.
+`CONFIG["tmdb"]["max_calls_per_turn"]`, enforced by `tool/tmdb/budget.py`.
 """
 from __future__ import annotations
 

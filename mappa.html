@@ -192,11 +192,13 @@
    ====================================================================== */
 const ROOT_ABS = "/Users/filippo.milzagmail.com/Desktop/NetflixScout";
 
-const Q = "rag/FromQueryEmbeddingToRes/";
-const E = "rag/EmbeddingProcess/";
+const Q = "tool/rag/FromQueryEmbeddingToRes/";
+const E = "tool/rag/EmbeddingProcess/";
 const M = "movie_db/";
-const T = "tmdb/";
-const Y = "youtube/";
+const MT = "tool/movie_db/";
+const T = "tool/tmdb/";
+const W = "tool/wikipedia/";
+const Y = "tool/youtube/";
 
 const LAYERS = {
   entry:  { label: "Entry point",            color: "#b48cff" },
@@ -210,6 +212,7 @@ const LAYERS = {
   db:     { label: "Tool DB MovieLens",      color: "#f78c6c" },
   tmdb:   { label: "Tool TMDb",              color: "#c3e88d" },
   youtube: { label: "Tool YouTube",          color: "#ffcb6b" },
+  wikipedia: { label: "Tool Wikipedia",        color: "#89ddff" },
 };
 
 const F = (name, info = {}) => ({ type: "file", name, ...info });
@@ -286,12 +289,129 @@ const TREE = D("NetflixScout", {}, [
     chromaDir("test_metadata_batch", "db1416b5-bc32-474d-866d-0d34d1d52ef5", BINS4, { s: "Residuo di test (validazione metadati).", d: DIAG_NOTE }),
   ]),
 
+  D("movie_db", {
+    L: "db",
+    s: "Il database MovieLens 32M (dati, schema, ingestion, valutazioni); il tool è in tool/movie_db/.",
+    d: `Dietro il secondo tool dell'orchestratore (<code>movie_db_search</code>), accanto a <code>rag_search</code>. Questa cartella è il <b>database</b>: <code>config.py</code> e <code>schema.py</code> condivisi con il tool, <code>harness/</code> offline (ingestion, fixture, valutazione), <code>data/</code> con CSV e DB (ignorati da git). Il tool vero e proprio sta in <code>tool/movie_db/</code>.<br><br>Il modello non scrive mai SQL: un parser LLM riempie un <code>MovieDbQuery</code> con un'operazione da enum chiuso, il codice compone SQL fisso con parametri bind ed esegue su una connessione SQLite <code>mode=ro</code> + <code>PRAGMA query_only</code> + authorizer.`,
+    n: ["Tutti i parametri stanno in <code>CONFIG[\"movie_db\"]</code> in <code>app.py</code> e passano da <code>build_runtime_config(overrides)</code>.", "<code>app.py</code> e <code>tool/movie_db/</code> non importano mai <code>harness/</code>: lo verifica <code>tests/test_movie_db_app.py</code>.", "Limiti noti dei dati: il catalogo include serie TV (es. Firefly, Planet Earth II) e l'articolo finale resta in fondo quando c'è un titolo alternativo tra parentesi."],
+  }, [
+    F("__init__.py", { L: "db", s: "Docstring che descrive le parti del package.", d: `Nessun codice: spiega il ruolo di <code>config.py</code>, <code>schema.py</code>, <code>harness/</code> e <code>data/</code> e rimanda a <code>tool/movie_db/</code> per il tool.` }),
+    F("config.py", {
+      L: "db", s: "<code>MovieDbConfig</code>: vista validata di <code>CONFIG[\"movie_db\"]</code>, senza default.",
+      d: `Modelli Pydantic <code>QueryConfig</code> (<code>default_limit</code>, <code>max_limit</code>, <code>min_ratings</code>, <code>timeout_ms</code>), <code>ParserConfig</code> (modello e prompt), <code>IngestionConfig</code> (batch, ratings e tag sì/no) e <code>MovieDbConfig</code>. Nessun campo ha un default, così l'unica fonte dei valori resta <code>app.py</code>; <code>extra="forbid"</code> rifiuta chiavi sconosciute e un validatore impone <code>max_limit ≥ default_limit</code>.`,
+      it: [["load_movie_db_config(config)", "Valida il dict (già passato da <code>build_runtime_config</code>)."], ["MovieDbConfig.model_json_schema()", "Schema pronto per un futuro form web: ogni campo ha titolo, descrizione e <code>ui_exposed</code>."]],
+      x: ["pydantic"],
+      n: ["<code>ui_exposed</code> è <code>true</code> per i limiti delle query e <code>false</code> per percorsi, prompt e modello. Nessuna API o form è implementato."],
+    }),
+    F("schema.py", {
+      L: "db", s: "Tabelle, colonne, generi e DDL: unica fonte per ingestion e runtime.",
+      d: `Tabelle <code>movies</code>, <code>movie_genres</code>, <code>ratings</code>, <code>movie_stats</code> (voti precalcolati), <code>tags</code> (con <code>tag_norm</code>) e <code>links</code>; indici creati dopo il caricamento. <code>GENRES</code> è il vocabolario dei 19 generi MovieLens. Nessun I/O.`,
+      it: [["TABLES", "Colonne per tabella: l'ingestion le usa per gli INSERT, la guardia per sapere quali tabelle si possono leggere."], ["GENRES · NO_GENRES_LABEL", "Generi validi per il parser e per la validazione."], ["normalize_tag(tag)", "Forma usata sia per salvare sia per cercare i tag (spazi compattati, minuscolo)."], ["CREATE_TABLES · CREATE_INDEXES", "DDL usato solo dall'ingestion."]],
+    }),
+    D("data", {
+      L: "data",
+      s: "Dati, non codice: CSV MovieLens scompattati e database SQLite generato.",
+      d: `Ignorata da git tranne <code>.gitkeep</code> (la licenza MovieLens vieta la redistribuzione). Chi clona scarica <code>ml-32m.zip</code> da GroupLens, lo scompatta in <code>raw/</code> e lancia <code>python buildMovieDb.py</code>.`,
+      cmd: "unzip ml-32m.zip -d movie_db/data/raw\npython buildMovieDb.py",
+    }, [
+      F(".gitkeep", { L: "data", s: "File vuoto che tiene la cartella nel repository.", d: `Unico file versionato di <code>data/</code>.` }),
+      F("movielens32m.sqlite3", { L: "data", ig: true, s: "Il database SQLite (~1,3 GB) letto in sola lettura dal tool.", d: `Generato da <code>buildMovieDb.py</code> in circa 3-4 minuti: 87.585 film, 32.000.204 voti, 2.000.066 tag. Percorso in <code>CONFIG[\"movie_db\"][\"db_path\"]</code>.`, n: ["Non si modifica a mano: si rigenera con <code>python buildMovieDb.py --force</code>."] }),
+      D("raw", { L: "data", ig: true, s: "Dove si scompatta <code>ml-32m.zip</code>.", d: `Percorso in <code>CONFIG[\"movie_db\"][\"source_dir\"]</code> (<code>movie_db/data/raw/ml-32m</code>).` }, [
+        D("ml-32m", { L: "data", ig: true, s: "Contenuto dello zip di GroupLens (~950 MB).", d: `Letto solo dalla build offline; la chat non lo usa.` }, [
+          F("movies.csv", { L: "data", ig: true, s: "Film: <code>movieId, title, genres</code> (titolo con anno tra parentesi, generi separati da <code>|</code>).", d: "Film: <code>movieId, title, genres</code> (titolo con anno tra parentesi, generi separati da <code>|</code>). Letto solo dalla build offline." }),
+          F("ratings.csv", { L: "data", ig: true, s: "Circa 32 milioni di voti: <code>userId, movieId, rating, timestamp</code> (rating da 0,5 a 5).", d: "Circa 32 milioni di voti: <code>userId, movieId, rating, timestamp</code> (rating da 0,5 a 5). Letto solo dalla build offline." }),
+          F("tags.csv", { L: "data", ig: true, s: "Circa 2 milioni di tag liberi degli utenti: <code>userId, movieId, tag, timestamp</code>.", d: "Circa 2 milioni di tag liberi degli utenti: <code>userId, movieId, tag, timestamp</code>. Letto solo dalla build offline." }),
+          F("links.csv", { L: "data", ig: true, s: "Collegamenti esterni: <code>movieId, imdbId, tmdbId</code>.", d: "Collegamenti esterni: <code>movieId, imdbId, tmdbId</code>. Letto solo dalla build offline." }),
+          F("README.txt", { L: "data", ig: true, s: "Documentazione ufficiale di GroupLens (formato e licenza).", d: "Documentazione ufficiale di GroupLens (formato e licenza). Letto solo dalla build offline." }),
+          F("checksums.txt", { L: "data", ig: true, s: "MD5 ufficiali dei quattro CSV, per verificare il download.", d: "MD5 ufficiali dei quattro CSV, per verificare il download. Letto solo dalla build offline." })
+        ]),
+      ]),
+    ]),
+    D("harness", {
+      L: "off",
+      s: "Offline: ingestion (unico codice che scrive il DB), fixture e valutazione. Mai importato a runtime.",
+      d: `Tutto ciò che non gira nella chat. Può importare <code>tool/</code> (la valutazione lo usa), ma non il contrario.`,
+    }, [
+      F("__init__.py", { L: "off", s: "Docstring: il runtime non importa questo package.", d: `Nessun codice.` }),
+      D("ingestion", {
+        L: "off", s: "Build CSV → SQLite.", d: `Unico componente autorizzato a scrivere il database.`,
+      }, [
+        F("__init__.py", { L: "off", s: "Docstring del package.", d: `Nessun codice.` }),
+        F("load_csv.py", {
+          L: "off", s: "Parser in streaming dei CSV MovieLens.",
+          d: `<code>split_title_year</code> separa l'anno dal titolo (“Heat (1995)”, anche intervalli come “1994-1998”) e riporta in testa l'articolo finale (“Matrix, The” → “The Matrix”). <code>parse_genres</code> divide i generi e tratta <code>(no genres listed)</code> come nessun genere. <code>iter_movies</code>, <code>iter_ratings</code>, <code>iter_tags</code>, <code>iter_links</code> leggono i CSV riga per riga.`,
+          dep: [M + "schema.py"],
+          n: ["Con un titolo alternativo tra parentesi l'articolo resta in fondo (“Kingdom II, The (Riget II)”): limite noto, la correzione richiede una nuova build."],
+        }),
+        F("build.py", {
+          L: "off", s: "<code>build_movie_db(...)</code> e la CLI dietro <code>buildMovieDb.py</code>.",
+          d: `Controlla che ci siano i CSV, rifiuta di sovrascrivere un DB esistente senza <code>--force</code>, scrive su un file temporaneo <code>*.building</code> e lo rinomina solo a build completata. Calcola <code>movie_stats</code> nella stessa passata sui voti, crea gli indici dopo il caricamento e chiude con <code>ANALYZE</code>.`,
+          it: [["build_movie_db(*, source_dir, db_path, ingestion, force=False, verbose=False)", "Costruisce il DB."], ["main(argv)", "Legge i default da <code>CONFIG[\"movie_db\"]</code>."]],
+          dep: [M + "config.py", M + "schema.py", M + "harness/ingestion/load_csv.py", "app.py"],
+          cmd: "python buildMovieDb.py [--source-dir DIR] [--db-path FILE] [--force]",
+          n: ["Non fa chiamate API, ma oggi richiede <code>OPENAI_API_KEY</code>: legge <code>CONFIG</code> da <code>app.py</code>, i cui import creano il client OpenAI."],
+        }),
+      ]),
+      D("fixtures", {
+        L: "test", s: "Mini dataset MovieLens per test e valutazione offline.",
+        d: `Costruito con il vero codice di ingestion in un DB temporaneo (<code>tests/conftest.py</code>, <code>run_eval</code>).`,
+      }, [
+        F("__init__.py", { L: "test", s: "Docstring del package.", d: `Nessun codice.` }),
+        F("build_fixture_db.py", { L: "test", s: "<code>build_fixture_db(db_path, ingestion)</code>.", d: `Chiama <code>build_movie_db</code> sui CSV di <code>movielens_mini/</code>.`, dep: [M + "harness/ingestion/build.py", M + "config.py"] }),
+        D("movielens_mini", { L: "test", s: "Quattro CSV minuscoli con lo stesso formato di ml-32m.", d: `Valori scelti a mano perché classifiche e conteggi siano deterministici.` }, [
+            F("movies.csv", { L: "test", s: "10 film con casi limite: articolo spostato (<code>Matrix, The</code>), titolo senza anno, <code>(no genres listed)</code>, UTF-8 (Amélie).", d: "10 film con casi limite: articolo spostato (<code>Matrix, The</code>), titolo senza anno, <code>(no genres listed)</code>, UTF-8 (Amélie). Versionato: è un dato di test, non il dataset reale." }),
+            F("ratings.csv", { L: "test", s: "26 voti scelti per avere classifiche deterministiche (The Shining ha un solo voto e resta sotto <code>min_ratings = 2</code>).", d: "26 voti scelti per avere classifiche deterministiche (The Shining ha un solo voto e resta sotto <code>min_ratings = 2</code>). Versionato: è un dato di test, non il dataset reale." }),
+            F("tags.csv", { L: "test", s: "6 tag, con maiuscole diverse (<code>time travel</code> / <code>Time Travel</code>) e una virgola tra virgolette.", d: "6 tag, con maiuscole diverse (<code>time travel</code> / <code>Time Travel</code>) e una virgola tra virgolette. Versionato: è un dato di test, non il dataset reale." }),
+            F("links.csv", { L: "test", s: "Id IMDb/TMDb dei 10 film (uno vuoto).", d: "Id IMDb/TMDb dei 10 film (uno vuoto). Versionato: è un dato di test, non il dataset reale." })
+        ]),
+      ]),
+      D("evaluation", {
+        L: "test", s: "Valutazione del parser e del routing (offline o con LLM reale).",
+        d: `Non sono test pytest: le parti offline sono coperte da <code>tests/test_movie_db_eval.py</code> e <code>tests/test_movie_db_routing_eval.py</code>. Ultimo esito: parser 6/6, routing 17/17 (6 DB, 5 RAG, 6 TMDb), sessione end-to-end 5/5.`,
+      }, [
+        F("__init__.py", { L: "test", s: "Docstring del package.", d: `Nessun codice.` }),
+        F("cases.py", {
+          L: "test", s: "6 casi del parser: domanda → <code>MovieDbQuery</code> attesa e titoli attesi.",
+          d: `<code>EVAL_OVERRIDES</code> abbassa <code>min_ratings</code> a 2 per il mini dataset. <code>EvalCase.equivalent_operations()</code> accetta <code>by_genre_year</code> al posto di <code>top_rated</code> (e viceversa) solo con un genere e senza anni.`,
+          dep: [MT + "models.py"],
+        }),
+        F("run_eval.py", {
+          L: "test", s: "Esegue i 6 casi con <code>MovieDbTool</code> sul DB fixture.",
+          d: `Di default il parser è sostituito da <code>ScriptedParserClient</code> (nessuna API). Con <code>--live-parser</code> usa il parser reale. L'operazione equivalente vale solo se SQL e parametri eseguiti sono identici a quelli attesi.`,
+          dep: [M + "harness/evaluation/cases.py", M + "harness/fixtures/build_fixture_db.py", MT + "movie_db_tool.py", MT + "sql/queries.py", "app.py"],
+          cmd: "python -m movie_db.harness.evaluation.run_eval\npython -m movie_db.harness.evaluation.run_eval --live-parser",
+          n: ["<code>--live-parser</code>: 6 chiamate a <code>gpt-5.6-luna</code>.", "Anche in modalità offline richiede <code>OPENAI_API_KEY</code> (importa <code>app.py</code>)."],
+        }),
+        F("routing_cases.py", {
+          L: "test", s: "23 domande di routing: 6 DB, 5 RAG, 11 TMDb, 1 chiarimento, di cui 4 follow-up con history.",
+          d: `I follow-up richiedono frammenti nella query autonoma: “E degli anni '90?” → “horror” e “90”; la trama in inglese del film appena consigliato → “sea inside”; “E dove lo posso vedere in streaming?” → “interstellar”. Ogni caso TMDb ha un <code>expected_request</code> (<code>RequestExpectation</code>: operazione, frammenti dei campi, facet), per esempio <code>movie_details</code> con titolo “dune” e facet <code>watch_providers</code>, oppure <code>trending</code> con media <code>movie</code> e window <code>week</code>. Il caso “Oh, ma chi c'era in quel film di Sorrentino…” si aspetta <code>clarification</code>: nessun tool.`,
+        }),
+        F("run_routing_eval.py", {
+          L: "test", api: 1, s: "Routing DB/RAG/TMDb con classificatore e planner reali, senza eseguire i tool.",
+          d: `Per ogni domanda chiama solo <code>classify_query_domain</code> e <code>LLMOrchestrator._plan_turn</code>. <code>RecordingClient</code> salva l'output grezzo del planner, così un fallback silenzioso a <code>rag_search</code> (JSON non valido, tool sconosciuto, confidenza bassa, chiamata fallita) conta come fallimento anche se il tool è giusto. Retry automatici disattivati. Per i casi TMDb gli <code>arguments</code> del planner vengono validati come <code>TmdbToolInput</code> (pura validazione Pydantic, nessun HTTP) e almeno una richiesta deve rispettare <code>expected_request</code>. <code>--tool</code> limita il run ai casi di un tool. Un piano con <code>needs_clarification</code> conta come scelta esplicita del planner nei casi <code>clarification</code>.`,
+          dep: [M + "harness/evaluation/routing_cases.py", "app.py", "orchestrator.py", Q + "query_classifier/query_classifier.py", T + "models/requests.py", "turn.py"],
+          cmd: "python -m movie_db.harness.evaluation.run_routing_eval --live\npython -m movie_db.harness.evaluation.run_routing_eval --live --tool tmdb_search",
+          x: ["openai", "pydantic"],
+          n: ["Run completo: 34 chiamate, 17 a <code>gpt-4o-mini</code> e 17 a <code>gpt-5.6-luna</code>; con <code>--tool tmdb_search</code> 12 (6 + 6). <code>--live</code> è obbligatorio.", "Ultimo esito: 17/17 in un run da 34 chiamate (TMDb mirato 6/6, 12 chiamate). Il tool TMDb non viene eseguito: i dati reali non sono verificati."],
+        }),
+      ]),
+    ]),
+  ]),
+
+  D("tool", {
+    L: "cfg",
+    s: "Tutti i tool in-process dell'orchestratore, un pacchetto per ciascuno.",
+    d: `Qui sta il codice dei tool: <code>rag</code>, <code>movie_db</code>, <code>tmdb</code>, <code>wikipedia</code>, <code>youtube</code>. Un tool nuovo si aggiunge come <code>tool/&lt;nome&gt;/</code>. Dentro <code>tool/</code> gli import sono relativi (un tool importa solo sé stesso, mai un altro tool, i presenter o i canali; unico modulo del nucleo ammesso: <code>turn</code>) e li collega solo <code>app.py</code>. Restano fuori, per scelta: <code>movie_db/</code> (il database), <code>dbVettoriale/</code>, <code>presenters/</code>, <code>web_api/</code>, <code>web_lists/</code> e <code>tests/</code>.`,
+    n: ["<code>tests/test_tool_package.py</code> verifica il layout e le regole sugli import."],
+  }, [
+    F("__init__.py", { L: "cfg", s: "Docstring dell'elenco dei tool.", d: `Nessun codice.` }),
+
   D("rag", {
     L: "rt",
     s: "Il package Python con tutta la logica RAG, divisa in due fasi.",
     d: `<b>EmbeddingProcess/</b> è la fase offline (documenti → chunk → vettori → DB). <b>FromQueryEmbeddingToRes/</b> è la fase a runtime (query → retrieval → rerank → evidenze per l'orchestratore). Le due fasi condividono <code>embeddings.py</code> e <code>vectorstore.py</code>, che stanno nella cartella runtime.`,
   }, [
-    F("__init__.py", { L: "rt", s: "Marca <code>rag</code> come package (contiene solo una docstring).", d: `File vuoto a parte la docstring <code>"RAG package root."</code>. Serve per poter scrivere import assoluti come <code>from rag.FromQueryEmbeddingToRes import …</code> dalla root del repo.` }),
+    F("__init__.py", { L: "rt", s: "Marca <code>tool.rag</code> come package (contiene solo una docstring).", d: `File vuoto a parte la docstring <code>"RAG package root."</code>. Serve per poter scrivere import assoluti come <code>from tool.rag.FromQueryEmbeddingToRes import …</code> dalla root del repo.` }),
 
     D("EmbeddingProcess", {
       L: "off",
@@ -536,55 +656,17 @@ const TREE = D("NetflixScout", {}, [
     ]),
   ]),
 
-  D("movie_db", {
-    L: "db",
-    s: "Tool SQL read-only su MovieLens 32M: voti, classifiche, generi per anno, tag.",
-    d: `Secondo tool dell'orchestratore (<code>movie_db_search</code>), accanto a <code>rag_search</code>. Codice e dati stanno nella stessa cartella ma separati per ruolo: <code>config.py</code> e <code>schema.py</code> condivisi, <code>tool/</code> a runtime (unico codice importato da <code>app.py</code>), <code>harness/</code> offline (ingestion, fixture, valutazione), <code>data/</code> con CSV e DB (ignorati da git).<br><br>Il modello non scrive mai SQL: un parser LLM riempie un <code>MovieDbQuery</code> con un'operazione da enum chiuso, il codice compone SQL fisso con parametri bind ed esegue su una connessione SQLite <code>mode=ro</code> + <code>PRAGMA query_only</code> + authorizer.`,
-    n: ["Tutti i parametri stanno in <code>CONFIG[\"movie_db\"]</code> in <code>app.py</code> e passano da <code>build_runtime_config(overrides)</code>.", "<code>app.py</code> e <code>tool/</code> non importano mai <code>harness/</code>: lo verifica <code>tests/test_movie_db_app.py</code>.", "Limiti noti dei dati: il catalogo include serie TV (es. Firefly, Planet Earth II) e l'articolo finale resta in fondo quando c'è un titolo alternativo tra parentesi."],
-  }, [
-    F("__init__.py", { L: "db", s: "Docstring che descrive le quattro parti del package.", d: `Nessun codice: spiega il ruolo di <code>config.py</code>, <code>schema.py</code>, <code>tool/</code>, <code>harness/</code> e <code>data/</code>.` }),
-    F("config.py", {
-      L: "db", s: "<code>MovieDbConfig</code>: vista validata di <code>CONFIG[\"movie_db\"]</code>, senza default.",
-      d: `Modelli Pydantic <code>QueryConfig</code> (<code>default_limit</code>, <code>max_limit</code>, <code>min_ratings</code>, <code>timeout_ms</code>), <code>ParserConfig</code> (modello e prompt), <code>IngestionConfig</code> (batch, ratings e tag sì/no) e <code>MovieDbConfig</code>. Nessun campo ha un default, così l'unica fonte dei valori resta <code>app.py</code>; <code>extra="forbid"</code> rifiuta chiavi sconosciute e un validatore impone <code>max_limit ≥ default_limit</code>.`,
-      it: [["load_movie_db_config(config)", "Valida il dict (già passato da <code>build_runtime_config</code>)."], ["MovieDbConfig.model_json_schema()", "Schema pronto per un futuro form web: ogni campo ha titolo, descrizione e <code>ui_exposed</code>."]],
-      x: ["pydantic"],
-      n: ["<code>ui_exposed</code> è <code>true</code> per i limiti delle query e <code>false</code> per percorsi, prompt e modello. Nessuna API o form è implementato."],
-    }),
-    F("schema.py", {
-      L: "db", s: "Tabelle, colonne, generi e DDL: unica fonte per ingestion e runtime.",
-      d: `Tabelle <code>movies</code>, <code>movie_genres</code>, <code>ratings</code>, <code>movie_stats</code> (voti precalcolati), <code>tags</code> (con <code>tag_norm</code>) e <code>links</code>; indici creati dopo il caricamento. <code>GENRES</code> è il vocabolario dei 19 generi MovieLens. Nessun I/O.`,
-      it: [["TABLES", "Colonne per tabella: l'ingestion le usa per gli INSERT, la guardia per sapere quali tabelle si possono leggere."], ["GENRES · NO_GENRES_LABEL", "Generi validi per il parser e per la validazione."], ["normalize_tag(tag)", "Forma usata sia per salvare sia per cercare i tag (spazi compattati, minuscolo)."], ["CREATE_TABLES · CREATE_INDEXES", "DDL usato solo dall'ingestion."]],
-    }),
-    D("data", {
-      L: "data",
-      s: "Dati, non codice: CSV MovieLens scompattati e database SQLite generato.",
-      d: `Ignorata da git tranne <code>.gitkeep</code> (la licenza MovieLens vieta la redistribuzione). Chi clona scarica <code>ml-32m.zip</code> da GroupLens, lo scompatta in <code>raw/</code> e lancia <code>python buildMovieDb.py</code>.`,
-      cmd: "unzip ml-32m.zip -d movie_db/data/raw\npython buildMovieDb.py",
-    }, [
-      F(".gitkeep", { L: "data", s: "File vuoto che tiene la cartella nel repository.", d: `Unico file versionato di <code>data/</code>.` }),
-      F("movielens32m.sqlite3", { L: "data", ig: true, s: "Il database SQLite (~1,3 GB) letto in sola lettura dal tool.", d: `Generato da <code>buildMovieDb.py</code> in circa 3-4 minuti: 87.585 film, 32.000.204 voti, 2.000.066 tag. Percorso in <code>CONFIG[\"movie_db\"][\"db_path\"]</code>.`, n: ["Non si modifica a mano: si rigenera con <code>python buildMovieDb.py --force</code>."] }),
-      D("raw", { L: "data", ig: true, s: "Dove si scompatta <code>ml-32m.zip</code>.", d: `Percorso in <code>CONFIG[\"movie_db\"][\"source_dir\"]</code> (<code>movie_db/data/raw/ml-32m</code>).` }, [
-        D("ml-32m", { L: "data", ig: true, s: "Contenuto dello zip di GroupLens (~950 MB).", d: `Letto solo dalla build offline; la chat non lo usa.` }, [
-          F("movies.csv", { L: "data", ig: true, s: "Film: <code>movieId, title, genres</code> (titolo con anno tra parentesi, generi separati da <code>|</code>).", d: "Film: <code>movieId, title, genres</code> (titolo con anno tra parentesi, generi separati da <code>|</code>). Letto solo dalla build offline." }),
-          F("ratings.csv", { L: "data", ig: true, s: "Circa 32 milioni di voti: <code>userId, movieId, rating, timestamp</code> (rating da 0,5 a 5).", d: "Circa 32 milioni di voti: <code>userId, movieId, rating, timestamp</code> (rating da 0,5 a 5). Letto solo dalla build offline." }),
-          F("tags.csv", { L: "data", ig: true, s: "Circa 2 milioni di tag liberi degli utenti: <code>userId, movieId, tag, timestamp</code>.", d: "Circa 2 milioni di tag liberi degli utenti: <code>userId, movieId, tag, timestamp</code>. Letto solo dalla build offline." }),
-          F("links.csv", { L: "data", ig: true, s: "Collegamenti esterni: <code>movieId, imdbId, tmdbId</code>.", d: "Collegamenti esterni: <code>movieId, imdbId, tmdbId</code>. Letto solo dalla build offline." }),
-          F("README.txt", { L: "data", ig: true, s: "Documentazione ufficiale di GroupLens (formato e licenza).", d: "Documentazione ufficiale di GroupLens (formato e licenza). Letto solo dalla build offline." }),
-          F("checksums.txt", { L: "data", ig: true, s: "MD5 ufficiali dei quattro CSV, per verificare il download.", d: "MD5 ufficiali dei quattro CSV, per verificare il download. Letto solo dalla build offline." })
-        ]),
-      ]),
-    ]),
-    D("tool", {
+    D("movie_db", {
       L: "db",
-      s: "Runtime: il tool dell'orchestratore, il parser e l'accesso SQL read-only.",
-      d: `Unica parte di <code>movie_db</code> importata da <code>app.py</code>. Non stampa nulla e non conosce il canale di output: restituisce <code>chunks</code>, <code>metadata</code> e una <code>trace</code> con le sole query eseguite.`,
+      s: "Tool <code>movie_db_search</code>: il tool dell'orchestratore, il parser e l'accesso SQL read-only a MovieLens.",
+      d: `Unica parte del database MovieLens importata da <code>app.py</code>. Il <b>database</b> (dati, schema, config condivisa con l'ingestione, harness) resta nella cartella <code>movie_db/</code> della root: da qui si importano solo <code>movie_db.config</code> e <code>movie_db.schema</code>, mai <code>harness</code>. Non stampa nulla e non conosce il canale di output: restituisce <code>chunks</code>, <code>metadata</code> e una <code>trace</code> con le sole query eseguite.`,
     }, [
       F("__init__.py", { L: "db", s: "Docstring del package runtime.", d: `Nessun codice.` }),
       F("movie_db_tool.py", {
         L: "db", s: "<code>MovieDbTool</code> (<code>movie_db_search</code>): rispetta il <code>Tool</code> Protocol.",
         d: `<code>run(*, query, params, conversation_history)</code>: valida l'input (<code>MovieDbToolInput</code>), fa convertire la domanda autonoma in <code>MovieDbQuery</code> dal parser, apre una connessione read-only per chiamata ed esegue il repository. Restituisce <code>{query, chunks, outcome, metadata: {operation, row_count}, trace}</code> (<code>outcome</code>: <code>error</code> con <code>error_kind</code>, <code>empty</code> senza righe, altrimenti <code>ok</code>). Se il parser o il DB falliscono non solleva eccezioni: risultato vuoto con <code>metadata.error</code> e trace con <code>queries: []</code>, così l'orchestratore risponde in modo trasparente. Le righe film aggiungono a <code>metadata</code> <code>work_type_verified: false</code> e una nota: MovieLens non distingue film e serie TV, quindi la risposta non li presenta come film verificati.`,
         it: [["MOVIE_DB_TOOL_NAME", "<code>\"movie_db_search\"</code>, il nome visto dall'orchestratore."], ["MovieDbTool(config, client=None)", "Il client OpenAI del parser viene creato al primo uso."]],
-        dep: [M + "config.py", M + "tool/models.py", M + "tool/parser.py", M + "tool/results.py", M + "tool/trace.py", M + "tool/sql/connection.py", M + "tool/sql/repository.py"],
+        dep: [M + "config.py", MT + "models.py", MT + "parser.py", MT + "results.py", MT + "trace.py", MT + "sql/connection.py", MT + "sql/repository.py"],
         n: ["Gli <code>arguments</code> scelti dal planner vengono ignorati tranne <code>query</code>: i parametri della query li ricava solo il parser e li valida Pydantic."],
       }),
       F("models.py", {
@@ -595,7 +677,7 @@ const TREE = D("NetflixScout", {}, [
       F("parser.py", {
         L: "db", api: 1, s: "<code>parse_query(query, settings, client)</code>: domanda → <code>MovieDbQuery</code> con una chiamata LLM.",
         d: `Chiama <code>client.responses.create</code> con il modello e il prompt di <code>CONFIG[\"movie_db\"][\"parser\"]</code> (il segnaposto <code>{genres}</code> riceve i generi validi), accetta JSON anche tra <code>\`\`\`</code> e lo valida con <code>MovieDbQuery</code>. Ogni errore (chiamata, JSON, validazione) diventa <code>MovieDbParseError</code>.`,
-        dep: [M + "config.py", M + "schema.py", M + "tool/models.py"],
+        dep: [M + "config.py", M + "schema.py", MT + "models.py"],
         x: ["openai", "pydantic"],
         n: ["Una chiave in più nel JSON (per esempio <code>sql</code>) fa rifiutare tutta la risposta: è voluto."],
       }),
@@ -606,7 +688,7 @@ const TREE = D("NetflixScout", {}, [
       F("trace.py", {
         L: "db", s: "<code>build_db_query_trace(executed)</code>: un solo step <code>db_query</code> con le query eseguite.",
         d: `Forma: <code>{kind: \"db_query\", title: \"Query DB\", data: {queries: [{sql, params}]}}</code>. Niente righe di risultato, limiti di configurazione o percorsi del DB, per tenere corto il resoconto.`,
-        dep: ["turn.py", M + "tool/models.py"],
+        dep: ["turn.py", MT + "models.py"],
       }),
       D("sql", {
         L: "db",
@@ -617,7 +699,7 @@ const TREE = D("NetflixScout", {}, [
         F("connection.py", {
           L: "db", s: "<code>open_readonly</code>, <code>readonly_connection</code>, <code>ensure_db_ready</code>.",
           d: `<code>open_readonly(path, *, timeout_ms)</code> rifiuta un file mancante (senza mostrarne il percorso), apre <code>file:…?mode=ro</code>, imposta <code>PRAGMA query_only</code> e poi installa la guardia. <code>readonly_connection</code> apre e chiude una connessione per chiamata. <code>ensure_db_ready(config)</code> è il controllo d'avvio usato da <code>app.run_terminal_chat</code>.`,
-          dep: [M + "config.py", M + "schema.py", M + "tool/sql/guard.py"],
+          dep: [M + "config.py", M + "schema.py", MT + "sql/guard.py"],
           n: ["Se il DB manca l'errore dice di lanciare <code>python buildMovieDb.py</code>."],
         }),
         F("guard.py", {
@@ -629,85 +711,147 @@ const TREE = D("NetflixScout", {}, [
           L: "db", s: "SQL whitelistato: ogni operazione ha un builder fatto di frammenti costanti.",
           d: `<code>QUERY_BUILDERS</code> mappa ogni <code>MovieDbOperation</code> a una funzione che sceglie frammenti SQL fissi in base ai filtri presenti (genere, anni): nessun valore della richiesta entra nel testo SQL, i valori viaggiano solo come parametri <code>?</code>. <code>top_rated</code> e <code>by_genre_year</code> usano lo stesso ordinamento per voto; <code>by_title</code> usa <code>LIKE</code> con escape di <code>%</code> e <code>_</code>.`,
           it: [["build_query(query, *, limit, min_ratings)", "→ <code>ExecutedQuery(sql, params)</code>."], ["escape_like(value)", "Rende letterali i caratteri jolly di LIKE."]],
-          dep: [M + "schema.py", M + "tool/models.py"],
+          dep: [M + "schema.py", MT + "models.py"],
           n: ["<code>by_title</code> cerca per sottostringa: “Heat” trova anche “Heathers”; la scelta del film giusto la fa l'LLM nella risposta."],
         }),
         F("repository.py", {
           L: "db", s: "<code>run_query(conn, query, settings)</code> → (query eseguite, righe).",
           d: `Calcola il limite effettivo (<code>effective_limit</code>: richiesto o predefinito, sempre ≤ <code>max_limit</code>), costruisce il SQL con <code>queries.build_query</code>, lo esegue con <code>conn.execute</code> e legge al massimo <code>limit</code> righe.`,
-          dep: [M + "config.py", M + "tool/models.py", M + "tool/sql/queries.py"],
+          dep: [M + "config.py", MT + "models.py", MT + "sql/queries.py"],
         }),
       ]),
     ]),
-    D("harness", {
-      L: "off",
-      s: "Offline: ingestion (unico codice che scrive il DB), fixture e valutazione. Mai importato a runtime.",
-      d: `Tutto ciò che non gira nella chat. Può importare <code>tool/</code> (la valutazione lo usa), ma non il contrario.`,
+
+  D("tmdb", {
+    L: "tmdb",
+    s: "Tool <code>tmdb_search</code>: dati aggiornati da The Movie Database (cast, uscite, streaming, serie, persone, trending).",
+    d: `Terzo tool dell'orchestratore, accanto a <code>rag_search</code> e <code>movie_db_search</code>. Il modello non costruisce mai URL: compila <code>requests</code> (1–4 operazioni tipizzate tra 17), il codice le valida contro <code>RULES</code> prima di qualunque chiamata, risolve gli ID mancanti (ID TMDb → <code>/find</code> per ID esterni → ricerca per titolo o nome), mappa ogni operazione su un endpoint fisso e normalizza il JSON in entità con facet limitate.<br><br><b>Chiamate HTTP</b>: <code>http.py</code> è l'unico punto di I/O (stdlib <code>urllib</code>). Ordine: memo del turno → cache TTL → pausa dopo un 429 → budget → invio. L'unico limite è <code>CONFIG["tmdb"]["max_calls_per_turn"]</code> (6); nessun retry; le chiamate opzionali partono solo se avanza budget, altrimenti <code>skipped_for_budget</code>.<br><br><b>Contesto</b>: <code>prompt_budget.py</code> limita i dati passati all'LLM (P0 identità, P1 essenziali, P2 liste finché c'è spazio, omissioni segnalate).`,
+    n: [
+      "<code>CONFIG[\"tmdb\"]</code> ha solo <code>max_results</code> 5, <code>max_calls_per_turn</code> 6, <code>cache_ttl</code> 3600 (<code>TmdbConfig</code>, <code>extra=\"forbid\"</code>): timeout, cache, regione e limiti del contesto sono costanti interne.",
+      "La chiave esce solo da <code>auth.authorize</code> verso <code>http.py</code>; il base URL accetta solo <code>https://api.themoviedb.org/3</code>. Trace, metadata, errori e cache non contengono mai la chiave.",
+      "Routing verificato live: 17/17 casi (6 TMDb) in un run da 34 chiamate LLM, senza eseguire il tool. I dati reali TMDb (risoluzione titoli, provider, trailer) non sono ancora verificati.",
+      "Termini TMDb: §3 richiede l'attribuzione (JustWatch per lo streaming); §1.C vieta l'uso con applicazioni AI: il proprietario ha scelto di procedere per un uso personale da portfolio.",
+    ],
+  }, [
+    F("__init__.py", { L: "tmdb", s: "Docstring del package.", d: `Riassume il ruolo: operazioni tipizzate, validazione, risoluzione degli ID, endpoint fissi, budget per turno, normalizzazione. Nessun codice.` }),
+    F("tool.py", {
+      L: "tmdb", s: "<code>TmdbTool</code>: rispetta il <code>Tool</code> Protocol, crea il budget del turno e impacchetta il risultato.",
+      d: `<code>run(*, query, params, conversation_history)</code> restituisce anche <code>outcome</code> (<code>error</code> con il codice dell'errore, <code>empty</code> senza risultati, altrimenti <code>ok</code>), che la storia del turno racconta; toglie <code>turn_language</code> dai parametri (lo passa <code>handle_query</code>, non è nello schema LLM), valida <code>TmdbToolInput</code>, carica le credenziali al primo uso, crea <code>TmdbContext</code> con un <code>CallBudget</code> nuovo, esegue le richieste con <code>runner.run_requests</code> e restituisce <code>{query, chunks, metadata: {tmdb}, trace}</code>. Input non valido o chiave mancante → risultato vuoto con l'errore, senza HTTP. La <code>description</code> è generata da <code>RULES</code>, lo <code>input_schema</code> da Pydantic.`,
+      it: [["TmdbTool", "Tool registrato in <code>build_app</code>; cache e cooldown condivisi tra i turni."], ["api_language_for(turn_language)", "<code>it</code> → <code>it-IT</code>, altrimenti <code>en-US</code>."], ["TMDB_TOOL_NAME", "<code>\"tmdb_search\"</code>."]],
+      dep: [T + "config.py", T + "auth.py", T + "budget.py", T + "cache.py", T + "context.py", T + "cooldown.py", T + "http.py", T + "models/requests.py", T + "models/operation_rules.py", T + "runner.py", T + "prompt_budget.py", T + "trace.py", "turn.py"],
+      x: ["pydantic"],
+    }),
+    F("config.py", { L: "tmdb", s: "<code>TmdbConfig</code>: vista validata di <code>CONFIG[\"tmdb\"]</code>, solo tre campi e nessun default.", d: `<code>max_results</code> (1–20), <code>max_calls_per_turn</code> (1–20), <code>cache_ttl</code> (0–86400, 0 disattiva la cache). <code>extra="forbid"</code>; ogni campo ha <code>ui_exposed</code> nello schema JSON. <code>load_tmdb_config</code> valida la sezione dopo gli override di <code>build_runtime_config</code>.`, x: ["pydantic"] }),
+    F("settings.py", { L: "tmdb", s: "Costanti interne, fuori da <code>CONFIG</code> di proposito.", d: `Timeout HTTP 8 s, cache da 256 voci, pausa dopo un 429 (10 s, massimo 120), regione di default <code>IT</code>, URL delle immagini, lingue API (<code>it-IT</code> / <code>en-US</code>) e lingua di riferimento <code>en-US</code> per generi e provider. Nessuna di queste limita le chiamate HTTP.` }),
+    F("auth.py", { L: "tmdb", s: "Credenziali: <b>unico</b> modulo che legge la chiave dall'ambiente.", d: `Legge <code>VUE_APP_TMDB_API_KEY</code> e <code>VUE_APP_TMDB_BASE_URL</code> (con <code>load_dotenv</code>), accetta solo <code>https://api.themoviedb.org/3</code> e riconosce la modalità: chiave v3 (parametro <code>api_key</code>) o token v4 (<code>Authorization: Bearer</code>). <code>authorize</code> aggiunge la credenziale e la chiama solo <code>http.py</code>. Il <code>repr</code> delle credenziali maschera il segreto.`, dep: [T + "errors.py"], x: ["python-dotenv"] }),
+    F("http.py", { L: "tmdb", s: "<b>Unico</b> punto di I/O verso TMDb: memo → cache → cooldown → budget → invio.", d: `<code>get_json</code> serve prima dal memo del turno (anche i fallimenti: una richiesta fallita non riparte), poi dalla cache TTL; altrimenti, se non c'è una pausa per 429 e il budget lo consente, registra l'URL mascherato e invia con <code>urllib</code>. 429 → pausa, 401 → stop delle richieste successive, 404 → non trovato. Gli errori sono rilanciati <code>from None</code> con messaggi senza URL. <code>optional_json</code> serve per i dati facoltativi: se il budget è finito li annota in <code>skipped_for_budget</code>.`, it: [["get_json(ctx, endpoint)", "Risposta JSON, dal memo o dalla cache quando possibile."], ["optional_json(ctx, endpoint, skipped, label)", "Come sopra, ma non fallisce il turno."], ["urllib_transport", "Il transport reale; nei test è sostituito da uno finto."]], dep: [T + "auth.py", T + "cache.py", T + "calls.py", T + "context.py", T + "cooldown.py", T + "endpoints.py", T + "errors.py", T + "settings.py"], n: ["Un test AST verifica che nessun altro modulo faccia I/O di rete."] }),
+    F("budget.py", { L: "tmdb", s: "<code>CallBudget</code>: i tentativi HTTP del turno, l'unico limite alle chiamate.", d: `<code>try_reserve()</code> riserva un tentativo prima dell'invio (thread-safe); ogni invio conta anche se fallisce, i hit di memo e cache sono gratis. Viene creato in <code>TmdbTool.run</code> perché l'orchestratore esegue un solo tool per turno.`, n: ["Se si introduce un ciclo multi-step, il budget va spostato in un contesto di turno (lo ricorda <code>test_one_tool_run_per_turn</code>)."] }),
+    F("cache.py", { L: "tmdb", s: "Cache TTL in memoria, condivisa tra i turni.", d: `Chiave = (path, parametri ordinati) costruita <b>prima</b> di aggiungere la credenziale, quindi senza chiave API. Salva solo risposte riuscite, scarta le voci scadute e le meno recenti oltre 256. Con <code>cache_ttl = 0</code> è disattivata (il memo del turno resta).`, dep: [T + "settings.py"] }),
+    F("cooldown.py", { L: "tmdb", s: "Pausa dopo un HTTP 429: finché dura le richieste non vengono inviate né contate.", d: `La durata viene da <code>Retry-After</code>, limitata tra 1 e 120 secondi (10 s se manca). Nessun retry automatico.`, dep: [T + "settings.py"] }),
+    F("calls.py", { L: "tmdb", s: "URL mostrati all'utente: solo base + path, credenziale mascherata.", d: `<code>display_url</code> ricostruisce l'URL dal path dell'endpoint, mai da quello inviato: niente parametri di ricerca né <code>append_to_response</code>; con chiave v3 aggiunge <code>?api_key=***</code>, con Bearer nessuna credenziale. <code>CallRecorder</code> raccoglie gli URL del turno per la trace.`, dep: [T + "auth.py"] }),
+    F("context.py", { L: "tmdb", s: "<code>TmdbContext</code>: dipendenze esplicite di una run (un turno).", d: `Config, credenziali, cache, cooldown, budget, transport, lingua API, recorder delle chiamate, memo delle risposte e dei fallimenti del turno, risoluzioni già fatte. <code>limit(requested)</code> applica <code>max_results</code> alle liste.`, dep: [T + "auth.py", T + "budget.py", T + "cache.py", T + "calls.py", T + "config.py", T + "cooldown.py"] }),
+    F("endpoints.py", { L: "tmdb", s: "<b>Unico</b> mapping operazione → path e parametri TMDb.", d: `I segmenti del path vengono solo da interi validati, enum chiusi o ID esterni controllati con regex ed escapati; titoli e nomi viaggiano solo come parametri codificati. <code>include_adult</code> sempre <code>false</code>; <code>append_to_response</code> rispetta il massimo documentato e le raccolte non lo usano. <code>IDENTITY_APPENDS</code> / <code>identity_appends(namespace)</code>: append fissi dei dettagli film e serie (credits, translations, alternative_titles e, per i film, release_dates), usati anche dalla verifica dell'identità così che sia la stessa chiamata dei dettagli.`, dep: [T + "models/enums.py"] }),
+    F("dispatch.py", { L: "tmdb", s: "Tabella deterministica <code>TmdbOperation</code> → handler.", d: `<code>OPERATION_HANDLERS</code> collega ognuna delle 17 operazioni alla funzione in <code>operations/</code>. Un test verifica che ogni operazione abbia regola e handler.`, dep: [T + "operations"] }),
+    F("runner.py", { L: "tmdb", s: "Esegue le richieste in ordine con un budget condiviso; i fallimenti diventano dati.", d: `Ogni richiesta produce un <code>RequestOutcome</code> con <code>status</code> <code>ok</code> / <code>partial</code> / <code>error</code>: budget finito o 429 non rompono il turno. Dopo un 401 le richieste successive non vengono inviate. <code>overall_status</code> riassume la run.`, dep: [T + "dispatch.py", T + "context.py", T + "errors.py"] }),
+    F("prompt_budget.py", { L: "tmdb", s: "Impacchetta in modo deterministico i risultati nel contesto dell'LLM.", d: `L'orchestratore mette <code>metadata</code> intero nel prompt e mostra solo <code>chunks[:10]</code>: il tool si limita da solo (<code>MAX_TMDB_CONTEXT_CHARS</code> 12.000, <code>MAX_CHUNKS</code> 10). P0 (tipo, ID, titolo, anno) apre ogni chunk e non viene tagliato; P1 (essenziali delle entità di dettaglio) è sempre presente, ridotto a 1.000 caratteri togliendo prima tagline, URL e immagini e solo dopo accorciando la trama; P2 (facet e liste) entra finché c'è spazio. Le liste parziali finiscono in <code>metadata.tmdb.omitted</code> come <code>shown/total</code>.`, dep: [T + "models/results.py", T + "normalize/common.py", T + "operations/reference.py"] }),
+    F("enrich.py", { L: "tmdb", s: "<code>TmdbRagEnricher</code>: completa con TMDb i film scelti dal RAG.", d: `Dopo <code>rag_search</code> l'orchestratore gli passa il risultato. Prende i chunk finali (dopo il rerank, al massimo <code>max_candidates</code>, nell'ordine del RAG, senza duplicati), cerca ogni titolo con l'anno in <code>en-US</code> e aggiunge in <code>metadata.tmdb_enrichment</code> titolo, anno, regista, cast e sinossi solo se titolo e anno (±1) coincidono; altrimenti <code>unverified</code>, <code>not_found</code> o <code>skipped</code>. Non riordina i chunk e usa un solo budget, creato da <code>TmdbTool.new_context</code>. Un candidato riceve metadati solo con titolo o titolo originale uguali (mai per inclusione: “The Sinner” non è “The Sinners”) e anno ±1, in <code>strict_identity</code> (più risultati ugualmente validi → <code>ambiguous</code>). Un match tramite titolo alternativo o articolo (<code>matched_by: alternative_title</code>) richiede anche un attore in comune quando i cast sono noti (<code>cast_mismatch</code>); un anno confermato da una data di uscita secondaria dà <code>year_note</code>. Durata 0 scartata.`, dep: [T + "tool.py", T + "runner.py", T + "trace.py"] }),
+    F("trace.py", { L: "tmdb", s: "Step <code>tmdb_calls</code>: URL chiamati e attribuzioni.", d: `Fuori da <code>metadata</code> (che va nel prompt): le attribuzioni le mostrano i presenter, non l'LLM.` }),
+    F("errors.py", { L: "tmdb", s: "Errori TMDb con messaggi sicuri.", d: `<code>TmdbConfigError</code>, <code>TmdbBudgetExhausted</code>, <code>TmdbRateLimited</code>, <code>TmdbAuthError</code>, <code>TmdbNotFound</code>, <code>TmdbHttpError</code>, <code>TmdbNetworkError</code>, <code>TmdbUnresolvedFilter</code>, ognuno con un <code>code</code>. I messaggi non contengono mai URL, query string, credenziali o testo dell'utente. <code>TmdbUnverifiedMatch</code> (<code>unverified_match</code>) porta <code>reason</code> (<code>title_mismatch</code>, <code>year_mismatch</code>, <code>ambiguous</code>) e i <code>candidates</code>.` }),
+    D("models", {
+      L: "tmdb", s: "Enum, regole per operazione, input del tool e risultati normalizzati.",
+      d: `Una sola tabella (<code>RULES</code>) guida sia la validazione sia la guida alle operazioni nella descrizione del tool: prompt del planner e validatore non possono divergere.`,
     }, [
-      F("__init__.py", { L: "off", s: "Docstring: il runtime non importa questo package.", d: `Nessun codice.` }),
-      D("ingestion", {
-        L: "off", s: "Build CSV → SQLite.", d: `Unico componente autorizzato a scrivere il database.`,
-      }, [
-        F("__init__.py", { L: "off", s: "Docstring del package.", d: `Nessun codice.` }),
-        F("load_csv.py", {
-          L: "off", s: "Parser in streaming dei CSV MovieLens.",
-          d: `<code>split_title_year</code> separa l'anno dal titolo (“Heat (1995)”, anche intervalli come “1994-1998”) e riporta in testa l'articolo finale (“Matrix, The” → “The Matrix”). <code>parse_genres</code> divide i generi e tratta <code>(no genres listed)</code> come nessun genere. <code>iter_movies</code>, <code>iter_ratings</code>, <code>iter_tags</code>, <code>iter_links</code> leggono i CSV riga per riga.`,
-          dep: [M + "schema.py"],
-          n: ["Con un titolo alternativo tra parentesi l'articolo resta in fondo (“Kingdom II, The (Riget II)”): limite noto, la correzione richiede una nuova build."],
-        }),
-        F("build.py", {
-          L: "off", s: "<code>build_movie_db(...)</code> e la CLI dietro <code>buildMovieDb.py</code>.",
-          d: `Controlla che ci siano i CSV, rifiuta di sovrascrivere un DB esistente senza <code>--force</code>, scrive su un file temporaneo <code>*.building</code> e lo rinomina solo a build completata. Calcola <code>movie_stats</code> nella stessa passata sui voti, crea gli indici dopo il caricamento e chiude con <code>ANALYZE</code>.`,
-          it: [["build_movie_db(*, source_dir, db_path, ingestion, force=False, verbose=False)", "Costruisce il DB."], ["main(argv)", "Legge i default da <code>CONFIG[\"movie_db\"]</code>."]],
-          dep: [M + "config.py", M + "schema.py", M + "harness/ingestion/load_csv.py", "app.py"],
-          cmd: "python buildMovieDb.py [--source-dir DIR] [--db-path FILE] [--force]",
-          n: ["Non fa chiamate API, ma oggi richiede <code>OPENAI_API_KEY</code>: legge <code>CONFIG</code> da <code>app.py</code>, i cui import creano il client OpenAI."],
-        }),
-      ]),
-      D("fixtures", {
-        L: "test", s: "Mini dataset MovieLens per test e valutazione offline.",
-        d: `Costruito con il vero codice di ingestion in un DB temporaneo (<code>tests/conftest.py</code>, <code>run_eval</code>).`,
-      }, [
-        F("__init__.py", { L: "test", s: "Docstring del package.", d: `Nessun codice.` }),
-        F("build_fixture_db.py", { L: "test", s: "<code>build_fixture_db(db_path, ingestion)</code>.", d: `Chiama <code>build_movie_db</code> sui CSV di <code>movielens_mini/</code>.`, dep: [M + "harness/ingestion/build.py", M + "config.py"] }),
-        D("movielens_mini", { L: "test", s: "Quattro CSV minuscoli con lo stesso formato di ml-32m.", d: `Valori scelti a mano perché classifiche e conteggi siano deterministici.` }, [
-            F("movies.csv", { L: "test", s: "10 film con casi limite: articolo spostato (<code>Matrix, The</code>), titolo senza anno, <code>(no genres listed)</code>, UTF-8 (Amélie).", d: "10 film con casi limite: articolo spostato (<code>Matrix, The</code>), titolo senza anno, <code>(no genres listed)</code>, UTF-8 (Amélie). Versionato: è un dato di test, non il dataset reale." }),
-            F("ratings.csv", { L: "test", s: "26 voti scelti per avere classifiche deterministiche (The Shining ha un solo voto e resta sotto <code>min_ratings = 2</code>).", d: "26 voti scelti per avere classifiche deterministiche (The Shining ha un solo voto e resta sotto <code>min_ratings = 2</code>). Versionato: è un dato di test, non il dataset reale." }),
-            F("tags.csv", { L: "test", s: "6 tag, con maiuscole diverse (<code>time travel</code> / <code>Time Travel</code>) e una virgola tra virgolette.", d: "6 tag, con maiuscole diverse (<code>time travel</code> / <code>Time Travel</code>) e una virgola tra virgolette. Versionato: è un dato di test, non il dataset reale." }),
-            F("links.csv", { L: "test", s: "Id IMDb/TMDb dei 10 film (uno vuoto).", d: "Id IMDb/TMDb dei 10 film (uno vuoto). Versionato: è un dato di test, non il dataset reale." })
-        ]),
-      ]),
-      D("evaluation", {
-        L: "test", s: "Valutazione del parser e del routing (offline o con LLM reale).",
-        d: `Non sono test pytest: le parti offline sono coperte da <code>tests/test_movie_db_eval.py</code> e <code>tests/test_movie_db_routing_eval.py</code>. Ultimo esito: parser 6/6, routing 17/17 (6 DB, 5 RAG, 6 TMDb), sessione end-to-end 5/5.`,
-      }, [
-        F("__init__.py", { L: "test", s: "Docstring del package.", d: `Nessun codice.` }),
-        F("cases.py", {
-          L: "test", s: "6 casi del parser: domanda → <code>MovieDbQuery</code> attesa e titoli attesi.",
-          d: `<code>EVAL_OVERRIDES</code> abbassa <code>min_ratings</code> a 2 per il mini dataset. <code>EvalCase.equivalent_operations()</code> accetta <code>by_genre_year</code> al posto di <code>top_rated</code> (e viceversa) solo con un genere e senza anni.`,
-          dep: [M + "tool/models.py"],
-        }),
-        F("run_eval.py", {
-          L: "test", s: "Esegue i 6 casi con <code>MovieDbTool</code> sul DB fixture.",
-          d: `Di default il parser è sostituito da <code>ScriptedParserClient</code> (nessuna API). Con <code>--live-parser</code> usa il parser reale. L'operazione equivalente vale solo se SQL e parametri eseguiti sono identici a quelli attesi.`,
-          dep: [M + "harness/evaluation/cases.py", M + "harness/fixtures/build_fixture_db.py", M + "tool/movie_db_tool.py", M + "tool/sql/queries.py", "app.py"],
-          cmd: "python -m movie_db.harness.evaluation.run_eval\npython -m movie_db.harness.evaluation.run_eval --live-parser",
-          n: ["<code>--live-parser</code>: 6 chiamate a <code>gpt-5.6-luna</code>.", "Anche in modalità offline richiede <code>OPENAI_API_KEY</code> (importa <code>app.py</code>)."],
-        }),
-        F("routing_cases.py", {
-          L: "test", s: "23 domande di routing: 6 DB, 5 RAG, 11 TMDb, 1 chiarimento, di cui 4 follow-up con history.",
-          d: `I follow-up richiedono frammenti nella query autonoma: “E degli anni '90?” → “horror” e “90”; la trama in inglese del film appena consigliato → “sea inside”; “E dove lo posso vedere in streaming?” → “interstellar”. Ogni caso TMDb ha un <code>expected_request</code> (<code>RequestExpectation</code>: operazione, frammenti dei campi, facet), per esempio <code>movie_details</code> con titolo “dune” e facet <code>watch_providers</code>, oppure <code>trending</code> con media <code>movie</code> e window <code>week</code>. Il caso “Oh, ma chi c'era in quel film di Sorrentino…” si aspetta <code>clarification</code>: nessun tool.`,
-        }),
-        F("run_routing_eval.py", {
-          L: "test", api: 1, s: "Routing DB/RAG/TMDb con classificatore e planner reali, senza eseguire i tool.",
-          d: `Per ogni domanda chiama solo <code>classify_query_domain</code> e <code>LLMOrchestrator._plan_turn</code>. <code>RecordingClient</code> salva l'output grezzo del planner, così un fallback silenzioso a <code>rag_search</code> (JSON non valido, tool sconosciuto, confidenza bassa, chiamata fallita) conta come fallimento anche se il tool è giusto. Retry automatici disattivati. Per i casi TMDb gli <code>arguments</code> del planner vengono validati come <code>TmdbToolInput</code> (pura validazione Pydantic, nessun HTTP) e almeno una richiesta deve rispettare <code>expected_request</code>. <code>--tool</code> limita il run ai casi di un tool. Un piano con <code>needs_clarification</code> conta come scelta esplicita del planner nei casi <code>clarification</code>.`,
-          dep: [M + "harness/evaluation/routing_cases.py", "app.py", "orchestrator.py", Q + "query_classifier/query_classifier.py", T + "models/requests.py", "turn.py"],
-          cmd: "python -m movie_db.harness.evaluation.run_routing_eval --live\npython -m movie_db.harness.evaluation.run_routing_eval --live --tool tmdb_search",
-          x: ["openai", "pydantic"],
-          n: ["Run completo: 34 chiamate, 17 a <code>gpt-4o-mini</code> e 17 a <code>gpt-5.6-luna</code>; con <code>--tool tmdb_search</code> 12 (6 + 6). <code>--live</code> è obbligatorio.", "Ultimo esito: 17/17 in un run da 34 chiamate (TMDb mirato 6/6, 12 chiamate). Il tool TMDb non viene eseguito: i dati reali non sono verificati."],
-        }),
-      ]),
+      F("__init__.py", { L: "tmdb", s: "Docstring del package.", d: `Nessun codice.` }),
+      F("enums.py", { L: "tmdb", s: "Vocabolari chiusi: operazioni, tipi di ricerca, media, facet, ordinamenti…", d: `<code>TmdbOperation</code> (17 valori: search, find_by_external_id, movie_details, movie_collection, tv_details, tv_season, tv_episode, person_details, collection_details, company_details, discover_movies, discover_tv, trending, chart, genres, watch_providers_catalog, certifications), <code>Facet</code> (credits, videos, watch_providers, reviews…), <code>MediaType</code>, <code>TimeWindow</code>, <code>ChartList</code>, <code>ExternalSource</code>, <code>Department</code> e i filtri di discover.` }),
+      F("operation_rules.py", { L: "tmdb", s: "<code>RULES</code>: campi obbligatori, ammessi, facet e media per ogni operazione.", d: `Ogni <code>OperationRule</code> ha un riassunto, gruppi di campi obbligatori (almeno uno per gruppo), campi ammessi, facet supportate e media. <code>describe_operations()</code> ne ricava la guida inserita nella <code>description</code> del tool. Contiene anche le classifiche per media e i pattern degli ID esterni.`, dep: [T + "models/enums.py"] }),
+      F("requests.py", { L: "tmdb", s: "<code>TmdbToolInput</code> e <code>TmdbRequest</code>: tutto validato prima di qualunque HTTP.", d: `<code>extra="forbid"</code>, campi non ammessi dall'operazione, facet non supportate, filtri di discover incompatibili, ID esterni con pattern: un solo errore rifiuta l'intera run. Accetta anche una singola richiesta \"piatta\". <code>describe_validation_errors</code> riporta numero di richiesta, campo e tipo di errore, mai i valori inviati.`, it: [["TmdbToolInput", "<code>{query, requests: [1..4]}</code>."], ["TmdbRequest", "Una operazione con i suoi argomenti."], ["DiscoverFilters", "Filtri di discover; i nomi sono risolti in ID dal tool."], ["MAX_REQUESTS_PER_RUN = 4", "Vincolo di forma, non di chiamate."]], dep: [T + "models/enums.py", T + "models/operation_rules.py"], x: ["pydantic"] }),
+      F("results.py", { L: "tmdb", s: "<code>Entity</code> e <code>RequestOutcome</code>: risultati normalizzati prima del packing.", d: `<code>Entity</code> ha identità (P0), <code>essentials</code> (P1) e <code>facets</code> con i totali prima del limite (P2). <code>RequestOutcome</code> raccoglie stato, errore, entità, elementi di lista, candidati, note e <code>skipped_for_budget</code>.`, x: ["pydantic"] }),
     ]),
+    D("operations", {
+      L: "tmdb", s: "Handler per famiglia di endpoint: <code>(ctx, request) → RequestOutcome</code>.",
+      d: `Ogni handler risolve l'ID se serve (<code>resolve.py</code>), chiama gli endpoint tramite <code>http.get_json</code> e normalizza con <code>normalize/</code>. Le facet richieste viaggiano nella stessa chiamata con <code>append_to_response</code> quando l'endpoint lo supporta.`,
+    }, [
+      F("__init__.py", { L: "tmdb", s: "Docstring del package.", d: `Nessun codice.` }),
+      F("resolve.py", { L: "tmdb", s: "Ricerca e risoluzione degli ID: ID TMDb → <code>/find</code> → ricerca testuale.", d: `La scelta tra i risultati è deterministica: titolo esatto (originale o tradotto) → stesso anno → anno ±1 → dipartimento noto → più popolare. Le risoluzioni sono memorizzate per il turno; i candidati ambigui vengono riportati. Espone anche le operazioni <code>search</code> e <code>find_by_external_id</code>. Per film e serie non sceglie mai il più popolare senza titolo esatto: <code>_pick_work</code> richiede titolo esatto (con accenti, poi senza) e anno compatibile; altrimenti <code>_verify_by_details</code> controlla al massimo 2 schede della stessa opera (titoli tradotti o alternativi, oppure lo stesso titolo a meno dell'articolo iniziale; anno entro ±1 da una qualsiasi data di uscita registrata; senza anno solo un risultato unico) e in mancanza restituisce <code>unverified_match</code> con le alternative. Un titolo non trovato nella lingua del turno viene cercato una volta in inglese.`, dep: [T + "http.py", T + "endpoints.py", T + "operations/listing.py"] }),
+      F("details.py", { L: "tmdb", s: "Passi comuni dei dettagli: parametri delle facet e fallback opzionali.", d: `Se <code>watch/providers</code> manca dalla risposta con append, una chiamata separata (contata); recensioni vuote nella lingua del turno → una chiamata in inglese (contata). Entrambe solo se avanza budget. Aggiunge i fallback di lingua per immagini e video nella stessa chiamata. Aggiunge all'esito le note <code>alternative_title_match</code> e <code>year_from_release_dates</code>.`, dep: [T + "http.py", T + "endpoints.py"] }),
+      F("movies.py", { L: "tmdb", s: "<code>movie_details</code> e <code>movie_collection</code>.", d: `<code>credits</code> e <code>translations</code> sono sempre in append (gratis): regia e cast principale ci sono anche senza facet. <code>movie_collection</code> riusa la stessa richiesta (e la stessa voce di cache) di un <code>movie_details</code> semplice. Gli append fissi sono <code>endpoints.MOVIE_IDENTITY_APPENDS</code> (anche alternative_titles e release_dates).`, dep: [T + "operations/details.py", T + "operations/resolve.py", T + "operations/collections.py"] }),
+      F("tv.py", { L: "tmdb", s: "<code>tv_details</code>, <code>tv_season</code>, <code>tv_episode</code>.", d: `Una chiamata con append per ciascuno, dopo la risoluzione della serie.`, dep: [T + "operations/details.py", T + "operations/resolve.py"] }),
+      F("people.py", { L: "tmdb", s: "<code>person_details</code> con filmografia via facet.", d: `Credits e altre facet nella stessa chiamata; la persona si sceglie anche in base al dipartimento.`, dep: [T + "operations/details.py", T + "operations/resolve.py"] }),
+      F("collections.py", { L: "tmdb", s: "Raccolte (saghe) e case di produzione.", d: `<code>/collection/{id}</code> non supporta <code>append_to_response</code>: immagini e traduzioni sono chiamate separate e opzionali, solo se avanza budget.`, dep: [T + "http.py", T + "operations/resolve.py"] }),
+      F("discovery.py", { L: "tmdb", s: "<code>discover_movies</code> / <code>discover_tv</code> con filtri.", d: `Generi, persone, case, keyword e provider vengono prima risolti in ID; se uno non si risolve, discover non parte, perché filtri parziali darebbero risultati sbagliati. Con l'ordinamento per voto applica un numero minimo di voti.`, dep: [T + "operations/resolve.py", T + "operations/reference.py", T + "operations/listing.py"] }),
+      F("lists.py", { L: "tmdb", s: "<code>trending</code> e <code>chart</code> (popular, top_rated, now_playing, upcoming, on_the_air…).", d: `Una chiamata ciascuno; i risultati passano da <code>listing.list_outcome</code> e rispettano <code>max_results</code>.`, dep: [T + "operations/listing.py"] }),
+      F("listing.py", { L: "tmdb", s: "Forma comune delle risposte a lista.", d: `Usata da search, find, discover, trending e classifiche: normalizza gli elementi, applica il limite e conserva il totale.` }),
+      F("reference.py", { L: "tmdb", s: "Dati di riferimento: generi, provider di streaming, certificazioni.", d: `Usati internamente per trasformare nomi in ID (confronto in inglese) ed esposti come operazioni. Sempre tramite <code>get_json</code>: in cache e contati come ogni chiamata. Definisce l'attribuzione <code>JUSTWATCH</code>.`, dep: [T + "http.py", T + "endpoints.py"] }),
+    ]),
+    D("normalize", {
+      L: "tmdb", s: "JSON grezzo di TMDb → <code>Entity</code> con facet limitate.",
+      d: `Sola lettura sui dati grezzi. I limiti delle liste servono alla dimensione del prompt, non alle chiamate HTTP.`,
+    }, [
+      F("__init__.py", { L: "tmdb", s: "Docstring del package.", d: `Nessun codice.` }),
+      F("entities.py", { L: "tmdb", s: "Oggetti TMDb → <code>Entity</code>: identità (P0), essenziali (P1), facet (P2).", d: `Un normalizzatore per film, serie, stagione, episodio, persona, raccolta, casa di produzione ed elemento di lista. Trama e titolo vuoti nella lingua del turno vengono presi dalle <code>translations</code>, con <code>overview_language</code>. Le durate pari a 0 diventano assenti (<code>positive_minutes</code>); per le serie <code>episode_runtime_minutes</code> compare solo se TMDb lo fornisce, e non c'è mai una regia di serie.`, dep: [T + "normalize/common.py", T + "normalize/facets.py", T + "models/results.py"] }),
+      F("facets.py", { L: "tmdb", s: "Normalizzatori delle facet con limiti fissi per lista.", d: `Ogni builder restituisce <code>{lista: (elementi, totale prima del limite)}</code>, così il packer può dire al modello quanto è stato omesso. Raccomandazioni e simili usano <code>max_results</code>; gli altri limiti (cast, troupe, video, recensioni, immagini…) sono costanti interne. Lo streaming è filtrato per regione.`, dep: [T + "normalize/common.py", T + "endpoints.py"] }),
+      F("common.py", { L: "tmdb", s: "Helper condivisi: pulizia del testo, troncamento, anno, URL immagini, lingua.", d: `<code>clean_text</code>, <code>truncate</code>, <code>year_of</code>, <code>image_url</code>, <code>language_code</code>, <code>localized</code>, <code>names</code>, <code>normalize_name</code>. Inoltre <code>strict_name</code> (conserva gli accenti), <code>article_free_name</code> e <code>positive_minutes</code>; <code>normalize_name</code> legge “&amp;” come “and”.`, dep: [T + "settings.py"] }),
+    ]),
+    D("harness", { L: "test", s: "Strumenti offline, mai importati a runtime.", d: `Lo verifica <code>tests/test_tmdb_app.py</code>.` }, [
+      F("__init__.py", { L: "test", s: "Docstring del package.", d: `Nessun codice.` }),
+      F("live_smoke.py", { L: "test", api: 1, s: "Controllo live facoltativo: 3 chiamate TMDb reali.", d: `Su Interstellar (157336) verifica comportamenti che la documentazione non esplicita: <code>watch/providers</code> accettato in <code>append_to_response</code>, <code>include_video_language</code> per i video, recensioni in append con <code>language=it-IT</code>. Non è un test pytest e richiede la chiave in <code>.env</code>.`, dep: [T + "http.py", T + "endpoints.py", T + "auth.py"], cmd: "python -m tool.tmdb.harness.live_smoke --live", n: ["Consuma quota TMDb: solo con permesso. Non ancora eseguito."] }),
+    ]),
+  ]),
+
+  D("wikipedia", {
+    L: "wikipedia",
+    s: "Tool <code>wikipedia_search</code>: informazioni enciclopediche su film, persone e movimenti, lette a sezioni.",
+    d: `Tool <b>in-process</b> sulla MediaWiki Action API, senza chiave e senza MCP. L'articolo è scaricato una volta (cache TTL) e consegnato per sezioni fino al budget di contesto del turno; i passi successivi sulla stessa pagina sono cache hit. Il tool non decide se basta: offre <code>follow_up</code> e giudica il planner. Crediti: link alla pagina, licenza CC BY-SA 4.0 e nota che il testo è riformulato sono mostrati dai presenter.`,
+    n: ["Mai eseguiti dal vivo: <code>python -m tool.wikipedia.harness.live_smoke --live</code>, il routing eval dei casi Wikipedia e un E2E con LLM reale."],
+  }, [
+    F("__init__.py", { L: "wikipedia", s: `Docstring del package.`, d: `Nessun codice: descrive il tool come accesso in sola lettura e in-process alla MediaWiki Action API.` }),
+    F("budget.py", { L: "wikipedia", s: `Stato per turno: chiamate, contesto consegnato, sezioni già date.`, d: `Dizionario <code>turn_id → TurnState</code> limitato e con lock: due conversazioni concorrenti non si azzerano a vicenda. Tiene anche le edizioni (lingue) già interrogate nel turno.` }),
+    F("config.py", { L: "wikipedia", s: `<code>WikipediaConfig</code>: vista validata di <code>CONFIG["wikipedia"]</code> (5 campi).`, d: `<code>default_language</code>, <code>max_results</code>, <code>max_calls_per_turn</code>, <code>cache_ttl</code>, <code>context_chars_per_turn</code>; nessun default, <code>extra="forbid"</code>.` }),
+    F("errors.py", { L: "wikipedia", s: `Errori del tool.`, d: `Eccezioni tipizzate (es. <code>response_too_large</code>, <code>rate_limited</code>) senza URL, query né User-Agent nel messaggio.` }),
+    F("http.py", { L: "wikipedia", s: `<b>Unico</b> punto di I/O: memo → fallimenti del turno → cache → pausa → budget → invio.`, d: `<code>maxlag</code> risponde HTTP 200 con <code>error.code</code>, quindi il corpo si legge anche su 200. 429, <code>ratelimited</code> e <code>maxlag</code> danno <code>rate_limited</code> e una pausa in memoria; nessun retry, nessuna attesa. Lo verifica un test AST.`, dep: [W + "budget.py", W + "errors.py", W + "queries.py", W + "settings.py"] }),
+    F("models.py", { L: "wikipedia", s: `<code>WikipediaToolInput</code> (con <code>keywords</code>), <code>PageHit</code>, <code>Section</code>, <code>PageResult</code>.`, d: `Un «(1964)» in coda al <code>topic</code> è spostato in <code>year</code>. Il <code>topic</code> è il titolo della pagina nell'edizione cercata, mai un titolo inventato.` }),
+    F("queries.py", { L: "wikipedia", s: `Richieste da frammenti costanti e URL pubblici delle pagine.`, d: `Le richieste partono solo da frammenti costanti con parametri; l'URL pubblico di una pagina è costruito da un host in allowlist più il titolo.`, dep: [W + "settings.py"] }),
+    F("relevance.py", { L: "wikipedia", s: `Scarto di disambigue, etichetta <code>verification</code>, motivi di <code>follow_up</code>.`, d: `<code>match_title</code> confronta titoli interi e qualificatori; una pagina è <code>confirmed</code> o <code>to_verify</code>. L'articolo intero si scarica solo per la prima pagina confermata.` }),
+    F("sections.py", { L: "wikipedia", s: `Divisione per intestazioni, selezione delle sezioni, <code>keyword_report</code>.`, d: `Funzioni pure: divide l'articolo per <code>== Titolo ==</code>, sceglie le sezioni con <code>count_term</code> (parola intera, radici crude, frase) e dice quali parole chiave sono lette, non lette o assenti.` }),
+    F("settings.py", { L: "wikipedia", s: `Costanti interne: host it/en, User-Agent, timeout, <code>maxlag</code>.`, d: `Volutamente fuori da <code>CONFIG</code>: nessuna di queste è un limite di chiamate.` }),
+    F("tool.py", { L: "wikipedia", s: `<code>WikipediaTool</code> (<code>wikipedia_search</code>): ricerca o articolo intero, sezioni fino al budget di contesto.`, d: `Una esecuzione interroga una sola edizione (inglese per default). Produce metadata, trace e <code>follow_up</code> (cosa è stato letto e cosa no) perché il planner decida se continuare. L'estratto è testo di terzi: è un dato, non un'istruzione.`, dep: [W + "config.py", W + "http.py", W + "models.py", W + "queries.py", W + "relevance.py", W + "sections.py", W + "trace.py"] }),
+    F("trace.py", { L: "wikipedia", s: `Step <code>wikipedia_calls</code> e riassunto per il planner.`, d: `Il riassunto per il planner non contiene il testo degli estratti: quello va solo alla risposta finale.` }),
+    D("harness", { L: "test", s: "Controllo live facoltativo, mai importato a runtime.", d: `Tre richieste reali (<code>generator=search</code> con estratti, articolo intero con intestazioni, titolo omonimo). Mai eseguito.` }, [
+      F("__init__.py", { L: "test", s: "Docstring del package.", d: `Nessun codice.` }),
+      F("live_smoke.py", { L: "test", api: 1, s: "Controllo live facoltativo: 3 richieste Wikipedia reali.", d: `Conferma le ipotesi sull'API che la documentazione non esplicita. Richiede <code>--live</code>.` }),
+    ]),
+  ]),
+
+  D("youtube", {
+    L: "youtube",
+    s: "Tool <code>youtube_search</code>: video su un film identificato (interviste a regista e cast, making-of, dietro le quinte, commenti degli autori).",
+    d: `Quarto tool dell'orchestratore, <b>in-process</b>: rispetta il <code>Tool</code> Protocol, nessun server o client MCP, nessuna dipendenza nuova, nessun import da <code>tmdb/</code>. Il planner compila <code>title</code> e <code>kinds</code> e, solo con valori presenti nella conversazione, <code>year</code>, <code>director</code>, <code>cast</code>, <code>alternative_titles</code>. Per ogni categoria (al massimo <code>max_searches_per_turn</code>) una <code>search.list</code>; una sola <code>videos.list</code> per tutti i risultati; filtro di pertinenza deterministico sui dati completi; risultati in <code>metadata.youtube</code> e step <code>youtube_calls</code>. I trailer restano a <code>tmdb_search</code> salvo richiesta esplicita di YouTube.`,
+    n: [
+      "<code>CONFIG[\"you_tube\"]</code> ha solo <code>max_results</code> 3 e <code>max_searches_per_turn</code> 2. Nessuna cache tra i turni, nessun <code>regionCode</code> né <code>relevanceLanguage</code>.",
+      "Quota: <code>search.list</code> ha 100 chiamate al giorno per progetto Google, condivise con ogni altro uso della chiave; nessun contatore locale, l'autorità è la risposta dell'API.",
+      "E2E con API reali del 2026-10-23, prima dei fix di pertinenza: routing 20/20, 6 OK / 10 parziali / 4 falliti. Pendenti: E2E dopo i fix, casi YouTube nel routing eval, smoke test live (nessun <code>harness/</code>), precedenza degli operatori in <code>q</code>.",
+    ],
+  }, [
+    F("__init__.py", { L: "youtube", s: "Docstring del package.", d: `Nessun codice.` }),
+    F("tool.py", {
+      L: "youtube", s: "<code>YoutubeTool</code>: valida l'input, cerca per categoria, chiama <code>/videos</code>, filtra e impacchetta.",
+      d: `<code>run</code> restituisce anche <code>outcome</code> (<code>error</code> con il motivo, <code>empty</code> se nessun video resta, altrimenti <code>ok</code>), che la storia del turno racconta; toglie <code>turn_language</code> (le ricerche non dipendono dalla lingua), valida <code>YoutubeToolInput</code> (errore → <code>invalid_request</code> senza HTTP), carica le credenziali al primo uso, poi <code>_Run</code>: <code>search</code> (prescreen sul titolo dello snippet, categorie oltre il limite o dopo un errore che ferma la run → <code>not_searched</code>), <code>lookup</code> (una <code>/videos</code>), <code>finish</code> (filtro completo, al massimo <code>max_results</code> per categoria, niente duplicati tra categorie). <code>chunks</code> è vuoto: tutto sta in <code>metadata.youtube</code>, che il prompt riceve per intero.`,
+      it: [["YoutubeTool", "Registrato in <code>build_app</code>; la pausa di quota è condivisa tra i turni."], ["planner_schema()", "Schema per il catalogo del planner, senza la docstring della classe."], ["answer_hints(request, outcomes)", "<code>specify_year</code> e <code>original_title</code>, mai valori inventati."], ["overall_status(outcomes)", "<code>ok</code> / <code>partial</code> / <code>empty</code> / <code>error</code>."]],
+      dep: [Y + "auth.py", Y + "config.py", Y + "http.py", Y + "models.py", Y + "queries.py", Y + "quota.py", Y + "relevance.py", Y + "settings.py", Y + "trace.py", "turn.py"],
+      x: ["pydantic"],
+    }),
+    F("config.py", { L: "youtube", s: "<code>YoutubeConfig</code>: vista validata di <code>CONFIG[\"you_tube\"]</code>, due campi, nessun default.", d: `<code>max_results</code> (1–10), <code>max_searches_per_turn</code> (1–3); <code>extra="forbid"</code>.`, x: ["pydantic"] }),
+    F("settings.py", { L: "youtube", s: "Costanti interne, fuori da <code>CONFIG</code>.", d: `URL base costante (mai letto dall'ambiente), timeout 8 s, fattore e massimo dei risultati scaricati, limite di 50 ID per <code>/videos</code>, estratto della descrizione di 300 caratteri, soglie per gli Short (l'API non li distingue: la durata da sola non scarta mai), fuso orario della quota, pausa dopo un rate limit.` }),
+    F("errors.py", { L: "youtube", s: "Errori YouTube con codici sicuri.", d: `<code>not_configured</code>, <code>unauthorized</code>, <code>api_not_enabled</code>, <code>quota_exceeded</code>, <code>rate_limited</code>, <code>timeout</code>, <code>network_error</code>, <code>http_error</code>: messaggi senza URL, chiave o testo dell'utente.` }),
+    F("auth.py", { L: "youtube", s: "Credenziali: <b>unico</b> modulo che legge <code>YOUTUBE_API_KEY</code>.", d: `<code>load_dotenv(override=False)</code> + <code>os.environ</code>: una variabile già nell'ambiente vince su <code>.env</code>. <code>repr</code> mascherato; <code>authorize</code> aggiunge <code>key=</code> ai parametri.`, x: ["python-dotenv"] }),
+    F("quota.py", { L: "youtube", s: "<code>QuotaLatch</code>: pausa in memoria per bucket dopo un errore di quota osservato.", d: `Bucket separati per <code>/search</code> e per gli altri endpoint. <code>quotaExceeded</code> → pausa fino alla mezzanotte del Pacifico (<code>zoneinfo</code>, ora legale gestita); rate limit → pochi secondi. Nessun contatore: un riavvio lo azzera e la prima chiamata scopre lo stato reale.` }),
+    F("http.py", { L: "youtube", s: "<b>Unico</b> punto di I/O verso YouTube: memo della run → pausa di quota → registrazione → invio.", d: `Solo <code>/search</code> e <code>/videos</code>. L'URL con la chiave esiste solo in <code>_transmit</code>, che non solleva mai: gli errori sono sollevati fuori da ogni <code>except</code>, senza <code>__cause__</code> né <code>__context__</code>. Si legge solo il <code>reason</code> degli errori, mai <code>error.message</code>. Nessun retry.`, dep: [Y + "auth.py", Y + "calls.py", Y + "errors.py", Y + "quota.py", Y + "settings.py"] }),
+    F("calls.py", { L: "youtube", s: "URL mostrati: base + path, chiave sempre <code>***</code>.", d: `Ricostruiti dal path, mai dall'URL inviato: niente query di ricerca.` }),
+    F("models.py", { L: "youtube", s: "<code>VideoKind</code>, <code>YoutubeToolInput</code>, <code>VideoHit</code>, <code>KindOutcome</code>.", d: `Sei categorie (con <code>cast_interview</code>); input con <code>extra="forbid"</code>, 1–3 categorie, fino a 3 titoli alternativi e 5 nomi del cast, tutti ripuliti e deduplicati. Le descrizioni dei campi entrano nel prompt del planner e vietano di inventare, tradurre o dedurre valori.`, x: ["pydantic"] }),
+    F("queries.py", { L: "youtube", s: "Query di ricerca da frammenti costanti.", d: `Titoli tra virgolette in OR, termini di categoria in OR, <code>-reaction -parody</code>; le persone intervistate sono alternative ai termini; per un titolo di una sola parola con persona nota la persona è obbligatoria (AND). I valori dell'utente non possono aggiungere operatori. Precedenza degli operatori assunta, da confermare live.` }),
+    F("relevance.py", { L: "youtube", s: "Filtro deterministico e permissivo; etichetta <code>verification</code>.", d: `<code>prescreen</code> (titolo dello snippet: reaction, parodie, anni in conflitto), <code>screen</code> (dati di <code>/videos</code>: riferimenti a film e persone, altro formato dichiarato, omonimi, categoria), <code>screen_details</code> (Short autodichiarati). Nessun punteggio, nessun riordino; i video incerti restano come <code>to_verify</code>.` }),
+    F("trace.py", { L: "youtube", s: "Step <code>youtube_calls</code>.", d: `Chiamate mascherate, query e scarti per categoria, categorie non cercate, video con titoli e canali invariati, suggerimenti, pausa di quota, titoli scartati con il motivo (<code>dropped</code>: non stampati, per test e valutazioni). Fuori da <code>metadata</code>: lo mostrano i presenter.`, dep: ["turn.py"] }),
+  ]),
   ]),
 
   D("presenters", {
@@ -884,113 +1028,6 @@ const TREE = D("NetflixScout", {}, [
     ]),
   ]),
 
-  D("tmdb", {
-    L: "tmdb",
-    s: "Tool <code>tmdb_search</code>: dati aggiornati da The Movie Database (cast, uscite, streaming, serie, persone, trending).",
-    d: `Terzo tool dell'orchestratore, accanto a <code>rag_search</code> e <code>movie_db_search</code>. Il modello non costruisce mai URL: compila <code>requests</code> (1–4 operazioni tipizzate tra 17), il codice le valida contro <code>RULES</code> prima di qualunque chiamata, risolve gli ID mancanti (ID TMDb → <code>/find</code> per ID esterni → ricerca per titolo o nome), mappa ogni operazione su un endpoint fisso e normalizza il JSON in entità con facet limitate.<br><br><b>Chiamate HTTP</b>: <code>http.py</code> è l'unico punto di I/O (stdlib <code>urllib</code>). Ordine: memo del turno → cache TTL → pausa dopo un 429 → budget → invio. L'unico limite è <code>CONFIG["tmdb"]["max_calls_per_turn"]</code> (6); nessun retry; le chiamate opzionali partono solo se avanza budget, altrimenti <code>skipped_for_budget</code>.<br><br><b>Contesto</b>: <code>prompt_budget.py</code> limita i dati passati all'LLM (P0 identità, P1 essenziali, P2 liste finché c'è spazio, omissioni segnalate).`,
-    n: [
-      "<code>CONFIG[\"tmdb\"]</code> ha solo <code>max_results</code> 5, <code>max_calls_per_turn</code> 6, <code>cache_ttl</code> 3600 (<code>TmdbConfig</code>, <code>extra=\"forbid\"</code>): timeout, cache, regione e limiti del contesto sono costanti interne.",
-      "La chiave esce solo da <code>auth.authorize</code> verso <code>http.py</code>; il base URL accetta solo <code>https://api.themoviedb.org/3</code>. Trace, metadata, errori e cache non contengono mai la chiave.",
-      "Routing verificato live: 17/17 casi (6 TMDb) in un run da 34 chiamate LLM, senza eseguire il tool. I dati reali TMDb (risoluzione titoli, provider, trailer) non sono ancora verificati.",
-      "Termini TMDb: §3 richiede l'attribuzione (JustWatch per lo streaming); §1.C vieta l'uso con applicazioni AI: il proprietario ha scelto di procedere per un uso personale da portfolio.",
-    ],
-  }, [
-    F("__init__.py", { L: "tmdb", s: "Docstring del package.", d: `Riassume il ruolo: operazioni tipizzate, validazione, risoluzione degli ID, endpoint fissi, budget per turno, normalizzazione. Nessun codice.` }),
-    F("tool.py", {
-      L: "tmdb", s: "<code>TmdbTool</code>: rispetta il <code>Tool</code> Protocol, crea il budget del turno e impacchetta il risultato.",
-      d: `<code>run(*, query, params, conversation_history)</code> restituisce anche <code>outcome</code> (<code>error</code> con il codice dell'errore, <code>empty</code> senza risultati, altrimenti <code>ok</code>), che la storia del turno racconta; toglie <code>turn_language</code> dai parametri (lo passa <code>handle_query</code>, non è nello schema LLM), valida <code>TmdbToolInput</code>, carica le credenziali al primo uso, crea <code>TmdbContext</code> con un <code>CallBudget</code> nuovo, esegue le richieste con <code>runner.run_requests</code> e restituisce <code>{query, chunks, metadata: {tmdb}, trace}</code>. Input non valido o chiave mancante → risultato vuoto con l'errore, senza HTTP. La <code>description</code> è generata da <code>RULES</code>, lo <code>input_schema</code> da Pydantic.`,
-      it: [["TmdbTool", "Tool registrato in <code>build_app</code>; cache e cooldown condivisi tra i turni."], ["api_language_for(turn_language)", "<code>it</code> → <code>it-IT</code>, altrimenti <code>en-US</code>."], ["TMDB_TOOL_NAME", "<code>\"tmdb_search\"</code>."]],
-      dep: [T + "config.py", T + "auth.py", T + "budget.py", T + "cache.py", T + "context.py", T + "cooldown.py", T + "http.py", T + "models/requests.py", T + "models/operation_rules.py", T + "runner.py", T + "prompt_budget.py", T + "trace.py", "turn.py"],
-      x: ["pydantic"],
-    }),
-    F("config.py", { L: "tmdb", s: "<code>TmdbConfig</code>: vista validata di <code>CONFIG[\"tmdb\"]</code>, solo tre campi e nessun default.", d: `<code>max_results</code> (1–20), <code>max_calls_per_turn</code> (1–20), <code>cache_ttl</code> (0–86400, 0 disattiva la cache). <code>extra="forbid"</code>; ogni campo ha <code>ui_exposed</code> nello schema JSON. <code>load_tmdb_config</code> valida la sezione dopo gli override di <code>build_runtime_config</code>.`, x: ["pydantic"] }),
-    F("settings.py", { L: "tmdb", s: "Costanti interne, fuori da <code>CONFIG</code> di proposito.", d: `Timeout HTTP 8 s, cache da 256 voci, pausa dopo un 429 (10 s, massimo 120), regione di default <code>IT</code>, URL delle immagini, lingue API (<code>it-IT</code> / <code>en-US</code>) e lingua di riferimento <code>en-US</code> per generi e provider. Nessuna di queste limita le chiamate HTTP.` }),
-    F("auth.py", { L: "tmdb", s: "Credenziali: <b>unico</b> modulo che legge la chiave dall'ambiente.", d: `Legge <code>VUE_APP_TMDB_API_KEY</code> e <code>VUE_APP_TMDB_BASE_URL</code> (con <code>load_dotenv</code>), accetta solo <code>https://api.themoviedb.org/3</code> e riconosce la modalità: chiave v3 (parametro <code>api_key</code>) o token v4 (<code>Authorization: Bearer</code>). <code>authorize</code> aggiunge la credenziale e la chiama solo <code>http.py</code>. Il <code>repr</code> delle credenziali maschera il segreto.`, dep: [T + "errors.py"], x: ["python-dotenv"] }),
-    F("http.py", { L: "tmdb", s: "<b>Unico</b> punto di I/O verso TMDb: memo → cache → cooldown → budget → invio.", d: `<code>get_json</code> serve prima dal memo del turno (anche i fallimenti: una richiesta fallita non riparte), poi dalla cache TTL; altrimenti, se non c'è una pausa per 429 e il budget lo consente, registra l'URL mascherato e invia con <code>urllib</code>. 429 → pausa, 401 → stop delle richieste successive, 404 → non trovato. Gli errori sono rilanciati <code>from None</code> con messaggi senza URL. <code>optional_json</code> serve per i dati facoltativi: se il budget è finito li annota in <code>skipped_for_budget</code>.`, it: [["get_json(ctx, endpoint)", "Risposta JSON, dal memo o dalla cache quando possibile."], ["optional_json(ctx, endpoint, skipped, label)", "Come sopra, ma non fallisce il turno."], ["urllib_transport", "Il transport reale; nei test è sostituito da uno finto."]], dep: [T + "auth.py", T + "cache.py", T + "calls.py", T + "context.py", T + "cooldown.py", T + "endpoints.py", T + "errors.py", T + "settings.py"], n: ["Un test AST verifica che nessun altro modulo faccia I/O di rete."] }),
-    F("budget.py", { L: "tmdb", s: "<code>CallBudget</code>: i tentativi HTTP del turno, l'unico limite alle chiamate.", d: `<code>try_reserve()</code> riserva un tentativo prima dell'invio (thread-safe); ogni invio conta anche se fallisce, i hit di memo e cache sono gratis. Viene creato in <code>TmdbTool.run</code> perché l'orchestratore esegue un solo tool per turno.`, n: ["Se si introduce un ciclo multi-step, il budget va spostato in un contesto di turno (lo ricorda <code>test_one_tool_run_per_turn</code>)."] }),
-    F("cache.py", { L: "tmdb", s: "Cache TTL in memoria, condivisa tra i turni.", d: `Chiave = (path, parametri ordinati) costruita <b>prima</b> di aggiungere la credenziale, quindi senza chiave API. Salva solo risposte riuscite, scarta le voci scadute e le meno recenti oltre 256. Con <code>cache_ttl = 0</code> è disattivata (il memo del turno resta).`, dep: [T + "settings.py"] }),
-    F("cooldown.py", { L: "tmdb", s: "Pausa dopo un HTTP 429: finché dura le richieste non vengono inviate né contate.", d: `La durata viene da <code>Retry-After</code>, limitata tra 1 e 120 secondi (10 s se manca). Nessun retry automatico.`, dep: [T + "settings.py"] }),
-    F("calls.py", { L: "tmdb", s: "URL mostrati all'utente: solo base + path, credenziale mascherata.", d: `<code>display_url</code> ricostruisce l'URL dal path dell'endpoint, mai da quello inviato: niente parametri di ricerca né <code>append_to_response</code>; con chiave v3 aggiunge <code>?api_key=***</code>, con Bearer nessuna credenziale. <code>CallRecorder</code> raccoglie gli URL del turno per la trace.`, dep: [T + "auth.py"] }),
-    F("context.py", { L: "tmdb", s: "<code>TmdbContext</code>: dipendenze esplicite di una run (un turno).", d: `Config, credenziali, cache, cooldown, budget, transport, lingua API, recorder delle chiamate, memo delle risposte e dei fallimenti del turno, risoluzioni già fatte. <code>limit(requested)</code> applica <code>max_results</code> alle liste.`, dep: [T + "auth.py", T + "budget.py", T + "cache.py", T + "calls.py", T + "config.py", T + "cooldown.py"] }),
-    F("endpoints.py", { L: "tmdb", s: "<b>Unico</b> mapping operazione → path e parametri TMDb.", d: `I segmenti del path vengono solo da interi validati, enum chiusi o ID esterni controllati con regex ed escapati; titoli e nomi viaggiano solo come parametri codificati. <code>include_adult</code> sempre <code>false</code>; <code>append_to_response</code> rispetta il massimo documentato e le raccolte non lo usano. <code>IDENTITY_APPENDS</code> / <code>identity_appends(namespace)</code>: append fissi dei dettagli film e serie (credits, translations, alternative_titles e, per i film, release_dates), usati anche dalla verifica dell'identità così che sia la stessa chiamata dei dettagli.`, dep: [T + "models/enums.py"] }),
-    F("dispatch.py", { L: "tmdb", s: "Tabella deterministica <code>TmdbOperation</code> → handler.", d: `<code>OPERATION_HANDLERS</code> collega ognuna delle 17 operazioni alla funzione in <code>operations/</code>. Un test verifica che ogni operazione abbia regola e handler.`, dep: [T + "operations"] }),
-    F("runner.py", { L: "tmdb", s: "Esegue le richieste in ordine con un budget condiviso; i fallimenti diventano dati.", d: `Ogni richiesta produce un <code>RequestOutcome</code> con <code>status</code> <code>ok</code> / <code>partial</code> / <code>error</code>: budget finito o 429 non rompono il turno. Dopo un 401 le richieste successive non vengono inviate. <code>overall_status</code> riassume la run.`, dep: [T + "dispatch.py", T + "context.py", T + "errors.py"] }),
-    F("prompt_budget.py", { L: "tmdb", s: "Impacchetta in modo deterministico i risultati nel contesto dell'LLM.", d: `L'orchestratore mette <code>metadata</code> intero nel prompt e mostra solo <code>chunks[:10]</code>: il tool si limita da solo (<code>MAX_TMDB_CONTEXT_CHARS</code> 12.000, <code>MAX_CHUNKS</code> 10). P0 (tipo, ID, titolo, anno) apre ogni chunk e non viene tagliato; P1 (essenziali delle entità di dettaglio) è sempre presente, ridotto a 1.000 caratteri togliendo prima tagline, URL e immagini e solo dopo accorciando la trama; P2 (facet e liste) entra finché c'è spazio. Le liste parziali finiscono in <code>metadata.tmdb.omitted</code> come <code>shown/total</code>.`, dep: [T + "models/results.py", T + "normalize/common.py", T + "operations/reference.py"] }),
-    F("enrich.py", { L: "tmdb", s: "<code>TmdbRagEnricher</code>: completa con TMDb i film scelti dal RAG.", d: `Dopo <code>rag_search</code> l'orchestratore gli passa il risultato. Prende i chunk finali (dopo il rerank, al massimo <code>max_candidates</code>, nell'ordine del RAG, senza duplicati), cerca ogni titolo con l'anno in <code>en-US</code> e aggiunge in <code>metadata.tmdb_enrichment</code> titolo, anno, regista, cast e sinossi solo se titolo e anno (±1) coincidono; altrimenti <code>unverified</code>, <code>not_found</code> o <code>skipped</code>. Non riordina i chunk e usa un solo budget, creato da <code>TmdbTool.new_context</code>. Un candidato riceve metadati solo con titolo o titolo originale uguali (mai per inclusione: “The Sinner” non è “The Sinners”) e anno ±1, in <code>strict_identity</code> (più risultati ugualmente validi → <code>ambiguous</code>). Un match tramite titolo alternativo o articolo (<code>matched_by: alternative_title</code>) richiede anche un attore in comune quando i cast sono noti (<code>cast_mismatch</code>); un anno confermato da una data di uscita secondaria dà <code>year_note</code>. Durata 0 scartata.`, dep: [T + "tool.py", T + "runner.py", T + "trace.py"] }),
-    F("trace.py", { L: "tmdb", s: "Step <code>tmdb_calls</code>: URL chiamati e attribuzioni.", d: `Fuori da <code>metadata</code> (che va nel prompt): le attribuzioni le mostrano i presenter, non l'LLM.` }),
-    F("errors.py", { L: "tmdb", s: "Errori TMDb con messaggi sicuri.", d: `<code>TmdbConfigError</code>, <code>TmdbBudgetExhausted</code>, <code>TmdbRateLimited</code>, <code>TmdbAuthError</code>, <code>TmdbNotFound</code>, <code>TmdbHttpError</code>, <code>TmdbNetworkError</code>, <code>TmdbUnresolvedFilter</code>, ognuno con un <code>code</code>. I messaggi non contengono mai URL, query string, credenziali o testo dell'utente. <code>TmdbUnverifiedMatch</code> (<code>unverified_match</code>) porta <code>reason</code> (<code>title_mismatch</code>, <code>year_mismatch</code>, <code>ambiguous</code>) e i <code>candidates</code>.` }),
-    D("models", {
-      L: "tmdb", s: "Enum, regole per operazione, input del tool e risultati normalizzati.",
-      d: `Una sola tabella (<code>RULES</code>) guida sia la validazione sia la guida alle operazioni nella descrizione del tool: prompt del planner e validatore non possono divergere.`,
-    }, [
-      F("__init__.py", { L: "tmdb", s: "Docstring del package.", d: `Nessun codice.` }),
-      F("enums.py", { L: "tmdb", s: "Vocabolari chiusi: operazioni, tipi di ricerca, media, facet, ordinamenti…", d: `<code>TmdbOperation</code> (17 valori: search, find_by_external_id, movie_details, movie_collection, tv_details, tv_season, tv_episode, person_details, collection_details, company_details, discover_movies, discover_tv, trending, chart, genres, watch_providers_catalog, certifications), <code>Facet</code> (credits, videos, watch_providers, reviews…), <code>MediaType</code>, <code>TimeWindow</code>, <code>ChartList</code>, <code>ExternalSource</code>, <code>Department</code> e i filtri di discover.` }),
-      F("operation_rules.py", { L: "tmdb", s: "<code>RULES</code>: campi obbligatori, ammessi, facet e media per ogni operazione.", d: `Ogni <code>OperationRule</code> ha un riassunto, gruppi di campi obbligatori (almeno uno per gruppo), campi ammessi, facet supportate e media. <code>describe_operations()</code> ne ricava la guida inserita nella <code>description</code> del tool. Contiene anche le classifiche per media e i pattern degli ID esterni.`, dep: [T + "models/enums.py"] }),
-      F("requests.py", { L: "tmdb", s: "<code>TmdbToolInput</code> e <code>TmdbRequest</code>: tutto validato prima di qualunque HTTP.", d: `<code>extra="forbid"</code>, campi non ammessi dall'operazione, facet non supportate, filtri di discover incompatibili, ID esterni con pattern: un solo errore rifiuta l'intera run. Accetta anche una singola richiesta \"piatta\". <code>describe_validation_errors</code> riporta numero di richiesta, campo e tipo di errore, mai i valori inviati.`, it: [["TmdbToolInput", "<code>{query, requests: [1..4]}</code>."], ["TmdbRequest", "Una operazione con i suoi argomenti."], ["DiscoverFilters", "Filtri di discover; i nomi sono risolti in ID dal tool."], ["MAX_REQUESTS_PER_RUN = 4", "Vincolo di forma, non di chiamate."]], dep: [T + "models/enums.py", T + "models/operation_rules.py"], x: ["pydantic"] }),
-      F("results.py", { L: "tmdb", s: "<code>Entity</code> e <code>RequestOutcome</code>: risultati normalizzati prima del packing.", d: `<code>Entity</code> ha identità (P0), <code>essentials</code> (P1) e <code>facets</code> con i totali prima del limite (P2). <code>RequestOutcome</code> raccoglie stato, errore, entità, elementi di lista, candidati, note e <code>skipped_for_budget</code>.`, x: ["pydantic"] }),
-    ]),
-    D("operations", {
-      L: "tmdb", s: "Handler per famiglia di endpoint: <code>(ctx, request) → RequestOutcome</code>.",
-      d: `Ogni handler risolve l'ID se serve (<code>resolve.py</code>), chiama gli endpoint tramite <code>http.get_json</code> e normalizza con <code>normalize/</code>. Le facet richieste viaggiano nella stessa chiamata con <code>append_to_response</code> quando l'endpoint lo supporta.`,
-    }, [
-      F("__init__.py", { L: "tmdb", s: "Docstring del package.", d: `Nessun codice.` }),
-      F("resolve.py", { L: "tmdb", s: "Ricerca e risoluzione degli ID: ID TMDb → <code>/find</code> → ricerca testuale.", d: `La scelta tra i risultati è deterministica: titolo esatto (originale o tradotto) → stesso anno → anno ±1 → dipartimento noto → più popolare. Le risoluzioni sono memorizzate per il turno; i candidati ambigui vengono riportati. Espone anche le operazioni <code>search</code> e <code>find_by_external_id</code>. Per film e serie non sceglie mai il più popolare senza titolo esatto: <code>_pick_work</code> richiede titolo esatto (con accenti, poi senza) e anno compatibile; altrimenti <code>_verify_by_details</code> controlla al massimo 2 schede della stessa opera (titoli tradotti o alternativi, oppure lo stesso titolo a meno dell'articolo iniziale; anno entro ±1 da una qualsiasi data di uscita registrata; senza anno solo un risultato unico) e in mancanza restituisce <code>unverified_match</code> con le alternative. Un titolo non trovato nella lingua del turno viene cercato una volta in inglese.`, dep: [T + "http.py", T + "endpoints.py", T + "operations/listing.py"] }),
-      F("details.py", { L: "tmdb", s: "Passi comuni dei dettagli: parametri delle facet e fallback opzionali.", d: `Se <code>watch/providers</code> manca dalla risposta con append, una chiamata separata (contata); recensioni vuote nella lingua del turno → una chiamata in inglese (contata). Entrambe solo se avanza budget. Aggiunge i fallback di lingua per immagini e video nella stessa chiamata. Aggiunge all'esito le note <code>alternative_title_match</code> e <code>year_from_release_dates</code>.`, dep: [T + "http.py", T + "endpoints.py"] }),
-      F("movies.py", { L: "tmdb", s: "<code>movie_details</code> e <code>movie_collection</code>.", d: `<code>credits</code> e <code>translations</code> sono sempre in append (gratis): regia e cast principale ci sono anche senza facet. <code>movie_collection</code> riusa la stessa richiesta (e la stessa voce di cache) di un <code>movie_details</code> semplice. Gli append fissi sono <code>endpoints.MOVIE_IDENTITY_APPENDS</code> (anche alternative_titles e release_dates).`, dep: [T + "operations/details.py", T + "operations/resolve.py", T + "operations/collections.py"] }),
-      F("tv.py", { L: "tmdb", s: "<code>tv_details</code>, <code>tv_season</code>, <code>tv_episode</code>.", d: `Una chiamata con append per ciascuno, dopo la risoluzione della serie.`, dep: [T + "operations/details.py", T + "operations/resolve.py"] }),
-      F("people.py", { L: "tmdb", s: "<code>person_details</code> con filmografia via facet.", d: `Credits e altre facet nella stessa chiamata; la persona si sceglie anche in base al dipartimento.`, dep: [T + "operations/details.py", T + "operations/resolve.py"] }),
-      F("collections.py", { L: "tmdb", s: "Raccolte (saghe) e case di produzione.", d: `<code>/collection/{id}</code> non supporta <code>append_to_response</code>: immagini e traduzioni sono chiamate separate e opzionali, solo se avanza budget.`, dep: [T + "http.py", T + "operations/resolve.py"] }),
-      F("discovery.py", { L: "tmdb", s: "<code>discover_movies</code> / <code>discover_tv</code> con filtri.", d: `Generi, persone, case, keyword e provider vengono prima risolti in ID; se uno non si risolve, discover non parte, perché filtri parziali darebbero risultati sbagliati. Con l'ordinamento per voto applica un numero minimo di voti.`, dep: [T + "operations/resolve.py", T + "operations/reference.py", T + "operations/listing.py"] }),
-      F("lists.py", { L: "tmdb", s: "<code>trending</code> e <code>chart</code> (popular, top_rated, now_playing, upcoming, on_the_air…).", d: `Una chiamata ciascuno; i risultati passano da <code>listing.list_outcome</code> e rispettano <code>max_results</code>.`, dep: [T + "operations/listing.py"] }),
-      F("listing.py", { L: "tmdb", s: "Forma comune delle risposte a lista.", d: `Usata da search, find, discover, trending e classifiche: normalizza gli elementi, applica il limite e conserva il totale.` }),
-      F("reference.py", { L: "tmdb", s: "Dati di riferimento: generi, provider di streaming, certificazioni.", d: `Usati internamente per trasformare nomi in ID (confronto in inglese) ed esposti come operazioni. Sempre tramite <code>get_json</code>: in cache e contati come ogni chiamata. Definisce l'attribuzione <code>JUSTWATCH</code>.`, dep: [T + "http.py", T + "endpoints.py"] }),
-    ]),
-    D("normalize", {
-      L: "tmdb", s: "JSON grezzo di TMDb → <code>Entity</code> con facet limitate.",
-      d: `Sola lettura sui dati grezzi. I limiti delle liste servono alla dimensione del prompt, non alle chiamate HTTP.`,
-    }, [
-      F("__init__.py", { L: "tmdb", s: "Docstring del package.", d: `Nessun codice.` }),
-      F("entities.py", { L: "tmdb", s: "Oggetti TMDb → <code>Entity</code>: identità (P0), essenziali (P1), facet (P2).", d: `Un normalizzatore per film, serie, stagione, episodio, persona, raccolta, casa di produzione ed elemento di lista. Trama e titolo vuoti nella lingua del turno vengono presi dalle <code>translations</code>, con <code>overview_language</code>. Le durate pari a 0 diventano assenti (<code>positive_minutes</code>); per le serie <code>episode_runtime_minutes</code> compare solo se TMDb lo fornisce, e non c'è mai una regia di serie.`, dep: [T + "normalize/common.py", T + "normalize/facets.py", T + "models/results.py"] }),
-      F("facets.py", { L: "tmdb", s: "Normalizzatori delle facet con limiti fissi per lista.", d: `Ogni builder restituisce <code>{lista: (elementi, totale prima del limite)}</code>, così il packer può dire al modello quanto è stato omesso. Raccomandazioni e simili usano <code>max_results</code>; gli altri limiti (cast, troupe, video, recensioni, immagini…) sono costanti interne. Lo streaming è filtrato per regione.`, dep: [T + "normalize/common.py", T + "endpoints.py"] }),
-      F("common.py", { L: "tmdb", s: "Helper condivisi: pulizia del testo, troncamento, anno, URL immagini, lingua.", d: `<code>clean_text</code>, <code>truncate</code>, <code>year_of</code>, <code>image_url</code>, <code>language_code</code>, <code>localized</code>, <code>names</code>, <code>normalize_name</code>. Inoltre <code>strict_name</code> (conserva gli accenti), <code>article_free_name</code> e <code>positive_minutes</code>; <code>normalize_name</code> legge “&amp;” come “and”.`, dep: [T + "settings.py"] }),
-    ]),
-    D("harness", { L: "test", s: "Strumenti offline, mai importati a runtime.", d: `Lo verifica <code>tests/test_tmdb_app.py</code>.` }, [
-      F("__init__.py", { L: "test", s: "Docstring del package.", d: `Nessun codice.` }),
-      F("live_smoke.py", { L: "test", api: 1, s: "Controllo live facoltativo: 3 chiamate TMDb reali.", d: `Su Interstellar (157336) verifica comportamenti che la documentazione non esplicita: <code>watch/providers</code> accettato in <code>append_to_response</code>, <code>include_video_language</code> per i video, recensioni in append con <code>language=it-IT</code>. Non è un test pytest e richiede la chiave in <code>.env</code>.`, dep: [T + "http.py", T + "endpoints.py", T + "auth.py"], cmd: "python -m tmdb.harness.live_smoke --live", n: ["Consuma quota TMDb: solo con permesso. Non ancora eseguito."] }),
-    ]),
-  ]),
-
-  D("youtube", {
-    L: "youtube",
-    s: "Tool <code>youtube_search</code>: video su un film identificato (interviste a regista e cast, making-of, dietro le quinte, commenti degli autori).",
-    d: `Quarto tool dell'orchestratore, <b>in-process</b>: rispetta il <code>Tool</code> Protocol, nessun server o client MCP, nessuna dipendenza nuova, nessun import da <code>tmdb/</code>. Il planner compila <code>title</code> e <code>kinds</code> e, solo con valori presenti nella conversazione, <code>year</code>, <code>director</code>, <code>cast</code>, <code>alternative_titles</code>. Per ogni categoria (al massimo <code>max_searches_per_turn</code>) una <code>search.list</code>; una sola <code>videos.list</code> per tutti i risultati; filtro di pertinenza deterministico sui dati completi; risultati in <code>metadata.youtube</code> e step <code>youtube_calls</code>. I trailer restano a <code>tmdb_search</code> salvo richiesta esplicita di YouTube.`,
-    n: [
-      "<code>CONFIG[\"you_tube\"]</code> ha solo <code>max_results</code> 3 e <code>max_searches_per_turn</code> 2. Nessuna cache tra i turni, nessun <code>regionCode</code> né <code>relevanceLanguage</code>.",
-      "Quota: <code>search.list</code> ha 100 chiamate al giorno per progetto Google, condivise con ogni altro uso della chiave; nessun contatore locale, l'autorità è la risposta dell'API.",
-      "E2E con API reali del 2026-10-23, prima dei fix di pertinenza: routing 20/20, 6 OK / 10 parziali / 4 falliti. Pendenti: E2E dopo i fix, casi YouTube nel routing eval, smoke test live (nessun <code>harness/</code>), precedenza degli operatori in <code>q</code>.",
-    ],
-  }, [
-    F("__init__.py", { L: "youtube", s: "Docstring del package.", d: `Nessun codice.` }),
-    F("tool.py", {
-      L: "youtube", s: "<code>YoutubeTool</code>: valida l'input, cerca per categoria, chiama <code>/videos</code>, filtra e impacchetta.",
-      d: `<code>run</code> restituisce anche <code>outcome</code> (<code>error</code> con il motivo, <code>empty</code> se nessun video resta, altrimenti <code>ok</code>), che la storia del turno racconta; toglie <code>turn_language</code> (le ricerche non dipendono dalla lingua), valida <code>YoutubeToolInput</code> (errore → <code>invalid_request</code> senza HTTP), carica le credenziali al primo uso, poi <code>_Run</code>: <code>search</code> (prescreen sul titolo dello snippet, categorie oltre il limite o dopo un errore che ferma la run → <code>not_searched</code>), <code>lookup</code> (una <code>/videos</code>), <code>finish</code> (filtro completo, al massimo <code>max_results</code> per categoria, niente duplicati tra categorie). <code>chunks</code> è vuoto: tutto sta in <code>metadata.youtube</code>, che il prompt riceve per intero.`,
-      it: [["YoutubeTool", "Registrato in <code>build_app</code>; la pausa di quota è condivisa tra i turni."], ["planner_schema()", "Schema per il catalogo del planner, senza la docstring della classe."], ["answer_hints(request, outcomes)", "<code>specify_year</code> e <code>original_title</code>, mai valori inventati."], ["overall_status(outcomes)", "<code>ok</code> / <code>partial</code> / <code>empty</code> / <code>error</code>."]],
-      dep: [Y + "auth.py", Y + "config.py", Y + "http.py", Y + "models.py", Y + "queries.py", Y + "quota.py", Y + "relevance.py", Y + "settings.py", Y + "trace.py", "turn.py"],
-      x: ["pydantic"],
-    }),
-    F("config.py", { L: "youtube", s: "<code>YoutubeConfig</code>: vista validata di <code>CONFIG[\"you_tube\"]</code>, due campi, nessun default.", d: `<code>max_results</code> (1–10), <code>max_searches_per_turn</code> (1–3); <code>extra="forbid"</code>.`, x: ["pydantic"] }),
-    F("settings.py", { L: "youtube", s: "Costanti interne, fuori da <code>CONFIG</code>.", d: `URL base costante (mai letto dall'ambiente), timeout 8 s, fattore e massimo dei risultati scaricati, limite di 50 ID per <code>/videos</code>, estratto della descrizione di 300 caratteri, soglie per gli Short (l'API non li distingue: la durata da sola non scarta mai), fuso orario della quota, pausa dopo un rate limit.` }),
-    F("errors.py", { L: "youtube", s: "Errori YouTube con codici sicuri.", d: `<code>not_configured</code>, <code>unauthorized</code>, <code>api_not_enabled</code>, <code>quota_exceeded</code>, <code>rate_limited</code>, <code>timeout</code>, <code>network_error</code>, <code>http_error</code>: messaggi senza URL, chiave o testo dell'utente.` }),
-    F("auth.py", { L: "youtube", s: "Credenziali: <b>unico</b> modulo che legge <code>YOUTUBE_API_KEY</code>.", d: `<code>load_dotenv(override=False)</code> + <code>os.environ</code>: una variabile già nell'ambiente vince su <code>.env</code>. <code>repr</code> mascherato; <code>authorize</code> aggiunge <code>key=</code> ai parametri.`, x: ["python-dotenv"] }),
-    F("quota.py", { L: "youtube", s: "<code>QuotaLatch</code>: pausa in memoria per bucket dopo un errore di quota osservato.", d: `Bucket separati per <code>/search</code> e per gli altri endpoint. <code>quotaExceeded</code> → pausa fino alla mezzanotte del Pacifico (<code>zoneinfo</code>, ora legale gestita); rate limit → pochi secondi. Nessun contatore: un riavvio lo azzera e la prima chiamata scopre lo stato reale.` }),
-    F("http.py", { L: "youtube", s: "<b>Unico</b> punto di I/O verso YouTube: memo della run → pausa di quota → registrazione → invio.", d: `Solo <code>/search</code> e <code>/videos</code>. L'URL con la chiave esiste solo in <code>_transmit</code>, che non solleva mai: gli errori sono sollevati fuori da ogni <code>except</code>, senza <code>__cause__</code> né <code>__context__</code>. Si legge solo il <code>reason</code> degli errori, mai <code>error.message</code>. Nessun retry.`, dep: [Y + "auth.py", Y + "calls.py", Y + "errors.py", Y + "quota.py", Y + "settings.py"] }),
-    F("calls.py", { L: "youtube", s: "URL mostrati: base + path, chiave sempre <code>***</code>.", d: `Ricostruiti dal path, mai dall'URL inviato: niente query di ricerca.` }),
-    F("models.py", { L: "youtube", s: "<code>VideoKind</code>, <code>YoutubeToolInput</code>, <code>VideoHit</code>, <code>KindOutcome</code>.", d: `Sei categorie (con <code>cast_interview</code>); input con <code>extra="forbid"</code>, 1–3 categorie, fino a 3 titoli alternativi e 5 nomi del cast, tutti ripuliti e deduplicati. Le descrizioni dei campi entrano nel prompt del planner e vietano di inventare, tradurre o dedurre valori.`, x: ["pydantic"] }),
-    F("queries.py", { L: "youtube", s: "Query di ricerca da frammenti costanti.", d: `Titoli tra virgolette in OR, termini di categoria in OR, <code>-reaction -parody</code>; le persone intervistate sono alternative ai termini; per un titolo di una sola parola con persona nota la persona è obbligatoria (AND). I valori dell'utente non possono aggiungere operatori. Precedenza degli operatori assunta, da confermare live.` }),
-    F("relevance.py", { L: "youtube", s: "Filtro deterministico e permissivo; etichetta <code>verification</code>.", d: `<code>prescreen</code> (titolo dello snippet: reaction, parodie, anni in conflitto), <code>screen</code> (dati di <code>/videos</code>: riferimenti a film e persone, altro formato dichiarato, omonimi, categoria), <code>screen_details</code> (Short autodichiarati). Nessun punteggio, nessun riordino; i video incerti restano come <code>to_verify</code>.` }),
-    F("trace.py", { L: "youtube", s: "Step <code>youtube_calls</code>.", d: `Chiamate mascherate, query e scarti per categoria, categorie non cercate, video con titoli e canali invariati, suggerimenti, pausa di quota, titoli scartati con il motivo (<code>dropped</code>: non stampati, per test e valutazioni). Fuori da <code>metadata</code>: lo mostrano i presenter.`, dep: ["turn.py"] }),
-  ]),
-
   D("tests", {
     L: "test",
     s: "Test pytest: unit test offline + test di integrazione.",
@@ -1043,8 +1080,8 @@ const TREE = D("NetflixScout", {}, [
     }),
     F("test_movie_db_app.py", {
       L: "test", s: "Integrazione offline in <code>app.py</code> e confini tra i package.",
-      d: `Registrazione del tool con <code>enabled</code> attivo o disattivo (<code>tmdb_search</code> resta registrato in entrambi i casi), istruzioni e fallback in <code>CONFIG</code>, step <code>db_query</code> in <code>TurnResult</code> con client finti; via AST verifica che <code>app.py</code> e <code>movie_db/tool</code> non importino <code>harness</code>, che i presenter non importino <code>movie_db</code> e che solo l'ingestion apra connessioni scrivibili. Nessuna chiamata di rete.`,
-      dep: ["app.py", M + "tool/movie_db_tool.py", "orchestrator.py"],
+      d: `Registrazione del tool con <code>enabled</code> attivo o disattivo (<code>tmdb_search</code> resta registrato in entrambi i casi), istruzioni e fallback in <code>CONFIG</code>, step <code>db_query</code> in <code>TurnResult</code> con client finti; via AST verifica che <code>app.py</code> e <code>tool/movie_db</code> non importino <code>harness</code>, che i presenter non importino <code>movie_db</code> e che solo l'ingestion apra connessioni scrivibili. Nessuna chiamata di rete.`,
+      dep: ["app.py", MT + "movie_db_tool.py", "orchestrator.py"],
       x: ["pytest"],
     }),
     F("test_movie_db_config.py", {
@@ -1068,7 +1105,7 @@ const TREE = D("NetflixScout", {}, [
     F("test_movie_db_parser.py", {
       L: "test", s: "Parser con client OpenAI finto.",
       d: `JSON valido → <code>MovieDbQuery</code> con genere canonico; JSON tra <code>\`\`\`</code> accettato; operazioni ignote, chiave <code>sql</code>, generi o anni non validi, testo non JSON ed errori della chiamata → <code>MovieDbParseError</code>. Nessuna chiamata di rete.`,
-      dep: [M + "tool/parser.py"],
+      dep: [MT + "parser.py"],
       x: ["pytest"],
     }),
     F("test_movie_db_presenters.py", {
@@ -1080,13 +1117,13 @@ const TREE = D("NetflixScout", {}, [
     F("test_movie_db_readonly.py", {
       L: "test", s: "Sicurezza: la connessione non può scrivere.",
       d: `16 tentativi (INSERT/UPDATE/DELETE, DDL, tabelle temporanee, ATTACH, PRAGMA, VACUUM INTO, BEGIN, <code>load_extension</code>, CTE ricorsiva, più istruzioni) falliscono e l'hash SHA-256 del file resta identico; lettura di <code>sqlite_master</code> negata, timeout, DB mancante non creato. Nessuna chiamata di rete.`,
-      dep: [M + "tool/sql/connection.py", M + "tool/sql/guard.py"],
+      dep: [MT + "sql/connection.py", MT + "sql/guard.py"],
       x: ["pytest"],
     }),
     F("test_movie_db_repository.py", {
       L: "test", s: "Query whitelistate sul DB fixture.",
       d: `Risultati di ogni operazione, <code>min_ratings</code>, limite ridotto a <code>max_limit</code>, tag senza distinzione di maiuscole; tentativi di SQL injection restano parametri letterali, producono lo stesso SQL di un titolo innocuo e non cambiano il file. Nessuna chiamata di rete.`,
-      dep: [M + "tool/sql/repository.py", M + "tool/sql/queries.py"],
+      dep: [MT + "sql/repository.py", MT + "sql/queries.py"],
       x: ["pytest"],
     }),
     F("test_movie_db_routing_eval.py", {
@@ -1098,11 +1135,11 @@ const TREE = D("NetflixScout", {}, [
     F("test_movie_db_tool.py", {
       L: "test", s: "Contratto di <code>MovieDbTool</code>.",
       d: `Rispetta il <code>Tool</code> Protocol; restituisce <code>chunks</code>, <code>metadata</code> e una sola trace con <code>{sql, params}</code>, senza percorsi e senza stampare; i chunk sono leggibili da <code>_build_final_context</code>; errori del parser o DB mancante → risultato vuoto con <code>metadata.error</code>; gli argomenti del planner non arrivano al SQL. Nessuna chiamata di rete.`,
-      dep: [M + "tool/movie_db_tool.py", "orchestrator.py", "turn.py"],
+      dep: [MT + "movie_db_tool.py", "orchestrator.py", "turn.py"],
       x: ["pytest"],
     }),
     F("tmdb_support.py", { L: "test", s: "Helper offline dei test TMDb: transport finto che conta le chiamate.", d: `Credenziali finte, <code>make_tool</code> con transport e cache iniettati, payload TMDb minimi (film, ricerca, provider). Non legge <code>.env</code> e non usa la rete.`, dep: [T + "tool.py"], x: ["pytest"] }),
-    F("test_tmdb_app.py", { L: "test", s: "Integrazione offline in <code>app.py</code>.", d: `Registrazione del tool e override di <code>CONFIG["tmdb"]</code>; credenziali non lette alla build; step <code>tmdb_calls</code> nel <code>TurnResult</code> con la lingua del turno; il planner vede il catalogo; arguments non validi producono comunque una risposta senza HTTP; il runtime non importa <code>tmdb/harness</code>; le istruzioni di routing assegnano cast e regia solo a TMDb e lasciano al RAG trama, temi, generi, interpretazione e raccomandazioni.`, dep: ["app.py", T + "tool.py", "orchestrator.py"], x: ["pytest"] }),
+    F("test_tmdb_app.py", { L: "test", s: "Integrazione offline in <code>app.py</code>.", d: `Registrazione del tool e override di <code>CONFIG["tmdb"]</code>; credenziali non lette alla build; step <code>tmdb_calls</code> nel <code>TurnResult</code> con la lingua del turno; il planner vede il catalogo; arguments non validi producono comunque una risposta senza HTTP; il runtime non importa <code>tool/tmdb/harness</code>; le istruzioni di routing assegnano cast e regia solo a TMDb e lasciano al RAG trama, temi, generi, interpretazione e raccomandazioni.`, dep: ["app.py", T + "tool.py", "orchestrator.py"], x: ["pytest"] }),
     F("test_tmdb_auth.py", { L: "test", s: "Credenziali, allowlist del base URL e mascheramento.", d: `Chiave mancante → errore di config; base URL diverso da <code>api.themoviedb.org/3</code> rifiutato; v3 nel parametro, v4 nell'header; URL mostrati mascherati e senza parametri; il segreto non compare in errori di rete, trace o metadata.`, dep: [T + "auth.py", T + "calls.py", T + "http.py"], x: ["pytest"] }),
     F("test_tmdb_config.py", { L: "test", s: "<code>CONFIG[\"tmdb\"]</code> e <code>TmdbConfig</code>.", d: `Esattamente tre campi pubblici, deep merge degli override, valori fuori range o chiavi extra rifiutati, solo il budget legge il limite di chiamate.`, dep: ["app.py", T + "config.py"], x: ["pytest"] }),
     F("test_tmdb_endpoints.py", { L: "test", s: "Mapping operazioni → endpoint e descrizione del tool.", d: `Ogni operazione ha regola e handler; path fissi; il testo libero viaggia solo come parametro codificato; limite di <code>append_to_response</code>; raccolte senza append; descrizione generata da <code>RULES</code>; schema compatto per il prompt del planner.`, dep: [T + "endpoints.py", T + "dispatch.py", T + "models/operation_rules.py"], x: ["pytest"] }),
@@ -1132,7 +1169,7 @@ const TREE = D("NetflixScout", {}, [
   F(".env", {
     L: "cfg", ig: true,
     s: "Le chiavi API reali (OPENAI_API_KEY, COHERE_API_KEY, VUE_APP_TMDB_API_KEY, YOUTUBE_API_KEY). Segreto.",
-    d: `Caricato con <code>python-dotenv</code> (<code>load_dotenv()</code> in <code>embeddings.py</code>, <code>rag.py</code>, <code>rerank.py</code>, nel builder e, per TMDb e YouTube, solo in <code>tmdb/auth.py</code> e <code>youtube/auth.py</code> al primo uso del tool). È ignorato da git.`,
+    d: `Caricato con <code>python-dotenv</code> (<code>load_dotenv()</code> in <code>embeddings.py</code>, <code>rag.py</code>, <code>rerank.py</code>, nel builder e, per TMDb e YouTube, solo in <code>tool/tmdb/auth.py</code> e <code>tool/youtube/auth.py</code> al primo uso del tool). È ignorato da git.`,
     n: ["Non aprirlo, non stamparlo e non committarlo. Per documentare nuove variabili usa <code>.env.example</code>."],
   }),
   F(".env.example", {
@@ -1152,6 +1189,19 @@ const TREE = D("NetflixScout", {}, [
     L: "cfg", s: "Documentazione per gli umani: setup, dataset, build del DB, API.",
     d: `Spiega come scaricare il corpus CMU, come costruire <code>dbVettoriale/</code> e come avviare la chat. La sezione “MovieLens DB Tool” spiega cosa scaricare e scompattare dopo il clone, come costruire il DB, le garanzie di sola lettura e i comandi di valutazione con il loro costo in chiamate API. La sezione su TMDb descrive le 17 operazioni, la configurazione, il budget delle chiamate, lo smoke test live e il logo richiesto dai Termini. La sezione su YouTube descrive categorie, configurazione, quota da 100 ricerche al giorno, filtro, output, crediti e verifiche ancora pendenti.`,
     n: ["La sezione “Retrieval Notes” descrive <code>semantic_query</code>, generi e boost.", "In parte superato: descrive <code>run_rag</code>/<code>execute_tool</code> esposti da <code>app.py</code> e la compattazione a 60.000 token, mentre ora <code>app.py</code> usa l'orchestratore e compatta ogni 12 messaggi."],
+  }),
+  F("answer_stream.py", {
+    L: "orch",
+    s: "<code>AnswerFieldStream</code>: decodifica incrementale del campo <code>answer</code> di un JSON a pezzi.",
+    d: `Sul canale web la risposta finale arriva come JSON strict spezzato in punti arbitrari. La classe restituisce solo il testo di <code>answer</code> già decodificato: mai sintassi JSON, escape o mezzi caratteri (un escape <code>\\u00</code> o una coppia di surrogati spezzati restano trattenuti). Un JSON malformato mette <code>failed</code> senza riparare né sollevare; <code>done</code> scatta alla virgoletta di chiusura. Agnostico: non importa <code>web_lists</code>.`,
+    x: [],
+    n: ["Contratto verificato da <code>tests/test_answer_stream.py</code>; usato da <code>orchestrator.py</code> quando c'è <code>final_output</code> (canale web)."],
+  }),
+  F("data_coverage.py", {
+    L: "orch",
+    s: "Che anni coprono le fonti locali e la regola del planner che ne deriva.",
+    d: `<code>measure_cmu</code> e <code>measure_movielens</code> leggono i dataset locali (corpus CMU fino al 2012, MovieLens fino al 2022) in modo deterministico; <code>coverage_rule</code> trasforma gli anni configurati in <code>CONFIG[\"orchestrator\"][\"data_coverage\"]</code> nel testo aggiunto alle istruzioni del planner, così i film su anni successivi vanno a <code>tmdb_search</code>. <code>python data_coverage.py</code> rimisura le date. Solo stdlib, nessuna rete.`,
+    n: ["<code>tests/test_data_coverage.py</code> confronta i valori in config con i dataset."],
   }),
   F("app.py", {
     L: "entry",
@@ -1173,14 +1223,14 @@ const TREE = D("NetflixScout", {}, [
       ["_TurnRecorder", "Raccoglie step e storia del turno e li inoltra all'osservatore, ignorandone gli errori."],
       ["run_terminal_chat() · main()", "All'avvio controlla Chroma e, se il tool DB è attivo, <code>ensure_db_ready</code>; non stampa avvisi. Loop REPL: <code>handle_query(…, observer=TerminalObserver())</code> → <code>present(…, OutputChannel.terminal, streamed=True)</code> (<code>exit</code>/<code>quit</code> per uscire)."],
     ],
-    dep: ["orchestrator.py", "presenters/__init__.py", "turn.py", M + "config.py", M + "tool/movie_db_tool.py", M + "tool/sql/connection.py", Q + "query_classifier/query_classifier.py", Q + "chat.py", Q + "conversation.py", Q + "runtime.py", Q + "models.py", Q + "tool_interface.py", Q + "vectorstore.py", T + "config.py", T + "tool.py", Y + "config.py", Y + "tool.py", "presenters/terminal/__init__.py"],
+    dep: ["orchestrator.py", "presenters/__init__.py", "turn.py", M + "config.py", MT + "movie_db_tool.py", MT + "sql/connection.py", Q + "query_classifier/query_classifier.py", Q + "chat.py", Q + "conversation.py", Q + "runtime.py", Q + "models.py", Q + "tool_interface.py", Q + "vectorstore.py", T + "config.py", T + "tool.py", Y + "config.py", Y + "tool.py", "presenters/terminal/__init__.py"],
     x: ["openai"],
     cmd: "python app.py",
     n: ["<code>max_iterations</code>, <code>max_execution_time</code> e <code>token_budget</code> sono in CONFIG ma il codice non li legge ancora."],
   }),
   F("buildSemanticDb.py", {
     L: "off", s: "Wrapper in root: avvia il builder reale con gli argomenti da CLI.",
-    d: `Re-esporta tutto da <code>rag.EmbeddingProcess.buildSemanticDb</code> e, se lanciato come script, carica <code>.env</code>, legge gli argomenti e chiama <code>build_semantic_db(...)</code>. Esiste per avere il comando corto dalla root.`,
+    d: `Re-esporta tutto da <code>tool.rag.EmbeddingProcess.buildSemanticDb</code> e, se lanciato come script, carica <code>.env</code>, legge gli argomenti e chiama <code>build_semantic_db(...)</code>. Esiste per avere il comando corto dalla root.`,
     dep: [E + "buildSemanticDb.py"],
     cmd: "python buildSemanticDb.py --embedding-backend openai\npython buildSemanticDb.py --embedding-backend local",
     n: ["Distruttivo e costoso: ricrea <code>dbVettoriale/&lt;backend&gt;/</code> da zero."],
@@ -1201,12 +1251,13 @@ const TREE = D("NetflixScout", {}, [
     d: `File HTML autonomo (niente dipendenze esterne) con il grafico dell'architettura e un explorer in stile VS Code. Le descrizioni sono scritte a mano nell'oggetto <code>TREE</code> dentro lo script: aggiornale quando cambi la struttura del repo.`,
   }),
   F("movie_metadata.py", {
-    L: "off", s: "Shim in root: re-esporta <code>rag.EmbeddingProcess.movie_metadata</code>.",
-    d: `Contiene solo <code>from rag.EmbeddingProcess.movie_metadata import *</code>. Esiste per compatibilità con import vecchi.`,
+    L: "off", s: "Shim in root: re-esporta <code>tool.rag.EmbeddingProcess.movie_metadata</code>.",
+    d: `Contiene solo <code>from tool.rag.EmbeddingProcess.movie_metadata import *</code>. Esiste per compatibilità con import vecchi.`,
     dep: [E + "movie_metadata.py"],
   }),
   F("orchestrator.py", {
     L: "orch",
+    dep: ["answer_stream.py", "data_coverage.py"],
     s: "<code>LLMOrchestrator</code>: riscrive i follow-up, esegue uno o più tool in sequenza raccontando ogni passo, scrive la risposta finale.",
     d: `Definisce il <code>Tool</code> Protocol (<code>name</code>, <code>description</code>, <code>input_schema</code>, <code>run(*, query, params, conversation_history)</code>) e l'<code>Enricher</code>. <code>run(..., observer=)</code>:<br>1) <b>pianificazione</b> (<code>_plan_first</code>, una chiamata LLM; <code>_plan_turn</code> ne è il wrapper a tupla usato dal routing eval): JSON <code>{standalone_query, tool_name, arguments, confidence, parts, more_steps}</code>. <code>standalone_query</code> è la domanda riscritta in modo autonomo usando la history: vale per qualunque tool, anche con <code>required_tools</code> o fallback. Le <code>parts</code> sono le parti della richiesta, ciascuna col suo tool; serve un altro passo se <code>more_steps</code> è vero o una parte ha un altro tool. Alle istruzioni si aggiunge il catalogo dei tool (nome, descrizione, schema in JSON compatto). Se il planner fallisce, ha confidenza bassa o nomina un tool sconosciuto gira il <code>fallback_tool</code> e il motivo (<code>planner_failed</code>, <code>low_confidence</code>, <code>unknown_tool</code>) viene registrato;<br>2) <b>ciclo multi-tool</b>: per ogni passo emette lo step <code>tool_selection</code> (con <code>purpose</code> = la parte della richiesta, e <code>arguments</code>) <b>prima</b> di chiamare il tool, poi lo step <code>tool_outcome</code> (<code>elapsed_ms</code>, <code>status</code>, <code>reason</code>, letti da <code>result["outcome"]</code>; senza, conta la presenza di <code>chunks</code>) e la <code>trace</code> del tool; <code>_enrich</code> completa i risultati RAG con TMDb. Tra un passo e l'altro <code>_plan_next</code> (una chiamata in più) decide il successivo dai risultati già ottenuti o ritorna <code>done</code>; non ripiega mai su un tool. Il ciclo finisce con <code>complete</code>, <code>done</code>, <code>repeated_step</code>, <code>unknown_tool_or_low_confidence</code>, <code>planner_failed</code>, <code>required_tools</code> o <code>max_tool_calls</code> (<code>max_tool_calls_per_turn</code>, 10); le parti rimaste senza tool arrivano alla risposta come “NON eseguite” (mai “non trovate”);<br>3) <b>risposta finale</b>: emette lo stadio <code>answering</code>, poi costruisce il contesto con history + al massimo 10 chunk per tool e le istruzioni <code>final_instructions</code> più <code>tool_final_instructions</code> di ogni tool usato. Se la chiamata fallisce restituisce il testo grezzo dei primi chunk e registra <code>answer_failed</code>. Infine emette lo step <code>planning</code> se i tool sono più di uno o ci sono parti non eseguite o fallback.<br>Con <code>needs_clarification</code> (mai con <code>required_tools</code>) <code>run</code> non esegue tool né la chiamata finale: la domanda è la risposta e <code>tool</code> vale None.<br>L'<code>observer</code> riceve gli step <b>mentre accadono</b>; gli errori dell'osservatore sono ignorati. Il dict restituito non dipende da lui.`,
     it: [
@@ -1313,7 +1364,7 @@ const FOLDER_ICO = `<svg width="14" height="14" viewBox="0 0 16 16"><path d="M1.
 /* ====================================================================== */
 const treeEl = document.getElementById("tree");
 const WRAP = new Map();
-const OPEN_DEFAULT = new Set(["rag", "rag/FromQueryEmbeddingToRes"]);
+const OPEN_DEFAULT = new Set(["tool", "tool/rag", "tool/rag/FromQueryEmbeddingToRes"]);
 
 function buildNode(n, depth) {
   const wrap = document.createElement("div");
@@ -1565,9 +1616,9 @@ const NODES = [
   { id: "vs2", x: 760, y: 552, w: 110, k: "rt", t: "vectorstore.py", s: "search()", p: Q + "vectorstore.py" },
   { id: "db2", x: 890, y: 544, w: 90, h: 62, k: "data", t: "dbVettoriale/", s: "stesso DB", p: "dbVettoriale", cyl: true },
   // ③ tool DB MovieLens
-  { id: "dbtool", x: 290, y: 692, w: 140, k: "db", t: "movie_db_tool.py", s: "movie_db_search", p: M + "tool/movie_db_tool.py" },
-  { id: "parser", x: 466, y: 692, w: 136, k: "db", t: "parser.py", s: "domanda → MovieDbQuery", p: M + "tool/parser.py", api: 1 },
-  { id: "sql", x: 626, y: 692, w: 132, k: "db", t: "tool/sql/", s: "SQL whitelist · read-only", p: M + "tool/sql" },
+  { id: "dbtool", x: 290, y: 692, w: 140, k: "db", t: "movie_db_tool.py", s: "movie_db_search", p: MT + "movie_db_tool.py" },
+  { id: "parser", x: 466, y: 692, w: 136, k: "db", t: "parser.py", s: "domanda → MovieDbQuery", p: MT + "parser.py", api: 1 },
+  { id: "sql", x: 626, y: 692, w: 132, k: "db", t: "tool/sql/", s: "SQL whitelist · read-only", p: MT + "sql" },
   { id: "mldb", x: 776, y: 684, w: 108, h: 62, k: "data", t: "movie_db/data/", s: "SQLite", p: M + "data", cyl: true },
   { id: "mlbuild", x: 896, y: 692, w: 90, k: "off", t: "buildMovieDb", s: "CSV → SQLite", p: "buildMovieDb.py" },
   // ④ tool TMDb
@@ -1722,7 +1773,7 @@ function renderOverview() {
     <p style="color:var(--muted)">Clicca un riquadro del grafico, oppure un file o una cartella nell'explorer a sinistra, per leggerne la spiegazione.</p>
     <div class="diagram" id="diagram">${renderDiagram()}</div>
     <div class="legend">
-      ${L("off", "Indicizzazione offline")}${L("rt", "Runtime RAG")}${L("orch", "Orchestrazione / guardrail")}${L("out", "Output / presenter")}${L("db", "Tool DB MovieLens")}${L("tmdb", "Tool TMDb")}${L("youtube", "Tool YouTube")}${L("entry", "Entry point")}${L("data", "Dati locali")}${L("ext", "Esterno / non è un file")}
+      ${L("off", "Indicizzazione offline")}${L("rt", "Runtime RAG")}${L("orch", "Orchestrazione / guardrail")}${L("out", "Output / presenter")}${L("db", "Tool DB MovieLens")}${L("tmdb", "Tool TMDb")}${L("youtube", "Tool YouTube")}${L("wikipedia", "Tool Wikipedia")}${L("entry", "Entry point")}${L("data", "Dati locali")}${L("ext", "Esterno / non è un file")}
       <span><i style="background:#c2732a;border-color:#c2732a;border-radius:7px"></i>chiama un'API a pagamento</span>
     </div>
 
@@ -1733,7 +1784,7 @@ function renderOverview() {
       <li><b>Orchestrazione.</b> <a class="vscode" href="#orchestrator.py">orchestrator.py</a>, con una chiamata LLM, riscrive le domande di follow-up in una query autonoma usando la history (“e uno più recente?” → “film di fantascienza con robot più recenti”) e sceglie il tool: <code>rag_search</code> per trama, temi, generi, interpretazione e raccomandazioni (è anche il fallback), <code>movie_db_search</code> per classifiche, voti medi, numero di voti, generi per anno e tag, <code>tmdb_search</code> per dati fattuali e aggiornati (chi ha diretto, chi recita, streaming, trailer, trending, serie). Il prompt contiene il catalogo dei tool con i loro schemi. La query autonoma vale per qualunque tool. Una richiesta composta (per esempio un film e un'intervista) elenca le sue parti e i tool le eseguono in sequenza nello stesso turno, ognuno con i dati dei precedenti, fino a <code>max_tool_calls_per_turn</code>.</li>
       <li><b>Retrieval.</b> <a class="vscode" href="#${Q}retrieval.py">retrieval.py</a> estrae i segnali in inglese dalla query (cosa vuoi, cosa evitare, cosa escludere, la frase da embeddare <code>semantic_query</code> e i generi), fa l'embedding di <code>semantic_query</code>, dà un boost (<code>genre_boost = 0.15</code>) ai film del genere richiesto su un pool di <code>fetch_k = 50</code> e tiene fino a <code>k_largo = 10</code> candidati, in modalità <code>semantic</code>, <code>bm25</code> o <code>hybrid</code>.</li>
       <li><b>Rerank.</b> <a class="vscode" href="#${Q}rerank.py">rerank.py</a> riordina con Cohere <code>rerank-v3.5</code>, mostrandogli titolo, anno e generi prima della trama, e tiene i primi <code>k_finale = 3</code>.</li>
-      <li><b>Tool DB.</b> <a class="vscode" href="#${M}tool/movie_db_tool.py">movie_db_tool.py</a> fa convertire la domanda dal <a class="vscode" href="#${M}tool/parser.py">parser</a> in un'operazione whitelistata (<code>MovieDbQuery</code>, mai SQL), e <a class="vscode" href="#${M}tool/sql">tool/sql/</a> la esegue con SQL fisso e parametri bind su <code>movie_db/data/movielens32m.sqlite3</code>, aperto in sola lettura (<code>mode=ro</code>, <code>query_only</code>, authorizer). Le righe diventano chunk per la risposta; la trace contiene solo le query eseguite.</li>
+      <li><b>Tool DB.</b> <a class="vscode" href="#${MT}movie_db_tool.py">movie_db_tool.py</a> fa convertire la domanda dal <a class="vscode" href="#${MT}parser.py">parser</a> in un'operazione whitelistata (<code>MovieDbQuery</code>, mai SQL), e <a class="vscode" href="#${MT}sql">tool/sql/</a> la esegue con SQL fisso e parametri bind su <code>movie_db/data/movielens32m.sqlite3</code>, aperto in sola lettura (<code>mode=ro</code>, <code>query_only</code>, authorizer). Le righe diventano chunk per la risposta; la trace contiene solo le query eseguite.</li>
       <li><b>Tool TMDb.</b> <a class="vscode" href="#${T}tool.py">tmdb/tool.py</a> valida le <code>requests</code> del planner (<a class="vscode" href="#${T}models/requests.py">TmdbToolInput</a>, 1–4 operazioni tra 17) prima di qualunque chiamata, risolve gli ID mancanti e chiama endpoint fissi tramite <a class="vscode" href="#${T}http.py">http.py</a>, l'unico punto di I/O: memo del turno, cache TTL, pausa dopo un 429 e al massimo <code>max_calls_per_turn = 6</code> tentativi, senza retry. <a class="vscode" href="#${T}prompt_budget.py">prompt_budget.py</a> limita i dati passati all'LLM.</li>
       <li><b>Tool YouTube.</b> <a class="vscode" href="#${Y}tool.py">youtube/tool.py</a> valida l'input del planner (<a class="vscode" href="#${Y}models.py">YoutubeToolInput</a>), fa una <code>search.list</code> per categoria con query composte da <a class="vscode" href="#${Y}queries.py">queries.py</a> (al massimo 2 per turno), una sola <code>videos.list</code> tramite <a class="vscode" href="#${Y}http.py">http.py</a> e filtra i risultati con <a class="vscode" href="#${Y}relevance.py">relevance.py</a> sui dati completi, senza riordinarli: i video incerti restano “da verificare”.</li>
       <li><b>Risposta.</b> L'orchestratore scrive la risposta usando solo i dati ricevuti, con le regole del tool usato (<code>tool_final_instructions</code>). Ogni 12 messaggi <a class="vscode" href="#${Q}conversation.py">conversation.py</a> compatta la history.</li>

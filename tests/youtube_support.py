@@ -7,9 +7,9 @@ from collections.abc import Callable
 from typing import Any
 from urllib.parse import parse_qsl, urlsplit
 
-from youtube.auth import YoutubeCredentials
-from youtube.http import HttpSession
-from youtube.quota import QuotaLatch
+from tool.youtube.auth import YoutubeCredentials
+from tool.youtube.http import HttpSession
+from tool.youtube.quota import QuotaLatch
 
 SECRET = "AIzaSyFAKE-test-key-0123456789abcdefghi"
 BASE = "https://www.googleapis.com/youtube/v3"
@@ -67,8 +67,8 @@ def make_tool(
     max_searches: int = 2,
     latch: QuotaLatch | None = None,
 ):
-    from youtube.config import YoutubeConfig
-    from youtube.tool import YoutubeTool
+    from tool.youtube.config import YoutubeConfig
+    from tool.youtube.tool import YoutubeTool
 
     transport = FakeTransport(routes)
     tool = YoutubeTool(

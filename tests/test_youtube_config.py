@@ -6,8 +6,8 @@ import pytest
 from pydantic import ValidationError
 
 import app as app_module
-from youtube import errors
-from youtube.config import YoutubeConfig, load_youtube_config
+from tool.youtube import errors
+from tool.youtube.config import YoutubeConfig, load_youtube_config
 
 
 def test_config_has_exactly_the_two_public_settings() -> None:

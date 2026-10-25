@@ -24,12 +24,12 @@ from typing import Any
 from pydantic import ValidationError
 
 from orchestrator import CLARIFICATION
-from tmdb.models.requests import TmdbRequest, TmdbToolInput, describe_validation_errors
+from tool.tmdb.models.requests import TmdbRequest, TmdbToolInput, describe_validation_errors
 from turn import TOOL_PARAM_TURN_LANGUAGE
-from wikipedia.models import WikipediaToolInput
-from wikipedia.models import describe_validation_errors as describe_wikipedia_errors
-from youtube.models import YoutubeToolInput
-from youtube.models import describe_validation_errors as describe_video_errors
+from tool.wikipedia.models import WikipediaToolInput
+from tool.wikipedia.models import describe_validation_errors as describe_wikipedia_errors
+from tool.youtube.models import YoutubeToolInput
+from tool.youtube.models import describe_validation_errors as describe_video_errors
 
 from .routing_cases import (
     ROUTING_CASES,
@@ -336,7 +336,7 @@ def main(argv: list[str] | None = None) -> None:
 
     load_dotenv()
     import app as app_module
-    from rag.FromQueryEmbeddingToRes.query_classifier import query_classifier
+    from tool.rag.FromQueryEmbeddingToRes.query_classifier import query_classifier
 
     # No automatic retries: one call per classifier/planner step.
     query_classifier.OpenAI = partial(OpenAI, max_retries=0)

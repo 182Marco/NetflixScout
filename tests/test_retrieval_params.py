@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from rag.FromQueryEmbeddingToRes.models import SearchMode
-from rag.FromQueryEmbeddingToRes.retrieval_params import resolve_retrieval
+from tool.rag.FromQueryEmbeddingToRes.models import SearchMode
+from tool.rag.FromQueryEmbeddingToRes.retrieval_params import resolve_retrieval
 
 DEFAULTS = {
     "search_mode": SearchMode.semantic,

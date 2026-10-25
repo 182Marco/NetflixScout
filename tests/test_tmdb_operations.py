@@ -295,7 +295,7 @@ def test_the_cast_filter_is_for_movies_only() -> None:
     import pytest
     from pydantic import ValidationError
 
-    from tmdb.models.requests import TmdbRequest
+    from tool.tmdb.models.requests import TmdbRequest
 
     with pytest.raises(ValidationError):
         TmdbRequest.model_validate({"operation": "discover_tv", "filters": {"cast": ["Leonardo DiCaprio"]}})

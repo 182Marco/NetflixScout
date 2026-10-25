@@ -6,21 +6,21 @@ from typing import Any
 from openai import OpenAI
 
 from movie_db.config import load_movie_db_config
-from movie_db.tool.movie_db_tool import MovieDbTool
-from movie_db.tool.sql.connection import ensure_db_ready
+from tool.movie_db.movie_db_tool import MovieDbTool
+from tool.movie_db.sql.connection import ensure_db_ready
 from orchestrator import LLMOrchestrator
 from presenters import OutputChannel, present, terminal
 from presenters.story_view import StoryBuilder
-from rag.FromQueryEmbeddingToRes.chat import _choose_block_language
-from rag.FromQueryEmbeddingToRes.conversation import _compact_history
-from rag.FromQueryEmbeddingToRes.query_classifier.query_classifier import classify_query_domain
-from rag.FromQueryEmbeddingToRes.runtime import _resolve_runtime_config
-from rag.FromQueryEmbeddingToRes.models import RerankBackend, SearchMode
-from rag.FromQueryEmbeddingToRes.tool_interface import RagTool
-from rag.FromQueryEmbeddingToRes.vectorstore import apri_collection
-from tmdb.config import load_tmdb_config
-from tmdb.enrich import TmdbRagEnricher
-from tmdb.tool import TmdbTool
+from tool.rag.FromQueryEmbeddingToRes.chat import _choose_block_language
+from tool.rag.FromQueryEmbeddingToRes.conversation import _compact_history
+from tool.rag.FromQueryEmbeddingToRes.query_classifier.query_classifier import classify_query_domain
+from tool.rag.FromQueryEmbeddingToRes.runtime import _resolve_runtime_config
+from tool.rag.FromQueryEmbeddingToRes.models import RerankBackend, SearchMode
+from tool.rag.FromQueryEmbeddingToRes.tool_interface import RagTool
+from tool.rag.FromQueryEmbeddingToRes.vectorstore import apri_collection
+from tool.tmdb.config import load_tmdb_config
+from tool.tmdb.enrich import TmdbRagEnricher
+from tool.tmdb.tool import TmdbTool
 from turn import (
     STAGE_UNDERSTANDING,
     STEP_CLASSIFICATION,
@@ -31,10 +31,10 @@ from turn import (
     TurnObserver,
     TurnResult,
 )
-from wikipedia.config import load_wikipedia_config
-from wikipedia.tool import WikipediaTool
-from youtube.config import load_youtube_config
-from youtube.tool import YoutubeTool
+from tool.wikipedia.config import load_wikipedia_config
+from tool.wikipedia.tool import WikipediaTool
+from tool.youtube.config import load_youtube_config
+from tool.youtube.tool import YoutubeTool
 
 NON_CINEMA_BLOCK_MESSAGES = {
     "it": "Non rispondo a domande non cinematografiche",
@@ -315,7 +315,7 @@ CONFIG = {
         "required_tools": [],
         "tool_confidence_threshold": 0.6,
         "fallback_tool": "rag_search",
-        # After rag_search, TMDb metadata for the movies the RAG selected (tmdb/enrich.py).
+        # After rag_search, TMDb metadata for the movies the RAG selected (tool/tmdb/enrich.py).
         "rag_enrichment": {
             "enabled": True,
             "max_candidates": 3,
@@ -405,7 +405,7 @@ CONFIG = {
             "include_tags": True,
         },
     },
-    # Only these three: timeouts, cache size and context limits are internal to tmdb/.
+    # Only these three: timeouts, cache size and context limits are internal to tool/tmdb/.
     "tmdb": {
         "max_results": 5,
         "max_calls_per_turn": 6,
@@ -417,10 +417,10 @@ CONFIG = {
         "max_searches_per_turn": 2,
     },
     # `context_chars_per_turn` protects the final prompt, it does not cap what can be fetched:
-    # an article is downloaded whole and handed out section by section (wikipedia/sections.py).
+    # an article is downloaded whole and handed out section by section (tool/wikipedia/sections.py).
     "wikipedia": {
         # Searches start in English whatever the language of the answer: the planner asks for the
-        # Italian edition in a later step when English is not enough (wikipedia/tool.py).
+        # Italian edition in a later step when English is not enough (tool/wikipedia/tool.py).
         "default_language": "en",
         "max_results": 3,
         "max_calls_per_turn": 6,

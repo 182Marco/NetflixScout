@@ -109,7 +109,7 @@ def test_presenters_never_import_the_tmdb_package() -> None:
     for path in sorted((ROOT / "presenters").rglob("*.py")):
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
             if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
-                assert not node.module.startswith("tmdb"), (path, node.module)
+                assert not node.module.startswith("tool"), (path, node.module)
 
 
 def test_presenters_live_only_in_the_root_folder_split_by_channel_and_tool() -> None:

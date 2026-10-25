@@ -4,8 +4,8 @@ from urllib.parse import parse_qs, urlsplit
 
 import pytest
 
-from wikipedia.models import WikipediaToolInput
-from wikipedia.queries import api_url, article_params, lookup_params, page_url, phrase, search_term
+from tool.wikipedia.models import WikipediaToolInput
+from tool.wikipedia.queries import api_url, article_params, lookup_params, page_url, phrase, search_term
 
 
 def _request(**fields) -> WikipediaToolInput:

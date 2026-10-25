@@ -1,5 +1,5 @@
-"""Offline tests of the YouTube tool input (`youtube/models.py`) and the search queries
-(`youtube/queries.py`)."""
+"""Offline tests of the YouTube tool input (`tool/youtube/models.py`) and the search queries
+(`tool/youtube/queries.py`)."""
 from __future__ import annotations
 
 import ast
@@ -9,14 +9,14 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from youtube.models import (
+from tool.youtube.models import (
     MAX_ALTERNATIVE_TITLES,
     VideoKind,
     YoutubeToolInput,
     describe_validation_errors,
     normalize_text,
 )
-from youtube.queries import EXCLUDED_TERMS, KIND_TERMS, build_q, build_search_params, people_group, person_group, phrase
+from tool.youtube.queries import EXCLUDED_TERMS, KIND_TERMS, build_q, build_search_params, people_group, person_group, phrase
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -290,10 +290,10 @@ def test_fetch_size_is_capped_by_the_api_maximum() -> None:
 
 def test_queries_and_models_never_import_tmdb_or_do_io() -> None:
     for name in ("models.py", "queries.py"):
-        tree = ast.parse((ROOT / "youtube" / name).read_text(encoding="utf-8"))
+        tree = ast.parse((ROOT / "tool" / "youtube" / name).read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
-                assert node.module.split(".")[0] not in {"tmdb", "urllib", "http", "socket"}, (name, node.module)
+                assert node.module.split(".")[0] not in {"tool", "urllib", "http", "socket"}, (name, node.module)
 
 
 # --- fix 3: cast_interview and the `cast` field -------------------------------------------------

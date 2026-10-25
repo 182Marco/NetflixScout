@@ -6,9 +6,9 @@ import pytest
 from tmdb_support import BASE, MOVIE_ID, SECRET, TOKEN, calls_shown, make_tool, movie_payload, run, tmdb_meta
 
 from presenters import OutputChannel, present
-from tmdb.auth import AuthMode, authorize, detect_mode, load_credentials, validate_base_url
-from tmdb.calls import display_url
-from tmdb.errors import TmdbConfigError
+from tool.tmdb.auth import AuthMode, authorize, detect_mode, load_credentials, validate_base_url
+from tool.tmdb.calls import display_url
+from tool.tmdb.errors import TmdbConfigError
 from presenters.web.api import serialize_tmdb_calls_step
 from turn import TraceStep, TurnResult
 

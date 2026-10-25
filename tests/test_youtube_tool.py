@@ -1,4 +1,4 @@
-"""Offline tests of `youtube/tool.py`: fake transport, no network, no `.env`."""
+"""Offline tests of `tool/youtube/tool.py`: fake transport, no network, no `.env`."""
 from __future__ import annotations
 
 import json
@@ -17,11 +17,11 @@ from youtube_support import (
 
 from orchestrator import Tool
 from turn import STEP_YOUTUBE_CALLS
-from youtube import tool as tool_module
-from youtube.errors import YoutubeConfigError
-from youtube.models import YoutubeToolInput
-from youtube.quota import QuotaBucket, QuotaLatch
-from youtube.tool import YOUTUBE_TOOL_NAME, overall_status
+from tool.youtube import tool as tool_module
+from tool.youtube.errors import YoutubeConfigError
+from tool.youtube.models import YoutubeToolInput
+from tool.youtube.quota import QuotaBucket, QuotaLatch
+from tool.youtube.tool import YOUTUBE_TOOL_NAME, overall_status
 
 ID1, ID2, ID3, ID4 = "vid00000001", "vid00000002", "vid00000003", "vid00000004"
 SEARCH_URL = f"{BASE}/search?key=***"
@@ -443,7 +443,7 @@ def test_the_key_never_appears_in_the_result(routes) -> None:
 
 
 def test_overall_status() -> None:
-    from youtube.models import KindOutcome, VideoHit
+    from tool.youtube.models import KindOutcome, VideoHit
 
     hit = VideoHit(video_id=ID1, url="u", title="t", channel="c")
     ok = KindOutcome(kind="making_of", status="searched", result="ok", hits=[hit])
@@ -776,7 +776,7 @@ def test_each_hit_is_labelled_from_its_notes_and_the_api_order_is_kept() -> None
     ],
 )
 def test_verification_comes_only_from_relevance_notes(notes, label) -> None:
-    from youtube.relevance import verification
+    from tool.youtube.relevance import verification
 
     assert verification(notes) == label
 
@@ -838,7 +838,7 @@ def test_empty_kind_without_alternatives_suggests_the_original_title_only() -> N
 
 
 def test_planner_schema_drops_only_the_class_docstring() -> None:
-    from youtube.tool import planner_schema
+    from tool.youtube.tool import planner_schema
 
     schema = planner_schema()
     full = YoutubeToolInput.model_json_schema()
@@ -866,7 +866,7 @@ def test_catalog_entry_has_no_stale_or_duplicated_text() -> None:
 
 
 def test_every_planner_rule_is_still_in_the_catalog() -> None:
-    from youtube.tool import planner_schema
+    from tool.youtube.tool import planner_schema
 
     text = json.dumps({"description": make_tool()[0].description, "schema": planner_schema()}, ensure_ascii=False)
 

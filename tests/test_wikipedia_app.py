@@ -13,7 +13,7 @@ from wikipedia_support import by_mode, lookup_answer, make_tool, page
 
 import app as app_module
 from orchestrator import LLMOrchestrator
-from wikipedia.tool import WIKIPEDIA_TOOL_NAME, WikipediaTool
+from tool.wikipedia.tool import WIKIPEDIA_TOOL_NAME, WikipediaTool
 
 INSTRUCTIONS = app_module.CONFIG["orchestrator"]["instructions"]
 FINAL_RULES = app_module.CONFIG["orchestrator"]["tool_final_instructions"]
@@ -128,7 +128,7 @@ def test_rule_1c_asks_for_the_english_title_of_the_page_without_inventing_one() 
 
 
 def test_the_empty_result_tells_the_planner_to_try_the_english_title_only_if_it_is_known() -> None:
-    from wikipedia.trace import REASON_TEXT
+    from tool.wikipedia.trace import REASON_TEXT
 
     assert "titolo inglese o originale" in REASON_TEXT["empty"] and "solo se noto con certezza" in REASON_TEXT["empty"]
 

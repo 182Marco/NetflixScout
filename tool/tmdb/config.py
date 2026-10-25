@@ -1,8 +1,8 @@
 """Typed, validated view of `CONFIG["tmdb"]`: only the three public settings.
 
 The values live only in `app.py` (no defaults here, like `movie_db/config.py`).
-Timeouts, cache size and context limits are internal constants in `tmdb/settings.py`
-and `tmdb/prompt_budget.py`; none of them limits HTTP calls.
+Timeouts, cache size and context limits are internal constants in `tool/tmdb/settings.py`
+and `tool/tmdb/prompt_budget.py`; none of them limits HTTP calls.
 """
 from __future__ import annotations
 

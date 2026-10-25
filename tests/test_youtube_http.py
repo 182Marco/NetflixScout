@@ -1,4 +1,4 @@
-"""Offline tests of `youtube/http.py`: fake transport, no network, no `.env`."""
+"""Offline tests of `tool/youtube/http.py`: fake transport, no network, no `.env`."""
 from __future__ import annotations
 
 import ast
@@ -13,9 +13,9 @@ from pathlib import Path
 import pytest
 from youtube_support import BASE, SECRET, error_body, make_session
 
-from youtube import http as yt_http
-from youtube.calls import display_url
-from youtube.errors import (
+from tool.youtube import http as yt_http
+from tool.youtube.calls import display_url
+from tool.youtube.errors import (
     YoutubeApiNotEnabled,
     YoutubeAuthError,
     YoutubeError,
@@ -25,8 +25,8 @@ from youtube.errors import (
     YoutubeRateLimited,
     YoutubeTimeout,
 )
-from youtube.http import get_json, urllib_transport
-from youtube.quota import QuotaBucket, QuotaLatch
+from tool.youtube.http import get_json, urllib_transport
+from tool.youtube.quota import QuotaBucket, QuotaLatch
 
 ROOT = Path(__file__).resolve().parents[1]
 SEARCH = {"part": "snippet", "q": '"Dune" interview', "type": "video"}
@@ -297,7 +297,7 @@ def test_every_error_class_is_a_youtube_error() -> None:
 
 def test_only_http_py_does_network_io_in_the_youtube_package() -> None:
     offenders = set()
-    for path in sorted((ROOT / "youtube").rglob("*.py")):
+    for path in sorted((ROOT / "tool" / "youtube").rglob("*.py")):
         tree = ast.parse(path.read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             names: list[str] = []
@@ -311,4 +311,4 @@ def test_only_http_py_does_network_io_in_the_youtube_package() -> None:
                 offenders.add(path.relative_to(ROOT).as_posix())
             if isinstance(node, ast.Attribute) and node.attr == "urlopen":
                 offenders.add(path.relative_to(ROOT).as_posix())
-    assert offenders == {"youtube/http.py"}
+    assert offenders == {"tool/youtube/http.py"}

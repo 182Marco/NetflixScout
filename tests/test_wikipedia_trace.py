@@ -1,9 +1,9 @@
 """The summary the planner reads: where to look next, never the text it already gave to the answer."""
 from __future__ import annotations
 
-from wikipedia.models import PageResult
-from wikipedia.settings import PLANNER_SUMMARY_CHARS
-from wikipedia.trace import build_planner_summary, build_wikipedia_trace
+from tool.wikipedia.models import PageResult
+from tool.wikipedia.settings import PLANNER_SUMMARY_CHARS
+from tool.wikipedia.trace import build_planner_summary, build_wikipedia_trace
 
 SECRET_TEXT = "Park Chan-wook was born in Seoul and studied philosophy."
 

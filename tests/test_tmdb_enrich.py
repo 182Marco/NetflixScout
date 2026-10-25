@@ -1,4 +1,4 @@
-"""RAG -> TMDb completion (tmdb/enrich.py): offline, fake transport, no `.env`."""
+"""RAG -> TMDb completion (tool/tmdb/enrich.py): offline, fake transport, no `.env`."""
 from __future__ import annotations
 
 import json
@@ -6,10 +6,10 @@ import json
 import pytest
 from tmdb_support import make_tool
 
-import tmdb.tool as tool_module
+import tool.tmdb.tool as tool_module
 from orchestrator import LLMOrchestrator
-from tmdb.enrich import ENRICHMENT_KEY, TmdbRagEnricher, select_candidates
-from tmdb.errors import TmdbConfigError
+from tool.tmdb.enrich import ENRICHMENT_KEY, TmdbRagEnricher, select_candidates
+from tool.tmdb.errors import TmdbConfigError
 from stream_support import reply
 
 MOVIES = {

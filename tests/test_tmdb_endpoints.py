@@ -4,13 +4,13 @@ import json
 
 import pytest
 
-from tmdb import endpoints
-from tmdb.dispatch import OPERATION_HANDLERS
-from tmdb.models.enums import ChartList, ExternalSource, Facet, MediaType, SearchKind, TimeWindow, TmdbOperation
-from tmdb.models.operation_rules import RULES, describe_operations
-from tmdb.models.requests import TmdbToolInput
-from tmdb.tool import TmdbTool
-from tmdb.config import TmdbConfig
+from tool.tmdb import endpoints
+from tool.tmdb.dispatch import OPERATION_HANDLERS
+from tool.tmdb.models.enums import ChartList, ExternalSource, Facet, MediaType, SearchKind, TimeWindow, TmdbOperation
+from tool.tmdb.models.operation_rules import RULES, describe_operations
+from tool.tmdb.models.requests import TmdbToolInput
+from tool.tmdb.tool import TmdbTool
+from tool.tmdb.config import TmdbConfig
 
 
 def test_every_operation_has_a_rule_and_a_handler() -> None:

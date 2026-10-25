@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from wikipedia.models import Depth, Subject, WikipediaToolInput, describe_validation_errors, normalize_text
+from tool.wikipedia.models import Depth, Subject, WikipediaToolInput, describe_validation_errors, normalize_text
 
 
 def _input(**fields) -> WikipediaToolInput:

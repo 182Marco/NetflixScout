@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import threading
 
-from wikipedia.budget import TurnRegistry, TurnState
+from tool.wikipedia.budget import TurnRegistry, TurnState
 
 
 def test_http_calls_are_counted_until_the_limit() -> None:

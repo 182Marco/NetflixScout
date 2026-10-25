@@ -6,8 +6,8 @@ import json
 from tmdb_support import make_tool, movie_payload, run, tmdb_meta
 
 from orchestrator import LLMOrchestrator
-from tmdb.models.results import Entity, RequestOutcome
-from tmdb.prompt_budget import (
+from tool.tmdb.models.results import Entity, RequestOutcome
+from tool.tmdb.prompt_budget import (
     ESSENTIALS_CHARS,
     MAX_CHUNKS,
     MAX_TMDB_CONTEXT_CHARS,

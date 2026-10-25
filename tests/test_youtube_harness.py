@@ -4,7 +4,7 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-from youtube.harness.live_smoke import _variants
+from tool.youtube.harness.live_smoke import _variants
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -18,7 +18,7 @@ def test_the_smoke_variants_include_the_query_the_tool_builds() -> None:
 
 
 def test_runtime_never_imports_the_youtube_harness() -> None:
-    runtime_files = [ROOT / "app.py", *[p for p in sorted((ROOT / "youtube").rglob("*.py")) if "harness" not in p.parts]]
+    runtime_files = [ROOT / "app.py", *[p for p in sorted((ROOT / "tool" / "youtube").rglob("*.py")) if "harness" not in p.parts]]
     for path in runtime_files:
         for node in ast.walk(ast.parse(path.read_text())):
             if isinstance(node, ast.ImportFrom) and node.module:

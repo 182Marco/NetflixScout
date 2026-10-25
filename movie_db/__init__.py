@@ -2,7 +2,7 @@
 
 - `config.py`: validated view of `CONFIG["movie_db"]` (the values live only in `app.py`).
 - `schema.py`: tables, columns and DDL shared by ingestion and runtime.
-- `tool/`: runtime code (orchestrator tool, parser, read-only SQL access).
+- The runtime tool (orchestrator tool, parser, read-only SQL access) lives in `tool/movie_db/`.
 - `harness/`: offline code, never imported at runtime (ingestion, fixtures, evaluation).
 - `data/`: unzipped MovieLens CSV and the generated DB (git-ignored, not code).
 """

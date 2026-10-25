@@ -1,4 +1,4 @@
-"""Offline tests of `youtube/relevance.py`: false negatives to keep, homonyms to drop, one
+"""Offline tests of `tool/youtube/relevance.py`: false negatives to keep, homonyms to drop, one
 test per drop reason. Titles are shaped like real YouTube results."""
 from __future__ import annotations
 
@@ -6,8 +6,8 @@ import inspect
 
 import pytest
 
-from youtube.models import VideoKind, YoutubeToolInput
-from youtube.relevance import (
+from tool.youtube.models import VideoKind, YoutubeToolInput
+from tool.youtube.relevance import (
     Screening,
     count_reasons,
     parse_duration,

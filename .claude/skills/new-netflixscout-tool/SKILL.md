@@ -10,8 +10,8 @@ description: Progetta e implementa un nuovo tool dell'orchestratore di NetflixSc
 **cosa ispezionare, cosa decidere, in che ordine costruire e come verificare**. Se `AGENTS.md` e il codice
 divergono, vale il codice.
 
-Esempio di riferimento per un'API esterna: `youtube/` (il più recente e pulito). Per una fonte locale: `movie_db/`.
-Per un tool di sola lettura molto ampio: `tmdb/`. Ognuno ha peculiarità che **non** vanno copiate (vedi §1).
+Esempio di riferimento per un'API esterna: `tool/youtube/` (il più recente e pulito). Per una fonte locale: `tool/movie_db/`.
+Per un tool di sola lettura molto ampio: `tool/tmdb/`. Ognuno ha peculiarità che **non** vanno copiate (vedi §1).
 
 ## 0. Vincoli di processo
 
@@ -27,7 +27,7 @@ Leggi, in quest'ordine, e annota per ciascun tool cosa è **convenzione** e cosa
 1. `orchestrator.py`: `Tool` Protocol (`name`, `description`, `input_schema`, `run(*, query, params, conversation_history) -> dict`), `Enricher`, come `_plan_turn` inserisce il catalogo.
 2. `app.py`: `CONFIG` (sezione del tool), `build_app`, `allowed_tools`, `instructions` (regole di routing numerate), `tool_final_instructions`.
 3. `turn.py`: `tool_outcome`, `OUTCOME_*`, `STEP_*`, `TOOL_PARAM_TURN_ID`, `TOOL_PARAM_TURN_LANGUAGE`.
-4. Un tool completo: `youtube/` (`config`, `settings`, `auth`, `errors`, `http`, `models`, `queries`, `relevance`, `trace`, `tool`).
+4. Un tool completo: `tool/youtube/` (`config`, `settings`, `auth`, `errors`, `http`, `models`, `queries`, `relevance`, `trace`, `tool`).
 5. Presenter: `presenters/youtube_view.py`, `presenters/terminal/youtube/`, `presenters/web/youtube/`, `STEP_RENDERERS`, `STEP_SERIALIZERS`, `story_view.TOOLS`.
 6. Test: `tests/test_youtube_*.py` + `youtube_support.py`, `tests/test_presenter_parity.py`, `movie_db/harness/evaluation/routing_cases.py`.
 
@@ -38,7 +38,7 @@ Leggi, in quest'ordine, e annota per ciascun tool cosa è **convenzione** e cosa
 | Input Pydantic validato **prima** di ogni chiamata; errore = `invalid_request` senza HTTP e senza riportare i valori | `requests` 1–4 di TMDb e `RULES`: servono a un'API con decine di endpoint |
 | `result` = `{query, chunks, outcome, metadata, trace}`; `trace` fuori da `metadata` | `movie_db`: LLM parser interno + SQL whitelistato; `chunks` come righe |
 | Errori tipizzati con `code`, messaggi sicuri per il prompt | filtro di pertinenza di YouTube (`relevance.py`) |
-| Limiti per turno contati su `turn_id`, non sulla run | `tmdb/enrich.py`: serve solo al completamento del RAG |
+| Limiti per turno contati su `turn_id`, non sulla run | `tool/tmdb/enrich.py`: serve solo al completamento del RAG |
 
 ## 2. Decisioni da prendere (e da scrivere nel messaggio di commit/PR)
 
@@ -50,22 +50,44 @@ quel caso scrivi la giustificazione e chiedi conferma prima di aggiungere dipend
 **b) Nuovo tool o nuova operazione.** Se il dominio e la fonte sono già coperti, aggiungi un'operazione
 (`TmdbOperation` + `RULES` + `endpoints.py` + handler in `dispatch.py`; oppure `MovieDbOperation` + builder in
 `QUERY_BUILDERS`). Nuovo tool solo per fonte, credenziali o politica di quota diverse. Se il tool deve solo
-arricchire il risultato di un altro, è un `Enricher` (vedi `tmdb/enrich.py`), non un tool.
+arricchire il risultato di un altro, è un `Enricher` (vedi `tool/tmdb/enrich.py`), non un tool.
 
 **c) Rotta del planner.** Quando va scelto rispetto agli altri? Scrivi la regola di priorità (come la "1b" di
 YouTube, inserita senza rinumerare) e i confini: cosa **non** deve prendere (es. i trailer restano a `tmdb_search`).
 
 **d) Cosa decide il codice, cosa l'LLM.** L'LLM compila solo campi tipizzati dello schema e solo con valori presenti
 in richiesta o conversazione (`year`, `director`… mai inventati: il campo lo dichiara nella `description`). Query,
-URL, SQL, filtri e limiti li costruisce il codice da frammenti costanti (`youtube/queries.py`, `movie_db/tool/sql/queries.py`).
+URL, SQL, filtri e limiti li costruisce il codice da frammenti costanti (`tool/youtube/queries.py`, `tool/movie_db/sql/queries.py`).
 
 **e) Limiti, quote, dati da non conservare.** Limite per turno su `turn_id` (`_searches_left`, `CallBudget`); chi è
 l'autorità sulla quota; cosa non si può memorizzare per i termini dell'API. Le policy esterne vanno nel docstring del modulo.
 
 ## 3. Struttura e responsabilità
 
-Un pacchetto top-level `<dominio>/`, **senza import da altri domini** (`youtube/` non importa `tmdb/`; il core non
-importa `*/harness/`). Un file = un concern:
+### Dove va il codice
+
+Il codice dedicato a un tool **non va più in una cartella nella root**: va in `tool/<nome>/`, un pacchetto annidato
+dentro la cartella `tool/` (che contiene già `rag/`, `movie_db/`, `tmdb/`, `wikipedia/`, `youtube/`). Nella root restano
+solo le cose che non sono un tool (nucleo, `presenters/`, `web_api/`, `web_lists/`, `tests/`, dati e database).
+
+- Crea `tool/<nome>/__init__.py` (docstring di una riga) e metti lì tutti i file della tabella qui sotto. Gli import
+  **dentro** il pacchetto sono relativi (`from .config import ...`); da fuori sono assoluti dalla root
+  (`from tool.<nome>.tool import <Nome>Tool`, come fa `app.py`). Niente `sys.path`, niente cartella `<nome>/` in root.
+- Un tool importa solo sé stesso: nessun altro tool, nessun presenter o canale (`presenters`, `web_api`, `web_lists`),
+  nessun `app`/`orchestrator`. Unico modulo del nucleo ammesso: `turn` (`TraceStep`, `tool_outcome`). Un tool non
+  importa mai il proprio `harness/`, e `*/harness/` non è mai importato a runtime.
+- Se il tool legge **dati o un database locali**, il dato resta in una cartella separata nella root e il tool sta in
+  `tool/<nome>/`: è il caso di `movie_db/` (database, schema, ingestione, valutazioni, `data/`) e `tool/movie_db/` (il
+  tool che lo interroga). Il tool può importare dalla root solo ciò che condivide con l'ingestione (`config`, `schema`),
+  mai l'`harness`. Lo scrittore del dato (ingestione, build) non appartiene al tool.
+- `tests/test_tool_package.py` fa rispettare tutto questo: aggiungi il tuo `<nome>` a `TOOLS` (con la voce in `ENTRY` se
+  il file principale non si chiama `tool.py`), e se il tuo codice offline (eval, shim) importa `tool.<nome>` aggiungi
+  quel file all'elenco degli importatori ammessi; se il tool tocca un database, estendi anche i controlli di
+  `tests/test_movie_db_app.py` (sola lettura, nessun import di `harness`) al nuovo percorso.
+- Comandi manuali: `python -m tool.<nome>.harness.live_smoke --live`. Attenzione ai test che scorrono le cartelle dei
+  tool con `ROOT / "tool" / "<nome>"` (verifica "solo `http.py` fa I/O", "solo `auth.py` legge la chiave"): puntano lì.
+
+Un file = un concern:
 
 | File | Contenuto | Regola |
 |---|---|---|
@@ -91,7 +113,7 @@ Non creare cartelle, classi astratte o layer "per il futuro". Dividi un file qua
 
 ## 5. Ordine di implementazione (un commit per riga)
 
-1. `config.py` + `settings.py` + sezione in `CONFIG` + test config (campo mancante/extra = errore).
+1. `tool/<nome>/__init__.py` + `config.py` + `settings.py` + sezione in `CONFIG` + test config (campo mancante/extra = errore) + il `<nome>` in `tests/test_tool_package.py`.
 2. `errors.py` + `auth.py` + test (chiave mancante, mai nel `repr`).
 3. `models.py` (input/risultati) + test di validazione e di `describe_validation_errors`.
 4. Funzioni pure (`queries`, `relevance`/normalizzazione) + test su casi reali tratti dal dominio.
@@ -100,13 +122,13 @@ Non creare cartelle, classi astratte o layer "per il futuro". Dividi un file qua
 7. Registrazione: `build_app` + `allowed_tools` + regola di routing in `instructions` + `tool_final_instructions["<nome>"]` (solo per i tool che ne hanno bisogno) + test come `tests/test_youtube_app.py` (registrato, nel catalogo del planner, regola nella posizione giusta, regole finali solo nei turni del tool).
 8. Presenter: vista condivisa `presenters/<x>_view.py`; `presenters/terminal/<x>/` (`blocks.py`, `renderer.py`); `presenters/web/<x>/serializer.py`; registrazione in `STEP_RENDERERS` **e** `STEP_SERIALIZERS`; voce in `story_view.TOOLS` (it/en) e `REASONS` se servono nuovi codici; nuovo `STEP_<X>_CALLS` in `turn.py`. Test: parità terminale/web, lingue it/en, nessun import del pacchetto del dominio dai presenter (`tests/test_youtube_presenters.py`).
 9. Routing: casi in `routing_cases.py` (con `expected_*` se serve validare gli `arguments`) + test offline in `tests/test_movie_db_routing_eval.py`. **Non eseguire** `--live` senza permesso: consuma crediti. Cambiare lo schema cambia il prompt del planner: dichiara che il routing live è da rieseguire.
-10. Documentazione: riga in "Mappa del codice" e sezione del tool in `AGENTS.md`, `README.md`. Comandi di verifica live (smoke) in `<dominio>/harness/`, mai importato a runtime.
+10. Documentazione: riga in "Mappa del codice" e sezione del tool in `AGENTS.md`, `README.md`. Comandi di verifica live (smoke) in `tool/<nome>/harness/`, mai importato a runtime. Se sposti o aggiungi file, aggiorna anche `mappa.html` (albero scritto a mano).
 
 ## 6. Integrazione con l'orchestratore, senza un secondo orchestratore
 
 Il tool **non** sceglie altri tool, non chiama l'LLM per pianificare, non conosce `history` oltre a quella che gli passa `run`, non stampa. Tutto ciò che è flusso del turno resta in `orchestrator.py`: scelta, ciclo multi-tool, fallback, risposta finale. Il tool riceve `turn_id`/`turn_language` come parametri riservati (`.pop()` prima di validare; mai nello schema LLM), restituisce `outcome` (`ok|empty|error` + `reason`) e `trace`, e basta. Se ti serve completare il risultato di un altro tool usa un `Enricher` registrato in `build_app`, che non riordina `chunks`. Modifiche a `orchestrator.py` ammesse solo se il `Protocol` non basta: motivale e aggiungi un test che dimostra che gli altri tool non cambiano.
 
-Il catalogo del planner contiene `description` e `input_schema` compatto: tienili brevi (`youtube.tool.planner_schema` toglie la docstring già coperta dalla descrizione; ~3.100 caratteri per YouTube, ~11.500 per TMDb sono già molti).
+Il catalogo del planner contiene `description` e `input_schema` compatto: tienili brevi (`tool.youtube.tool.planner_schema` toglie la docstring già coperta dalla descrizione; ~3.100 caratteri per YouTube, ~11.500 per TMDb sono già molti).
 
 ## 7. Sicurezza e privacy (checklist)
 
@@ -124,13 +146,14 @@ source .venv/bin/activate
 python -m pytest tests/test_query_language.py tests/test_presenters.py tests/test_orchestrator.py \
   tests/test_retrieval.py tests/test_rag_constraints.py tests/test_rerank_query.py \
   tests/test_answer_constraints.py tests/test_movie_db_*.py tests/test_tmdb_*.py \
-  tests/test_youtube_*.py tests/test_story_view.py tests/test_presenter_parity.py -q
+  tests/test_youtube_*.py tests/test_wikipedia_*.py tests/test_story_view.py tests/test_presenter_parity.py \
+  tests/test_tool_package.py -q
 python -m pytest tests/test_<nuovo>_*.py -q          # i tuoi
 python -m movie_db.harness.evaluation.run_eval       # solo offline; mai --live-parser senza permesso
 git diff --stat && git diff                           # niente file non voluti, niente .env, nessun print fuori da presenters/terminal
 ```
 
-Controlla a mano: nessun import tra domini; nessun `print`; nessun default duplicato fuori da `CONFIG`; nessuna
+Controlla a mano: il codice sta in `tool/<nome>/`, non nella root; nessun import tra domini; nessun `print`; nessun default duplicato fuori da `CONFIG`; nessuna
 modifica ai test dei tool esistenti salvo l'elenco dei tool registrati (es. `tests/test_movie_db_app.py:31`); il test
 di parità `STEP_RENDERERS == STEP_SERIALIZERS` passa. Riporta cosa **non** hai verificato (live, routing eval).
 
@@ -138,7 +161,7 @@ di parità `STEP_RENDERERS == STEP_SERIALIZERS` passa. Riporta cosa **non** hai 
 
 - Un secondo planner dentro il tool, o un tool che ne chiama un altro (usa il ciclo multi-tool).
 - Valori hardcoded nei moduli invece di `CONFIG`/`settings.py`; campi di config che non sono limiti reali.
-- Importare `tmdb/` da `youtube/` per "riusare" un helper: duplica la funzione minima o spostala solo se due domini la usano davvero.
+- Importare `tool/tmdb/` da `tool/youtube/` per "riusare" un helper: duplica la funzione minima o spostala solo se due domini la usano davvero.
 - Cache o contatori di quota locali quando l'autorità è l'API.
 - Fallback silenzioso a `rag_search` quando il tool fallisce: l'esito è `error` e la risposta lo dice.
 - Mettere URL, chiavi o liste lunghe in `metadata` (finisce nel prompt): vanno in `trace`.

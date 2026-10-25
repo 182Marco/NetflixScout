@@ -8,12 +8,12 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from rag.EmbeddingProcess.clean import clean, pipeline_for
-from rag.EmbeddingProcess.loaders import load
-from rag.EmbeddingProcess.movie_metadata import iter_plot_rows
-from rag.EmbeddingProcess.chunk import chunk_semantic
-from rag.FromQueryEmbeddingToRes.embeddings import embed
-from rag.FromQueryEmbeddingToRes.vectorstore import crea_collection, db_dir_for_backend, indicizza
+from tool.rag.EmbeddingProcess.clean import clean, pipeline_for
+from tool.rag.EmbeddingProcess.loaders import load
+from tool.rag.EmbeddingProcess.movie_metadata import iter_plot_rows
+from tool.rag.EmbeddingProcess.chunk import chunk_semantic
+from tool.rag.FromQueryEmbeddingToRes.embeddings import embed
+from tool.rag.FromQueryEmbeddingToRes.vectorstore import crea_collection, db_dir_for_backend, indicizza
 
 
 SUPPORTED_LOADER_EXTENSIONS = {".pdf", ".docx", ".html", ".htm", ".md", ".markdown", ".txt"}

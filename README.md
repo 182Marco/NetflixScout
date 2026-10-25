@@ -6,42 +6,43 @@ This repository integrates the RAG modules into a reproducible local pipeline an
 
 ```text
 /
-├── rag/
-│   ├── EmbeddingProcess/
-│   └── FromQueryEmbeddingToRes/
 ├── dataset/            # local corpus input (not versioned)
 ├── dbVettoriale/       # local vector DB persistence (not versioned)
 │   ├── openai/
 │   └── local/
-├── movie_db/           # MovieLens SQL tool
+├── movie_db/           # MovieLens database side (the tool is in tool/movie_db/)
 │   ├── config.py       # validated view of CONFIG["movie_db"]
 │   ├── schema.py       # tables, columns, DDL (shared)
-│   ├── tool/           # runtime: MovieDbTool, parser, read-only SQL (tool/sql/)
 │   ├── harness/        # offline only: ingestion/, fixtures/, evaluation/
 │   └── data/           # MovieLens CSV + SQLite DB (not versioned)
-├── tmdb/               # TMDb API tool (tmdb_search)
-│   ├── config.py       # validated view of CONFIG["tmdb"] (3 settings)
-│   ├── tool.py         # TmdbTool: validate → run requests → pack context → trace
-│   ├── http.py         # the only HTTP module: memo → cache → cooldown → budget → send
-│   ├── models/         # enums, per-operation rules, tool input, normalized results
-│   ├── operations/     # resolve, reference, movies, tv, people, collections, discovery, lists
-│   ├── normalize/      # raw JSON → entities with capped facets
-│   └── harness/        # optional live smoke check (never imported at runtime)
-├── wikipedia/          # Wikipedia (MediaWiki API) tool (wikipedia_search), in-process, no MCP, no key
-│   ├── config.py       # validated view of CONFIG["wikipedia"] (4 settings)
-│   ├── tool.py         # WikipediaTool: validate → lookup or whole article → sections within the budget → trace + follow_up
-│   ├── http.py         # the only HTTP module: memo → turn failures → cache → pause → budget → send
-│   ├── sections.py     # split an article by headings, pick the sections a question needs
-│   ├── budget.py       # per-turn state: HTTP calls, context handed out, sections already delivered
-│   └── harness/        # optional live smoke check (never imported at runtime)
-├── youtube/            # YouTube Data API tool (youtube_search), in-process, no MCP
-│   ├── config.py       # validated view of CONFIG["you_tube"] (2 settings)
-│   ├── tool.py         # YoutubeTool: validate → search per kind → one /videos → filter → trace
-│   ├── http.py         # the only HTTP module: run memo → quota latch → send (/search, /videos)
-│   ├── quota.py        # in-memory pause per quota bucket after an observed quota error
-│   ├── queries.py      # search queries from constant fragments
-│   ├── relevance.py    # deterministic relevance filter and confirmed / to-verify label
-│   └── models.py       # VideoKind, YoutubeToolInput, VideoHit, KindOutcome
+├── tool/               # orchestrator tools (app.py is the only wiring point)
+│   ├── rag/                # RAG tool (rag_search)
+│   │   ├── EmbeddingProcess/          # offline: loaders, clean, chunk, embed, index
+│   │   └── FromQueryEmbeddingToRes/   # runtime: retrieval, rerank, RagTool, query_classifier/
+│   ├── movie_db/           # MovieLens tool (movie_db_search): MovieDbTool, parser, read-only SQL (sql/)
+│   ├── tmdb/               # TMDb API tool (tmdb_search)
+│   │   ├── config.py       # validated view of CONFIG["tmdb"] (3 settings)
+│   │   ├── tool.py         # TmdbTool: validate → run requests → pack context → trace
+│   │   ├── http.py         # the only HTTP module: memo → cache → cooldown → budget → send
+│   │   ├── models/         # enums, per-operation rules, tool input, normalized results
+│   │   ├── operations/     # resolve, reference, movies, tv, people, collections, discovery, lists
+│   │   ├── normalize/      # raw JSON → entities with capped facets
+│   │   └── harness/        # optional live smoke check (never imported at runtime)
+│   ├── wikipedia/          # Wikipedia (MediaWiki API) tool (wikipedia_search), in-process, no MCP, no key
+│   │   ├── config.py       # validated view of CONFIG["wikipedia"] (4 settings)
+│   │   ├── tool.py         # WikipediaTool: validate → lookup or whole article → sections within the budget → trace + follow_up
+│   │   ├── http.py         # the only HTTP module: memo → turn failures → cache → pause → budget → send
+│   │   ├── sections.py     # split an article by headings, pick the sections a question needs
+│   │   ├── budget.py       # per-turn state: HTTP calls, context handed out, sections already delivered
+│   │   └── harness/        # optional live smoke check (never imported at runtime)
+│   └── youtube/            # YouTube Data API tool (youtube_search), in-process, no MCP
+│       ├── config.py       # validated view of CONFIG["you_tube"] (2 settings)
+│       ├── tool.py         # YoutubeTool: validate → search per kind → one /videos → filter → trace
+│       ├── http.py         # the only HTTP module: run memo → quota latch → send (/search, /videos)
+│       ├── quota.py        # in-memory pause per quota bucket after an observed quota error
+│       ├── queries.py      # search queries from constant fragments
+│       ├── relevance.py    # deterministic relevance filter and confirmed / to-verify label
+│       └── models.py       # VideoKind, YoutubeToolInput, VideoHit, KindOutcome
 ├── presenters/         # the only output layer: present(turn, channel)
 │   ├── channel.py      # OutputChannel (terminal | web)
 │   ├── story_view.py   # the turn story: a few plain sentences (what, where, how it went), it/en
@@ -51,11 +52,20 @@ This repository integrates the RAG modules into a reproducible local pipeline an
 │   └── web/            # observer.py (WebObserver, live events), payload.py (to_payload, STEP_SERIALIZERS)
 │       └── rag/ db/ api/ youtube/ wikipedia/   # serializer.py per tool, same shared view as the terminal
 ├── web_api/            # HTTP/SSE server (FastAPI): conversations, streamed answer, web_lists; see FRONTEND_API.md
-├── app.py              # public API + RAG Tool facade
-├── buildSemanticDb.py  # reproducible semantic DB builder
-├── buildMovieDb.py     # MovieLens SQLite builder
-└── ...
+├── web_lists/          # web channel only: the lists of films/videos returned with the final answer
+├── app.py              # CONFIG, build_app, handle_query (no printing) and the terminal chat
+├── orchestrator.py     # LLMOrchestrator: planning, multi-tool loop, final answer
+├── turn.py             # channel-neutral TurnResult / TraceStep / TurnObserver
+├── answer_stream.py    # decodes the streamed `answer` field out of a chunked JSON
+├── data_coverage.py    # years covered by the local sources and the planner rule built from them
+├── buildSemanticDb.py  # reproducible semantic DB builder (shim to tool/rag/EmbeddingProcess/)
+├── buildMovieDb.py     # MovieLens SQLite builder (shim to movie_db/harness/ingestion/)
+├── tests/              # offline tests (+ test_tool_package.py: layout of tool/); test_tool_contract.py is integration
+└── mappa.html          # interactive project map (hand-written tree, open it in a browser)
 ```
+
+`tool/` holds every orchestrator tool; the root `movie_db/` is the MovieLens **database** side (data, schema, ingestion,
+evaluations), while the tool that queries it lives in `tool/movie_db/`. A new tool goes in `tool/<name>/`, never in the root.
 
 Note: a legacy `datasets/` folder may exist in older clones, but the new build pipeline reads from `dataset/`.
 
@@ -73,12 +83,12 @@ VUE_APP_TMDB_BASE_URL=https://api.themoviedb.org/3
 YOUTUBE_API_KEY=...             # YouTube Data API v3 key (Google Cloud project)
 ```
 
-`YOUTUBE_API_KEY` is read only by `youtube/auth.py`, on the first YouTube search; the base URL is
+`YOUTUBE_API_KEY` is read only by `tool/youtube/auth.py`, on the first YouTube search; the base URL is
 a constant (`https://www.googleapis.com/youtube/v3`), never read from the environment.
 
-The TMDb key is read only by the Python backend (`tmdb/auth.py`). The `VUE_APP_` prefix is
+The TMDb key is read only by the Python backend (`tool/tmdb/auth.py`). The `VUE_APP_` prefix is
 the Vue CLI convention for variables exposed to client bundles: never point a Vue frontend at
-this `.env`, or rename the variables (one constant each in `tmdb/auth.py`).
+this `.env`, or rename the variables (one constant each in `tool/tmdb/auth.py`).
 
 `COHERE_API_KEY` is required when `rerank_backend` is `cohere` (default in `app.py`).
 
@@ -130,10 +140,10 @@ What the build does:
 
 1. Deletes and recreates `dbVettoriale/<backend>/`.
 2. Scans all files under `dataset/` in deterministic sorted order.
-3. Cleans text with `rag.EmbeddingProcess.clean` pipelines.
-4. Chunks text with `rag.EmbeddingProcess.chunk` semantic chunking (`chunk_semantic`).
-5. Embeds chunks with `rag.FromQueryEmbeddingToRes.embeddings`.
-6. Indexes into Chroma via `rag.FromQueryEmbeddingToRes.vectorstore` APIs.
+3. Cleans text with `tool.rag.EmbeddingProcess.clean` pipelines.
+4. Chunks text with `tool.rag.EmbeddingProcess.chunk` semantic chunking (`chunk_semantic`).
+5. Embeds chunks with `tool.rag.FromQueryEmbeddingToRes.embeddings`.
+6. Indexes into Chroma via `tool.rag.FromQueryEmbeddingToRes.vectorstore` APIs.
 
 ## Verify Build
 
@@ -251,7 +261,7 @@ to run the chat with the RAG tool only.
 Read-only by construction, never by prompt:
 
 1. The LLM parser only fills a `MovieDbQuery` (closed `MovieDbOperation` enum + typed fields, extra keys rejected); it never writes SQL.
-2. SQL is built in `movie_db/tool/sql/queries.py` from constant fragments; values are bind parameters only.
+2. SQL is built in `tool/movie_db/sql/queries.py` from constant fragments; values are bind parameters only.
 3. The connection is `mode=ro` + `PRAGMA query_only`, with an SQLite authorizer that allows only SELECT on the known tables and whitelisted functions; `max_limit` and `timeout_ms` bound every call.
 
 Each run adds one `db_query` trace step with only the SQL executed (`{sql, params}`), no rows:
@@ -284,7 +294,7 @@ A third orchestrator tool queries The Movie Database API for up-to-date facts: c
 release dates, streaming providers, trailers, images, reviews, recommendations, TV series with
 seasons and episodes, people and filmographies, collections, companies, discover by filters,
 trending and charts, genres and certifications (17 typed operations, see
-`tmdb/models/operation_rules.py`). Account, session, write, list, `changes` and deprecated
+`tool/tmdb/models/operation_rules.py`). Account, session, write, list, `changes` and deprecated
 endpoints are deliberately not exposed.
 
 The planner fills `arguments.requests` (1 to 4 operations) from the tool schema shown in the
@@ -299,7 +309,7 @@ title is only a reference ("films like X"). When a specific film is meant but ne
 nor the history identifies it ("who was in that Sorrentino film…"), the planner asks a clarifying
 question instead: no tool and no TMDb call run in that turn.
 
-After `rag_search`, `tmdb/enrich.py` completes the movies the RAG selected (the final reranked
+After `rag_search`, `tool/tmdb/enrich.py` completes the movies the RAG selected (the final reranked
 chunks, at most `CONFIG["orchestrator"]["rag_enrichment"]["max_candidates"]`, in RAG order) with
 TMDb title, year, director, cast and overview. Metadata is attached only when the title equals the
 TMDb title or original title (never by containment: "The Sinner" is not "The Sinners") and a known
@@ -316,12 +326,12 @@ results as unverified `candidates` instead of the most popular result. MovieLens
 | Setting | Default | Meaning |
 |---|---|---|
 | `max_results` | 5 | items returned by searches, discover, trending, charts and related-title lists |
-| `max_calls_per_turn` | 6 | HTTP attempts per turn: the only call limit, enforced in `tmdb/budget.py` |
+| `max_calls_per_turn` | 6 | HTTP attempts per turn: the only call limit, enforced in `tool/tmdb/budget.py` |
 | `cache_ttl` | 3600 | seconds a response is reused across turns (0 = per-turn memo only) |
 
 Cache and memo hits cost nothing; every attempt sent counts, also when it fails; a 429 pauses
 calls for `Retry-After` without retries; failures become partial results, never a broken turn.
-The data passed to the LLM is bounded (`tmdb/prompt_budget.py`): identity and essentials are
+The data passed to the LLM is bounded (`tool/tmdb/prompt_budget.py`): identity and essentials are
 always kept, long lists are capped and omissions are listed in `metadata.tmdb.omitted`. TMDb
 data is requested in the turn language (`it-IT` for Italian questions, `en-US` otherwise) with
 appended translations as fallback; the answer language is up to the LLM.
@@ -331,7 +341,7 @@ Each run adds one `tmdb_calls` step with only the endpoints called, key masked
 Bearer token), labels in Italian or English after the question, printed by `presenters/terminal/api/`.
 `presenters/web/api/` serializes the same step for the future API (`presenters/web/payload.to_payload` builds the JSON-ready form of a turn, no route yet).
 
-Optional live check of undocumented behaviours (3 real calls): `python -m tmdb.harness.live_smoke --live`.
+Optional live check of undocumented behaviours (3 real calls): `python -m tool.tmdb.harness.live_smoke --live`.
 
 ### Credits
 
@@ -448,7 +458,7 @@ instructions. The web frontend must render the new step (`web_api/FRONTEND_API.m
 Requests carry the User-Agent `NetflixScout/1.0 (https://github.com/182Marco/NetflixScout;
 marcomilza@gmail.com) python-urllib`, as the Wikimedia policy asks. Offline tests:
 `tests/test_wikipedia_*.py` and `tests/test_orchestrator_follow_up.py`. Not run yet:
-`python -m wikipedia.harness.live_smoke --live` (3 requests) and the Wikipedia routing cases
+`python -m tool.wikipedia.harness.live_smoke --live` (3 requests) and the Wikipedia routing cases
 (`run_routing_eval --live --tool wikipedia_search`).
 
 ### Credits and policies

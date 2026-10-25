@@ -7,8 +7,8 @@ import pytest
 from app import CONFIG
 from movie_db.config import load_movie_db_config
 from movie_db.schema import GENRES
-from movie_db.tool.models import MovieDbOperation
-from movie_db.tool.parser import MovieDbParseError, parse_query
+from tool.movie_db.models import MovieDbOperation
+from tool.movie_db.parser import MovieDbParseError, parse_query
 
 PARSER = load_movie_db_config(CONFIG["movie_db"]).parser
 

@@ -4,8 +4,8 @@ import pytest
 
 import app as app_module
 from presenters import OutputChannel, present
-from rag.FromQueryEmbeddingToRes.models import QuerySignals, RagChunk, RagResult, RerankBackend, SearchMode
-from rag.FromQueryEmbeddingToRes.tool_interface import RagTool
+from tool.rag.FromQueryEmbeddingToRes.models import QuerySignals, RagChunk, RagResult, RerankBackend, SearchMode
+from tool.rag.FromQueryEmbeddingToRes.tool_interface import RagTool
 from turn import TraceStep, TurnResult
 from turn_support import stream_decision
 
@@ -27,7 +27,7 @@ def _fake_run_rag(*, config, query, history=None, query_hint=None) -> RagResult:
 
 
 def test_rag_tool_returns_trace_outside_metadata(monkeypatch) -> None:
-    monkeypatch.setattr("rag.FromQueryEmbeddingToRes.tool_interface.run_rag", _fake_run_rag)
+    monkeypatch.setattr("tool.rag.FromQueryEmbeddingToRes.tool_interface.run_rag", _fake_run_rag)
 
     result = RagTool(config={}).run(query="film con robot", params={}, conversation_history=[])
 

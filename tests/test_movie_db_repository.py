@@ -5,10 +5,10 @@ from pathlib import Path
 
 import pytest
 
-from movie_db.tool.models import MovieDbOperation, MovieDbQuery
-from movie_db.tool.sql.connection import readonly_connection
-from movie_db.tool.sql.queries import QUERY_BUILDERS, build_query, escape_like
-from movie_db.tool.sql.repository import effective_limit, run_query
+from tool.movie_db.models import MovieDbOperation, MovieDbQuery
+from tool.movie_db.sql.connection import readonly_connection
+from tool.movie_db.sql.queries import QUERY_BUILDERS, build_query, escape_like
+from tool.movie_db.sql.repository import effective_limit, run_query
 
 
 def _run(config, **fields):

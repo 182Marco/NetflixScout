@@ -4,8 +4,8 @@ Signals below are copied from the real e2e runs of 2026-10-22 (e2e_results*.json
 """
 from __future__ import annotations
 
-from rag.FromQueryEmbeddingToRes.models import QuerySignals
-from rag.FromQueryEmbeddingToRes.retrieval import compose_rerank_query
+from tool.rag.FromQueryEmbeddingToRes.models import QuerySignals
+from tool.rag.FromQueryEmbeddingToRes.retrieval import compose_rerank_query
 
 CASE_20 = QuerySignals(  # run 1 and 2: the semantic sentence dropped "1950s"
     semantic_query="A Japanese science fiction comedy set on Mars with an open ending and emotional resonance.",

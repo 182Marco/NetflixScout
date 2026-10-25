@@ -4,7 +4,7 @@ from __future__ import annotations
 import pytest
 from tmdb_support import SECRET, make_tool, tmdb_meta
 
-from tmdb.models.requests import MAX_REQUESTS_PER_RUN
+from tool.tmdb.models.requests import MAX_REQUESTS_PER_RUN
 
 SENTINEL = "zz-user-value-zz"
 
@@ -124,7 +124,7 @@ def test_value_error_details_name_fields_not_values() -> None:
 
 
 def test_valid_inputs_are_normalized() -> None:
-    from tmdb.models.requests import TmdbToolInput
+    from tool.tmdb.models.requests import TmdbToolInput
 
     payload = TmdbToolInput.model_validate(
         {

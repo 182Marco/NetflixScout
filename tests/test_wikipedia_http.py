@@ -1,4 +1,4 @@
-"""Offline tests of `wikipedia/http.py`: fake transport, no network."""
+"""Offline tests of `tool/wikipedia/http.py`: fake transport, no network."""
 from __future__ import annotations
 
 import ast
@@ -11,9 +11,9 @@ from pathlib import Path
 import pytest
 from wikipedia_support import FakeTransport, error_body, make_session
 
-from wikipedia import http as wiki_http
-from wikipedia.budget import TurnState
-from wikipedia.errors import (
+from tool.wikipedia import http as wiki_http
+from tool.wikipedia.budget import TurnState
+from tool.wikipedia.errors import (
     WikipediaBudgetExhausted,
     WikipediaError,
     WikipediaHttpError,
@@ -22,8 +22,8 @@ from wikipedia.errors import (
     WikipediaResponseTooLarge,
     WikipediaTimeout,
 )
-from wikipedia.http import RateLimitPause, TtlCache, get_json, retry_after, urllib_transport
-from wikipedia.settings import MAX_RESPONSE_BYTES, USER_AGENT
+from tool.wikipedia.http import RateLimitPause, TtlCache, get_json, retry_after, urllib_transport
+from tool.wikipedia.settings import MAX_RESPONSE_BYTES, USER_AGENT
 
 ROOT = Path(__file__).resolve().parents[1]
 PARAMS = {"action": "query", "gsrsearch": '"Park Chan-wook"'}
@@ -221,7 +221,7 @@ def test_every_error_class_is_a_wikipedia_error() -> None:
 
 def test_only_http_py_does_network_io_in_the_wikipedia_package() -> None:
     offenders = set()
-    for path in sorted((ROOT / "wikipedia").rglob("*.py")):
+    for path in sorted((ROOT / "tool" / "wikipedia").rglob("*.py")):
         tree = ast.parse(path.read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             names: list[str] = []
@@ -234,4 +234,4 @@ def test_only_http_py_does_network_io_in_the_wikipedia_package() -> None:
                 offenders.add(path.relative_to(ROOT).as_posix())
             if isinstance(node, ast.Attribute) and node.attr == "urlopen":
                 offenders.add(path.relative_to(ROOT).as_posix())
-    assert offenders == {"wikipedia/http.py"}
+    assert offenders == {"tool/wikipedia/http.py"}

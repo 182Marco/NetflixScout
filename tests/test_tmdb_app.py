@@ -8,8 +8,8 @@ from tmdb_support import MOVIE_ID, make_tool, movie_payload, search_movie_payloa
 
 import app as app_module
 from orchestrator import LLMOrchestrator
-from tmdb.enrich import TmdbRagEnricher
-from tmdb.tool import TMDB_TOOL_NAME, TmdbTool
+from tool.tmdb.enrich import TmdbRagEnricher
+from tool.tmdb.tool import TMDB_TOOL_NAME, TmdbTool
 from stream_support import reply
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -182,7 +182,7 @@ def test_invalid_planner_arguments_still_produce_an_answer_without_http(monkeypa
 
 
 def test_runtime_never_imports_the_tmdb_harness() -> None:
-    runtime_files = [ROOT / "app.py", *[p for p in sorted((ROOT / "tmdb").rglob("*.py")) if "harness" not in p.parts]]
+    runtime_files = [ROOT / "app.py", *[p for p in sorted((ROOT / "tool" / "tmdb").rglob("*.py")) if "harness" not in p.parts]]
     for path in runtime_files:
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
             if isinstance(node, ast.ImportFrom) and node.module:

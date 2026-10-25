@@ -8,10 +8,10 @@ from __future__ import annotations
 import pytest
 from tmdb_support import make_tool, run, tmdb_meta
 
-from tmdb.enrich import ENRICHMENT_KEY, TmdbRagEnricher, titles_match, years_match
-from tmdb.models.results import Entity
-from tmdb.normalize.common import positive_minutes, strict_name
-from tmdb.normalize.entities import FacetOptions, movie, tv
+from tool.tmdb.enrich import ENRICHMENT_KEY, TmdbRagEnricher, titles_match, years_match
+from tool.tmdb.models.results import Entity
+from tool.tmdb.normalize.common import positive_minutes, strict_name
+from tool.tmdb.normalize.entities import FacetOptions, movie, tv
 
 SEARCH = "/search/movie"
 
@@ -369,7 +369,7 @@ def test_ampersand_reads_and_but_a_different_word_does_not_match() -> None:
 
 def test_article_rule_never_turns_into_containment() -> None:
     """"The Sinner" vs "The Sinners": still different after dropping the article."""
-    from tmdb.normalize.common import article_free_name
+    from tool.tmdb.normalize.common import article_free_name
 
     assert article_free_name("The Sinner") != article_free_name("The Sinners")
     assert article_free_name("The") == "the"  # a one-word title keeps its only word

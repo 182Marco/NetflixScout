@@ -86,8 +86,8 @@ def main(argv: list[str] | None = None) -> None:
 
     load_dotenv()
     import app as app_module
-    from rag.FromQueryEmbeddingToRes.pipeline import run_rag
-    from rag.FromQueryEmbeddingToRes.retrieval_params import resolve_retrieval
+    from tool.rag.FromQueryEmbeddingToRes.pipeline import run_rag
+    from tool.rag.FromQueryEmbeddingToRes.retrieval_params import resolve_retrieval
 
     application = app_module.build_app()
     orchestrator = application["orchestrator"]

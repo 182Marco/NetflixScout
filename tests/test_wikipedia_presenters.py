@@ -237,19 +237,19 @@ def test_presenters_never_import_the_wikipedia_package() -> None:
     for path in sorted((ROOT / "presenters").rglob("*.py")):
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
             if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
-                assert not node.module.startswith("wikipedia"), (path, node.module)
+                assert not node.module.startswith("tool"), (path, node.module)
 
 
 def test_the_wikipedia_package_never_imports_the_presenters() -> None:
-    for path in sorted((ROOT / "wikipedia").rglob("*.py")):
+    for path in sorted((ROOT / "tool" / "wikipedia").rglob("*.py")):
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
             if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
-                assert not node.module.startswith(("presenters", "web_api", "web_lists", "tmdb", "youtube")), (path, node.module)
+                assert not node.module.startswith(("presenters", "web_api", "web_lists", "tool")), (path, node.module)
 
 
 def test_there_is_no_print_in_the_wikipedia_package_or_the_web_presenter() -> None:
-    # The live smoke script (wikipedia/harness/) is a manual tool that prints on purpose.
-    paths = [p for p in sorted((ROOT / "wikipedia").rglob("*.py")) if "harness" not in p.parts]
+    # The live smoke script (tool/wikipedia/harness/) is a manual tool that prints on purpose.
+    paths = [p for p in sorted((ROOT / "tool" / "wikipedia").rglob("*.py")) if "harness" not in p.parts]
     paths += sorted((ROOT / "presenters" / "web" / "wikipedia").rglob("*.py"))
     paths.append(ROOT / "presenters" / "wikipedia_view.py")
     for path in paths:

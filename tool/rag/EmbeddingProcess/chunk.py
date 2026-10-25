@@ -1,6 +1,6 @@
 """Text chunking helpers."""
 
-from rag.FromQueryEmbeddingToRes.embeddings import cosine_similarity, embed
+from tool.rag.FromQueryEmbeddingToRes.embeddings import cosine_similarity, embed
 
 
 def chunk_fixed(testo, size, overlap):

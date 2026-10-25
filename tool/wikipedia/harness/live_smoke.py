@@ -1,8 +1,8 @@
 """Optional live check of the assumptions the tool makes about the MediaWiki API (3 requests).
 
-    python -m wikipedia.harness.live_smoke --live
+    python -m tool.wikipedia.harness.live_smoke --live
 
-It confirms what the documentation does not state (see `wikipedia/queries.py`):
+It confirms what the documentation does not state (see `tool/wikipedia/queries.py`):
 1. `generator=search` together with `prop=extracts|pageprops|info&exintro` returns, in one
    request, the lead of every result with an `index` to order them;
 2. an article opened with `exsectionformat=wiki` carries `== Heading ==` lines that

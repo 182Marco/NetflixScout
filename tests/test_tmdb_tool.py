@@ -3,10 +3,10 @@ from __future__ import annotations
 from tmdb_support import MOVIE_ID, calls_shown, make_tool, movie_payload, run, tmdb_meta
 
 from orchestrator import Tool
-from tmdb.auth import load_credentials
-from tmdb.config import TmdbConfig
-from tmdb.models.requests import TmdbToolInput
-from tmdb.tool import TMDB_TOOL_NAME, TmdbTool
+from tool.tmdb.auth import load_credentials
+from tool.tmdb.config import TmdbConfig
+from tool.tmdb.models.requests import TmdbToolInput
+from tool.tmdb.tool import TMDB_TOOL_NAME, TmdbTool
 
 
 def test_tool_satisfies_the_protocol_and_schema_comes_from_pydantic() -> None:
@@ -66,7 +66,7 @@ def test_missing_credentials_fail_without_http(monkeypatch) -> None:
     def no_http(*args):
         raise AssertionError("no HTTP call expected")
 
-    monkeypatch.setattr("tmdb.tool.load_credentials", no_env_key)
+    monkeypatch.setattr("tool.tmdb.tool.load_credentials", no_env_key)
     tool = TmdbTool(config=TmdbConfig(max_results=5, max_calls_per_turn=6, cache_ttl=0), transport=no_http)
 
     result = tool.run(query="q", params={"operation": "trending", "media": "movie", "window": "day"})

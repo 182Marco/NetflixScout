@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 
 import pytest
 
-from youtube.quota import QuotaBucket, QuotaLatch, bucket_for, next_reset
+from tool.youtube.quota import QuotaBucket, QuotaLatch, bucket_for, next_reset
 
 PT = ZoneInfo("America/Los_Angeles")
 UTC = ZoneInfo("UTC")

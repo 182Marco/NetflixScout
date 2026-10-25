@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from app import CONFIG
 from orchestrator import LLMOrchestrator
-from rag.FromQueryEmbeddingToRes.tool_interface import RagTool
+from tool.rag.FromQueryEmbeddingToRes.tool_interface import RagTool
 
 
 def test_app_config_has_orchestrator_and_rag_sections() -> None:

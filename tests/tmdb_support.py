@@ -7,10 +7,10 @@ from collections.abc import Callable
 from typing import Any
 from urllib.parse import parse_qsl, urlsplit
 
-from tmdb.auth import AuthMode, TmdbCredentials
-from tmdb.cache import TtlCache
-from tmdb.config import TmdbConfig
-from tmdb.tool import TmdbTool
+from tool.tmdb.auth import AuthMode, TmdbCredentials
+from tool.tmdb.cache import TtlCache
+from tool.tmdb.config import TmdbConfig
+from tool.tmdb.tool import TmdbTool
 
 SECRET = "0123456789abcdef0123456789abcdef"
 TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.c2lnbmF0dXJlLXNlY3JldA"

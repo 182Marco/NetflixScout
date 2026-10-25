@@ -19,8 +19,8 @@ from wikipedia_support import (
 
 from orchestrator import Tool
 from turn import RESULT_FOLLOW_UP, TOOL_PARAM_TURN_ID, TOOL_PARAM_TURN_LANGUAGE
-from wikipedia.settings import USER_AGENT
-from wikipedia.tool import WIKIPEDIA_TOOL_NAME, WikipediaTool, parse_pages, planner_schema
+from tool.wikipedia.settings import USER_AGENT
+from tool.wikipedia.tool import WIKIPEDIA_TOOL_NAME, WikipediaTool, parse_pages, planner_schema
 
 LEAD = "Park Chan-wook è un regista sudcoreano. Ha diretto Oldboy."
 OLDBOY_LEAD = "Oldboy è un film del 2003 diretto da Park Chan-wook."

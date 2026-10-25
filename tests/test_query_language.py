@@ -2,8 +2,8 @@ import json
 
 import pytest
 
-from rag.FromQueryEmbeddingToRes.chat import _choose_block_language
-from rag.FromQueryEmbeddingToRes.query_classifier.query_classifier import (
+from tool.rag.FromQueryEmbeddingToRes.chat import _choose_block_language
+from tool.rag.FromQueryEmbeddingToRes.query_classifier.query_classifier import (
     classify_query_domain,
     detect_language_markers,
 )
@@ -37,7 +37,7 @@ def test_cinema_question_uses_openai_classifier(monkeypatch) -> None:
             )()
 
     monkeypatch.setattr(
-        "rag.FromQueryEmbeddingToRes.query_classifier.query_classifier.OpenAI",
+        "tool.rag.FromQueryEmbeddingToRes.query_classifier.query_classifier.OpenAI",
         lambda: type("Client", (), {"chat": type("Chat", (), {"completions": FakeCompletions})()})(),
     )
 
@@ -58,7 +58,7 @@ def _fake_openai(monkeypatch, captured: dict[str, object]) -> None:
             return type("Response", (), {"choices": [type("Choice", (), {"message": message})()]})()
 
     monkeypatch.setattr(
-        "rag.FromQueryEmbeddingToRes.query_classifier.query_classifier.OpenAI",
+        "tool.rag.FromQueryEmbeddingToRes.query_classifier.query_classifier.OpenAI",
         lambda: type("Client", (), {"chat": type("Chat", (), {"completions": FakeCompletions})()})(),
     )
 
@@ -135,7 +135,7 @@ def _fake_classifier(monkeypatch, is_italian: bool) -> None:
             return type("Response", (), {"choices": [type("Choice", (), {"message": message})()]})()
 
     monkeypatch.setattr(
-        "rag.FromQueryEmbeddingToRes.query_classifier.query_classifier.OpenAI",
+        "tool.rag.FromQueryEmbeddingToRes.query_classifier.query_classifier.OpenAI",
         lambda: type("Client", (), {"chat": type("Chat", (), {"completions": FakeCompletions})()})(),
     )
 

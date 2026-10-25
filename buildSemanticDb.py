@@ -1,8 +1,8 @@
-from rag.EmbeddingProcess.buildSemanticDb import *
+from tool.rag.EmbeddingProcess.buildSemanticDb import *
 
 
 if __name__ == "__main__":
-    from rag.EmbeddingProcess.buildSemanticDb import build_semantic_db, parse_args
+    from tool.rag.EmbeddingProcess.buildSemanticDb import build_semantic_db, parse_args
     from pathlib import Path
     from dotenv import load_dotenv
 

@@ -1,4 +1,4 @@
-"""Offline tests of `youtube/auth.py`. The real `.env` is never read: `load_dotenv` is
+"""Offline tests of `tool/youtube/auth.py`. The real `.env` is never read: `load_dotenv` is
 redirected to a temporary file written by the test."""
 from __future__ import annotations
 
@@ -8,9 +8,9 @@ from pathlib import Path
 import dotenv
 import pytest
 
-from youtube import auth
-from youtube.auth import API_KEY_ENV, YoutubeCredentials, authorize, load_credentials
-from youtube.errors import YoutubeConfigError
+from tool.youtube import auth
+from tool.youtube.auth import API_KEY_ENV, YoutubeCredentials, authorize, load_credentials
+from tool.youtube.errors import YoutubeConfigError
 
 ROOT = Path(__file__).resolve().parents[1]
 SECRET = "AIzaSyTEST-secret-0123456789abcdefghij"
@@ -99,20 +99,20 @@ def test_authorize_adds_the_key_without_changing_the_input() -> None:
 
 def test_only_auth_reads_the_environment_in_the_youtube_package() -> None:
     readers = set()
-    for path in sorted((ROOT / "youtube").rglob("*.py")):
+    for path in sorted((ROOT / "tool" / "youtube").rglob("*.py")):
         source = path.read_text(encoding="utf-8")
         for node in ast.walk(ast.parse(source)):
             if isinstance(node, ast.Attribute) and node.attr in {"environ", "getenv"}:
                 readers.add(path.relative_to(ROOT).as_posix())
             if isinstance(node, ast.Constant) and node.value == API_KEY_ENV:
                 readers.add(path.relative_to(ROOT).as_posix())
-    assert readers == {"youtube/auth.py"}
+    assert readers == {"tool/youtube/auth.py"}
 
 
 def test_youtube_package_never_imports_tmdb() -> None:
-    for path in sorted((ROOT / "youtube").rglob("*.py")):
+    for path in sorted((ROOT / "tool" / "youtube").rglob("*.py")):
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
             if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
-                assert not node.module.startswith("tmdb"), (path, node.module)
+                assert not node.module.startswith("tool"), (path, node.module)
             if isinstance(node, ast.Import):
-                assert not any(alias.name.startswith("tmdb") for alias in node.names), path
+                assert not any(alias.name.startswith("tool") for alias in node.names), path

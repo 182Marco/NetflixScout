@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import numpy as np
 
-from rag.FromQueryEmbeddingToRes import pipeline, retrieval, vectorstore
-from rag.FromQueryEmbeddingToRes.models import QuerySignals, RerankBackend, SearchMode
-from rag.FromQueryEmbeddingToRes.rerank import rerank_cohere
+from tool.rag.FromQueryEmbeddingToRes import pipeline, retrieval, vectorstore
+from tool.rag.FromQueryEmbeddingToRes.models import QuerySignals, RerankBackend, SearchMode
+from tool.rag.FromQueryEmbeddingToRes.rerank import rerank_cohere
 
 QUERY = "Consigliami 3 dei migliori film di fantascienza che hanno fatto la storia"
 
@@ -270,8 +270,8 @@ def test_rag_tool_keeps_the_user_query_and_passes_the_planner_rewrite_as_a_hint(
         return pipeline.RagResult(query=query, search_mode=SearchMode.semantic, rerank_backend=RerankBackend.cohere,
                                   chunks=[], rerank_query="themes", constraints={"x": 1})
 
-    monkeypatch.setattr("rag.FromQueryEmbeddingToRes.tool_interface.run_rag", fake_run_rag)
-    from rag.FromQueryEmbeddingToRes.tool_interface import RagTool
+    monkeypatch.setattr("tool.rag.FromQueryEmbeddingToRes.tool_interface.run_rag", fake_run_rag)
+    from tool.rag.FromQueryEmbeddingToRes.tool_interface import RagTool
 
     user = "Mare dentro mi ha colpito molto. Mi consigli altri film che affrontano temi simili?"
     vague = "Consiglia film simili a Mare dentro, che affrontino temi e atmosfere analoghi."
@@ -293,8 +293,8 @@ def test_rag_tool_applies_the_planner_retrieval_params_to_a_copy_of_the_config(m
         return pipeline.RagResult(query=query, search_mode=config["retrieval"]["search_mode"],
                                   rerank_backend=RerankBackend.cohere, chunks=[])
 
-    monkeypatch.setattr("rag.FromQueryEmbeddingToRes.tool_interface.run_rag", fake_run_rag)
-    from rag.FromQueryEmbeddingToRes.tool_interface import RagTool
+    monkeypatch.setattr("tool.rag.FromQueryEmbeddingToRes.tool_interface.run_rag", fake_run_rag)
+    from tool.rag.FromQueryEmbeddingToRes.tool_interface import RagTool
 
     config = {"retrieval": {
         "search_mode": SearchMode.semantic, "k_largo": 10, "k_finale": 3, "fetch_k": 50,
@@ -315,7 +315,7 @@ def test_rag_tool_applies_the_planner_retrieval_params_to_a_copy_of_the_config(m
 
 
 def test_bm25_index_reads_the_collection_in_pages_and_is_cached(monkeypatch) -> None:
-    from rag.FromQueryEmbeddingToRes import hybrid
+    from tool.rag.FromQueryEmbeddingToRes import hybrid
 
     monkeypatch.setattr(hybrid, "_BM25_PAGE_SIZE", 2)
     hybrid._BM25_CACHE.clear()

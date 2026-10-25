@@ -1,7 +1,7 @@
 """Typed, validated view of `CONFIG["wikipedia"]`: only the five public settings.
 
-The values live only in `app.py` (no defaults here, like `tmdb/config.py`). Timeouts, the
-User-Agent, response and cache sizes are internal constants in `wikipedia/settings.py`.
+The values live only in `app.py` (no defaults here, like `tool/tmdb/config.py`). Timeouts, the
+User-Agent, response and cache sizes are internal constants in `tool/wikipedia/settings.py`.
 """
 from __future__ import annotations
 

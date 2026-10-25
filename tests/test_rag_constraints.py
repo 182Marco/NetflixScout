@@ -1,8 +1,8 @@
 """Constraint statuses of the final RAG chunks (D5): offline, built from real cases 11, 12, 20."""
 from __future__ import annotations
 
-from rag.FromQueryEmbeddingToRes.constraints import constraint_report
-from rag.FromQueryEmbeddingToRes.models import QuerySignals
+from tool.rag.FromQueryEmbeddingToRes.constraints import constraint_report
+from tool.rag.FromQueryEmbeddingToRes.models import QuerySignals
 
 
 def _chunk(title, year, genres, plot):

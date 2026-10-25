@@ -15,9 +15,9 @@ from tmdb_support import (
     tmdb_meta,
 )
 
-from tmdb.budget import CallBudget
-from tmdb.cache import TtlCache, cache_key
-from tmdb.cooldown import Cooldown, retry_after_seconds
+from tool.tmdb.budget import CallBudget
+from tool.tmdb.cache import TtlCache, cache_key
+from tool.tmdb.cooldown import Cooldown, retry_after_seconds
 
 ROOT = Path(__file__).resolve().parents[1]
 DETAILS = {"operation": "movie_details", "tmdb_id": MOVIE_ID}
@@ -162,7 +162,7 @@ def test_unauthorized_stops_further_calls() -> None:
 
 def test_http_module_is_the_only_io_point() -> None:
     offenders = []
-    for path in sorted((ROOT / "tmdb").rglob("*.py")):
+    for path in sorted((ROOT / "tool" / "tmdb").rglob("*.py")):
         if path.name == "http.py":
             continue
         tree = ast.parse(path.read_text(encoding="utf-8"))
