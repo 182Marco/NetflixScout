@@ -1,7 +1,7 @@
 """Web output channel: the JSON-ready form of a `TurnResult` for the FastAPI response.
 
 Same content as the terminal, in another format. Both read the same shared views
-(`presenters/story_view.py`, `rag_view.py`, `db_view.py`, `api_view.py`, `youtube_view.py`),
+(`presenters/story_view.py`, `rag_view.py`, `db_view.py`, `api_view.py`, `youtube_view.py`, `wikipedia_view.py`),
 so the story, the steps and their data are the same; the web has no emoji and no `═` titles,
 the frontend picks icons from `story[].level`.
 
@@ -30,6 +30,9 @@ YouTube API Services Developer Policies (III.A, III.C.5, III.F): every `youtube_
 must name YouTube as the source and show video titles, channels and URLs exactly as in the
 step (only control characters may be removed for display, as `presenters/youtube_view.py`
 does).
+
+Wikipedia text is CC BY-SA: every `wikipedia_calls` step carries the page titles and links, the
+`source` line and the licence with its link; the frontend must show them as received.
 """
 from __future__ import annotations
 
@@ -41,6 +44,7 @@ from turn import (
     STEP_RERANK,
     STEP_RETRIEVAL,
     STEP_TMDB_CALLS,
+    STEP_WIKIPEDIA_CALLS,
     STEP_YOUTUBE_CALLS,
     TraceStep,
     TurnResult,
@@ -50,6 +54,7 @@ from ..story_view import STORY_STEP_KINDS, build_story
 from .api import serialize_tmdb_calls_step
 from .db import serialize_db_query_step
 from .rag import serialize_rag_step
+from .wikipedia import serialize_wikipedia_calls_step
 from .youtube import serialize_youtube_calls_step
 
 Serializer = Callable[[TraceStep, str | None], dict[str, Any]]
@@ -61,6 +66,7 @@ STEP_SERIALIZERS: dict[str, Serializer] = {
     STEP_DB_QUERY: serialize_db_query_step,
     STEP_TMDB_CALLS: serialize_tmdb_calls_step,
     STEP_YOUTUBE_CALLS: serialize_youtube_calls_step,
+    STEP_WIKIPEDIA_CALLS: serialize_wikipedia_calls_step,
 }
 
 
