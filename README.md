@@ -414,6 +414,11 @@ further step with `language: it` (same cache, same per-turn call and text budget
 The planner translates the distinctive words of the question into English (`keywords`) so the right sections
 are picked from an English article.
 
+The planner names the page with its title in the edition searched (the English title when it is known, never an
+invented one), reads both the film and the source work for a comparison, and the answer must not present original
+titles, title translations or identifications of real people as facts unless the page text says so (otherwise it
+says the page does not report them, or flags the line "Non verificato:").
+
 Pages are checked before they are used: a page whose title is not the one asked and whose lead does not
 support it (for a film with a year, the year) is dropped, an article is downloaded only for a page whose title
 is the one asked, and uncertain candidates are only listed. Keywords that name nothing specific (episodes,
