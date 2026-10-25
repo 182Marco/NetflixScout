@@ -28,6 +28,22 @@ Nota 1.
 """
 
 
+EN_ARTICLE_TEXT = """Park Chan-wook is a South Korean film director.
+
+== Early life ==
+Born in Seoul in 1963, he studied philosophy at Sogang University.
+
+== Career ==
+He made his debut in 1992. His breakthrough was Joint Security Area, which he directed in 2000.
+
+== Filmography ==
+List of films directed.
+
+== References ==
+Reference 1.
+"""
+
+
 class FakeTransport:
     """Routes by a `(language, mode)` key chosen by `route_of`; records every call."""
 
@@ -122,8 +138,9 @@ def error_body(code: str = "maxlag") -> dict[str, Any]:
 
 
 def run_tool(tool, *, query: str = "domanda", **arguments: Any) -> dict[str, Any]:
-    # The turn language is Italian unless a test says otherwise (the fake pages are Italian).
-    params = {"topic": "Park Chan-wook", "turn_language": "it", **arguments}
+    # The fake pages are Italian: tools made by `make_tool` search the Italian edition unless a test
+    # says `default_language="en"`.
+    params = {"topic": "Park Chan-wook", **arguments}
     return tool.run(query=query, params=params, conversation_history=[])
 
 

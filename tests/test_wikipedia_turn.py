@@ -14,7 +14,7 @@ from pathlib import Path
 import pytest
 from stream_support import reply
 from web_api_support import names, parse_sse, streamed_text
-from wikipedia_support import by_mode, doc_step, lookup_answer, make_tool, page, article_answer
+from wikipedia_support import EN_ARTICLE_TEXT, by_mode, doc_step, lookup_answer, make_tool, page, article_answer
 
 import app as app_module
 from app import handle_query
@@ -70,8 +70,9 @@ def offline(monkeypatch):
     monkeypatch.setattr(urllib.request, "urlopen", no_network)
 
 
-def _bot(script=SCRIPT):
-    tool, transport = make_tool(by_mode(lookup=lookup_answer(page("Park Chan-wook", LEAD)), article=article_answer()))
+def _bot(script=SCRIPT, *, handler=None, default_language="it"):
+    handler = handler or by_mode(lookup=lookup_answer(page("Park Chan-wook", LEAD)), article=article_answer())
+    tool, transport = make_tool(handler, default_language=default_language)
     client = _Client(script)
     orchestrator = LLMOrchestrator(config=app_module.build_runtime_config(), tools=[tool], client=client)
     return {"config": app_module.build_runtime_config(), "orchestrator": orchestrator}, transport, client
@@ -215,3 +216,80 @@ def test_the_documented_example_is_what_the_serializer_produces() -> None:
 
     assert match is not None
     assert json.loads(match.group(1)) == serialize_step(doc_step(), "it")
+
+
+# --- English first, Italian only when the planner decides ------------------------------------------
+
+TITLE_IT = "Il ragazzo e l'airone"
+HERON_LEAD = "Il ragazzo e l'airone è un film d'animazione del 2023 diretto da Hayao Miyazaki."
+
+
+def _heron(language, params):
+    """English finds nothing for the Italian title; the Italian edition has the page."""
+    return lookup_answer() if language == "en" else lookup_answer(page(TITLE_IT, HERON_LEAD, index=1))
+
+
+def test_english_is_searched_first_and_italian_only_when_the_planner_asks_for_it() -> None:
+    script = [
+        _plan(topic=TITLE_IT, kind="film"),
+        _plan(topic=TITLE_IT, kind="film", language="it"),
+        '{"done": true}',
+        FINAL,
+    ]
+    bot, transport, client = _bot(script, handler=_heron, default_language="en")
+
+    events = _events(bot)
+
+    first, second = _steps(events)
+    assert transport.languages == ["en", "it"]  # one request each, in this order
+    assert first["calls"] == ["https://en.wikipedia.org/w/api.php"] and first["pages"] == []
+    assert first["searches"][0]["language"] == "en"
+    assert second["calls"] == ["https://it.wikipedia.org/w/api.php"]
+    (shown,) = second["pages"]
+    assert (shown["language"], shown["title"], shown["url"]) == ("it", TITLE_IT, "https://it.wikipedia.org/wiki/Il_ragazzo_e_l%27airone")
+    # What the planner is told before the second step: the edition used, why it is not enough, what is left.
+    second_plan = client.calls[1]["input"][-1]["content"]
+    assert "edizione usata: en" in second_plan and "edizione it non ancora consultata" in second_plan
+    assert "nessuna pagina trovata" in second_plan
+    # After the Italian step it sees both editions asked and no text it was already given.
+    third_plan = client.calls[2]["input"][-1]["content"]
+    assert "consultate nel turno: en, it" in third_plan and HERON_LEAD not in third_plan
+    assert HERON_LEAD in client.calls[3]["input"][-1]["content"]  # the final answer has the text
+    assert streamed_text(events).strip() == ANSWER
+
+
+def test_there_is_no_second_edition_when_english_covers_the_question() -> None:
+    plan = _plan(topic="Park Chan-wook", kind="person", depth="full", keywords=["debut", "Joint Security Area"])
+    handler = by_mode(lookup=lookup_answer(page("Park Chan-wook", "Park Chan-wook is a director.")), article=article_answer(text=EN_ARTICLE_TEXT))
+    bot, transport, client = _bot([plan, FINAL], handler=handler, default_language="en")
+
+    events = _events(bot)
+
+    (only,) = _steps(events)
+    assert set(transport.languages) == {"en"} and len(transport.calls) == 2  # search and article
+    assert only["pages"][0]["language"] == "en" and only["pages"][0]["url"].startswith("https://en.wikipedia.org/")
+    assert len(client.calls) == 2  # one planner call and the answer: no review, no second edition
+    assert names(events)[-3:] == ["answer_end", "lists", "done"]
+
+
+def test_an_absent_detail_in_the_whole_english_article_lets_the_planner_try_italian() -> None:
+    en_article = by_mode(lookup=lookup_answer(page("Park Chan-wook", "Park Chan-wook is a director.")), article=article_answer(text=EN_ARTICLE_TEXT))
+
+    def handler(language, params):
+        return en_article(language, params) if language == "en" else by_mode(
+            lookup=lookup_answer(page("Park Chan-wook", LEAD)), article=article_answer()
+        )(language, params)
+
+    script = [
+        _plan(topic="Park Chan-wook", kind="person", depth="full", keywords=["debut", "dubbing"]),
+        _plan(topic="Park Chan-wook", kind="person", depth="sections", language="it", keywords=["doppiaggio"]),
+        '{"done": true}',
+        FINAL,
+    ]
+    bot, transport, client = _bot(script, handler=handler, default_language="en")
+
+    events = _events(bot)
+
+    assert "«dubbing» assenti dall'articolo" in client.calls[1]["input"][-1]["content"]
+    assert [s["pages"][0]["language"] for s in _steps(events)] == ["en", "it"]
+    assert transport.languages == ["en", "en", "it", "it"]

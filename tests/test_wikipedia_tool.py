@@ -6,6 +6,7 @@ import json
 import pytest
 from wikipedia_support import (
     ARTICLE_TEXT,
+    EN_ARTICLE_TEXT,
     article_answer,
     by_mode,
     error_body,
@@ -19,7 +20,7 @@ from wikipedia_support import (
 from orchestrator import Tool
 from turn import RESULT_FOLLOW_UP, TOOL_PARAM_TURN_ID, TOOL_PARAM_TURN_LANGUAGE
 from wikipedia.settings import USER_AGENT
-from wikipedia.tool import WIKIPEDIA_TOOL_NAME, WikipediaTool, language_order, parse_pages, planner_schema
+from wikipedia.tool import WIKIPEDIA_TOOL_NAME, WikipediaTool, parse_pages, planner_schema
 
 LEAD = "Park Chan-wook è un regista sudcoreano. Ha diretto Oldboy."
 LOOKUP = lookup_answer(page("Park Chan-wook", LEAD, index=1), page("Oldboy (film 2003)", "Film del 2003.", index=2))
@@ -89,42 +90,6 @@ def test_the_trace_has_urls_licence_and_no_extract_text() -> None:
     assert data["license"] == {"name": "CC BY-SA 4.0", "url": "https://creativecommons.org/licenses/by-sa/4.0/"}
     assert data["searches"][0]["q"] == '"Park Chan-wook"' and data["searches"][0]["kept"] == 2
     assert "regista sudcoreano" not in json.dumps(step) and "api_key" not in json.dumps(step)
-
-
-@pytest.mark.parametrize(("turn_language", "first"), [("it", "it"), ("en", "en"), ("fr", "en"), (None, "en")])
-def test_the_turn_language_chooses_the_first_edition(turn_language, first) -> None:
-    tool, transport = _tool()
-
-    run_tool(tool, **{TOOL_PARAM_TURN_LANGUAGE: turn_language})
-
-    assert transport.languages == [first]
-
-
-def test_an_empty_search_falls_back_once_to_the_other_edition() -> None:
-    def handler(language, params):
-        return lookup_answer() if language == "it" else LOOKUP
-
-    tool, transport = make_tool(handler)
-
-    result = run_tool(tool, **{TOOL_PARAM_TURN_LANGUAGE: "it"})
-
-    assert transport.languages == ["it", "en"] and _meta(result)["pages"][0]["language"] == "en"
-    assert [s["language"] for s in result["trace"][0]["data"]["searches"]] == ["it", "en"]
-
-
-def test_a_requested_language_is_the_only_one_tried() -> None:
-    tool, transport = make_tool(lambda language, params: lookup_answer())
-
-    result = run_tool(tool, language="it")
-
-    assert transport.languages == ["it"] and result["outcome"]["status"] == "empty"
-    assert language_order(tool_input(language="it"), "en") == ["it"]
-
-
-def tool_input(**fields):
-    from wikipedia.models import WikipediaToolInput
-
-    return WikipediaToolInput.model_validate({"query": "q", "topic": "x", **fields})
 
 
 def test_only_disambiguation_pages_give_an_empty_result_that_asks_for_more_context() -> None:
@@ -263,16 +228,6 @@ def test_a_partial_reading_offers_the_rest_and_the_summary_lists_it_for_the_plan
     assert "Si può continuare" in summary and len(summary) <= 1_800
 
 
-def test_the_turn_http_budget_stops_the_second_edition() -> None:
-    tool, transport = make_tool(lambda language, params: lookup_answer(), max_calls=1)
-
-    result = run_tool(tool, **{TOOL_PARAM_TURN_LANGUAGE: "it"})
-
-    assert transport.languages == ["it"]
-    assert result["trace"][0]["data"]["searches"][-1]["error"] == "turn_limit"
-    assert result["outcome"] == {"status": "error", "reason": "turn_limit"}
-
-
 def test_a_rate_limit_is_an_error_without_follow_up_and_pauses_the_next_request() -> None:
     tool, transport = make_tool(lambda language, params: (200, {"Retry-After": "5"}, error_body("maxlag")))
 
@@ -333,3 +288,173 @@ def test_extract_text_cannot_reach_the_trace_or_the_user_agent() -> None:
 
     assert hostile in json.dumps(result["metadata"]) and hostile not in json.dumps(result["trace"])
     assert hostile not in result[RESULT_FOLLOW_UP]["summary"] or "Inizio di" in result[RESULT_FOLLOW_UP]["summary"]
+
+
+# --- English by default, Italian as a later step -----------------------------------------------------
+
+
+def _en_tool(**kwargs):
+    kwargs.setdefault("handler", by_mode(lookup=lookup_answer(page("Park Chan-wook", "Park Chan-wook is a South Korean film director.")),
+                                        article=article_answer(text=EN_ARTICLE_TEXT)))
+    return make_tool(default_language="en", **kwargs)
+
+
+@pytest.mark.parametrize("turn_language", ["it", "en", "fr", None])
+def test_the_search_is_in_english_whatever_the_language_of_the_user(turn_language) -> None:
+    tool, transport = _en_tool()
+
+    result = run_tool(tool, **{TOOL_PARAM_TURN_LANGUAGE: turn_language})
+
+    assert transport.languages == ["en"] and len(transport.calls) == 1
+    page_meta = _meta(result)["pages"][0]
+    assert _meta(result)["language"] == "en" and page_meta["language"] == "en"
+    assert page_meta["text"][0]["section"] == "Introduction"
+    (step,) = result["trace"]
+    assert step["data"]["calls"] == ["https://en.wikipedia.org/w/api.php"]
+    assert step["data"]["pages"][0]["url"] == "https://en.wikipedia.org/wiki/Park_Chan-wook"
+    assert step["data"]["searches"][0]["language"] == "en"
+
+
+def test_the_default_edition_comes_from_the_config() -> None:
+    tool, transport = make_tool(by_mode(lookup=LOOKUP, article=article_answer()), default_language="it")
+
+    run_tool(tool, **{TOOL_PARAM_TURN_LANGUAGE: "en"})
+
+    assert transport.languages == ["it"]
+
+
+def test_the_planner_can_choose_the_italian_edition_straight_away() -> None:
+    tool, transport = _en_tool()
+
+    result = run_tool(tool, language="it")
+
+    assert transport.languages == ["it"] and _meta(result)["pages"][0]["language"] == "it"
+    assert result["trace"][0]["data"]["pages"][0]["url"].startswith("https://it.wikipedia.org/wiki/")
+
+
+def test_an_empty_english_search_does_not_try_italian_by_itself() -> None:
+    tool, transport = _en_tool(handler=lambda language, params: lookup_answer())
+
+    result = run_tool(tool, **{TOOL_PARAM_TURN_LANGUAGE: "it"})
+
+    assert transport.languages == ["en"]  # one request, not two
+    assert result["outcome"] == {"status": "empty", "reason": None}
+    follow_up = result[RESULT_FOLLOW_UP]
+    assert follow_up["available"] and follow_up["reasons"] == ["empty"]
+    assert "edizione usata: en; consultate nel turno: en; edizione it non ancora consultata (si apre con language it)" in follow_up["summary"]
+
+
+def test_a_page_not_found_by_title_in_english_offers_a_retry_and_does_not_retry() -> None:
+    tool, transport = _en_tool(handler=lambda language, params: missing_answer())
+
+    result = run_tool(tool, page="Il ragazzo e l'airone")
+
+    assert transport.languages == ["en"] and result["outcome"]["status"] == "empty"
+    assert result[RESULT_FOLLOW_UP]["reasons"] == ["empty"]
+
+
+def test_the_italian_step_shares_the_http_budget_of_the_turn() -> None:
+    tool, transport = _en_tool(handler=lambda language, params: lookup_answer(), max_calls=2)
+    turn = {TOOL_PARAM_TURN_ID: "t"}
+
+    first = run_tool(tool, **turn)
+    second = run_tool(tool, language="it", **turn)
+    third = run_tool(tool, topic="Altro", language="it", **turn)
+
+    assert transport.languages == ["en", "it"]
+    assert first[RESULT_FOLLOW_UP]["available"] and not second[RESULT_FOLLOW_UP]["available"]
+    assert "tutte le edizioni già consultate" in second[RESULT_FOLLOW_UP]["summary"]
+    assert third["outcome"] == {"status": "error", "reason": "turn_limit"} and len(transport.calls) == 2
+
+
+def test_an_absent_keyword_in_the_whole_english_article_offers_the_italian_edition() -> None:
+    tool, transport = _en_tool()
+
+    result = run_tool(tool, depth="full", keywords=["debut", "dubbing"], **{TOOL_PARAM_TURN_ID: "a"})
+
+    rows = {row["keyword"]: row["status"] for row in _meta(result)["pages"][0]["keywords"]}
+    assert rows == {"debut": "read", "dubbing": "absent"}
+    assert result[RESULT_FOLLOW_UP]["available"] and result[RESULT_FOLLOW_UP]["reasons"] == ["keywords_absent"]
+    assert "«dubbing» assenti dall'articolo" in result[RESULT_FOLLOW_UP]["summary"]
+    assert transport.languages == ["en", "en"]  # the search and the article, English only
+
+
+def test_no_italian_offer_when_the_english_article_covers_every_keyword() -> None:
+    tool, transport = _en_tool()
+
+    result = run_tool(tool, depth="full", keywords=["debut", "Joint Security Area"], **{TOOL_PARAM_TURN_ID: "a"})
+
+    assert result[RESULT_FOLLOW_UP]["available"] is False and result[RESULT_FOLLOW_UP]["reasons"] == []
+    assert set(transport.languages) == {"en"}
+
+
+def test_no_italian_offer_for_a_full_reading_without_keywords() -> None:
+    tool, transport = _en_tool()
+
+    result = run_tool(tool, depth="full", **{TOOL_PARAM_TURN_ID: "a"})
+
+    assert result[RESULT_FOLLOW_UP]["available"] is False and set(transport.languages) == {"en"}
+
+
+def test_the_offer_is_not_repeated_once_both_editions_were_asked() -> None:
+    tool, _ = _en_tool()
+    turn = {TOOL_PARAM_TURN_ID: "a"}
+
+    run_tool(tool, language="it", **turn)  # the planner already went to Italian
+    result = run_tool(tool, depth="full", keywords=["dubbing"], page="Park Chan-wook", **turn)
+
+    assert _meta(result)["pages"][0]["keywords"][0]["status"] == "absent"
+    assert result[RESULT_FOLLOW_UP]["reasons"] == []
+
+
+def test_english_keywords_choose_the_sections_of_an_english_page_for_an_italian_question() -> None:
+    tool, _ = _en_tool()
+
+    result = run_tool(tool, depth="sections", query="Quando ha esordito?", keywords=["debut"])
+
+    assert _meta(result)["pages"][0]["sections_delivered"] == ["Career"]
+
+
+def test_the_same_english_page_is_read_from_the_cache_and_italian_is_a_separate_request() -> None:
+    tool, transport = _en_tool()
+    turn = {TOOL_PARAM_TURN_ID: "t"}
+
+    run_tool(tool, page="Park Chan-wook", sections=["Career"], **turn)
+    again = run_tool(tool, page="Park Chan-wook", sections=["Early life"], **turn)
+    italian = run_tool(tool, page="Park Chan-wook", sections=["Carriera"], language="it", **turn)
+    italian_again = run_tool(tool, page="Park Chan-wook", sections=["Biografia"], language="it", **turn)
+
+    assert transport.languages == ["en", "it"]
+    assert again["trace"][0]["data"]["calls"] == [] and again["trace"][0]["data"]["reused"] == 1
+    assert italian["trace"][0]["data"]["calls"] == ["https://it.wikipedia.org/w/api.php"]
+    assert italian_again["trace"][0]["data"]["reused"] == 1 and italian_again["trace"][0]["data"]["calls"] == []
+
+
+def test_the_context_budget_and_the_delivered_sections_follow_the_turn_across_editions() -> None:
+    def handler(language, params):
+        return article_answer(text=EN_ARTICLE_TEXT) if language == "en" else article_answer(text=ARTICLE_TEXT)
+
+    tool, _ = make_tool(handler, default_language="en", context_chars=4_000)
+    turn = {TOOL_PARAM_TURN_ID: "t"}
+
+    first = run_tool(tool, page="Park Chan-wook", depth="full", **turn)
+    second = run_tool(tool, page="Park Chan-wook", depth="full", language="it", **turn)
+
+    used_first = _meta(first)["context"]["used"]
+    assert used_first == sum(len(b["text"]) for b in _meta(first)["pages"][0]["text"])
+    # The Italian page is another page: its sections are new, but the budget is the same one.
+    assert _meta(second)["pages"][0]["sections_delivered"]
+    assert _meta(second)["context"]["used"] == used_first + sum(len(b["text"]) for b in _meta(second)["pages"][0]["text"])
+    assert _meta(second)["context"]["used"] <= 4_000
+
+
+def test_the_planner_summary_of_a_second_step_does_not_repeat_the_text_already_given() -> None:
+    tool, _ = _en_tool()
+    turn = {TOOL_PARAM_TURN_ID: "t"}
+    run_tool(tool, page="Park Chan-wook", sections=["Early life"], **turn)
+
+    second = run_tool(tool, page="Park Chan-wook", sections=["Career"], **turn)
+
+    summary = second[RESULT_FOLLOW_UP]["summary"]
+    assert "Born in Seoul" not in summary and "Joint Security Area" not in summary
+    assert _meta(second)["pages"][0]["sections_delivered"] == ["Career"]

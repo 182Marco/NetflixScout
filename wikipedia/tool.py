@@ -30,8 +30,16 @@ from .models import (
 )
 from .queries import article_params, lookup_params, search_term
 from .relevance import Screened, follow_up_reasons, lookup_hints, match_title, screen_pages, verification
-from .sections import clean_extract, lead_title, outline, question_terms, select_sections, split_sections
-from .settings import DEFAULT_LANGUAGE, LANGUAGES, MIN_FOLLOW_UP_CHARS
+from .sections import (
+    clean_extract,
+    keyword_report,
+    lead_title,
+    outline,
+    scoring_terms,
+    select_sections,
+    split_sections,
+)
+from .settings import LANGUAGES, MIN_FOLLOW_UP_CHARS
 from .trace import build_planner_summary, build_wikipedia_trace
 
 WIKIPEDIA_TOOL_NAME = "wikipedia_search"
@@ -99,14 +107,6 @@ def parse_pages(payload: dict[str, Any], language: str) -> list[PageHit]:
     return hits
 
 
-def language_order(request: WikipediaToolInput, turn_language: Any) -> list[str]:
-    """The editions to try, in order: the one asked for, else the turn language and then the other."""
-    if request.language:
-        return [request.language]
-    first = turn_language if turn_language in LANGUAGES else DEFAULT_LANGUAGE
-    return [first, *[language for language in LANGUAGES if language != first]]
-
-
 @dataclass
 class _Run:
     """One tool run: lookup or opening of an article, selection of the text to hand out."""
@@ -114,7 +114,9 @@ class _Run:
     config: WikipediaConfig
     session: HttpSession
     request: WikipediaToolInput
-    languages: list[str]
+    # The one edition this run asks: the planner's choice, else `default_language`. The other
+    # edition is never tried here; a later step asks for it if the planner decides to.
+    edition: str
     searches: list[dict[str, Any]] = field(default_factory=list)
     opens: list[dict[str, Any]] = field(default_factory=list)
     pages: list[PageResult] = field(default_factory=list)
@@ -140,6 +142,7 @@ class _Run:
             "returned": 0, "kept": 0, "filtered_out": {},
         }
         self.searches.append(row)
+        self.state.languages_tried.add(language)
         try:
             payload = get_json(self.session, language, lookup_params(self.request, max_results=self.config.max_results))
         except WikipediaError as exc:
@@ -151,15 +154,6 @@ class _Run:
         self.kept, self.dropped = kept[: self.config.max_results], dropped
         row.update(result="ok" if kept else "empty", returned=len(pages), kept=len(self.kept), filtered_out=dropped)
         return True
-
-    def _find(self) -> str | None:
-        """Search the editions in order until one gives pages; its language, or None."""
-        for language in self.languages:
-            if not self._lookup(language):
-                return None
-            if self.kept:
-                return language
-        return None
 
     # --- delivery ---------------------------------------------------------------------------
 
@@ -180,7 +174,7 @@ class _Run:
             sections,
             depth=depth,
             wanted=wanted,
-            terms=question_terms(self.request.query, self.request.topic),
+            terms=scoring_terms(self.request.keywords, self.request.query, self.request.topic),
             already=delivered,
             budget=self.context_left(),
             language=language,
@@ -203,6 +197,11 @@ class _Run:
                 omitted=[{"title": s.title, "chars": s.chars} for s in selection.omitted] if whole_article else [],
                 unknown_sections=list(selection.unknown),
                 truncated=any(item.truncated for item in selection.delivered),
+                keywords=(
+                    keyword_report(self.request.keywords, sections, delivered, whole_article=whole_article)
+                    if self.request.keywords
+                    else None
+                ),
                 text=[{"section": item.section.title, "text": item.text} for item in selection.delivered],
             )
         )
@@ -220,12 +219,15 @@ class _Run:
         """Download one article whole (the cache serves a second reading); None if there is none."""
         row: dict[str, Any] = {"language": language, "title": title, "result": None, "error": None}
         self.opens.append(row)
+        self.state.languages_tried.add(language)
         try:
             payload = get_json(self.session, language, article_params(title))
         except WikipediaError as exc:
             row["result"], row["error"], self.error = "error", exc.code, exc.code
             return None
         pages = parse_pages(payload, language)
+        # The request worked: not finding the page is a result the planner can act on.
+        self.searched_ok = True
         if any(page.disambiguation for page in pages):
             self.dropped["disambiguation"] = self.dropped.get("disambiguation", 0) + 1
             row["result"] = "ambiguous"
@@ -251,24 +253,19 @@ class _Run:
     def execute(self) -> None:
         request = self.request
         if request.page is not None:
-            for language in self.languages:
-                hit = self._open(language, request.page)
-                if hit is not None:
-                    match = match_title(request.page, hit.title)
-                    notes = [] if match in ("exact", "qualified") else ["title_partial"]
-                    self._deliver_article(hit, (verification(notes), notes))
-                    return
-                if self.error:
-                    return
+            hit = self._open(self.edition, request.page)
+            if hit is not None:
+                match = match_title(request.page, hit.title)
+                notes = [] if match in ("exact", "qualified") else ["title_partial"]
+                self._deliver_article(hit, (verification(notes), notes))
             return
-        language = self._find()
-        if language is None:
+        if not self._lookup(self.edition) or not self.kept:
             return
         if request.depth is Depth.intro:
-            self._deliver_leads(language)
+            self._deliver_leads(self.edition)
             return
         best = self.kept[0]
-        hit = self._open(language, best.page.title)
+        hit = self._open(self.edition, best.page.title)
         if hit is not None:
             self._deliver_article(hit, (best.verification, best.notes))
 
@@ -277,6 +274,9 @@ class _Run:
     def result(self, query: str) -> dict[str, Any]:
         config, state = self.config, self.state
         hints = lookup_hints(self.request, self.kept, self.dropped) if self.searched_ok else []
+        untried = [language for language in LANGUAGES if language not in state.languages_tried]
+        other_edition = untried[0] if untried else None
+        absent = any(row["status"] == "absent" for page in self.pages for row in page.keywords or [])
         reasons = [] if self.error == WikipediaRateLimited.code else follow_up_reasons(
             pages=self.pages,
             searched=self.searched_ok,
@@ -284,6 +284,8 @@ class _Run:
             budget_hit=self.budget_hit,
             http_left=state.http_left(config.max_calls_per_turn),
             context_left=self.context_left(),
+            other_language_untried=other_edition is not None,
+            keywords_absent=absent,
         )
         if self.pages:
             status = "ok"
@@ -294,6 +296,7 @@ class _Run:
         metadata: dict[str, Any] = {
             "status": status,
             "source": "Wikipedia",
+            "language": self.edition,
             "context": {
                 "used": state.context_used,
                 "budget": config.context_chars_per_turn,
@@ -313,6 +316,7 @@ class _Run:
                     "omitted": page.omitted,
                     "unknown_sections": page.unknown_sections,
                     "truncated": page.truncated,
+                    "keywords": page.keywords,
                     # Last: the part that grows. The orchestrator shows the planner `follow_up.summary`.
                     "text": page.text,
                 }
@@ -342,6 +346,9 @@ class _Run:
                     context_used=state.context_used,
                     context_budget=config.context_chars_per_turn,
                     calls_left=state.http_left(config.max_calls_per_turn),
+                    edition=self.edition,
+                    languages_tried=sorted(state.languages_tried),
+                    other_edition=other_edition,
                 ),
             },
         }
@@ -374,7 +381,9 @@ class WikipediaTool:
         conversation_history: list[dict[str, str]] | None = None,
     ) -> dict[str, Any]:
         arguments = dict(params or {})
-        turn_language = arguments.pop(TOOL_PARAM_TURN_LANGUAGE, None)
+        # The language of the question does not choose the edition (English by default whatever the
+        # answer's language): the planner does, with `language`.
+        arguments.pop(TOOL_PARAM_TURN_LANGUAGE, None)
         turn_id = arguments.pop(TOOL_PARAM_TURN_ID, None)
         if query:
             arguments["query"] = query
@@ -391,6 +400,6 @@ class WikipediaTool:
             cache=self.cache,
             pause=self.pause,
         )
-        run = _Run(config=self.config, session=session, request=request, languages=language_order(request, turn_language))
+        run = _Run(config=self.config, session=session, request=request, edition=request.language or self.config.default_language)
         run.execute()
         return run.result(request.query)
