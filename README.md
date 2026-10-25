@@ -414,6 +414,13 @@ further step with `language: it` (same cache, same per-turn call and text budget
 The planner translates the distinctive words of the question into English (`keywords`) so the right sections
 are picked from an English article.
 
+Pages are checked before they are used: a page whose title is not the one asked and whose lead does not
+support it (for a film with a year, the year) is dropped, an article is downloaded only for a page whose title
+is the one asked, and uncertain candidates are only listed. Keywords that name nothing specific (episodes,
+actors, cast...) are ignored when deciding whether English lacks a detail. The routing rules send what TMDb does
+not have to Wikipedia: which director or actor made which segment of an anthology, episode structure, a film
+compared with its source novel, detailed plots; simple structured questions stay with TMDb.
+
 How much text is read depends on the question and on what the first reading showed:
 - `depth: intro` reads the lead of the best pages (one request); `sections` and `full` open ONE
   page, whose whole article is downloaded once and kept in the cache (`cache_ttl`), then split by
