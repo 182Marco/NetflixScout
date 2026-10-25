@@ -69,14 +69,15 @@ def make_session(transport: FakeTransport, *, max_calls: int = 6, state: TurnSta
     )
 
 
-def make_tool(handler=None, *, max_results: int = 3, max_calls: int = 6, cache_ttl: int = 3600,
-              context_chars: int = 40_000, **routes):
+def make_tool(handler=None, *, default_language: str = "it", max_results: int = 3, max_calls: int = 6,
+              cache_ttl: int = 3600, context_chars: int = 40_000, **routes):
     from wikipedia.config import WikipediaConfig
     from wikipedia.tool import WikipediaTool
 
     transport = FakeTransport(handler, **routes)
     tool = WikipediaTool(
         config=WikipediaConfig(
+            default_language=default_language,
             max_results=max_results, max_calls_per_turn=max_calls, cache_ttl=cache_ttl, context_chars_per_turn=context_chars
         ),
         transport=transport,

@@ -365,6 +365,9 @@ CONFIG = {
     # `context_chars_per_turn` protects the final prompt, it does not cap what can be fetched:
     # an article is downloaded whole and handed out section by section (wikipedia/sections.py).
     "wikipedia": {
+        # Searches start in English whatever the language of the answer: the planner asks for the
+        # Italian edition in a later step when English is not enough (wikipedia/tool.py).
+        "default_language": "en",
         "max_results": 3,
         "max_calls_per_turn": 6,
         "cache_ttl": 3600,

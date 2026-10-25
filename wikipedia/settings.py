@@ -10,7 +10,8 @@ CC BY-SA 4.0: the presenters credit the pages and link the licence.
 """
 from __future__ import annotations
 
-# Hosts are chosen from this table, never from the model's input.
+# Hosts are chosen from this table, never from the model's input. The edition searched when the
+# planner names none is `CONFIG["wikipedia"]["default_language"]`.
 LANGUAGES = ("it", "en")
 DEFAULT_LANGUAGE = "en"
 HOST = "{language}.wikipedia.org"

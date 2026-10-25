@@ -1,11 +1,11 @@
-"""Typed, validated view of `CONFIG["wikipedia"]`: only the four public settings.
+"""Typed, validated view of `CONFIG["wikipedia"]`: only the five public settings.
 
 The values live only in `app.py` (no defaults here, like `tmdb/config.py`). Timeouts, the
 User-Agent, response and cache sizes are internal constants in `wikipedia/settings.py`.
 """
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -15,6 +15,14 @@ _UI = {"ui_exposed": True}
 class WikipediaConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    default_language: Literal["it", "en"] = Field(
+        title="Edizione predefinita",
+        description=(
+            "Edizione di Wikipedia in cui si cerca quando il planner non ne sceglie una, qualunque sia la "
+            "lingua della risposta. L'altra edizione si consulta solo con un passo successivo, deciso dal planner."
+        ),
+        json_schema_extra=_UI,
+    )
     max_results: int = Field(
         ge=1,
         le=5,

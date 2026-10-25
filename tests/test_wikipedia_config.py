@@ -10,15 +10,16 @@ from wikipedia import errors, settings
 from wikipedia.config import WikipediaConfig, load_wikipedia_config
 
 
-def test_config_has_exactly_the_four_public_settings() -> None:
+def test_config_has_exactly_the_five_public_settings() -> None:
     assert set(app_module.CONFIG["wikipedia"]) == {
+        "default_language",
         "max_results",
         "max_calls_per_turn",
         "cache_ttl",
         "context_chars_per_turn",
     }
     assert load_wikipedia_config(app_module.CONFIG["wikipedia"]) == WikipediaConfig(
-        max_results=3, max_calls_per_turn=6, cache_ttl=3600, context_chars_per_turn=40_000
+        default_language="en", max_results=3, max_calls_per_turn=6, cache_ttl=3600, context_chars_per_turn=40_000
     )
 
 
@@ -30,7 +31,9 @@ def test_overrides_are_deep_merged_and_validated() -> None:
 
 
 def test_a_validated_config_is_returned_as_is() -> None:
-    config = WikipediaConfig(max_results=1, max_calls_per_turn=1, cache_ttl=0, context_chars_per_turn=4000)
+    config = WikipediaConfig(
+        default_language="it", max_results=1, max_calls_per_turn=1, cache_ttl=0, context_chars_per_turn=4000
+    )
 
     assert load_wikipedia_config(config) is config
 
@@ -38,6 +41,8 @@ def test_a_validated_config_is_returned_as_is() -> None:
 @pytest.mark.parametrize(
     "override",
     [
+        {"default_language": "fr"},
+        {"default_language": None},
         {"max_results": 0},
         {"max_results": 6},
         {"max_calls_per_turn": 0},
@@ -53,6 +58,13 @@ def test_a_validated_config_is_returned_as_is() -> None:
 def test_invalid_or_extra_settings_are_rejected(override) -> None:
     with pytest.raises(ValidationError):
         load_wikipedia_config(app_module.build_runtime_config({"wikipedia": override})["wikipedia"])
+
+
+def test_the_default_edition_is_english_and_can_be_overridden() -> None:
+    assert app_module.CONFIG["wikipedia"]["default_language"] == "en"
+    merged = app_module.build_runtime_config({"wikipedia": {"default_language": "it"}})
+
+    assert load_wikipedia_config(merged["wikipedia"]).default_language == "it"
 
 
 def test_config_has_no_defaults() -> None:
