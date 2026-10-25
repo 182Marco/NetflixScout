@@ -331,6 +331,14 @@ CONFIG = {
         "max_results": 3,
         "max_searches_per_turn": 2,
     },
+    # `context_chars_per_turn` protects the final prompt, it does not cap what can be fetched:
+    # an article is downloaded whole and handed out section by section (wikipedia/sections.py).
+    "wikipedia": {
+        "max_results": 3,
+        "max_calls_per_turn": 6,
+        "cache_ttl": 3600,
+        "context_chars_per_turn": 40_000,
+    },
 }
 
 
