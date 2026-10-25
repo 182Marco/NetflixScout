@@ -35,6 +35,7 @@ from .relevance import (
     keywords_mostly_absent,
     lookup_hints,
     match_title,
+    qualifier_free_topic,
     screen_pages,
     verification,
 )
@@ -47,7 +48,7 @@ from .sections import (
     select_sections,
     split_sections,
 )
-from .settings import LANGUAGES, MIN_FOLLOW_UP_CHARS
+from .settings import AUTO_DELIVERY_SHARE, LANGUAGES, MIN_FOLLOW_UP_CHARS
 
 MAX_CANDIDATES_LISTED = 5
 from .trace import build_planner_summary, build_wikipedia_trace
@@ -148,15 +149,47 @@ class _Run:
     # --- lookup -----------------------------------------------------------------------------
 
     def _lookup(self, language: str) -> bool:
-        """Search one edition. False when the request failed (the run then stops searching)."""
+        """Search one edition. False when the request failed (the run then stops searching).
+
+        A topic with a qualifier ("Fahrenheit 451 (film)") is searched as written first; the phrase with
+        its parenthesis finds nothing when the page title says more ("... (1966 film)"). Only if no
+        page came out confirmed, the name alone is searched once more; the pages are screened against
+        the topic as written either way, so another work with the same name is a candidate, not a match.
+        """
+        if not self._search(language, self.request):
+            return False
+        base = qualifier_free_topic(self.request.topic)
+        if base is None or any(row.verification == "confirmed" for row in self.kept):
+            return True
+        # The retry and the opening of the page it may find: without room for both, the turn keeps its
+        # last calls for the next step instead of ending with a search nobody can follow.
+        if self.state.http_left(self.session.max_calls) < 2:
+            return True
+        first_kept, first_dropped = self.kept, self.dropped
+        if self._search(language, self.request.model_copy(update={"topic": base}), retry=True) and any(
+            row.verification == "confirmed" for row in self.kept
+        ):
+            return True
+        # The second search did not settle it: the candidates of both stay listed.
+        titles = {row.page.title for row in first_kept}
+        extra = [row for row in self.kept if row.page.title not in titles]
+        self.kept = sorted([*first_kept, *extra], key=lambda row: row.verification != "confirmed")
+        self.kept = self.kept[: self.config.max_results]
+        self.dropped = first_dropped if not extra else self.dropped
+        return True
+
+    def _search(self, language: str, asked: WikipediaToolInput, *, retry: bool = False) -> bool:
+        """One search request for `asked`; the pages found are screened against the original request."""
         row: dict[str, Any] = {
-            "language": language, "q": search_term(self.request), "result": None, "error": None,
+            "language": language, "q": search_term(asked), "result": None, "error": None,
             "returned": 0, "kept": 0, "filtered_out": {},
         }
+        if retry:
+            row["retry"] = "without_qualifier"
         self.searches.append(row)
         self.state.languages_tried.add(language)
         try:
-            payload = get_json(self.session, language, lookup_params(self.request, max_results=self.config.max_results))
+            payload = get_json(self.session, language, lookup_params(asked, max_results=self.config.max_results))
         except WikipediaError as exc:
             row["result"], row["error"], self.error = "error", exc.code, exc.code
             return False
@@ -182,25 +215,40 @@ class _Run:
     ) -> None:
         language, title = key
         delivered = self.state.delivered_for(key)
-        selection = select_sections(
-            sections,
-            depth=depth,
-            wanted=wanted,
-            terms=scoring_terms(self.request.keywords, self.request.query, self.request.topic),
-            already=delivered,
-            budget=self.context_left(),
-            language=language,
-        )
+        had_delivered = bool(delivered)
+        left = self.context_left()
+        # A section asked by name is the planner's choice; the tool's own choice never takes more than
+        # its share of the turn, so that a page read later still has room.
+        budget = left
+        if not wanted and depth != "intro":
+            budget = min(left, int(AUTO_DELIVERY_SHARE * self.config.context_chars_per_turn))
+        def select(limit: int):
+            return select_sections(
+                sections,
+                depth=depth,
+                wanted=wanted,
+                terms=scoring_terms(self.request.keywords, self.request.query, self.request.topic),
+                already=delivered,
+                budget=limit,
+                language=language,
+            )
+
+        selection = select(budget)
         chars = sum(len(item.text) for item in selection.delivered)
         self.state.context_used += chars
         delivered.update(normalize_text(item.section.title) for item in selection.delivered if not item.truncated)
-        self.budget_hit = self.budget_hit or selection.budget_hit
+        # Stopped by the share and not by the turn: the rest is not "out of budget", it is `more_in_page`.
+        turn_hit = selection.budget_hit and (budget >= left or select(left).budget_hit)
+        self.budget_hit = self.budget_hit or turn_hit
+        notes = list(screened[1])
+        if had_delivered and not selection.delivered:
+            notes.append("already_delivered")
         self.pages.append(
             PageResult(
                 title=title,
                 language=language,
                 verification=screened[0],
-                notes=screened[1],
+                notes=notes,
                 last_revised=touched,
                 total_chars=sum(section.chars for section in sections) if whole_article else None,
                 delivered_chars=chars,
@@ -248,7 +296,23 @@ class _Run:
         row["result"] = "ok" if hit else "not_found"
         if hit:
             self.state.opened.add((language, hit.title))
+            self.state.opened_by.setdefault((language, hit.title), self._signature())
         return hit
+
+    def _signature(self) -> tuple[object, ...]:
+        request = self.request
+        return (normalize_text(request.topic), request.kind.value, request.year)
+
+    def _confirmed_page(self) -> Screened | None:
+        """The confirmed page to open: the first one, unless another request already read it in this turn
+        (the film's page again when the novel was asked) and another confirmed page was found."""
+        confirmed = [row for row in self.kept if row.verification == "confirmed"]
+        read_before = self.state.opened_by
+        for row in confirmed:
+            by = read_before.get((self.edition, row.page.title))
+            if by is None or by == self._signature():
+                return row
+        return confirmed[0] if confirmed else None
 
     def _deliver_article(self, hit: PageHit, screened: tuple[str, list[str]]) -> None:
         sections = split_sections(hit.extract, hit.language)
@@ -278,7 +342,7 @@ class _Run:
             return
         # A whole article is downloaded only for a page whose title is the one asked. Otherwise nothing
         # is downloaded: the candidates are listed and the planner picks one (`page`) or searches again.
-        confirmed = next((row for row in self.kept if row.verification == "confirmed"), None)
+        confirmed = self._confirmed_page()
         if confirmed is None:
             self.candidates = [
                 {"title": row.page.title, "language": self.edition, "verification": row.verification}

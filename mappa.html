@@ -1766,6 +1766,27 @@ const TREE = D("NetflixScout", {}, [
       dep: ["tool/wikipedia/budget.py"],
       x: ["pytest"],
     }),
+    F("test_tmdb_facets_videos.py", {
+      L: "test",
+      s: `I trailer vengono prima dei teaser tra i pochi video che arrivano al modello.`,
+      d: `1 test: with eight official teasers and one trailer the trailer is the first video shown`,
+      dep: ["tool/tmdb/normalize/facets.py"],
+      x: ["pytest"],
+    }),
+    F("test_wikipedia_budget_split.py", {
+      L: "test",
+      s: `Una prima pagina lunga non toglie spazio alla seconda fonte; la pagina già letta non viene riaperta al posto dell'opera chiesta ora.`,
+      d: `10 test: a long first page leaves room for the second source; both sources fit and the comparison is whole; a page of the share or less is delivered whole as before; sections asked by name are not held to the share; the intro is unchanged; the turn budget still reports omitted_by_budget; the work asked now is opened when the film page was already read; the same request reuses the page without a download and flags already_delivered; a single source opens the first confirmed page as before`,
+      dep: ["tool/wikipedia/tool.py", "tool/wikipedia/budget.py", "tool/wikipedia/settings.py"],
+      x: ["pytest"],
+    }),
+    F("test_wikipedia_titles.py", {
+      L: "test",
+      s: `Qualificatori nel topic: un solo secondo tentativo senza qualificatore, mai un'altra opera omonima presa per quella chiesta.`,
+      d: `16 test: a qualifier the page title extends is found with the name alone; the retry does not confirm a page of another year; a novel is not confused with a film of the same name; a confirmed first search is not repeated; a year in parentheses triggers no retry; a topic without qualifier is searched once; the retry costs a call of the turn budget; a distribution title stays a candidate; title matching with qualifiers; qualifier free topic`,
+      dep: ["tool/wikipedia/tool.py", "tool/wikipedia/relevance.py"],
+      x: ["pytest"],
+    }),
     F("test_wikipedia_comparison.py", {
       L: "test",
       s: `Un film confrontato con l'opera da cui deriva richiede entrambe le pagine, senza modifiche all'orchestratore.`,

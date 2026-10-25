@@ -162,6 +162,20 @@ def scoring_terms(keywords: list[str], query: str, topic: str) -> list[str]:
     return list(dict.fromkeys(term for term in [*own, *question_terms(query, topic)] if term))
 
 
+# A question about differences, an adaptation or the story needs the plot of the page, whose title shares
+# no word with the question and would otherwise rank after sections that merely repeat the film's name.
+PLOT_TRIGGERS = frozenset(
+    {"adaptation", "adaptations", "adapted", "novel", "book", "differences", "difference", "compare",
+     "comparison", "plot", "story", "romanzo", "libro", "adattamento", "differenze", "trama", "confronta"}
+)
+PLOT_TITLES = frozenset({"plot", "plot summary", "synopsis", "summary", "story", "trama", "sinossi"})
+_PLOT_BONUS = 100
+
+
+def wants_plot(terms: list[str]) -> bool:
+    return any(term in PLOT_TRIGGERS for term in terms)
+
+
 def score(section: Section, terms: list[str]) -> int:
     """How well a section matches the terms: title hits weigh more than text hits."""
     title = normalize_text(section.title)
@@ -255,7 +269,13 @@ def select_sections(
     elif depth == "intro":
         chosen = [(i, s) for i, s in prose if s.level == 1][:1]
     else:
-        ranked = sorted(((score(s, terms), i, s) for i, s in prose), key=lambda row: (-row[0], row[1]))
+        bonus = wants_plot(terms)
+
+        def points(section: Section) -> int:
+            plot = bonus and section.level > 1 and normalize_text(section.title) in PLOT_TITLES
+            return score(section, terms) + (_PLOT_BONUS if plot else 0)
+
+        ranked = sorted(((points(s), i, s) for i, s in prose), key=lambda row: (-row[0], row[1]))
         if depth == "sections":
             matching = [(i, s) for points, i, s in ranked if points > 0]
             chosen = matching or [(i, s) for _, i, s in ranked[:1]]

@@ -96,7 +96,10 @@ def aggregate_credits(section: Any, **_: Any) -> Lists:
 
 def videos(section: Any, **_: Any) -> Lists:
     usable = [v for v in _results(section) if v.get("site") in _VIDEO_SITES and v.get("key")]
-    usable.sort(key=lambda v: (not v.get("official"), v.get("type") not in ("Trailer", "Teaser")))
+    # Only a few videos reach the model: the kind asked most often (trailers) first, then official ones,
+    # so that 5 teasers do not hide a trailer among 48 videos.
+    kind_rank = {"Trailer": 0, "Teaser": 1}
+    usable.sort(key=lambda v: (kind_rank.get(v.get("type"), 2), not v.get("official")))
     rows = [
         {
             "name": clean_text(v.get("name")),

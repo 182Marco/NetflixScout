@@ -14,6 +14,7 @@ from .settings import MIN_FOLLOW_UP_CHARS
 
 _QUALIFIER = re.compile(r"\s*\(([^()]*)\)\s*$")
 _YEAR = re.compile(r"\b(1[89]\d{2}|20\d{2})\b")
+_YEAR_ONLY = re.compile(r"\s*(1[89]|20)\d{2}\s*")
 _ARTICLES = ("the ", "a ", "an ", "il ", "lo ", "la ", "i ", "gli ", "le ", "l ", "un ", "uno ", "una ")
 
 # Notes that make a page `to_verify`.
@@ -36,12 +37,29 @@ def strip_qualifier(title: str) -> tuple[str, str | None]:
     return (title[: match.start()], match.group(1)) if match else (title, None)
 
 
+def qualifier_free_topic(topic: str) -> str | None:
+    """The topic without its parenthetical qualifier, for a second search when the first found nothing
+    certain; None when there is no qualifier to drop (a year in parentheses is not one)."""
+    base, qualifier = strip_qualifier(topic)
+    if qualifier is None or _YEAR_ONLY.fullmatch(qualifier):
+        return None
+    return base.strip() or None
+
+
+def _qualifier_covers(topic_qualifier: str, title_qualifier: str) -> bool:
+    """"film" covers "1966 film": the page qualifier says the same and more. "novel" does not cover
+    "1972 film", nor "film" "novel": those are other works with the same name."""
+    wanted = set(normalize_text(topic_qualifier).split())
+    return bool(wanted) and wanted <= set(normalize_text(title_qualifier).split())
+
+
 def match_title(topic: str, title: str) -> str:
     """`exact`, `qualified` (same name, a parenthetical on one side only), `partial` or `differs`.
 
     The whole titles are compared first, punctuation and qualifiers included ("Kwaidan (film)" is
     "Kwaidan (film)"); then the names without qualifier. Two different qualifiers ("Solaris (novel)"
-    and "Solaris (1972 film)") are the same name for different works: `partial`.
+    and "Solaris (1972 film)") are the same name for different works: `partial`; a qualifier the page
+    qualifier covers ("film" in "1966 film") is the same work, as when the topic has none.
     """
     whole_topic, whole_title = _without_article(normalize_text(topic)), _without_article(normalize_text(title))
     if whole_topic and whole_topic == whole_title:
@@ -49,13 +67,15 @@ def match_title(topic: str, title: str) -> str:
     topic_base, topic_qualifier = strip_qualifier(topic)
     title_base, title_qualifier = strip_qualifier(title)
     # "(1964)" is a year, not a qualifier of the name: it does not tell two works apart.
-    if topic_qualifier and re.fullmatch(r"\s*(1[89]|20)\d{2}\s*", topic_qualifier):
+    if topic_qualifier and _YEAR_ONLY.fullmatch(topic_qualifier):
         topic_qualifier = None
     wanted, name = _without_article(normalize_text(topic_base)), _without_article(normalize_text(title_base))
     if not wanted or not name:
         return "differs"
     if name == wanted:
-        return "partial" if topic_qualifier and title_qualifier else "qualified"
+        if topic_qualifier and title_qualifier and not _qualifier_covers(topic_qualifier, title_qualifier):
+            return "partial"
+        return "qualified"
     wanted_words, name_words = set(wanted.split()), set(name.split())
     return "partial" if wanted_words <= name_words or name_words <= wanted_words else "differs"
 

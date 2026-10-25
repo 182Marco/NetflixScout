@@ -37,6 +37,13 @@ RATE_LIMIT_PAUSE_MAX_SECONDS = 60.0
 # Turns remembered at the same time (budget and sections delivered), oldest forgotten first.
 MAX_TURN_STATES = 64
 
+# Largest share of `context_chars_per_turn` one automatic delivery (`full`, or `sections` chosen by the
+# tool) may take. Without it a long article fills the whole turn and the next page of a comparison gets
+# a sliver (live 2026-10-25: 39,182 of 40,000 for Blade Runner, then 762 for the novel). 0.6 of 40,000
+# leaves 16,000, above the 14,501 and 13,473 characters of the novels' articles seen there. Sections
+# asked by name are not limited; what is left over stays listed and can be asked for.
+AUTO_DELIVERY_SHARE = 0.6
+
 # Context left below which a further step is not offered (not enough room for a section).
 MIN_FOLLOW_UP_CHARS = 1_000
 # Sections listed in the outline given to the planner and in the metadata.

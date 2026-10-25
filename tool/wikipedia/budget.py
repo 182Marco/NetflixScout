@@ -28,6 +28,9 @@ class TurnState:
     languages_tried: set[str] = field(default_factory=set)
     # Articles whose full text was read in this turn (downloaded or served from the cache).
     opened: set[PageKey] = field(default_factory=set)
+    # What the request that first read each article asked: (topic, kind, year). A different request that
+    # finds the same page among its results looks for another source, so it opens the next confirmed page.
+    opened_by: dict[PageKey, tuple[object, ...]] = field(default_factory=dict)
     # Requests sent in this turn that failed: (error class, safe message) by request key.
     failures: dict[object, tuple[type[Exception], str]] = field(default_factory=dict)
 
