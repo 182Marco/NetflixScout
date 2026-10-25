@@ -213,6 +213,7 @@ const LAYERS = {
   tmdb:   { label: "Tool TMDb",              color: "#c3e88d" },
   youtube: { label: "Tool YouTube",          color: "#ffcb6b" },
   wikipedia: { label: "Tool Wikipedia",        color: "#89ddff" },
+  web:    { label: "Server web / liste",     color: "#e06c75" },
 };
 
 const F = (name, info = {}) => ({ type: "file", name, ...info });
@@ -383,17 +384,30 @@ const TREE = D("NetflixScout", {}, [
           n: ["<code>--live-parser</code>: 6 chiamate a <code>gpt-5.6-luna</code>.", "Anche in modalità offline richiede <code>OPENAI_API_KEY</code> (importa <code>app.py</code>)."],
         }),
         F("routing_cases.py", {
-          L: "test", s: "23 domande di routing: 6 DB, 5 RAG, 11 TMDb, 1 chiarimento, di cui 4 follow-up con history.",
-          d: `I follow-up richiedono frammenti nella query autonoma: “E degli anni '90?” → “horror” e “90”; la trama in inglese del film appena consigliato → “sea inside”; “E dove lo posso vedere in streaming?” → “interstellar”. Ogni caso TMDb ha un <code>expected_request</code> (<code>RequestExpectation</code>: operazione, frammenti dei campi, facet), per esempio <code>movie_details</code> con titolo “dune” e facet <code>watch_providers</code>, oppure <code>trending</code> con media <code>movie</code> e window <code>week</code>. Il caso “Oh, ma chi c'era in quel film di Sorrentino…” si aspetta <code>clarification</code>: nessun tool.`,
+          L: "test", s: "58 domande di routing: DB, RAG, TMDb, YouTube, Wikipedia e chiarimenti, con follow-up e history.",
+          d: `I follow-up richiedono frammenti nella query autonoma: “E degli anni '90?” → “horror” e “90”; la trama in inglese del film appena consigliato → “sea inside”; “E dove lo posso vedere in streaming?” → “interstellar”. Ogni caso TMDb ha un <code>expected_request</code> (<code>RequestExpectation</code>: operazione, frammenti dei campi, facet), per esempio <code>movie_details</code> con titolo “dune” e facet <code>watch_providers</code>, oppure <code>trending</code> con media <code>movie</code> e window <code>week</code>. Il caso “Oh, ma chi c'era in quel film di Sorrentino…” si aspetta <code>clarification</code>: nessun tool.<br><br>Casi aggiunti dopo: YouTube (<code>expected_video</code>), Wikipedia (<code>WikipediaExpectation</code>: antologie e segmenti, trilogie, confronti film–romanzo, il confine con TMDb), la copertura dei dati (i film dopo l'ultimo anno coperto vanno a <code>tmdb_search</code>) e i conteggi del RAG (<code>RagExpectation</code>, <code>expected_rag</code>: <code>k_finale</code> uguale al numero chiesto).`,
         }),
         F("run_routing_eval.py", {
           L: "test", api: 1, s: "Routing DB/RAG/TMDb con classificatore e planner reali, senza eseguire i tool.",
-          d: `Per ogni domanda chiama solo <code>classify_query_domain</code> e <code>LLMOrchestrator._plan_turn</code>. <code>RecordingClient</code> salva l'output grezzo del planner, così un fallback silenzioso a <code>rag_search</code> (JSON non valido, tool sconosciuto, confidenza bassa, chiamata fallita) conta come fallimento anche se il tool è giusto. Retry automatici disattivati. Per i casi TMDb gli <code>arguments</code> del planner vengono validati come <code>TmdbToolInput</code> (pura validazione Pydantic, nessun HTTP) e almeno una richiesta deve rispettare <code>expected_request</code>. <code>--tool</code> limita il run ai casi di un tool. Un piano con <code>needs_clarification</code> conta come scelta esplicita del planner nei casi <code>clarification</code>.`,
+          d: `Per ogni domanda chiama solo <code>classify_query_domain</code> e <code>LLMOrchestrator._plan_turn</code>. <code>RecordingClient</code> salva l'output grezzo del planner, così un fallback silenzioso a <code>rag_search</code> (JSON non valido, tool sconosciuto, confidenza bassa, chiamata fallita) conta come fallimento anche se il tool è giusto. Retry automatici disattivati. Per i casi TMDb gli <code>arguments</code> del planner vengono validati come <code>TmdbToolInput</code> (pura validazione Pydantic, nessun HTTP) e almeno una richiesta deve rispettare <code>expected_request</code>. <code>--tool</code> limita il run ai casi di un tool. Un piano con <code>needs_clarification</code> conta come scelta esplicita del planner nei casi <code>clarification</code>.<br><br>Per i casi YouTube gli <code>arguments</code> sono validati come <code>YoutubeToolInput</code>; per Wikipedia come <code>WikipediaToolInput</code> (<code>check_wikipedia</code>, <code>check_any_wikipedia</code>); per il RAG <code>check_rag</code> richiede il conteggio chiesto. Un fallback silenzioso a <code>rag_search</code> resta un fallimento.`,
           dep: [M + "harness/evaluation/routing_cases.py", "app.py", "orchestrator.py", Q + "query_classifier/query_classifier.py", T + "models/requests.py", "turn.py"],
           cmd: "python -m movie_db.harness.evaluation.run_routing_eval --live\npython -m movie_db.harness.evaluation.run_routing_eval --live --tool tmdb_search",
           x: ["openai", "pydantic"],
           n: ["Run completo: 34 chiamate, 17 a <code>gpt-4o-mini</code> e 17 a <code>gpt-5.6-luna</code>; con <code>--tool tmdb_search</code> 12 (6 + 6). <code>--live</code> è obbligatorio.", "Ultimo esito: 17/17 in un run da 34 chiamate (TMDb mirato 6/6, 12 chiamate). Il tool TMDb non viene eseguito: i dati reali non sono verificati."],
         }),
+      F("run_rag_params_eval.py", {
+        L: "test", api: 1,
+        s: `A/B dei parametri di retrieval: default configurati contro la scelta del planner (consuma crediti).`,
+        d: `Storia: con <code>search_mode</code>, <code>k_largo</code>, <code>fetch_k</code> e <code>genre_boost</code> nello schema del planner (2026-10-24, due run) non si è visto alcun beneficio oltre al conteggio, e sono stati rimossi; resta <code>k_finale</code>. Lo script resta per ritestare nuovi parametri. Il verdetto conta solo i guadagni oggettivi (violazioni dei vincoli, conteggio giusto).`,
+        it: [
+          [`AB_CASES · AbCase`, `Le domande dell'A/B.`],
+          [`summarize · verdict`, `Riassunto e verdetto, testati offline.`],
+          [`main()`, `Richiede <code>--live</code>; pausa di 7 s tra le chiamate.`],
+        ],
+        dep: ["app.py", "movie_db/harness/evaluation/routing_cases.py"],
+        x: ["openai", "cohere"],
+        cmd: `python -m movie_db.harness.evaluation.run_rag_params_eval --live`,
+      }),
       ]),
     ]),
   ]),
@@ -530,7 +544,7 @@ const TREE = D("NetflixScout", {}, [
       }),
       F("hybrid.py", {
         L: "rt", s: "Ricerca per parole chiave (BM25) e fusione ibrida con RRF.",
-        d: `Implementa le modalità <code>bm25</code> e <code>hybrid</code>. L'indice BM25 si costruisce leggendo <b>tutti</b> i documenti della collection (<code>collection.get()</code>). La fusione usa Reciprocal Rank Fusion: score = Σ 1/(rrf_costante + posizione).`,
+        d: `Implementa le modalità <code>bm25</code> e <code>hybrid</code>. L'indice BM25 si costruisce leggendo <b>tutti</b> i documenti della collection (<code>collection.get()</code>). La fusione usa Reciprocal Rank Fusion: score = Σ 1/(rrf_costante + posizione).<br><br>L'indice BM25 legge la collection a pagine (<code>_BM25_PAGE_SIZE</code> 5000: un solo <code>get()</code> su decine di migliaia di righe fallisce con «too many SQL variables») e lo tiene in cache per collection e dimensione.`,
         it: [
           ["tokenizza(testo)", "Tokenizzazione semplice in minuscolo."],
           ["costruisci_indice_bm25(collection)", "Crea un <code>BM25Okapi</code> su tutto il corpus."],
@@ -542,7 +556,7 @@ const TREE = D("NetflixScout", {}, [
       }),
       F("models.py", {
         L: "rt", s: "Schemi Pydantic ed enum condivisi.",
-        d: `Definisce i tipi che attraversano la pipeline. La docstring di <code>RagToolInput</code> e il suo <code>model_json_schema()</code> diventano descrizione e parametri del tool <code>rag_search</code>. <code>QuerySignals.excluded_genres</code> contiene i generi esclusi (controllati sui metadati); <code>RagResult</code> porta anche <code>rerank_query</code> e <code>constraints</code>.`,
+        d: `Definisce i tipi che attraversano la pipeline. La docstring di <code>RagToolInput</code> e il suo <code>model_json_schema()</code> diventano descrizione e parametri del tool <code>rag_search</code>. <code>QuerySignals.excluded_genres</code> contiene i generi esclusi (controllati sui metadati); <code>RagResult</code> porta anche <code>rerank_query</code> e <code>constraints</code>.<br><br><code>RagToolInput.k_finale</code> è l'unico parametro di retrieval che sceglie il planner (A/B del 2026-10-24: modalità di ricerca, pool e boost non hanno mostrato guadagni); null = default; i valori fuori limite sono riportati ai limiti.`,
         it: [
           ["SearchMode", "<code>semantic | hybrid | bm25</code>"],
           ["RerankBackend", "<code>cohere | llm</code>"],
@@ -608,7 +622,7 @@ const TREE = D("NetflixScout", {}, [
       }),
       F("tool_interface.py", {
         L: "orch", s: "<code>RagTool</code>: il tool <code>rag_search</code> esposto all'orchestratore.",
-        d: `Dataclass che rispetta il <code>Tool</code> Protocol di <code>orchestrator.py</code>: <code>name</code>, <code>description</code>, <code>input_schema</code> (da <code>RagToolInput</code>) e <code>run()</code>. <code>run</code> valida l'input, chiama <code>run_rag</code> e restituisce <code>{query, chunks, outcome, metadata, trace}</code> (<code>outcome</code> è <code>empty</code> se non ci sono chunk). <code>metadata</code> contiene search_mode, rerank_backend, k_finale e collection e finisce nel prompt dell'orchestratore. <code>trace</code> è la lista dei passaggi <code>[{kind, title, data}]</code> (<code>retrieval</code> con i candidati k_largo, <code>embedded_text</code> e <code>signals</code>; <code>rerank</code> con i chunk finali): sta fuori da metadata così non consuma token, e la usano solo i <code>presenters/</code>. La ricerca parte sempre dalla <code>standalone_query</code>; <code>arguments.query</code> del planner è solo un suggerimento (<code>query_hint</code>), perché può essere più vaga della domanda. Nel prompt va <code>metadata.constraints_summary</code> (una riga per film e vincolo); il report completo resta nello step <code>rerank</code> con <code>rerank_query</code>.`,
+        d: `Dataclass che rispetta il <code>Tool</code> Protocol di <code>orchestrator.py</code>: <code>name</code>, <code>description</code>, <code>input_schema</code> (da <code>RagToolInput</code>) e <code>run()</code>. <code>run</code> valida l'input, chiama <code>run_rag</code> e restituisce <code>{query, chunks, outcome, metadata, trace}</code> (<code>outcome</code> è <code>empty</code> se non ci sono chunk). <code>metadata</code> contiene search_mode, rerank_backend, k_finale e collection e finisce nel prompt dell'orchestratore. <code>trace</code> è la lista dei passaggi <code>[{kind, title, data}]</code> (<code>retrieval</code> con i candidati k_largo, <code>embedded_text</code> e <code>signals</code>; <code>rerank</code> con i chunk finali): sta fuori da metadata così non consuma token, e la usano solo i <code>presenters/</code>. La ricerca parte sempre dalla <code>standalone_query</code>; <code>arguments.query</code> del planner è solo un suggerimento (<code>query_hint</code>), perché può essere più vaga della domanda. Nel prompt va <code>metadata.constraints_summary</code> (una riga per film e vincolo); il report completo resta nello step <code>rerank</code> con <code>rerank_query</code>.<br><br><code>RagToolInput</code> espone <code>query</code> e <code>k_finale</code> (<code>extra="forbid"</code>); <code>RagTool.run</code> passa le scelte del planner a <code>retrieval_params.resolve_retrieval</code>, lavora su una copia della config e riporta nello step <code>retrieval</code> <code>retrieval_params</code> (<code>effective</code>, <code>overridden</code>).`,
         it: [
           ["RagTool", "Implementazione del tool."],
           ["RAG_TOOL_NAME = \"rag_search\"", "Nome usato in <code>allowed_tools</code> e <code>fallback_tool</code>."],
@@ -653,6 +667,16 @@ const TREE = D("NetflixScout", {}, [
           n: ["Fa parte della difesa anti off-topic e anti jailbreak: non indebolirla senza permesso.", "Perché il contesto: il guardrail gira <b>prima</b> della riscrittura <code>standalone_query</code> dell'orchestratore. Senza contesto un follow-up come “Ne puoi trovare 3 più recenti rispetto al 94?” non contiene parole di cinema e veniva bloccato.", "Nella history finiscono solo turni già accettati: quelli bloccati non vengono salvati, quindi il contesto è sempre cinematografico.", "Testato con mock in <code>tests/test_query_language.py</code> (messaggi con e senza history) e <code>tests/test_presenters.py</code> (cosa passa <code>handle_query</code>)."],
         }),
       ]),
+      F("retrieval_params.py", {
+        L: "rt",
+        s: `<code>resolve_retrieval</code>: applica la scelta del planner a una copia della config RAG.`,
+        d: `L'unico parametro che il planner sceglie è <code>k_finale</code> (quanti film chiede l'utente; null = default). Il valore viene tenuto dentro i limiti di <code>limits.k_finale</code>, con <code>k_finale ≤ k_largo ≤ fetch_k</code>; valori non validi e ogni altra chiave sono ignorati e non fanno mai fallire il turno. Lavora su una copia: la config originale non cambia. Restituisce la config effettiva e l'elenco dei campi cambiati (<code>overridden</code>), che finiscono nello step <code>retrieval</code>.`,
+        it: [
+          [`resolve_retrieval(retrieval, arguments)`, `(config effettiva, campi sovrascritti).`],
+          [`TUNABLE`, `I campi che il planner può cambiare (oggi solo <code>k_finale</code>).`],
+        ],
+        dep: ["tool/rag/FromQueryEmbeddingToRes/tool_interface.py"],
+      }),
     ]),
   ]),
 
@@ -736,7 +760,7 @@ const TREE = D("NetflixScout", {}, [
     F("__init__.py", { L: "tmdb", s: "Docstring del package.", d: `Riassume il ruolo: operazioni tipizzate, validazione, risoluzione degli ID, endpoint fissi, budget per turno, normalizzazione. Nessun codice.` }),
     F("tool.py", {
       L: "tmdb", s: "<code>TmdbTool</code>: rispetta il <code>Tool</code> Protocol, crea il budget del turno e impacchetta il risultato.",
-      d: `<code>run(*, query, params, conversation_history)</code> restituisce anche <code>outcome</code> (<code>error</code> con il codice dell'errore, <code>empty</code> senza risultati, altrimenti <code>ok</code>), che la storia del turno racconta; toglie <code>turn_language</code> dai parametri (lo passa <code>handle_query</code>, non è nello schema LLM), valida <code>TmdbToolInput</code>, carica le credenziali al primo uso, crea <code>TmdbContext</code> con un <code>CallBudget</code> nuovo, esegue le richieste con <code>runner.run_requests</code> e restituisce <code>{query, chunks, metadata: {tmdb}, trace}</code>. Input non valido o chiave mancante → risultato vuoto con l'errore, senza HTTP. La <code>description</code> è generata da <code>RULES</code>, lo <code>input_schema</code> da Pydantic.`,
+      d: `<code>run(*, query, params, conversation_history)</code> restituisce anche <code>outcome</code> (<code>error</code> con il codice dell'errore, <code>empty</code> senza risultati, altrimenti <code>ok</code>), che la storia del turno racconta; toglie <code>turn_language</code> dai parametri (lo passa <code>handle_query</code>, non è nello schema LLM), valida <code>TmdbToolInput</code>, carica le credenziali al primo uso, crea <code>TmdbContext</code> con un <code>CallBudget</code> nuovo, esegue le richieste con <code>runner.run_requests</code> e restituisce <code>{query, chunks, metadata: {tmdb}, trace}</code>. Input non valido o chiave mancante → risultato vuoto con l'errore, senza HTTP. La <code>description</code> è generata da <code>RULES</code>, lo <code>input_schema</code> da Pydantic.<br><br>Quando una richiesta non trova nulla il risultato porta <code>follow_up</code> (motivi <code>not_found</code>, <code>unverified_match</code>, <code>empty</code>; riassunto con le richieste non risolte), così il planner può passare a un altro tool invece di chiudere sul fallimento; errori di limite, chiave o rete non si offrono, e i risultati riusciti non hanno la chiave.`,
       it: [["TmdbTool", "Tool registrato in <code>build_app</code>; cache e cooldown condivisi tra i turni."], ["api_language_for(turn_language)", "<code>it</code> → <code>it-IT</code>, altrimenti <code>en-US</code>."], ["TMDB_TOOL_NAME", "<code>\"tmdb_search\"</code>."]],
       dep: [T + "config.py", T + "auth.py", T + "budget.py", T + "cache.py", T + "context.py", T + "cooldown.py", T + "http.py", T + "models/requests.py", T + "models/operation_rules.py", T + "runner.py", T + "prompt_budget.py", T + "trace.py", "turn.py"],
       x: ["pydantic"],
@@ -754,8 +778,8 @@ const TREE = D("NetflixScout", {}, [
     F("dispatch.py", { L: "tmdb", s: "Tabella deterministica <code>TmdbOperation</code> → handler.", d: `<code>OPERATION_HANDLERS</code> collega ognuna delle 17 operazioni alla funzione in <code>operations/</code>. Un test verifica che ogni operazione abbia regola e handler.`, dep: [T + "operations"] }),
     F("runner.py", { L: "tmdb", s: "Esegue le richieste in ordine con un budget condiviso; i fallimenti diventano dati.", d: `Ogni richiesta produce un <code>RequestOutcome</code> con <code>status</code> <code>ok</code> / <code>partial</code> / <code>error</code>: budget finito o 429 non rompono il turno. Dopo un 401 le richieste successive non vengono inviate. <code>overall_status</code> riassume la run.`, dep: [T + "dispatch.py", T + "context.py", T + "errors.py"] }),
     F("prompt_budget.py", { L: "tmdb", s: "Impacchetta in modo deterministico i risultati nel contesto dell'LLM.", d: `L'orchestratore mette <code>metadata</code> intero nel prompt e mostra solo <code>chunks[:10]</code>: il tool si limita da solo (<code>MAX_TMDB_CONTEXT_CHARS</code> 12.000, <code>MAX_CHUNKS</code> 10). P0 (tipo, ID, titolo, anno) apre ogni chunk e non viene tagliato; P1 (essenziali delle entità di dettaglio) è sempre presente, ridotto a 1.000 caratteri togliendo prima tagline, URL e immagini e solo dopo accorciando la trama; P2 (facet e liste) entra finché c'è spazio. Le liste parziali finiscono in <code>metadata.tmdb.omitted</code> come <code>shown/total</code>.`, dep: [T + "models/results.py", T + "normalize/common.py", T + "operations/reference.py"] }),
-    F("enrich.py", { L: "tmdb", s: "<code>TmdbRagEnricher</code>: completa con TMDb i film scelti dal RAG.", d: `Dopo <code>rag_search</code> l'orchestratore gli passa il risultato. Prende i chunk finali (dopo il rerank, al massimo <code>max_candidates</code>, nell'ordine del RAG, senza duplicati), cerca ogni titolo con l'anno in <code>en-US</code> e aggiunge in <code>metadata.tmdb_enrichment</code> titolo, anno, regista, cast e sinossi solo se titolo e anno (±1) coincidono; altrimenti <code>unverified</code>, <code>not_found</code> o <code>skipped</code>. Non riordina i chunk e usa un solo budget, creato da <code>TmdbTool.new_context</code>. Un candidato riceve metadati solo con titolo o titolo originale uguali (mai per inclusione: “The Sinner” non è “The Sinners”) e anno ±1, in <code>strict_identity</code> (più risultati ugualmente validi → <code>ambiguous</code>). Un match tramite titolo alternativo o articolo (<code>matched_by: alternative_title</code>) richiede anche un attore in comune quando i cast sono noti (<code>cast_mismatch</code>); un anno confermato da una data di uscita secondaria dà <code>year_note</code>. Durata 0 scartata.`, dep: [T + "tool.py", T + "runner.py", T + "trace.py"] }),
-    F("trace.py", { L: "tmdb", s: "Step <code>tmdb_calls</code>: URL chiamati e attribuzioni.", d: `Fuori da <code>metadata</code> (che va nel prompt): le attribuzioni le mostrano i presenter, non l'LLM.` }),
+    F("enrich.py", { L: "tmdb", s: "<code>TmdbRagEnricher</code>: completa con TMDb i film scelti dal RAG.", d: `Dopo <code>rag_search</code> l'orchestratore gli passa il risultato. Prende i chunk finali (dopo il rerank, al massimo <code>max_candidates</code>, nell'ordine del RAG, senza duplicati), cerca ogni titolo con l'anno in <code>en-US</code> e aggiunge in <code>metadata.tmdb_enrichment</code> titolo, anno, regista, cast e sinossi solo se titolo e anno (±1) coincidono; altrimenti <code>unverified</code>, <code>not_found</code> o <code>skipped</code>. Non riordina i chunk e usa un solo budget, creato da <code>TmdbTool.new_context</code>. Un candidato riceve metadati solo con titolo o titolo originale uguali (mai per inclusione: “The Sinner” non è “The Sinners”) e anno ±1, in <code>strict_identity</code> (più risultati ugualmente validi → <code>ambiguous</code>). Un match tramite titolo alternativo o articolo (<code>matched_by: alternative_title</code>) richiede anche un attore in comune quando i cast sono noti (<code>cast_mismatch</code>); un anno confermato da una data di uscita secondaria dà <code>year_note</code>. Durata 0 scartata.<br><br>Lo step <code>tmdb_calls</code> del completamento porta le card solo per i film verificati (<code>matched</code>): un risultato TMDb non verificato non è il film del RAG.`, dep: [T + "tool.py", T + "runner.py", T + "trace.py"] }),
+    F("trace.py", { L: "tmdb", s: "Step <code>tmdb_calls</code>: URL chiamati e attribuzioni.", d: `Fuori da <code>metadata</code> (che va nel prompt): le attribuzioni le mostrano i presenter, non l'LLM.<br><br><code>tmdb_cards</code> aggiunge a <code>data.items</code> le card di film e serie della run (una volta ciascuna, nell'ordine) con i valori grezzi di TMDb: da lì <code>web_lists</code> idrata le liste.` }),
     F("errors.py", { L: "tmdb", s: "Errori TMDb con messaggi sicuri.", d: `<code>TmdbConfigError</code>, <code>TmdbBudgetExhausted</code>, <code>TmdbRateLimited</code>, <code>TmdbAuthError</code>, <code>TmdbNotFound</code>, <code>TmdbHttpError</code>, <code>TmdbNetworkError</code>, <code>TmdbUnresolvedFilter</code>, ognuno con un <code>code</code>. I messaggi non contengono mai URL, query string, credenziali o testo dell'utente. <code>TmdbUnverifiedMatch</code> (<code>unverified_match</code>) porta <code>reason</code> (<code>title_mismatch</code>, <code>year_mismatch</code>, <code>ambiguous</code>) e i <code>candidates</code>.` }),
     D("models", {
       L: "tmdb", s: "Enum, regole per operazione, input del tool e risultati normalizzati.",
@@ -765,7 +789,7 @@ const TREE = D("NetflixScout", {}, [
       F("enums.py", { L: "tmdb", s: "Vocabolari chiusi: operazioni, tipi di ricerca, media, facet, ordinamenti…", d: `<code>TmdbOperation</code> (17 valori: search, find_by_external_id, movie_details, movie_collection, tv_details, tv_season, tv_episode, person_details, collection_details, company_details, discover_movies, discover_tv, trending, chart, genres, watch_providers_catalog, certifications), <code>Facet</code> (credits, videos, watch_providers, reviews…), <code>MediaType</code>, <code>TimeWindow</code>, <code>ChartList</code>, <code>ExternalSource</code>, <code>Department</code> e i filtri di discover.` }),
       F("operation_rules.py", { L: "tmdb", s: "<code>RULES</code>: campi obbligatori, ammessi, facet e media per ogni operazione.", d: `Ogni <code>OperationRule</code> ha un riassunto, gruppi di campi obbligatori (almeno uno per gruppo), campi ammessi, facet supportate e media. <code>describe_operations()</code> ne ricava la guida inserita nella <code>description</code> del tool. Contiene anche le classifiche per media e i pattern degli ID esterni.`, dep: [T + "models/enums.py"] }),
       F("requests.py", { L: "tmdb", s: "<code>TmdbToolInput</code> e <code>TmdbRequest</code>: tutto validato prima di qualunque HTTP.", d: `<code>extra="forbid"</code>, campi non ammessi dall'operazione, facet non supportate, filtri di discover incompatibili, ID esterni con pattern: un solo errore rifiuta l'intera run. Accetta anche una singola richiesta \"piatta\". <code>describe_validation_errors</code> riporta numero di richiesta, campo e tipo di errore, mai i valori inviati.`, it: [["TmdbToolInput", "<code>{query, requests: [1..4]}</code>."], ["TmdbRequest", "Una operazione con i suoi argomenti."], ["DiscoverFilters", "Filtri di discover; i nomi sono risolti in ID dal tool."], ["MAX_REQUESTS_PER_RUN = 4", "Vincolo di forma, non di chiamate."]], dep: [T + "models/enums.py", T + "models/operation_rules.py"], x: ["pydantic"] }),
-      F("results.py", { L: "tmdb", s: "<code>Entity</code> e <code>RequestOutcome</code>: risultati normalizzati prima del packing.", d: `<code>Entity</code> ha identità (P0), <code>essentials</code> (P1) e <code>facets</code> con i totali prima del limite (P2). <code>RequestOutcome</code> raccoglie stato, errore, entità, elementi di lista, candidati, note e <code>skipped_for_budget</code>.`, x: ["pydantic"] }),
+      F("results.py", { L: "tmdb", s: "<code>Entity</code> e <code>RequestOutcome</code>: risultati normalizzati prima del packing.", d: `<code>Entity</code> ha identità (P0), <code>essentials</code> (P1) e <code>facets</code> con i totali prima del limite (P2). <code>RequestOutcome</code> raccoglie stato, errore, entità, elementi di lista, candidati, note e <code>skipped_for_budget</code>.<br><br><code>Entity</code> porta anche <code>release_date</code> e <code>poster_path</code> (valori grezzi per le card web, non nel contesto dell'LLM).`, x: ["pydantic"] }),
     ]),
     D("operations", {
       L: "tmdb", s: "Handler per famiglia di endpoint: <code>(ctx, request) → RequestOutcome</code>.",
@@ -788,7 +812,7 @@ const TREE = D("NetflixScout", {}, [
       d: `Sola lettura sui dati grezzi. I limiti delle liste servono alla dimensione del prompt, non alle chiamate HTTP.`,
     }, [
       F("__init__.py", { L: "tmdb", s: "Docstring del package.", d: `Nessun codice.` }),
-      F("entities.py", { L: "tmdb", s: "Oggetti TMDb → <code>Entity</code>: identità (P0), essenziali (P1), facet (P2).", d: `Un normalizzatore per film, serie, stagione, episodio, persona, raccolta, casa di produzione ed elemento di lista. Trama e titolo vuoti nella lingua del turno vengono presi dalle <code>translations</code>, con <code>overview_language</code>. Le durate pari a 0 diventano assenti (<code>positive_minutes</code>); per le serie <code>episode_runtime_minutes</code> compare solo se TMDb lo fornisce, e non c'è mai una regia di serie.`, dep: [T + "normalize/common.py", T + "normalize/facets.py", T + "models/results.py"] }),
+      F("entities.py", { L: "tmdb", s: "Oggetti TMDb → <code>Entity</code>: identità (P0), essenziali (P1), facet (P2).", d: `Un normalizzatore per film, serie, stagione, episodio, persona, raccolta, casa di produzione ed elemento di lista. Trama e titolo vuoti nella lingua del turno vengono presi dalle <code>translations</code>, con <code>overview_language</code>. Le durate pari a 0 diventano assenti (<code>positive_minutes</code>); per le serie <code>episode_runtime_minutes</code> compare solo se TMDb lo fornisce, e non c'è mai una regia di serie.<br><br>Film, serie e voci di lista riportano <code>release_date</code> (o <code>first_air_date</code>) e <code>poster_path</code>.`, dep: [T + "normalize/common.py", T + "normalize/facets.py", T + "models/results.py"] }),
       F("facets.py", { L: "tmdb", s: "Normalizzatori delle facet con limiti fissi per lista.", d: `Ogni builder restituisce <code>{lista: (elementi, totale prima del limite)}</code>, così il packer può dire al modello quanto è stato omesso. Raccomandazioni e simili usano <code>max_results</code>; gli altri limiti (cast, troupe, video, recensioni, immagini…) sono costanti interne. Lo streaming è filtrato per regione.`, dep: [T + "normalize/common.py", T + "endpoints.py"] }),
       F("common.py", { L: "tmdb", s: "Helper condivisi: pulizia del testo, troncamento, anno, URL immagini, lingua.", d: `<code>clean_text</code>, <code>truncate</code>, <code>year_of</code>, <code>image_url</code>, <code>language_code</code>, <code>localized</code>, <code>names</code>, <code>normalize_name</code>. Inoltre <code>strict_name</code> (conserva gli accenti), <code>article_free_name</code> e <code>positive_minutes</code>; <code>normalize_name</code> legge “&amp;” come “and”.`, dep: [T + "settings.py"] }),
     ]),
@@ -850,8 +874,407 @@ const TREE = D("NetflixScout", {}, [
     F("models.py", { L: "youtube", s: "<code>VideoKind</code>, <code>YoutubeToolInput</code>, <code>VideoHit</code>, <code>KindOutcome</code>.", d: `Sei categorie (con <code>cast_interview</code>); input con <code>extra="forbid"</code>, 1–3 categorie, fino a 3 titoli alternativi e 5 nomi del cast, tutti ripuliti e deduplicati. Le descrizioni dei campi entrano nel prompt del planner e vietano di inventare, tradurre o dedurre valori.`, x: ["pydantic"] }),
     F("queries.py", { L: "youtube", s: "Query di ricerca da frammenti costanti.", d: `Titoli tra virgolette in OR, termini di categoria in OR, <code>-reaction -parody</code>; le persone intervistate sono alternative ai termini; per un titolo di una sola parola con persona nota la persona è obbligatoria (AND). I valori dell'utente non possono aggiungere operatori. Precedenza degli operatori assunta, da confermare live.` }),
     F("relevance.py", { L: "youtube", s: "Filtro deterministico e permissivo; etichetta <code>verification</code>.", d: `<code>prescreen</code> (titolo dello snippet: reaction, parodie, anni in conflitto), <code>screen</code> (dati di <code>/videos</code>: riferimenti a film e persone, altro formato dichiarato, omonimi, categoria), <code>screen_details</code> (Short autodichiarati). Nessun punteggio, nessun riordino; i video incerti restano come <code>to_verify</code>.` }),
-    F("trace.py", { L: "youtube", s: "Step <code>youtube_calls</code>.", d: `Chiamate mascherate, query e scarti per categoria, categorie non cercate, video con titoli e canali invariati, suggerimenti, pausa di quota, titoli scartati con il motivo (<code>dropped</code>: non stampati, per test e valutazioni). Fuori da <code>metadata</code>: lo mostrano i presenter.`, dep: ["turn.py"] }),
+    F("trace.py", { L: "youtube", s: "Step <code>youtube_calls</code>.", d: `Chiamate mascherate, query e scarti per categoria, categorie non cercate, video con titoli e canali invariati, suggerimenti, pausa di quota, titoli scartati con il motivo (<code>dropped</code>: non stampati, per test e valutazioni). Fuori da <code>metadata</code>: lo mostrano i presenter.<br><br>Ogni video porta anche <code>description_excerpt</code> (estratto della descrizione, per le card web).`, dep: ["turn.py"] }),
+    D("harness", {
+      L: "test",
+      s: `Controllo live facoltativo, mai importato a runtime.`,
+      d: `Lo verifica <code>tests/test_youtube_harness.py</code>.`,
+    }, [
+      F("__init__.py", {
+        L: "test",
+        s: `Docstring del package.`,
+        d: `Helper importabili offline per i controlli live; mai importati a runtime.`,
+      }),
+      F("live_smoke.py", {
+        L: "test", api: 1,
+        s: `Controllo live facoltativo: come YouTube legge gli operatori di <code>q</code> (7 chiamate <code>search.list</code>).`,
+        d: `Risponde alla domanda lasciata aperta in <code>tool/youtube/queries.py</code>: la precedenza degli operatori. <code>search.list</code> ha un bucket di 100 chiamate al giorno per progetto Google (1 unità ciascuna) e questo run ne usa 7. Va lanciato solo con <code>--live</code> e con permesso. Mai eseguito.`,
+        dep: ["tool/youtube/queries.py"],
+        cmd: `python -m tool.youtube.harness.live_smoke --live`,
+      }),
+    ]),
   ]),
+  ]),
+
+  D("web_api", {
+    L: "web",
+    s: `Server HTTP/SSE (FastAPI) per il frontend: conversazioni, risposta in streaming, liste.`,
+    d: `Tutto il codice FastAPI/SSE e lo stato delle conversazioni sta qui; nessun altro modulo del repository importa FastAPI o <code>web_api</code>. Riusa il nucleo senza modificarlo: <code>handle_query(..., observer=WebObserver, final_output=web_lists.final_output())</code>, <code>present(turn, web)</code> e <code>attach_lists</code>. Il turno è sincrono e invariato; gira in un thread dentro una task <b>indipendente dal client</b>: la history si registra quando <code>handle_query</code> ritorna (una sola volta, in <code>finish_turn</code>), la conversazione resta occupata fino alla fine reale e alla disconnessione il turno prosegue.`,
+    cmd: `uvicorn web_api.main:app --reload --host 127.0.0.1 --port 8000`,
+    n: [`Nessuna autenticazione né rate limit, per scelta (portfolio, budget limitato sulla chiave backend).`, `Un solo worker: le conversazioni sono nella memoria del processo.`, `<code>FRONTEND_API.md</code> è il contratto per il frontend; il suo test lo confronta con i modelli degli eventi.`],
+  }, [
+    F("__init__.py", {
+      L: "web",
+      s: `Docstring: tutto FastAPI, SSE e lo stato delle conversazioni sta qui.`,
+      d: `Nessun codice. Dichiara che il resto del repository non importa questo package (lo verifica <code>tests/test_web_api_structure.py</code>).`,
+    }),
+    F("main.py", {
+      L: "web",
+      s: `Entry point ASGI: <code>uvicorn web_api.main:app</code>, con UN solo worker.`,
+      d: `Crea <code>app = create_app()</code>. Le conversazioni stanno nella memoria del processo, quindi più worker le dividerebbero.`,
+      dep: ["web_api/server.py"],
+      x: ["fastapi"],
+      cmd: `uvicorn web_api.main:app --reload --host 127.0.0.1 --port 8000`,
+    }),
+    F("server.py", {
+      L: "web",
+      s: `<code>create_app</code>: CORS, gestori di errore, route e bot costruito all'avvio.`,
+      d: `Nel <code>lifespan</code> crea il <code>ConversationStore</code> (TTL e dimensione dalle impostazioni) e <code>WebApiState</code> con <code>build_ready_app()</code> (stessi controlli del terminale: collection vettoriale e DB MovieLens devono esistere) e un client OpenAI. CORS ammette <code>GET</code>, <code>POST</code>, <code>DELETE</code> e l'header <code>Content-Type</code>. All'arresto aspetta fino a <code>SHUTDOWN_GRACE_SECONDS</code> (30) i turni ancora in corso. <code>bot_app</code> e <code>client</code> si possono passare dai test.`,
+      it: [
+        [`create_app(settings=None, bot_app=None, client=None)`, `Costruisce l'applicazione FastAPI.`],
+        [`SHUTDOWN_GRACE_SECONDS`, `Attesa massima dei turni in corso allo spegnimento (30 s).`],
+      ],
+      dep: ["app.py", "web_api/settings.py", "web_api/routes/endpoints.py", "web_api/routes/errors.py", "web_api/conversations/store.py"],
+      x: ["fastapi", "openai"],
+    }),
+    F("settings.py", {
+      L: "web",
+      s: `<code>WebApiSettings</code>: impostazioni del server dall'ambiente (<code>WEB_API_*</code>).`,
+      d: `Solo il lato HTTP: origini CORS (default le porte di sviluppo Vue 8080 e 5173), TTL delle conversazioni (3600 s), numero massimo di conversazioni (200), lunghezza massima del messaggio (2000), pausa del heartbeat SSE (15 s). Variabile non impostata o vuota = default. Il comportamento del bot resta in <code>app.CONFIG</code>.`,
+      it: [
+        [`load_settings(env=None)`, `Legge le variabili <code>WEB_API_CORS_ORIGINS</code>, <code>WEB_API_CONVERSATION_TTL_SECONDS</code>, <code>WEB_API_MAX_CONVERSATIONS</code>, <code>WEB_API_MAX_MESSAGE_CHARS</code>, <code>WEB_API_HEARTBEAT_SECONDS</code>.`],
+      ],
+      x: ["pydantic"],
+    }),
+    F("FRONTEND_API.md", {
+      L: "cfg",
+      s: `Contratto per il frontend: endpoint, eventi SSE e payload di esempio.`,
+      d: `Descrive ciò che il codice fa davvero: come aprire una conversazione, inviare un messaggio e leggere lo stream, l'ordine degli eventi, gli errori e come mostrare le fonti (Wikipedia CC BY-SA, attribuzioni TMDb e YouTube). Gli esempi sono prodotti dal codice reale con un bot finto.`,
+      dep: ["web_api/schemas/events.py"],
+      n: [`I blocchi di esempio sono validati da <code>tests/web_api/test_web_api_doc.py</code> contro i modelli degli eventi: documento e codice non possono divergere in silenzio.`],
+    }),
+    D("conversations", {
+      L: "web",
+      s: `Stato delle conversazioni.`,
+      d: `Solo <code>store.py</code>: history in memoria e flag <code>busy</code>.`,
+    }, [
+      F("__init__.py", {
+        L: "web",
+        s: `Marca il package.`,
+        d: `Nessun codice.`,
+      }),
+      F("store.py", {
+        L: "web",
+        s: `Conversazioni in memoria: history di ciascuna e stato <code>busy</code>.`,
+        d: `Ogni funzione gira nel thread del loop e non fa <code>await</code>, quindi un controllo seguito da una modifica (<code>begin_turn</code>) non si interpone con un'altra richiesta. Il thread del turno non tocca mai lo store: riceve una history e ne restituisce una nuova, che il loop registra. <code>finish_turn</code> è l'<b>unico</b> punto in cui un turno finisce: registra la history (se il turno è riuscito) e libera la conversazione, anche se il client è sparito. <code>evict</code> dimentica le conversazioni ferme oltre il TTL e poi le meno recenti oltre il limite; una conversazione con un turno in corso non viene mai dimenticata.`,
+        it: [
+          [`create_conversation(store, now, created_at)`, `Nuova conversazione (id casuale), dopo l'eviction.`],
+          [`get_conversation(store, id)`, `Solleva <code>ConversationNotFound</code> se manca.`],
+          [`begin_turn(conv, now)`, `Segna la conversazione occupata e restituisce il numero del turno; <code>TurnInProgress</code> se già occupata.`],
+          [`finish_turn(conv, history, now)`, `Registra la history (None = invariata) e libera.`],
+          [`delete_conversation(store, id)`, `Rifiutata con <code>TurnInProgress</code> durante un turno.`],
+        ],
+      }),
+    ]),
+    D("harness", {
+      L: "test",
+      s: `Controllo manuale, mai importato a runtime.`,
+      d: `Contiene lo script che verifica lo streaming strutturato sul modello reale (1 chiamata LLM).`,
+    }, [
+      F("__init__.py", {
+        L: "test",
+        s: `Marca il package.`,
+        d: `Nessun codice.`,
+      }),
+      F("live_stream_check.py", {
+        L: "test", api: 1,
+        s: `Verifica sul modello reale dello streaming strutturato: UNA chiamata LLM.`,
+        d: `Non è un test e non è mai importato a runtime. Risponde a ciò che i test offline non possono: il modello scrive <code>answer</code> prima di <code>lists</code> nel JSON strict? quanto sono grandi i delta, quanto passa prima del primo testo, e <code>AnswerFieldStream</code> restituisce la stessa risposta del parse finale? Va lanciato solo con permesso.`,
+        dep: ["answer_stream.py", "web_lists/final_output.py"],
+        x: ["openai"],
+        cmd: `python -m web_api.harness.live_stream_check --live`,
+      }),
+    ]),
+    D("routes", {
+      L: "web",
+      s: `Endpoint HTTP.`,
+      d: `Route e gestione uniforme degli errori.`,
+    }, [
+      F("__init__.py", {
+        L: "web",
+        s: `Marca il package.`,
+        d: `Nessun codice.`,
+      }),
+      F("endpoints.py", {
+        L: "web",
+        s: `Le route: sottili, validano, chiamano store e runner, rispondono.`,
+        d: `<code>POST /conversations</code> (201), <code>GET /conversations/{id}</code> (<code>busy</code>, <code>turns_completed</code>), <code>DELETE /conversations/{id}</code> (204), <code>POST /conversations/{id}/messages</code> (risposta <code>text/event-stream</code>) e <code>GET /health</code>. <code>WebApiState</code> (impostazioni, store, bot, client OpenAI) vive in <code>app.state</code>. Un messaggio oltre il massimo dà <code>MessageTooLong</code> prima di toccare la conversazione.`,
+        dep: ["web_api/conversations/store.py", "web_api/streaming/runner.py", "web_api/streaming/sse.py", "web_api/schemas/requests.py", "web_api/schemas/responses.py", "web_api/routes/errors.py"],
+        x: ["fastapi"],
+      }),
+      F("errors.py", {
+        L: "web",
+        s: `Una sola forma di errore: <code>{"error": {"code", "message"}}</code>.`,
+        d: `Codici: <code>conversation_not_found</code> (404), <code>turn_in_progress</code> (409), <code>invalid_request</code> e <code>message_too_long</code> (422). Gli errori <b>durante</b> il turno non sono HTTP (lo stream ha già risposto 200): arrivano come evento <code>error</code>.`,
+        dep: ["web_api/conversations/store.py", "web_api/schemas/responses.py"],
+      }),
+    ]),
+    D("schemas", {
+      L: "web",
+      s: `Modelli Pydantic di richieste, risposte ed eventi.`,
+      d: `Fissano la forma di tutto ciò che il frontend riceve o invia.`,
+    }, [
+      F("__init__.py", {
+        L: "web",
+        s: `Marca il package.`,
+        d: `Nessun codice.`,
+      }),
+      F("events.py", {
+        L: "web",
+        s: `Gli eventi dello stream: nomi, modelli dei payload, elemento della coda.`,
+        d: `Ordine di un turno: <code>turn_start</code>, poi <code>status</code>, <code>story</code>, <code>step</code> e <code>answer_delta</code> man mano che accadono, poi <code>answer_end</code>, <code>lists</code>, <code>done</code>; oppure <code>error</code> (e nulla dopo) se il turno è fallito. I primi quattro vengono da <code>presenters/web/observer.py</code> e ne mantengono i payload; gli altri appartengono a questo package. <code>EVENT_MODELS</code> è ciò che <code>FRONTEND_API.md</code> documenta e il suo test valida.`,
+        it: [
+          [`AnswerEnd(blocked, language, tool, tools, history_compacted, replace)`, `<code>replace</code> è null se il testo in streaming è la risposta; altrimenti l'intera risposta, che sostituisce quanto mostrato.`],
+          [`SseEvent(id, name, data) · END`, `Elemento della coda di un turno e suo marcatore di fine.`],
+          [`ERROR_TURN_FAILED · ERROR_INTERNAL`, `Codici dell'evento <code>error</code>.`],
+        ],
+        dep: ["presenters/web/observer.py"],
+        x: ["pydantic"],
+      }),
+      F("requests.py", {
+        L: "web",
+        s: `<code>MessageRequest</code>: il body di <code>POST …/messages</code>.`,
+        d: `Un solo campo <code>content</code>, non vuoto né di soli spazi; <code>extra="forbid"</code>. La lunghezza massima è un'impostazione, controllata dalla route.`,
+        x: ["pydantic"],
+      }),
+      F("responses.py", {
+        L: "web",
+        s: `Modelli delle risposte REST: conversazione creata, stato, errore.`,
+        d: `<code>ConversationInfo.turns_completed</code> dice a un client che ha perso lo stream se deve reinviare il messaggio (la history è registrata solo a turno finito).`,
+        x: ["pydantic"],
+      }),
+    ]),
+    D("streaming", {
+      L: "web",
+      s: `Il turno in un thread e il suo stream di eventi.`,
+      d: `Runner, eventi di chiusura e formato SSE.`,
+    }, [
+      F("__init__.py", {
+        L: "web",
+        s: `Marca il package.`,
+        d: `Nessun codice.`,
+      }),
+      F("events.py", {
+        L: "web",
+        s: `Gli eventi di chiusura di un turno, da un <code>TurnResult</code> finito (funzioni pure).`,
+        d: `<code>final_events</code> produce <code>answer_end</code>, <code>lists</code> e <code>done</code>, nell'ordine; le liste vengono da <code>attach_lists</code> sul payload <code>present(turn, web)</code>. <code>replacement</code> confronta il testo in streaming con la risposta finale togliendo solo gli spazi ai bordi: se uguali nessuna sostituzione, altrimenti la risposta intera.`,
+        dep: ["web_lists/attach_lists.py", "presenters/web/payload.py", "web_api/schemas/events.py"],
+      }),
+      F("runner.py", {
+        L: "web",
+        s: `Esegue un turno in un thread di lavoro e lo trasforma negli eventi di una sottoscrizione.`,
+        d: `Il turno appartiene al <b>server</b>, non al client: arriva in fondo e registra la history anche se lo stream è chiuso, e la conversazione resta <code>busy</code> (409 nel frattempo) fino alla fine reale. Una sottoscrizione chiusa smette solo di raccogliere eventi: quelli successivi sono scartati e la coda non cresce. <code>handle_query</code> gira in <code>asyncio.to_thread</code> con un <code>WebObserver</code> che emette dal thread con <code>call_soon_threadsafe</code>. Se il turno solleva: evento <code>error</code> e history invariata. Nessuna cancellazione del turno.`,
+        it: [
+          [`launch_turn(store, conv, content, bot_app, client)`, `Avvia il turno e restituisce la sottoscrizione; <code>TurnInProgress</code> se occupata.`],
+          [`stream_events(sub, heartbeat_seconds)`, `Testo SSE di un turno; alla disconnessione chiude la sottoscrizione, non il turno.`],
+          [`Subscription · deliver · deliver_end · close_subscription`, `Coda per client e suo ciclo di vita.`],
+        ],
+        dep: ["app.py", "presenters/web/observer.py", "web_lists/final_output.py", "web_api/conversations/store.py", "web_api/streaming/events.py", "web_api/streaming/sse.py"],
+        x: ["openai"],
+      }),
+      F("sse.py", {
+        L: "web",
+        s: `Formato Server-Sent Events e lettura della coda di un turno.`,
+        d: `<code>format_sse</code>: righe <code>id</code>, <code>event</code> e un solo <code>data</code> di JSON compatto. <code>drain</code> legge la coda fino a <code>END</code> e, dopo ogni intervallo di silenzio, invia una riga di commento (<code>: ping</code>) come heartbeat.`,
+        dep: ["web_api/schemas/events.py"],
+      }),
+    ]),
+  ]),
+
+  D("web_lists", {
+    L: "web",
+    s: `Solo canale web: le liste di film, serie e video restituite con la risposta finale.`,
+    d: `La stessa chiamata della risposta finale restituisce anche le liste: <code>handle_query(..., final_output=web_lists.final_output())</code> aggiunge uno schema <code>text.format</code> strict e l'orchestratore restituisce <code>{answer, lists}</code> (<code>decision["final_lists"]</code> → <code>TurnResult.item_refs</code>). Senza <code>final_output</code> (terminale) la chiamata è identica a prima. Errori (JSON non valido, refusal, incompleto, <code>answer</code> vuota, eccezione): testo di ripiego esistente (<code>answer_failed</code>), nessuna seconda chiamata, <code>lists: []</code>. Poi <code>attach_lists</code> valida e idrata i riferimenti.`,
+    n: [`Mai importato da terminale, nucleo o <code>presenters/</code>.`, `Gli elementi TMDb stanno nello step <code>tmdb_calls</code> (<code>tool/tmdb/trace.py:tmdb_cards</code>); per il RAG solo i candidati <code>matched</code>. JustWatch compare solo se lo step lo riporta.`],
+  }, [
+    F("__init__.py", {
+      L: "web",
+      s: `Esporta <code>attach_lists</code> e <code>final_output</code>.`,
+      d: `Solo canale web: il terminale, il nucleo (<code>app.py</code>, <code>orchestrator.py</code>, <code>turn.py</code>) e <code>presenters/</code> non importano mai questo package. Il punto d'ingresso web chiama <code>handle_query(..., final_output=final_output())</code> e poi <code>attach_lists(payload, turn)</code>.`,
+      dep: ["web_lists/attach_lists.py", "web_lists/final_output.py"],
+    }),
+    F("final_output.py", {
+      L: "web",
+      s: `Cosa passa il web a <code>handle_query(final_output=…)</code>: schema strict e istruzioni.`,
+      d: `La <b>stessa</b> chiamata della risposta finale restituisce un JSON strict <code>{answer, lists}</code>: il testo della risposta (invariato nel contenuto) più i riferimenti alle risorse che presenta. È in streaming: il testo di <code>answer</code> arriva al canale mentre viene scritto, le liste solo a JSON completo. Ritorna un dict di soli dati (<code>text_format</code>, <code>instructions</code>, <code>answer_field</code>): l'orchestratore non importa mai questo package. I riferimenti sono solo dichiarazioni: <code>attach_lists</code> li controlla uno per uno.`,
+      it: [
+        [`final_output()`, `<code>{text_format, instructions, answer_field}</code>.`],
+        [`INSTRUCTIONS`, `Chiede liste tematiche (al massimo 4 da 12 elementi) solo di ciò che la risposta presenta, con id letti dai risultati dei tool, <code>quote</code> copiata esattamente dalla risposta e <code>reason</code> di al massimo 140 caratteri.`],
+        [`ANSWER_FIELD`, `<code>"answer"</code>: il campo che l'orchestratore decodifica in streaming.`],
+      ],
+      dep: ["web_lists/json_schema.py"],
+    }),
+    F("json_schema.py", {
+      L: "web",
+      s: `<code>FinalAnswer</code> come <code>text.format</code> strict dell'API Responses.`,
+      d: `Deriva lo schema da Pydantic e lo rende strict: toglie le annotazioni inutili (<code>title</code>, <code>default</code>) senza toccare i nomi dei campi, trasforma <code>const</code> in <code>enum</code> e imposta <code>required</code> e <code>additionalProperties: false</code>. <code>answer</code> è PRIMA di <code>lists</code> (lo verifica un test), così il testo parte per primo.`,
+      dep: ["web_lists/schema/llm/final_answer.py"],
+    }),
+    F("attach_lists.py", {
+      L: "web",
+      s: `Punto d'ingresso: il payload web di un turno finito più <code>lists</code>.`,
+      d: `Nessuna chiamata LLM, nessuna rete, nessuna ricerca per titolo. Con turno bloccato, risposta vuota o senza riferimenti restituisce <code>lists: []</code>; altrimenti indicizza i risultati dei tool del turno, valida i riferimenti, li seleziona e li idrata. Qualunque eccezione dà <code>lists: []</code> e il payload resta quello di prima.`,
+      dep: ["web_lists/hydrate/index_steps.py", "web_lists/hydrate/hydrate_lists.py", "web_lists/select/select_refs.py", "web_lists/schema/llm/lists_output.py", "turn.py"],
+    }),
+    D("hydrate", {
+      L: "web",
+      s: `Da riferimenti accettati a elementi completi.`,
+      d: `Indice dei risultati dei tool, chiavi stabili e costruzione degli elementi.`,
+    }, [
+      F("__init__.py", {
+        L: "web",
+        s: `Marca il package.`,
+        d: `Nessun codice.`,
+      }),
+      F("index_steps.py", {
+        L: "web",
+        s: `Step dei tool → {chiave elemento: record} di ciò che i tool hanno restituito nel turno.`,
+        d: `I record TMDb vengono da <code>tmdb_calls.data.items</code>, quelli YouTube da <code>youtube_calls.data.videos</code> (l'id è quello dell'URL di visione validato). Ciò che è malformato viene saltato. Un riferimento è accettabile solo se la sua chiave sta in questo indice. Per il RAG nell'indice entrano solo i candidati <code>matched</code> del completamento TMDb.`,
+        it: [
+          [`index_steps(steps)`, `Costruisce l'indice.`],
+          [`TMDB_ATTRIBUTIONS · YOUTUBE_ATTRIBUTION`, `Attribuzioni mostrate con gli elementi.`],
+        ],
+        dep: ["tool/tmdb/trace.py", "tool/youtube/trace.py"],
+      }),
+      F("item_key.py", {
+        L: "web",
+        s: `Chiave stabile di un elemento, per deduplicare nel frontend.`,
+        d: `<code>tmdb:movie:157336</code>, <code>tmdb:tv:1396</code>, <code>youtube:video:&lt;id&gt;</code>.`,
+      }),
+      F("hydrate_lists.py", {
+        L: "web",
+        s: `Riferimenti accettati + dati dei tool → le <code>lists</code> del payload.`,
+        d: `Un riferimento non trovato nell'indice è scartato, uno ripetuto resta una volta per lista, una lista senza elementi è scartata. Nessun tool viene chiamato: i dati sono quelli degli step. I campi non identitari possono essere null, mai inventati.`,
+        dep: ["web_lists/hydrate/index_steps.py", "web_lists/hydrate/tmdb_item.py", "web_lists/hydrate/youtube_item.py", "web_lists/hydrate/item_key.py"],
+      }),
+      F("tmdb_item.py", {
+        L: "web",
+        s: `Record TMDb + motivo → elemento con la forma della Card del frontend.`,
+        d: `I valori sono quelli che TMDb ha restituito (titolo localizzato, voto, data, poster); nessun completamento da TMDb.`,
+        dep: ["web_lists/schema/payload/item.py"],
+      }),
+      F("youtube_item.py", {
+        L: "web",
+        s: `Record YouTube + motivo → elemento video.`,
+        d: `Titolo, canale e URL sono quelli dello step, invariati (solo i caratteri di controllo vengono tolti, come fanno i presenter).`,
+        dep: ["web_lists/schema/payload/item.py", "presenters/youtube_view.py"],
+      }),
+    ]),
+    D("schema", {
+      L: "web",
+      s: `Schemi Pydantic: lato modello e lato payload.`,
+      d: `Separano ciò che l'LLM dichiara da ciò che il frontend riceve.`,
+    }, [
+      F("__init__.py", {
+        L: "web",
+        s: `Marca il package.`,
+        d: `Nessun codice.`,
+      }),
+      D("llm", {
+        L: "web",
+        s: `Ciò che il modello emette.`,
+        d: `Schemi strict dei riferimenti.`,
+      }, [
+        F("__init__.py", {
+          L: "web",
+          s: `Marca il package.`,
+          d: `Nessun codice.`,
+        }),
+        F("final_answer.py", {
+          L: "web",
+          s: `Radice dello schema strict della risposta finale: testo e riferimenti.`,
+          d: `<code>FinalAnswer</code> con <code>answer</code> e <code>lists</code>, in questo ordine.`,
+          x: ["pydantic"],
+        }),
+        F("list_ref.py", {
+          L: "web",
+          s: `Ciò che il modello emette: solo riferimenti, mai poster, voti o trame.`,
+          d: `<code>TmdbRef</code> (<code>media_type</code> movie/tv, <code>id</code>), <code>YoutubeRef</code> (<code>video_id</code>), entrambi con <code>quote</code> e <code>reason</code> (tagliato a 140 caratteri); <code>ListRef</code> con slug normalizzato, <code>kind</code> e al massimo 12 elementi.`,
+          x: ["pydantic"],
+        }),
+        F("lists_output.py", {
+          L: "web",
+          s: `Radice dello schema delle liste (al massimo 4).`,
+          d: `<code>ListsOutput</code> valida i riferimenti grezzi di <code>TurnResult.item_refs</code>.`,
+          x: ["pydantic"],
+        }),
+      ]),
+      D("payload", {
+        L: "web",
+        s: `Ciò che il frontend riceve.`,
+        d: `Elementi, link e liste idratati.`,
+      }, [
+        F("__init__.py", {
+          L: "web",
+          s: `Marca il package.`,
+          d: `Nessun codice.`,
+        }),
+        F("item.py", {
+          L: "web",
+          s: `Elemento idratato: solo i campi che valgono.`,
+          d: `<code>key</code>, <code>id</code>, <code>media_type</code> (movie, tv, video), <code>reason</code>, <code>links</code>, più solo i campi che valgono: film <code>title</code>; serie <code>name</code>; video <code>poster_url</code>, <code>channel</code>, <code>published_at</code>. Il payload si costruisce con <code>exclude_unset</code>.`,
+          x: ["pydantic"],
+        }),
+        F("link.py", {
+          L: "web",
+          s: `Un link: <code>label</code> e <code>url</code>.`,
+          d: `Usato dagli elementi per le pagine esterne (TMDb, YouTube).`,
+          x: ["pydantic"],
+        }),
+        F("web_list.py", {
+          L: "web",
+          s: `Una lista tematica del payload.`,
+          d: `<code>list_id</code>, <code>title</code>, <code>kind</code> (movies, series, videos, mixed) ed <code>items</code>.`,
+          x: ["pydantic"],
+        }),
+      ]),
+    ]),
+    D("select", {
+      L: "web",
+      s: `Quali riferimenti sono credibili.`,
+      d: `Controlla ogni riferimento contro i risultati dei tool e il testo della risposta.`,
+    }, [
+      F("__init__.py", {
+        L: "web",
+        s: `Marca il package.`,
+        d: `Nessun codice.`,
+      }),
+      F("select_refs.py", {
+        L: "web",
+        s: `Quali riferimenti sono accettati: solo quelli che la risposta presenta davvero.`,
+        d: `Un riferimento passa solo se: la sua chiave è nei risultati dei tool del turno, la <code>quote</code> compare nella risposta, la quote nomina la risorsa (titolo o titolo originale; per un video il suo id; con titoli omonimi serve l'anno) e prima del nome non c'è un segnale di negazione o confronto (<code>CUES</code>: «non», «tranne», «rispetto a», «not», «unlike»…). I duplicati sono scartati. Limite noto: nessuna comprensione semantica.`,
+        it: [
+          [`select_refs(lists, answer, index)`, `Le liste filtrate dei soli riferimenti accettati.`],
+          [`CUES`, `Parole che, prima del nome, escludono il riferimento.`],
+        ],
+        dep: ["web_lists/hydrate/item_key.py", "web_lists/schema/llm/list_ref.py"],
+      }),
+    ]),
+  ]),
+
+  D(".claude", {
+    L: "cfg",
+    s: `Configurazione di Claude Code per il progetto.`,
+    d: `Contiene le skill del progetto.`,
+  }, [
+    D("skills", {
+      L: "cfg",
+      s: `Skill del progetto.`,
+      d: `Una cartella per skill.`,
+    }, [
+      D("new-netflixscout-tool", {
+        L: "cfg",
+        s: `Skill per aggiungere un tool.`,
+        d: `Contiene <code>SKILL.md</code>.`,
+      }, [
+        F("SKILL.md", {
+          L: "cfg",
+          s: `Skill per progettare e implementare un nuovo tool dell'orchestratore.`,
+          d: `Dice cosa ispezionare, cosa decidere, in che ordine costruire e come verificare un nuovo tool. Il codice di un tool vive in <code>tool/&lt;nome&gt;/</code> (mai una cartella nella root): import relativi, nessun import di altri tool, presenter o canali; se il tool legge un database locale, il dato resta in una cartella nella root e il tool sta in <code>tool/&lt;nome&gt;/</code>. Rimanda ad <code>AGENTS.md</code> per i contratti e non li duplica.`,
+          dep: ["AGENTS.md", "tests/test_tool_package.py"],
+        }),
+      ]),
+    ]),
   ]),
 
   D("presenters", {
@@ -873,14 +1296,14 @@ const TREE = D("NetflixScout", {}, [
     }),
     F("story_view.py", {
       L: "out", s: "La <b>storia</b> del turno: poche frasi atecniche it/en, uguali per terminale e web.",
-      d: `<code>StoryBuilder</code> riceve stadi e step nell'ordine in cui accadono e restituisce <code>StoryLine(level, text, tool)</code>: cosa si sta cercando e dove (“Cerco su TMDb: cast di Parasite”), se è stato trovato e in quanti secondi (“TMDb: trovato, 2 s”), la query riscritta se è un follow-up, la richiesta di chiarimento e i problemi, sempre in parole semplici: nessun risultato, errore noto (“questa richiesta non si può cercare qui”), fallback (“Non ho capito bene come cercare: ho usato la ricerca per trama”, risposta finale ripiegata sui risultati, limite di passaggi) e parti della richiesta non cercate. <code>level</code> è <code>progress</code>, <code>info</code>, <code>ok</code> o <code>warn</code>: il terminale sceglie l'emoji, il web l'icona. Dopo <code>MAX_OK_LINES</code> (4) esiti positivi restano solo i problemi. La lingua arriva dallo step <code>classification</code>. Un tool sconosciuto è chiamato col suo nome.`,
+      d: `<code>StoryBuilder</code> riceve stadi e step nell'ordine in cui accadono e restituisce <code>StoryLine(level, text, tool)</code>: cosa si sta cercando e dove (“Cerco su TMDb: cast di Parasite”), se è stato trovato e in quanti secondi (“TMDb: trovato, 2 s”), la query riscritta se è un follow-up, la richiesta di chiarimento e i problemi, sempre in parole semplici: nessun risultato, errore noto (“questa richiesta non si può cercare qui”), fallback (“Non ho capito bene come cercare: ho usato la ricerca per trama”, risposta finale ripiegata sui risultati, limite di passaggi) e parti della richiesta non cercate. <code>level</code> è <code>progress</code>, <code>info</code>, <code>ok</code> o <code>warn</code>: il terminale sceglie l'emoji, il web l'icona. Dopo <code>MAX_OK_LINES</code> (4) esiti positivi restano solo i problemi. La lingua arriva dallo step <code>classification</code>. Un tool sconosciuto è chiamato col suo nome.<br><br>Racconta anche il tool <code>wikipedia_search</code> («su Wikipedia») e i codici d'errore <code>http_error</code> e <code>response_too_large</code>.`,
       it: [["StoryBuilder(language).status(stage) · .step(step)", "Nuove righe per uno stadio passeggero o per uno step."], ["build_story(steps, language)", "La storia di step già conclusi (replay, payload web)."], ["STORY_STEP_KINDS", "I <code>kind</code> che la storia racconta (<code>classification</code>, <code>query_rewrite</code>, <code>tool_selection</code>, <code>tool_outcome</code>, <code>planning</code>): non hanno né renderer né serializer."]],
       dep: ["turn.py"],
       x: ["pydantic"],
     }),
     F("rag_view.py", {
       L: "out", s: "Vista condivisa degli step <code>retrieval</code> e <code>rerank</code>.",
-      d: `<code>retrieval_view(step)</code> e <code>rerank_view(step)</code> → <code>RagStepView(title, embedded_text, genres, chunks)</code> con <code>ChunkView</code> (id, score, fonte, titolo, anno, generi, cast, anteprima di 200 caratteri). Accetta chunk come <code>dict</code> o modelli Pydantic senza importare il package <code>rag</code>.`,
+      d: `<code>retrieval_view(step)</code> e <code>rerank_view(step)</code> → <code>RagStepView(title, embedded_text, genres, chunks)</code> con <code>ChunkView</code> (id, score, fonte, titolo, anno, generi, cast, anteprima di 200 caratteri). Accetta chunk come <code>dict</code> o modelli Pydantic senza importare il package <code>rag</code>.<br><br>La vista dello step <code>retrieval</code> porta anche <code>params</code> (le impostazioni effettive) e <code>overridden</code> (quelle che ha cambiato il planner).`,
       dep: ["turn.py"],
       x: ["pydantic"],
     }),
@@ -933,10 +1356,11 @@ const TREE = D("NetflixScout", {}, [
           ["print_final_answer · print_compact_notice", "Risposta e avviso di compattazione."],
         ],
         dep: ["presenters/terminal/box.py", "turn.py"],
+        d: `La risposta si stampa a pezzi: <code>print_answer_header</code> (al primo testo non bianco), <code>print_answer_text</code> (senza a capo) e <code>print_answer_end</code>; <code>print_final_answer</code> resta per chi non usa lo streaming.`,
       }),
       F("renderer.py", {
         L: "out", s: "<code>TerminalObserver</code> e <code>render(turn, streamed=)</code>: trasformano step e stadi in output stampato.",
-        d: `<code>STEP_RENDERERS</code> contiene solo gli step dei tool (<code>retrieval</code>, <code>rerank</code>, <code>db_query</code>, <code>tmdb_calls</code>, <code>youtube_calls</code>); gli step di flusso li racconta la storia di <code>story_view</code>. <code>TerminalObserver.step(step)</code> stampa le righe della storia e, se lo step non è di flusso, il blocco del suo renderer (firma <code>(step, language)</code>, <code>language</code> dallo step <code>classification</code>); <code>status(stage)</code> stampa le righe passeggere. Un <code>kind</code> sconosciuto usa il fallback generico, così un tool nuovo non rompe il terminale. <code>render(turn)</code> senza <code>streamed</code> rigioca gli step di un turno già concluso con lo stesso osservatore (stesso output di quello dal vivo) e stampa risposta e avviso di compattazione; con <code>streamed=True</code> stampa solo questi ultimi.`,
+        d: `<code>STEP_RENDERERS</code> contiene solo gli step dei tool (<code>retrieval</code>, <code>rerank</code>, <code>db_query</code>, <code>tmdb_calls</code>, <code>youtube_calls</code>); gli step di flusso li racconta la storia di <code>story_view</code>. <code>TerminalObserver.step(step)</code> stampa le righe della storia e, se lo step non è di flusso, il blocco del suo renderer (firma <code>(step, language)</code>, <code>language</code> dallo step <code>classification</code>); <code>status(stage)</code> stampa le righe passeggere. Un <code>kind</code> sconosciuto usa il fallback generico, così un tool nuovo non rompe il terminale. <code>render(turn)</code> senza <code>streamed</code> rigioca gli step di un turno già concluso con lo stesso osservatore (stesso output di quello dal vivo) e stampa risposta e avviso di compattazione; con <code>streamed=True</code> stampa solo questi ultimi.<br><br><code>TerminalObserver.answer_delta</code> stampa il riquadro della risposta al primo testo visibile e poi i pezzi; <code>render(turn, streamed=True)</code> non ristampa la risposta ma chiude la riga. Registra anche il renderer dello step <code>wikipedia_calls</code>.`,
         it: [["STEP_RENDERERS", "Mappa <code>kind → funzione (step, language)</code> dei soli tool: da estendere per i tool futuri, insieme a <code>STEP_SERIALIZERS</code> del web."], ["TerminalObserver(language=\"it\")", "Implementa <code>TurnObserver</code>; la lingua si aggiorna dal passo di classificazione."], ["render(turn, *, streamed=False)", "Entry point del canale terminale."]],
         dep: ["presenters/story_view.py", "presenters/terminal/blocks.py", "presenters/terminal/rag/__init__.py", "presenters/terminal/db/__init__.py", "presenters/terminal/api/__init__.py", "presenters/terminal/youtube/__init__.py", "turn.py"],
       }),
@@ -953,6 +1377,7 @@ const TREE = D("NetflixScout", {}, [
             ["print_chunks(view, emoji)", "Scheda dettagliata di ogni chunk: il blocco 🏆 RERANKING."],
           ],
           dep: ["presenters/rag_view.py", "presenters/terminal/box.py"],
+          d: `<code>print_retrieval_params</code> stampa le impostazioni di ricerca effettive e segna con * quelle scelte dal planner.`,
         }),
         F("renderer.py", { L: "out", s: "<code>render_retrieval(step, language)</code> · <code>render_rerank(step, language)</code>.", d: `Costruiscono la vista con <code>rag_view</code> e la passano ai blocchi.`, dep: ["presenters/rag_view.py", "presenters/terminal/rag/blocks.py", "turn.py"] }),
       ]),
@@ -981,6 +1406,29 @@ const TREE = D("NetflixScout", {}, [
         F("blocks.py", { L: "out", s: "<code>print_youtube_calls(view)</code> · <code>printable</code>.", d: `Stampa la vista nel formato del terminale; <code>printable</code> è ri-esportata da <code>youtube_view</code>.`, dep: ["presenters/youtube_view.py", "presenters/terminal/box.py"] }),
         F("renderer.py", { L: "out", s: "<code>render_youtube_calls(step, language)</code>.", d: `Costruisce la vista con <code>youtube_calls_view</code> e la passa a <code>blocks.print_youtube_calls</code>.`, dep: ["presenters/youtube_view.py", "presenters/terminal/youtube/blocks.py", "turn.py"] }),
       ]),
+    D("wikipedia", {
+      L: "out",
+      s: `Output terminale del tool Wikipedia.`,
+      d: `Blocco di dettaglio dello step <code>wikipedia_calls</code>.`,
+    }, [
+      F("__init__.py", {
+        L: "out",
+        s: `Esporta <code>render_wikipedia_calls</code>.`,
+        d: `Output terminale del tool Wikipedia.`,
+      }),
+      F("blocks.py", {
+        L: "out",
+        s: `Riquadro WIKIPEDIA nello stesso stile di <code>terminal/box.py</code>.`,
+        d: `Decide solo il formato terminale; il contenuto viene dalla vista condivisa. Ogni testo è passato da <code>printable</code>, quindi un titolo di pagina non può pilotare il terminale.`,
+        dep: ["presenters/wikipedia_view.py", "presenters/terminal/box.py"],
+      }),
+      F("renderer.py", {
+        L: "out",
+        s: `Renderer dello step <code>wikipedia_calls</code> (registrato in <code>STEP_RENDERERS</code>).`,
+        d: `Chiamate, ricerche, pagine lette, fonte e licenza.`,
+        dep: ["presenters/wikipedia_view.py", "presenters/terminal/wikipedia/blocks.py"],
+      }),
+    ]),
     ]),
     D("web", {
       L: "out",
@@ -989,12 +1437,12 @@ const TREE = D("NetflixScout", {}, [
     }, [
       F("__init__.py", {
         L: "out", s: "Re-esporta <code>to_payload</code>.",
-        d: `API del canale web.`,
+        d: `API del canale web.<br><br>Esporta anche <code>WebObserver</code>.`,
         dep: ["presenters/web/payload.py"],
       }),
       F("payload.py", {
         L: "out", s: "<code>to_payload(turn)</code> e <code>STEP_SERIALIZERS</code>: la forma JSON di un turno.",
-        d: `Restituisce <code>{answer, blocked, language, tool, tools, story: [{level, text, tool}], steps: [...]}</code>. <code>story</code> è ricostruita dagli step con <code>build_story</code>, quindi con lo stesso testo del terminale; <code>steps</code> contiene i soli step dei tool, serializzati da <code>STEP_SERIALIZERS</code> (stesse chiavi di <code>STEP_RENDERERS</code>, verificato dai test); uno step sconosciuto passa come <code>{kind, title, data}</code>. La history resta fuori dal payload: la tiene il client web e la rimanda alla richiesta successiva. La docstring ricorda i Termini TMDb (§3): il frontend dovrà tenere visibili le <code>attributions</code> di ogni step <code>tmdb_calls</code>.`,
+        d: `Restituisce <code>{answer, blocked, language, tool, tools, story: [{level, text, tool}], steps: [...]}</code>. <code>story</code> è ricostruita dagli step con <code>build_story</code>, quindi con lo stesso testo del terminale; <code>steps</code> contiene i soli step dei tool, serializzati da <code>STEP_SERIALIZERS</code> (stesse chiavi di <code>STEP_RENDERERS</code>, verificato dai test); uno step sconosciuto passa come <code>{kind, title, data}</code>. La history resta fuori dal payload: la tiene il client web e la rimanda alla richiesta successiva. La docstring ricorda i Termini TMDb (§3): il frontend dovrà tenere visibili le <code>attributions</code> di ogni step <code>tmdb_calls</code>.<br><br><code>serialize_step</code> (pubblica) è la forma web di un solo step: la usa anche il <code>WebObserver</code> dal vivo. <code>STEP_SERIALIZERS</code> include <code>wikipedia_calls</code>, i cui crediti (CC BY-SA) il frontend deve mostrare come ricevuti.`,
         dep: ["presenters/story_view.py", "presenters/web/rag/__init__.py", "presenters/web/db/__init__.py", "presenters/web/api/__init__.py", "presenters/web/youtube/__init__.py", "turn.py"],
       }),
       D("rag", {
@@ -1025,14 +1473,53 @@ const TREE = D("NetflixScout", {}, [
         F("__init__.py", { L: "out", s: "Re-esporta <code>serialize_youtube_calls_step</code>.", d: `API del sotto-canale.`, dep: ["presenters/web/youtube/serializer.py"] }),
         F("serializer.py", { L: "out", s: "<code>serialize_youtube_calls_step(step, language)</code> → <code>{kind, ...YoutubeCallsView}</code>.", d: `Stesso contenuto del terminale, da <code>youtube_view</code>.`, dep: ["presenters/youtube_view.py", "turn.py"] }),
       ]),
+    D("wikipedia", {
+      L: "out",
+      s: `Output web del tool Wikipedia.`,
+      d: `Serializer dello step <code>wikipedia_calls</code>.`,
+    }, [
+      F("__init__.py", {
+        L: "out",
+        s: `Esporta <code>serialize_wikipedia_calls_step</code>.`,
+        d: `Output web del tool Wikipedia.`,
+      }),
+      F("serializer.py", {
+        L: "out",
+        s: `Forma JSON dello step <code>wikipedia_calls</code>, uguale al terminale (vista condivisa).`,
+        d: `Il frontend deve mostrare titoli, lingue e link delle pagine così come sono, la riga <code>source</code> e la licenza con il suo link: CC BY-SA chiede il credito alle pagine, la licenza e la nota che il testo è riformulato. Registrato in <code>STEP_SERIALIZERS</code>.`,
+        dep: ["presenters/wikipedia_view.py"],
+      }),
     ]),
+    F("observer.py", {
+      L: "out",
+      s: `<code>WebObserver(emit)</code>: gemello live di <code>TerminalObserver</code>.`,
+      d: `Stessa storia (<code>StoryBuilder</code>), stessi step dei tool (<code>serialize_step</code>, come <code>to_payload</code>) e stesso testo della risposta, ma ogni pezzo va a <code>emit(name, data)</code> invece che sullo schermo. Non sa nulla di HTTP: il trasporto (<code>web_api/</code>) decide cosa fa <code>emit</code>. Eventi: <code>status {stage}</code>, <code>story {level, text, tool}</code>, <code>step {kind, …}</code>, <code>answer_delta {text}</code>. Dal vivo la lingua si impara dallo step <code>classification</code>.`,
+      it: [
+        [`WebObserver(emit, language='it')`, `Implementa il contratto <code>TurnObserver</code> per il web.`],
+        [`EVENT_STATUS · EVENT_STORY · EVENT_STEP · EVENT_ANSWER_DELTA`, `Nomi degli eventi emessi.`],
+      ],
+      dep: ["turn.py", "presenters/story_view.py", "presenters/web/payload.py"],
+    }),
+    ]),
+    F("wikipedia_view.py", {
+      L: "out",
+      s: `Vista condivisa dello step <code>wikipedia_calls</code>: etichette it/en e dati.`,
+      d: `Terminale e web mostrano gli stessi dati: chiamate, ricerche e aperture di articoli, pagine lette (titolo, lingua, URL pubblico, sezioni lette e non), e i crediti richiesti dalla licenza (link alla pagina, licenza con il suo link, nota che il testo è stato riformulato). <code>printable</code> toglie i caratteri C0/C1 solo nella copia mostrata (trace e prompt tengono i valori dell'API). Legge solo <code>step.data</code> e importa solo <code>turn</code>: nessun import del package <code>tool.wikipedia</code>. Si mostrano solo URL <code>https://</code>.`,
+      it: [
+        [`wikipedia_calls_view(step, language)`, `Costruisce la <code>WikipediaCallsView</code>.`],
+        [`PageView · SearchView · OpenView · LicenseView`, `Le parti della vista.`],
+        [`printable(text)`, `Copia mostrabile di un testo di terzi.`],
+        [`LABELS · CODE_LABELS`, `Testi it/en e traduzione dei codici d'errore.`],
+      ],
+      dep: ["turn.py"],
+    }),
   ]),
 
   D("tests", {
     L: "test",
     s: "Test pytest: unit test offline + test di integrazione.",
     d: `Si eseguono dalla root con <code>python -m pytest</code>. I test di unità mockano OpenAI con <code>monkeypatch</code>; il test del contratto del tool invece usa API reali e il DB.`,
-    cmd: "python -m pytest tests/test_query_language.py tests/test_presenters.py tests/test_orchestrator.py tests/test_retrieval.py tests/test_rag_constraints.py tests/test_rerank_query.py tests/test_answer_constraints.py tests/test_movie_db_*.py tests/test_tmdb_*.py tests/test_youtube_*.py tests/test_story_view.py tests/test_presenter_parity.py -q   # offline\npython -m pytest -q   # include l'integrazione",
+    cmd: "python -m pytest tests/test_query_language.py tests/test_presenters.py tests/test_orchestrator.py tests/test_retrieval.py tests/test_rag_constraints.py tests/test_rerank_query.py tests/test_answer_constraints.py tests/test_movie_db_*.py tests/test_tmdb_*.py tests/test_youtube_*.py tests/test_wikipedia_*.py tests/test_orchestrator_follow_up.py tests/test_story_view.py tests/test_presenter_parity.py tests/test_answer_stream.py tests/test_answer_streaming.py tests/test_answer_channels.py tests/test_web_api_structure.py tests/test_tool_package.py tests/web_api -q   # offline\npython -m pytest -q   # include l'integrazione",
   }, [
     F("test_query_language.py", {
       L: "test", s: "Unit test offline del classificatore e della lingua del blocco.",
@@ -1052,12 +1539,12 @@ const TREE = D("NetflixScout", {}, [
       dep: ["app.py", "presenters/__init__.py", "turn.py", "tests/turn_support.py", Q + "models.py", Q + "tool_interface.py"],
       x: ["pytest"],
     }),
-    F("turn_support.py", { L: "test", s: "Helper dei test: gli orchestratori finti emettono gli step come quello vero.", d: `<code>stream_decision(observer, query, decision)</code> rigioca una decisione già pronta (query riscritta, <code>tool_selection</code>, <code>tool_outcome</code>, trace, <code>planning</code>) nello stesso ordine di <code>LLMOrchestrator.run</code>.`, dep: ["turn.py"], x: ["pytest"] }),
+    F("turn_support.py", { L: "test", s: "Helper dei test: gli orchestratori finti emettono gli step come quello vero.", d: `<code>stream_decision(observer, query, decision)</code> rigioca una decisione già pronta (query riscritta, <code>tool_selection</code>, <code>tool_outcome</code>, trace, <code>planning</code>) nello stesso ordine di <code>LLMOrchestrator.run</code>.<br><br>Gli orchestratori finti emettono anche la risposta come <code>answer_delta</code>, verso un osservatore che ha quel metodo.`, dep: ["turn.py"], x: ["pytest"] }),
     F("test_story_view.py", { L: "test", s: "La storia del turno: testi it/en, esiti, fallback, limite di righe.", d: `Ricerca e esito in parole semplici, lingua dallo step <code>classification</code>, esiti vuoti e errori come avvisi, codice o tool sconosciuti leggibili, solo i primi esiti positivi oltre il limite, query riscritta, fallback e parti non cercate, chiarimento, <code>story_view</code> che importa solo <code>turn</code>.`, dep: ["presenters/story_view.py"], x: ["pytest"] }),
     F("test_presenter_parity.py", { L: "test", s: "Terminale e web: stesse chiavi, stessa storia, stessi dati.", d: `<code>STEP_RENDERERS</code> e <code>STEP_SERIALIZERS</code> hanno le stesse chiavi e nessuna coincide con uno step di flusso; il terminale stampa le righe che il web invia; dal vivo e in replay si stampa lo stesso; il payload non ha emoji né <code>═</code>; ogni step ha la forma web con i dati del terminale; uno step sconosciuto passa in entrambi; la storia di un turno vero coincide con quella ricostruita dagli step.`, dep: ["presenters/web/payload.py", "presenters/terminal/renderer.py", "presenters/story_view.py"], x: ["pytest"] }),
     F("test_retrieval.py", {
       L: "test", s: "Unit test offline del testo dell'embedding, del boost di genere e del rerank.",
-      d: `Usa una collection Chroma finta e un <code>embed</code> finto. Verifica che <code>search</code> faccia l'embedding di <code>semantic_query</code> e non delle keyword, con fallback sulla query originale; che il <code>genre_boost</code> riordini il pool <code>fetch_k</code> prima del taglio a k e ignori generi non correlati; che <code>_retrieve</code> passi <code>fetch_k</code>, generi e <code>semantic_query</code> (e senza <code>fetch_k</code> mantenga il pool di prima); che Cohere riceva titolo e generi; che <code>run_rag</code> restituisca <code>signals</code> ed <code>embedded_text</code>.`,
+      d: `Usa una collection Chroma finta e un <code>embed</code> finto. Verifica che <code>search</code> faccia l'embedding di <code>semantic_query</code> e non delle keyword, con fallback sulla query originale; che il <code>genre_boost</code> riordini il pool <code>fetch_k</code> prima del taglio a k e ignori generi non correlati; che <code>_retrieve</code> passi <code>fetch_k</code>, generi e <code>semantic_query</code> (e senza <code>fetch_k</code> mantenga il pool di prima); che Cohere riceva titolo e generi; che <code>run_rag</code> restituisca <code>signals</code> ed <code>embedded_text</code>.<br><br>Aggiunti: il tool RAG applica le scelte del planner a una copia della config; l'indice BM25 legge la collection a pagine ed è in cache.`,
       dep: [Q + "pipeline.py", Q + "retrieval.py", Q + "vectorstore.py", Q + "rerank.py", Q + "models.py"],
       x: ["pytest", "numpy"],
     }),
@@ -1128,7 +1615,7 @@ const TREE = D("NetflixScout", {}, [
     }),
     F("test_movie_db_routing_eval.py", {
       L: "test", s: "Valutazione del routing offline, con client scriptati.",
-      d: `Una scelta esplicita passa; JSON non valido, confidenza bassa e chiamata fallita vengono riconosciuti come fallback e falliscono; il follow-up richiede la query riscritta; i 17 casi coprono i tre tool. Per i casi TMDb: ogni <code>expected_request</code> è a sua volta una richiesta valida; arguments coerenti (anche richiesta piatta o richieste in più) passano; operazione inesistente, campo non ammesso, facet non valida, titolo o facet sbagliati, enum diversi (<code>window=day</code>) falliscono; <code>--tool</code> filtra i casi e la CLI senza <code>--live</code> si ferma prima di caricare <code>.env</code>. Nessuna chiamata di rete.`,
+      d: `Una scelta esplicita passa; JSON non valido, confidenza bassa e chiamata fallita vengono riconosciuti come fallback e falliscono; il follow-up richiede la query riscritta; i 17 casi coprono i tre tool. Per i casi TMDb: ogni <code>expected_request</code> è a sua volta una richiesta valida; arguments coerenti (anche richiesta piatta o richieste in più) passano; operazione inesistente, campo non ammesso, facet non valida, titolo o facet sbagliati, enum diversi (<code>window=day</code>) falliscono; <code>--tool</code> filtra i casi e la CLI senza <code>--live</code> si ferma prima di caricare <code>.env</code>. Nessuna chiamata di rete.<br><br>Aggiunti: <code>check_rag</code> richiede il conteggio chiesto; il verdetto dell'A/B conta solo i guadagni oggettivi.`,
       dep: [M + "harness/evaluation/run_routing_eval.py", M + "harness/evaluation/routing_cases.py", "orchestrator.py"],
       x: ["pytest"],
     }),
@@ -1150,7 +1637,7 @@ const TREE = D("NetflixScout", {}, [
     F("test_tmdb_prompt_budget.py", { L: "test", s: "Contesto TMDb limitato, deterministico, con omissioni segnalate.", d: `Quattro richieste con tutte le facet restano nel limite; packing deterministico; risultati piccoli non tagliati; liste oltre 10 chunk diventano righe compatte; gli essenziali tolgono tagline e URL prima di accorciare la trama.`, dep: [T + "prompt_budget.py"], x: ["pytest"] }),
     F("test_tmdb_resolve.py", { L: "test", s: "Risoluzione degli ID.", d: `ID TMDb senza chiamate; ID esterni con <code>/find</code>; titolo e anno esatti vincono e l'ambiguità viene riportata; anno ±1 con ricerca senza anno contata; persona scelta per dipartimento; stesso titolo cercato una volta per turno; nessun risultato → errore della richiesta, non un crash.`, dep: [T + "operations/resolve.py"], x: ["pytest"] }),
     F("test_tmdb_tool.py", { L: "test", s: "Contratto di <code>TmdbTool</code>.", d: `Rispetta il <code>Tool</code> Protocol con schema da Pydantic; trace fuori da <code>metadata</code>; richiesta piatta accettata; risultati parziali se altre richieste falliscono; una richiesta fallita non riparte nello stesso turno; credenziali mancanti → errore senza HTTP; cache condivisa tra le run di uno stesso tool.`, dep: [T + "tool.py", "orchestrator.py"], x: ["pytest"] }),
-    F("test_tmdb_enrich.py", { L: "test", s: "Completamento RAG → TMDb, con transport finto.", d: `Candidati distinti nell'ordine del RAG; ogni candidato riceve solo i propri metadati e il ranking non cambia; anno o titolo non coerenti → <code>unverified</code>; zero risultati → <code>not_found</code>; titolo ambiguo risolto dall'anno del RAG; metadati mancanti restano mancanti; budget rispettato (<code>skipped</code>); credenziali assenti senza HTTP; i metadati arrivano al prompt finale; l'enricher gira solo dopo <code>rag_search</code>.`, dep: [T + "enrich.py", "orchestrator.py"], x: ["pytest"] }),
+    F("test_tmdb_enrich.py", { L: "test", s: "Completamento RAG → TMDb, con transport finto.", d: `Candidati distinti nell'ordine del RAG; ogni candidato riceve solo i propri metadati e il ranking non cambia; anno o titolo non coerenti → <code>unverified</code>; zero risultati → <code>not_found</code>; titolo ambiguo risolto dall'anno del RAG; metadati mancanti restano mancanti; budget rispettato (<code>skipped</code>); credenziali assenti senza HTTP; i metadati arrivano al prompt finale; l'enricher gira solo dopo <code>rag_search</code>.<br><br>Aggiunto: le card della trace contengono solo i film verificati.`, dep: [T + "enrich.py", "orchestrator.py"], x: ["pytest"] }),
     F("test_tmdb_identity.py", { L: "test", s: "Identità di film e serie: nessun dato senza titolo e anno verificati.", d: `“The Sinner” non diventa “The Sinners”; stesso titolo con anno diverso, titoli localizzati e originali, ambiguità; “Survival Island” riconosciuto come titolo alternativo di “Three” (2005), “The Dungeon of Harrow” tramite articolo e data di uscita 1962, “Mars &amp; Avril”; cast discordante rifiutato; nessuna verifica alla cieca senza anno; durate 0 e serie senza durata.`, dep: [T + "operations/resolve.py", T + "enrich.py"], x: ["pytest"] }),
     F("test_tmdb_validation.py", { L: "test", s: "Ogni input non valido fallisce prima di qualunque HTTP.", d: `Errori che non riportano mai i valori inviati; una richiesta non valida rifiuta l'intera run; limite di 4 richieste; operazione mancante e chiavi extra rifiutate; input validi normalizzati.`, dep: [T + "models/requests.py"], x: ["pytest"] }),
     F("youtube_support.py", { L: "test", s: "Helper offline dei test YouTube: transport finto, credenziali finte, payload e corpi d'errore Google.", d: `<code>make_tool</code>, <code>search_item</code>, <code>video_item</code>, <code>by_kind</code>, <code>error_body</code>. Non legge <code>.env</code> e non usa la rete.`, dep: [Y + "tool.py", Y + "http.py"], x: ["pytest"] }),
@@ -1164,6 +1651,294 @@ const TREE = D("NetflixScout", {}, [
     F("test_youtube_presenters.py", { L: "test", s: "Output terminale dello step <code>youtube_calls</code>.", d: `Etichette it/en, confermati prima dei video da verificare, caratteri di controllo tolti solo dalla copia stampata, confini di import, serializer web coerente con il terminale (stessa vista).`, dep: ["presenters/terminal/youtube/renderer.py"], x: ["pytest"] }),
     F("test_youtube_answer.py", { L: "test", s: "Regole YouTube della risposta finale.", d: `Testo di <code>tool_final_instructions["youtube_search"]</code> e dati che la risposta riceve. Non verifica il comportamento reale dell'LLM.`, dep: ["app.py", "orchestrator.py"], x: ["pytest"] }),
     F("test_youtube_app.py", { L: "test", s: "Integrazione offline: registrazione, catalogo, regola 1b.", d: `Con client finti: verificano collegamento e testo dei prompt, non le scelte del planner reale (servono il routing eval e l'E2E live).`, dep: ["app.py", "orchestrator.py", Y + "tool.py"], x: ["pytest"] }),
+    F("stream_support.py", {
+      L: "test",
+      s: `Flussi dell'API Responses per i test offline, costruiti con le classi evento dell'SDK.`,
+      d: `Streams of the Responses API for the offline tests, built with the SDK's own event classes (openai==3.21.0): a change of names or fields in the pinned SDK breaks these helpers. Helper condiviso dai test, nessun test proprio.`,
+      dep: ["orchestrator.py"],
+    }),
+    F("test_answer_channels.py", {
+      L: "test",
+      s: `Come la risposta in streaming arriva a ogni canale: terminale, eventi web, <code>handle_query</code>.`,
+      d: `How the streamed answer reaches each channel: terminal printing, web events, handle_query. 10 test: the terminal prints the header once and the deltas in order; leading blank text is not printed; a streamed turn ends without printing the answer again; the replay of a finished turn is unchanged; the web observer sends the same story and steps as the payload; the web observer sends status with its story line and the deltas; the web observer learns the language from the classification; a blocked turn delivers its message as a delta; a failing compaction keeps the whole history; the answer of a real turn is delivered through the observer`,
+      dep: ["app.py", "presenters/terminal/renderer.py", "presenters/web/observer.py"],
+      x: ["pytest"],
+    }),
+    F("test_answer_stream.py", {
+      L: "test",
+      s: `Il decoder incrementale del campo <code>answer</code>: tagli, escape, errori.`,
+      d: `10 test: every single and double cut decodes the same answer; one character chunks and random chunking; split escape and surrogate pair are held back; malformed json fails without repairing; failure keeps the text already emitted; truncated stream emits only complete units; lists before answer and field name inside other strings; chunks after done are ignored; whitespace around the structure is accepted; fragments never hold json syntax for a plain answer`,
+      dep: ["answer_stream.py"],
+      x: ["pytest"],
+    }),
+    F("test_answer_streaming.py", {
+      L: "test",
+      s: `La risposta finale è UNA chiamata in streaming; il testo arriva all'osservatore mentre viene scritto.`,
+      d: `The final answer is ONE streamed call; its text reaches the observer as it is written. 24 test: plain answer streams deltas and makes one final call; the answer comes after the answering status; empty completed answer gets the no information text; an abnormal end before any delta shows the fallback once; an abnormal end after deltas keeps what was shown; a dropped connection after deltas keeps what was shown; an exception before the first delta and on create use the fallback; a stream without a final event is a failure; a refusal is never shown as the answer; unknown and interleaved events are ignored; the answer failure step comes after the text and only it; structured answer streams only the decoded answer text…`,
+      dep: ["orchestrator.py", "answer_stream.py"],
+      x: ["pytest"],
+    }),
+    F("test_data_coverage.py", {
+      L: "test",
+      s: `La regola di copertura dei dati e i valori in config contro i dataset locali.`,
+      d: `6 test: rule names each source and the alternative; rule is empty without coverage; planner instructions carry the rule only for allowed tools; every post coverage routing case expects tmdb and controls stay local; rag years match the cmu corpus; db years match movielens`,
+      dep: ["data_coverage.py", "movie_db/harness/evaluation/routing_cases.py"],
+      x: ["pytest"],
+    }),
+    F("test_orchestrator_follow_up.py", {
+      L: "test",
+      s: `Un tool può offrire altro (<code>follow_up</code>): l'orchestratore chiede al planner se proseguire.`,
+      d: `A tool can offer more (turn.RESULT_FOLLOW_UP): the orchestrator then asks the planner whether to go on. Tools that offer nothing must cost exactly what they cost before. 24 test: an offer makes the planner decide even without more steps; the planner sees the summary of the tool not its metadata; the planner can stop with done; the same step twice is stopped; a tool that always offers more is stopped by the turn ceiling; a failing next planner call answers with what there is; required tools still mean a single step; without an offer the turn costs what it always cost; the follow up key never reaches the final prompt; without a summary the planner sees the usual result lines; a composite turn with pending parts and an offer plans once per step; an explicit conclusion ends the turn without a warning…`,
+      dep: ["orchestrator.py", "turn.py"],
+      x: ["pytest"],
+    }),
+    F("test_retrieval_params.py", {
+      L: "test",
+      s: `Il planner sceglie solo <code>k_finale</code>: limiti, coerenza dei pool, valori non validi.`,
+      d: `4 test: no overrides keeps defaults; k finale is clamped and pools stay coherent; invalid values and other settings are ignored; defaults are not mutated`,
+      dep: ["tool/rag/FromQueryEmbeddingToRes/retrieval_params.py"],
+      x: ["pytest"],
+    }),
+    F("test_tmdb_follow_up.py", {
+      L: "test",
+      s: `TMDb offre un altro passo quando una richiesta non trova nulla.`,
+      d: `When TMDb finds nothing for a request, the tool offers the planner another step (turn.RESULT_FOLLOW_UP) instead of the turn ending on the failure; when it found what was asked, nothing is added. 5 test: a request that is not found offers the planner to look elsewhere; a collection that does not exist is the trilogy case; a partial result keeps its data and still offers the missing part; a successful run has no follow up and an unrelated error has none either; the orchestrator asks the planner and a second tool can answer`,
+      dep: ["tool/tmdb/tool.py", "orchestrator.py"],
+      x: ["pytest"],
+    }),
+    F("test_tmdb_turn_budget.py", {
+      L: "test",
+      s: `Il budget di chiamate TMDb appartiene al turno, non alla singola run.`,
+      d: `The TMDb call budget belongs to the turn, not to one run: a turn can run several tools. 4 test: runs of the same turn share one budget; a new turn gets a fresh budget; without a turn id every run has its own budget; the turn id is not a tool input and never reaches the result`,
+      dep: ["tool/tmdb/budget.py", "tool/tmdb/tool.py"],
+      x: ["pytest"],
+    }),
+    F("test_tool_package.py", {
+      L: "test",
+      s: `Layout di <code>tool/</code>: tutti i tool lì, collegati solo da <code>app.py</code>, e regole sugli import.`,
+      d: `Layout of the orchestrator tools: all in tool/, wired only by app.py. 3 test: every tool package lives in the tool folder; only app and the routing eval import the tools; tool packages do not import the project or each other`,
+      dep: ["tool/__init__.py", "app.py"],
+      x: ["pytest"],
+    }),
+    F("test_web_api_structure.py", {
+      L: "test",
+      s: `Dove può stare il codice HTTP: solo in <code>web_api/</code>, che usa il bot da pochi punti d'ingresso.`,
+      d: `Where the HTTP code may live: only in web_api/, which calls the core through a few entry points. 5 test: http libraries are imported only inside web api; nothing outside web api imports it; web api uses only the entry points of the bot; the terminal and the core never import the web only packages; no print in web api`,
+      dep: ["web_api/__init__.py", "app.py"],
+      x: ["pytest"],
+    }),
+    F("test_youtube_harness.py", {
+      L: "test",
+      s: `Lo script live YouTube non viene eseguito dai test, ma le sue query e il suo isolamento sì.`,
+      d: `The live smoke script is never run by the tests, but its queries and its isolation are checked. 2 test: the smoke variants include the query the tool builds; runtime never imports the youtube harness`,
+      dep: ["tool/youtube/harness/live_smoke.py"],
+      x: ["pytest"],
+    }),
+    F("web_api_support.py", {
+      L: "test",
+      s: `Falsi dei test di <code>web_api</code>: un bot il cui orchestratore fa streaming come quello vero e un parser SSE.`,
+      d: `Fakes of the web_api tests: a bot whose orchestrator streams like the real one, an SSE parser. Helper condiviso dai test, nessun test proprio.`,
+      dep: ["web_api/server.py"],
+    }),
+    F("web_lists_support.py", {
+      L: "test",
+      s: `Fixture condivise dei test di <code>web_lists</code>: step come li emettono i tool e un callback LLM finto.`,
+      d: `Shared fixtures of the web_lists tests: steps as the tools emit them and a fake LLM callback. Helper condiviso dai test, nessun test proprio.`,
+      dep: ["web_lists/attach_lists.py"],
+    }),
+    F("wikipedia_support.py", {
+      L: "test",
+      s: `Helper dei test Wikipedia: transport finto che registra le chiamate e risposte nella forma di MediaWiki.`,
+      d: `Offline helpers for the Wikipedia tests: a fake transport that records calls, and MediaWiki-shaped answers. Nothing here touches the network or reads .env. Helper condiviso dai test, nessun test proprio.`,
+      dep: ["tool/wikipedia/http.py"],
+    }),
+    F("test_wikipedia_app.py", {
+      L: "test",
+      s: `Cablaggio del tool in app: registrazione, catalogo, testo della regola di routing e regole finali.`,
+      d: `Wiring of the Wikipedia tool in the app: registration, catalog, routing rule text and final rules. 23 test: build app registers the wikipedia tool from its config; wikipedia is allowed and in the planner catalog; the catalog entry stays compact; the other tools and the fallback are unchanged; rule 1c sits between youtube and movie db; rule 1c defines the boundaries with the other tools; rule 1c explains the depth the arguments and when to go on; rule 1c lists what tmdb does not have and gives the two tools complementary roles; rule 1 sends the parts tmdb lacks to rule 1c without naming the other tool; rule 1c covers trilogies and makes tmdb cast data part of the plan; rule 1c asks for the english title of the page without inventing one; the empty result tells the planner to try the english title only if it is known…`,
+      dep: ["app.py", "tool/wikipedia/tool.py"],
+      x: ["pytest"],
+    }),
+    F("test_wikipedia_budget.py", {
+      L: "test",
+      s: `Stato per turno: chiamate, contesto consegnato, turni dimenticati, turni concorrenti.`,
+      d: `6 test: http calls are counted until the limit; context left never goes negative; runs of one turn share the state and other turns do not; a run without turn id gets a fresh state each time; the oldest turns are forgotten; concurrent turns do not reset each other`,
+      dep: ["tool/wikipedia/budget.py"],
+      x: ["pytest"],
+    }),
+    F("test_wikipedia_comparison.py", {
+      L: "test",
+      s: `Un film confrontato con l'opera da cui deriva richiede entrambe le pagine, senza modifiche all'orchestratore.`,
+      d: `A film compared with the work it comes from needs both pages. The rule says so (text); the loop makes it possible without any change to the orchestrator: two wikipedia_search steps, the second page read before the answer, nothing read twice, and a turn where the planner stops after one page is untouched. 7 test: the rule asks for both sources and a second step for a comparison; the two sources are asked only for comparisons and the other rules are untouched; a comparison reads the film then the novel and answers after both; a source already read in the turn is not downloaded again; a turn that stops after one page is left alone; the second page is a separate search of the work not a section of the film; both runs share the turn budget`,
+      dep: ["tool/wikipedia/tool.py", "orchestrator.py"],
+      x: ["pytest"],
+    }),
+    F("test_wikipedia_config.py", {
+      L: "test",
+      s: `Configurazione: esattamente cinque impostazioni, merge degli override, edizione predefinita, User-Agent.`,
+      d: `8 test: config has exactly the five public settings; overrides are deep merged and validated; a validated config is returned as is; invalid or extra settings are rejected; the default edition is english and can be overridden; config has no defaults; user agent follows the wikimedia format with a contact; every error class is a wikipedia error with its own code`,
+      dep: ["tool/wikipedia/config.py", "tool/wikipedia/errors.py"],
+      x: ["pytest"],
+    }),
+    F("test_wikipedia_harness.py", {
+      L: "test",
+      s: `Lo script live Wikipedia non viene eseguito, ma richieste e isolamento sì.`,
+      d: `The live smoke script is never run by the tests, but its requests and its isolation are checked. 3 test: the smoke requests are the ones the tool builds; the script needs live; runtime never imports the wikipedia harness`,
+      dep: ["tool/wikipedia/harness/live_smoke.py"],
+      x: ["pytest"],
+    }),
+    F("test_wikipedia_http.py", {
+      L: "test",
+      s: `Unico punto di I/O con transport finto: memo, cache, pausa su 429 e maxlag, nessun retry.`,
+      d: `Offline tests of tool/wikipedia/http.py: fake transport, no network. 17 test: success sends the user agent and records only the base url; an unsupported language is refused before any call; the same request is sent once per run and once per ttl across runs; a zero ttl disables the cache; cache entries expire and are bounded; a failed request is not sent again in the same turn; the turn budget counts sent requests only; answers are mapped to errors from status and error code only; maxlag comes with status 200 and still pauses without retrying; the pause follows retry after within its limits; a pause does not block the cache; transport failures are classified without leaking the query…`,
+      dep: ["tool/wikipedia/http.py"],
+      x: ["pytest"],
+    }),
+    F("test_wikipedia_models.py", {
+      L: "test",
+      s: `Input del planner: normalizzazione, parole chiave, anno nel topic, errori senza valori.`,
+      d: `10 test: defaults are the cheapest reading; values are normalized and sections deduplicated; invalid input is rejected; a blank page becomes none; validation errors never contain the values; normalize text folds case accents and punctuation; keywords are cleaned deduplicated and limited; the language is optional and the planner is told english is the default; a year in parentheses at the end of the topic becomes the year; the topic asks for the title of the edition and forbids inventing one`,
+      dep: ["tool/wikipedia/models.py"],
+      x: ["pytest"],
+    }),
+    F("test_wikipedia_presenters.py", {
+      L: "test",
+      s: `Presenter Wikipedia: renderer terminale, serializer web, vista condivisa.`,
+      d: `Offline tests of the Wikipedia presenters: terminal renderer, web serializer, shared view. 21 test: the step has a renderer and a serializer and no story line; the step is rendered with its own block not the generic fallback; italian block shows pages urls sections and the credit; english block; a step served by the cache says so; errors and missing pages are shown; pages to verify come after the confirmed ones under a header; hints are shown in the turn language; only https urls and well formed rows are shown; control characters are removed from the display copy; the terminal is clean but the step is unchanged; no user agent or contact is ever shown…`,
+      dep: ["presenters/wikipedia_view.py", "presenters/terminal/wikipedia/renderer.py", "presenters/web/wikipedia/serializer.py"],
+      x: ["pytest"],
+    }),
+    F("test_wikipedia_queries.py", {
+      L: "test",
+      s: `Richieste costruite da frammenti costanti: nessuna iniezione di operatori, URL da host in allowlist.`,
+      d: `7 test: phrase removes operators and control characters; search term adds context words only for films; a topic cannot inject search operators; lookup params ask for leads of several pages in one request; the search asks for more pages than it shows within a ceiling; article params open one page whole; urls are built from the allowed host and the title`,
+      dep: ["tool/wikipedia/queries.py"],
+      x: ["pytest"],
+    }),
+    F("test_wikipedia_relevance.py", {
+      L: "test",
+      s: `Scarto di disambigue, titoli confermati o da verificare, motivi di <code>follow_up</code>.`,
+      d: `17 test: match title; strip qualifier; disambiguation pages and empty extracts are dropped and counted; confirmed pages come first then search order inside each group; a film year that contradicts the title qualifier is to verify; the year is ignored for people; verification label; hints suggest a year only when it would help; only disambiguation results suggest adding context; a fully read page with every keyword found offers nothing; an absent keyword offers the other edition only while it is untried and a call is free; an absent keyword comes after the reasons about the page…`,
+      dep: ["tool/wikipedia/relevance.py"],
+      x: ["pytest"],
+    }),
+    F("test_wikipedia_routing_eval.py", {
+      L: "test",
+      s: `Parte offline della valutazione di routing Wikipedia: casi e controlli degli argomenti.`,
+      d: `Offline part of the Wikipedia routing evaluation: the cases and the argument checks. 16 test: there are wikipedia cases with a follow up and a boundary with tmdb; every wikipedia case has an expectation the tool accepts; the cli knows the wikipedia tool; a coherent plan passes; invalid or invented arguments fail; english is the default search even for an italian question; a local topic may ask for the italian edition and keywords are not checked as given; a page or section copied from the conversation is accepted; the turn language is ignored like the tool does; the planned arguments are validated against the tools own schema; the live regressions must start from wikipedia not from tmdb; a plan that stays on the given year passes and an invented year fails…`,
+      dep: ["movie_db/harness/evaluation/routing_cases.py", "movie_db/harness/evaluation/run_routing_eval.py"],
+      x: ["pytest"],
+    }),
+    F("test_wikipedia_sections.py", {
+      L: "test",
+      s: `Divisione per intestazioni, selezione per parole chiave, consegna per profondità.`,
+      d: `29 test: split sections keeps the lead and every heading with its level; an article without headings is one lead in the language of the edition; repeated headings stay selectable by name; headings without text are dropped; lists notes and links are not prose; query terms drop function words and repeats; the words of the topic do not count as words of the question; score weights titles above text and caps repeats; intro delivers only the lead; sections delivers what matches the question in article order; sections without a match falls back to the lead; full delivers every prose section in article order…`,
+      dep: ["tool/wikipedia/sections.py"],
+      x: ["pytest"],
+    }),
+    F("test_wikipedia_tool.py", {
+      L: "test",
+      s: `<code>WikipediaTool</code> con transport finto: ricerca, articolo intero, budget di contesto, follow_up.`,
+      d: `Offline tests of WikipediaTool: fake transport, no network, no .env. 49 test: the tool follows the orchestrator contract; invalid input is an error without any request and without the values; intro hands out the leads of the best pages in one request; the prompt metadata has no urls user agent or trace data; the trace has urls licence and no extract text; only disambiguation pages give an empty result that asks for more context; sections opens the best page and hands out what matches the question; full hands out every prose section but not the notes; a page asked by title is opened without a search; a second step of the turn reads the article from the cache and sends no text twice; unknown requested sections are reported; a missing page is an empty result not an error…`,
+      dep: ["tool/wikipedia/tool.py"],
+      x: ["pytest"],
+    }),
+    F("test_wikipedia_trace.py", {
+      L: "test",
+      s: `Il riassunto per il planner: dove guardare dopo, mai il testo già dato alla risposta.`,
+      d: `The summary the planner reads: where to look next, never the text it already gave to the answer. 7 test: the summary names the edition used and the one not yet asked; the summary lists what was read what was not and the keywords; the summary says why more could help; the summary never repeats the text already given; a lead only page says the article is not open and keywords are not in the lead; the summary stays within its limit; the trace page keeps its language and public url`,
+      dep: ["tool/wikipedia/trace.py"],
+      x: ["pytest"],
+    }),
+    F("test_wikipedia_turn.py", {
+      L: "test",
+      s: `Un turno intero con Wikipedia, offline, dal tool agli eventi SSE del frontend.`,
+      d: `A whole turn with Wikipedia, offline, from the tool to the SSE events of the frontend. 14 test: the two wikipedia steps reach the frontend before the answer; the first step carries the sources and the credit; the second step opens the article and reads only what was not read; a third step on the same page is served from the cache; every step event is valid for the documented contract and json clean; wikipedia text and urls do not leak into the events or lists; the planner saw what was read and what was left out; the story tells both steps; the terminal shows the same sources as the web; a wikipedia turn without follow up costs one planner call; the documented example is what the serializer produces; english is searched first and italian only when the planner asks for it…`,
+      dep: ["tool/wikipedia/tool.py", "orchestrator.py", "web_api/server.py"],
+      x: ["pytest"],
+    }),
+    D("web_api", {
+      L: "test",
+      s: `Test del server HTTP/SSE.`,
+      d: `Contratto HTTP, runner, unità e documento per il frontend, con un bot finto.`,
+    }, [
+      F("test_web_api_doc.py", {
+        L: "test",
+        s: `<code>FRONTEND_API.md</code> descrive ciò che il codice fa: eventi, route ed esempi validati.`,
+        d: `web_api/FRONTEND_API.md describes what the code does: events, routes and example payloads. 3 test: every event is documented with a valid example; every route and error code is documented; every setting is documented`,
+        dep: ["web_api/FRONTEND_API.md", "web_api/schemas/events.py"],
+        x: ["pytest"],
+      }),
+      F("test_web_api_endpoints.py", {
+        L: "test",
+        s: `Il contratto HTTP end to end su un bot finto (il vero <code>handle_query</code>, nessuna API).`,
+        d: `The HTTP contract, end to end on a fake bot (the real handle_query, no API call). 14 test: health and a new conversation; a turn streams progress then the text then the lists; the closing events carry the metadata and the structured lists; steps are the serialised tool steps and never flow steps; the web call asks for lists and the history grows between messages; conversations do not share history; a blocked message streams one delta and empty lists; an error before the answer streams error and keeps the history; a failed turn can be sent again; a failing compaction still commits the whole turn; compaction is reported in answer end; http errors use one shape…`,
+        dep: ["web_api/server.py", "web_api/routes/endpoints.py"],
+        x: ["pytest"],
+      }),
+      F("test_web_api_runner.py", {
+        L: "test",
+        s: `Il turno appartiene al server: disconnessioni, stato occupato e commit unico della history.`,
+        d: `The turn belongs to the server: disconnections, the busy state and the single commit. 8 test: the turn survives a client that leaves and commits its history; a client that never reads does not stop the commit; the queue does not grow after the subscription is closed; the worker does not even schedule work for a closed subscription; an error commits nothing and frees the conversation; the turn is committed exactly once; a second message during a turn is refused and the first is untouched; queue items are events or the end`,
+        dep: ["web_api/streaming/runner.py"],
+        x: ["pytest"],
+      }),
+      F("test_web_api_units.py", {
+        L: "test",
+        s: `Moduli di <code>web_api</code> in isolamento: formato, store, impostazioni, eventi di chiusura.`,
+        d: `web_api modules in isolation: wire format, store, settings, closing events. 15 test: format sse has id event and one line of json; drain yields events in order until the end; drain sends a comment line after each silent interval; create get and unknown conversation; a second turn is refused until the first is finished; finish turn without history keeps it and frees the conversation; expired idle conversations are dropped but a busy one never; over the size the least recently used idle conversation goes; delete refuses a running turn; default settings; settings from the environment; invalid settings fail at startup…`,
+        dep: ["web_api/conversations/store.py", "web_api/settings.py", "web_api/streaming/events.py"],
+        x: ["pytest"],
+      }),
+    ]),
+    D("web_lists", {
+      L: "test",
+      s: `Test del canale delle liste.`,
+      d: `Selezione dei riferimenti, idratazione, schema strict e risposta strutturata.`,
+    }, [
+      F("test_attach_lists.py", {
+        L: "test",
+        s: `Le liste si aggiungono, il resto del payload non cambia; errori contenuti; nessuna rete né LLM raggiungibile.`,
+        d: `8 test: lists are added and the rest of the payload is unchanged; resources not cited in the answer never enter the lists; resource cited without a reference stays out; no refs blocked turn or no results give empty lists; malformed refs give empty lists and keep the payload; an internal error is contained; no network or llm client is reachable from web lists; the core and the terminal do not import web lists`,
+        dep: ["web_lists/attach_lists.py"],
+        x: ["pytest"],
+      }),
+      F("test_final_output.py", {
+        L: "test",
+        s: `L'output finale è dato semplice per il nucleo; schema strict con <code>answer</code> prima di <code>lists</code>.`,
+        d: `4 test: final output is plain data for the core; root has answer first then lists; schema is strict everywhere; refs ask for a quote`,
+        dep: ["web_lists/final_output.py", "web_lists/json_schema.py"],
+        x: ["pytest"],
+      }),
+      F("test_hydrate.py", {
+        L: "test",
+        s: `Chiavi stabili, indice dei risultati, forma delle card, campi mai inventati.`,
+        d: `10 test: item key is stable; index has tmdb and youtube keys; movie has the card shape; series uses name and first air date as release date; missing optional fields are null and never invented; video keeps step values and strips control characters; unknown refs are dropped and empty lists removed; repeated ref is kept once; no justwatch attribution without it in the step; malformed step rows are skipped`,
+        dep: ["web_lists/hydrate/hydrate_lists.py", "web_lists/hydrate/index_steps.py"],
+        x: ["pytest"],
+      }),
+      F("test_select.py", {
+        L: "test",
+        s: `Quali riferimenti sono accettati: id autorizzato, quote nella risposta, nome nella quote, nessun segnale di negazione.`,
+        d: `Which references are accepted: authorized id, quote in the answer, name in the quote, no cue. 18 test: valid refs are kept in order; unknown id wrong type and other turn ids are dropped; resource in the index but not in the answer is dropped; quote must be in the answer; quote must name the resource and the id must match the title; markdown accents and articles do not break the match; negation and comparison before the title are dropped; a cue after the title or outside the quote does not drop it; known limit a comparison without a cue word passes; same title records need the year in the quote; video can be matched by its id; video identified by id needs a real id…`,
+        dep: ["web_lists/select/select_refs.py"],
+        x: ["pytest"],
+      }),
+      F("test_structured_answer.py", {
+        L: "test",
+        s: `Una chiamata LLM scrive risposta e riferimenti; la chiamata del terminale non cambia.`,
+        d: `One LLM call writes the answer and the list references; the terminal call is unchanged. 7 test: with final output the final call is one and returns answer and lists; markdown survives the json round trip; a bad structured output takes the existing fallback without a second call; a failing final call takes the fallback and no lists; lists that are not a list become empty; without final output the final call is exactly the old one; handle query passes final output only when given`,
+        dep: ["orchestrator.py", "web_lists/final_output.py"],
+        x: ["pytest"],
+      }),
+      F("test_tmdb_cards.py", {
+        L: "test",
+        s: `Lo step <code>tmdb_calls</code> porta le card da cui <code>web_lists</code> idrata.`,
+        d: `The tmdb_calls step carries the cards web_lists hydrates from. 2 test: cards cover movies and series once in order; trace keeps calls and attributions with items`,
+        dep: ["tool/tmdb/trace.py"],
+        x: ["pytest"],
+      }),
+    ]),
   ]),
 
   F(".env", {
@@ -1183,11 +1958,11 @@ const TREE = D("NetflixScout", {}, [
   }),
   F("AGENTS.md", {
     L: "cfg", s: "Guida per gli agenti IA: stack, comandi, convenzioni, regole.",
-    d: `Riassume contesto, comandi (setup, build del DB, avvio, test), stile del codice, pattern architetturali (config-driven, <code>Tool</code> Protocol, query autonoma per i follow-up, contesto del classificatore, testo dell'embedding, DB MovieLens read-only, trace <code>db_query</code>, catalogo nel planner, tool TMDb con budget, contesto, lingua, chiave e attribuzioni, tool YouTube con quota, filtro, dati invariati e verifiche pendenti, valutazioni live con costi ed esiti) e regole di ingaggio: test con mock, niente modifiche a <code>.env</code>, niente build distruttive o chiamate API senza permesso, stile dei commit.`,
+    d: `Riassume contesto, comandi (setup, build del DB, avvio, test), stile del codice, pattern architetturali (config-driven, <code>Tool</code> Protocol, query autonoma per i follow-up, contesto del classificatore, testo dell'embedding, DB MovieLens read-only, trace <code>db_query</code>, catalogo nel planner, tool TMDb con budget, contesto, lingua, chiave e attribuzioni, tool YouTube con quota, filtro, dati invariati e verifiche pendenti, valutazioni live con costi ed esiti) e regole di ingaggio: test con mock, niente modifiche a <code>.env</code>, niente build distruttive o chiamate API senza permesso, stile dei commit.<br><br>Descrive anche il layout (<code>tool/</code> con un pacchetto per tool, <code>movie_db/</code> come lato database), i tool Wikipedia e YouTube, il ciclo multi-tool con <code>follow_up</code>, la risposta finale in streaming, il server web (<code>web_api/</code>) e le liste (<code>web_lists/</code>), e le regole di ingaggio per chi modifica il codice.`,
   }),
   F("README.md", {
     L: "cfg", s: "Documentazione per gli umani: setup, dataset, build del DB, API.",
-    d: `Spiega come scaricare il corpus CMU, come costruire <code>dbVettoriale/</code> e come avviare la chat. La sezione “MovieLens DB Tool” spiega cosa scaricare e scompattare dopo il clone, come costruire il DB, le garanzie di sola lettura e i comandi di valutazione con il loro costo in chiamate API. La sezione su TMDb descrive le 17 operazioni, la configurazione, il budget delle chiamate, lo smoke test live e il logo richiesto dai Termini. La sezione su YouTube descrive categorie, configurazione, quota da 100 ricerche al giorno, filtro, output, crediti e verifiche ancora pendenti.`,
+    d: `Spiega come scaricare il corpus CMU, come costruire <code>dbVettoriale/</code> e come avviare la chat. La sezione “MovieLens DB Tool” spiega cosa scaricare e scompattare dopo il clone, come costruire il DB, le garanzie di sola lettura e i comandi di valutazione con il loro costo in chiamate API. La sezione su TMDb descrive le 17 operazioni, la configurazione, il budget delle chiamate, lo smoke test live e il logo richiesto dai Termini. La sezione su YouTube descrive categorie, configurazione, quota da 100 ricerche al giorno, filtro, output, crediti e verifiche ancora pendenti.<br><br>L'albero «Project Layout» mostra <code>tool/</code>, <code>web_api/</code>, <code>web_lists/</code> e i file del nucleo; ricorda che un nuovo tool va in <code>tool/&lt;nome&gt;/</code>.`,
     n: ["La sezione “Retrieval Notes” descrive <code>semantic_query</code>, generi e boost.", "In parte superato: descrive <code>run_rag</code>/<code>execute_tool</code> esposti da <code>app.py</code> e la compattazione a 60.000 token, mentre ora <code>app.py</code> usa l'orchestratore e compatta ogni 12 messaggi."],
   }),
   F("answer_stream.py", {
@@ -1206,14 +1981,14 @@ const TREE = D("NetflixScout", {}, [
   F("app.py", {
     L: "entry",
     s: "Entry point: <code>CONFIG</code>, nucleo <code>handle_query()</code> senza output e chat da terminale.",
-    d: `<code>CONFIG</code> contiene tutti i parametri del sistema: la sezione <code>orchestrator</code> (modello, istruzioni, tool consentiti, soglia di confidenza, finestra di memoria, <code>classifier_context_messages</code>, compattazione) e la sezione <code>rag</code> (retrieval <code>semantic</code> con pool <code>fetch_k</code> 50, <code>genre_boost</code> 0.15, k_largo 10 → k_finale 3, rerank Cohere <code>rerank-v3.5</code>, prompt di generazione, embedding <code>text-embedding-3-small</code>, collection <code>netflix_scout</code>) la sezione <code>movie_db</code> (DB SQLite MovieLens in <code>movie_db/data/</code>, limiti delle query, parser, ingestion) la sezione <code>tmdb</code> (solo <code>max_results</code> 5, <code>max_calls_per_turn</code> 6, <code>cache_ttl</code> 3600) e la sezione <code>you_tube</code> (solo <code>max_results</code> 3, <code>max_searches_per_turn</code> 2). <code>allowed_tools</code> contiene <code>rag_search</code>, <code>movie_db_search</code>, <code>tmdb_search</code> e <code>youtube_search</code>; il fallback resta <code>rag_search</code>. La regola di routing 1b manda a <code>youtube_search</code> interviste a regista e cast, making-of, dietro le quinte e commenti degli autori; i trailer restano a TMDb. <code>tool_final_instructions["youtube_search"]</code> aggiunge le regole YouTube alla risposta finale solo nei turni YouTube. Le istruzioni di routing assegnano al RAG trama, temi, generi, interpretazione e raccomandazioni (anche riconoscere un film dalla trama) e a <code>tmdb_search</code> i dati fattuali e aggiornati: chi ha diretto, chi recita, troupe, uscite, streaming, trailer, trending, serie.<br><br><b>Nucleo</b> – <code>handle_query(app, query, history, openai_client, observer)</code> non stampa nulla e restituisce un <code>TurnResult</code> (<code>turn.py</code>): 0) un <code>_TurnRecorder</code> tiene gli step e la storia del turno e li inoltra, <b>appena esistono</b>, al <code>TurnObserver</code> del canale (un osservatore che solleva non rompe il turno); 1) emette lo stadio “capisco la domanda” e classifica la domanda passando al classificatore anche gli ultimi <code>classifier_context_messages</code> messaggi della history, così i follow-up non vengono bloccati (step <code>classification</code>, che porta anche la lingua del turno); se non riguarda il cinema ritorna subito con <code>blocked=True</code> e il messaggio fisso nella lingua dell'utente; 2) chiama <code>orchestrator.run</code> con <code>tool_overrides = {turn_language}</code> (la lingua del classificatore, che TMDb usa per i dati localizzati e non decide la lingua della risposta) e <code>observer</code>: gli step arrivano <b>durante</b> il turno, dall'orchestratore (<code>query_rewrite</code>, per ogni tool <code>tool_selection</code>, <code>tool_outcome</code> e la <code>trace</code> del tool, infine <code>planning</code>), con lo stesso ordine che finisce in <code>TurnResult.steps</code> e <code>TurnResult.story</code>; 3) aggiorna la history e la compatta quando arriva a <code>memory_window_size</code> messaggi. È la funzione che chiamerà anche la futura route FastAPI.<br><br><b>Terminale</b> – <code>run_terminal_chat</code> è solo il loop di I/O: legge la domanda, chiama <code>handle_query</code> con un <code>TerminalObserver</code> (che stampa il procedimento mentre accade) e passa il risultato a <code>present(turn, OutputChannel.terminal, streamed=True)</code>, che aggiunge risposta e avviso di compattazione. Il canale lo dichiara questo entry point, perché è l'unico a sapere che l'input arriva da <code>input()</code> sul terminale. Le istruzioni del planner hanno la regola 0 (chiarimento prima dei tool). <code>final_instructions</code> regolano fonti dei dati, sinossi fedeli al testo ricevuto, titoli non verificati o identificati tramite titolo alternativo, stato dei vincoli (<code>constraints_summary</code>), titoli MovieLens non verificati come film, serie TV senza regia o durata e traslitterazioni dei nomi non latini.`,
+    d: `<code>CONFIG</code> contiene tutti i parametri del sistema: la sezione <code>orchestrator</code> (modello, istruzioni, tool consentiti, soglia di confidenza, finestra di memoria, <code>classifier_context_messages</code>, compattazione) e la sezione <code>rag</code> (retrieval <code>semantic</code> con pool <code>fetch_k</code> 50, <code>genre_boost</code> 0.15, k_largo 10 → k_finale 3 con limiti 1–10 (il planner sceglie solo <code>k_finale</code>), rerank Cohere <code>rerank-v3.5</code>, prompt di generazione, embedding <code>text-embedding-3-small</code>, collection <code>netflix_scout</code>) la sezione <code>movie_db</code> (DB SQLite MovieLens in <code>movie_db/data/</code>, limiti delle query, parser, ingestion) la sezione <code>tmdb</code> (solo <code>max_results</code> 5, <code>max_calls_per_turn</code> 6, <code>cache_ttl</code> 3600) la sezione <code>you_tube</code> (solo <code>max_results</code> 3, <code>max_searches_per_turn</code> 2) e la sezione <code>wikipedia</code> (<code>default_language</code> <code>en</code>, <code>max_results</code> 3, <code>max_calls_per_turn</code> 6, <code>cache_ttl</code> 3600, <code>context_chars_per_turn</code> 40.000). <code>allowed_tools</code> contiene <code>rag_search</code>, <code>movie_db_search</code>, <code>tmdb_search</code>, <code>youtube_search</code> e <code>wikipedia_search</code>; il fallback resta <code>rag_search</code>. La regola di routing 1b manda a <code>youtube_search</code> interviste a regista e cast, making-of, dietro le quinte e commenti degli autori; i trailer restano a TMDb. <code>tool_final_instructions</code> aggiunge le regole di <code>youtube_search</code> e di <code>wikipedia_search</code> alla risposta finale solo nei turni che usano quel tool. La regola 1c manda a <code>wikipedia_search</code> le informazioni enciclopediche (biografie approfondite, storia e produzione di un film, struttura delle antologie, confronto con il romanzo d'origine, trama dettagliata). <code>data_coverage</code> dichiara fino a che anno ogni fonte locale copre i film (RAG 2012, MovieLens 2022): <code>data_coverage.py</code> ne ricava la regola che manda a <code>tmdb_search</code> gli anni successivi. <code>rag_enrichment</code> completa i film scelti dal RAG con metadati TMDb (al massimo 3 candidati). Le istruzioni di routing assegnano al RAG trama, temi, generi, interpretazione e raccomandazioni (anche riconoscere un film dalla trama) e a <code>tmdb_search</code> i dati fattuali e aggiornati: chi ha diretto, chi recita, troupe, uscite, streaming, trailer, trending, serie.<br><br><b>Nucleo</b> – <code>handle_query(app, query, history, openai_client, observer, final_output)</code> non stampa nulla e restituisce un <code>TurnResult</code> (<code>turn.py</code>): 0) un <code>_TurnRecorder</code> tiene gli step e la storia del turno e li inoltra, <b>appena esistono</b>, al <code>TurnObserver</code> del canale (un osservatore che solleva non rompe il turno); 1) emette lo stadio “capisco la domanda” e classifica la domanda passando al classificatore anche gli ultimi <code>classifier_context_messages</code> messaggi della history, così i follow-up non vengono bloccati (step <code>classification</code>, che porta anche la lingua del turno); se non riguarda il cinema ritorna subito con <code>blocked=True</code> e il messaggio fisso nella lingua dell'utente; 2) chiama <code>orchestrator.run</code> con <code>tool_overrides = {turn_language}</code> (la lingua del classificatore, che TMDb usa per i dati localizzati e non decide la lingua della risposta) e <code>observer</code>: gli step arrivano <b>durante</b> il turno, dall'orchestratore (<code>query_rewrite</code>, per ogni tool <code>tool_selection</code>, <code>tool_outcome</code> e la <code>trace</code> del tool, infine <code>planning</code>), con lo stesso ordine che finisce in <code>TurnResult.steps</code> e <code>TurnResult.story</code>; 3) aggiorna la history e la compatta quando arriva a <code>memory_window_size</code> messaggi. È la funzione che chiama anche il server web (<code>web_api/</code>), con un <code>WebObserver</code> e <code>final_output</code> di <code>web_lists</code>: la stessa chiamata della risposta finale restituisce anche i riferimenti alle liste. La risposta finale è UNA chiamata in streaming: il testo arriva all'osservatore con <code>answer_delta</code> mentre il modello scrive (anche il messaggio di blocco, il chiarimento e il ripiego arrivano come delta).<br><br><b>Terminale</b> – <code>run_terminal_chat</code> è solo il loop di I/O: legge la domanda, chiama <code>handle_query</code> con un <code>TerminalObserver</code> (che stampa il procedimento mentre accade) e passa il risultato a <code>present(turn, OutputChannel.terminal, streamed=True)</code>: la risposta è già stata stampata mentre arrivava, quindi chiude solo la riga e dà l'avviso di compattazione. Il canale lo dichiara questo entry point, perché è l'unico a sapere che l'input arriva da <code>input()</code> sul terminale. Le istruzioni del planner hanno la regola 0 (chiarimento prima dei tool). <code>final_instructions</code> regolano fonti dei dati, sinossi fedeli al testo ricevuto, titoli non verificati o identificati tramite titolo alternativo, stato dei vincoli (<code>constraints_summary</code>), titoli MovieLens non verificati come film, serie TV senza regia o durata e traslitterazioni dei nomi non latini.`,
     it: [
       ["CONFIG", "Unica fonte di verità per modelli, k, backend e prompt."],
       ["NON_CINEMA_BLOCK_MESSAGES", "Risposte fisse in it/en per le domande non cinematografiche."],
       ["CONFIG[\"orchestrator\"][\"max_tool_calls_per_turn\"]", "Tetto dei tool eseguiti in un turno (10): ferma il ciclo multi-tool."],
       ["CONFIG[\"orchestrator\"][\"classifier_context_messages\"]", "Quanti messaggi finali della history vede il classificatore (default 2 = ultimo scambio; 0 = nessun contesto)."],
       ["build_runtime_config(overrides)", "Deep merge degli override sopra CONFIG (pensato per future richieste web/SSE)."],
-      ["build_app(overrides)", "Crea <code>LLMOrchestrator</code> con <code>RagTool</code>, <code>MovieDbTool</code> se <code>CONFIG[\"movie_db\"][\"enabled\"]</code>, e sempre <code>TmdbTool</code> e <code>YoutubeTool</code> (le chiavi si leggono al primo uso, non alla build)."],
+      ["build_app(overrides)", "Crea <code>LLMOrchestrator</code> con <code>RagTool</code>, <code>MovieDbTool</code> se <code>CONFIG[\"movie_db\"][\"enabled\"]</code>, e sempre <code>TmdbTool</code>, <code>WikipediaTool</code> e <code>YoutubeTool</code> (le chiavi si leggono al primo uso, non alla build) più l'enricher RAG → TMDb."],
       ["CONFIG[\"you_tube\"]", "I due parametri pubblici del tool YouTube, validati da <code>YoutubeConfig</code>."],
       ["CONFIG[\"orchestrator\"][\"tool_final_instructions\"]", "Regole della risposta finale di un tool, aggiunte solo nei suoi turni (oggi <code>youtube_search</code>)."],
       ["CONFIG[\"tmdb\"]", "I tre parametri pubblici del tool TMDb, validati da <code>TmdbConfig</code>."],
@@ -1222,6 +1997,11 @@ const TREE = D("NetflixScout", {}, [
       ["handle_query(app, query, history, openai_client=None, observer=None)", "Nucleo senza print → <code>TurnResult</code> con risposta, step, storia e history aggiornata; gli step vanno all'osservatore mentre accadono."],
       ["_TurnRecorder", "Raccoglie step e storia del turno e li inoltra all'osservatore, ignorandone gli errori."],
       ["run_terminal_chat() · main()", "All'avvio controlla Chroma e, se il tool DB è attivo, <code>ensure_db_ready</code>; non stampa avvisi. Loop REPL: <code>handle_query(…, observer=TerminalObserver())</code> → <code>present(…, OutputChannel.terminal, streamed=True)</code> (<code>exit</code>/<code>quit</code> per uscire)."],
+      [`build_ready_app(overrides)`, `<code>build_app</code> più i controlli d'avvio comuni a ogni canale: errore operativo se la collection vettoriale o il DB MovieLens mancano. Lo usano il terminale e il server web.`],
+      [`CONFIG["wikipedia"]`, `I cinque parametri pubblici del tool Wikipedia, validati da <code>WikipediaConfig</code>.`],
+      [`CONFIG["orchestrator"]["data_coverage"]`, `Ultimo anno coperto per fonte (RAG 2012, MovieLens 2022) e nota; <code>tests/test_data_coverage.py</code> li confronta con i dataset.`],
+      [`CONFIG["orchestrator"]["rag_enrichment"]`, `Completamento dei film del RAG con metadati TMDb (<code>enabled</code>, <code>max_candidates</code> 3).`],
+      [`EXIT_COMMANDS`, `<code>exit</code> e <code>quit</code> chiudono la chat da terminale.`],
     ],
     dep: ["orchestrator.py", "presenters/__init__.py", "turn.py", M + "config.py", MT + "movie_db_tool.py", MT + "sql/connection.py", Q + "query_classifier/query_classifier.py", Q + "chat.py", Q + "conversation.py", Q + "runtime.py", Q + "models.py", Q + "tool_interface.py", Q + "vectorstore.py", T + "config.py", T + "tool.py", Y + "config.py", Y + "tool.py", "presenters/terminal/__init__.py"],
     x: ["openai"],
@@ -1248,7 +2028,7 @@ const TREE = D("NetflixScout", {}, [
   }),
   F("mappa.html", {
     L: "cfg", s: "Questa pagina: mappa interattiva del progetto.",
-    d: `File HTML autonomo (niente dipendenze esterne) con il grafico dell'architettura e un explorer in stile VS Code. Le descrizioni sono scritte a mano nell'oggetto <code>TREE</code> dentro lo script: aggiornale quando cambi la struttura del repo.`,
+    d: `File HTML autonomo (niente dipendenze esterne) con il grafico dell'architettura e un explorer in stile VS Code. Le descrizioni sono scritte a mano nell'oggetto <code>TREE</code> dentro lo script: aggiornale quando cambi la struttura del repo.<br><br>Quando si sposta o si aggiunge un file va aggiornata a mano: un <code>dep</code> con un percorso che non esiste viene ignorato in silenzio (il collegamento «usato da» sparisce). Copre ogni file tracciato da git; il grafico mostra anche i tool Wikipedia e il server web.`,
   }),
   F("movie_metadata.py", {
     L: "off", s: "Shim in root: re-esporta <code>tool.rag.EmbeddingProcess.movie_metadata</code>.",
@@ -1259,7 +2039,7 @@ const TREE = D("NetflixScout", {}, [
     L: "orch",
     dep: ["answer_stream.py", "data_coverage.py"],
     s: "<code>LLMOrchestrator</code>: riscrive i follow-up, esegue uno o più tool in sequenza raccontando ogni passo, scrive la risposta finale.",
-    d: `Definisce il <code>Tool</code> Protocol (<code>name</code>, <code>description</code>, <code>input_schema</code>, <code>run(*, query, params, conversation_history)</code>) e l'<code>Enricher</code>. <code>run(..., observer=)</code>:<br>1) <b>pianificazione</b> (<code>_plan_first</code>, una chiamata LLM; <code>_plan_turn</code> ne è il wrapper a tupla usato dal routing eval): JSON <code>{standalone_query, tool_name, arguments, confidence, parts, more_steps}</code>. <code>standalone_query</code> è la domanda riscritta in modo autonomo usando la history: vale per qualunque tool, anche con <code>required_tools</code> o fallback. Le <code>parts</code> sono le parti della richiesta, ciascuna col suo tool; serve un altro passo se <code>more_steps</code> è vero o una parte ha un altro tool. Alle istruzioni si aggiunge il catalogo dei tool (nome, descrizione, schema in JSON compatto). Se il planner fallisce, ha confidenza bassa o nomina un tool sconosciuto gira il <code>fallback_tool</code> e il motivo (<code>planner_failed</code>, <code>low_confidence</code>, <code>unknown_tool</code>) viene registrato;<br>2) <b>ciclo multi-tool</b>: per ogni passo emette lo step <code>tool_selection</code> (con <code>purpose</code> = la parte della richiesta, e <code>arguments</code>) <b>prima</b> di chiamare il tool, poi lo step <code>tool_outcome</code> (<code>elapsed_ms</code>, <code>status</code>, <code>reason</code>, letti da <code>result["outcome"]</code>; senza, conta la presenza di <code>chunks</code>) e la <code>trace</code> del tool; <code>_enrich</code> completa i risultati RAG con TMDb. Tra un passo e l'altro <code>_plan_next</code> (una chiamata in più) decide il successivo dai risultati già ottenuti o ritorna <code>done</code>; non ripiega mai su un tool. Il ciclo finisce con <code>complete</code>, <code>done</code>, <code>repeated_step</code>, <code>unknown_tool_or_low_confidence</code>, <code>planner_failed</code>, <code>required_tools</code> o <code>max_tool_calls</code> (<code>max_tool_calls_per_turn</code>, 10); le parti rimaste senza tool arrivano alla risposta come “NON eseguite” (mai “non trovate”);<br>3) <b>risposta finale</b>: emette lo stadio <code>answering</code>, poi costruisce il contesto con history + al massimo 10 chunk per tool e le istruzioni <code>final_instructions</code> più <code>tool_final_instructions</code> di ogni tool usato. Se la chiamata fallisce restituisce il testo grezzo dei primi chunk e registra <code>answer_failed</code>. Infine emette lo step <code>planning</code> se i tool sono più di uno o ci sono parti non eseguite o fallback.<br>Con <code>needs_clarification</code> (mai con <code>required_tools</code>) <code>run</code> non esegue tool né la chiamata finale: la domanda è la risposta e <code>tool</code> vale None.<br>L'<code>observer</code> riceve gli step <b>mentre accadono</b>; gli errori dell'osservatore sono ignorati. Il dict restituito non dipende da lui.`,
+    d: `Definisce il <code>Tool</code> Protocol (<code>name</code>, <code>description</code>, <code>input_schema</code>, <code>run(*, query, params, conversation_history)</code>) e l'<code>Enricher</code>. <code>run(..., observer=)</code>:<br>1) <b>pianificazione</b> (<code>_plan_first</code>, una chiamata LLM; <code>_plan_turn</code> ne è il wrapper a tupla usato dal routing eval): JSON <code>{standalone_query, tool_name, arguments, confidence, parts, more_steps}</code>. <code>standalone_query</code> è la domanda riscritta in modo autonomo usando la history: vale per qualunque tool, anche con <code>required_tools</code> o fallback. Le <code>parts</code> sono le parti della richiesta, ciascuna col suo tool; serve un altro passo se <code>more_steps</code> è vero o una parte ha un altro tool. Alle istruzioni si aggiunge il catalogo dei tool (nome, descrizione, schema in JSON compatto). Alle istruzioni si aggiunge anche la regola di copertura dei dati (<code>data_coverage.coverage_rule</code>) per i tool ammessi. Se il planner fallisce, ha confidenza bassa o nomina un tool sconosciuto gira il <code>fallback_tool</code> e il motivo (<code>planner_failed</code>, <code>low_confidence</code>, <code>unknown_tool</code>) viene registrato;<br>2) <b>ciclo multi-tool</b>: per ogni passo emette lo step <code>tool_selection</code> (con <code>purpose</code> = la parte della richiesta, e <code>arguments</code>) <b>prima</b> di chiamare il tool, poi lo step <code>tool_outcome</code> (<code>elapsed_ms</code>, <code>status</code>, <code>reason</code>, letti da <code>result["outcome"]</code>; senza, conta la presenza di <code>chunks</code>) e la <code>trace</code> del tool; <code>_enrich</code> completa i risultati RAG con TMDb. Tra un passo e l'altro <code>_plan_next</code> (una chiamata in più) decide il successivo dai risultati già ottenuti o ritorna <code>done</code>; non ripiega mai su un tool. Gira anche, senza altre parti pendenti, quando un tool offre altro con <code>follow_up</code> (<code>available</code>, motivi, riassunto): il planner giudica se ciò che c'è basta, altrimenti sceglie il passo successivo. La fine del ciclo è classificata da <code>_classify_next_step</code>: conclusione esplicita (<code>done: true</code> o un segnale di stop del contratto <code>NEXT_STEP_FORMAT</code>) senza avvisi; risposta incompleta o contraddittoria = <code>planner_incomplete</code> con l'avviso <code>next_step_failed</code>; testo non JSON = <code>planner_failed</code>. <code>planner_output</code> registra cosa ha risposto il planner senza testo libero né argomenti. Il ciclo finisce con <code>complete</code>, <code>done</code>, <code>repeated_step</code>, <code>unknown_tool_or_low_confidence</code>, <code>planner_failed</code>, <code>required_tools</code> o <code>max_tool_calls</code> (<code>max_tool_calls_per_turn</code>, 10); le parti rimaste senza tool arrivano alla risposta come “NON eseguite” (mai “non trovate”);<br>3) <b>risposta finale</b>: emette lo step <code>planning</code> (se i tool sono più di uno, ci sono parti non eseguite o fallback) e lo stadio <code>answering</code>, poi costruisce il contesto con history + al massimo 10 chunk per tool e le istruzioni <code>final_instructions</code> più <code>tool_final_instructions</code> di ogni tool usato. La risposta è UNA sola chiamata <code>responses.create(stream=True)</code>, mai una seconda: <code>_consume_stream</code> legge gli eventi dell'SDK e il testo va a <code>observer.answer_delta</code>. Con <code>final_output</code> (web) i delta grezzi sono JSON strict <code>{answer, lists}</code> e passano da <code>AnswerFieldStream</code>: il canale vede solo il testo di <code>answer</code> già decodificato; <code>lists</code> arriva dal parse del JSON completo. Se il flusso fallisce (incompleto, errore, refusal, JSON non valido): dopo alcuni delta la risposta è il testo già mostrato, senza delta il ripiego esistente (anch'esso emesso come delta), in entrambi i casi fallback <code>answer_failed</code> (che produce un secondo step <code>planning</code> minimo) e la cronologia contiene ciò che l'utente ha visto.<br>Con <code>needs_clarification</code> (mai con <code>required_tools</code>) <code>run</code> non esegue tool né la chiamata finale: la domanda è la risposta e <code>tool</code> vale None.<br>L'<code>observer</code> riceve gli step <b>mentre accadono</b>; gli errori dell'osservatore sono ignorati. Il dict restituito non dipende da lui.`,
     it: [
       ["Tool (Protocol)", "Il contratto che ogni nuovo tool deve rispettare; il risultato può portare <code>outcome</code> fuori da <code>metadata</code>."],
       ["LLMOrchestrator.run(*, query, conversation_history, tool_overrides, observer=None)", "Restituisce <code>{tool, tools, calls, standalone_query, result, planning, final_answer}</code> (<code>tool</code> e <code>result</code> sono del primo passo)."],
@@ -1271,31 +2051,38 @@ const TREE = D("NetflixScout", {}, [
       ["_final_instructions(tool_names)", "<code>final_instructions</code> più <code>tool_final_instructions</code> dei tool usati: gli altri turni non le ricevono."],
       ["_catalog_text(tool_names)", "Catalogo dei tool ammessi per il prompt di pianificazione (una riga JSON per tool)."],
       ["list_tools · _tool_catalog", "Descrizione dei tool registrati."],
+      ["_follow_up · _summarize_call", "Legge <code>follow_up</code> dal risultato di un tool; il riassunto per il planner sostituisce i metadata troncati."],
+      ["NEXT_STEP_FORMAT · _classify_next_step · STOP_TOOL_NAMES", "Contratto della risposta del passo successivo e classificazione pura: <code>done</code>, <code>step</code> o <code>incomplete</code>."],
+      ["_planner_detail", "Cosa ha risposto il planner, senza testo libero né argomenti (nomi delle sole chiavi note, scalari)."],
+      ["_consume_stream · _emit_delta", "Lettura degli eventi di streaming della risposta finale e inoltro dei delta all'osservatore."],
+      ["MAX_PARTS · _parse_parts · _pending_parts", "Le parti della richiesta (fino a 6) e quelle ancora senza tool eseguito."],
+      ["CLARIFICATION", "Valore di <code>tool</code> quando la domanda di chiarimento è la risposta."],
     ],
     x: ["openai"],
-    n: ["La history viene passata <b>intera e invariata</b>, nello stesso ordine, a ogni chiamata: l'inizio del prompt resta stabile e il prompt caching del provider può riusarlo. Una finestra scorrevole lo impedirebbe.", "Il catalogo dei tool non è un function tool: è testo nel prompt e la scelta torna come JSON. Cambiare uno schema cambia il prompt di planning: va rieseguito il routing eval live (con permesso).", "Più tool per turno: il budget TMDb e le ricerche YouTube contano sul <code>turn_id</code> che l'orchestratore passa a ogni run, non sulla run.", "Gli argomenti del planner hanno la precedenza sui <code>tool_overrides</code>.", "Gli errori LLM del planner e della risposta finale vengono ora registrati come fallback e mostrati all'utente dalla storia solo quando accadono; un'eccezione dentro <code>tool.run</code> invece interrompe ancora il turno."],
+    n: ["La history viene passata <b>intera e invariata</b>, nello stesso ordine, a ogni chiamata: l'inizio del prompt resta stabile e il prompt caching del provider può riusarlo. Una finestra scorrevole lo impedirebbe.", "Il catalogo dei tool non è un function tool: è testo nel prompt e la scelta torna come JSON. Cambiare uno schema cambia il prompt di planning: va rieseguito il routing eval live (con permesso).", "Più tool per turno: il budget TMDb e le ricerche YouTube contano sul <code>turn_id</code> che l'orchestratore passa a ogni run, non sulla run.", "Gli argomenti del planner hanno la precedenza sui <code>tool_overrides</code>.", "Gli errori LLM del planner e della risposta finale vengono ora registrati come fallback e mostrati all'utente dalla storia solo quando accadono; un'eccezione dentro <code>tool.run</code> invece interrompe ancora il turno.", `Il tool Wikipedia e TMDb usano <code>follow_up</code>: un tool che non lo produce costa le stesse chiamate LLM di prima (<code>tests/test_orchestrator_follow_up.py</code>).`],
   }),
   F("turn.py", {
     L: "out", s: "Modelli neutri rispetto al canale: <code>TraceStep</code>, <code>TurnResult</code>, <code>StoryLine</code> e il contratto <code>TurnObserver</code>.",
-    d: `È il confine tra nucleo e output: <code>app.handle_query</code> produce un <code>TurnResult</code> e i <code>presenters/</code> lo consumano. <code>TraceStep(kind, title, data)</code> descrive un passaggio del procedimento; <code>TurnResult</code> contiene domanda, lingua, <code>blocked</code>, risposta, tool usato (<code>tool</code> è il primo, <code>tools</code> tutti, in ordine), la lista ordinata degli step, la <code>story</code>, la history aggiornata e <code>history_compacted</code>. <code>TurnObserver</code> è il contratto per mostrare il turno <b>mentre accade</b>: <code>step(TraceStep)</code> per ogni step appena concluso e <code>status(stage)</code> per gli stadi passeggeri (<code>understanding</code>, <code>answering</code>) che non sono step e non restano in <code>TurnResult.steps</code>; <code>NullObserver</code> è il default. Ogni tool dichiara l'esito della sua run in <code>result["outcome"]</code> con <code>tool_outcome(status, reason)</code> (<code>ok</code>, <code>empty</code>, <code>error</code>), fuori da <code>metadata</code> perché non finisca nel prompt.`,
+    d: `È il confine tra nucleo e output: <code>app.handle_query</code> produce un <code>TurnResult</code> e i <code>presenters/</code> lo consumano. <code>TraceStep(kind, title, data)</code> descrive un passaggio del procedimento; <code>TurnResult</code> contiene domanda, lingua, <code>blocked</code>, risposta, tool usato (<code>tool</code> è il primo, <code>tools</code> tutti, in ordine), la lista ordinata degli step, la <code>story</code>, la history aggiornata e <code>history_compacted</code>. <code>TurnObserver</code> è il contratto per mostrare il turno <b>mentre accade</b>: <code>step(TraceStep)</code> per ogni step appena concluso e <code>status(stage)</code> per gli stadi passeggeri (<code>understanding</code>, <code>answering</code>) che non sono step e non restano in <code>TurnResult.steps</code>; <code>NullObserver</code> è il default. Ogni tool dichiara l'esito della sua run in <code>result["outcome"]</code> con <code>tool_outcome(status, reason)</code> (<code>ok</code>, <code>empty</code>, <code>error</code>), fuori da <code>metadata</code> perché non finisca nel prompt.<br><br><code>TurnResult.item_refs</code> porta i riferimenti grezzi alle liste della risposta finale (solo canale web, controllati poi da <code>web_lists</code>).`,
     it: [
       ["TraceStep", "Un passaggio: <code>kind</code>, <code>title</code>, <code>data</code>."],
       ["TurnResult", "Tutto ciò che è successo in un turno di chat, storia inclusa."],
       ["StoryLine(level, text, tool)", "Una frase della storia del turno, uguale per ogni canale (<code>progress</code>, <code>info</code>, <code>ok</code>, <code>warn</code>)."],
-      ["TurnObserver · NullObserver", "Chi riceve gli step e gli stadi mentre il turno è in corso; il nucleo non stampa mai."],
-      ["STEP_CLASSIFICATION · STEP_QUERY_REWRITE · STEP_TOOL_SELECTION · STEP_TOOL_OUTCOME · STEP_PLANNING · STEP_RETRIEVAL · STEP_RERANK · STEP_DB_QUERY · STEP_TMDB_CALLS · STEP_YOUTUBE_CALLS", "I <code>kind</code> conosciuti: i primi cinque sono step di flusso (li racconta la storia), gli altri sono dei tool (<code>db_query</code> MovieLens, <code>tmdb_calls</code> TMDb, <code>youtube_calls</code> YouTube). I tool futuri possono aggiungerne altri."],
+      ["TurnObserver · NullObserver", "Chi riceve gli step e gli stadi mentre il turno è in corso, e il testo della risposta pezzo per pezzo (<code>answer_delta</code>, anche per messaggio di blocco, chiarimento e ripiego); il nucleo non stampa mai."],
+      ["STEP_CLASSIFICATION · STEP_QUERY_REWRITE · STEP_TOOL_SELECTION · STEP_TOOL_OUTCOME · STEP_PLANNING · STEP_RETRIEVAL · STEP_RERANK · STEP_DB_QUERY · STEP_TMDB_CALLS · STEP_YOUTUBE_CALLS · STEP_WIKIPEDIA_CALLS", "I <code>kind</code> conosciuti: i primi cinque sono step di flusso (li racconta la storia), gli altri sono dei tool (<code>db_query</code> MovieLens, <code>tmdb_calls</code> TMDb, <code>youtube_calls</code> YouTube, <code>wikipedia_calls</code> Wikipedia). I tool futuri possono aggiungerne altri."],
       ["tool_outcome(status, reason) · OUTCOME_OK/EMPTY/ERROR", "Forma dell'esito che un tool mette in <code>result[\"outcome\"]</code>; <code>reason</code> è un codice breve che i presenter traducono in una frase."],
       ["STAGE_UNDERSTANDING · STAGE_ANSWERING", "Gli stadi passeggeri di <code>status</code>."],
       ["TOOL_PARAM_TURN_LANGUAGE", "<code>\"turn_language\"</code>: parametro che <code>handle_query</code> passa a ogni tool con la lingua del turno; chi non lo usa lo ignora."],
       ["TOOL_PARAM_TURN_ID", "<code>\"turn_id\"</code>: lo passa l'orchestratore a ogni tool; i limiti per turno (chiamate TMDb, ricerche YouTube) contano sul turno, non sulla run."],
+      [`RESULT_FOLLOW_UP`, `<code>"follow_up"</code>: chiave opzionale del risultato di un tool (fuori da <code>metadata</code>, quindi fuori dal prompt finale) con <code>{available, reasons, summary}</code>: il tool dice che ha altro da dare e cosa ha già dato, così l'orchestratore chiede al planner se proseguire. Chi non la produce non è toccato.`],
     ],
     x: ["pydantic"],
   }),
   F("requirements.txt", {
     L: "cfg", s: "Dipendenze Python con versioni pinnate.",
-    d: `openai, chromadb, pydantic, python-dotenv, cohere, rank-bm25, beautifulsoup4, markdown-it-py, pypdf, python-docx, numpy, sentence-transformers, torch.`,
+    d: `openai, chromadb, pydantic, python-dotenv, cohere, rank-bm25, beautifulsoup4, markdown-it-py, pypdf, python-docx, numpy, sentence-transformers, torch, fastapi, uvicorn.`,
     cmd: "pip install -r requirements.txt",
-    n: ["<code>pytest</code> non è nell'elenco: va installato a parte.", "Non cambiare le versioni senza permesso."],
+    n: ["<code>pytest</code> non è nell'elenco: va installato a parte.", "Non cambiare le versioni senza permesso.", `<code>fastapi</code> e <code>uvicorn</code> servono solo al server web (<code>web_api/</code>).`],
   }),
 ]);
 
@@ -1607,7 +2394,7 @@ const NODES = [
   { id: "turn", x: 200, y: 442, w: 140, k: "out", t: "turn.py", s: "TurnResult + steps", p: "turn.py" },
   { id: "pres", x: 200, y: 552, w: 140, k: "out", t: "presenters/", s: "present(turn, channel)", p: "presenters" },
   { id: "term", x: 24, y: 552, w: 120, k: "out", t: "terminal/", s: "storia + dettagli", p: "presenters/terminal" },
-  { id: "web", x: 366, y: 552, w: 88, k: "out", dash: 1, t: "web/", s: "payload JSON", p: "presenters/web" },
+  { id: "web", x: 366, y: 552, w: 88, k: "out", t: "web/", s: "payload + SSE", p: "presenters/web" },
   { id: "models", x: 420, y: 442, w: 160, k: "rt", t: "models.py", s: "schemi Pydantic", p: Q + "models.py" },
   { id: "retr", x: 660, y: 442, w: 170, k: "rt", t: "retrieval.py", s: "segnali EN + boost genere", p: Q + "retrieval.py", api: 1 },
   { id: "rerank", x: 868, y: 442, w: 112, k: "rt", t: "rerank.py", s: "Cohere | LLM", p: Q + "rerank.py", api: 1 },
@@ -1633,6 +2420,19 @@ const NODES = [
   { id: "ythttp", x: 532, y: 952, w: 140, k: "youtube", t: "http.py", s: "memo · pausa quota", p: Y + "http.py" },
   { id: "ytapi", x: 698, y: 952, w: 116, k: "ext", t: "YouTube API", s: "/search · /videos" },
   { id: "ytrel", x: 840, y: 952, w: 140, k: "youtube", t: "relevance.py", s: "filtro su /videos", p: Y + "relevance.py" },
+  // ⑥ tool Wikipedia
+  { id: "wptool", x: 200, y: 1082, w: 140, k: "wikipedia", t: "wikipedia/tool.py", s: "wikipedia_search", p: W + "tool.py" },
+  { id: "wpquery", x: 366, y: 1082, w: 140, k: "wikipedia", t: "queries.py", s: "ricerca · articolo intero", p: W + "queries.py" },
+  { id: "wphttp", x: 532, y: 1082, w: 140, k: "wikipedia", t: "http.py", s: "memo·cache·pausa·budget", p: W + "http.py" },
+  { id: "wpapi", x: 698, y: 1082, w: 116, k: "ext", t: "Wikipedia API", s: "MediaWiki Action API" },
+  { id: "wpsec", x: 840, y: 1082, w: 140, k: "wikipedia", t: "sections.py", s: "sezioni per parole chiave", p: W + "sections.py" },
+  // ⑦ server web
+  { id: "client", x: 24, y: 1222, w: 120, k: "ext", t: "Frontend", s: "fetch + SSE" },
+  { id: "wsrv", x: 200, y: 1222, w: 140, k: "web", t: "web_api/server.py", s: "FastAPI · route", p: "web_api/server.py" },
+  { id: "wstore", x: 366, y: 1222, w: 140, k: "web", t: "store.py", s: "conversazioni · history", p: "web_api/conversations/store.py" },
+  { id: "wrun", x: 532, y: 1222, w: 140, k: "web", t: "streaming/runner.py", s: "turno in un thread", p: "web_api/streaming/runner.py" },
+  { id: "wobs", x: 698, y: 1222, w: 140, k: "out", t: "web/observer.py", s: "eventi live", p: "presenters/web/observer.py" },
+  { id: "wlist", x: 856, y: 1222, w: 124, k: "web", t: "attach_lists.py", s: "liste di titoli", p: "web_lists/attach_lists.py" },
 ];
 const EDGES = [
   { f: "build", t: "loaders", dash: 1, dir: "v" }, { f: "build", t: "vs1", dash: 1, dir: "v" },
@@ -1654,7 +2454,7 @@ const EDGES = [
   { f: "orch", t: "turn", l: "handle_query()", dir: "v" },
   { f: "turn", t: "pres", l: "present()", dir: "v" },
   { f: "pres", t: "term", l: "terminale" },
-  { f: "pres", t: "web", l: "web", dash: 1, lp: [410, 614] },
+  { f: "pres", t: "web", l: "web", lp: [410, 614] },
   { f: "tool", t: "models", l: "valida input", dir: "v", dash: 1 },
   { f: "retr", t: "hyb", dir: "v", l: "bm25 · hybrid", lp: [560, 522] },
   { f: "retr", t: "rag", dir: "v", l: "semantic", lp: [714, 537] },
@@ -1675,6 +2475,16 @@ const EDGES = [
   { f: "ytquery", t: "ythttp" },
   { f: "ythttp", t: "ytapi", both: 1, l: "GET" },
   { f: "yttool", t: "ytrel", via: [[270, 998], [270, 1012], [910, 1012], [910, 998]], l: "risultati → filtro", lp: [590, 1012] },
+  { f: "orch", t: "wptool", via: [[200, 368], [150, 368], [150, 1105], [200, 1105]], both: 1, l: "wikipedia_search", lp: [150, 1120] },
+  { f: "wptool", t: "wpquery", l: "richiesta" },
+  { f: "wpquery", t: "wphttp" },
+  { f: "wphttp", t: "wpapi", both: 1, l: "GET" },
+  { f: "wptool", t: "wpsec", via: [[270, 1128], [270, 1142], [910, 1142], [910, 1128]], l: "articolo → sezioni", lp: [590, 1142] },
+  { f: "client", t: "wsrv", both: 1, l: "HTTP · SSE" },
+  { f: "wsrv", t: "wstore" },
+  { f: "wstore", t: "wrun", l: "history" },
+  { f: "wrun", t: "wobs", l: "emit" },
+  { f: "wrun", t: "wlist", via: [[602, 1268], [602, 1278], [918, 1278], [918, 1268]], l: "attach_lists", lp: [760, 1278] },
 ];
 const KIND = {
   off:   { fill: "#10302c", stroke: "#2bb3a0" },
@@ -1686,6 +2496,8 @@ const KIND = {
   db:    { fill: "#331f17", stroke: "#f78c6c" },
   tmdb:  { fill: "#212b17", stroke: "#c3e88d" },
   youtube: { fill: "#2e2714", stroke: "#ffcb6b" },
+  wikipedia: { fill: "#122630", stroke: "#89ddff" },
+  web:   { fill: "#2e1b1e", stroke: "#e06c75" },
   ext:   { fill: "#232323", stroke: "#7a7a7a", dash: "4 3" },
 };
 
@@ -1743,7 +2555,7 @@ function renderDiagram() {
       `<text x="${cx}" y="${ty}" text-anchor="middle" style="font-family:var(--mono)" font-size="${n.bar ? 11.5 : n.cyl ? 10.5 : 11}" font-weight="600" fill="#ececec">${esc(n.t)}</text>` +
       (n.s ? `<text x="${cx}" y="${sy}" text-anchor="middle" font-size="10" fill="#a9a9a9">${esc(n.s)}</text>` : "") + api + `</g>`;
   }
-  return `<svg viewBox="0 0 1000 1032" role="img" aria-label="Architettura di NetflixScout" style="font-family:var(--sans)">
+  return `<svg viewBox="0 0 1000 1296" role="img" aria-label="Architettura di NetflixScout" style="font-family:var(--sans)">
     <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8b949e"/></marker></defs>
     <rect x="8" y="8" width="984" height="200" rx="10" fill="#1a2322" stroke="#2bb3a033"/>
     <text x="24" y="31" font-size="11" font-weight="700" letter-spacing=".06em" fill="#2bb3a0">① INDICIZZAZIONE OFFLINE</text>
@@ -1760,6 +2572,12 @@ function renderDiagram() {
     <rect x="8" y="908" width="984" height="116" rx="10" fill="#26221a" stroke="#ffcb6b33"/>
     <text x="24" y="931" font-size="11" font-weight="700" letter-spacing=".06em" fill="#ffcb6b">⑤ TOOL YOUTUBE</text>
     <text x="366" y="931" font-size="11" fill="#8b8b8b" style="font-family:var(--mono)">max 2 ricerche per turno · 100 search.list al giorno · nessuna cache</text>
+    <rect x="8" y="1038" width="984" height="116" rx="10" fill="#18232a" stroke="#89ddff33"/>
+    <text x="24" y="1061" font-size="11" font-weight="700" letter-spacing=".06em" fill="#89ddff">⑥ TOOL WIKIPEDIA</text>
+    <text x="366" y="1061" font-size="11" fill="#8b8b8b" style="font-family:var(--mono)">nessuna chiave · inglese di default · articolo a sezioni · follow_up</text>
+    <rect x="8" y="1168" width="984" height="124" rx="10" fill="#27191b" stroke="#e06c7533"/>
+    <text x="24" y="1191" font-size="11" font-weight="700" letter-spacing=".06em" fill="#e06c75">⑦ SERVER WEB</text>
+    <text x="210" y="1191" font-size="11" fill="#8b8b8b" style="font-family:var(--mono)">uvicorn web_api.main:app · 1 worker · il runner chiama app.handle_query</text>
     ${edges}${nodes}${labels}
   </svg>`;
 }
@@ -1769,38 +2587,42 @@ function renderOverview() {
   return `<div class="page" style="max-width:1120px">
     <h1><span style="color:#3794ff">◈</span>NetflixScout</h1>
     <div class="path">Mappa del progetto · grafico della struttura</div>
-    <p class="lead">Assistente da terminale che consiglia film con una pipeline RAG sul CMU Movie Summary Corpus (ChromaDB per la ricerca, Cohere per il rerank, OpenAI per classificazione, segnali, embedding e risposta) risponde a domande su voti e classifiche con un database SQLite read-only di MovieLens 32M e recupera dati aggiornati (cast, regia, streaming, trailer, trending, serie) dall'API di TMDb e video su un film (interviste a regista e cast, making-of, dietro le quinte, commenti degli autori) dalla YouTube Data API.</p>
+    <p class="lead">Assistente da terminale e da web (server FastAPI/SSE) che consiglia film con una pipeline RAG sul CMU Movie Summary Corpus (ChromaDB per la ricerca, Cohere per il rerank, OpenAI per classificazione, segnali, embedding e risposta) risponde a domande su voti e classifiche con un database SQLite read-only di MovieLens 32M e recupera dati aggiornati (cast, regia, streaming, trailer, trending, serie) dall'API di TMDb e video su un film (interviste a regista e cast, making-of, dietro le quinte, commenti degli autori) dalla YouTube Data API; per informazioni enciclopediche (biografie, storia e produzione di un film, antologie, confronti con l'opera d'origine) legge Wikipedia a sezioni. Ogni tool vive in <code>tool/</code>; il database MovieLens resta in <code>movie_db/</code>.</p>
     <p style="color:var(--muted)">Clicca un riquadro del grafico, oppure un file o una cartella nell'explorer a sinistra, per leggerne la spiegazione.</p>
     <div class="diagram" id="diagram">${renderDiagram()}</div>
     <div class="legend">
-      ${L("off", "Indicizzazione offline")}${L("rt", "Runtime RAG")}${L("orch", "Orchestrazione / guardrail")}${L("out", "Output / presenter")}${L("db", "Tool DB MovieLens")}${L("tmdb", "Tool TMDb")}${L("youtube", "Tool YouTube")}${L("wikipedia", "Tool Wikipedia")}${L("entry", "Entry point")}${L("data", "Dati locali")}${L("ext", "Esterno / non è un file")}
+      ${L("off", "Indicizzazione offline")}${L("rt", "Runtime RAG")}${L("orch", "Orchestrazione / guardrail")}${L("out", "Output / presenter")}${L("db", "Tool DB MovieLens")}${L("tmdb", "Tool TMDb")}${L("youtube", "Tool YouTube")}${L("wikipedia", "Tool Wikipedia")}${L("web", "Server web / liste")}${L("entry", "Entry point")}${L("data", "Dati locali")}${L("ext", "Esterno / non è un file")}
       <span><i style="background:#c2732a;border-color:#c2732a;border-radius:7px"></i>chiama un'API a pagamento</span>
     </div>
 
-    <h2>Il flusso in 10 passi</h2>
+    <h2>Il flusso in 12 passi</h2>
     <ol class="steps">
       <li><b>Indicizzazione (una volta sola).</b> <a class="vscode" href="#buildSemanticDb.py">buildSemanticDb.py</a> legge <code>dataset/</code>. Ogni trama diventa un chunk con titolo, anno, generi e cast; gli embedding finiscono in Chroma, in <code>dbVettoriale/&lt;backend&gt;/</code>.</li>
       <li><b>Guardrail.</b> <a class="vscode" href="#app.py">app.py</a> riceve la domanda e <a class="vscode" href="#${Q}query_classifier/query_classifier.py">query_classifier</a> (gpt-4o-mini) blocca quelle che non riguardano il cinema, rispondendo in italiano o in inglese. Vede anche l'ultimo scambio della conversazione (<code>classifier_context_messages = 2</code>), così un follow-up come “ne puoi trovare 3 più recenti?” non viene scambiato per off-topic; giudica comunque solo l'ultima domanda. Considera cinematografiche anche le domande statistiche su voti, classifiche e generi.</li>
-      <li><b>Orchestrazione.</b> <a class="vscode" href="#orchestrator.py">orchestrator.py</a>, con una chiamata LLM, riscrive le domande di follow-up in una query autonoma usando la history (“e uno più recente?” → “film di fantascienza con robot più recenti”) e sceglie il tool: <code>rag_search</code> per trama, temi, generi, interpretazione e raccomandazioni (è anche il fallback), <code>movie_db_search</code> per classifiche, voti medi, numero di voti, generi per anno e tag, <code>tmdb_search</code> per dati fattuali e aggiornati (chi ha diretto, chi recita, streaming, trailer, trending, serie). Il prompt contiene il catalogo dei tool con i loro schemi. La query autonoma vale per qualunque tool. Una richiesta composta (per esempio un film e un'intervista) elenca le sue parti e i tool le eseguono in sequenza nello stesso turno, ognuno con i dati dei precedenti, fino a <code>max_tool_calls_per_turn</code>.</li>
-      <li><b>Retrieval.</b> <a class="vscode" href="#${Q}retrieval.py">retrieval.py</a> estrae i segnali in inglese dalla query (cosa vuoi, cosa evitare, cosa escludere, la frase da embeddare <code>semantic_query</code> e i generi), fa l'embedding di <code>semantic_query</code>, dà un boost (<code>genre_boost = 0.15</code>) ai film del genere richiesto su un pool di <code>fetch_k = 50</code> e tiene fino a <code>k_largo = 10</code> candidati, in modalità <code>semantic</code>, <code>bm25</code> o <code>hybrid</code>.</li>
-      <li><b>Rerank.</b> <a class="vscode" href="#${Q}rerank.py">rerank.py</a> riordina con Cohere <code>rerank-v3.5</code>, mostrandogli titolo, anno e generi prima della trama, e tiene i primi <code>k_finale = 3</code>.</li>
+      <li><b>Orchestrazione.</b> <a class="vscode" href="#orchestrator.py">orchestrator.py</a>, con una chiamata LLM, riscrive le domande di follow-up in una query autonoma usando la history (“e uno più recente?” → “film di fantascienza con robot più recenti”) e sceglie il tool: <code>rag_search</code> per trama, temi, generi, interpretazione e raccomandazioni (è anche il fallback), <code>movie_db_search</code> per classifiche, voti medi, numero di voti, generi per anno e tag, <code>tmdb_search</code> per dati fattuali e aggiornati (chi ha diretto, chi recita, streaming, trailer, trending, serie), <code>youtube_search</code> per interviste e making-of, <code>wikipedia_search</code> per le informazioni enciclopediche. Una regola di copertura dei dati manda a <code>tmdb_search</code> i film più recenti di ciò che RAG (fino al 2012) e MovieLens (fino al 2022) contengono. Il prompt contiene il catalogo dei tool con i loro schemi. La query autonoma vale per qualunque tool. Una richiesta composta (per esempio un film e un'intervista) elenca le sue parti e i tool le eseguono in sequenza nello stesso turno, ognuno con i dati dei precedenti, fino a <code>max_tool_calls_per_turn</code>.</li>
+      <li><b>Retrieval.</b> <a class="vscode" href="#${Q}retrieval.py">retrieval.py</a> estrae i segnali in inglese dalla query (cosa vuoi, cosa evitare, cosa escludere, la frase da embeddare <code>semantic_query</code> e i generi), fa l'embedding di <code>semantic_query</code>, dà un boost (<code>genre_boost = 0.15</code>) ai film del genere richiesto su un pool di <code>fetch_k = 50</code> e tiene fino a <code>k_largo = 10</code> candidati, in modalità <code>semantic</code>, <code>bm25</code> o <code>hybrid</code> (l'indice BM25 è letto a pagine e tenuto in cache). Il planner sceglie solo <code>k_finale</code>, cioè quanti film chiede l'utente (<a class="vscode" href="#${Q}retrieval_params.py">retrieval_params.py</a>).</li>
+      <li><b>Rerank.</b> <a class="vscode" href="#${Q}rerank.py">rerank.py</a> riordina con Cohere <code>rerank-v3.5</code>, mostrandogli titolo, anno e generi prima della trama, e tiene i primi <code>k_finale</code> (3 per default). Poi <a class="vscode" href="#${T}enrich.py">tmdb/enrich.py</a> completa i film scelti con metadati TMDb, solo se titolo e anno coincidono.</li>
       <li><b>Tool DB.</b> <a class="vscode" href="#${MT}movie_db_tool.py">movie_db_tool.py</a> fa convertire la domanda dal <a class="vscode" href="#${MT}parser.py">parser</a> in un'operazione whitelistata (<code>MovieDbQuery</code>, mai SQL), e <a class="vscode" href="#${MT}sql">tool/sql/</a> la esegue con SQL fisso e parametri bind su <code>movie_db/data/movielens32m.sqlite3</code>, aperto in sola lettura (<code>mode=ro</code>, <code>query_only</code>, authorizer). Le righe diventano chunk per la risposta; la trace contiene solo le query eseguite.</li>
       <li><b>Tool TMDb.</b> <a class="vscode" href="#${T}tool.py">tmdb/tool.py</a> valida le <code>requests</code> del planner (<a class="vscode" href="#${T}models/requests.py">TmdbToolInput</a>, 1–4 operazioni tra 17) prima di qualunque chiamata, risolve gli ID mancanti e chiama endpoint fissi tramite <a class="vscode" href="#${T}http.py">http.py</a>, l'unico punto di I/O: memo del turno, cache TTL, pausa dopo un 429 e al massimo <code>max_calls_per_turn = 6</code> tentativi, senza retry. <a class="vscode" href="#${T}prompt_budget.py">prompt_budget.py</a> limita i dati passati all'LLM.</li>
       <li><b>Tool YouTube.</b> <a class="vscode" href="#${Y}tool.py">youtube/tool.py</a> valida l'input del planner (<a class="vscode" href="#${Y}models.py">YoutubeToolInput</a>), fa una <code>search.list</code> per categoria con query composte da <a class="vscode" href="#${Y}queries.py">queries.py</a> (al massimo 2 per turno), una sola <code>videos.list</code> tramite <a class="vscode" href="#${Y}http.py">http.py</a> e filtra i risultati con <a class="vscode" href="#${Y}relevance.py">relevance.py</a> sui dati completi, senza riordinarli: i video incerti restano “da verificare”.</li>
-      <li><b>Risposta.</b> L'orchestratore scrive la risposta usando solo i dati ricevuti, con le regole del tool usato (<code>tool_final_instructions</code>). Ogni 12 messaggi <a class="vscode" href="#${Q}conversation.py">conversation.py</a> compatta la history.</li>
-      <li><b>Output.</b> <code>handle_query</code> in <a class="vscode" href="#app.py">app.py</a> non stampa nulla: impacchetta risposta e passaggi in un <a class="vscode" href="#turn.py">TurnResult</a>. Poi <a class="vscode" href="#presenters">presenters/</a> lo mostra in base al canale dichiarato dall'entry point: a terminale il procedimento viene raccontato <b>mentre accade</b>, perché l'orchestratore emette gli step a un <code>TurnObserver</code>: poche frasi semplici (“⏳ Cerco su TMDb: …”, “✅ TMDb: trovato, 2 s”, “⚠️ nessun risultato”, fallback e parti non cercate) seguite dal blocco di dettaglio del tool (K LARGO e RERANKING, oppure 🗄️ QUERY DB con il SQL eseguito, 🎞️ CHIAMATE TMDB con gli URL mascherati e l'attribuzione JustWatch, ▶️ YOUTUBE), poi la risposta; il web restituisce la stessa storia e gli stessi dati in JSON (<code>to_payload</code>), costruiti dalle stesse viste condivise.</li>
+      <li><b>Tool Wikipedia.</b> <a class="vscode" href="#${W}tool.py">wikipedia/tool.py</a> interroga <b>una sola edizione</b> (inglese per default; l'italiano solo se il planner lo chiede in un passo successivo): <a class="vscode" href="#${W}queries.py">queries.py</a> compone la ricerca o la richiesta dell'articolo intero, <a class="vscode" href="#${W}http.py">http.py</a> è l'unico punto di I/O (memo, cache, pausa su 429 e <code>maxlag</code>, budget di turno) e <a class="vscode" href="#${W}sections.py">sections.py</a> divide l'articolo per intestazioni e consegna le sezioni che servono alla domanda fino al budget di contesto. Il tool non decide se basta: offre <code>follow_up</code> (cosa è stato letto e cosa no) e giudica il planner con un passo in più.</li>
+      <li><b>Risposta.</b> L'orchestratore scrive la risposta usando solo i dati ricevuti, con le regole del tool usato (<code>tool_final_instructions</code>), in UNA chiamata in streaming: il testo arriva al canale mentre viene scritto. Ogni 12 messaggi <a class="vscode" href="#${Q}conversation.py">conversation.py</a> compatta la history.</li>
+      <li><b>Output.</b> <code>handle_query</code> in <a class="vscode" href="#app.py">app.py</a> non stampa nulla: impacchetta risposta e passaggi in un <a class="vscode" href="#turn.py">TurnResult</a>. Poi <a class="vscode" href="#presenters">presenters/</a> lo mostra in base al canale dichiarato dall'entry point: a terminale il procedimento viene raccontato <b>mentre accade</b>, perché l'orchestratore emette gli step a un <code>TurnObserver</code>: poche frasi semplici (“⏳ Cerco su TMDb: …”, “✅ TMDb: trovato, 2 s”, “⚠️ nessun risultato”, fallback e parti non cercate) seguite dal blocco di dettaglio del tool (K LARGO e RERANKING, oppure 🗄️ QUERY DB con il SQL eseguito, 🎞️ CHIAMATE TMDB con gli URL mascherati e l'attribuzione JustWatch, ▶️ YOUTUBE, 📖 WIKIPEDIA con pagine, licenza e link), poi la risposta, stampata a pezzi mentre arriva; il web restituisce la stessa storia e gli stessi dati in JSON (<code>to_payload</code>) e, dal vivo, come eventi (<a class="vscode" href="#presenters/web/observer.py">WebObserver</a>), costruiti dalle stesse viste condivise.</li>
+      <li><b>Server web.</b> <a class="vscode" href="#web_api/server.py">web_api/</a> espone il bot al frontend: <code>POST /conversations/{id}/messages</code> risponde con uno stream SSE (<code>turn_start</code>, <code>status</code>, <code>story</code>, <code>step</code>, <code>answer_delta</code>, <code>answer_end</code>, <code>lists</code>, <code>done</code>). Il turno gira in un thread di proprietà del server (<a class="vscode" href="#web_api/streaming/runner.py">runner.py</a>): la history si registra quando <code>handle_query</code> ritorna anche se il client è sparito. La stessa chiamata della risposta restituisce anche i riferimenti alle liste, che <a class="vscode" href="#web_lists/attach_lists.py">web_lists/</a> controlla e idrata con i dati dei tool, senza altre chiamate.</li>
     </ol>
 
     <h2>Punti di attenzione nel codice</h2>
     <div class="callout"><ul>
       <li>Il README è in parte superato rispetto ad <code>app.py</code> e <code>orchestrator.py</code>.</li>
       <li>Il commit “migrate db to Qdrant” non corrisponde al codice, che usa solo ChromaDB.</li>
-      <li>In modalità bm25/hybrid l'indice BM25 viene ricostruito su tutto il corpus a ogni query (<a class="vscode" href="#${Q}hybrid.py">hybrid.py</a>).</li>
+      <li>In modalità bm25/hybrid l'indice BM25 è letto a pagine e tenuto in cache per collection (<a class="vscode" href="#${Q}hybrid.py">hybrid.py</a>); la modalità resta <code>semantic</code>: il planner non la sceglie più (A/B del 2026-10-24 senza benefici) e l'utilità di bm25/hybrid non è dimostrata.</li>
       <li><code>max_iterations</code>, <code>max_execution_time</code> e <code>token_budget</code> sono in CONFIG ma il codice non li usa.</li>
       <li>La build del DB MovieLens e <code>run_eval</code> offline non fanno chiamate API, ma richiedono <code>OPENAI_API_KEY</code>: leggono <code>CONFIG</code> da <code>app.py</code>, i cui import creano il client OpenAI.</li>
       <li>Limiti noti dei dati MovieLens: nelle classifiche compaiono serie TV (Firefly, Planet Earth II…), l'articolo finale resta in fondo nei titoli con titolo alternativo tra parentesi, <code>by_title</code> cerca per sottostringa.</li>
       <li>Verifiche reali del 2026-10-22 (app, TMDb, OpenAI e Cohere reali, ≥30 s tra gli invii): routing live 23/23; titoli alternativi e varianti verificati su dati TMDb reali; A/B controllato del reranker (36 chiamate Cohere): violazioni verificabili 20 con la query italiana, 21 con la sola semantica, 16 con la query composta. Limite aperto: con 3 candidati e <code>max_calls_per_turn</code> 6 il completamento RAG → TMDb salta spesso il terzo candidato (<code>skipped</code>).</li>
-      <li>Tool YouTube: E2E reale del 2026-10-23 (20 domande, prima dei fix di pertinenza) con routing 20/20 e 6 OK / 10 parziali / 4 falliti. Ancora da verificare live: l'E2E dopo i fix, i casi YouTube nel routing eval, uno smoke test (non esiste), la precedenza degli operatori nella query e il rispetto reale delle istruzioni da parte dell'LLM. Le Developer Policies (III.A.2) chiedono anche una privacy policy dell'applicazione, non ancora scritta.</li>
+      <li>Tool YouTube: E2E reale del 2026-10-23 (20 domande, prima dei fix di pertinenza) con routing 20/20 e 6 OK / 10 parziali / 4 falliti. Ancora da verificare live: l'E2E dopo i fix, i casi YouTube nel routing eval, lo smoke test (scritto, mai lanciato), la precedenza degli operatori nella query e il rispetto reale delle istruzioni da parte dell'LLM. Le Developer Policies (III.A.2) chiedono anche una privacy policy dell'applicazione, non ancora scritta.</li>
+      <li>Tool Wikipedia: tutti i test sono offline. Mai eseguiti: lo smoke test live, il routing eval live dei casi Wikipedia e un E2E con LLM reale (rispetto delle istruzioni sugli estratti, qualità del giudizio di sufficienza del planner, taratura di <code>context_chars_per_turn</code>). Le regole sulle affermazioni non supportate (titoli originali, traduzioni, identificazioni) sono istruzioni per il modello: non dimostrabili offline.</li>
+      <li>Server web: nessuna autenticazione né rate limit, per scelta; un solo worker (conversazioni in memoria). Lo streaming strutturato (<code>answer</code> prima di <code>lists</code>) non è dimostrato sul modello reale: lo controlla <code>web_api/harness/live_stream_check.py</code> (1 chiamata, con permesso). La selezione dei riferimenti delle liste non comprende la semantica: scarta solo per segnali di negazione o confronto.</li>
       <li>Termini TMDb: l'attribuzione JustWatch è implementata; §1.C vieta l'uso con applicazioni AI, scelta consapevole del proprietario per un uso personale da portfolio.</li>
     </ul></div>
   </div>`;
