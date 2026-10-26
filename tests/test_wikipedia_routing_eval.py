@@ -72,12 +72,13 @@ def test_invalid_or_invented_arguments_fail(plan, problem) -> None:
 
 def test_english_is_the_default_search_even_for_an_italian_question() -> None:
     for case in (PARK, BY_QUESTION["Com'è nata la Nouvelle Vague e quali sono state le sue influenze?"]):
-        (option,) = case.expected_wikipedia if isinstance(case.expected_wikipedia, tuple) else (case.expected_wikipedia,)
-        assert option.languages == (None, "en")
-        plan = _arguments_for(option)
-        assert check_wikipedia(option, plan, "q") is None
-        assert check_wikipedia(option, {**plan, "language": "en"}, "q") is None
-        assert check_wikipedia(option, {**plan, "language": "it"}, "q") == "language 'it' not in (None, 'en')"
+        options = case.expected_wikipedia if isinstance(case.expected_wikipedia, tuple) else (case.expected_wikipedia,)
+        for option in options:
+            assert option.languages == (None, "en")
+            plan = _arguments_for(option)
+            assert check_wikipedia(option, plan, "q") is None
+            assert check_wikipedia(option, {**plan, "language": "en"}, "q") is None
+            assert check_wikipedia(option, {**plan, "language": "it"}, "q") == "language 'it' not in (None, 'en')"
 
 
 def test_a_local_topic_may_ask_for_the_italian_edition_and_keywords_are_not_checked_as_given() -> None:

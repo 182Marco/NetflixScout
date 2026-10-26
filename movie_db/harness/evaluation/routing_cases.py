@@ -358,7 +358,10 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
     RoutingCase(
         "Com'è nata la Nouvelle Vague e quali sono state le sue influenze?",
         WIKIPEDIA,
-        expected_wikipedia=WikipediaExpectation("nouvelle vague", kinds=("topic",)),
+        # The default edition is English: the planner writes the English title of the page.
+        expected_wikipedia=tuple(
+            WikipediaExpectation(fragment, kinds=("topic",)) for fragment in ("nouvelle vague", "new wave")
+        ),
     ),
     RoutingCase(
         "Come è stato prodotto Blade Runner? Voglio la storia della lavorazione",
@@ -404,6 +407,9 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
         "In The Congress (2013), come si alternano la parte in live action e quella animata, e quale "
         "ruolo ha il personaggio interpretato da Robin Wright?",
         WIKIPEDIA,
+        # Who plays the character is TMDb data (rule 1c): either tool may come first.
+        alternative_first_tools=(TMDB,),
+        also_uses=(WIKIPEDIA, TMDB),
         expected_wikipedia=WikipediaExpectation(
             "congress", kinds=("film",), depths=("sections", "full"), allowed=(("year", "2013"),)
         ),

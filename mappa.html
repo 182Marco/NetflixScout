@@ -836,7 +836,7 @@ const TREE = D("NetflixScout", {}, [
     L: "wikipedia",
     s: "Tool <code>wikipedia_search</code>: informazioni enciclopediche su film, persone e movimenti, lette a sezioni.",
     d: `Tool <b>in-process</b> sulla MediaWiki Action API, senza chiave e senza MCP. L'articolo è scaricato una volta (cache TTL) e consegnato per sezioni fino al budget di contesto del turno; i passi successivi sulla stessa pagina sono cache hit. Il tool non decide se basta: offre <code>follow_up</code> e giudica il planner. Crediti: link alla pagina, licenza CC BY-SA 4.0 e nota che il testo è riformulato sono mostrati dai presenter.`,
-    n: ["Mai eseguiti dal vivo: <code>python -m tool.wikipedia.harness.live_smoke --live</code>, il routing eval dei casi Wikipedia e un E2E con LLM reale."],
+    n: ["Verificato dal vivo il 2026-10-26: smoke test 3/3, routing eval Wikipedia 11/11, E2E con LLM reale su 12 domande (nessuna affermazione non supportata nei controlli sul testo delle pagine). Campione piccolo e una sola esecuzione: il rispetto delle istruzioni da parte del modello è osservato, non dimostrato; l'iniezione di istruzioni negli estratti non è stata provata."],
   }, [
     F("__init__.py", { L: "wikipedia", s: `Docstring del package.`, d: `Nessun codice: descrive il tool come accesso in sola lettura e in-process alla MediaWiki Action API.` }),
     F("budget.py", { L: "wikipedia", s: `Stato per turno: chiamate, contesto consegnato, sezioni già date.`, d: `Dizionario <code>turn_id → TurnState</code> limitato e con lock: due conversazioni concorrenti non si azzerano a vicenda. Tiene anche le edizioni (lingue) già interrogate nel turno.` }),
