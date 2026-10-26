@@ -47,8 +47,16 @@ def _details(movie_id: int, *, with_credits: bool = True) -> dict:
 
 def _routes(search: dict[tuple[str, str | None], list[dict]], **details_options) -> dict:
     routes = {f"/movie/{movie_id}": _details(movie_id, **details_options) for movie_id in MOVIES}
-    routes["/search/movie"] = lambda params: {"results": search.get((params["query"], params.get("year")), [])}
+    routes["/search/movie"] = lambda params: {"results": _search_results(search, params)}
     return routes
+
+
+def _search_results(search: dict[tuple[str, str | None], list[dict]], params: dict) -> list[dict]:
+    """Like TMDb: the year filter keeps one year, no filter returns every year of the title."""
+    key = (params["query"], params.get("year"))
+    if key in search or key[1] is not None:
+        return search.get(key, [])
+    return [movie for (title, _), found in search.items() if title == key[0] for movie in found]
 
 
 def _chunk(title, year, score=0.9):
@@ -127,7 +135,7 @@ def test_zero_results_is_not_found_and_nothing_is_invented() -> None:
 
     assert _rows(result) == [{"rank": 1, "rag_title": "Film Inesistente", "rag_year": 2001, "status": "not_found"}]
     assert result["metadata"][ENRICHMENT_KEY]["status"] == "none"
-    assert transport.paths == ["/search/movie", "/search/movie"]  # with year, then once without (counted)
+    assert transport.paths == ["/search/movie"]  # no year filter: nothing to retry
 
 
 def test_ambiguous_title_is_resolved_by_the_rag_year() -> None:
@@ -250,3 +258,26 @@ def test_enrichment_runs_only_after_rag(tool_name) -> None:
     orchestrator.run(query="q", conversation_history=[])
 
     assert calls == []
+
+
+def test_corpus_years_off_by_one_still_cost_two_calls_per_candidate() -> None:
+    """Regression: a year-filtered search found nothing and was repeated, so 3 candidates needed 7+ calls."""
+    search = {(MOVIES[i]["title"], None): [_search_result(i)] for i in (501, 502, 503)}
+    # Corpus years one off from TMDb's 2016, 1997 and 1984.
+    chunks = [_chunk("Arrival", 2015), _chunk("Contact", 1998), _chunk("Dune", 1985)]
+
+    result, _, transport = _enrich(chunks, search, max_calls=6)
+
+    assert [row["status"] for row in _rows(result)] == ["matched", "matched", "matched"]
+    assert transport.paths == ["/search/movie", "/movie/501", "/search/movie", "/movie/502", "/search/movie", "/movie/503"]
+    assert all("year" not in call[1] for call in transport.calls if call[0] == "/search/movie")
+
+
+def test_year_filtered_search_is_the_fallback_when_the_page_has_no_compatible_year() -> None:
+    # Page 1 without a year only has the 2021 Dune; the filtered search finds the 1984 one.
+    search = {("Dune", None): [_search_result(504)], ("Dune", "1984"): [_search_result(503)]}
+
+    result, _, transport = _enrich([_chunk("Dune", 1984)], search)
+
+    assert _rows(result)[0]["status"] == "matched" and _rows(result)[0]["tmdb"]["year"] == 1984
+    assert [call[1].get("year") for call in transport.calls if call[0] == "/search/movie"] == [None, "1984"]

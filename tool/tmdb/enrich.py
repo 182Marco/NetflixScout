@@ -8,7 +8,9 @@ A candidate gets metadata only when the TMDb movie matches it: same title or ori
 title (case, spaces and punctuation ignored; never a title merely contained in the other)
 and, when the RAG year is known, a TMDb year within ±1. The lookup runs with
 `strict_identity`, so several equally good TMDb matches are refused instead of ranked by
-popularity. A movie TMDb knows under another title is accepted only if the RAG title is
+popularity. The search itself has no year filter (`year_after_search`): a candidate costs
+two calls (search + details) even when the corpus year is off by one; the year-filtered
+search is only the fallback. A movie TMDb knows under another title is accepted only if the RAG title is
 one of that same work's translated or alternative titles (see `operations/resolve.py`),
 the year matches and, when both casts are known, at least one actor is shared; such rows
 say `matched_by: alternative_title`. Otherwise its status says why (`unverified`,
@@ -175,6 +177,7 @@ class TmdbRagEnricher:
             turn_id=tool_result.get("turn_id"),
         )
         ctx.strict_identity = True
+        ctx.year_after_search = True
         requests: list[TmdbRequest] = []
         positions: list[int | None] = []
         for candidate in candidates:

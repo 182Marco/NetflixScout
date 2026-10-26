@@ -305,7 +305,7 @@ def resolve(
     key = (kind.value, normalize_name(text), year, department)
     if key in ctx.resolutions:
         return ctx.resolutions[key]
-    search_year = year if kind in _YEAR_KINDS else None
+    search_year = year if kind in _YEAR_KINDS and not ctx.year_after_search else None
     results = _search(ctx, kind, text, search_year)
     if not results and search_year is not None:
         # Release years are often off by one: one more search without the year (counted).
@@ -334,6 +334,14 @@ def _resolve_work(
         if exc.reason not in ("title_mismatch", "year_mismatch"):
             raise
         searched = list(results)
+        if ctx.year_after_search and year is not None:
+            # Nothing usable on the year-less page: one search with TMDb's year filter (counted).
+            filtered = _search(ctx, kind, text, year)
+            try:
+                return _pick_work(kind, filtered, text, year, strict_identity=ctx.strict_identity)
+            except TmdbUnverifiedMatch:
+                seen = {r["id"] for r in searched}
+                searched += [r for r in filtered if r["id"] not in seen]
         if exc.reason == "title_mismatch" and ctx.api_language != REFERENCE_LANGUAGE:
             # The user may have written the English title in a non-English turn (counted call).
             english = _search(ctx, kind, text, search_year, language=REFERENCE_LANGUAGE)

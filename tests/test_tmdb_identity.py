@@ -253,8 +253,8 @@ def test_survival_island_is_recovered_through_the_same_works_alternative_title()
 
     assert rows[0]["status"] == "matched" and rows[0]["matched_by"] == "alternative_title"
     assert rows[0]["tmdb"]["title"] == "Three" and rows[0]["tmdb"]["directors"] == ["Stewart Raffill"]
-    # The verification call is the details call: no second request for the same work.
-    assert transport.paths == [SEARCH, "/movie/9753"]
+    # Year-less search, then the year-filtered one; the verification call is the details call.
+    assert transport.paths == [SEARCH, SEARCH, "/movie/9753"]
 
 
 def test_alternative_title_with_a_different_cast_is_refused() -> None:
@@ -337,7 +337,7 @@ def test_leading_article_and_secondary_release_year_identify_the_same_work() -> 
 
     assert rows[0]["status"] == "matched" and rows[0]["matched_by"] == "alternative_title"
     assert rows[0]["year_note"] == "release_date" and rows[0]["tmdb"]["directors"] == ["Pat Boyette"]
-    assert transport.paths == [SEARCH, "/movie/37522"]
+    assert transport.paths == [SEARCH, SEARCH, "/movie/37522"]
 
 
 def test_leading_article_without_a_recorded_compatible_year_stays_unverified() -> None:
