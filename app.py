@@ -305,9 +305,12 @@ CONFIG = {
                 "note": "MovieLens 32M, voti fino al 12 ottobre 2023; il 2023 è parziale",
             },
         },
-        "max_iterations": 3,
-        "max_execution_time": 30,
-        "token_budget": 60000,
+        # Per-turn limits enforced by the orchestrator (generous on purpose, but binding): planner
+        # calls, seconds of the tool loop, tokens of the planner calls. Checked before every
+        # further step; the turn then answers with the results it already has.
+        "max_iterations": 12,
+        "max_execution_time": 180,
+        "token_budget": 200000,
         # Ceiling of tool runs in one turn: the loop limit and, with the per-turn TMDb and
         # YouTube limits, the API spend limit.
         "max_tool_calls_per_turn": 10,

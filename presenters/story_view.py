@@ -113,6 +113,9 @@ FALLBACKS = {
         "unknown_tool": "Non ero sicuro di come cercare: ho usato la ricerca per trama.",
         "next_step_failed": "Non ho potuto pianificare il passo successivo: rispondo con quello che ho.",
         "max_tool_calls": "Ho raggiunto il limite di passaggi per questa domanda.",
+        "max_iterations": "Ho raggiunto il limite di pianificazioni per questa domanda.",
+        "max_execution_time": "Ho raggiunto il tempo massimo per questa domanda.",
+        "token_budget": "Ho raggiunto il budget di token per questa domanda.",
         "answer_failed": "Non sono riuscito a scrivere la risposta completa: ti mostro i risultati trovati.",
     },
     "en": {
@@ -121,6 +124,9 @@ FALLBACKS = {
         "unknown_tool": "I was not sure how to search: I used the plot search.",
         "next_step_failed": "I could not plan the next step: I am answering with what I have.",
         "max_tool_calls": "I reached the step limit for this question.",
+        "max_iterations": "I reached the planning limit for this question.",
+        "max_execution_time": "I reached the time limit for this question.",
+        "token_budget": "I reached the token budget for this question.",
         "answer_failed": "I could not write the full answer: here are the results I found.",
     },
 }

@@ -40,8 +40,46 @@ CLARIFICATION = "clarification"
 
 # Ceiling of tool runs in one turn when `orchestrator.max_tool_calls_per_turn` is not set.
 DEFAULT_MAX_TOOL_CALLS = 10
+# Per-turn limits used when the config does not set them: planner calls, seconds of the tool
+# loop, and tokens spent by the planner calls (see `_Limits`).
+DEFAULT_MAX_ITERATIONS = 12
+DEFAULT_MAX_EXECUTION_TIME = 180
+DEFAULT_TOKEN_BUDGET = 200_000
 # Characters of one tool result shown to the planner when it chooses the next step.
 STEP_SUMMARY_CHARS = 2500
+
+
+class _Limits:
+    """The per-turn limits of one `run`: planner calls, wall-clock seconds and planner tokens.
+
+    `exceeded()` is checked before every further planner call, so a step that would start after
+    a limit is reached never starts; the turn then answers with the results it already has.
+    """
+
+    def __init__(self, config: Mapping[str, Any]) -> None:
+        self.max_iterations = max(int(config.get("max_iterations", DEFAULT_MAX_ITERATIONS)), 1)
+        self.max_execution_time = float(config.get("max_execution_time", DEFAULT_MAX_EXECUTION_TIME))
+        self.token_budget = int(config.get("token_budget", DEFAULT_TOKEN_BUDGET))
+        self.started = time.monotonic()
+        self.iterations = 0
+        self.tokens = 0
+
+    def record(self, response: Any) -> None:
+        """Count one planner call and the tokens its response reports (0 when it reports none)."""
+        self.iterations += 1
+        total = getattr(getattr(response, "usage", None), "total_tokens", None)
+        if isinstance(total, int):
+            self.tokens += total
+
+    def exceeded(self) -> str | None:
+        """The stop reason of the first limit already reached, else None."""
+        if self.iterations >= self.max_iterations:
+            return STOP_MAX_ITERATIONS
+        if time.monotonic() - self.started >= self.max_execution_time:
+            return STOP_MAX_EXECUTION_TIME
+        if self.tokens >= self.token_budget:
+            return STOP_TOKEN_BUDGET
+        return None
 
 
 @dataclass
@@ -64,6 +102,11 @@ FALLBACK_LOW_CONFIDENCE = "low_confidence"
 FALLBACK_UNKNOWN_TOOL = "unknown_tool"
 FALLBACK_NEXT_STEP = "next_step_failed"
 FALLBACK_MAX_CALLS = "max_tool_calls"
+# Stop reasons of the per-turn limits that `_Limits` enforces; each is also its fallback code.
+STOP_MAX_ITERATIONS = "max_iterations"
+STOP_MAX_EXECUTION_TIME = "max_execution_time"
+STOP_TOKEN_BUDGET = "token_budget"
+LIMIT_STOPS = (FALLBACK_MAX_CALLS, STOP_MAX_ITERATIONS, STOP_MAX_EXECUTION_TIME, STOP_TOKEN_BUDGET)
 FALLBACK_ANSWER = "answer_failed"
 
 MAX_PARTS = 6
@@ -518,6 +561,7 @@ class LLMOrchestrator:
         *,
         query: str,
         conversation_history: list[dict[str, str]] | None = None,
+        limits: _Limits | None = None,
     ) -> _Plan:
         """First planner decision of the turn (see `_plan_turn`), plus `more_steps`."""
         allowed = self._allowed_tool_names()
@@ -547,6 +591,8 @@ class LLMOrchestrator:
                     {"role": "user", "content": query},
                 ],
             )
+            if limits:
+                limits.record(response)
             payload = json.loads(response.output_text.strip())
         except Exception:
             return _Plan(
@@ -619,6 +665,7 @@ class LLMOrchestrator:
         conversation_history: list[dict[str, str]] | None,
         calls: list[_Call],
         parts: list[dict[str, str]] | None = None,
+        limits: _Limits | None = None,
     ) -> tuple[_Plan | None, str, dict[str, Any] | None]:
         """Next step of the turn after `calls` and why the turn stops when there is none.
 
@@ -667,6 +714,8 @@ class LLMOrchestrator:
                     },
                 ],
             )
+            if limits:
+                limits.record(response)
             payload = json.loads(response.output_text.strip())
         except Exception:
             return None, "planner_failed", None
@@ -768,7 +817,9 @@ class LLMOrchestrator:
 
         The first planner call picks the first tool (and says whether more are needed); each
         later step is planned from the results so far. The loop ends when the planner is done,
-        repeats a step, or `max_tool_calls_per_turn` runs have happened. The result keeps
+        repeats a step, `max_tool_calls_per_turn` runs have happened, or a limit of
+        `max_iterations` (planner calls), `max_execution_time` (seconds) or `token_budget`
+        (planner tokens) is reached. The result keeps
         `tool` and `result` of the first call; `tools` and `calls` list every call in order.
 
         `observer` gets every step as it happens (`query_rewrite`, then per tool a
@@ -781,7 +832,8 @@ class LLMOrchestrator:
         back as `final_lists`. Without it nothing changes.
         """
         observer = observer or NullObserver()
-        plan = self._plan_first(query=query, conversation_history=conversation_history)
+        limits = _Limits(self.orchestrator_config)
+        plan = self._plan_first(query=query, conversation_history=conversation_history, limits=limits)
         standalone_query = plan.standalone_query
         self._emit(
             observer,
@@ -865,16 +917,20 @@ class LLMOrchestrator:
             if len(calls) >= limit:
                 stop_reason = "max_tool_calls"
                 break
+            if exceeded := limits.exceeded():
+                stop_reason = exceeded
+                break
             current, stop_reason, planner_output = self._plan_next(
                 query=query,
                 standalone_query=standalone_query,
                 conversation_history=conversation_history,
                 calls=calls,
                 parts=parts,
+                limits=limits,
             )
 
-        if stop_reason == "max_tool_calls":
-            fallbacks.append(FALLBACK_MAX_CALLS)
+        if stop_reason in LIMIT_STOPS:
+            fallbacks.append(stop_reason)
         elif stop_reason in ("planner_failed", "planner_incomplete", "unknown_tool_or_low_confidence"):
             fallbacks.append(FALLBACK_NEXT_STEP)
         pending = _pending_parts(parts, calls)

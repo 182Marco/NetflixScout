@@ -2027,7 +2027,7 @@ const TREE = D("NetflixScout", {}, [
     dep: ["orchestrator.py", "presenters/__init__.py", "turn.py", M + "config.py", MT + "movie_db_tool.py", MT + "sql/connection.py", Q + "query_classifier/query_classifier.py", Q + "chat.py", Q + "conversation.py", Q + "runtime.py", Q + "models.py", Q + "tool_interface.py", Q + "vectorstore.py", T + "config.py", T + "tool.py", Y + "config.py", Y + "tool.py", "presenters/terminal/__init__.py"],
     x: ["openai"],
     cmd: "python app.py",
-    n: ["<code>max_iterations</code>, <code>max_execution_time</code> e <code>token_budget</code> sono in CONFIG ma il codice non li legge ancora."],
+    n: ["<code>max_iterations</code>, <code>max_execution_time</code> e <code>token_budget</code> sono limiti per turno applicati dall'orchestratore prima di ogni nuova pianificazione."],
   }),
   F("buildSemanticDb.py", {
     L: "off", s: "Wrapper in root: avvia il builder reale con gli argomenti da CLI.",
@@ -2635,7 +2635,6 @@ function renderOverview() {
     <h2>Punti di attenzione nel codice</h2>
     <div class="callout"><ul>
       <li>Il commit “migrate db to Qdrant” non corrisponde al codice, che usa solo ChromaDB.</li>
-      <li><code>max_iterations</code>, <code>max_execution_time</code> e <code>token_budget</code> sono in CONFIG ma il codice non li usa.</li>
       <li>La build del DB MovieLens e <code>run_eval</code> offline non fanno chiamate API, ma richiedono <code>OPENAI_API_KEY</code>: leggono <code>CONFIG</code> da <code>app.py</code>, i cui import creano il client OpenAI.</li>
       <li>Limiti noti dei dati MovieLens: nelle classifiche compaiono serie TV (Firefly, Planet Earth II…), l'articolo finale resta in fondo nei titoli con titolo alternativo tra parentesi, <code>by_title</code> cerca per sottostringa.</li>
       <li>Verifiche reali del 2026-10-22 (app, TMDb, OpenAI e Cohere reali, ≥30 s tra gli invii): routing live 23/23; titoli alternativi e varianti verificati su dati TMDb reali; A/B controllato del reranker (36 chiamate Cohere): violazioni verificabili 20 con la query italiana, 21 con la sola semantica, 16 con la query composta. Limite aperto: con 3 candidati e <code>max_calls_per_turn</code> 6 il completamento RAG → TMDb salta spesso il terzo candidato (<code>skipped</code>).</li>

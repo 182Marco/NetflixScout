@@ -223,6 +223,51 @@ def test_the_turn_stops_at_max_tool_calls_per_turn() -> None:
     assert len(decision["calls"]) == 3 and len(tools["tmdb_search"].queries) == 3
 
 
+def test_the_turn_stops_at_max_iterations_of_the_planner() -> None:
+    texts = [_step("tmdb_search", True, search_query=str(i)) for i in range(5)]
+    orch, tools, _ = _multi(texts, max_iterations=2)
+
+    decision = orch.run(query="x", conversation_history=[])
+
+    # First planner call + one next-step call = 2 planner calls, so two tool runs.
+    assert len(tools["tmdb_search"].queries) == 2
+    assert decision["planning"]["stop_reason"] == "max_iterations"
+    assert "max_iterations" in decision["planning"]["fallbacks"]
+
+
+def test_the_turn_stops_at_max_execution_time(monkeypatch) -> None:
+    import orchestrator
+
+    clock = iter([0.0, 0.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0])
+    monkeypatch.setattr(orchestrator.time, "monotonic", lambda: next(clock, 1000.0))
+    texts = [_step("tmdb_search", True, search_query=str(i)) for i in range(5)]
+    orch, tools, _ = _multi(texts, max_execution_time=30)
+
+    decision = orch.run(query="x", conversation_history=[])
+
+    assert len(tools["tmdb_search"].queries) == 1
+    assert decision["planning"]["stop_reason"] == "max_execution_time"
+
+
+def test_the_turn_stops_when_the_planner_tokens_reach_the_budget() -> None:
+    texts = [_step("tmdb_search", True, search_query=str(i)) for i in range(5)]
+    orch, tools, client = _multi(texts, token_budget=1000)
+    create = client.create
+
+    def with_usage(**kwargs):
+        response = create(**kwargs)
+        response.usage = type("Usage", (), {"total_tokens": 1500})()
+        return response
+
+    client.create = with_usage
+
+    decision = orch.run(query="x", conversation_history=[])
+
+    assert len(tools["tmdb_search"].queries) == 1
+    assert decision["planning"]["stop_reason"] == "token_budget"
+    assert decision["final_answer"]
+
+
 def test_a_repeated_step_ends_the_loop() -> None:
     orch, _, _ = _multi([_step("tmdb_search", True, a=1), _step("tmdb_search", True, a=1)])
 
