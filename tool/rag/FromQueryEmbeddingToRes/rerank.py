@@ -1,6 +1,7 @@
 """Reranking helpers for candidate chunks."""
 
 import os
+from functools import lru_cache
 
 import cohere
 from dotenv import load_dotenv
@@ -10,7 +11,11 @@ from pydantic import BaseModel
 load_dotenv(".env")
 
 cohere_client = cohere.ClientV2(api_key=os.getenv("COHERE_API_KEY") or "manca")
-client = OpenAI()
+
+
+@lru_cache(maxsize=1)
+def _default_client() -> OpenAI:
+    return OpenAI()
 
 
 
@@ -56,7 +61,7 @@ def rerank_llm(query, chunks, model, openai_client=None, verbose=False):
     prompt = (f"Domanda: {query}\n\nPassaggi numerati:\n\n{elenco}"
               "Ordina TUTTI i passaggi dal più al meno utile per rispondere alla domanda. "
               "Restituisci gli indici in quell'ordine, ognuno una sola volta.")
-    active_client = openai_client or client
+    active_client = openai_client or _default_client()
     risposta = active_client.responses.parse(model=model, input=prompt, text_format=Ordine)
     if verbose:
         print(f"  [llm] {risposta.usage.input_tokens} token in, {risposta.usage.output_tokens} out")

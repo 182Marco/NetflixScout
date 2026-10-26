@@ -350,7 +350,7 @@ const TREE = D("NetflixScout", {}, [
           it: [["build_movie_db(*, source_dir, db_path, ingestion, force=False, verbose=False)", "Costruisce il DB."], ["main(argv)", "Legge i default da <code>CONFIG[\"movie_db\"]</code>."]],
           dep: [M + "config.py", M + "schema.py", M + "harness/ingestion/load_csv.py", "app.py"],
           cmd: "python buildMovieDb.py [--source-dir DIR] [--db-path FILE] [--force]",
-          n: ["Non fa chiamate API, ma oggi richiede <code>OPENAI_API_KEY</code>: legge <code>CONFIG</code> da <code>app.py</code>, i cui import creano il client OpenAI."],
+          n: ["Non fa chiamate API e non richiede <code>OPENAI_API_KEY</code>: i client OpenAI si creano al primo uso, non all'import."],
         }),
       ]),
       D("fixtures", {
@@ -381,7 +381,7 @@ const TREE = D("NetflixScout", {}, [
           d: `Di default il parser è sostituito da <code>ScriptedParserClient</code> (nessuna API). Con <code>--live-parser</code> usa il parser reale. L'operazione equivalente vale solo se SQL e parametri eseguiti sono identici a quelli attesi.`,
           dep: [M + "harness/evaluation/cases.py", M + "harness/fixtures/build_fixture_db.py", MT + "movie_db_tool.py", MT + "sql/queries.py", "app.py"],
           cmd: "python -m movie_db.harness.evaluation.run_eval\npython -m movie_db.harness.evaluation.run_eval --live-parser",
-          n: ["<code>--live-parser</code>: 6 chiamate a <code>gpt-5.6-luna</code>.", "Anche in modalità offline richiede <code>OPENAI_API_KEY</code> (importa <code>app.py</code>)."],
+          n: ["<code>--live-parser</code>: 6 chiamate a <code>gpt-5.6-luna</code>.", "Offline non richiede <code>OPENAI_API_KEY</code>; la chiave serve solo con <code>--live-parser</code>."],
         }),
         F("routing_cases.py", {
           L: "test", s: "58 domande di routing: DB, RAG, TMDb, YouTube, Wikipedia e chiarimenti, con follow-up e history.",
@@ -510,7 +510,7 @@ const TREE = D("NetflixScout", {}, [
       s: "Fase runtime: dalla query dell'utente ai chunk rilevanti.",
       d: `Il percorso usato da <code>app.py</code> è: <code>tool_interface.RagTool</code> → <code>pipeline.run_rag</code> → <code>retrieval._retrieve</code> (segnali LLM + ricerca semantic/bm25/hybrid) → <code>retrieval._rerank</code> (Cohere o LLM). Il risultato sono evidenze strutturate: la risposta per l'utente la scrive l'orchestratore. Qui ci sono anche il classificatore di dominio, la gestione della conversazione e l'output da terminale.`,
     }, [
-      F("__init__.py", { L: "rt", s: "API pubblica del package runtime.", d: `Re-esporta <code>run_rag</code>, <code>RAG_TOOL</code>, <code>RAG_TOOL_NAME</code>, <code>REGISTERED_TOOLS</code>, <code>execute_tool</code> e <code>run_conversation_loop</code>.`, dep: [Q + "chat.py", Q + "pipeline.py", Q + "tool_interface.py"], n: ["Importarlo carica anche <code>rag.py</code>, che crea un client OpenAI all'import: serve <code>OPENAI_API_KEY</code> nell'ambiente."] }),
+      F("__init__.py", { L: "rt", s: "API pubblica del package runtime.", d: `Re-esporta <code>run_rag</code>, <code>RAG_TOOL</code>, <code>RAG_TOOL_NAME</code>, <code>REGISTERED_TOOLS</code>, <code>execute_tool</code> e <code>run_conversation_loop</code>.`, dep: [Q + "chat.py", Q + "pipeline.py", Q + "tool_interface.py"] }),
       F("chat.py", {
         L: "rt",
         s: "Loop di chat “vecchio stile” senza orchestratore, più l'helper per la lingua del blocco.",
@@ -588,7 +588,7 @@ const TREE = D("NetflixScout", {}, [
         ],
         dep: [Q + "vectorstore.py"],
         x: ["openai", "python-dotenv"],
-        n: ["Crea <code>client = OpenAI()</code> all'import: senza <code>OPENAI_API_KEY</code> l'import fallisce."],
+        n: ["Il client OpenAI è creato al primo uso (<code>_default_client</code>), non all'import."],
       }),
       F("rerank.py", {
         L: "rt", s: "Secondo stadio: riordina i candidati con Cohere o con un LLM.",
@@ -2635,7 +2635,6 @@ function renderOverview() {
     <h2>Punti di attenzione nel codice</h2>
     <div class="callout"><ul>
       <li>Il commit “migrate db to Qdrant” non corrisponde al codice, che usa solo ChromaDB.</li>
-      <li>La build del DB MovieLens e <code>run_eval</code> offline non fanno chiamate API, ma richiedono <code>OPENAI_API_KEY</code>: leggono <code>CONFIG</code> da <code>app.py</code>, i cui import creano il client OpenAI.</li>
       <li>Limiti noti dei dati MovieLens: nelle classifiche compaiono serie TV (Firefly, Planet Earth II…), l'articolo finale resta in fondo nei titoli con titolo alternativo tra parentesi, <code>by_title</code> cerca per sottostringa.</li>
       <li>Verifiche reali del 2026-10-22 (app, TMDb, OpenAI e Cohere reali, ≥30 s tra gli invii): routing live 23/23; titoli alternativi e varianti verificati su dati TMDb reali; A/B controllato del reranker (36 chiamate Cohere): violazioni verificabili 20 con la query italiana, 21 con la sola semantica, 16 con la query composta. Limite aperto: con 3 candidati e <code>max_calls_per_turn</code> 6 il completamento RAG → TMDb salta spesso il terzo candidato (<code>skipped</code>).</li>
       <li>Tool YouTube: E2E reale del 2026-10-23 (20 domande, prima dei fix di pertinenza) con routing 20/20 e 6 OK / 10 parziali / 4 falliti. Ancora da verificare live: l'E2E dopo i fix, i casi YouTube nel routing eval, lo smoke test (scritto, mai lanciato), la precedenza degli operatori nella query e il rispetto reale delle istruzioni da parte dell'LLM. Le Developer Policies (III.A.2) chiedono anche una privacy policy dell'applicazione, non ancora scritta.</li>

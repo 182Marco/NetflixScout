@@ -1,5 +1,7 @@
 """Generic retrieval and answer-generation helpers for RAG pipelines."""
 
+from functools import lru_cache
+
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -7,7 +9,11 @@ from . import vectorstore
 
 load_dotenv()
 
-client = OpenAI()
+
+@lru_cache(maxsize=1)
+def _default_client() -> OpenAI:
+    return OpenAI()
+
 
 def recupera(
     query,
@@ -80,7 +86,7 @@ def genera(
 
     if storia is None:
         storia = []
-    active_client = openai_client or client
+    active_client = openai_client or _default_client()
     response = active_client.responses.create(
         model=model,
         instructions=instructions,

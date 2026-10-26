@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import re
+from functools import lru_cache
 
 from openai import OpenAI
 
@@ -12,7 +13,9 @@ from .rerank import rerank_cohere, rerank_llm
 from .vectorstore import apri_collection, has_excluded_genre
 
 
-_signal_client = OpenAI()
+@lru_cache(maxsize=1)
+def _signal_client() -> OpenAI:
+    return OpenAI()
 
 
 def _extract_query_signals(query: str, llm_model: str, hint: str | None = None) -> QuerySignals:
@@ -56,7 +59,7 @@ def _extract_query_signals(query: str, llm_model: str, hint: str | None = None) 
     if hint and hint.strip() and hint.strip() != query.strip():
         text = f"{query}\n\nPlanner rewrite: {hint.strip()}"
     try:
-        response = _signal_client.responses.parse(
+        response = _signal_client().responses.parse(
             model=llm_model,
             instructions=prompt,
             input=text,
