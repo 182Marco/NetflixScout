@@ -7,12 +7,13 @@ from typing import Any
 from movie_db.config import MovieDbConfig
 from turn import OUTCOME_EMPTY, OUTCOME_ERROR, OUTCOME_OK, tool_outcome
 
-from .models import ExecutedQuery, MovieDbQuery, MovieDbToolInput
+from .models import ExecutedQuery, MovieDbOperation, MovieDbQuery, MovieDbToolInput
 from .parser import MovieDbParseError, parse_query
 from .results import row_to_chunk
 from .sql.connection import readonly_connection
-from .sql.repository import run_query
+from .sql.repository import effective_limit, run_query
 from .trace import build_db_query_trace
+from .work_type import WORK_MOVIE, WorkTypeChecker, filter_series
 
 MOVIE_DB_TOOL_NAME = "movie_db_search"
 
@@ -24,6 +25,18 @@ WORK_TYPE_UNVERIFIED = {
     "work_type_verified": False,
     "work_type_note": "MovieLens non distingue film e serie TV: un titolo può essere una serie o una miniserie.",
 }
+
+# Rankings list films, so series are filtered out of them when a checker is available.
+RANKING_OPERATIONS = frozenset(
+    {MovieDbOperation.top_rated, MovieDbOperation.most_rated, MovieDbOperation.by_genre_year}
+)
+# Candidates read per row requested (clamped to `max_limit`): room for the series dropped.
+RANKING_FETCH_FACTOR = 3
+
+SERIES_EXCLUDED_NOTE = (
+    "Il tipo è stato verificato su TMDb dove possibile e le serie TV riconosciute sono escluse; "
+    "i titoli con work_type \"unverified\" non sono verificabili e potrebbero essere serie."
+)
 
 
 @dataclass(kw_only=True)
@@ -41,6 +54,8 @@ class MovieDbTool:
     config: MovieDbConfig
     # OpenAI-compatible client for the parser; created on first use.
     client: Any = None
+    # Tells films from series for the rankings (TMDb, injected by `app.py`); None = no filtering.
+    work_type_checker: WorkTypeChecker | None = None
 
     def _client(self) -> Any:
         if self.client is None:
@@ -58,6 +73,7 @@ class MovieDbTool:
         rows: list[dict[str, Any]],
         error: str | None = None,
         error_kind: str | None = None,
+        excluded_series: int | None = None,
     ) -> dict[str, Any]:
         metadata: dict[str, Any] = {
             "operation": parsed.operation.value if parsed else None,
@@ -65,6 +81,13 @@ class MovieDbTool:
         }
         if any("movie_id" in row for row in rows):
             metadata.update(WORK_TYPE_UNVERIFIED)
+            if excluded_series is not None:
+                metadata["excluded_series"] = excluded_series
+                if all(row.get("work_type") == WORK_MOVIE for row in rows):
+                    metadata = {**metadata, "work_type_verified": True}
+                    metadata.pop("work_type_note")
+                else:
+                    metadata["work_type_note"] = SERIES_EXCLUDED_NOTE
         if error:
             metadata["error"] = error
         if error_kind:
@@ -103,8 +126,20 @@ class MovieDbTool:
 
         try:
             with readonly_connection(self.config.db_path, timeout_ms=self.config.query.timeout_ms) as conn:
-                executed, rows = run_query(conn, parsed, self.config.query)
+                ranking = parsed.operation in RANKING_OPERATIONS
+                limit = effective_limit(parsed, self.config.query)
+                executed, rows = run_query(
+                    conn,
+                    parsed,
+                    self.config.query,
+                    fetch_limit=limit * RANKING_FETCH_FACTOR if ranking and self.work_type_checker else None,
+                )
+                excluded = None
+                if ranking and self.work_type_checker:
+                    rows, excluded = filter_series(rows, limit=limit, checker=self.work_type_checker)
         except (sqlite3.Error, FileNotFoundError) as exc:
             return self._result(payload.query, parsed=parsed, executed=[], rows=[], error=str(exc))
 
-        return self._result(payload.query, parsed=parsed, executed=executed, rows=rows)
+        return self._result(
+            payload.query, parsed=parsed, executed=executed, rows=rows, excluded_series=excluded
+        )

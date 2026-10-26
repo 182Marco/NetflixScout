@@ -48,4 +48,5 @@ def row_to_chunk(row: dict[str, Any]) -> dict[str, Any]:
         "release_year": str(row["year"]) if row.get("year") else None,
         "genres": (row.get("genres") or "").replace("|", ", ") or None,
         "n_ratings": row.get("n_ratings") or 0,
+        **({"work_type": row["work_type"]} if row.get("work_type") else {}),
     }

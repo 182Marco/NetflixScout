@@ -11,6 +11,7 @@ from collections.abc import Callable
 from movie_db.schema import normalize_tag
 
 from ..models import ExecutedQuery, MovieDbOperation, MovieDbQuery, SqlParam
+from ..titles import normalize_title, stored_form
 
 _GENRES_OF_MOVIE = (
     "(SELECT group_concat(g.genre, '|') FROM movie_genres g WHERE g.movie_id = m.movie_id) AS genres"
@@ -54,7 +55,8 @@ def _ranking(order: str) -> Callable[[MovieDbQuery, int, int], ExecutedQuery]:
         clauses, params = _movie_filters(query)
         where = " AND ".join(["s.n_ratings >= ?", *clauses])
         sql = (
-            f"SELECT {_MOVIE_COLUMNS} FROM movies m JOIN movie_stats s ON s.movie_id = m.movie_id "
+            f"SELECT {_MOVIE_COLUMNS}, l.imdb_id FROM movies m JOIN movie_stats s ON s.movie_id = m.movie_id "
+            "LEFT JOIN links l ON l.movie_id = m.movie_id "
             f"WHERE {where} ORDER BY {_ORDER_BY[order]} LIMIT ?"
         )
         return ExecutedQuery(sql=sql, params=[min_ratings, *params, limit])
@@ -62,16 +64,39 @@ def _ranking(order: str) -> Callable[[MovieDbQuery, int, int], ExecutedQuery]:
     return build
 
 
+# `by_title` match tiers, best first: 0 exact title, 1 same title once the trailing article is
+# normalized (stored "Matrix, The" or "Kingdom II, The (Riget II)" vs typed "The Matrix"),
+# 2 substring. Fixed fragments; the typed text only travels as bind parameters.
+_TITLE_MATCH = (
+    "(m.clean_title LIKE ? ESCAPE '\\' OR m.clean_title LIKE ? ESCAPE '\\' "
+    "OR m.clean_title LIKE ? ESCAPE '\\')"
+)
+_TITLE_TIER = (
+    "CASE WHEN m.clean_title = ? COLLATE NOCASE THEN 0 "
+    "WHEN m.clean_title = ? COLLATE NOCASE OR m.clean_title = ? COLLATE NOCASE "
+    "OR m.clean_title LIKE ? ESCAPE '\\' THEN 1 ELSE 2 END"
+)
+
+
 def _by_title(query: MovieDbQuery, limit: int, min_ratings: int) -> ExecutedQuery:
     clauses, params = _movie_filters(query)
-    where = " AND ".join(["m.clean_title LIKE ? ESCAPE '\\'", *clauses])
+    typed = query.title or ""
+    canonical = normalize_title(typed)
+    stored = stored_form(canonical)
+    where = " AND ".join([_TITLE_MATCH, *clauses])
     sql = (
         f"SELECT {_MOVIE_COLUMNS}, l.imdb_id, l.tmdb_id FROM movies m "
         "LEFT JOIN movie_stats s ON s.movie_id = m.movie_id "
         "LEFT JOIN links l ON l.movie_id = m.movie_id "
-        f"WHERE {where} ORDER BY coalesce(s.n_ratings, 0) DESC, m.movie_id LIMIT ?"
+        f"WHERE {where} ORDER BY {_TITLE_TIER}, coalesce(s.n_ratings, 0) DESC, m.movie_id LIMIT ?"
     )
-    return ExecutedQuery(sql=sql, params=[f"%{escape_like(query.title or '')}%", *params, limit])
+    substring = [
+        f"%{escape_like(typed)}%",
+        f"%{escape_like(canonical)}%",
+        f"%{escape_like(stored)}%" if stored else None,
+    ]
+    tier = [typed, canonical, stored, f"{escape_like(stored)} (%" if stored else None]
+    return ExecutedQuery(sql=sql, params=[*substring, *params, *tier, limit])
 
 
 def _by_tag(query: MovieDbQuery, limit: int, min_ratings: int) -> ExecutedQuery:

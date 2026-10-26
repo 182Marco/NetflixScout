@@ -7,6 +7,7 @@ from typing import Any
 from movie_db.config import QueryConfig
 
 from ..models import ExecutedQuery, MovieDbQuery
+from ..titles import normalize_title
 from .queries import build_query
 
 
@@ -19,11 +20,19 @@ def run_query(
     conn: sqlite3.Connection,
     query: MovieDbQuery,
     settings: QueryConfig,
+    *,
+    fetch_limit: int | None = None,
 ) -> tuple[list[ExecutedQuery], list[dict[str, Any]]]:
     """Return the statements executed (for the trace) and the rows (for the answer)."""
     limit = effective_limit(query, settings)
-    executed = build_query(query, limit=limit, min_ratings=settings.min_ratings)
+    # `fetch_limit` (>= limit) reads extra candidates for the caller to filter.
+    fetch_limit = max(limit, min(fetch_limit or limit, settings.max_limit))
+    executed = build_query(query, limit=fetch_limit, min_ratings=settings.min_ratings)
     # `execute` runs a single statement: multi-statement text is rejected by sqlite3.
     cursor = conn.execute(executed.sql, executed.params)
-    rows = [dict(row) for row in cursor.fetchmany(limit)]
+    rows = [dict(row) for row in cursor.fetchmany(fetch_limit or limit)]
+    for row in rows:
+        # Shown form only: the stored title is not touched.
+        if row.get("title"):
+            row["title"] = normalize_title(row["title"])
     return [executed], rows

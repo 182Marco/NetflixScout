@@ -314,8 +314,9 @@ year is confirmed within ±1, with a single such match; otherwise the candidate 
 to movies and series: without an exact title it accepts a result only if TMDb lists the
 requested title among the translated or alternative titles of that same work (year ±1; e.g.
 "Survival Island" → "Three", 2005), otherwise it returns `unverified_match` with the closest
-results as unverified `candidates` instead of the most popular result. MovieLens rankings carry
-`work_type_verified: false`: the catalog mixes films and TV series and has no reliable type. The RAG ranking is never changed, and the turn still makes at most one TMDb run.
+results as unverified `candidates` instead of the most popular result. MovieLens rankings drop the
+series TMDb recognizes (`/find` by IMDb id); titles it cannot settle stay, marked `work_type: unverified` with
+`work_type_verified: false`, because the catalog has no reliable type. The RAG ranking is never changed, and the turn still makes at most one TMDb run.
 
 `CONFIG["tmdb"]` has exactly three settings:
 

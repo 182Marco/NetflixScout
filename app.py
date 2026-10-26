@@ -21,6 +21,7 @@ from tool.rag.FromQueryEmbeddingToRes.vectorstore import apri_collection
 from tool.tmdb.config import load_tmdb_config
 from tool.tmdb.enrich import TmdbRagEnricher
 from tool.tmdb.tool import TmdbTool
+from tool.tmdb.work_type import TmdbWorkTypeChecker
 from turn import (
     STAGE_UNDERSTANDING,
     STEP_CLASSIFICATION,
@@ -462,9 +463,10 @@ def build_app(overrides: dict[str, Any] | None = None) -> dict[str, Any]:
     runtime_config = build_runtime_config(overrides)
     tools = [RagTool(config=runtime_config["rag"])]
     movie_db_config = load_movie_db_config(runtime_config["movie_db"])
-    if movie_db_config.enabled:
-        tools.append(MovieDbTool(config=movie_db_config))
     tmdb_tool = TmdbTool(config=load_tmdb_config(runtime_config["tmdb"]))
+    if movie_db_config.enabled:
+        # Series are dropped from MovieLens rankings by checking the type on TMDb.
+        tools.append(MovieDbTool(config=movie_db_config, work_type_checker=TmdbWorkTypeChecker(tool=tmdb_tool)))
     tools.append(tmdb_tool)
     tools.append(YoutubeTool(config=load_youtube_config(runtime_config["you_tube"])))
     tools.append(WikipediaTool(config=load_wikipedia_config(runtime_config["wikipedia"])))
