@@ -166,6 +166,30 @@ def constraint_report(signals: QuerySignals, final_chunks: list[dict[str, Any]])
     return {"checks": checks} if checks else {}
 
 
+# Constraints the catalog metadata decides on its own (never plot wording or tone).
+_METADATA_KINDS = frozenset({"genre", "excluded_genre", "decade", "title_exclusion"})
+
+
+def demote_contradicted(signals: QuerySignals, ranked: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Stable reorder: films the metadata contradicts go after those it does not.
+
+    The cross-encoder reads genre and decade as soft text and ranks a plot-similar film of
+    the wrong genre or decade above a compliant one. The metadata states these facts, so a
+    chunk with fewer `contradicted` genre, excluded-genre, decade or title-exclusion checks
+    comes first; ties keep the reranker order. Nothing is removed and no weak signal counts.
+    """
+    checks = [c for c in constraint_report(signals, ranked).get("checks", [])
+              if c["type"] in _METADATA_KINDS]
+    if not checks:
+        return ranked
+
+    def violations(chunk: dict[str, Any]) -> int:
+        label = _label(chunk)
+        return sum(1 for c in checks if c["results"][label]["status"] == CONTRADICTED)
+
+    return sorted(ranked, key=violations)  # sorted() is stable
+
+
 # How the final answer may speak about each status (Italian: the answer is in Italian).
 _SUMMARY_LABELS = {
     VERIFIED: "verificato",

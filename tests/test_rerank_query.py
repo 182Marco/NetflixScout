@@ -72,3 +72,42 @@ def test_case_16_answer_requests_never_reach_the_reranker() -> None:
 
 def test_without_semantic_query_the_user_query_is_the_base() -> None:
     assert compose_rerank_query(QuerySignals(), "film con robot") == "film con robot"
+
+
+# --- metadata demotion after the cross-encoder -------------------------------------------------
+from tool.rag.FromQueryEmbeddingToRes.constraints import demote_contradicted  # noqa: E402
+
+
+def _chunk(title: str, year: str, genres: str) -> dict:
+    return {"title": title, "release_year": year, "genres": genres, "testo": "plot"}
+
+
+def test_wrong_decade_and_genre_move_after_compliant_films_keeping_reranker_order() -> None:
+    ranked = [  # order as the cross-encoder returned it
+        _chunk("Modern Mars", "1998", "Science Fiction; Comedy"),
+        _chunk("Space Drama", "1955", "Drama"),
+        _chunk("Mars Fifties", "1957", "Science Fiction; Comedy"),
+        _chunk("Moon Fifties", "1953", "Science Fiction; Comedy"),
+    ]
+    titles = [c["title"] for c in demote_contradicted(CASE_20, ranked)]
+
+    assert titles == ["Mars Fifties", "Moon Fifties", "Modern Mars", "Space Drama"]
+
+
+def test_excluded_genre_is_demoted_not_removed() -> None:
+    ranked = [_chunk("Sci Fi", "2000", "Science Fiction; Drama"), _chunk("Plain", "2001", "Drama")]
+    titles = [c["title"] for c in demote_contradicted(CASE_11, ranked)]
+
+    assert titles == ["Plain", "Sci Fi"]
+
+
+def test_plot_and_tone_signals_never_reorder() -> None:
+    ranked = [_chunk("B", "2000", "Documentary"), _chunk("A", "1990", "Documentary")]
+
+    assert demote_contradicted(CASE_16, ranked) == ranked  # no genre/decade requested
+
+
+def test_no_metadata_means_no_reorder() -> None:
+    ranked = [{"title": "X", "testo": "plot"}, {"title": "Y", "release_year": "1957", "genres": "Comedy", "testo": "p"}]
+
+    assert [c["title"] for c in demote_contradicted(CASE_20, ranked)] == ["X", "Y"]

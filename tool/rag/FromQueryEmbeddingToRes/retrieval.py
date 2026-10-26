@@ -6,6 +6,7 @@ from functools import lru_cache
 
 from openai import OpenAI
 
+from .constraints import demote_contradicted
 from .hybrid import cerca_bm25, cerca_hybrid, costruisci_indice_bm25
 from .models import QuerySignals, RerankBackend, SearchMode
 from .rag import recupera
@@ -255,7 +256,9 @@ def _retrieve(query: str, config: dict, signals: QuerySignals | None = None) -> 
     return _light_rerank(query, risultati_bm25, signals)
 
 
-def _rerank(query: str, chunks: list[dict], config: dict) -> list[dict]:
+def _rerank(
+    query: str, chunks: list[dict], config: dict, signals: QuerySignals | None = None
+) -> list[dict]:
     if config["rerank"]["backend"] == RerankBackend.cohere:
         ranked = rerank_cohere(
             query,
@@ -269,4 +272,6 @@ def _rerank(query: str, chunks: list[dict], config: dict) -> list[dict]:
             model=config["rerank"]["llm_model"],
         )
 
+    if signals is not None:
+        ranked = demote_contradicted(signals, ranked)
     return ranked[: config["retrieval"]["k_finale"]]

@@ -207,7 +207,7 @@ def test_run_rag_returns_signals_and_embedded_text(monkeypatch) -> None:
         return []
 
     monkeypatch.setattr(pipeline, "_retrieve", fake_retrieve)
-    monkeypatch.setattr(pipeline, "_rerank", lambda query, chunks, config: [])
+    monkeypatch.setattr(pipeline, "_rerank", lambda query, chunks, config, signals=None: [])
     config = {
         "retrieval": {"search_mode": SearchMode.semantic},
         "rerank": {"backend": RerankBackend.cohere},
@@ -229,7 +229,7 @@ def _run_rag_with(monkeypatch, signals, retrieved):
     monkeypatch.setattr(pipeline, "_retrieve", lambda query, config, signals=None: retrieved)
     sent: dict = {}
 
-    def fake_rerank(query, chunks, config):
+    def fake_rerank(query, chunks, config, signals=None):
         sent["query"] = query
         return chunks
 

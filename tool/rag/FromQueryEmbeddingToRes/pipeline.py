@@ -38,7 +38,7 @@ def run_rag(
     # the user's words ("temi simili a Mare dentro" names no theme), and the explicit
     # requirements it omitted are appended so none is lost (see `compose_rerank_query`).
     rerank_query = compose_rerank_query(signals, query)
-    final_chunks = _rerank(rerank_query, retrieved, runtime_config)
+    final_chunks = _rerank(rerank_query, retrieved, runtime_config, signals=signals)
 
     return RagResult(
         query=query,
