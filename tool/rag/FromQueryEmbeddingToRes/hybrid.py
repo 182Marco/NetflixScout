@@ -22,6 +22,7 @@ def costruisci_indice_bm25(collection):
     key = (str(getattr(collection, "name", id(collection))), collection.count())
     if key in _BM25_CACHE:
         return _BM25_CACHE[key]
+    invalidate_bm25(key[0])  # a new size means the old index is stale: keep one index per collection
     chunks = []
     for offset in range(0, key[1], _BM25_PAGE_SIZE):
         dati = collection.get(limit=_BM25_PAGE_SIZE, offset=offset)
@@ -38,6 +39,15 @@ def costruisci_indice_bm25(collection):
     }
     _BM25_CACHE[key] = indice
     return indice
+
+
+def invalidate_bm25(name: str) -> None:
+    """Drop the cached index(es) of a collection; the next keyword query rebuilds it.
+
+    Needed when a point changes without changing the count (a catalog text update).
+    """
+    for key in [k for k in _BM25_CACHE if k[0] == str(name)]:
+        del _BM25_CACHE[key]
 
 
 def cerca_bm25(query, indice, k):

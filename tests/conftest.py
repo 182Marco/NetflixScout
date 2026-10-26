@@ -21,3 +21,12 @@ def movie_db_config(tmp_path_factory) -> MovieDbConfig:
     config = _fixture_config(db_path)
     build_fixture_db(db_path, config.ingestion)
     return config
+
+
+def pytest_configure(config) -> None:
+    config.addinivalue_line(
+        "markers", "integration: calls real services (Qdrant server, OpenAI, Cohere); skipped when the server is down"
+    )
+    config.addinivalue_line(
+        "markers", "qdrant_server: needs a running Qdrant server (QDRANT_URL); skipped otherwise"
+    )

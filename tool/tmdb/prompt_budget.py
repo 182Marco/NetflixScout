@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from datetime import date
 from typing import Any
 
 from .models.results import Entity, RequestOutcome
@@ -66,6 +67,10 @@ def json_size(value: Any) -> int:
     return len(json.dumps(value, ensure_ascii=False, separators=(",", ":")))
 
 
+# Operations whose answer depends on the current date.
+DATED_OPERATIONS = frozenset({"chart", "discover_movies", "discover_tv"})
+
+
 def card_text(entity: Entity) -> str:
     """P0 head, never cut; list items add a short summary when there is room."""
     title = truncate(entity.title, CARD_TITLE_CHARS)
@@ -81,6 +86,10 @@ def card_text(entity: Entity) -> str:
         head.append(f"IMDb {entity.imdb_id}")
     if entity.score:
         head.append(f"voto TMDb {entity.score:.1f}/10")
+    # List items have no essentials (detail cards carry `release_date` there): without the date a chart of
+    # upcoming films cannot answer "what comes out this month".
+    if entity.release_date and not entity.essentials:
+        head.append(f"uscita {entity.release_date}")
     text = " · ".join(head)
     room = CARD_CHARS - len(text) - 3
     # Detail entities carry their overview in the essentials: no duplicate in the card.
@@ -211,6 +220,9 @@ def pack_context(outcomes: list[RequestOutcome], *, api_language: str, status: s
     chunks = [_chunk(entity) for _, entity in shown]
     requests_meta = [_request_meta(outcome) for outcome in outcomes]
     metadata: dict[str, Any] = {"status": status, "language": api_language, "requests": requests_meta}
+    if any(outcome.operation in DATED_OPERATIONS for outcome in outcomes):
+        # Charts and discoveries answer "this month" / "recent": the model has no clock of its own.
+        metadata["today"] = date.today().isoformat()
     packer = _Packer(metadata, chunks)
     with_data = {outcome.index for outcome, _ in shown}
 

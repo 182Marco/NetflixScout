@@ -1,0 +1,360 @@
+{
+ "answer": "Ecco i tre titoli restituiti, ordinati per rilevanza. I voti indicati sono **medie del pubblico TMDb**, non valutazioni della critica.\n\n### 1. *Les Espions* — 1957  \n**Titolo registrato su TMDb:** *The Spies*  \n**Regia:** Henri-Georges Clouzot  \n**Cast principale:** Curd Jürgens, Peter Ustinov, O.E. Hasse, Sam Jaffe, Paul Carpenter  \n**Voto TMDb:** 6,6/10 — 40 voti  \n\nUn medico di un ospedale psichiatrico fatiscente accetta una grossa somma per ospitare un nuovo paziente. Poco dopo, il luogo si riempie di personaggi sospettosi e riservati, apparentemente agenti segreti internazionali interessati a scoprire l’identità e il ruolo del paziente.\n\n**Vincoli:**  \n- Thriller: verificato.  \n- Thriller psicologico: non verificabile dai dati disponibili.  \n- Ambientazione in un ospedale psichiatrico: **probabile**, sulla base dell’indizio presente nella trama.\n\n### 2. *Psych 9* — 2010  \n**Regia:** Andrew Shortell  \n**Cast principale:** Sara Foster, Cary Elwes, Michael Biehn, Gabriel Mann, Colleen Camp  \n**Voto TMDb:** 4,7/10 — 55 voti  \n\nUna giovane donna dal passato tormentato accetta un lavoro in un ospedale da poco chiuso. Durante il turno di notte, quando è sola, comincia a vivere una serie di eventi inquietanti e pensa che l’ospedale possa essere collegato a diversi omicidi recenti. Per scoprire la verità, deve confrontarsi con il passato nascosto dietro quelle mura.\n\n**Vincoli:**  \n- Thriller: verificato.  \n- Thriller psicologico: non verificabile dai dati disponibili.  \n- Ambientazione in un ospedale psichiatrico: non verificabile dai dati disponibili.\n\n### 3. *They* — 2002  \n**Regia:** Robert Harmon  \n**Cast principale:** Laura Regan, Marc Blucas, Ethan Embry, Jon Abrahams, Dagmara Dominczyk  \n**Voto TMDb:** 5,05/10 — 308 voti  \n\nUna studentessa di psicologia che da bambina soffriva di terrori notturni deve affrontare la consapevolezza che i suoi incubi potrebbero non essere stati soltanto frutto della sua mente.\n\n**Vincoli:**  \n- Thriller: verificato.  \n- Thriller psicologico: non verificabile dai dati disponibili.  \n- Ambientazione in un ospedale psichiatrico: non verificabile dai dati disponibili.",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Thriller psicologici ambientati in un ospedale psichiatrico",
+    "used": "Thriller psicologici ambientati in un ospedale psichiatrico",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Trovare thriller psicologici ambientati in un ospedale psichiatrico",
+    "arguments": {
+     "query": "Thriller psicologici ambientati in un ospedale psichiatrico",
+     "k_finale": null,
+     "search_mode": null
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 3861,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "semantic",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "semantic",
+      "k_largo": 10,
+      "k_finale": 3,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": []
+    },
+    "standalone_query": "Thriller psicologici ambientati in un ospedale psichiatrico",
+    "planner_query": "Thriller psicologici ambientati in un ospedale psichiatrico",
+    "embedded_text": "Psychological thrillers set in a psychiatric hospital.",
+    "signals": {
+     "positive_signals": [
+      "psychological thriller",
+      "psychiatric hospital setting"
+     ],
+     "negative_signals": [],
+     "hard_exclusions": [],
+     "semantic_query": "Psychological thrillers set in a psychiatric hospital.",
+     "genres": [
+      "Thriller"
+     ],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-000945-000000",
+      "testo": "The plot concerns a doctor at a run-down psychiatric hospital, who is offered a large sum of money to shelter a new patient. Soon the place is full of suspicious and secretive characters, all apparently international secret agents trying to find out who and what the patient is.",
+      "score": 0.7316940000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "19700296",
+      "title": "Les Espions",
+      "release_date": "1957-09-19",
+      "release_year": "1957",
+      "genres": "Thriller; Drama; Psychological thriller; Spy",
+      "cast": "O.E. Hasse; Curd Jürgens; Peter Ustinov; Sam Jaffe; Paul Carpenter; Véra Clouzot; Martita Hunt; Gérard Sety; Gabrielle Dorziat; Louis Seigner; Pierre Larquey; Georgette Anys; Jean Brochard; Bernard La Jarrige; Dominique Davray"
+     },
+     {
+      "id": "edb95c357b3b-030250-000000",
+      "testo": "A young woman  with a troubled past takes a job at recently closed down hospital. Working the night shift alone she begins to experience a series of unsettling events that lead her to believe that the hospital may be connected to a number of recent murders in the area. To uncover the truth she will have to revisit the past behind the walls of Psych 9.",
+      "score": 0.71878916,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "28996885",
+      "title": "Psych 9",
+      "release_date": "2010-05-07",
+      "release_year": "2010",
+      "genres": "Thriller; Mystery; Horror; Psychological thriller; Suspense",
+      "cast": "Colleen Camp; Gabriel Mann; Sara Foster; Susie Amy; Cary Elwes; Michael Biehn; Winter Ave Zoli; Katherine Shanklin"
+     },
+     {
+      "id": "edb95c357b3b-028678-000000",
+      "testo": "Six introverted individuals, bored with their lives and trying to escape their daily routine, attempt to find a radical solution to their boredom by getting themselves admitted into a psychiatric hospital. Among these individuals are: Maud , a bored trophy wife who feels trapped in a loveless marriage; Antoine , a sex-obsessed virgin; Alice , a woman whose only enjoyment comes from computers; Miranda , a paranoid exhibitionist whose inhibitions make her dislike being the center of attention; Paul , a fanatical right-wing conspiracy theorist; and Alan , an androgynous rapper. Upon arriving to the asylum, the six individuals are informed that there is only room for one person in the hospital. Nurse Milly  informs the individuals that they will now have to compete for the only remaining spot in the asylum. The nurse proceeds to administer tests and contests and whomever she deems to be the craziest and most insane will be declared the winner and will be committed into the institution. The competition and everything in the institution is always watched over and supervised by an unseen character known only as \"The Beard\".",
+      "score": 0.7131908,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "19389755",
+      "title": "Asylum Seekers",
+      "release_date": "2009",
+      "release_year": "2009",
+      "genres": "Parody; Thriller; Horror; Indie; Mystery; Comedy; Black comedy",
+      "cast": "Pepper Binkley; Bill Dawes; Lee Wilkof; Judith Hawking; Stella Maeve; Daniel Irizarry; Julie Leedes; Camille O'Sullivan"
+     },
+     {
+      "id": "edb95c357b3b-024725-000000",
+      "testo": "They tells the story of a Psychology grad student named Julia  and an event that turns her life upside down. As a child she experienced horrifying night terrors, but has seemingly overcome the problem. She reunites with a childhood friend, Billy , and he tells her that he believes their night terrors are caused by something otherworldly and warns her to stay out of the dark, before suddenly committing suicide. At his funeral, Julia meets two of Billy's friends who slowly begin to believe his claims. Julia's night terrors return and she begins to doubt her perception of the world around her. It turns out her mental illness is caused by creatures only she can see who are attempting to consume her. As she tries to flee them, Julia ends up nearly being consumed by them but narrowly manages to escape and her illusions cause her to harm innocent people. She is hospitalized at a mental institution where she is attacked once more and transported into a separate dimension inside of a closet, here she screams for help towards doctors and orderlies who cannot see her. The closet door is shut by one of the doctors and the creatures proceed to attack her.",
+      "score": 0.68204388,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "2813558",
+      "title": "They",
+      "release_date": "2002-11-27",
+      "release_year": "2002",
+      "genres": "Thriller; Horror; Supernatural; Psychological thriller; Suspense; Crime Thriller",
+      "cast": "Jodelle Ferland; Laura Regan; Marc Blucas; Ethan Embry; Dagmara Dominczyk; Jon Abrahams; Jessica Amlee; Jay Brazeau; Alexander Gould; Peter LaCroix; Jonathan Cherry; Desiree Zurowski"
+     },
+     {
+      "id": "edb95c357b3b-013000-000000",
+      "testo": "The film takes place in an old, worn down insane asylum in Auckland, New Zealand, run by Dr. Marlowe . Simon Cartwright , one of his patients, is seeking an appeal from a psychiatrist to get a reevaluation of his mental state. He wants to prove that he’s been cured; Simon is a serial killer that has killed over a dozen different people. He wants a psychiatrist from outside of the asylum to take his case, and he specifically asks for Dr. Karen Shumaker. Dr. Shumaker  has recently gained some publicity from winning a case involving another serial killer. There are two orderlies, Philip and Robert , who are in charge of watching over the insane asylum’s patients. They are always harassing and abusing Simon. In the opening scene they bring him to a visitor’s room and cover the camera up so they can start beating him up. They also spit in his food and are always violent and aggressive with him. When Dr. Shumaker arrives, she argues with Dr. Marlowe about seeing Cartwright; they don’t quite see eye to eye. Marlowe accuses her of only doing it to increase her publicity; however she tells him that it is Simon that has personally asked for her and so she proceeds with the visit. As she is led to the room where Simon is waiting, there is another patient, Marge  roaming in the hallway outside the room Simon is in. She attacks Dr. Shumaker telling her to watch out for “The Ugly.” When Shumaker finally gets to the interview room she and Cartwright begin their session. Simon does not have a specific type of victim; this is not typical in a serial killer. His kills are random and Dr. Shumaker wants to know why. She asks if he feels any remorse or guilt, but he does not. All he says is that he simply had to kill them. As they talk through their session, the movie shifts to a number of flashbacks. First they delve into Simon's childhood, only to find out that he was bullied as a child and that his mother abused him. As an adolescent, the only person he had ever cared about, Julie , was driven away by his mother . In response to this, Simon ends up slashing his mother's throat. He tries to make it look like a robbery took place and burns the house down, but the cops figure out what really happened. Simon is then locked away in an asylum for five years. Once he is released, he starts killing again. He kills lots of different people; his victims range from men to women, old and young. It seems as though there is no pattern in the way he chooses his victims, that it’s all the same to him. However, we learn of an instance in which he spares the life of a thirteen year old deaf girl. He tells Dr. Shumaker that he did not kill the girl because she was different: she was like him. Although he does not have a specific type of victim, Simon does have a signature method of killing. He slashes people’s throats with a large straight razor. He says that it is “the ugly” that makes him kill; it will not leave him alone until he has satisfied its voice. As Dr. Shumaker delves deeper into his psyche, she discovers that Simon, who claims to be haunted by the voices of his victims telling him to kill, as well as a malignant alternate persona called \"The Ugly,\" may not be so much crazy as he is tortured inside from years of physical and psychological abuse.",
+      "score": 0.67495072,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "6023801",
+      "title": "The Ugly",
+      "release_date": "1997-08-26",
+      "release_year": "1997",
+      "genres": "Thriller; B-movie; Indie; Psychological thriller; Horror; Slasher",
+      "cast": "Roy Ward; Rebecca Hobbs; Vanessa Byrnes; Paul Glover; Christopher Graham; Jon Brazier; Tim Barlow; Paolo Rotondo; Jennifer Ward-Lealand; Darien Takle; Cath McWhirter"
+     },
+     {
+      "id": "edb95c357b3b-005781-000000",
+      "testo": "Frustrated thriller writer Edmond Bancroft  owns a private \"black museum\" of torture instruments. He hypnotizes his assistant Rick  to commit increasingly horrific crimes for Bancroft to write about.",
+      "score": 0.6726461000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "5082101",
+      "title": "Horrors of the Black Museum",
+      "release_date": "1959",
+      "release_year": "1959",
+      "genres": "Horror; Psychological thriller; Slasher",
+      "cast": "Michael Gough; June Cunningham; Graham Curnow; Shirley Anne Field"
+     },
+     {
+      "id": "edb95c357b3b-029959-000000",
+      "testo": "The confessions of a sadomasochistic sexually obsessed patient disclosed as fantasies during Manhattan psychiatrist sessions begin to permeate the troubled doctor's subconscious as erotic dreams. This leads to a heated love affair. At the same time a series of shocking murders occur with evidence suggesting it is her new lover / patient.",
+      "score": 0.6581593400000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "22056282",
+      "title": "Whispers in the Dark",
+      "release_date": "1992-08-07",
+      "release_year": "1992",
+      "genres": "Thriller; Mystery; Crime Thriller; Psychological thriller; Erotic thriller",
+      "cast": "Anthony LaPaglia; Jill Clayburgh; Annabella Sciorra; John Leguizamo; Jamey Sheridan; Deborah Kara Unger; Alan Alda; Anthony Heald; Jacqueline Brookes"
+     },
+     {
+      "id": "edb95c357b3b-020646-000000",
+      "testo": "A widower locks up his two children, afraid that they will go mad, as did his wife. He then invites a doctor of dubious reputation to supervise the young people's mental health. Meanwhile, in the vicinity of the house, grisly murders are happening...",
+      "score": 0.65721145,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "16314437",
+      "title": "Demons of the Mind",
+      "release_date": "1972-11-05",
+      "release_year": "1972",
+      "genres": "Period Horror; Costume Horror; Horror; Suspense; Psychological thriller",
+      "cast": "Yvonne Mitchell; Robert Hardy; Michael Hordern; Shane Briant; Patrick Magee; Gillian Hills; Paul Jones"
+     },
+     {
+      "id": "edb95c357b3b-034533-000000",
+      "testo": "On a class field trip to a mental hospital, psychology major Abby Jones  has a disturbing meeting with a dangerous patient, Harmon . Later, studies with her two roommates unaware of the dark impact she had in him. As the weather turns stormy, Harmon works his way towards Abby. Abby and her roommate Lynn  receive a visit from Carter Thomas , the neighbor who is a police officer, who warns them about a local voyeur preying on locals. He assures them that he is close by and as long as that they should keep their curtains closed and doors locked. Meanwhile, Harmon works his way towards them slowly and methodically for a showdown between them.",
+      "score": 0.63055393,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "35159749",
+      "title": "Escapee",
+      "release_date": "2011-09-02",
+      "release_year": "2011",
+      "genres": "Thriller; Horror",
+      "cast": "Justin Gaston; Dominic Purcell; Faith Ford; Christine Evangelista; Danny Nucci; Scott Elrod; Melissa Ordway; Carly Chaikin; Stanton Barrett; Jullian Dulce Vida; Joel Gourdin; Kadeem Hardison; David Jensen; Greg D. Johnson; Christopher Shand"
+     },
+     {
+      "id": "edb95c357b3b-010786-000000",
+      "testo": "Allen Meneric  is sent to a hospital for the criminally insane to be evaluated after he brutally murders his girlfriend’s alleged rapist. He very quickly becomes surrounded by evil psychopaths, people with seemingly mild personality disorders, sarcastic guards and indifferent doctors. In a courtyard Allen has a chance meeting with Ben . Ben's outgoing pleasant nature helps to initiate a friendship with Allen who is more inclined to keep to himself. Ben's state of mind, however, fluctuates and leads to endless droning, short-term memory loss, and occasional catatonic episodes as the film progresses. Ben introduces Allen to Carl Tarses  who strikes fear into everyone he meets. He has deeply rooted emotional problems from parental abuse in his childhood. Terrorizing people gives Carl a sinister form of satisfaction. Things erupt between Carl and Allen after Carl describes some of his prior heinous acts to him. Allen's good behavior gets him transferred to a minimum security section of the hospital where low risk males and females are able to interact. There he meets Mia  who is both beautiful and bipolar. Mia and Allen instantly fall for each other and their budding romance causes them to smile and laugh for the first time. In a tragic twist of fate, Allen and Mia's private encounter, arranged by Mrs. Standings , a sincere and caring staff member, is violently interrupted by Tarses as he attempts to escape from the hospital.",
+      "score": 0.62646922,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "32726298",
+      "title": "On the Inside",
+      "release_date": "2011-02",
+      "release_year": "2011",
+      "genres": "Thriller; Drama",
+      "cast": "Olivia Wilde; Nick Stahl; Dash Mihok; Pruitt Taylor Vince; Shohreh Aghdashloo; Black Thought; Daniel Franzese; Daniel London; Joanne Baron; Kyle McCaffrey; Jason Planitzer"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "Psychological thrillers set in a psychiatric hospital. Must match: psychological thriller; psychiatric hospital setting; Thriller.",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "Thriller",
+       "type": "genre",
+       "results": {
+        "Les Espions (1957)": {
+         "status": "verified",
+         "evidence": "generi: Thriller; Drama; Psychological thriller; Spy"
+        },
+        "Psych 9 (2010)": {
+         "status": "verified",
+         "evidence": "generi: Thriller; Mystery; Horror; Psychological thriller; Suspense"
+        },
+        "They (2002)": {
+         "status": "verified",
+         "evidence": "generi: Thriller; Horror; Supernatural; Psychological thriller; Suspense; Crime Thriller"
+        }
+       }
+      },
+      {
+       "constraint": "psychological thriller",
+       "type": "plot_require",
+       "results": {
+        "Les Espions (1957)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Psych 9 (2010)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "They (2002)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "psychiatric hospital setting",
+       "type": "plot_require",
+       "results": {
+        "Les Espions (1957)": {
+         "status": "probable",
+         "evidence": "termini nella trama: psychiatric, hospital"
+        },
+        "Psych 9 (2010)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "They (2002)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-000945-000000",
+      "testo": "The plot concerns a doctor at a run-down psychiatric hospital, who is offered a large sum of money to shelter a new patient. Soon the place is full of suspicious and secretive characters, all apparently international secret agents trying to find out who and what the patient is.",
+      "score": 0.7050753,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "19700296",
+      "title": "Les Espions",
+      "release_date": "1957-09-19",
+      "release_year": "1957",
+      "genres": "Thriller; Drama; Psychological thriller; Spy",
+      "cast": "O.E. Hasse; Curd Jürgens; Peter Ustinov; Sam Jaffe; Paul Carpenter; Véra Clouzot; Martita Hunt; Gérard Sety; Gabrielle Dorziat; Louis Seigner; Pierre Larquey; Georgette Anys; Jean Brochard; Bernard La Jarrige; Dominique Davray"
+     },
+     {
+      "id": "edb95c357b3b-030250-000000",
+      "testo": "A young woman  with a troubled past takes a job at recently closed down hospital. Working the night shift alone she begins to experience a series of unsettling events that lead her to believe that the hospital may be connected to a number of recent murders in the area. To uncover the truth she will have to revisit the past behind the walls of Psych 9.",
+      "score": 0.6479992,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "28996885",
+      "title": "Psych 9",
+      "release_date": "2010-05-07",
+      "release_year": "2010",
+      "genres": "Thriller; Mystery; Horror; Psychological thriller; Suspense",
+      "cast": "Colleen Camp; Gabriel Mann; Sara Foster; Susie Amy; Cary Elwes; Michael Biehn; Winter Ave Zoli; Katherine Shanklin"
+     },
+     {
+      "id": "edb95c357b3b-024725-000000",
+      "testo": "They tells the story of a Psychology grad student named Julia  and an event that turns her life upside down. As a child she experienced horrifying night terrors, but has seemingly overcome the problem. She reunites with a childhood friend, Billy , and he tells her that he believes their night terrors are caused by something otherworldly and warns her to stay out of the dark, before suddenly committing suicide. At his funeral, Julia meets two of Billy's friends who slowly begin to believe his claims. Julia's night terrors return and she begins to doubt her perception of the world around her. It turns out her mental illness is caused by creatures only she can see who are attempting to consume her. As she tries to flee them, Julia ends up nearly being consumed by them but narrowly manages to escape and her illusions cause her to harm innocent people. She is hospitalized at a mental institution where she is attacked once more and transported into a separate dimension inside of a closet, here she screams for help towards doctors and orderlies who cannot see her. The closet door is shut by one of the doctors and the creatures proceed to attack her.",
+      "score": 0.5164741,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "2813558",
+      "title": "They",
+      "release_date": "2002-11-27",
+      "release_year": "2002",
+      "genres": "Thriller; Horror; Supernatural; Psychological thriller; Suspense; Crime Thriller",
+      "cast": "Jodelle Ferland; Laura Regan; Marc Blucas; Ethan Embry; Dagmara Dominczyk; Jon Abrahams; Jessica Amlee; Jay Brazeau; Alexander Gould; Peter LaCroix; Jonathan Cherry; Desiree Zurowski"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/80176?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/55045?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/16028?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 80176,
+      "media_type": "movie",
+      "title": "The Spies",
+      "original_title": "Les Espions",
+      "overview": "A doctor at a run-down psychiatric hospital is offered a large sum of money to shelter a new patient. Soon the place is full of suspicious and secretive characters, all apparently international secret agents trying to find out who and what the patient is.",
+      "vote_average": 6.6,
+      "release_date": "1957-10-10",
+      "original_language": "fr",
+      "poster_path": "/d5w1KoL21l7oZrGx7Y1FThpluFp.jpg"
+     },
+     {
+      "id": 55045,
+      "media_type": "movie",
+      "title": "Psych:9",
+      "original_title": "Psych:9",
+      "overview": "A young woman with a troubled past takes a job at recently closed down hospital. Working the night shift alone she begins to experience a series of unsettling events that lead her to believe that the hospital may be connected to a number of recent murders in the area. To uncover the truth she will have to revisit the past behind the walls of Psych:9.",
+      "vote_average": 4.7,
+      "release_date": "2010-05-07",
+      "original_language": "en",
+      "poster_path": "/nGxy7Jd7VCSwpjMXJ7ZwWJuFGnC.jpg"
+     },
+     {
+      "id": 16028,
+      "media_type": "movie",
+      "title": "They",
+      "original_title": "They",
+      "overview": "A psychology student who experienced night terrors as a child must face the chilling realization that her nightmares were not all in her head.",
+      "vote_average": 5.05,
+      "release_date": "2002-11-01",
+      "original_language": "en",
+      "poster_path": "/6i3ixJTacgdEAypVes6uUmsJr64.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "r03",
+  "kind": "rag",
+  "text": "Thriller psicologici ambientati in un ospedale psichiatrico"
+ },
+ "seconds": 23.3
+}

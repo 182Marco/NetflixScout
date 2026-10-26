@@ -1,0 +1,379 @@
+{
+ "answer": "I risultati disponibili non verificano la produzione italiana: per tutti e tre i titoli il paese di produzione è assente dai metadati. La presenza della mafia è solo probabile, sulla base di un indizio nella trama; l’anno negli anni ’70 è invece verificato.\n\n1. **The Stone Killer (1973)**\n   - **Regia:** Michael Winner\n   - **Cast principale:** Charles Bronson, Martin Balsam, Jack Colvin, Paul Koslo, Norman Fell\n   - **Sinossi:** Un detective di Los Angeles viene mandato a New York per risolvere un caso legato a una faida tra un’antica famiglia mafiosa siciliana. La trama riguarda anche un piano di vendetta di un boss mafioso contro diversi capi dei sindacati criminali italiani ed ebraici.\n   - **Vincoli:** genere crime verificato; produzione italiana non verificabile; mafia probabile; anno del 1973 verificato.\n   - **Voto TMDb:** 6,3/10 (103 voti)\n\n2. **Across 110th Street (1972)**\n   - **Regia:** Barry Shear\n   - **Cast principale:** Anthony Quinn, Yaphet Kotto, Anthony Franciosa, Paul Benjamin, Richard Ward\n   - **Sinossi:** Dopo la rapina di 300.000 dollari a una banca di Harlem controllata dalla mafia, nella quale vengono uccisi mafiosi e poliziotti, due investigatori di New York cercano i tre criminali fuggiti con il denaro, mentre la mafia li insegue.\n   - **Vincoli:** genere crime verificato; produzione italiana non verificabile; mafia probabile; anno del 1972 verificato.\n   - **Voto TMDb:** 6,7/10 (144 voti)\n\n3. **Black Gunn (1972)**\n   - **Regia:** Robert Hartford-Davis\n   - **Cast principale:** Jim Brown, Martin Landau, Brenda Sykes, Luciana Paluzzi, Vida Blue\n   - **Sinossi:** A Los Angeles, un’organizzazione militante afroamericana rapina un’attività clandestina di scommesse mafiosa. Il proprietario di un nightclub cerca di aiutare il fratello, coinvolto nella rapina e ricercato, mentre esponenti della mafia cercano di recuperare il denaro.\n   - **Vincoli:** genere crime verificato; produzione italiana non verificabile; mafia probabile; anno del 1972 verificato.\n   - **Voto TMDb:** 5,7/10 (23 voti)\n\nQuindi, con i dati disponibili, nessuno dei tre può essere confermato come **film italiano**.",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Film italiani sulla mafia degli anni 70",
+    "used": "Film italiani sulla mafia degli anni 70",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Raccomandazioni di film italiani sulla mafia degli anni '70",
+    "arguments": {
+     "query": "Film italiani sulla mafia ambientati o prodotti negli anni '70",
+     "k_finale": null,
+     "search_mode": null
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 4125,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "semantic",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "semantic",
+      "k_largo": 10,
+      "k_finale": 3,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": []
+    },
+    "standalone_query": "Film italiani sulla mafia degli anni 70",
+    "planner_query": "Film italiani sulla mafia ambientati o prodotti negli anni '70",
+    "embedded_text": "Italian mafia films set in or produced during the 1970s",
+    "signals": {
+     "positive_signals": [
+      "Italian films",
+      "mafia",
+      "1970s setting or production"
+     ],
+     "negative_signals": [],
+     "hard_exclusions": [],
+     "semantic_query": "Italian mafia films set in or produced during the 1970s",
+     "genres": [
+      "Crime Fiction"
+     ],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-029723-000000",
+      "testo": "The film opens with the murder of gangsters relaxing in a tanning salon. This shooting occurs between clans of the DiLauro camorra syndicate which rule Scampia-Secondigliano, and triggers the so-called \"Faida di Scampia\"  which is the backdrop of the entire movie. The Faida erupted between members of the DiLauro syndicate and the so-called \"scissionisti\"  who were led by Raffaele Amato who was a brother of two of the killed men in the opening scene. This fact is understood in the scene in which don Ciro tries to switch sides and join the \"scissionisti\" faction by talking to a camorra boss  and at a point says \"we were all friends before...\" and the boss replies \"before! Before we were all friends...then BUM ! BUM ! BUM!...your friends started doing the sh*t...my parents were good people and that's how they took them out!\". This plot backdrop is missed by most foreign spectators that aren't aware of the Faida di Scampia history and hardly understand any of the strict Neapolitan dialogues. The film intertwines five separate stories of people whose lives are touched by organized crime. Don Ciro Don Ciro  is a timid middleman who distributes money to the families of imprisoned clan members. After the feud develops within the clan, he is ambushed by two angry gangsters whilst making a delivery. Wanting to save his own skin, he later offers to defect to their side. They explain to him their families were murdered by the clan and want retribution, and that they have no need for a money-carrier. Instead, Ciro leads them to the location where he is given the money for distribution. The pair raid the place, killing everyone but Ciro, and take the money. Ciro quietly walks off to an uncertain future. Totò Totò  is a 13-year-old grocery delivery boy who observes some drug dealers ditch a bag of drugs and a gun when running from the police at Sette palazzi in Scampia. He returns the items to the gang, who take him in. His initiation in an underground cavern involves him being shot while wearing a bulletproof vest as a test of courage. As the feud develops, families in the neighborhood that are perceived to be disloyal receive a warning to move out or suffer violence; Totò's fellow gang members received similar threats. Later, while hanging out with his gang in the streets of Scampia, one of his gang is killed in a drive-by. The gang decides to stand their ground and exact violent retribution by selecting a woman, Maria , as their next victim, because her son has joined a clan of Scissionisti di Secondigliano. Totò, who has delivered groceries to Maria, is forced to lure her out of her apartment, where his comrades execute her. Roberto Roberto  is a graduate who works in waste management. His boss Franco  illegally dumps toxic waste such as chromium and asbestos at sites such as abandoned quarries. During an operation, a drum of toxic chemicals is accidentally spilled on a driver. Franco refuses to call an ambulance, and when the workers refuse to handle the waste, Franco instead hires children to drive the trucks. When he sees firsthand the harmful effects of illegal toxic waste dumping on people's health, Roberto can no longer contain his disgust and quits. Pasquale Pasquale  is an haute couture tailor who works for Iavarone , a garment factory owner with ties to the Camorra. Pasquale takes a night-job training Chinese garment workers. Because they are competing with Camorra-controlled firms, the Chinese drive him to and from work in the trunk of their car. His secret work is discovered nonetheless, and on a ride home two gunmen on a scooter open fire on the car. He survives but feels forced to abandon his career, taking a job as a truck driver. At a truck stop one night, he sees Scarlett Johansson on TV wearing one of his dresses. Marco and Sweet Pea Marco  and Ciro  are two cocky, out of control, teenage wannabe-gangsters who try to operate a small racket independent of the local clan. Full of youthful exuberance and impressed with mafia portrayals from Hollywood movies, they quote lines and spontaneously reenact scenes from Scarface in Walter Schiavone's villa while dropping references to Tony Montana, Miami, and Colombians. Their first score is sticking up African immigrants during a drug purchase at the famous Hotel Boomerang, Castel Volturno. The word of the incident gets to the local mob chieftain Giovanni , who summons them and warns them under threat of violence not to repeat such behavior in the future. Ignoring him completely, they spy Camorra gangsters hiding a stash of weapons. They steal the weapons and amuse themselves by firing off rounds by the banks of a Regi Lagni canal estuary in the marshland. One day, out of money, they use their guns to rob a video arcade. They spend their money at a strip club, where the angry gangsters find them and threaten to kill them if they don't return the weapons within a day. The pair prove stubborn, so Zio  Vittorio , one of the local gangsters tries a different tactic: he approaches them in a bar with an offer to come work for him. He offers them €10,000 if they return the weapons and conduct a murder of Peppe O'Cavallaro, in fact uncle Bernardino . They accept the offer, which turns out to be a trap, as they are ambushed and killed by Giovanni, Bernardino, Vittorio and others at the location of their supposed target, an abandoned beach resort next to Regi Lagni canal estuary, and the last scene shows their bodies being taken away by a bulldozer.",
+      "score": 0.7336991500000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "17578316",
+      "title": "Gomorra",
+      "release_date": "2008-05-16",
+      "release_year": "2008",
+      "genres": "Crime Fiction; Thriller; Art film; World cinema; Drama; Crime Thriller",
+      "cast": "Gigio Morra; Gianfelice Imparato; Toni Servillo; Salvatore Cantalupo; Maria Nazionale; Ernesto Mahieux; Salvatore Ruocco; Salvatore Abruzzese; Vincenzo Caso; Simone Sacchettino; Vincenzo Fabricino; Francesco Pirozzi; Anna Sarnelli; Italo Renda; Vincenzo Altamura; Antonio Aiello"
+     },
+     {
+      "id": "edb95c357b3b-017473-000000",
+      "testo": "This film is set in Harlem, of which 110th Street is an informal boundary line. By-the-book African-American Lieutenant William Pope  has to work with crude, racist but streetwise Italian-American Captain Frank Mattelli  in the NYPD's 27th precinct. They are looking for three black men who slaughtered seven men&mdash;three black gangsters and two Italian gangsters, as well as two patrol officers&mdash;in the robbery of $300,000 from a Mafia-owned Harlem policy bank. Mafia lieutenant Nick D'Salvio  and his two henchmen are also after the hoods. Paul Benjamin plays the troubled Jim Harris, who is the last of the surviving robbers; he makes his choice in the emotional climax. In one of many violent scenes, D'Salvio finds getaway driver Henry J. Jackson  and brutalizes him in a Harlem whorehouse.",
+      "score": 0.6976074000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "1235054",
+      "title": "Across 110th Street",
+      "release_date": "1972-12-19",
+      "release_year": "1972",
+      "genres": "Thriller; Crime Fiction; Gangster Film; Action/Adventure; Blaxploitation; Drama; Film adaptation; Crime Thriller; Action",
+      "cast": "Ed Bernard; Anthony Quinn; Yaphet Kotto; Anthony Franciosa; Richard Ward; Tim O'Connor; Antonio Fargas; Marlene Warfield; Norma Donaldson; Gilbert Lewis; Paul Benjamin; Joseph Attles"
+     },
+     {
+      "id": "edb95c357b3b-010879-000000",
+      "testo": "The film involves a plot by a present day  Mafia don  to avenge the killings of a group of Mafia dons back in 1931  with a bold nation-wide counter-strike against most of the current Italian and Jewish syndicate heads using teams of Vietnam vets instead of Mafia hit men. Bronson plays a gritty, independent detective who stumbles across the plot when a washed-up former hit man is killed under circumstances that make it clear that it was an inside job and that Mafia were involved. He then slowly but surely uncovers the clues that point to a seemingly impossible plot. Who waits 40 years for revenge? Bronson's character is vintage Bronson; he is forced to resign from the NYPD after he shoots and kills an armed teenager. Later, after being hired by the LAPD he comes under scrutiny again after he runs over a suspect who has fired at him.",
+      "score": 0.6937638500000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "12807520",
+      "title": "The Stone Killer",
+      "release_date": "1973",
+      "release_year": "1973",
+      "genres": "Crime Fiction; Action",
+      "cast": "Charles Bronson; Martin Balsam; Norman Fell; Paul Koslo; Jack Colvin"
+     },
+     {
+      "id": "edb95c357b3b-025091-000000",
+      "testo": "Set in Los Angeles, the film begins with the nighttime robbery of an illegal mafia bookmaking operation carried out by the militant African-American organization BAG . Though successful, several of the bookmakers and one of the burglars are killed. The mastermind behind the robbery, a Vietnam-veteran named Scott , is the brother of prominent local nightclub owner, Gunn . Seeking safe-haven, Scott hides out at his brother's mansion after a brief reunion. Meanwhile, mafia caporegime and used-car dealer Russ Capelli  meets with west coast criminal overlord Toni Lombardo  to report the theft of daily payoff records and monies. Though Capelli receives an unrelated promotion for years of loyal service, he nonetheless fears the consequences of a loss of face and status as well as incriminating mob financial information. He therefore orders his men, led by psychotic assassin Ray Kriley , to shake down anyone who might have a connection to the robbery and to recover the lost goods using any means necessary.",
+      "score": 0.6853897000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "30906682",
+      "title": "Black Gunn",
+      "release_date": "1972",
+      "release_year": "1972",
+      "genres": "Action/Adventure; Crime Fiction; Blaxploitation; Action; Drama",
+      "cast": "Jim Brown; Bernie Casey; Martin Landau; Bruce Glover; Timothy Brown; Keefe Brasselle; Stephen McNally; Luciana Paluzzi; Gary Conway; William Campbell; Brenda Sykes; Vida Blue; Herb Jefferson, Jr."
+     },
+     {
+      "id": "edb95c357b3b-042143-000000",
+      "testo": "Tommy is the son of a Mafia hitman, who, after his father is killed by a rival, moves with his younger brother to live with his aunt, uncle and counsin in Philadelphia. The sole member of his family who is not involved in crime, Tommy joins the Marines and fights in Operation Desert Storm. Becoming disillusioned when the conflict ended with Saddam Hussein still in power. and disenchanted with military service, Tommy assaults an MP, and steals a colonel's Jeep. Arrested when the jeep runs out of gas, the movie opens with Tommy in the brig at a US Marine base. An FBI agent  coerces Tommy into infiltrating the family business. The agent tells Tommy that he can protect his brother and cousin, if he'll get evidence against the Sicilian mob trying to take over the heroin trade in the US. Tommy is instructed to wear a wire to record negotiations between his cousin and gang leader, Joey Marcucci, and Mafia boss Luciano Reggio. Tommy tries to get incriminating evidence against Reggio, while protecting his cousin and younger brother in their fledgling attempts to become 'goodfellas'. His efforts to strike a balance between his family loyalties, and the FBI's need for evidence, take up most of the film's bulk.",
+      "score": 0.67307413,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "3555951",
+      "title": "10th & Wolf",
+      "release_date": "2006-08-18",
+      "release_year": "2006",
+      "genres": "Thriller; Crime Fiction; Gangster Film; Mystery; Drama; Crime Thriller",
+      "cast": "Dennis Hopper; James Marsden; Giovanni Ribisi; Brad Renfro; Brian Dennehy; Lesley Ann Warren; Dash Mihok; Piper Perabo; Val Kilmer; Tommy Lee; Jeffrey Tott"
+     },
+     {
+      "id": "edb95c357b3b-020824-000000",
+      "testo": "Beginning in 1985 in Balata, Sicily, the eleven-year-old Rita Mancuso witnessed the assassination of her beloved father Don Michele by a rival Mafia family. Six years later, her brother is killed by the Mafia as well. Determined to avenge the murders, she decides to break the code of silence and goes to an anti-Mafia prosecutor in Palermo with her detailed diaries to be used as evidence. Being forced to flee her village, she is put into witness protection and transferred to a safe house in Rome.",
+      "score": 0.6691002800000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "30687666",
+      "title": "The Sicilian Girl",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Crime Fiction; Drama",
+      "cast": null
+     },
+     {
+      "id": "edb95c357b3b-037575-000000",
+      "testo": "In 1960s Rome, four young delinquents, nicknamed Ice, Lebanese, Dandy and Grand steal a car. Crashing through a police road block, the driver, Grand is crushed by the steering column. Back at their hideout, a small disused caravan near a beach, they are discovered by the police. Ice, Lebanese and Dandy run away, but are captured. Grand, who is mortally wounded, dies in the caravan. Roll opening credits. Some years later, in the 1970s, Ice is released from prison, and met by Lebanese, who tells him he has come up with a plan to kidnap and hold to ransom Baron Rossellini, a wealthy aristocrat whom Lebanese's parents worked for. He has formed a gang with Dandy - they are Black, Bright Eye, Ricotta, Bufalo, Rat and Ciro and Aldo Buffoni. After negotiating the ransom of 3 billion lire, whilst trying to get the Baron to pose for a proof of life, Lebanese shoots him. Nonetheless, they fake the proof of life, and get the 3 billion lire. However, the local Police Commissioner Nicola Scialoja manages to record the serial numbers of the ransom money before the gang receive it, setting out to capture the gang. As the gang divide up the money, Lebanese proposes to split 500 million lire between them, and use the remaining 2.5 billion to build a foothold in the criminal underworld of Rome, starting with drug dealing. However, the drugs racket is owned by the dealer Terrible, and so the gang wipe his gang out apart from Gemito, who Lebanese bribes to help them. After his home is raided and his body guards killed, Terrible wakes to find Ice, Lebanese and Dandy in his bedroom. Cornered, he reluctantly agrees to let give control of the racket to the gang. The gang grows in influence and ambition. Rome falls under their rule, and the rule of Lebanese. Dandi meets and becomes enamoured with an upmarket prostitute, Patrizia, who, in order to be kept under the sway of the gang and in order to prevent Dandi becoming involved in brawls provoked by his jealousy, is bought over and given a brothel. Ice, meanwhile falls in love with his younger brother Gigio's tutor, Roberta. However, Lebanese begins to consider Ice's romance a weakness, a point reinforced when Ice asks to be dismissed from the gang. In response, Lebanese casts up the car theft from their childhood, where his leg was permanently damaged by the pursuing police. Ice and Roberta begin to learn English with the idea that they will elope there. Then Ice receives a phone call informing him that Lebanese is dead, stabbed by Gemito after a bitter game of poker. Then begins Ice's quest for vengeance, aided by Dandy. Yet Scialoja is on their trail and succeeds in capturing Ice, then the other members of the gang except Dandy. Ice plans from prison with the help of his friends, but a deadly spiral of score settling has already begun to coil around them all. The film is something of a showcase for a number of Italy's leading young film and television actors, notably Favino, who won a Donatello award for his performance as Lebanese.",
+      "score": 0.6664984,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "9753622",
+      "title": "Romanzo Criminale",
+      "release_date": "2005",
+      "release_year": "2005",
+      "genres": "Crime Fiction; Drama",
+      "cast": "Jasmine Trinca; Claudio Santamaria; Anna Mouglalis; Pierfrancesco Favino; Kim Rossi Stuart; Stefano Accorsi"
+     },
+     {
+      "id": "edb95c357b3b-041141-000000",
+      "testo": "The film tells the story of three teenagers, based on real life gangsters Charles \"Lucky\" Luciano , Benjamin \"Bugsy\" Siegel  and Michael Lasker  , growing up in New York's ghettos during the early 1900s to their rise though organized crime.",
+      "score": 0.65227625,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "4724358",
+      "title": "Gangster Wars",
+      "release_date": "1981-04-09",
+      "release_year": "1981",
+      "genres": "Crime Fiction; Gangster Film; Drama; Biopic [feature]",
+      "cast": "George DiCenzo; Michael Nouri; Joe Penny; Brian Benben; Madeleine Stowe; Markie Post; Allan Arbus; Louis Giambalvo; James Andronica; Robert Davi; Joseph Mascolo; Kenneth Tigar; Richard S. Castellano; Jon Polito; Jonathan Banks; Richard Foronjy; Robert F. Lyons; Kathleen Lloyd"
+     },
+     {
+      "id": "edb95c357b3b-040251-000000",
+      "testo": "Set in the 1970s, the film depicts Italian youths experiencing the sexual revolution of the previous decade, whilst addressing differences between Italy's southern and northern regions.",
+      "score": 0.64829267,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "8637935",
+      "title": "Tutto l'amore che c'è",
+      "release_date": "2000-03-24",
+      "release_year": "2000",
+      "genres": "Drama",
+      "cast": "Sergio Rubini; Gérard Depardieu"
+     },
+     {
+      "id": "edb95c357b3b-001564-000000",
+      "testo": "It is a dramatization of the career of crusading New York City police officer Joseph Petrosino, a pioneer in the fight against organized crime in America. The film deals primarily with Petrosino and his Italian Squad's opposition to the extortion rackets of the Black Hand in lower Manhattan's Little Italy.",
+      "score": 0.6449801,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "32901780",
+      "title": "Pay or Die",
+      "release_date": "1960-07-27",
+      "release_year": "1960",
+      "genres": "Crime Fiction",
+      "cast": "Ernest Borgnine"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "Italian mafia films set in or produced during the 1970s Must match: 1970s setting or production; Crime Fiction.",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "Crime Fiction",
+       "type": "genre",
+       "results": {
+        "The Stone Killer (1973)": {
+         "status": "verified",
+         "evidence": "generi: Crime Fiction; Action"
+        },
+        "Across 110th Street (1972)": {
+         "status": "verified",
+         "evidence": "generi: Thriller; Crime Fiction; Gangster Film; Action/Adventure; Blaxploitation; Drama; Film adaptation; Crime Thriller; Action"
+        },
+        "Black Gunn (1972)": {
+         "status": "verified",
+         "evidence": "generi: Action/Adventure; Crime Fiction; Blaxploitation; Action; Drama"
+        }
+       }
+      },
+      {
+       "constraint": "Italian films",
+       "type": "plot_require",
+       "results": {
+        "The Stone Killer (1973)": {
+         "status": "not_verifiable",
+         "evidence": "paese di produzione assente nei metadati"
+        },
+        "Across 110th Street (1972)": {
+         "status": "not_verifiable",
+         "evidence": "paese di produzione assente nei metadati"
+        },
+        "Black Gunn (1972)": {
+         "status": "not_verifiable",
+         "evidence": "paese di produzione assente nei metadati"
+        }
+       }
+      },
+      {
+       "constraint": "mafia",
+       "type": "plot_require",
+       "results": {
+        "The Stone Killer (1973)": {
+         "status": "probable",
+         "evidence": "termini nella trama: mafia"
+        },
+        "Across 110th Street (1972)": {
+         "status": "probable",
+         "evidence": "termini nella trama: mafia"
+        },
+        "Black Gunn (1972)": {
+         "status": "probable",
+         "evidence": "termini nella trama: mafia"
+        }
+       }
+      },
+      {
+       "constraint": "1970s setting or production",
+       "type": "decade",
+       "results": {
+        "The Stone Killer (1973)": {
+         "status": "verified",
+         "evidence": "anno 1973"
+        },
+        "Across 110th Street (1972)": {
+         "status": "verified",
+         "evidence": "anno 1972"
+        },
+        "Black Gunn (1972)": {
+         "status": "verified",
+         "evidence": "anno 1972"
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-010879-000000",
+      "testo": "The film involves a plot by a present day  Mafia don  to avenge the killings of a group of Mafia dons back in 1931  with a bold nation-wide counter-strike against most of the current Italian and Jewish syndicate heads using teams of Vietnam vets instead of Mafia hit men. Bronson plays a gritty, independent detective who stumbles across the plot when a washed-up former hit man is killed under circumstances that make it clear that it was an inside job and that Mafia were involved. He then slowly but surely uncovers the clues that point to a seemingly impossible plot. Who waits 40 years for revenge? Bronson's character is vintage Bronson; he is forced to resign from the NYPD after he shoots and kills an armed teenager. Later, after being hired by the LAPD he comes under scrutiny again after he runs over a suspect who has fired at him.",
+      "score": 0.40344992,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "12807520",
+      "title": "The Stone Killer",
+      "release_date": "1973",
+      "release_year": "1973",
+      "genres": "Crime Fiction; Action",
+      "cast": "Charles Bronson; Martin Balsam; Norman Fell; Paul Koslo; Jack Colvin"
+     },
+     {
+      "id": "edb95c357b3b-017473-000000",
+      "testo": "This film is set in Harlem, of which 110th Street is an informal boundary line. By-the-book African-American Lieutenant William Pope  has to work with crude, racist but streetwise Italian-American Captain Frank Mattelli  in the NYPD's 27th precinct. They are looking for three black men who slaughtered seven men&mdash;three black gangsters and two Italian gangsters, as well as two patrol officers&mdash;in the robbery of $300,000 from a Mafia-owned Harlem policy bank. Mafia lieutenant Nick D'Salvio  and his two henchmen are also after the hoods. Paul Benjamin plays the troubled Jim Harris, who is the last of the surviving robbers; he makes his choice in the emotional climax. In one of many violent scenes, D'Salvio finds getaway driver Henry J. Jackson  and brutalizes him in a Harlem whorehouse.",
+      "score": 0.31779715,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "1235054",
+      "title": "Across 110th Street",
+      "release_date": "1972-12-19",
+      "release_year": "1972",
+      "genres": "Thriller; Crime Fiction; Gangster Film; Action/Adventure; Blaxploitation; Drama; Film adaptation; Crime Thriller; Action",
+      "cast": "Ed Bernard; Anthony Quinn; Yaphet Kotto; Anthony Franciosa; Richard Ward; Tim O'Connor; Antonio Fargas; Marlene Warfield; Norma Donaldson; Gilbert Lewis; Paul Benjamin; Joseph Attles"
+     },
+     {
+      "id": "edb95c357b3b-025091-000000",
+      "testo": "Set in Los Angeles, the film begins with the nighttime robbery of an illegal mafia bookmaking operation carried out by the militant African-American organization BAG . Though successful, several of the bookmakers and one of the burglars are killed. The mastermind behind the robbery, a Vietnam-veteran named Scott , is the brother of prominent local nightclub owner, Gunn . Seeking safe-haven, Scott hides out at his brother's mansion after a brief reunion. Meanwhile, mafia caporegime and used-car dealer Russ Capelli  meets with west coast criminal overlord Toni Lombardo  to report the theft of daily payoff records and monies. Though Capelli receives an unrelated promotion for years of loyal service, he nonetheless fears the consequences of a loss of face and status as well as incriminating mob financial information. He therefore orders his men, led by psychotic assassin Ray Kriley , to shake down anyone who might have a connection to the robbery and to recover the lost goods using any means necessary.",
+      "score": 0.18612498,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "30906682",
+      "title": "Black Gunn",
+      "release_date": "1972",
+      "release_year": "1972",
+      "genres": "Action/Adventure; Crime Fiction; Blaxploitation; Action; Drama",
+      "cast": "Jim Brown; Bernie Casey; Martin Landau; Bruce Glover; Timothy Brown; Keefe Brasselle; Stephen McNally; Luciana Paluzzi; Gary Conway; William Campbell; Brenda Sykes; Vida Blue; Herb Jefferson, Jr."
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/26202?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/23847?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/100088?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 26202,
+      "media_type": "movie",
+      "title": "The Stone Killer",
+      "original_title": "The Stone Killer",
+      "overview": "A Los Angeles detective is sent to New York where he must solve a case involving an old Sicilian Mafia family feud.",
+      "vote_average": 6.3,
+      "release_date": "1973-08-08",
+      "original_language": "en",
+      "poster_path": "/4q5gLjMEfV0JV10KK59Lfp2kuX.jpg"
+     },
+     {
+      "id": 23847,
+      "media_type": "movie",
+      "title": "Across 110th Street",
+      "original_title": "Across 110th Street",
+      "overview": "In a daring robbery, some $300,000 is taken from the Italian mob. Several mafiosi are killed, as are two policemen. Lt. Pope and Capt. Mattelli are two New York City cops trying to break the case. Three small-time criminals are on the run with the money. Will the mafia catch them first, or will the police?",
+      "vote_average": 6.7,
+      "release_date": "1972-12-19",
+      "original_language": "en",
+      "poster_path": "/ooxttcglcMbcCX58jzXibGEybKB.jpg"
+     },
+     {
+      "id": 100088,
+      "media_type": "movie",
+      "title": "Black Gunn",
+      "original_title": "Black Gunn",
+      "overview": "A successful and popular nightclub owner who believes financial independence is the path to equality and success, must act as a go-between for militant-minded brother and the white gang syndicate his brother has attacked and robbed. Their involvements lead to a breathless race course chase, the destruction of a dopepusher and a violent waterfront climax.",
+      "vote_average": 5.7,
+      "release_date": "1972-12-20",
+      "original_language": "en",
+      "poster_path": "/ka1Bcy9w7YOroUXMJe2aZPadkkm.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "r10",
+  "kind": "rag",
+  "text": "Film italiani sulla mafia degli anni 70"
+ },
+ "seconds": 22.8
+}

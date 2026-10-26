@@ -1,0 +1,68 @@
+{
+ "answer": "I 5 film del 1994 con il voto medio più alto sono:\n\n1. **The Shawshank Redemption** — **4,40/5** su 102.929 voti  \n   Generi: Crime, Drama\n\n2. **Pulp Fiction** — **4,20/5** su 98.409 voti  \n   Generi: Comedy, Crime, Drama, Thriller\n\n3. **Léon: The Professional** — **4,09/5** su 41.846 voti  \n   Titolo alternativo: *The Professional*; *Léon*  \n   Generi: Action, Crime, Drama, Thriller\n\n4. **To Live** — **4,08/5** su 1.497 voti  \n   Titolo originale: *Huozhe*  \n   Genere: Drama\n\n5. **Three Colors: Red** — **4,07/5** su 8.183 voti  \n   Titolo originale: *Trois couleurs: Rouge*  \n   Genere: Drama\n\nI voti sono **medie su 5** riportate dal database utilizzato.",
+ "tools": [
+  "movie_db_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "I 5 film più votati del 1994",
+    "used": "I 5 film più votati del 1994",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "movie_db_search",
+    "purpose": "Classifica dei 5 film del 1994 con la valutazione media più alta",
+    "arguments": {
+     "query": "I 5 film con la valutazione media più alta usciti nel 1994, ordinati dal più votato al meno votato"
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "movie_db_search",
+    "elapsed_ms": 3070,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "db_query",
+   "data": {
+    "queries": [
+     {
+      "sql": "SELECT m.movie_id, m.clean_title AS title, m.year, s.avg_rating, s.n_ratings, (SELECT group_concat(g.genre, '|') FROM movie_genres g WHERE g.movie_id = m.movie_id) AS genres, l.imdb_id FROM movies m JOIN movie_stats s ON s.movie_id = m.movie_id LEFT JOIN links l ON l.movie_id = m.movie_id WHERE s.n_ratings >= ? AND m.year >= ? AND m.year <= ? ORDER BY s.avg_rating DESC, s.n_ratings DESC, m.movie_id LIMIT ?",
+      "params": [
+       50,
+       1994,
+       1994,
+       15
+      ]
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "d02",
+  "kind": "db",
+  "text": "I 5 film più votati del 1994"
+ },
+ "seconds": 12.6
+}

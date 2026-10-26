@@ -1,0 +1,278 @@
+{
+ "answer": "Ti consiglio **_Silent Night, Bloody Night_ (1974)**.\n\n- **Genere:** thriller, con elementi horror, slasher e psychological thriller — il genere thriller è verificato nei dati.\n- **Sinossi:** alcune persone che cercano di vendere una villa isolata dal passato oscuro in Massachusetts vengono perseguitate e uccise da un maniaco evaso. Resta da capire chi sia l’assassino e perché gli abitanti del luogo si comportino in modo così strano.\n- **Vincoli:** la tensione psicologica e la complessità dei personaggi non sono verificabili dai dati disponibili.\n- **Regista:** non disponibile nei risultati ricevuti. L’identificazione TMDb non è stata verificata con certezza a causa di una discrepanza sull’anno.",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Consigliami un thriller psicologico e dimmi anche chi lo ha diretto",
+    "used": "Consigliami un thriller psicologico e dimmi anche chi lo ha diretto",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Trovare un thriller psicologico e recuperarne il regista",
+    "arguments": {
+     "query": "Consigliami un thriller psicologico e indica anche il regista.",
+     "k_finale": 1,
+     "search_mode": null
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 3893,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "semantic",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "semantic",
+      "k_largo": 10,
+      "k_finale": 1,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": [
+      "k_finale"
+     ]
+    },
+    "standalone_query": "Consigliami un thriller psicologico e dimmi anche chi lo ha diretto",
+    "planner_query": "Consigliami un thriller psicologico e indica anche il regista.",
+    "embedded_text": "A psychological thriller focused on psychological tension and complex characters.",
+    "signals": {
+     "positive_signals": [
+      "psychological tension",
+      "complex characters"
+     ],
+     "negative_signals": [],
+     "hard_exclusions": [],
+     "semantic_query": "A psychological thriller focused on psychological tension and complex characters.",
+     "genres": [
+      "Thriller"
+     ],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-039125-000000",
+      "testo": "This original story marries three different elements into one plot. The movie is basically a film noir, where a self-destructive, down-and-out investigator takes on a case that may be more than he can handle. Incorporating standard elements like a beautiful woman, excessive drinking and subtle voiceover, the piece is set up like a standard detective film. Later a science fiction angle, which is part conspiracy and part nouveau alchemy, is introduced. This component, to some degree, extends the common understanding of quantum physics. Within this framework the unbelievable is now possible and the story is set up for special effects and general creepiness. One final ingredient is comedy. Mostly situational, the laughs come from the somewhat uncommon characters thrown together in this extraordinary scenario. Rather than punchlines; reactions, comparisons and slapstick are used to ease the tension and create a more fun atmosphere. Not to be forgotten, this is first and foremost a horror movie. Where the film consists of a variety of different genre elements, Aversion is simply a suspenseful film of demonic possession.",
+      "score": 0.6621938,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "11020906",
+      "title": "Aversion",
+      "release_date": "2009-03-30",
+      "release_year": "2009",
+      "genres": "Crime Fiction; Thriller; Science Fiction; Horror; Detective; Supernatural; Fantasy; Zombie Film",
+      "cast": "Claire Dominguez; Mary Amy; Josh Berresford; Melantha Blackthorne; Christopher Illing; Marc Raco; Andrew Roth; Ted Spencer; George Walsh"
+     },
+     {
+      "id": "edb95c357b3b-002363-000000",
+      "testo": "The film is basically a thriller film, where the hero and heroine are chased by a group of people. The Hero decides to find out the reason forms the Climax.",
+      "score": 0.6562605,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "30080133",
+      "title": "Ashokavana",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Thriller",
+      "cast": "Mohan; Komal; Tejaswini Prakash"
+     },
+     {
+      "id": "edb95c357b3b-015970-000000",
+      "testo": "Jacob is an ordinary man living an ordinary life with his beautiful wife, until the day he wakes up in an eerie hotel room to find himself being brutally tortured by a mysterious woman. He succumbs to the unbearable pain and loses consciousness; only to awake safely back in his own home the next morning to discover that he has been missing for days. At first, Jacob believes his experience was just a vivid nightmare, until it happens again, and then again. As each episode becomes more realistic, he loses his grasp on what is real and what seems to be a sick game. Who are his friends? Who are his enemies? What is the truth? In the end the truth will be a lie, and the evil consuming him will stem not from his actions, but from his secret.  The story moves in to terrains that resemble the works of American film director David Lynch.",
+      "score": 0.65237316,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "15406605",
+      "title": "A Secret Handshake",
+      "release_date": "2007-05-01",
+      "release_year": "2007",
+      "genres": "Horror; Indie; Psychological thriller",
+      "cast": "Dan Swett; Carrie Lazar; Philip Hersh; Tammy Klein; Jessica Landon; Devon Marcel Clark III; Robert Olding; Carl McDowell"
+     },
+     {
+      "id": "edb95c357b3b-005412-000000",
+      "testo": "The film follows two parallel storylines, one being about a troubled detective  who plays a cat-and-mouse game with an unknown killer, and the other being about an emotionally disturbed landlady and her relationship with her enigmatic \"lodger\" .{{cite news}}",
+      "score": 0.6382992300000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "19874156",
+      "title": "The Lodger",
+      "release_date": "2009",
+      "release_year": "2009",
+      "genres": "Thriller; Mystery; Slasher; Crime Thriller",
+      "cast": "Philip Baker Hall; Simon Baker; Alfred Molina; Hope Davis; Rachael Leigh Cook; Shane West; Donal Logue; Rebecca Pidgeon; Roy Werner; Daphne Ashbrook; Kirk Fox"
+     },
+     {
+      "id": "edb95c357b3b-019941-000000",
+      "testo": "A psychological thriller that takes you through the mind of convicted killer, Michael Raine, and his experiences on death row. Was he guilty of killing his girlfriend or was he a victim of a conspiracy to frame him for a crime he didn't commit? As the story unfolds Jessica Foster, an assistant to the Governor of Tennessee begins to interview Raine while on death row, claiming that she's writing a book about the inmates. Through various circumstances, Raine puts two and two together and builds a case that he believes can prove his innocence...or does he? Ms. Foster is the only one on the 'outside\" who can give Raine a voice, but is she working for those who framed him? As time draws near to the date of his execution, in his most desperate hour Raine finds the missing pieces to the puzzle to prove his innocence, but is it too late...? Was this story told from Raine's point of view or from the book writers or from yours, the viewer - you decide.",
+      "score": 0.6382906,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "15864743",
+      "title": "A Letter from Death Row",
+      "release_date": "1998-11-17",
+      "release_year": "1998",
+      "genres": "Thriller; Crime Fiction; Psychological thriller; Mystery; Drama; Suspense; Crime Thriller",
+      "cast": "Tim Hubbard; Bret Michaels; Martin Sheen; Kristi Gibson; Lorelei Shellist; Simon Elsworth; Rob Wilds; Bill Pankey; Drew Boe; Tim Northern; Phil Valentine; Swan Burrus; Susan Carol Davis; Billy Wirtz; B.J. Brown; Charlie Sheen"
+     },
+     {
+      "id": "edb95c357b3b-027120-000000",
+      "testo": "People trying to sell an isolated mansion with a dark history in Massachusetts are being stalked and killed by an escaped maniac. But who is this deranged murderer and why do the local townspeople act so strange?",
+      "score": 0.63529605,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "19152358",
+      "title": "Silent Night, Bloody Night",
+      "release_date": "1974",
+      "release_year": "1974",
+      "genres": "Thriller; B-movie; Horror; Slasher; Psychological thriller",
+      "cast": "John Carradine; Mary Woronov; Patrick O'Neal; Andy Warhol; Candy Darling; Jack Smith; James Patterson"
+     },
+     {
+      "id": "edb95c357b3b-000456-000000",
+      "testo": "An unknown future. A boy confesses to the murder of another in an all-boy juvenile detention facility. The story follows two detectives trying to uncover the case. Sexual tension and explosive violence drive the story which delivers some weird and fascinating visuals.",
+      "score": 0.63464436,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "9013693",
+      "title": "A Big Bang Love: Juvenile",
+      "release_date": "2006",
+      "release_year": "2006",
+      "genres": "LGBT; Thriller; Japanese Movies; World cinema",
+      "cast": "Kiyohiko Shibukawa; Masanobu Ando; Ryuhei Matsuda; Ryo Ishibashi; Kenichi Endo; Renji Ishibashi; Sohee Park; Shirô Kazuki; Jo Kanamori; Jai West; Shunsuke Kubozuka"
+     },
+     {
+      "id": "edb95c357b3b-022986-000000",
+      "testo": "An ice cold tale of misguided ambition and savage revenge. Set in the bowels of an iconic derelict Los Angeles high-rise, we follow Lauren and her real-estate investing fiancé as they discover first hand what happens when a madman leads not with emotion, but rather chilling rationality. The Man in question brings a heaping helping of sanity and jet-black humor to the crazy table. The result is a wonderfully off-kilter horror/thriller that never goes where we expect, but rather draws the audience deeper into a surprising world that has dark corners even in the brightest rooms.http://www.imdb.com/title/tt1415284/.html",
+      "score": 0.6285585,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "33378170",
+      "title": "The Brazen Bull",
+      "release_date": "2010",
+      "release_year": "2010",
+      "genres": "Thriller; Horror; Psychological thriller; Action/Adventure; Suspense; Crime Thriller; Action",
+      "cast": "Nils Allen Stewart; Rachel Hunter; Elissa Dowling; Gwendolyn Garver; Jennifer Tisdale; Anastacia; Fileena Bahris; David Frank Fletcher Jr.; Michael Madsen"
+     },
+     {
+      "id": "edb95c357b3b-024725-000000",
+      "testo": "They tells the story of a Psychology grad student named Julia  and an event that turns her life upside down. As a child she experienced horrifying night terrors, but has seemingly overcome the problem. She reunites with a childhood friend, Billy , and he tells her that he believes their night terrors are caused by something otherworldly and warns her to stay out of the dark, before suddenly committing suicide. At his funeral, Julia meets two of Billy's friends who slowly begin to believe his claims. Julia's night terrors return and she begins to doubt her perception of the world around her. It turns out her mental illness is caused by creatures only she can see who are attempting to consume her. As she tries to flee them, Julia ends up nearly being consumed by them but narrowly manages to escape and her illusions cause her to harm innocent people. She is hospitalized at a mental institution where she is attacked once more and transported into a separate dimension inside of a closet, here she screams for help towards doctors and orderlies who cannot see her. The closet door is shut by one of the doctors and the creatures proceed to attack her.",
+      "score": 0.6282482500000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "2813558",
+      "title": "They",
+      "release_date": "2002-11-27",
+      "release_year": "2002",
+      "genres": "Thriller; Horror; Supernatural; Psychological thriller; Suspense; Crime Thriller",
+      "cast": "Jodelle Ferland; Laura Regan; Marc Blucas; Ethan Embry; Dagmara Dominczyk; Jon Abrahams; Jessica Amlee; Jay Brazeau; Alexander Gould; Peter LaCroix; Jonathan Cherry; Desiree Zurowski"
+     },
+     {
+      "id": "edb95c357b3b-011930-000000",
+      "testo": "This thriller features a talent agent, whose corrupt actions are uncovered by his business partner. The corrupt sinks deeper by murderng him. Unfortunately for both of them, a young woman witnesses the murder. The talent agent attacks her, she is traumatised and loses her memory. After she is released from hospital, the talent agent resumes his chase, but a detective and his wife intervene with thrilling consequences.http://www.allmovie.com/work/the-spider-111324",
+      "score": 0.62545675,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "30623716",
+      "title": "The Spider",
+      "release_date": "1940-04-13",
+      "release_year": "1940",
+      "genres": "Crime Fiction; Thriller; Drama",
+      "cast": null
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "A psychological thriller focused on psychological tension and complex characters.",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "Thriller",
+       "type": "genre",
+       "results": {
+        "Silent Night, Bloody Night (1974)": {
+         "status": "verified",
+         "evidence": "generi: Thriller; B-movie; Horror; Slasher; Psychological thriller"
+        }
+       }
+      },
+      {
+       "constraint": "psychological tension",
+       "type": "plot_require",
+       "results": {
+        "Silent Night, Bloody Night (1974)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "complex characters",
+       "type": "plot_require",
+       "results": {
+        "Silent Night, Bloody Night (1974)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-027120-000000",
+      "testo": "People trying to sell an isolated mansion with a dark history in Massachusetts are being stalked and killed by an escaped maniac. But who is this deranged murderer and why do the local townspeople act so strange?",
+      "score": 0.3049211,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "19152358",
+      "title": "Silent Night, Bloody Night",
+      "release_date": "1974",
+      "release_year": "1974",
+      "genres": "Thriller; B-movie; Horror; Slasher; Psychological thriller",
+      "cast": "John Carradine; Mary Woronov; Patrick O'Neal; Andy Warhol; Candy Darling; Jack Smith; James Patterson"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/1063876?api_key=***",
+     "https://api.themoviedb.org/3/movie/494709?api_key=***"
+    ],
+    "attributions": [],
+    "items": []
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "m01",
+  "kind": "multi",
+  "text": "Consigliami un thriller psicologico e dimmi anche chi lo ha diretto"
+ },
+ "seconds": 15.0
+}

@@ -1,0 +1,379 @@
+{
+ "answer": "I risultati non permettono di confermare il requisito completo “amicizia tra due uomini di età molto diversa”: per tutti e tre i titoli, l’amicizia tra due uomini, la grande differenza d’età e il tono comico risultano **non verificabili**. Il genere comico è invece verificato per ciascun titolo.\n\n### 1. *My Dog Vincent* (1998)\n- **Regia:** Michael McGowan  \n- **Cast principale:** Chuck Campbell, Gavin Crawford, Ben Carlson, Kyle Downes, Dinah Watts  \n- **Sinossi:** O’Brien e i suoi amici Wiley e Harper sono tre giovani sulla ventina che vivono ancora a casa e cercano di ampliare i propri orizzonti nella vita e nell’amore. La storia di formazione intreccia i loro hobby e interessi, tra cui l’ossessione per Vincent Price.\n- **Vincolo “Comedy”:** verificato — il genere indicato è Comedy.\n- **Amicizia tra due uomini:** non verificabile.\n- **Grande differenza d’età:** non verificabile.\n- **Tono comico:** non verificabile.\n- **Voto:** 7,0/10 su TMDb, con 1 voto.\n\n### 2. *Milf* (2010)\n- **Regia:** Scott D. Wheeler  \n- **Cast principale:** Jack Cullison, Philip Marlatt, Joseph Booton, Ramon Camacho, Amy Lindsay  \n- **Sinossi:** Dopo aver avuto difficoltà romantiche con ragazze della loro età, un gruppo di studenti universitari appassionati di tecnologia scopre il rapporto con donne più grandi. I migliori amici di lunga data Brandon e Anthony, insieme agli amici Nate e Ross, hanno successo nei loro incontri, ma la situazione cambia quando Brandon si innamora della madre sessualmente attiva di Anthony.\n- **Vincolo “Comedy”:** verificato — tra i generi indicati figura Comedy.\n- **Amicizia tra due uomini:** non verificabile.\n- **Grande differenza d’età:** non verificabile.\n- **Tono comico:** non verificabile.\n- **Voto:** 4,3/10 su TMDb, con 112 voti.\n\n### 3. *Old Enough* (1984)\n- **Regia:** Marisa Silver  \n- **Cast principale:** Sarah Boyd, Rainbow Harvest, Neill Barry, Alyssa Milano, Danny Aiello  \n- **Sinossi:** A New York, Karen, un’adolescente di una famiglia della classe medio-bassa, stringe amicizia con Lonnie, una bambina di 11 anni appartenente a una famiglia benestante. Le due si confrontano con i diversi stili di vita delle loro famiglie e imparano l’una dall’altra. La situazione si complica quando Johnny, il fratello di Karen, mostra interesse per Lonnie.\n- **Vincolo “Comedy”:** verificato — tra i generi indicati figura Comedy-drama.\n- **Amicizia tra due uomini:** non verificabile.\n- **Grande differenza d’età:** non verificabile.\n- **Tono comico:** non verificabile.\n- **Voto:** 6,5/10 su TMDb, con 20 voti.\n\nTra questi risultati, *Milf* è l’unico la cui trama descrive esplicitamente un’amicizia tra due uomini, Brandon e Anthony; tuttavia, i dati disponibili non verificano che si tratti di un’amicizia tra uomini di età molto diversa.",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Commedie sull'amicizia tra due uomini di età molto diversa",
+    "used": "Commedie sull'amicizia tra due uomini di età molto diversa",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Trovare commedie sull'amicizia tra due uomini di età molto diversa",
+    "arguments": {
+     "query": "Commedie incentrate sull'amicizia tra due uomini con una grande differenza d'età",
+     "k_finale": null,
+     "search_mode": null
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 3381,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "semantic",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "semantic",
+      "k_largo": 10,
+      "k_finale": 3,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": []
+    },
+    "standalone_query": "Commedie sull'amicizia tra due uomini di età molto diversa",
+    "planner_query": "Commedie incentrate sull'amicizia tra due uomini con una grande differenza d'età",
+    "embedded_text": "A comedy centered on the friendship between two men with a large age difference.",
+    "signals": {
+     "positive_signals": [
+      "friendship between two men",
+      "large age gap",
+      "comedic tone"
+     ],
+     "negative_signals": [],
+     "hard_exclusions": [],
+     "semantic_query": "A comedy centered on the friendship between two men with a large age difference.",
+     "genres": [
+      "Comedy"
+     ],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-027682-000000",
+      "testo": "A romantic comedy, set on Cape Cod in 1905, about three 70-year-old retired sea captains who try to lure an attractive, middle-aged woman into marriage.",
+      "score": 0.6525208600000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "8421314",
+      "title": "Chatham",
+      "release_date": "2007-11-03",
+      "release_year": "2007",
+      "genres": "Romantic comedy; Romance Film; Comedy",
+      "cast": "David Carradine; Charles Durning; Mariel Hemingway; Julie Harris; John Savage; Rip Torn; Bruce Dern; Stephen Russell; Jason Alan Smith; Angelica Torn; Christy Scott Cashman"
+     },
+     {
+      "id": "edb95c357b3b-004939-000000",
+      "testo": "After failing romantically with girls their own age, a group of nerdy male college students discover the excitement of hooking up with sexy older women, often referred to as MILFs. Lifelong best friends Brandon  and Anthony  as well as their geek/gamer friends Nate  and Ross  succeed beyond their wildest dreams as they hook up with lady after lady. However, when Brandon falls for Anthony’s sexually active mother, the guys' whole scheme begins to fall apart.",
+      "score": 0.63595133,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "30233816",
+      "title": "MILF",
+      "release_date": "2010-10-26",
+      "release_year": "2010",
+      "genres": "Romantic comedy; Drama; Comedy; Romantic drama; Black comedy; Romance Film",
+      "cast": "Amy Lindsay; Jack Cullison; Philip Marlatt; Molinee Green; Sylvia Panacione; Ramon Camacho; Silvija Duran"
+     },
+     {
+      "id": "edb95c357b3b-001774-000000",
+      "testo": "This film is a farce about the romantic adventures of two young men with women of differing social backgrounds and the revelation of their true worth.http://ftvdb.bfi.org.uk/sift/title/57833",
+      "score": 0.63585322,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "29137992",
+      "title": "While Parents Sleep",
+      "release_date": "1935-09",
+      "release_year": "1935",
+      "genres": "Comedy film",
+      "cast": "Jean Gillie; Enid Stamp Taylor"
+     },
+     {
+      "id": "edb95c357b3b-031884-000000",
+      "testo": "Old Enough is an earnest take on the coming-of-age story, set in New York City. Karen  is a streetwise teen from a lower-middle-class family who pursues a friendship with 11-year-old Lonnie . Lonnie is from a wealthy, upper-class family who live in the area. As the two become friends, they expose each other to the very different lifestyles they live. In the process they learn lessons each culture has to offer. The situation becomes complicated when Karen's brother Johnny  shows interest in Lonnie and Lonnie begins to develop a crush on him. Soon, a sensual new neighbor  moves into Karen's family's apartment building, whom Johnny becomes slightly infatuated with. Circumstances arise that will test Karen and Lonnie's friendship.http://www.imdb.com/title/tt0087837/",
+      "score": 0.6293666,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "170139",
+      "title": "Old Enough",
+      "release_date": "1984-08-24",
+      "release_year": "1984",
+      "genres": "Family Drama; Comedy-drama; Childhood Drama; Drama; Coming of age; Family Film; Teen",
+      "cast": "Sarah Boyd; Danny Aiello; Alyssa Milano; Roxanne Hart; Rainbow Harvest; Neill Barry; Fran Brill; Tristine Skyler; Anne Pitoniak; Gerry Bamman"
+     },
+     {
+      "id": "edb95c357b3b-035647-000000",
+      "testo": "The story centers around four gay friends who have recently graduated from San Torum High School.http://tvtropes.org/pmwiki/pmwiki.php/Main/AnotherGayMovie Andy  is an awkward, sex-crazed character who frequently masturbates with his mother's fruits and vegetables. Jarod ([[Jonathan Chase  is a handsome and fit jock who is quite insecure. Griff  is a nerdy, well-dressed guy who is secretly in love with his best friend. Nico  is the most flamboyant, outgoing, and effeminate of the group. The four of them decide to make a pact to have sex by the end of the summer. Each boy proceeds to pursue sex in different ways, with both tragic and comedic results. Nico tries to secure an online date with a man named Ryder ([[Matthew Rush , but ends up with Muffler's grandfather . Andy pursues his long-time crush, his math teacher, Mr. Puckov , but fails; he instead ends up going threesome with Angel , a male stripper, and Beau , a baseball pitcher. Jarod seeks out fellow jocks, including Beau, but ends up dumping him in order to have sex with Griff, who tries to earn the affection of Angel; it starts out successfully, but then Griff chooses Jarod as his true love. Much of the humor comes from how awkward each boy is at romance and how naive they are about sex. Each plot backfires horribly, until the boys finally begin to change their attitudes towards sex at the end of the film.",
+      "score": 0.62543106,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "3755901",
+      "title": "Another Gay Movie",
+      "release_date": "2006-04-28",
+      "release_year": "2006",
+      "genres": "Parody; LGBT; Sex comedy; Gay; Gay Interest; Coming of age; Comedy; Gay Themed; Romance Film; Romantic comedy",
+      "cast": "Darryl Stephens; Michael Carbonaro; Jonathan Chase; Jonah Blechman; Mitch Morris; Mink Stole; Scott Thompson; Matthew Rush; James Getzlaff; Lypsinka; Graham Norton; Richard Hatch; Ant; Stephanie McVay"
+     },
+     {
+      "id": "edb95c357b3b-040816-000000",
+      "testo": "This is the story of two lifelong friends, Terry ([[David Lawrence  and Dean , who have grown up together: Shotgunning their first beers, forming their first garage band, and growing the great Canadian mullet known as \"Hockey Hair\". The lives of these Alberta everymen are brought to the big screen by documentarian Farrel Mitchner , a young director who decides to take a look at Terry and Dean through a lens, exploring the depths of friendship, the fragility of life, growing up gracefully, and the art and science of drinking beer \"like a man\". Their lives are complicated by a snubbing by their \"party leader\" Troy, better known as Tron . When Farrel discovers that Dean is hiding a serious case of testicular cancer, the wheels are set in motion for Dean to seek treatment from Dr. S.C. Lim . With Dean's last weekend before surgery approaching, Terry decides to take Dean, Farrel and the film crew camping. Things take an unexpected turn by the third day, and Terry and Dean must cope with further tragedy.Slone, M. & Michael Ladano: Story Synopsis  written by Mark Slone. Story Synopsis  written by Michael A. Ladano",
+      "score": 0.61963513,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "1951984",
+      "title": "FUBAR",
+      "release_date": "2002-01-01",
+      "release_year": "2002",
+      "genres": "Drama; Mockumentary; Buddy film; Comedy; Indie",
+      "cast": "Tracy Lawrence; Paul Spence; Gordon Skilling; David Lawrence; Sage Lawrence; Andrew Sparacino; Laurie D'Amour; S.C. Lim"
+     },
+     {
+      "id": "edb95c357b3b-003138-000000",
+      "testo": "The story of eight male friends who spend the three major holiday weekends of one summer - Memorial Day, the Fourth of July, and Labor Day - together at a house in upstate New York. The house belongs to Gregory, a successful Broadway choreographer now approaching middle age, who fears he is losing his creativity; and his twenty-something lover, Bobby, a legal assistant who happens to be blind. Each of the guests at their house is connected to Gregory’s work in one way or another - Arthur and longtime partner Perry are business consultants; John Jeckyll, a sour and promiscuous Englishman, is a dance accompanist; die-hard musical theater fanatic Buzz Hauser is a costume designer and the most stereotypically gay man in the group. Only John's summer lover, Ramon, and John's twin brother James are outside the circle of friends. But Ramon is outgoing and eventually makes a place for himself in the group, and James is such a gentle soul that he is quickly welcomed. Infidelity, flirtations, soul-searching, AIDS, truth-telling and skinny-dipping mix monumental questions about life and death with a wacky dress rehearsal for Swan Lake performed in drag.",
+      "score": 0.6118662,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "18168131",
+      "title": "Love! Valour! Compassion!",
+      "release_date": "1997-01-25",
+      "release_year": "1997",
+      "genres": "LGBT; Indie; Drama; Comedy; Gay Themed; Romance Film",
+      "cast": "John Benjamin Hickey; Stephen Spinella; John Glover; Jason Alexander; Justin Kirk; Stephen Bogardus; Randy Becker"
+     },
+     {
+      "id": "edb95c357b3b-005218-000000",
+      "testo": "The stop-motion animated comedy follows the story of two best friends  and  as they attempt to rescue their buddy who has been accidentally dragged to Hell.{{cite web}}",
+      "score": 0.6059100300000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "36353947",
+      "title": "Hell & Back",
+      "release_date": "2013",
+      "release_year": "2013",
+      "genres": "Comedy film; Animation",
+      "cast": "Nick Swardson; Jennifer Coolidge; Rob Riggle; Danny McBride; Susan Sarandon; Mila Kunis"
+     },
+     {
+      "id": "edb95c357b3b-030756-000000",
+      "testo": "The movie is centered on O'Brien  and his friends, Wiley and Harper. These three twenty-something young men still live at home, and are looking to expand their horizons in life and love. This coming-of-age story is weaved with their hobbies and interests, both existing and new, one of which is an obsession with Vincent Price.",
+      "score": 0.60559907,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "14763504",
+      "title": "My Dog Vincent",
+      "release_date": "1998",
+      "release_year": "1998",
+      "genres": "Comedy; Indie",
+      "cast": "Tom McNulty; Chuck Campbell; Gavin Crawford"
+     },
+     {
+      "id": "edb95c357b3b-033975-000000",
+      "testo": "A social-issue comedy about the romantic lives of a middle-class couple. Their relationship is followed through their wedding, break-up and reconciliation.Synopsis from {{cite web}}",
+      "score": 0.6025048000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "15385105",
+      "title": "Marriage Story",
+      "release_date": "1992-07-04",
+      "release_year": "1992",
+      "genres": "Romantic comedy; Comedy",
+      "cast": "Shim Hye-jin"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "A comedy centered on the friendship between two men with a large age difference. Must match: comedic tone.",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "Comedy",
+       "type": "genre",
+       "results": {
+        "My Dog Vincent (1998)": {
+         "status": "verified",
+         "evidence": "generi: Comedy; Indie"
+        },
+        "MILF (2010)": {
+         "status": "verified",
+         "evidence": "generi: Romantic comedy; Drama; Comedy; Romantic drama; Black comedy; Romance Film"
+        },
+        "Old Enough (1984)": {
+         "status": "verified",
+         "evidence": "generi: Family Drama; Comedy-drama; Childhood Drama; Drama; Coming of age; Family Film; Teen"
+        }
+       }
+      },
+      {
+       "constraint": "friendship between two men",
+       "type": "plot_require",
+       "results": {
+        "My Dog Vincent (1998)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "MILF (2010)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Old Enough (1984)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "large age gap",
+       "type": "plot_require",
+       "results": {
+        "My Dog Vincent (1998)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "MILF (2010)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Old Enough (1984)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "comedic tone",
+       "type": "plot_require",
+       "results": {
+        "My Dog Vincent (1998)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "MILF (2010)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Old Enough (1984)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-030756-000000",
+      "testo": "The movie is centered on O'Brien  and his friends, Wiley and Harper. These three twenty-something young men still live at home, and are looking to expand their horizons in life and love. This coming-of-age story is weaved with their hobbies and interests, both existing and new, one of which is an obsession with Vincent Price.",
+      "score": 0.418341,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "14763504",
+      "title": "My Dog Vincent",
+      "release_date": "1998",
+      "release_year": "1998",
+      "genres": "Comedy; Indie",
+      "cast": "Tom McNulty; Chuck Campbell; Gavin Crawford"
+     },
+     {
+      "id": "edb95c357b3b-004939-000000",
+      "testo": "After failing romantically with girls their own age, a group of nerdy male college students discover the excitement of hooking up with sexy older women, often referred to as MILFs. Lifelong best friends Brandon  and Anthony  as well as their geek/gamer friends Nate  and Ross  succeed beyond their wildest dreams as they hook up with lady after lady. However, when Brandon falls for Anthony’s sexually active mother, the guys' whole scheme begins to fall apart.",
+      "score": 0.21075045,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "30233816",
+      "title": "MILF",
+      "release_date": "2010-10-26",
+      "release_year": "2010",
+      "genres": "Romantic comedy; Drama; Comedy; Romantic drama; Black comedy; Romance Film",
+      "cast": "Amy Lindsay; Jack Cullison; Philip Marlatt; Molinee Green; Sylvia Panacione; Ramon Camacho; Silvija Duran"
+     },
+     {
+      "id": "edb95c357b3b-031884-000000",
+      "testo": "Old Enough is an earnest take on the coming-of-age story, set in New York City. Karen  is a streetwise teen from a lower-middle-class family who pursues a friendship with 11-year-old Lonnie . Lonnie is from a wealthy, upper-class family who live in the area. As the two become friends, they expose each other to the very different lifestyles they live. In the process they learn lessons each culture has to offer. The situation becomes complicated when Karen's brother Johnny  shows interest in Lonnie and Lonnie begins to develop a crush on him. Soon, a sensual new neighbor  moves into Karen's family's apartment building, whom Johnny becomes slightly infatuated with. Circumstances arise that will test Karen and Lonnie's friendship.http://www.imdb.com/title/tt0087837/",
+      "score": 0.2036287,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "170139",
+      "title": "Old Enough",
+      "release_date": "1984-08-24",
+      "release_year": "1984",
+      "genres": "Family Drama; Comedy-drama; Childhood Drama; Drama; Coming of age; Family Film; Teen",
+      "cast": "Sarah Boyd; Danny Aiello; Alyssa Milano; Roxanne Hart; Rainbow Harvest; Neill Barry; Fran Brill; Tristine Skyler; Anne Pitoniak; Gerry Bamman"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/344567?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/47407?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/104043?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 344567,
+      "media_type": "movie",
+      "title": "My Dog Vincent",
+      "original_title": "My Dog Vincent",
+      "overview": "Transitional times in their lives for three young men.",
+      "vote_average": 7.0,
+      "release_date": "1998-08-07",
+      "original_language": "en",
+      "poster_path": null
+     },
+     {
+      "id": 47407,
+      "media_type": "movie",
+      "title": "Milf",
+      "original_title": "Milf",
+      "overview": "A group of nerdy college guys who can't seem to connect with girls their own age discover the excitement of hooking up with sexy older women.",
+      "vote_average": 4.3,
+      "release_date": "2010-10-17",
+      "original_language": "en",
+      "poster_path": "/2iciKTqt0ioOh6TFaXXVUqKPVj9.jpg"
+     },
+     {
+      "id": 104043,
+      "media_type": "movie",
+      "title": "Old Enough",
+      "original_title": "Old Enough",
+      "overview": "The 12 years old well-bred Lonnie meets the impudent Karen on the street. They spend some time together and Karen teaches Lonnie some of her favorite occupancies, like make-up, shoplifting, skipping school and lying to the parent about it, but confessing to the priest later. But Karen also learns some honesty from Lonnie. A film about social differences and growing up.",
+      "vote_average": 6.5,
+      "release_date": "1984-08-24",
+      "original_language": "en",
+      "poster_path": "/nrcrdkFmBf4lxHedsePrvSuKlsa.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "r05",
+  "kind": "rag",
+  "text": "Commedie sull'amicizia tra due uomini di età molto diversa"
+ },
+ "seconds": 21.5
+}

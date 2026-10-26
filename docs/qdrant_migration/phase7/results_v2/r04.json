@@ -1,0 +1,267 @@
+{
+ "answer": "Il risultato trovato è:\n\n- **You Lucky Dog (1998)**\n  - **Regia:** Paul Schneider\n  - **Cast principale:** Kirk Cameron, Chelsea Noble, John de Lancie, Christine Healy, Taylor Negron\n  - **Sinossi:** Un terapista per cani, famoso per saper leggere la mente degli animali, viene assunto per occuparsi di un cane erede di una fortuna. Nel corso della storia recupera questa capacità e la usa per scoprire la verità sulla morte del precedente proprietario.\n  - **Voto TMDb:** 5,6/10 (34 voti)\n\nIl RAG ha trovato questo titolo, ma la presenza di un personaggio chiamato **Norman Bates** non è verificabile dai dati disponibili.",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Cerco un film in cui c'è un personaggio chiamato Norman Bates",
+    "used": "Cerco un film in cui c'è un personaggio chiamato Norman Bates",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Identificare un film dalla presenza del personaggio Norman Bates",
+    "arguments": {
+     "query": "Un film con un personaggio chiamato Norman Bates.",
+     "k_finale": 1,
+     "search_mode": "hybrid"
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 17461,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "hybrid",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "hybrid",
+      "k_largo": 10,
+      "k_finale": 1,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": [
+      "k_finale",
+      "search_mode"
+     ]
+    },
+    "standalone_query": "Cerco un film in cui c'è un personaggio chiamato Norman Bates",
+    "planner_query": "Un film con un personaggio chiamato Norman Bates.",
+    "embedded_text": "A film featuring a character named Norman Bates.",
+    "signals": {
+     "positive_signals": [
+      "character named Norman Bates"
+     ],
+     "negative_signals": [],
+     "hard_exclusions": [],
+     "semantic_query": "A film featuring a character named Norman Bates.",
+     "genres": [],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-028605-000000",
+      "testo": "Norman Bates is again released from the mental hospital he was placed in at the end of Psycho III after serving another few years and is apparently rehabiliated for the second time. Norman is now married to a young nurse named Connie and is expecting a child. However, Norman fears that the child will inherit his mental illness, so he must seek closure once and for all. Meanwhile, radio talk show host Fran Ambrose is discussing the topic of matricide with guest Dr. Richmond, Norman's former psychologist. The radio station receives a call from Norman, who uses the alias \"Ed\" to tell his story. Norman's narrative is seen as a series of flashbacks set in the 1940s and 1950s, some slightly out of order. When Norman is six years old, his father dies, leaving him in the care of his mother, Norma. Over the years, Norma  dominates her son, teaching him that sex is sinful and dressing him in girl's clothes as punishment for getting an erection in her presence. The two live isolated at the large house as if there is no one else in the world, until in 1949 she becomes engaged to a brutish man named Chet Rudolph, who helps build and finance their family motel. Driven over the edge with jealousy and betrayal, Norman kills both of them by serving them poisoned iced tea, then steals and preserves his mother's corpse. He develops a split personality in which he \"becomes\" his mother to suppress the guilt of murdering her; when this personality takes over, he dresses in her clothes, puts on a wig, and talks to himself in her voice. As \"Mother\", he murders two local women who try to seduce him during their stay at his newly opened motel. Dr. Richmond realizes \"Ed\" is Norman and tries to convince Ambrose to trace the calls. Richmond's worries are dismissed. Norman fears he will go insane and kill again. He tells Fran that Connie got pregnant against his wishes and that he does not want to create another \"monster\". He then tells Fran he realizes that his mother is dead, but that she may kill Connie \"with my own hands, just like the first time.\" Norman takes his wife to his mother's house and does attempt to kill her. But after Connie reassures Norman that their child will not be a monster, he drops his knife and Connie forgives him. He then burns the house where all his unhappiness began. As he tries to escape the flames, he hallucinates that he sees his victims, his mother and eventually himself preserving her corpse. Bates barely gets out of the burning house alive. He and Connie leave the next day, with Norman proclaiming himself finally free of his mother. The doors of the house cellar close on the rocking chair that continues to rock, while \"Mother\" cries to be freed. The screen fades to black and the sound of a baby crying is heard, indicating the birth of Norman's child.",
+      "score": 0.04177805800756621,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "2011090",
+      "title": "Psycho IV: The Beginning",
+      "release_date": "1990-11-10",
+      "release_year": "1990",
+      "genres": "Thriller; Crime Fiction; Horror; Supernatural; Psychological thriller; Mystery; Slasher",
+      "cast": "Anthony Perkins; Henry Thomas; CCH Pounder; Olivia Hussey"
+     },
+     {
+      "id": "edb95c357b3b-029049-000000",
+      "testo": "In need of money to help her divorced boyfriend Sam Loomis , Marion Crane , a secretary in Phoenix, Arizona, steals $40,000 from one of her employer's clients and flees in her car. En route to Sam's California home, she parks along the road to sleep. A highway patrol officer awakens her, becomes suspicious of her agitated state and begins to follow her. When she trades her car for another one at a car dealership, he notes the new vehicle's details. By the time Marion returns to the road, there is a heavy rainstorm which prompts her to spend the night at the isolated Bates Motel rather than drive in the rain. The young owner Norman Bates  tells Marion he rarely has customers because of his location along an older, less-traveled highway, and mentions he lives with his mother in the grim-looking house overlooking the motel. He then shyly invites Marion to have supper with him. She overhears Norman arguing with his unseen mother about his supposed sexual interest in Marion, and during the meal, Marion suggests he institutionalize his mother, making him become aggressive. He admits he would like to do so, but does not want to abandon her. Marion resolves to return to Phoenix to return the money. As she undresses in her room, Norman watches through a peephole in his office wall. After calculating how she can repay the money she has spent, Marion flushes her notes down the toilet and begins to shower. Suddenly, the shadowy figure of a woman enters the bathroom and stabs Marion to death. Norman finds the corpse, and immediately assumes that his mother committed the murder. He cleans the bathroom and places Marion's body, wrapped in the shower curtain, and all her possessions—including the money—in the trunk of her car and sinks it in a nearby swamp. Shortly afterward, Sam is contacted by both Marion's sister Lila  and private detective Milton Arbogast , who has been hired to find her and recover the money. Arbogast traces Marion to the motel and questions Norman, who lies unconvincingly about Marion having left weeks before. He refuses to let Arbogast talk to his mother, claiming she is ill. Arbogast calls Lila and tells her he will contact her again after hopefully questioning Norman's mother. Arbogast enters Norman's house and is attacked by the same female figure who killed Marion, who slashes his face with a large kitchen knife, causing him to fall down the stairs, and then stabs him to death. Norman confronts his mother and urges her to hide in the cellar so no one could find her. She rejects the idea and orders him out of her room. Against her will, Norman carries her down to the fruit cellar, though the viewer is not shown Norman's mother in full. When Arbogast does not call Lila, she and Sam contact the local police. Deputy Sheriff Al Chambers is perplexed to learn Arbogast saw a woman in a window, and reveals that Norman's mother had died ten years earlier. Norman had found her dead alongside her married lover; an apparent murder–suicide. When Chambers dismisses Lila and Sam's concerns over Arbogast's disappearance, the two decide to search the motel themselves. Posing as a married couple, Sam and Lila check into the motel and search Marion's cabin, where they find a scrap of paper with \"$40,000\" written on it. While Sam distracts Norman, Lila sneaks into the house to search for his mother. Sam suggests Norman killed Marion for the money so he could buy a new hotel. Realizing Lila is missing, Norman knocks Sam unconscious and rushes to the house. Lila sees him and hides in the cellar where she discovers the hideous mummified body of Mrs. Bates and screams. Seconds later, Norman rushes in, wearing his mother's clothes and a wig, and carrying a knife. Sam arrives just in time to overpower Bates and save Lila. After Norman's arrest, forensic psychiatrist Dr. Fred Richmond  tells Sam and Lila that Mrs. Bates is alive in Norman's fractured psyche. After the death of Norman's father, the pair lived in an unhealthy state of emotional co-dependance. When his mother found a lover, however, Norman was consumed with jealousy and murdered both of them. Wracked with guilt, he tried to \"erase the crime\" by bringing his mother \"back to life\" in his mind. He stole her corpse and preserved the body, and developed a split personality in which the two personas &mdash; Norman and \"Mother\" &mdash; coexist; when he is Mother, he acts, talks and dresses as she would. Marion is revealed to have been Mother's third victim, the first two also having been attractive young women; Mother is as jealous of Norman as he is of her, and so \"she\" kills anyone he feels attracted to. His psychosis protects him from knowing about other crimes committed after his mother's death. Norman sits in a cell, his mind dominated by the Mother persona. She says that she will prove to the authorities that she is harmless by refusing to swat a fly on Norman's hand. He then forms a smile. Marion's car is recovered from the swamp.",
+      "score": 0.04175403225806452,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "23880",
+      "title": null,
+      "release_date": null,
+      "release_year": null,
+      "genres": null,
+      "cast": null
+     },
+     {
+      "id": "edb95c357b3b-011547-000000",
+      "testo": "{{Plot}} Maureen Coyle, a mentally unstable young nun, is atop a bell tower and about to commit suicide. Another nun tries to get her to come down, but Maureen accidentally pushes her to her death. Maureen is forced to leave the convent. Norman Bates is still manning the desk at the Bates Motel and living with the preserved corpse of his \"true\" mother, Emma Spool. Local law enforcement and Norman's ex-boss, Ralph Statler, are concerned since Mrs. Spool has been missing for over a month. Duane Duke, a sleazy musician desperate for money, is offered the job of assistant motel manager to replace the late Warren Toomey, was fired by Norman. Maureen, now a long-term tenant, remains in confusion about spiritual and earthly matters. Sheriff John Hunt and Ralph have a conversation at the diner, when Tracy Venable, a pushy journalist from Los Angeles, interrupts them. She is working on an article about serial killers being put back on the streets. Tracy is trying to support her theory that Norman is back to his old ways. Norman appears and Tracy jumps at the chance to talk with him. Unaware of her ulterior motives, Norman opens up to her but is distracted when Maureen enters. He is startled because she strongly resembles his long-ago victim, Marion Crane. Seeing the initials \"M.C.\" on her suitcase, Norman panics and leaves the diner. After a conversation with \"Mother,\" Norman spies on Maureen as she undresses to take a shower. Keeping \"her\" word, \"Mother\" enters Maureen's room. Upon pulling back the shower curtain, it is revealed Maureen has attempted suicide by cutting her wrists, a sight which snaps Norman back to his \"normal\" side. Due to blood loss, Maureen hallucinates. She mistakes Norman, dressed up as \"Mother,\" for the Virgin Mary holding a silver crucifix. Norman gets Maureen to the hospital. After she is released, he invites her to stay back at the motel and they begin a romantic relationship. Duane picks up a girl called \"Red\" at a bar. They head to Bates Cabin 12 and have sex. Red makes it clear she wants more than just a fling and calls him a pig when he refuses. Duane, infuriated, throws her out. Red tries to call a cab, but \"Mother\" shatters the phone booth door and stabs Red to death. Tourists arrive at the motel, where they plan to watch a local football game. Norman and Maureen go to a restaurant while Tracy searches Mrs. Spool's apartment. She discovers the Bates Motel's phone number written on a magazine cover. Norman and Maureen return to the motel to find most of the other guests engaged in drunken stupor. Norman goes with Maureen to her room and they fall asleep in each other's arms. Patsy Boyle, the only sober guest, is murdered by \"Mother.\" Norman discovers Patsy's body and he buries her in the motel's ice chest outside the office. The next morning, Sheriff Hunt and Deputy Leo appear to investigate Patsy's disappearance. Norman tries to prevent Hunt from entering his mother's bedroom, when he discovers that \"Mother\"/Mrs. Spool has disappeared. Tracy tells Maureen all about Norman's past. This causes Maureen to leave the motel and go stay with Father Brian, who took care of her at the hospital. Norman searches for his mother all over the house and finds a note from her stating that she is in Cabin 12. There he learns it was Duane who took \"Mother\"/Mrs. Spool. Duane demands a large sum of money to keep quiet or else he will turn Norman over to the police for the murders. Norman appears to give in, but unexpectedly throws an ashtray at Duane's head. They fight and Norman hits Duane several times with his own guitar. Tracy talks to Statler and Myrna about Mrs. Spool and discovers she was working at the diner before Statler bought it from Harvey Leach. Tracy meets with Leach, a resident at an assisted living facility, and is informed that Mrs. Spool had also once been institutionalized for murder. Norman drives Duane's car to the swamp with Duane and Patsy's bodies in it. Duane, still alive, regains consciousness and attacks Norman, who accidentally drives into the swamp. He struggles out of the car while Duane drowns. Maureen convinces herself that Norman is her true love and returns to the motel. Norman and Maureen share a tender moment at the top of the staircase when \"Mother\" shouts furiously at Norman, which startles him. He loses his grip on Maureen's hands. She falls down the stairs into the cupid statue, which impales her skull. Norman screams and promises \"Mother\" that he will get her for this. Tracy arrives. She enters the house and finds Maureen dead. Then she sees Norman dressed as \"Mother,\" bearing a knife, but is unable to flee. She tries to reason with Norman by explaining his family history: Emma Spool was his aunt and was in love with Norman's father, but he married her sister, Norma, instead. Mrs. Spool then kidnapped Norman when he was a baby, after she killed Mr. Bates, believing Norman was the child \"she should have had with him.\" When she got caught, Norman was returned to Norma while Mrs. Spool was institutionalized. Tracy discovers Mrs. Spool's corpse in the bedroom. Norman takes off his dress. \"Mother\" orders him to kill Tracy, but when Norman raises the knife, he brutally attacks \"Mother\" instead, dismembering Mrs. Spool's preserved remains. Sheriff Hunt takes Norman to his squad car, with Father Brian and Tracy following behind. Hunt informs Norman that they may never let him out of the institution again, Norman replies: \"But I'll be free...I'll finally be free.\" Norman, sitting silently in the back of the squad car, caresses a trophy: the severed hand of Mrs. Spool.",
+      "score": 0.041746031746031746,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "2097338",
+      "title": "Psycho III",
+      "release_date": "1986-07-02",
+      "release_year": "1986",
+      "genres": "Thriller; Crime Fiction; Horror; Psychological thriller; Mystery; Slasher",
+      "cast": "Jack Murdock; Anthony Perkins; Diana Scarwid; Jeff Fahey; Roberta Maxwell; Hugh Gillin; Patience Cleveland; Donovan Scott; Juliette Cummins; Steve Guevara; Lee Garlington; Karen Hensel; Kay Heberle; Robert Alan Browne; Gary Bayer"
+     },
+     {
+      "id": "edb95c357b3b-034561-000000",
+      "testo": "Alex West  is a man who roomed with Norman Bates at the state lunatic asylum for nearly 20 years. After Bates' death, Alex finds that he is in Norman's will as the inheritor of the Bates Motel, which has been vacant since Norman's arrest. Alex travels to Bates' California hometown  and with a little help from a teenage runaway, Willie , Alex struggles to re-open the motel for business, only to have strange things happen. Is someone trying to drive him away, or is the motel really haunted by the ghost of Norman's mother?",
+      "score": 0.04154495777446598,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "3166983",
+      "title": "Bates Motel",
+      "release_date": "1987-07-05",
+      "release_year": "1987",
+      "genres": "Drama; Horror; Comedy",
+      "cast": "Jason Bateman; Bud Cort; Lori Petty; Moses Gunn; Gregg Henry; Khrystyne Haje; Kerrie Keane; Robert Picardo; Andy Albin; Dolores Albin; Kelly Ames; Robert Axelrod; Gary Ballard; Nat Bernstein; Peter Dobson; Timothy Fall; Carmen Filpi; Greg Finley; George Buck Flower; Marla Frumkin"
+     },
+     {
+      "id": "edb95c357b3b-024004-000000",
+      "testo": "{{Plot}} Norman Bates  is now being released from a mental institution after spending 22 years in confinement. Lila Loomis , sister of Marion Crane, vehemently protests with a petition that she has been circulating with signatures of 743 people, including the relatives of the seven people Norman killed prior to his incarceration, but her plea is dismissed. Norman is taken back to his old home, the Bates Motel, with the house behind it on the hill, by Dr. Bill Raymond , who assures him everything will be fine. Norman is introduced to the motel's new manager, Warren Toomey . The following day, Norman reports to a prearranged job as a dishwasher and busboy at a nearby diner, run by a kindly old lady named Emma Spool . One of his co-workers there is Mary Samuels , a young waitress. After work, Mary claims she has been thrown out of her boyfriend's place and needs a place to stay. Norman offers to let her stay at the motel, then extends the offer to his home when he discovers that Toomey has turned what had been a shabby but respectable establishment before Norman was committed into a sleazy adult motel. Norman's adjustment back into society appears to be going along well until \"Mother\" begins to make her presence known. Norman gets mysterious notes from \"Mother\" at the house and diner. Phone calls came from someone claiming to be Norman's mother. The next day, drunk Toomey picks a fight at the diner after Norman fires him. Back at the motel Toomey yells hysterically up to the house at Norman saying he's moving out. Later, a human figure in a black dress walks in and slashed his face and stabs him to death with a large kitchen knife as he is packing to leave the motel. As Norman begins to reconstruct his motel, he begins to doubt his sanity when he spots a human figure staring out of the upstairs window resembling his mother. Shocked by this, Norman runs into the house and enters his mother's bedroom to find it looks exactly as it did 22 years ago. A sound lures him to the attic, where he is locked in. At the same time, a teenage couple, believing the house to be abandoned, sneaks in through the cellar window. As they were making out, they noticed a human female figure dressed in black pacing in the next room and heading towards the cellar trapdoor with a large kitchen knife. The girl tries to climb through a small window, but knocks over a pile of logs. As they try to climb out, the window slams down on his hands and the boy is stabbed to death. The girl escapes and alerts the police. Mary eventually finds Norman in the attic, but the door is unlocked confusing Norman. Minutes later, the sheriff arrives at the house and questions them about the boy's murder. He finds the cellar neat and orderly. Norman is about to admit that something suspicious is going on, but Mary claims that she has cleaned up the basement herself. After the sheriff leaves, Norman asks Mary why she lied. She explains that she had to save him from being arrested. Norman collapses into the chair with his head in his hands and moans, \"It's starting again!\"; Norman is aware that he is slipping into insanity again. That evening, Mary goes down to the motel to look for a bottle of brandy. In the parlour she is surprised by Lila, who reveals herself to be Mary's mother and ask her why she alibied for him. She has been calling Norman claiming to be his mother; Mary has also been helping her. She was the figure Norman spotted in the window, and also restored mother's room in the house plus locking Norman in the attic. All of this was an attempt to drive Norman insane again and to have him recommitted. Mary's growing feelings for Norman, however, have been preying on her conscience, leaving her to reconsider her actions. Lila becomes annoyed at Mary for giving an alibi to the police, because she is desperate for Bates to be recommitted. Mary, however, believes Norman to be innocent and states there could be somebody else lurking in the house. As she leaves, Lila warns her that Norman will eventually kill her just like the rest. As Norman enters the bathroom he calls for Mary, and the two are horrified to find a bloody cloth that has been stuffed down the toilet and overflowing. Norman appears confused and believes he may have committed another murder. Mary tells Norman it could not have been him as he was in the attic, and tells Norman to make them both a drink. As Mary cleans up the mess, she is startled when she discovers someone looking at her through a peephole in the bathroom wall. She screams and then calls out to Norman, who is downstairs and out of reach. Mary then returns to her room to fetch her gun, which she has been keeping in her bag, and enters Norman's mother's bedroom. As she enters, she discovers a peephole behind a painting and looks through and finds somebody else staring at her through the bathroom wall. Norman rushes to her aid but is sad to learn that Mary has a gun, thinking it is because of him she carries it, which Mary denies. Norman goes downstairs into the kitchen, grabs a butcher knife for protection, and goes into the hallway to search for the intruder. As he walks towards the stairs he is shocked to hear a faint voice coming from the cellar calling his name. Norman then runs into Mary's room and locks the door stating his mother is downstairs waiting to kill Mary. Mary tells him his mother is dead but Norman states he was wrong and that she is alive. Mary, who to herself thinks Lila is tormenting him, tries to convince him to confront her, but Norman refuses, claiming it is too dangerous, and tells her that he will protect her through the night. Meanwhile, Dr. Raymond discovers Mary's identity as Lila's daughter and informs Norman. He also orders the corpse of Norma Bates  to be exhumed, to prove that Norman is not being haunted by his mother. Mary admits to Norman that she has been part of Lila's ruse, and that while she now refuses to continue, Lila will not stop. Mary goes to Lila's hotel and tells her to leave Norman alone, mentioning the bloodied cloth and the peephole. Lila states her innocence, claiming she returned to her hotel after seeing Mary and their argument is overheard by a desk clerk. Lila tells Mary to dress up as \"Mother\" one last time to send him over the edge, which she refuses. Later, Lila drives over to Norman's house, unaware that Dr. Raymond is watching her from the Bates Motel as she sneaks into the cellar. While removing her \"Mother\" costume from a loose stone in the floor, another human figure dressed as \"Mother\" steps out of the shadows and shoves a knife into Lila's mouth. Dr. Raymond runs up to the house; Lila's body is not in the cellar and the \"Mother\" figure is gone. Norman enters the cellar and Dr. Raymond tells him about Lila and leaves the house to try and prove to Norman that Mary and Lila are the ones tormenting him. Meanwhile, Mary discovers that a car has been retrieved from the swamp, stunk with Toomey's dead body in the trunk. Realizing the police will shortly arrive to arrest Norman, Mary returns to warn him hysterically. The phone rings in the house. Norman answers, and starts speaking to his \"mother\" but it's actually Dr. Raymond who is calling Norman from the motel parlour telling him Lila used the office phone to place the calls but Norman believes he is still talking to his \"mother\". Mary listens in and discovers that nobody is on the line with Norman. Terrified that Norman has slipped back into insanity, Mary runs downstairs into the cellar and quickly dresses up as Mother to confront Norman and arms herself with a large butcher knife. She picks up the phone and tells Norman she's his mother and tells him to hang up. Dr. Raymond sneaks up and grabs her from behind as she is on top of the stairs calling out for Norman. She screams and plunges the knife into Dr. Raymond as he falls down the stairs to his death as the knife squishes into him further. A stunned Mary runs downstairs and is confronted by a completely deranged Norman, who promises to cover up for \"Mother.\" A fearful Mary grabs the knife out of Dr. Raymond's body and warns Norman to stay away from her. Norman keeps walking towards her even after being repeatedly stabbed in the hands and chest. He backs Mary into the fruit cellar to hide and slips on a pile of coal, which avalanches away from the wall, revealing Lila's body hidden behind it. A shocked Mary is now convinced that Norman has been committing the murders. Norman denies doing any of the killings and thinks \"Mother\" committed them. She raises her knife to stab him but is shot dead by one of the incoming police deputies. The sheriff inaccurately places a story to the authorities believing Mary committed all the murders and killed Lila to protect Norman. That evening, a woman walks up the steps to the Bates' mansion. Bandaged from his injuries, Norman has set a place for dinner when he hears a knock at the door. It is Emma Spool, the kindly woman from the diner. Norman gives her a cup of tea. Ms. Spool tells him that she is his real mother, that Mrs. Bates was her sister, who adopted Norman as an infant while Ms. Spool was institutionalized. She further reveals that she was the murderer, having killed anybody who tried to harm her son. As she sips the tea, Norman kills her with a sudden blow to the head with a shovel. Norman is now completely insane again. He carries Ms. Spool's body upstairs to Mother's room and we hear Mother's voice warn Norman not to play with \"filthy girls\". Norman reopens the Bates Motel and stands in front of the house, waiting for new customers. Thunder is heard and Mother watches from the window upstairs.",
+      "score": 0.0415136476426799,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "2097287",
+      "title": "Psycho II",
+      "release_date": "1983-06-03",
+      "release_year": "1983",
+      "genres": "Thriller; Crime Fiction; Horror; Psychological thriller; Mystery; Suspense; Crime Thriller; Slasher",
+      "cast": "Dennis Franz; Anthony Perkins; Vera Miles; Robert Loggia; Meg Tilly; Hugh Gillin; Tom Holland; Chris Hendrie; Lee Garlington; Tim Maier; Michael Lomazow; Ben Hartigan; Robert Alan Browne; Claudia Bryar"
+     },
+     {
+      "id": "edb95c357b3b-002955-000000",
+      "testo": "Marion Crane  steals $400,000 from her employer to get her boyfriend, Sam Loomis , out of debt, and flees Phoenix, Arizona by car. While en route to Sam's California home, she parks along the road to sleep. A highway patrol officer awakens her and, suspicious of her agitated state, begins to follow her. When she trades her car for another one at a dealership, he notes the new vehicle's details. Marion returns to the road but, rather than drive in a heavy storm, decides to spend the night at the Bates Motel. Owner Norman Bates  tells Marion he rarely has customers because of a new interstate nearby and mentions he lives with his mother in the house overlooking the motel. He invites Marion to have supper with him. She overhears Norman arguing with his mother about letting Marion in the house, and during the meal, she angers him by suggesting he institutionalize his mother. He admits he would like to do so, but does not want to abandon her. Later that night while Marion is changing Norman secretly watches and masturbates to her from a peephole in his office. Marion resolves to return to Phoenix to return the money. After calculating how she can repay the money she has spent, Marion dumps her notes down the toilet and begins to shower. An unidentified female figure presumed to be Norman's mother enters the bathroom and stabs Marion to death. Later, finding the corpse, Norman is horrified. He cleans the bathroom and places Marion's body, wrapped in the shower curtain, and all her possessions — including the money — in the trunk of her car and sinks it in a nearby swamp. Sam is contacted by both Marion's sister, Lila , and private detective Milton Arbogast , who has been hired by Marion's employer to find her and recover the money. Arbogast traces Marion to the motel and questions Norman, who unconvincingly lies that Marion stayed for one night and left the following morning. He refuses to let Arbogast talk to his mother, claiming she is ill. Arbogast calls Lila to update her and tells her he will contact her again in an hour after he questions Norman's mother. Arbogast enters Norman's house and at the top of the stairs is attacked by the \"Mother\" figure who slashes his face three times with a knife, pushes him down the stairs, then stabs him to death. When Arbogast does not call Lila, she and Sam contact the local police. Deputy Sheriff Al Chambers  is perplexed to hear that Arbogast saw a woman in a window, as Norman's mother had died ten years ago. Norman confronts his mother and urges her to hide in the cellar. She rejects the idea and orders him out of her room, but against her will Norman carries her to the cellar. Posing as a married couple, Sam and Lila check into the motel and search Marion's room, where they find a scrap of paper in the toilet with \"$40,000\" written on it. While Sam distracts Norman, Lila sneaks into the house to search for his mother. Sam suggests to Norman that he killed Marion for the money so he could buy a new motel. Realizing Lila is not around, Norman knocks Sam unconscious with a golf club and rushes to the house. Lila sees him and hides in the cellar where she discovers the mummified body of Norman's mother. Wearing his mother's clothes and a wig and carrying a knife, Norman enters and tries to attack Lila, but she is rescued by Sam. After Norman's arrest, forensic psychiatrist Dr. Fred Richmond  tells Sam and Lila that Norman's dead mother is living in Norman's psyche as an alternate personality. After the death of Norman's father, his mother found a lover. Norman went over the edge with jealousy and murdered both of them. He stole her corpse and preserved the body. When he is \"Mother\", he acts, talks, and dresses as she would. Norman imagined his mother would be as jealous of a woman to whom he might be attracted just as he was of his mother's lover, and so \"Mother\" kills any woman he has feelings for; when Norman regains consciousness, he believes that his mother has committed the crime, and covers up for her. Richmond concludes that the \"Mother\" personality has now taken complete control of Norman's mind. In the final scene, Norman sits in a cell, thinking in \"Mother's\" voice. In a voiceover, \"Mother\" explains that she plans to prove to the authorities she is incapable of violence by refusing to swat a fly that has landed on her hand. Marion's car is shown being recovered from the swamp, and is followed by the ending credits.",
+      "score": 0.04055037313432836,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "4578695",
+      "title": "Psycho",
+      "release_date": "1998-12-04",
+      "release_year": "1998",
+      "genres": "Thriller; Mystery; Horror; Slasher; Psychological thriller",
+      "cast": "Philip Baker Hall; Viggo Mortensen; Vince Vaughn; Julianne Moore; Anne Heche; Chad Everett; William H. Macy; Rita Wilson; James Remar; Rance Howard; Anne Haney; James LeGros; Robert Forster; Michael Peter Balzary; Steven Clark Pachosa; O.B. Babbs"
+     },
+     {
+      "id": "edb95c357b3b-040744-000000",
+      "testo": "In this film, Kirk Cameron plays a dog psychiatrist who is famous for literally being able to read dog's minds. At the beginning of the movie, the character no longer retains this ability, but is nonetheless hired by an estate to use his gifts with the titular lucky dog, the heir to his recently deceased master's fortune. Throughout the course of the film, Cameron's character regains his ability to read the mind of the dog and uses this ability to discover the truth behind the former master's demise. But, he not only gains the ability to read the mind of the dog, as he can now actually turn into the dog, such as Norman Bates in Pyscho. He earns the murder's name, one of his rich relatives.",
+      "score": 0.03015151515151515,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "2867492",
+      "title": "You Lucky Dog",
+      "release_date": "1998",
+      "release_year": "1998",
+      "genres": "Animal Picture; Comedy",
+      "cast": "Christine Healy; Kirk Cameron; Chelsea Noble; John de Lancie; Hansford Rowe; Christine Cavanaugh; Mary Pat Gleason; Jillian Berard; Myra Turley; Phillip Glasser; David Higlen; Taylor Negron; Mitchell Edmonds; Rick Fitts; Tom McCleister; Patricia Belcher; Bogus; Granville Van Dusen; James L. Avery, Sr."
+     },
+     {
+      "id": "edb95c357b3b-005092-000000",
+      "testo": "A woman  is in an abandoned house looking for her boyfriend. After she discovers his body, she is stabbed in the head, and her body is dragged through a cellar door. In New York City, Bob  and his parents, Norman and Lucy Boyle , are moving. Norman's ex-colleague, Dr. Peterson, who murdered his mistress before committing suicide, was the previous owner. The Boyles are to stay there, whilst Norman researches old houses. As his mother packs, Bob looks at a photograph of a house and sees a girl in it who warns him to stay away. In New Whitby, Boston, Bob waits in his parents' car while they collect keys. The girl from the photograph appears across the street. The girl, Mae , psychically warns Bob to stay away. In the real estate office, Mrs. Gittelson  is annoyed when her colleague hands the couple \"the Freudstein\" keys. She insists it is called \"Oak Mansion\". Gittelson promises to find a babysitter. Oak Mansion is in a poor state of repair. The cellar door is locked and nailed shut. A woman arrives and introduces herself as Anne, the babysitter . That night, Norman hears noises and finds Anne unblocking the cellar door. The next day, Norman goes to the library to peruse Peterson's materials. The assistant librarian, Daniel Douglas , informs Norman that Peterson conducted private research at the house. He studied records of area disappearances and other demographic data. Mae shows Bob a tombstone on the grounds marked \"Mary Freudstein\" and says she is not really dead. Indoors, Lucy finds the tombstone of \"Jacob Tess Freudstein\". When Norman returns, he reassures her that some old houses have indoor tombs, because of the hard wintry ground. Norman opens the cellar door and walks down the stairs only be attacked by a bat, which he stabs. Spooked, the family drives down to the estate office and demands to be re-housed, but are told it will be few more days before they can move. While the Boyles are at hospital to treat Norman's injuries from the bat, Gittelson arrives at the house to tell them of a new property. Letting herself in, she stands by the Freudstein tombstone, which cracks apart, pinning her ankle. A figure emerges, stabs her in the neck with a fireplace poker, and drags her into the cellar. The next morning, Lucy finds Anne cleaning a bloodstain on the kitchen floor. Anne eludes Lucy's questions about the stain. Over coffee, Norman tells Lucy that he's discovered that Freudstein was a Victorian surgeon who conducted illegal experiments. Norman must travel to New York to research Freudstein. On the way, Norman drops by the library and finds a cassette of Peterson, which explains Freudstein killed his family. Anne goes to the cellar looking for Bob, but is decapitated by Freudstein. Bob sees Anne's head, and exits screaming. Lucy refuses to believe Bob's tale about Anne. That evening, Bob returns to the cellar looking for Anne. Lucy hears Bob's cries and tries to open the cellar door. When she cannot open the door, Norman returns and attacks it with an axe. The rotting hands of Freudstein  appear and restrain Bob. One axe blow chops off the monster's hand, and he staggers away, holding Bob. The cellar contains mutilated bodies, surgical equipment and a slab. Freudstein is a living corpse with rotting flesh. Norman tells Lucy the 150-year-old Freudstein lives by using his victims' parts to regenerate blood cells. Norman attacks Freudstein, but the ghoul twists the axe away. He grabs a knife off a tray and stabs Freudstein. Freudstein picks up Norman and rips his throat out. Lucy and Bob climb a ladder leading to the cracked tombstone. Lucy strains to shift the stone, but Freudstein grabs her. Freudstein kills Lucy by ramming her head into the concrete floor. As Freudstein advances up the ladder, Bob strains to escape. Suddenly, Bob is yanked upwards and finds Mae. With Mae is her mother, Mary Freudstein , who urges them to leave. Freudstein leads Mae and Bob down the wintry grove into a netherworld of ghosts and sadness.",
+      "score": 0.024925373134328358,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "2940677",
+      "title": "The House by the Cemetery",
+      "release_date": "1981",
+      "release_year": "1981",
+      "genres": "Horror; World cinema; Supernatural; Haunted House Film; Splatter film; Monster; Zombie Film",
+      "cast": "Catriona MacColl; Giovanni Frezza; Paolo Malco; Dagmar Lassander; Silvia Collatina; Ania Pieroni"
+     },
+     {
+      "id": "edb95c357b3b-036973-000000",
+      "testo": "In the small New England town of Blithe Hollow, Massachusetts, a boy named Norman Babcock is able to speak with the dead, including his late grandmother and various ghosts in town. Unfortunately, almost no one among the living believes his ability is genuine and he is isolated emotionally from his family while being ridiculed and bullied by most of his peers for his seemingly strange abilities. However, Norman makes a friend with Neil Downe, an eccentric overweight boy who is bullied himself and finds Norman's earnest admission as a medium an intriguing part of a kindred spirit. During rehearsal of a school play commemorating the town's witch execution of 300 years ago, Norman has a harrowing vision of the town's past and being pursued as a witch by the town's citizenry. Afterward, the boys are confronted by Norman's estranged and seemingly deranged uncle Mr. Prenderghast who tells his nephew that the vision is a sign that he soon must take up his regular ritual to protect the town. Norman refuses to take him seriously, but soon has another vision during the school play, creating a public spectacle of himself which leads to his embarrassed parents unjustly grounding him. Now completely despondent and isolated, Norman is confronted by the ghost of the recently deceased Prenderghast in the restroom who tells him that the ritual must be performed with a special book before sundown that day, before departing for the afterlife. After some consideration, Norman sets off to Prenderghast's residence to retrieve the book. Believing that Neil would not truly understand his situation, he drives him away. He arrives at the graves of the town's ancestors/founders, including Judge Hopkins, who were supposedly cursed by the witch they condemned, but finds the book is merely a collection of fairy tales. Before Norman can ponder the situation, Alvin, a bully who overheard Norman's encounter in the restroom, intrudes and interferes with the reading until after sundown. With that, a ghostly storm resembling the witch appears in the air while the cursed dead arise and pursue the boys until they meet Norman's sister, Courtney, Neil and his older brother, Mitch, who have come to retrieve Norman. Together, the kids are relentlessly pursued by the zombies into town, but Norman manages to contact a classmate named Salma, who tells them to access the Town Hall's archives for the location of the witch's unmarked grave. As the kids make their way to the Town Hall, the zombies eventually lose them and find themselves confused by modern society and then are beset by the citizenry, who attack them en masse. During the riot, the kids break into the archives but cannot find any information they need. As the mob moves to attack Town Hall, Norman  temporarily drives away his companions only for them to be trapped by the mob. However, the Witch storm appears and Norman climbs the Hall's tower to desperately attempt to read the book to stop her, but the witch blasts it with lightning and causes him to fall back down into the archives. Unconscious, Norman has a dream where he learns that the witch was actually Agatha Prenderghast, an innocent little girl of his age who was also a medium, unjustly condemned by the town's superstitious and frightened elite, who were then cursed to reawaken as the undead by Agatha as she was taken for execution. After awakening, Norman encounters the zombies and realizes that all they wanted was to speak with him to ensure he would take up the ritual to minimize the harm of the terrible mistake they made with Agatha. However, Norman decides that this gesture is not enough and resolves to find Agatha's ghost to arrive at a permanent solution. Norman attempts to help the zombies slip away to have them guide him to Agatha's grave, but are cornered by the mob. However, Courtney, who has come to realize her brother's true abilities, heroism and task, confronts the crowd and convinces them to back off. As the witch storm rages ever more destructively, Judge Hopkins guides Norman's family to the grave in a forest. Unfortunately, Agatha's magic separates Norman from the others and he must reach the grave on his own to save the town. Norman finds the grave, and soon confronted by the vengeful spirit of Agatha, interacting with her in the spirit dimension. She tries to drive him away, but Norman resolutely holds his ground, telling her that he understands how she feels as an outcast. As she struggles to drive him away, Norman endures her assault and eventually convinces her that, despite her legitimate grievance, her thirst for vengeance is accomplishing nothing but inflicting more pain and persuades her to stop. Norman tries to convince her that even in the darkest times, there must have been someone who was kind to her. Focusing only on the tragedies and forgetting the good things in her life is what reduced her to a malevolent force devoid of her true identity. Eventually, the girl, nicknamed Aggie, calms down at Norman's eloquence, recalling her true personality and happy memories with her mother. She is able to find a measure of peace, knowing that she is not alone and one person in the town understands her, allowing her to let go and move on to the afterlife. At that resolution, the storm dissipates, and she and the zombies all peacefully fade away. As day breaks, the town cleans up and regards Norman as a hero even when the outside media tries to explain the disturbance as merely a powerful storm. Norman, realizing that he, too, should stop focusing on his memories of being ostracized and pushing others away, accepts Neil's companionship. At the end, Norman watches a horror film with the ghost of his Grandmother again, and his family eagerly joins him.",
+      "score": 0.024705882352941175,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "31804949",
+      "title": "ParaNorman",
+      "release_date": "2012-08-03",
+      "release_year": "2012",
+      "genres": "Horror; Adventure; Stop motion; Animation; Fantasy; Comedy",
+      "cast": "Elaine Stritch; Christopher Mintz-Plasse; John Goodman; Casey Affleck; Jodelle Ferland; Jeremy Shada; Kodi Smit-McPhee; Bernard Hill; Jeff Garlin; Tempestt Bledsoe; Tucker Albrizzi; Hannah Noyes; Alex Borstein; Anna Kendrick; Leslie Mann"
+     },
+     {
+      "id": "edb95c357b3b-032122-000000",
+      "testo": "In the mid 1980s Belgrade finally gets its first serial killer: an awkward carnations seller named Pera Mitić . Mitić is an overweight 48-year-old man who is in an Oedipus kind of way connected to his aging mother. His mother often punishes him when he does not sell any of the carnation flowers. His punishments include kneeling on nutshells while being slapped by his mother or being locked in the water tank. This is the reason why he starts killing every girl who refuses to buy his flowers. Mitić's character can be compared to Norman Bates's character and relationship with his mother. After the first murder, mostly incompetent inspector Ognjen Strahinjić ([[Nikola Simić  starts the investigation. His attempt to catch the strangler by employing an undercover agent, Rodoljub Jovanović , ends up tragically. Strahinjić is a loner who lives only with his cat George, who is his best friend. He is a short man, with a thin mustache and is similar to Inspector Clouseau from the Blake Edwards's The Pink Panther series. The plot gets even more complicated when a rock star Spiridon Kopicl  obsessed with the strangler records the song \"Bejbi, bejbi\" , with his band VIS Simboli, dedicated to the strangler which immediately became nationwide hit. Mitić, having heard the song, becomes delighted; he even strangled his own mother in order to hear it on the TV. While Mitić's number of victims becomes bigger, Kopicl is focused on Sofija  who is a host of a popular musical show on the radio. While attempting to strangle Sofija, Mitić gets on his way and while attacking her gets his ear bitten by Sofija in self defence. Kopicl gets the credit of a savior and a hero and gets married to Sofija. On their honey moon, in the climax of his obsession, Kopicl strangles Sofija while Mitić, dressed as his mother, is watching the whole thing. Mitić then enters the room and asks for his ear. Kopicl runs to an abandoned building where, after a struggle, hangs Mitić who bit his ear. In the end all of the crimes, including Sofija's death, are credited to the late Mitić. Kopicl, while getting his ear bitten hears a melody on which he composed a symphony inspired with crime and, after the death of his father, gets married to his attractive stepmother.",
+      "score": 0.024705882352941175,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "19231529",
+      "title": "Davitelj protiv davitelja",
+      "release_date": "1984",
+      "release_year": "1984",
+      "genres": "Thriller; Black comedy; Horror; Comedy; Comedy Thriller",
+      "cast": "Pavle Mincic; Taško Načić; Nikola Simic; Srđan Šaper; Rahela Ferari; Sonja Savić; Radmila Savicevic; María Baxa; Zika Milenkovic; Branislav Zeremski"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "A film featuring a character named Norman Bates.",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "character named Norman Bates",
+       "type": "plot_require",
+       "results": {
+        "You Lucky Dog (1998)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-040744-000000",
+      "testo": "In this film, Kirk Cameron plays a dog psychiatrist who is famous for literally being able to read dog's minds. At the beginning of the movie, the character no longer retains this ability, but is nonetheless hired by an estate to use his gifts with the titular lucky dog, the heir to his recently deceased master's fortune. Throughout the course of the film, Cameron's character regains his ability to read the mind of the dog and uses this ability to discover the truth behind the former master's demise. But, he not only gains the ability to read the mind of the dog, as he can now actually turn into the dog, such as Norman Bates in Pyscho. He earns the murder's name, one of his rich relatives.",
+      "score": 0.8252664,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "2867492",
+      "title": "You Lucky Dog",
+      "release_date": "1998",
+      "release_year": "1998",
+      "genres": "Animal Picture; Comedy",
+      "cast": "Christine Healy; Kirk Cameron; Chelsea Noble; John de Lancie; Hansford Rowe; Christine Cavanaugh; Mary Pat Gleason; Jillian Berard; Myra Turley; Phillip Glasser; David Higlen; Taylor Negron; Mitchell Edmonds; Rick Fitts; Tom McCleister; Patricia Belcher; Bogus; Granville Van Dusen; James L. Avery, Sr."
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/206328?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 206328,
+      "media_type": "movie",
+      "title": "You Lucky Dog",
+      "original_title": "You Lucky Dog",
+      "overview": "Jack Morgan is a dog therapist, once famous for being able to read his dog's mind. Although Jack cannot read the minds of other dogs, he still operates a canine mind-reading business, without divulging his inability to customers. Mr. Mooney and his wife bring their dog to see Jack. Dissatisfied with Jack's inability to read his dog's mind, Mr. Mooney, who is a friend of the city mayor, threatens to have his business closed down. …",
+      "vote_average": 5.6,
+      "release_date": "1998-06-27",
+      "original_language": "en",
+      "poster_path": "/14gtKiG3Xf2J3hziQVHHLVAg2Kx.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "r04",
+  "kind": "rag",
+  "text": "Cerco un film in cui c'è un personaggio chiamato Norman Bates",
+  "note": "hybrid atteso"
+ },
+ "seconds": 26.0
+}

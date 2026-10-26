@@ -1,0 +1,437 @@
+{
+ "answer": "Ecco 5 candidati. **Dai dati disponibili non è possibile verificare se abbiano un finale triste**; inoltre il viaggio nel tempo è indicato come **probabile**, non confermato, per ciascun titolo. Per i primi tre sono disponibili anche dati TMDb; gli ultimi due provengono solo dal RAG.\n\n1. **The Butterfly Effect (2004)**  \n   **Regia:** Eric Bress, J. Mackye Gruber  \n   **Cast principale:** Ashton Kutcher, Amy Smart, Melora Walters, Elden Henson, William Lee Scott  \n   Un giovane cerca di accedere ai ricordi rimossi dell’infanzia e scopre una tecnica che gli permette di tornare nel passato, occupare il proprio corpo da bambino e cambiare la storia. Ogni modifica produce però conseguenze inattese.  \n   **Vincoli:** fantascienza verificata; viaggio nel tempo probabile; finale triste non verificabile; finale malinconico non verificabile.  \n   **Voto TMDb:** 7,578/10.\n\n2. **Journey to the Center of Time (1967)**  \n   **Regia:** David L. Hewitt  \n   **Cast principale:** Scott Brady, Anthony Eisley, Abraham Sofaer, Gigi Perreau, Austin Green  \n   Alcuni scienziati devono dimostrare che i loro esperimenti sul viaggio nel tempo funzionano per evitare il taglio dei finanziamenti. Spingono l’attrezzatura oltre i limiti di sicurezza e viaggiano 5.000 anni nel futuro, dove incontrano alieni in cerca di un pianeta da colonizzare.  \n   **Vincoli:** fantascienza verificata; viaggio nel tempo probabile; finale triste non verificabile; finale malinconico non verificabile.  \n   **Voto TMDb:** 4,0/10.\n\n3. **The Time Travelers (1964)**  \n   **Regia:** Ib Melchior  \n   **Cast principale:** Preston Foster, Philip Carey, Merry Anders, John Hoyt, Dennis Patrick  \n   Alcuni scienziati che sperimentano con distorsioni temporali vengono accidentalmente proiettati in un futuro insostenibile.  \n   **Vincoli:** fantascienza verificata; viaggio nel tempo probabile; finale triste non verificabile; finale malinconico non verificabile.  \n   **Voto TMDb:** 5,1/10.\n\n4. **Millennium (1989)**  \n   Un aereo passeggeri statunitense entra in collisione con un altro aereo durante l’avvicinamento all’atterraggio. L’investigatore Bill Smith viene incaricato di stabilire se la causa sia stata un errore umano, mentre la squadra esamina i due velivoli precipitati.  \n   **Vincoli:** fantascienza verificata; viaggio nel tempo probabile; finale triste non verificabile; finale malinconico non verificabile.  \n   **Voto:** non disponibile nei dati ricevuti.\n\n5. **Grand Tour: Disaster in Time (1992)**  \n   Ben Wilson, vedovo segnato dalla morte della moglie in un incidente stradale, torna nella sua città natale e acquista una vecchia pensione che ristruttura con la figlia Hillary. Quando un autista di autobus arriva con un gruppo turistico, Wilson nota comportamenti, modi e abbigliamento insoliti.  \n   **Vincoli:** fantascienza verificata; viaggio nel tempo probabile; finale triste non verificabile; finale malinconico non verificabile.  \n   **Voto:** non disponibile nei dati ricevuti.\n\n**Fonte:** RAG per la selezione e le trame; TMDb per regia, cast e voti dei primi tre titoli.",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Consigliami 5 film sul viaggio nel tempo con un finale triste",
+    "used": "Consigliami 5 film sul viaggio nel tempo con un finale triste",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Trovare 5 film sul viaggio nel tempo con un finale triste o malinconico",
+    "arguments": {
+     "query": "Consiglia 5 film sul viaggio nel tempo con un finale triste o malinconico",
+     "k_finale": 5,
+     "search_mode": null
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 6206,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "semantic",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "semantic",
+      "k_largo": 10,
+      "k_finale": 5,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": [
+      "k_finale"
+     ]
+    },
+    "standalone_query": "Consigliami 5 film sul viaggio nel tempo con un finale triste",
+    "planner_query": "Consiglia 5 film sul viaggio nel tempo con un finale triste o malinconico",
+    "embedded_text": "Time-travel films involving journeys through different points in time and ending sadly or melancholically.",
+    "signals": {
+     "positive_signals": [
+      "time travel",
+      "sad ending",
+      "melancholic ending"
+     ],
+     "negative_signals": [],
+     "hard_exclusions": [],
+     "semantic_query": "Time-travel films involving journeys through different points in time and ending sadly or melancholically.",
+     "genres": [
+      "Science Fiction"
+     ],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-008488-000000",
+      "testo": "As with Chris Marker's La Jetee, a man is selected to participate in time travel experiments to his personal past. However, due to equipment malfunction, he experiences these events out of chronological sequence, cause and effect.",
+      "score": 0.6755352000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "22277244",
+      "title": "Je t'aime, je t'aime",
+      "release_date": "1968",
+      "release_year": "1968",
+      "genres": "Heaven-Can-Wait Fantasies; Science Fiction; Experimental film; Surrealism; Fantasy; Avant-garde",
+      "cast": "Claude Rich"
+     },
+     {
+      "id": "edb95c357b3b-006768-000000",
+      "testo": "The film begins in the cockpit of a U.S. passenger airliner , shortly before they are struck from above by another airliner  on a landing approach. The pilot handles the airplane as well as he can while the flight engineer goes back to check on the passenger cabin. He comes back in the cockpit screaming, “They're dead! All of them! They’re burned up!” Bill Smith  is a National Transportation Safety Board investigator hired to determine whether human error is the cause of a collision of two aircraft, both of which crashed. He and his team of investigators are confused by the words on the cockpit voice recorder because there had been no fire on board before the plane hit the ground. At the same time, a theoretical physicist named Dr. Arnold Mayer  has a professional curiosity about the crash, which borders on science fiction. While giving a lecture, he talks about time travel and the possibility of visitors from the future. Time travelers are, in fact, visiting the present day and stealing passengers from doomed aircraft. Every incursion into the past causes an accompanying \"timequake\" whose magnitude is proportional to the effects of the incursion into the past. Each \"timequake\" causes physical damage in the time from which the incursion has been made. This is why they are abducting people who will not be able to affect the future any further and replacing them with copies of those who would have died. Thus, the co-pilot's strange comment came because all the passengers had been replaced with pre-burned duplicates in preparation for the upcoming crash.  While on one of the missions, an operative is shot and loses a stun weapon on board a plane before it crashes. This weapon winds up in the possession of Dr. Arnold Mayer, setting him on the path to working out what's happening. Twenty-five years later, Smith finds a similar artifact in the crash portrayed at the beginning of the film. Worried that these two individuals of the 20th century might change history by their discoveries, Louise Baltimore  travels back to 1989 in order to distract Bill Smith and discourage him from pursuing his investigation further. Louise manages to gain Bill's trust, as well as seduce him into a one-night stand, which she hopes will complete the distraction. However, because of still more errors on the part of the time travel team, as well as paradoxical events, Bill becomes even more suspicious. He soon pays a visit to Dr. Mayer. At that point, Louise materializes from the future and reveals her mission to both of them. In a mishap with the stun weapon, Mayer kills himself thereby causing a major change to the timeline. Louise decides to take Bill with her to the future. Between Louise's recent visit and exposition in the future, we find that because of pollution, the human population of the future is no longer able to reproduce, except for Louise who's pregnant with Bill's baby, though that fact isn't revealed until the very end of the film. This is why they have been abducting people from the past and keeping them in stasis until a future time when they will be sent into the far future. It is hoped that in this far future, the Earth will have recovered enough that humans can repopulate the planet. The recent incursion results in a force infinity timequake which will destroy the entire civilization of the \"present\" future and the Gate  itself. It is decided that it is time to send all of the people who have been collected to the distant future before the Gate is destroyed. Bill and Louise step through and disappear into the Gate, which takes them to another time and another place, in order to save their lives, and to fulfill a destiny to repopulate Earth. A simple, but poignant, message is recited by Sherman the Robot, quoting Winston Churchill, in the closing seconds of the film. As the blast wave of the gate being destroyed vaporizes Sherman he states, \"This is not the end. This is not the beginning of the end. It is the end of the beginning\" as the scene transitions to the sun rising above the clouds.",
+      "score": 0.6614175500000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "972940",
+      "title": "Millennium",
+      "release_date": "1989-08-25",
+      "release_year": "1989",
+      "genres": "Time travel; Thriller; Science Fiction; Drama; Indie",
+      "cast": "Cheryl Ladd; Kris Kristofferson; Robert Joy; Al Waxman; Daniel J. Travanti; Brent Carver; Maury Chaykin; Lawrence Dane; Lloyd Bochner"
+     },
+     {
+      "id": "edb95c357b3b-037433-000000",
+      "testo": "Ben Wilson  is a widower haunted by the death of his wife, who has been killed in a freak car accident. He has recently returned to his home town and purchased an old guest house on the outskirts of town, which he is renovating with his young daughter Hillary . When local bus driver Oscar arrives with a tour group from \"South California\", their leader insists on renting out the rooms at the guest house, pointedly rejecting Ben's suggestion that they could stay at his friends' large hotel in the middle of town. Wilson soon begins to note their peculiar behaviour, manner and dress and Oscar points out the fact that, while they purport to be tourists, they do not carry cameras or take photographs. Shortly after they settle into their rooms another stranger, Quish ([[David Wells , arrives to join the group, and Ben notices the odd fact that Quish's clothes have a fine covering of ash. Ben's suspicions are heightened by events of the next day. Quish has a minor accident while walking through the town and Wilson helps him, in the process recovering Quish's dropped American passport. Looking through it, Ben discovers that the stamps within include locations inside the United States and dates that are many decades apart. The local doctor then shows Ben an X-ray of Quish's head, which reveals that there is a mysterious object embedded in his skull. As they leave the surgery, Wilson confronts Quish, having deduced that the stamps correspond to the times and places of famous disasters, including the 1906 San Francisco Earthquake, the crash of the Hindenburg and the Mt St. Helens volcanic eruption . Unnerved, Quish will only respond by warning Wilson to leave town immediately and not return until he is sure it is safe. Meanwhile, unbeknownst to Ben, his vengeful father-in-law, Judge Caldwell  &mdash; who blames Ben for his daughter's death &mdash; has secretly arranged to have Hilary taken away from Ben on the grounds that he is an unfit parent. When Ben returns home he finds Hilary gone and confronts the Judge but is threatened with arrest; defeated, he goes to stay at the local hotel. There he visited by Reeve, one of the Tourists, who confirms his suspicions about their true nature: they are time-travellers from the future who visit the scenes of famous disasters as part of a \"Grand Tour\" of the past. She then gives Ben a euphoric substance and seduces him, leaving him unconscious. Late that night Ben he is found and revived by Oscar and they return to the guest house to find out why the Tourists have come, but minutes later the town is struck by a large meteorite, resulting in almost total destruction. Ben races to the Judge's shattered home, where he finds Hilary alive; heading back into town he finds the hotel destroyed and his friends dead, while the Tourists stroll through the devastation with an air of detached fascination. Ben and Hilary work through the night helping the survivors, who are taken to Hilary's local school, which has become the local disaster relief centre. When Ben and Oscar return to the guest house the next day, Ben is alarmed to discover that, although the tourists have left the house, their luggage is still there. He and Oscar track them to an abandoned factory outside the town, where Ben realises that they are awaiting a second disaster which is about to strike the school. The tourists try to detain him but he evades them and races to the scene hoping to save Hilary. Meanwhile, maintenance workers accidentally damage a gas pipe line in the boiler room of the school and just as Ben arrives a hurricane lamp in the gymnasium ignites the leaking gas, destroying the school in a massive blast and killing most of the people inside, including Hilary and Quish, who has followed Ben to the building. Ben regains consciousness to find that he has been taken prisoner by the Tourists and that an official from their time, the Undersecretary , has arrived to investigate and try to remedy the disruptions to Ben's \"Timescape\". He explains that his people have discovered that time is more resilient than they had first believed but, because of the changes enacted by Ben and the Tourists, all time excursions have been suspended pending a full investigation. Just before they depart Ben attacks Reeve for her lack of humanity, but as she leaves she embraces him, secretly slipping Quish's passport into his hand. On examining the passport Ben discovers that it conceals one of the Tourists' time travel devices. He eventually makes it work, and returns to the previous evening to try and save his daughter and the townsfolk from the disaster. Realising that Hilary is then at her grandfather's house, he tries to sneak her away but he is caught and thrown into jail, which is itself soon to be destroyed. However he convinces the deputy to allow him his one phone call and manages to contact his pre-existing self at the hotel, just as that self is meeting with Reeve. This alternate self helps the 'original' Ben to escape from the jail and together they manage to alert and save most of the people by ringing the bells in the old church on the other side of town. Leaving Hilary with his 'earlier' self, the 'original' Ben walks through the scene of the impact; there he is again confronted by the Undersecretary, who had returned to take Ben back to his proper point in time. He warn Ben not to interfere any further and threatens to alter the past again to eliminate Ben's actions, but Ben challenges him by arguing that if the Undersecretary's assertions were true, his people would have already done so. In the final scene, we see Hilary taking bookings for the now-completed guest house while Ben reads through old love letters from his late wife. When Hilary looks up, Ben has vanished, and as the movie closes Hilary suddenly hears and is drawn towards the sound of someone playing her mother's favourite tune on the piano.",
+      "score": 0.6537587400000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "13280124",
+      "title": "Grand Tour: Disaster in Time",
+      "release_date": "1992-05-09",
+      "release_year": "1992",
+      "genres": "Thriller; Science Fiction; Adventure; Television movie; Action/Adventure; Disaster; Time travel",
+      "cast": "David Wells; Emilia Crow; Willie Rack; Mimi Craven; Time Winters; Anna Neill; Jim Haynie; Robert Colbert; George Murdock; Ariana Richards; Jeff Daniels; Marilyn Lightstone; Nicholas Guest"
+     },
+     {
+      "id": "edb95c357b3b-007662-000000",
+      "testo": "In the year 2002, Evan Treborn  frequently suffers from blackouts, often at moments of high stress. As a young child  and adolescent , Evan suffered many severe sexual abuse and psychological traumas. These traumas include being forced to take part in child pornography, being strangled by his mentally-ill father, causing an accident with dynamite with his friends, and seeing his dog being burned by his friend. Seven years later, while \"entertaining\" a girl in his dorm room, he realizes that when he reads from his adolescent journals, he can travel back in time, and is able to \"redo\" parts of his past. His time traveling episodes account for the frequent blackouts he experienced as a child. However, there are consequences to his choices that propagate back to his present life, his alternate personal futures progress from college student, to prisoner, to amputee. His efforts are driven by the desire to undo the most unpleasant events of his childhood which coincide with his mysterious blackouts, including saving his childhood sweetheart Kayleigh  from being molested by her father  and tormented by her sadistic brother . The actions he takes, and enables others to take during his blackouts, change the timeline in the new future where he awakes. As he continues to do this he realizes that even though his intentions are good, his actions have unforeseen consequences. Moreover, the assimilation of dozens of years' worth of new memories from the alternate timelines causes him brain damage and severe nosebleeds. Ultimately, he decides that his attempts to alter the past end up only harming those he cares about, and realizes that the main cause of everyone's suffering in all the different timelines is himself. At the conclusion of the film, Evan purposely travels back in time one final time to the first day he met Kayleigh. Before this, Evan learns that Kayleigh had a choice to either stay with her mom or her dad. Because she wanted to stay with Evan, she decided to stay with her dad, which caused all the problems in the first place. By scaring her away, Evan makes sure that she goes with her mom, thus allowing her to never be a part of his life. Through this, Evan finally succeeds in saving her life. He then destroys all of his journals and memories so that he is not ever tempted again to make any more changes. The film ends eight years in the future with Evan leaving an office building in Manhattan and passing Kayleigh on a crowded sidewalk. They alternately pause and turn after spotting and passing each other. After a moment of hesitation, Evan lets her walk away without speaking to her.",
+      "score": 0.64116437,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "454208",
+      "title": "The Butterfly Effect",
+      "release_date": "2004-01-23",
+      "release_year": "2004",
+      "genres": "Thriller; Science Fiction; Time travel; Psychological thriller",
+      "cast": "Jake Kaese; Eric Stoltz; Callum Keith Rennie; Lorena Gale; Nathaniel DeVeaux; Ethan Suplee; Camille Sullivan; Tara Wilson; Jesse Hutch; Kevin Durand; Cameron Bright; Elden Henson; Amy Smart; Melora Walters; Ashton Kutcher; William Lee Scott; John Patrick Amedori; Irene Gorovaia; Kevin Schmidt; Jesse James; Logan Lerman; Sarah Widdows"
+     },
+     {
+      "id": "edb95c357b3b-008151-000000",
+      "testo": "A man  is a prisoner in the aftermath of the Third World War, in a destroyed, post-apocalyptic Paris where survivors live underground in the Palais de Chaillot galleries. Scientists research time travel, hoping to send test subjects to different time periods \"to call past and future to the rescue of the present\". They have difficulty finding subjects who can mentally withstand the shock of time travel, but eventually settle upon the prisoner, whose key to the past is a vague but obsessive memory, from his pre-war childhood, of a woman  he had seen on the observation platform  at Orly Airport shortly before witnessing a startling incident there. He had not understood exactly what happened, but knew he had seen a man die. After several attempts, he reaches the pre-war period. He meets the woman from his memory, and they develop a romantic relationship. After his successful passages to the past, the experimenters attempt to send him into the far future. In a brief meeting with the technologically advanced people of the future, he is given a power unit sufficient to regenerate his own destroyed society. Upon his return, with his mission accomplished, he discerns that he is to be executed by his jailers. He is contacted by the people of the future, who offer to help him escape to their time permanently, but he asks instead to be returned to the pre-war time of his childhood, hoping to find the woman again. He is returned and does find her, on the jetty at the airport. However, as he rushes to her, he notices an agent of his jailers who has followed him and realises the agent is about to kill him. In his final moments, he comes to understand that the incident which he witnessed as a child, which has haunted him for his entire life, was his own death.",
+      "score": 0.6372059,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "18230",
+      "title": "La Jetée",
+      "release_date": "1962-02-16",
+      "release_year": "1962",
+      "genres": "Science Fiction; World cinema; Experimental film; Romantic fantasy; Short Film; Apocalyptic and post-apocalyptic fiction; Drama; Romance Film; Time travel; Avant-garde",
+      "cast": "Jacques Branchu; Jean Négroni; Hélène Chatelain; Davos Hanich; Philbert von Lifchitz; Ligia Branice; Jacques Ledoux; André Heinrich; Etienne Becker"
+     },
+     {
+      "id": "edb95c357b3b-012135-000000",
+      "testo": "Scientists Dr. Erik von Steiner , Dr. Steve Connors  and Carol White  are testing their time viewing device, drawing enormous amounts of power. Danny McKee , a technician from the power plant, has been sent to tell them to shut down their experiment. During the test, odd shadows quickly cross the room before the screen shows a stark, barren landscape. Danny discovers the screen has become a portal and steps through. As the setting is becoming unstable, the others enter the portal to bring him back. The portal disappears, stranding them. Then they are pursued by hostile primitives, ending up in a cave. There they find an underground city - all that is left of civilization in a future devastated by nuclear war. The year is 2071 A.D. City leader Dr. Varno  explains that Earth is unable to support life. The residents are frantically working on a spacecraft that will take them to a planet orbiting a distant star. The four time travelers pitch in to help complete the spaceship, but before they can lift off, the degenerate mutant humans break in and destroy the ship and the city. The three scientists, with help from the power technician, work feverishly with future technology to rebuild their time portal. Along with a few people from the future, they escape back to the present just ahead of the mutants. One person throws an object through the gateway that damages the equipment on the other side and shuts down the portal. The survivors return to the lab, where they make a horrible discovery. Through some error, they are experiencing time at an accelerated rate; the rest of the world is moving in slow motion. Their only option is to travel to 100,000 years in the future. But the screen is dark and what lies ahead is unknown. When the last one goes through, the screen flashes on briefly and shows the characters walking in a clearing with trees and grass. The film returns back to the start. The sequence of events of the entire movie is rapidly reshown, and then repeats faster and faster until it abruptly ends without further explanation.",
+      "score": 0.6315660800000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "5804666",
+      "title": "The Time Travelers",
+      "release_date": "1964-10-29",
+      "release_year": "1964",
+      "genres": "Science Fiction",
+      "cast": "Preston Foster; Merry Anders"
+     },
+     {
+      "id": "edb95c357b3b-014168-000000",
+      "testo": "Tom Merrick  works as a TV reporter when he's nearly killed in an accident while informing about a fire in the Evanston power plant. The sight of a creepy-looking man leaving the place accidentally saves his life, when he was meant to be killed with his crew. After some time, he decides to do some research on catastrophes for a documentary he's preparing when he accidentally stumbles upon several pictures of the man at the power plant , who appears to turn up in different disasters  as far apart as 50 years, but who still looks the same in all the pictures. He goes deeper into the mystery and ends up discovering that a futuristic enterprise --Thrill Seekers-- will make time travel possible in the future and will sell trips to the past. These trips consist of travellers going straight to a catastrophe right before it happens, so they can experience the emotion but are able to travel back in time again before they get killed. Thanks to that knowledge, Merrick is able to save a plane from crashing and killing hundreds of people. Unfortunately, this type of discovery endangers the very fabric of space-time and his own life, when Thrill Seekers sends a couple of agents to find and kill him.",
+      "score": 0.62630766,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "9328915",
+      "title": "Thrill Seekers",
+      "release_date": "1999",
+      "release_year": "1999",
+      "genres": "Action/Adventure; Disaster; Science Fiction; Television movie",
+      "cast": "Casper Van Dien; Martin Sheen; Peter Outerbridge; Catherine Bell; Julian Richings"
+     },
+     {
+      "id": "edb95c357b3b-027610-000000",
+      "testo": "Stanton  is a grouchy boss who is the head of a scientific research company. He has taken over the company following the death of his father. His employees are scientists Mark Manning , 'Doc' Gordon , and Karen White . Unless they prove that their time travel experiments can produce some results, their funding will be cut off. Desperate, they push their operating equipment past the level of safety and travel 5000 years into the future. There, they encounter aliens led by Vina  who are looking for a planet to colonize. The aliens find no welcome on Earth, which is in the midst of a global war that threatens the human race. She urges them to go back and warn humanity about the danger, then dies in a human attack. The time travelers retreat to their chamber and head back. On the way, they detect another time machine on a collision course. Manning tries to communicate with them; when that fails, they fire at it, but their weapon is too weak. Stanton takes charge, boosts the power and destroys the other vessel. However, all is still not well. They overshoot the present and end up in the distant past, in the age of dinosaurs. Their giant ruby, a key component of the machine, is destroyed, leaving them stranded. However, when they explore a nearby cave, they find it studded with all sorts of jewels, including rubies. Overcome by greed, Stanton grabs handfuls of the precious gems, returns to the time machine, replaces the ruby and takes off without the scientists. However, on his return trip, he encounters another traveler in time. He hears a radio broadcast - it is from Manning! He is racing towards the earlier version of the time machine. Then he is destroyed by a blast initiated by his earlier self. Meanwhile, as the scientists leave the cave, Gordon stumbles and falls to his death in molten lava. The other two find the time machine gone. Then it mysteriously reappears. They board it and return to the day before their initial departure. But something is wrong; they find past versions of themselves living at a much slower time rate. The couple hasten back to the time machine to try to rectify the problem, but end up hopelessly lost in time and space. In the final scene, the machine is shown in space among the stars.",
+      "score": 0.6159532600000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "10546396",
+      "title": "Journey to the Center of Time",
+      "release_date": "1967",
+      "release_year": "1967",
+      "genres": "Science Fiction; Time travel; Adventure",
+      "cast": "Tracy Olsen; Gigi Perreau; Anthony Eisley; Scott Brady; Abraham Sofaer; Lyle Waggoner; Poupee Gamin; Austin Green"
+     },
+     {
+      "id": "edb95c357b3b-003535-000000",
+      "testo": "Two scientists invent a time machine. A critical part  falls out of the time machine before they get into it to test it. Nothing seems to happen at first, but when they wake up the next day they are regressing in age . Their kids, Marie  and Eddie  seem to notice something strange is going on, judging by their behavior. Soon enough, the children realize that it is the machine that has changed their parents. The parents gradually get younger and the kids notice that the fish that their parents were experimenting on earlier seemed to just disappear after growing younger in a \"poof\" of sorts. The point at which something ceases to exist thus becomes known as the \"poof point\". The kids know they have to get the parents in the machine and reverse the effect some way before their parents, too, just \"poof\" away.",
+      "score": 0.5974215,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "5469422",
+      "title": "The Poof Point",
+      "release_date": "2001-09-14",
+      "release_year": "2001",
+      "genres": "Science Fiction; Family Film; Comedy; Children's/Family",
+      "cast": "Mark Curry; Dawnn Lewis; Tahj Mowry; Raquel Lee; Olesya Rulin"
+     },
+     {
+      "id": "edb95c357b3b-023612-000000",
+      "testo": "A scientist develops a time machine in hopes of meeting his deceased wife again. But the time machine malfunctions and at 11:00 AM the next day, he witnesses all of his fellow researchers being murdered. He then decides to go further back in the past to prevent the killings.",
+      "score": 0.59054964,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "35951335",
+      "title": "AM 11:00",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Thriller; Science Fiction",
+      "cast": "Ok-bin Kim; Jeong Jae-yeong"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "Time-travel films involving journeys through different points in time and ending sadly or melancholically. Must match: melancholic ending; Science Fiction.",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "Science Fiction",
+       "type": "genre",
+       "results": {
+        "The Butterfly Effect (2004)": {
+         "status": "verified",
+         "evidence": "generi: Thriller; Science Fiction; Time travel; Psychological thriller"
+        },
+        "Journey to the Center of Time (1967)": {
+         "status": "verified",
+         "evidence": "generi: Science Fiction; Time travel; Adventure"
+        },
+        "The Time Travelers (1964)": {
+         "status": "verified",
+         "evidence": "generi: Science Fiction"
+        },
+        "Millennium (1989)": {
+         "status": "verified",
+         "evidence": "generi: Time travel; Thriller; Science Fiction; Drama; Indie"
+        },
+        "Grand Tour: Disaster in Time (1992)": {
+         "status": "verified",
+         "evidence": "generi: Thriller; Science Fiction; Adventure; Television movie; Action/Adventure; Disaster; Time travel"
+        }
+       }
+      },
+      {
+       "constraint": "time travel",
+       "type": "plot_require",
+       "results": {
+        "The Butterfly Effect (2004)": {
+         "status": "probable",
+         "evidence": "termini nella trama: time, travel"
+        },
+        "Journey to the Center of Time (1967)": {
+         "status": "probable",
+         "evidence": "termini nella trama: time, travel"
+        },
+        "The Time Travelers (1964)": {
+         "status": "probable",
+         "evidence": "termini nella trama: time, travel"
+        },
+        "Millennium (1989)": {
+         "status": "probable",
+         "evidence": "termini nella trama: time, travel"
+        },
+        "Grand Tour: Disaster in Time (1992)": {
+         "status": "probable",
+         "evidence": "termini nella trama: time, travel"
+        }
+       }
+      },
+      {
+       "constraint": "sad ending",
+       "type": "plot_require",
+       "results": {
+        "The Butterfly Effect (2004)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Journey to the Center of Time (1967)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "The Time Travelers (1964)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Millennium (1989)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Grand Tour: Disaster in Time (1992)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "melancholic ending",
+       "type": "plot_require",
+       "results": {
+        "The Butterfly Effect (2004)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Journey to the Center of Time (1967)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "The Time Travelers (1964)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Millennium (1989)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Grand Tour: Disaster in Time (1992)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-007662-000000",
+      "testo": "In the year 2002, Evan Treborn  frequently suffers from blackouts, often at moments of high stress. As a young child  and adolescent , Evan suffered many severe sexual abuse and psychological traumas. These traumas include being forced to take part in child pornography, being strangled by his mentally-ill father, causing an accident with dynamite with his friends, and seeing his dog being burned by his friend. Seven years later, while \"entertaining\" a girl in his dorm room, he realizes that when he reads from his adolescent journals, he can travel back in time, and is able to \"redo\" parts of his past. His time traveling episodes account for the frequent blackouts he experienced as a child. However, there are consequences to his choices that propagate back to his present life, his alternate personal futures progress from college student, to prisoner, to amputee. His efforts are driven by the desire to undo the most unpleasant events of his childhood which coincide with his mysterious blackouts, including saving his childhood sweetheart Kayleigh  from being molested by her father  and tormented by her sadistic brother . The actions he takes, and enables others to take during his blackouts, change the timeline in the new future where he awakes. As he continues to do this he realizes that even though his intentions are good, his actions have unforeseen consequences. Moreover, the assimilation of dozens of years' worth of new memories from the alternate timelines causes him brain damage and severe nosebleeds. Ultimately, he decides that his attempts to alter the past end up only harming those he cares about, and realizes that the main cause of everyone's suffering in all the different timelines is himself. At the conclusion of the film, Evan purposely travels back in time one final time to the first day he met Kayleigh. Before this, Evan learns that Kayleigh had a choice to either stay with her mom or her dad. Because she wanted to stay with Evan, she decided to stay with her dad, which caused all the problems in the first place. By scaring her away, Evan makes sure that she goes with her mom, thus allowing her to never be a part of his life. Through this, Evan finally succeeds in saving her life. He then destroys all of his journals and memories so that he is not ever tempted again to make any more changes. The film ends eight years in the future with Evan leaving an office building in Manhattan and passing Kayleigh on a crowded sidewalk. They alternately pause and turn after spotting and passing each other. After a moment of hesitation, Evan lets her walk away without speaking to her.",
+      "score": 0.4883572,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "454208",
+      "title": "The Butterfly Effect",
+      "release_date": "2004-01-23",
+      "release_year": "2004",
+      "genres": "Thriller; Science Fiction; Time travel; Psychological thriller",
+      "cast": "Jake Kaese; Eric Stoltz; Callum Keith Rennie; Lorena Gale; Nathaniel DeVeaux; Ethan Suplee; Camille Sullivan; Tara Wilson; Jesse Hutch; Kevin Durand; Cameron Bright; Elden Henson; Amy Smart; Melora Walters; Ashton Kutcher; William Lee Scott; John Patrick Amedori; Irene Gorovaia; Kevin Schmidt; Jesse James; Logan Lerman; Sarah Widdows"
+     },
+     {
+      "id": "edb95c357b3b-027610-000000",
+      "testo": "Stanton  is a grouchy boss who is the head of a scientific research company. He has taken over the company following the death of his father. His employees are scientists Mark Manning , 'Doc' Gordon , and Karen White . Unless they prove that their time travel experiments can produce some results, their funding will be cut off. Desperate, they push their operating equipment past the level of safety and travel 5000 years into the future. There, they encounter aliens led by Vina  who are looking for a planet to colonize. The aliens find no welcome on Earth, which is in the midst of a global war that threatens the human race. She urges them to go back and warn humanity about the danger, then dies in a human attack. The time travelers retreat to their chamber and head back. On the way, they detect another time machine on a collision course. Manning tries to communicate with them; when that fails, they fire at it, but their weapon is too weak. Stanton takes charge, boosts the power and destroys the other vessel. However, all is still not well. They overshoot the present and end up in the distant past, in the age of dinosaurs. Their giant ruby, a key component of the machine, is destroyed, leaving them stranded. However, when they explore a nearby cave, they find it studded with all sorts of jewels, including rubies. Overcome by greed, Stanton grabs handfuls of the precious gems, returns to the time machine, replaces the ruby and takes off without the scientists. However, on his return trip, he encounters another traveler in time. He hears a radio broadcast - it is from Manning! He is racing towards the earlier version of the time machine. Then he is destroyed by a blast initiated by his earlier self. Meanwhile, as the scientists leave the cave, Gordon stumbles and falls to his death in molten lava. The other two find the time machine gone. Then it mysteriously reappears. They board it and return to the day before their initial departure. But something is wrong; they find past versions of themselves living at a much slower time rate. The couple hasten back to the time machine to try to rectify the problem, but end up hopelessly lost in time and space. In the final scene, the machine is shown in space among the stars.",
+      "score": 0.4199102,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "10546396",
+      "title": "Journey to the Center of Time",
+      "release_date": "1967",
+      "release_year": "1967",
+      "genres": "Science Fiction; Time travel; Adventure",
+      "cast": "Tracy Olsen; Gigi Perreau; Anthony Eisley; Scott Brady; Abraham Sofaer; Lyle Waggoner; Poupee Gamin; Austin Green"
+     },
+     {
+      "id": "edb95c357b3b-012135-000000",
+      "testo": "Scientists Dr. Erik von Steiner , Dr. Steve Connors  and Carol White  are testing their time viewing device, drawing enormous amounts of power. Danny McKee , a technician from the power plant, has been sent to tell them to shut down their experiment. During the test, odd shadows quickly cross the room before the screen shows a stark, barren landscape. Danny discovers the screen has become a portal and steps through. As the setting is becoming unstable, the others enter the portal to bring him back. The portal disappears, stranding them. Then they are pursued by hostile primitives, ending up in a cave. There they find an underground city - all that is left of civilization in a future devastated by nuclear war. The year is 2071 A.D. City leader Dr. Varno  explains that Earth is unable to support life. The residents are frantically working on a spacecraft that will take them to a planet orbiting a distant star. The four time travelers pitch in to help complete the spaceship, but before they can lift off, the degenerate mutant humans break in and destroy the ship and the city. The three scientists, with help from the power technician, work feverishly with future technology to rebuild their time portal. Along with a few people from the future, they escape back to the present just ahead of the mutants. One person throws an object through the gateway that damages the equipment on the other side and shuts down the portal. The survivors return to the lab, where they make a horrible discovery. Through some error, they are experiencing time at an accelerated rate; the rest of the world is moving in slow motion. Their only option is to travel to 100,000 years in the future. But the screen is dark and what lies ahead is unknown. When the last one goes through, the screen flashes on briefly and shows the characters walking in a clearing with trees and grass. The film returns back to the start. The sequence of events of the entire movie is rapidly reshown, and then repeats faster and faster until it abruptly ends without further explanation.",
+      "score": 0.3936886,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "5804666",
+      "title": "The Time Travelers",
+      "release_date": "1964-10-29",
+      "release_year": "1964",
+      "genres": "Science Fiction",
+      "cast": "Preston Foster; Merry Anders"
+     },
+     {
+      "id": "edb95c357b3b-006768-000000",
+      "testo": "The film begins in the cockpit of a U.S. passenger airliner , shortly before they are struck from above by another airliner  on a landing approach. The pilot handles the airplane as well as he can while the flight engineer goes back to check on the passenger cabin. He comes back in the cockpit screaming, “They're dead! All of them! They’re burned up!” Bill Smith  is a National Transportation Safety Board investigator hired to determine whether human error is the cause of a collision of two aircraft, both of which crashed. He and his team of investigators are confused by the words on the cockpit voice recorder because there had been no fire on board before the plane hit the ground. At the same time, a theoretical physicist named Dr. Arnold Mayer  has a professional curiosity about the crash, which borders on science fiction. While giving a lecture, he talks about time travel and the possibility of visitors from the future. Time travelers are, in fact, visiting the present day and stealing passengers from doomed aircraft. Every incursion into the past causes an accompanying \"timequake\" whose magnitude is proportional to the effects of the incursion into the past. Each \"timequake\" causes physical damage in the time from which the incursion has been made. This is why they are abducting people who will not be able to affect the future any further and replacing them with copies of those who would have died. Thus, the co-pilot's strange comment came because all the passengers had been replaced with pre-burned duplicates in preparation for the upcoming crash.  While on one of the missions, an operative is shot and loses a stun weapon on board a plane before it crashes. This weapon winds up in the possession of Dr. Arnold Mayer, setting him on the path to working out what's happening. Twenty-five years later, Smith finds a similar artifact in the crash portrayed at the beginning of the film. Worried that these two individuals of the 20th century might change history by their discoveries, Louise Baltimore  travels back to 1989 in order to distract Bill Smith and discourage him from pursuing his investigation further. Louise manages to gain Bill's trust, as well as seduce him into a one-night stand, which she hopes will complete the distraction. However, because of still more errors on the part of the time travel team, as well as paradoxical events, Bill becomes even more suspicious. He soon pays a visit to Dr. Mayer. At that point, Louise materializes from the future and reveals her mission to both of them. In a mishap with the stun weapon, Mayer kills himself thereby causing a major change to the timeline. Louise decides to take Bill with her to the future. Between Louise's recent visit and exposition in the future, we find that because of pollution, the human population of the future is no longer able to reproduce, except for Louise who's pregnant with Bill's baby, though that fact isn't revealed until the very end of the film. This is why they have been abducting people from the past and keeping them in stasis until a future time when they will be sent into the far future. It is hoped that in this far future, the Earth will have recovered enough that humans can repopulate the planet. The recent incursion results in a force infinity timequake which will destroy the entire civilization of the \"present\" future and the Gate  itself. It is decided that it is time to send all of the people who have been collected to the distant future before the Gate is destroyed. Bill and Louise step through and disappear into the Gate, which takes them to another time and another place, in order to save their lives, and to fulfill a destiny to repopulate Earth. A simple, but poignant, message is recited by Sherman the Robot, quoting Winston Churchill, in the closing seconds of the film. As the blast wave of the gate being destroyed vaporizes Sherman he states, \"This is not the end. This is not the beginning of the end. It is the end of the beginning\" as the scene transitions to the sun rising above the clouds.",
+      "score": 0.380138,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "972940",
+      "title": "Millennium",
+      "release_date": "1989-08-25",
+      "release_year": "1989",
+      "genres": "Time travel; Thriller; Science Fiction; Drama; Indie",
+      "cast": "Cheryl Ladd; Kris Kristofferson; Robert Joy; Al Waxman; Daniel J. Travanti; Brent Carver; Maury Chaykin; Lawrence Dane; Lloyd Bochner"
+     },
+     {
+      "id": "edb95c357b3b-037433-000000",
+      "testo": "Ben Wilson  is a widower haunted by the death of his wife, who has been killed in a freak car accident. He has recently returned to his home town and purchased an old guest house on the outskirts of town, which he is renovating with his young daughter Hillary . When local bus driver Oscar arrives with a tour group from \"South California\", their leader insists on renting out the rooms at the guest house, pointedly rejecting Ben's suggestion that they could stay at his friends' large hotel in the middle of town. Wilson soon begins to note their peculiar behaviour, manner and dress and Oscar points out the fact that, while they purport to be tourists, they do not carry cameras or take photographs. Shortly after they settle into their rooms another stranger, Quish ([[David Wells , arrives to join the group, and Ben notices the odd fact that Quish's clothes have a fine covering of ash. Ben's suspicions are heightened by events of the next day. Quish has a minor accident while walking through the town and Wilson helps him, in the process recovering Quish's dropped American passport. Looking through it, Ben discovers that the stamps within include locations inside the United States and dates that are many decades apart. The local doctor then shows Ben an X-ray of Quish's head, which reveals that there is a mysterious object embedded in his skull. As they leave the surgery, Wilson confronts Quish, having deduced that the stamps correspond to the times and places of famous disasters, including the 1906 San Francisco Earthquake, the crash of the Hindenburg and the Mt St. Helens volcanic eruption . Unnerved, Quish will only respond by warning Wilson to leave town immediately and not return until he is sure it is safe. Meanwhile, unbeknownst to Ben, his vengeful father-in-law, Judge Caldwell  &mdash; who blames Ben for his daughter's death &mdash; has secretly arranged to have Hilary taken away from Ben on the grounds that he is an unfit parent. When Ben returns home he finds Hilary gone and confronts the Judge but is threatened with arrest; defeated, he goes to stay at the local hotel. There he visited by Reeve, one of the Tourists, who confirms his suspicions about their true nature: they are time-travellers from the future who visit the scenes of famous disasters as part of a \"Grand Tour\" of the past. She then gives Ben a euphoric substance and seduces him, leaving him unconscious. Late that night Ben he is found and revived by Oscar and they return to the guest house to find out why the Tourists have come, but minutes later the town is struck by a large meteorite, resulting in almost total destruction. Ben races to the Judge's shattered home, where he finds Hilary alive; heading back into town he finds the hotel destroyed and his friends dead, while the Tourists stroll through the devastation with an air of detached fascination. Ben and Hilary work through the night helping the survivors, who are taken to Hilary's local school, which has become the local disaster relief centre. When Ben and Oscar return to the guest house the next day, Ben is alarmed to discover that, although the tourists have left the house, their luggage is still there. He and Oscar track them to an abandoned factory outside the town, where Ben realises that they are awaiting a second disaster which is about to strike the school. The tourists try to detain him but he evades them and races to the scene hoping to save Hilary. Meanwhile, maintenance workers accidentally damage a gas pipe line in the boiler room of the school and just as Ben arrives a hurricane lamp in the gymnasium ignites the leaking gas, destroying the school in a massive blast and killing most of the people inside, including Hilary and Quish, who has followed Ben to the building. Ben regains consciousness to find that he has been taken prisoner by the Tourists and that an official from their time, the Undersecretary , has arrived to investigate and try to remedy the disruptions to Ben's \"Timescape\". He explains that his people have discovered that time is more resilient than they had first believed but, because of the changes enacted by Ben and the Tourists, all time excursions have been suspended pending a full investigation. Just before they depart Ben attacks Reeve for her lack of humanity, but as she leaves she embraces him, secretly slipping Quish's passport into his hand. On examining the passport Ben discovers that it conceals one of the Tourists' time travel devices. He eventually makes it work, and returns to the previous evening to try and save his daughter and the townsfolk from the disaster. Realising that Hilary is then at her grandfather's house, he tries to sneak her away but he is caught and thrown into jail, which is itself soon to be destroyed. However he convinces the deputy to allow him his one phone call and manages to contact his pre-existing self at the hotel, just as that self is meeting with Reeve. This alternate self helps the 'original' Ben to escape from the jail and together they manage to alert and save most of the people by ringing the bells in the old church on the other side of town. Leaving Hilary with his 'earlier' self, the 'original' Ben walks through the scene of the impact; there he is again confronted by the Undersecretary, who had returned to take Ben back to his proper point in time. He warn Ben not to interfere any further and threatens to alter the past again to eliminate Ben's actions, but Ben challenges him by arguing that if the Undersecretary's assertions were true, his people would have already done so. In the final scene, we see Hilary taking bookings for the now-completed guest house while Ben reads through old love letters from his late wife. When Hilary looks up, Ben has vanished, and as the movie closes Hilary suddenly hears and is drawn towards the sound of someone playing her mother's favourite tune on the piano.",
+      "score": 0.29561153,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "13280124",
+      "title": "Grand Tour: Disaster in Time",
+      "release_date": "1992-05-09",
+      "release_year": "1992",
+      "genres": "Thriller; Science Fiction; Adventure; Television movie; Action/Adventure; Disaster; Time travel",
+      "cast": "David Wells; Emilia Crow; Willie Rack; Mimi Craven; Time Winters; Anna Neill; Jim Haynie; Robert Colbert; George Murdock; Ariana Richards; Jeff Daniels; Marilyn Lightstone; Nicholas Guest"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/1954?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/46139?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/49160?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 1954,
+      "media_type": "movie",
+      "title": "The Butterfly Effect",
+      "original_title": "The Butterfly Effect",
+      "overview": "A young man struggles to access sublimated childhood memories. He finds a technique that allows him to travel back into the past, to occupy his childhood body and change history. However, he soon finds that every change he makes has unexpected consequences.",
+      "vote_average": 7.578,
+      "release_date": "2004-01-17",
+      "original_language": "en",
+      "poster_path": "/ea5iv7TWMh18fOKoRGgmtcg85Gx.jpg"
+     },
+     {
+      "id": 46139,
+      "media_type": "movie",
+      "title": "Journey to the Center of Time",
+      "original_title": "Journey to the Center of Time",
+      "overview": "Scientists must prove their time travel experiments can produce results, so their funding won't be cut off. They push their equipment, and travel 5000 years into the future, where they encounter aliens who are looking for a planet to colonize.",
+      "vote_average": 4.0,
+      "release_date": "1967-05-31",
+      "original_language": "en",
+      "poster_path": "/8hoM0XajwMQhsTGgW9TnCvgtqMV.jpg"
+     },
+     {
+      "id": 49160,
+      "media_type": "movie",
+      "title": "The Time Travelers",
+      "original_title": "The Time Travelers",
+      "overview": "Research scientists experimenting with time warps are accidentally propelled forward into an unbearable future.",
+      "vote_average": 5.1,
+      "release_date": "1964-10-29",
+      "original_language": "en",
+      "poster_path": "/cc3deOS6bejonPRPLsbZBg1LlPN.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "r01",
+  "kind": "rag",
+  "text": "Consigliami 5 film sul viaggio nel tempo con un finale triste"
+ },
+ "seconds": 30.5
+}

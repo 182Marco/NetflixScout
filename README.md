@@ -2,6 +2,18 @@
 
 This repository integrates the RAG modules into a reproducible local pipeline and a public runtime entrypoint.
 
+# ▶▶▶ PRIMA DI TUTTO: AVVIA QDRANT (serve per usare il progetto)
+
+# `cd /Users/filippo.milzagmail.com/Desktop/NetflixScout`
+
+# `QDRANT_BIN=/private/tmp/claude-501/-Users-filippo-milzagmail-com-Desktop-NetflixScout/5bfd1d87-098f-47f2-91bf-6c2ea5a37f18/scratchpad/qdrant_server/bin/qdrant ./scripts/start_qdrant.sh`
+
+**Da eseguire dalla radice del progetto**, in un terminale a parte che resta aperto (Ctrl+C per fermarlo). Ascolta solo su `127.0.0.1:6333` e apre lo storage reale
+`/Users/filippo.milzagmail.com/Desktop/NetflixScout/dbVettoriale/qdrant_openai/storage` (collezione `netflix_scout`, 42.522 punti). Il binario (Qdrant **1.20.0**, verificato con `--version`) si trova nella cartella
+temporanea di sessione indicata sopra, che il sistema può svuotare: se manca, va riscaricato (release ufficiale `qdrant/qdrant` v1.20.0, asset `qdrant-x86_64-apple-darwin.tar.gz`) e
+`QDRANT_BIN` punta al nuovo file. Dettagli: `docs/qdrant_migration/server.md`. Senza server, `python app.py` e `uvicorn web_api.main:app` si fermano con una riga: `Error: Cannot reach Qdrant ...`.
+Per tornare a Chroma: `VECTORSTORE_ENGINE=chroma` (vedi `docs/qdrant_migration/rollback.md`).
+
 ## Project Layout
 
 ```text
@@ -100,7 +112,7 @@ From repository root:
 python -m venv .venv
 .venv\Scripts\activate
 pip install --upgrade pip
-pip install openai python-dotenv pydantic chromadb numpy rank-bm25 cohere beautifulsoup4 markdown-it-py pypdf python-docx sentence-transformers
+pip install openai python-dotenv pydantic chromadb qdrant-client==1.20.0 numpy rank-bm25 cohere beautifulsoup4 markdown-it-py pypdf python-docx sentence-transformers
 ```
 
 ## Download the Dataset
@@ -144,6 +156,18 @@ What the build does:
 4. Chunks text with `tool.rag.EmbeddingProcess.chunk` semantic chunking (`chunk_semantic`).
 5. Embeds chunks with `tool.rag.FromQueryEmbeddingToRes.embeddings`.
 6. Indexes into Chroma via `tool.rag.FromQueryEmbeddingToRes.vectorstore` APIs.
+
+### Semantic search and Qdrant (default engine)
+
+Why: recommendations must match meaning, not words: every plot is stored as a 1536-number vector (`text-embedding-3-small`) and a question is turned into a vector the same way; the closest plots are returned (cosine similarity), optionally fused with keyword search (BM25, `hybrid`) and reranked (Cohere). Qdrant stores the 42,522 points (vector + plot text + metadata) and finds neighbours with an HNSW index. The 42,522 existing vectors were migrated unchanged and checked point by point; the index was also rebuilt from the dataset and found equivalent. Full guide, results and limits: `docs/qdrant_migration/README.md`.
+
+#### Qdrant engine
+
+To rebuild the index on Qdrant from the dataset (new collection, nothing is overwritten; paid OpenAI embeddings): `python buildSemanticDb.py --engine qdrant --qdrant-mode embedded --qdrant-path NEW_FOLDER` (or `--qdrant-mode server --qdrant-url URL --collection NEW_NAME`); see `docs/qdrant_migration/rebuild.md`.
+
+The index can also be served by Qdrant (`VECTORSTORE_ENGINE=qdrant`, with `VECTORSTORE_QDRANT_MODE=embedded|server`, `VECTORSTORE_QDRANT_URL` / `VECTORSTORE_QDRANT_PATH`). The existing OpenAI vectors are migrated without recomputing them (`python -m tool.rag.EmbeddingProcess.migrate_chroma_to_qdrant`, then `validate_migration`); the full procedure, thresholds and results are in `docs/qdrant_migration/`. Qdrant is now the default engine (a Qdrant 1.20.0 server must be running at `http://127.0.0.1:6333` on the folder `dbVettoriale/qdrant_openai/storage`, e.g. the official binary started with `QDRANT__SERVICE__HOST=127.0.0.1 QDRANT__STORAGE__STORAGE_PATH=dbVettoriale/qdrant_openai/storage ./qdrant` run from a folder outside the repository; set `VECTORSTORE_ENGINE=chroma` to go back to the old Chroma folder, which is kept; see `docs/qdrant_migration/rollback.md` for a way that alters no storage). The rebuild from the dataset was run and validated (`docs/qdrant_migration/rebuild/rebuild_report.md`). Install `qdrant-client==1.20.0` (pinned in `requirements.txt` together with the server version used for the tests).
+
+Films cited by the user and missing from the index can be added from TMDb (`CONFIG["catalog"]["enabled"]`, **off** by default and not yet calibrated); see `docs/qdrant_migration/catalog/README.md`.
 
 ## Verify Build
 

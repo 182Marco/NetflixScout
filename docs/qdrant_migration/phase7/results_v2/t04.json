@@ -1,0 +1,127 @@
+{
+ "answer": "Secondo la classifica TMDb del **26 ottobre 2026**, questi sono i titoli attualmente in evidenza, nell’ordine restituito:\n\n1. **Spider-Man: Brand New Day** (2026)  \n   Generi: fantascienza, azione, avventura  \n   **Voto TMDb: 8,5/10**  \n   Sono trascorsi quattro anni dagli eventi di *No Way Home* e Peter è ormai un adulto che vive completamente da solo, dopo essersi volontariamente cancellato dalla vita e dai ricordi delle persone che ama.\n\n2. **L’ultima missione: Project Hail Mary** (2026)  \n   Generi: fantascienza, avventura  \n   **Voto TMDb: 8,6/10**  \n   L’insegnante di scienze Ryland Grace si sveglia su un’astronave lontano anni luce da casa, senza alcun ricordo di chi sia o di come sia arrivato lì.\n\n3. **Avengers: Doomsday** (2026)  \n   Generi: fantascienza, azione, avventura  \n   **Voto TMDb: non disponibile**  \n   Gli universi si scontrano e la Saga del Multiverso inizia il suo capitolo finale. Gli eroi di tre universi distinti affrontano una minaccia esistenziale.\n\n4. **Hope** (2026)  \n   Generi: fantascienza, mistero, azione  \n   **Voto TMDb: 6,8/10**  \n   I rinforzi vengono richiamati per fronteggiare devastanti incendi boschivi, mentre ogni comunicazione con l’esterno viene interrotta. Nel posto di polizia di Hope, il comandante Bum-seok e l’agente Sung-ae lottano per proteggere il villaggio.\n\n5. **Odissea** (2026)  \n   Generi: avventura, azione, fantasy  \n   **Voto TMDb: 8,0/10**  \n   Mentre il mare diventa il suo più grande nemico, Ulisse affronta un cammino fatto di illusioni, battaglie e prove impossibili.\n\nI voti indicati sono **voti del pubblico su TMDb**, non valutazioni della critica.",
+ "tools": [
+  "tmdb_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Quali sono i film più popolari del momento?",
+    "used": "Quali sono i film più popolari del momento?",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "tmdb_search",
+    "purpose": "Elenco dei film più popolari del momento",
+    "arguments": {
+     "query": "Quali sono i film più popolari del momento?",
+     "requests": [
+      {
+       "operation": "chart",
+       "media": "movie",
+       "chart": "popular",
+       "limit": 20
+      }
+     ]
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "tmdb_search",
+    "elapsed_ms": 271,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/movie/popular?api_key=***",
+     "https://api.themoviedb.org/3/genre/movie/list?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 969681,
+      "media_type": "movie",
+      "title": "Spider-Man: Brand New Day",
+      "original_title": null,
+      "overview": "Sono trascorsi quattro anni dagli eventi di No Way Home e Peter è ormai un adulto che vive completamente da solo, essendosi volontariamente cancellato dalla vita e dai ricordi di coloro che ama. …",
+      "vote_average": 8.473,
+      "release_date": "2026-07-29",
+      "original_language": "en",
+      "poster_path": "/1GI1iyqqsaykl7LNKVwHLiorDhE.jpg"
+     },
+     {
+      "id": 687163,
+      "media_type": "movie",
+      "title": "L'ultima missione: Project Hail Mary",
+      "original_title": "Project Hail Mary",
+      "overview": "L’insegnante di scienze Ryland Grace si sveglia su un’astronave lontano anni luce da casa senza alcun ricordo di chi sia o di come sia arrivato lì. …",
+      "vote_average": 8.634,
+      "release_date": "2026-03-15",
+      "original_language": "en",
+      "poster_path": "/gPC1X3mwqwX50Ye3qwwPt7iW3Ma.jpg"
+     },
+     {
+      "id": 1003596,
+      "media_type": "movie",
+      "title": "Avengers: Doomsday",
+      "original_title": null,
+      "overview": "Gli universi si scontrano e la Saga del Multiverso inizia il suo capitolo finale. Gli amati eroi di tre universi distinti si troveranno su una rotta di collisione mortale e dovranno affrontare una minaccia esistenziale diversa da qualsiasi altra abbiano mai incontrato.",
+      "vote_average": null,
+      "release_date": "2026-12-16",
+      "original_language": "en",
+      "poster_path": "/6uOkzW0gF1ANWz2flhwXfTUQuLY.jpg"
+     },
+     {
+      "id": 1058424,
+      "media_type": "movie",
+      "title": "Hope",
+      "original_title": "호프",
+      "overview": "I rinforzi sono stati richiamati per fronteggiare i devastanti incendi boschivi e ogni comunicazione con l’esterno è stata interrotta. Nel piccolo posto di polizia di Hope, il comandante Bum-seok e l’agente Sung-ae lottano per proteggere un villaggio popolato quasi esclusivament…",
+      "vote_average": 6.794,
+      "release_date": "2026-07-15",
+      "original_language": "ko",
+      "poster_path": "/fbFxZSSw2kQoAkyXosVoOyBX0Z4.jpg"
+     },
+     {
+      "id": 1368337,
+      "media_type": "movie",
+      "title": "Odissea",
+      "original_title": "The Odyssey",
+      "overview": "Ogni leggenda ha un prezzo. Ogni ritorno richiede un sacrificio. Mentre il mare diventa il suo più grande nemico, Ulisse affronta un cammino fatto di illusioni, battaglie e prove impossibili. Un'epica odissea che mette alla prova il coraggio di un uomo contro il volere degli dèi.",
+      "vote_average": 8.0,
+      "release_date": "2026-07-15",
+      "original_language": "en",
+      "poster_path": "/qQhInj9fw3S2bMbiEujVldthgKe.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "t04",
+  "kind": "tmdb",
+  "text": "Quali sono i film più popolari del momento?"
+ },
+ "seconds": 19.0
+}

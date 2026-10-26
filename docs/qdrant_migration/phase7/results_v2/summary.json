@@ -1,0 +1,111 @@
+{
+ "counts": {
+  "completed": 20,
+  "partial": 0,
+  "missed": 0,
+  "error": 0
+ },
+ "results": [
+  {
+   "id": "r01",
+   "auto_class": "completed",
+   "reasons": []
+  },
+  {
+   "id": "r02",
+   "auto_class": "completed",
+   "reasons": []
+  },
+  {
+   "id": "r03",
+   "auto_class": "completed",
+   "reasons": []
+  },
+  {
+   "id": "r04",
+   "auto_class": "completed",
+   "reasons": []
+  },
+  {
+   "id": "r05",
+   "auto_class": "completed",
+   "reasons": []
+  },
+  {
+   "id": "r06",
+   "auto_class": "completed",
+   "reasons": []
+  },
+  {
+   "id": "r07",
+   "auto_class": "completed",
+   "reasons": []
+  },
+  {
+   "id": "r08",
+   "auto_class": "completed",
+   "reasons": []
+  },
+  {
+   "id": "r09",
+   "auto_class": "completed",
+   "reasons": []
+  },
+  {
+   "id": "r10",
+   "auto_class": "completed",
+   "reasons": []
+  },
+  {
+   "id": "d01",
+   "auto_class": "completed",
+   "reasons": []
+  },
+  {
+   "id": "d02",
+   "auto_class": "completed",
+   "reasons": []
+  },
+  {
+   "id": "d03",
+   "auto_class": "completed",
+   "reasons": []
+  },
+  {
+   "id": "t01",
+   "auto_class": "completed",
+   "reasons": []
+  },
+  {
+   "id": "t02",
+   "auto_class": "completed",
+   "reasons": []
+  },
+  {
+   "id": "t03",
+   "auto_class": "completed",
+   "reasons": []
+  },
+  {
+   "id": "t04",
+   "auto_class": "completed",
+   "reasons": []
+  },
+  {
+   "id": "m01",
+   "auto_class": "completed",
+   "reasons": []
+  },
+  {
+   "id": "f01",
+   "auto_class": "completed",
+   "reasons": []
+  },
+  {
+   "id": "x01",
+   "auto_class": "completed",
+   "reasons": []
+  }
+ ],
+ "note": "mechanical pre-classification, not a verdict"
+}

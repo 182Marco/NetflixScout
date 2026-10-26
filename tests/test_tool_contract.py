@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import urllib.request
+
+import pytest
+
 from app import CONFIG
 from orchestrator import LLMOrchestrator
 from tool.rag.FromQueryEmbeddingToRes.tool_interface import RagTool
@@ -13,7 +17,27 @@ def test_app_config_has_orchestrator_and_rag_sections() -> None:
     assert "generation" in CONFIG["rag"]
 
 
+def _qdrant_server_answers() -> tuple[bool, str]:
+    store = CONFIG["rag"]["vectorstore"]
+    if store.get("engine") != "qdrant":
+        return True, ""  # another engine: nothing to probe, the test runs and fails on its own errors
+    url = (store.get("qdrant") or {}).get("url") or ""
+    try:
+        urllib.request.urlopen(url, timeout=2).close()
+        return True, url
+    except Exception:  # noqa: BLE001  (unreachable is the only thing this probe decides)
+        return False, url
+
+
+@pytest.mark.integration
 def test_rag_tool_returns_structured_results() -> None:
+    """Integration: the default engine (Qdrant server on the configured URL) plus real OpenAI/Cohere calls.
+
+    Skipped ONLY when the Qdrant server does not answer; once it answers, any failure is a real failure.
+    """
+    reachable, url = _qdrant_server_answers()
+    if not reachable:
+        pytest.skip(f"integration test: needs the Qdrant server at {url} (and OpenAI/Cohere keys); start it to run")
     tool = RagTool(config=CONFIG["rag"])
     result = tool.run(query="film con fantasia e avventura", params={}, conversation_history=[])
 

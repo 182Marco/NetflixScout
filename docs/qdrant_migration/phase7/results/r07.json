@@ -1,0 +1,437 @@
+{
+ "answer": "Posso proporti questi 3 titoli di guerra. Tuttavia, per tutti e tre il tono non tragico e gli altri aspetti richiesti non sono verificabili dai dati disponibili.\n\n1. **The Big Red One (1980)**  \n   **Regia:** Samuel Fuller  \n   **Cast principale:** Lee Marvin, Mark Hamill, Robert Carradine, Bobby Di Cicco, Kelly Ward  \n   **Sinossi:** Un sergente veterano della Prima guerra mondiale guida una squadra durante la Seconda guerra mondiale, attraversando il Nordafrica, la Sicilia, lo sbarco a Omaha Beach, il Belgio e la Francia, fino a un campo di concentramento in Cecoslovacchia, dove i soldati affrontano gli orrori della guerra.  \n   **Voto TMDb:** 6,7/10 (360 voti)  \n   **Vincoli:** film di guerra **verificato**; tono non tragico, film bellico leggero, elementi avventurosi, esito positivo, finale fortemente drammatico e atmosfera fortemente drammatica **non verificabili**.\n\n2. **Hell on Earth (1931)**  \n   **Regia:** George Shdanoff e Victor Trivas  \n   **Cast principale:** Ernst Busch, Vladimir Sokoloff, Renée Stobrawa, Elisabeth Lennartz, Hugh Douglas  \n   **Sinossi:** Durante la Prima guerra mondiale, un rifugio ricavato nel seminterrato di una casa in rovina si trova nella terra di nessuno tra le trincee. Un soldato vi scopre un uomo ferito e intrappolato; due uomini appartenenti a schieramenti diversi cercano di aiutarlo e di tornare alle rispettive linee, ma il fuoco di entrambi gli eserciti li costringe a rimanere nel rifugio.  \n   **Voto TMDb:** 6,6/10 (6 voti)  \n   **Vincoli:** film di guerra **verificato**; tono non tragico, film bellico leggero, elementi avventurosi, esito positivo, finale fortemente drammatico e atmosfera fortemente drammatica **non verificabili**.\n\n3. **So Proudly We Hail! (1943)**  \n   **Regia:** Mark Sandrich  \n   **Cast principale:** Claudette Colbert, Paulette Goddard, Veronica Lake, George Reeves, Barbara Britton  \n   **Sinossi:** All’inizio della campagna del Pacifico, la tenente Janet Davidson guida un gruppo di infermiere militari statunitensi intrappolate dietro le linee nemiche nelle Filippine. Davidson cerca di sostenere il morale delle sue collaboratrici, tra cui le tenenti Joan O’Doul e Olivia D’Arcy. La storia comprende anche le loro esperienze quotidiane, gli aiuti medici e le relazioni con alcuni soldati.  \n   **Voto TMDb:** 5,722/10 (27 voti)  \n   **Vincoli:** film di guerra **verificato**; tono non tragico, film bellico leggero, elementi avventurosi, esito positivo, finale fortemente drammatico e atmosfera fortemente drammatica **non verificabili**.\n\nQuindi, il RAG ha individuato tre film bellici, ma i dati disponibili non permettono di confermare che siano **non tragici**.",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Consigliami 3 film di guerra non tragici",
+    "used": "Consigliami 3 film di guerra non tragici",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Trovare 3 film di guerra non tragici, privilegiando titoli più leggeri, avventurosi o con esito positivo",
+    "arguments": {
+     "query": "Consiglia 3 film di guerra con tono non tragico, evitando finali o atmosfere fortemente drammatiche e concentrandosi su film bellici più leggeri, avventurosi o con esito positivo",
+     "k_finale": 3,
+     "search_mode": null
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 4740,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "semantic",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "semantic",
+      "k_largo": 10,
+      "k_finale": 3,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": []
+    },
+    "standalone_query": "Consigliami 3 film di guerra non tragici",
+    "planner_query": "Consiglia 3 film di guerra con tono non tragico, evitando finali o atmosfere fortemente drammatiche e concentrandosi su film bellici più leggeri, avventurosi o con esito positivo",
+    "embedded_text": "War films with a non-tragic tone, lighter adventurous elements, and a positive or hopeful outcome.",
+    "signals": {
+     "positive_signals": [
+      "tono non tragico",
+      "film bellici leggeri",
+      "avventurosi",
+      "esito positivo"
+     ],
+     "negative_signals": [
+      "finali fortemente drammatici",
+      "atmosfere fortemente drammatiche"
+     ],
+     "hard_exclusions": [],
+     "semantic_query": "War films with a non-tragic tone, lighter adventurous elements, and a positive or hopeful outcome.",
+     "genres": [
+      "War film"
+     ],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-009854-000000",
+      "testo": "Oh! What A Lovely War summarizes and comments on the story of World War I using popular songs of the time, many of which were parodies of older popular songs, and using allegorical settings such as Brighton's West Pier to portray historical events. The diplomatic manoeuvrings and events involving those in authority are set in a fantasy location inside the pierhead pavilion, far from the trenches. In the opening scene various Foreign Ministers, generals and Heads of State walk over a huge map of Europe, reciting actual words spoken by these figures at the time. An unnamed photographer takes a picture of Europe's rulers - after handing two red poppies to the Archduke Ferdinand and his wife, the Duchess of Hohenberg he takes their picture, 'assassinating' them as the flash goes off. Many of the heads of state enjoy good personal relations and are reluctant to go to war: a tearful Emperor Franz Josef declares war on Serbia after being deceived by his Foreign Minister, whilst Czar Nicholas II and Kaiser Wilhelm II are shown as unable to overrule their countries' military mobilisation schedules. The German invasion of Belgium leaves Sir Edward Grey little choice but to get involved. Italy reneges on her alliance with the Central Powers  but Turkey joins them instead. The start of the war in 1914 is shown as a parade of optimism. The protagonists are an archetypal British family of the time, the Smiths, who are shown entering Brighton's West Pier, with General Haig selling tickets - the film later follows the young Smith men through their experiences in the trenches. A military band rouses holidaymakers from the beach to rally round and follow - some even literally boarding a bandwagon. The first Battle of Mons is similarly cheerfully depicted yet more realistic in portrayal. Both scenes are flooded in pleasant sunshine. When the casualties start to mount, a theatre audience is rallied by singing \"Are We Downhearted? No!\" A chorus line dressed in frilled yellow dresses, recruits a volunteer army with \"We don't want to lose you, but we think you ought to go\". A music hall star  then enters a lone spotlight, and lures the still doubtful young men in the audience into \"taking the King's Shilling\" by singing about how every day she 'walks out' with different men in uniform, and that \"On Saturday I'm willing, if you'll only take the shilling, to make a man of any one of you.\" The young men take to the stage and are quickly moved offstage and into military life, and the initially alluring music hall singer is depicted on close-up as a coarse, over-made-up harridan. The red poppy crops up again as a symbol of impending death, often being handed to a soldier about to be sent to die. These scenes are juxtaposed with the pavilion, now housing the top military brass. There is a scoreboard  showing the loss of life and 'yards gained'. Outside, Sylvia Pankhurst  is shown addressing a hostile crowd on the futility of war, upbraiding them for believing everything they read in the newspapers. She is met with catcalls and jeered off her podium. 1915 is depicted as darkly contrasting in tone. Many shots of a parade of wounded men illustrate an endless stream of grim, hopeless faces. Black humour among these soldiers has now replaced the enthusiasm of the early days. \"There's A Long, Long Trail A-Winding\" captures the new mood of despair, depicting soldiers filing along in torrential rain in miserable conditions. Red poppies provide the only bright colour in these scenes. In a scene of British soldiers drinking in an estaminet, a chanteuse  leads them in a jolly chorus of \"The Moon Shines Bright On Charlie Chaplin\", a reworking of an American song then shifts the mood back to darker tone by singing a soft and sombre version of \"Adieu la vie\". At the end of the year, amidst more manoeuvres in the pavilion, General  Sir Douglas Haig replaces Field Marshal Sir John French as Commander-in-Chief of the British Forces. An interfaith service is held in a ruined abbey. A priest tells the gathered soldiers that each religion has endorsed the war by way of allowing soldiers to eat pork if Jewish, meat on Fridays if Catholic, and work through the sabbath if in service of the war for all religions. He also mentions the Dalai Lama has blessed the war effort. 1916 passes and the film's tone darkens again. The songs contain contrasting tones of wistfulness, stoicism, and resignation; including \"The Bells Of Hell Go Ting-a-ling-a-ling\", \"If The Sergeant Steals Your Rum, Never Mind\" and \"Hanging on the Old Barbed Wire\". The wounded are laid out in ranks at the field station, a stark contrast to the healthy rows of young men who entered the War. The camera often lingers on Harry Smith's silently suffering face. The Americans arrive, but are shown only in the 'disconnected reality' of the pavilion, interrupting the deliberations of the British generals by singing \"Over There\" with the changed final line: \"And we won't come back - we'll be buried over there!\" The resolute-looking American captain seizes the map from an astonished Haig. Jack notices with disgust that after three years of fighting, he is literally back where he started, at Mons. As the Armistice is sounding, Jack is the last one to die. There is a splash of red which at first glance appears to be blood, but which turns out to be yet another poppy out of focus in the foreground. The film closes with a long slow pan out that ends in a dizzying aerial view of soldiers' graves, as the voices of the dead sing \"We'll Never Tell Them\" .",
+      "score": 0.63304374,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "174437",
+      "title": "Oh! What a Lovely War",
+      "release_date": "1969-03-10",
+      "release_year": "1969",
+      "genres": "Anti-war; Musical comedy; Musical; Satire; Comedy; War film; Black comedy; Anti-war film",
+      "cast": "Angela Thorne; John Clements; Ralph Richardson; Vincent Ball; Maggie Smith; Jean-Pierre Cassel; John Mills; Paul Shelley; Laurence Olivier; Mary Wimbush; Michael Redgrave; Susannah York; Ian Holm; Maurice Roeves; Wendy Alnutt; Paul Daneman; Juliet Mills; Dirk Bogarde; Vanessa Redgrave; Kenneth More; Phyllis Calvert; Kim Smith; Jack Hawkins; Malcolm McFee; John Gielgud; Corin Redgrave"
+     },
+     {
+      "id": "edb95c357b3b-019624-000000",
+      "testo": "The film opens with footage of the war prior to America's entry, including many areas where the US never became involved, such as the Italian Front and the conquest of Palestine. The lead-up to America's entry is covered with President Woodrow Wilson warning the Germans about unrestricted submarine warfare. From that point on, the film takes the viewer to the front line of the Western Front during the final months of the Great War. In between the usual combat footage, which is considerable, there are many \"human interest\" clips about doughboys on KP, using slop buckets, digging trenches, even one of their lion mascot. Those shots are accompanied by a still cartoon soldier resembling Private SNAFU. The combat footage, which includes some graphic scenes of the dead and wounded, is accompanied by animated maps of the front, and the gradual inching toward Germany.",
+      "score": 0.60857776,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "8696631",
+      "title": "America Goes Over",
+      "release_date": "1918",
+      "release_year": "1918",
+      "genres": "Silent film; War film; Indie; Black-and-white; Documentary",
+      "cast": null
+     },
+     {
+      "id": "edb95c357b3b-008554-000000",
+      "testo": "In an edit added to the film before public release, a comment by Henry L. Stimson, the Secretary of War at the time, was quoted to create trust with the audience, “the purpose of these films is to give factual information as to the causes, the events leading up to our entry into the war and the principles for which we are fighting.” The purpose of the OWI was to use mass communication to sell the war and to define Americans' perception of the reality of war; therefore, they released Prelude to War to further these goals.Kurash, J. \"A Prelude to War\" . Retrieved from http://www.army.mil The film commences with an explanation of how Americans were brought into the war through heroic motives to protect countries unable to protect themselves. America had this duty to righteousness and Christian values throughout history, according to the values and beliefs set forth by the founding fathers.Wilkins, J.N. America’s Christian FoundationGerman, Kathleen. “Frank Capra’s Why We Fight Series and the American Audience.” Western Journal of Speech Communication 54. : 237–248. The documentary makes use of compare and contrast methods throughout the film in order to transmit its heroic message. The primary images used within the film to portray the opponents of America are introduced by Henry Wallace as the “free world”&nbsp;— a brightly-illuminated planet of the Allies, and a “slave world” as a planet deep in shadow of the Axis Powers. It examines the differences between this free, democratic state and the slave, fascist state represented by Benito Mussolini, Adolf Hitler and Yamamoto working together as gangsters to conquer the world. In order to do this, Capra made use of footage from Triumph of the Will, but with different narration designed to support the Allied cause. It is brought to the audience’s attention that after the Nazis smashed the opposing political parties and labor unions they turned their attention to their last remaining obstacle&nbsp;— the church. In one scene a stained glass window is shattered by several bricks to reveal a “Heil Hitler!” poster behind. To emphasize this depiction of Hitler as an antichrist figure, a class of German schoolchildren is shown singing: Adolf Hitler is our Saviour, our heroHe is the noblest being in the whole wide world.For Hitler we live,For Hitler we die.Our Hitler is our LordWho rules a brave new world.",
+      "score": 0.5971394000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "3327607",
+      "title": "Prelude to War",
+      "release_date": "1943-05-27",
+      "release_year": "1943",
+      "genres": "History; War film; Black-and-white; Documentary",
+      "cast": null
+     },
+     {
+      "id": "edb95c357b3b-022145-000000",
+      "testo": "The playlet involves a young woman coming home, tired, after a busy day at a war plant. Each time she comes in there is a letter from her husband overseas, and she remembers their conversations before he went off to war. She was concerned about him, because she felt it was a \"young man's war\" and he should stay home with her and the baby. However he was insistent that his country needed him. The plot then turns to the husband trying to manage his ship while it is being attacked by a submarine. The next day, the woman receives another letter from her husband, who is shown in double exposure, reminding her that freedom comes high, often at the price of human lives. The door bell rings, and it is a Western Union telegram, saying that her husband died. The point of the film was to communicate to the American people that many of their sons and husbands who were going overseas, would not be coming back, and that they would have to understand they would be sacrificing their loved ones to secure freedom. Given the extraordinary sensitivity of the subject matter, the government short is notable both as propaganda and as a meditation on what has to be sacrificed for the maintenance of freedom.",
+      "score": 0.59048316,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "11786000",
+      "title": "Freedom Comes High",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Short Film; Propaganda film; War film",
+      "cast": null
+     },
+     {
+      "id": "edb95c357b3b-040463-000000",
+      "testo": "The film combines two storylines: the main war drama plot is paralled with vivid artistic performance - the fighter squadron doubles as an amateur musical group during rest time, lead by its enthusiastic commander turned conductor. The title comes from two scenes in the film, where the squadron is facing very hard dogfights with German fighter planes, so only \"old men\" are sent up, while those fresh from flying school have to wait on the ground together with the mechanics. Soon, of course, the newcomers have replaced most of those veterans and have become \"old men\" themselves, taking to the skies while a new group of newcomers wait on the ground with the mechanics.",
+      "score": 0.58625176,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "26111263",
+      "title": "Only Old Men Are Going to Battle",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Musical; War film",
+      "cast": null
+     },
+     {
+      "id": "edb95c357b3b-023480-000000",
+      "testo": "The story covers many day to day events, and contrasts the brutality of war against the sometimes futile efforts of the nurses to provide medical aid and comfort. There are several striking moments in the movie, including a shocking \"self-sacrifice\" by a female character to save her fellow nurses. Each of the nurses has a past or present love story with a soldier, with the longest term and most interesting romance the one between the characters played by Colbert and George Reeves. The flashback narration gives a sense of historical import and resonance. The sequence where the nurses and injured soldiers are stranded in Malinta Tunnel pinned down by aircraft fire, is one of the more claustrophobic scenes in wartime cinema. Moviegoers of the time found great timeliness in the movie, since MacArthur and the battles for Bataan, and Corregidor were familiar to every American. Although the love-story plot line is the primary thrust of the film, the difficulties and emotional toll of war are strongly shown.",
+      "score": 0.58203757,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "1482867",
+      "title": "So Proudly We Hail!",
+      "release_date": "1943",
+      "release_year": "1943",
+      "genres": "Action/Adventure; Action; Drama; Black-and-white; War film",
+      "cast": "Veronica Lake; Sonny Tufts; Claudette Colbert; Paulette Goddard; George Reeves; Walter Abel; Barbara Britton; Yvonne De Carlo; Ted Hecht"
+     },
+     {
+      "id": "edb95c357b3b-029626-000000",
+      "testo": "The filmmakers follow the journey of five American veterans from World War II, the Vietnam War, the Gulf War, and the Iraq War as they sign up, participate in battle and finally change their perspective about the real meaning of war and being a good soldier. At the end, The Good Soldier poses the question: \"What is it that makes a good soldier? Is it the ability to kill other human beings?\" The film is composed of candid interviews with the veterans, who marched eagerly to defend their country in 1944, 1966, 1991, or 2003 only to return conflicted by the atrocities they saw and participated in, and questioning what true service to your country really means, The juxtaposition of these searing interviews with jarring on-the-ground archival footage exposes the brutality of combat, and honors the bravery not only of those who fight, but those who fight for change. In ultimately choosing to work for peace in the world, the heroes profiled in this film, have begun to take steps towards peace with themselves as well.",
+      "score": 0.5818634300000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "25089152",
+      "title": "The Good Soldier",
+      "release_date": "2009-10-09",
+      "release_year": "2009",
+      "genres": "War film; Documentary",
+      "cast": null
+     },
+     {
+      "id": "edb95c357b3b-031569-000000",
+      "testo": "The film begins in black and white at the end of World War I. A Private , using his trench knife, kills a German soldier who was approaching with his arms raised and muttering in German. In the background stands a wooden crucifix, the wood infested with termites. When he returns to his company's headquarters, the private is told that the war ended \"about four hours ago.\" The 1st Division patch is shown in color. The film then transitions to a Sergeant  as he leads his squad of infantrymen through North Africa, Sicily, and then on to Omaha Beach at the start of the Battle of Normandy. The squad crosses the same field where the sergeant killed the surrendering German decades before, where a memorial now stands. The following short conversation takes place: :Johnson: Would you look at how fast they put the names of all our guys who got killed? :The Sergeant: That's a World War One memorial. :Johnson: But the names are the same. :The Sergeant: They always are. The squad then treks though Europe, ending up at the liberation of Falkenau concentration camp in Czechoslovakia. At the end of the film, the sergeant is in a forest, at night, having just buried a young boy he had befriended after liberating a concentration camp. A German soldier approaches, attempting to surrender, and the sergeant stabs him. His squad then arrives and informs him that the war ended \"about four hours ago.\" This time, as the squad walks away, one of his men notices that the German is still alive; the sergeant and his men work frantically to save his life as they return to their encampment.",
+      "score": 0.58157828,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "172666",
+      "title": "The Big Red One",
+      "release_date": "1980-07-18",
+      "release_year": "1980",
+      "genres": "Combat Films; Action; Drama; War film",
+      "cast": "Mark Hamill; Stéphane Audran; Robert Carradine; Bobby Di Cicco; Siegfried Rauch; Kelly Ward; Lee Marvin"
+     },
+     {
+      "id": "edb95c357b3b-033315-000000",
+      "testo": "The film is set in a modern war, probably between a European country and a country in the Far East. Behind the battle lines, in a medical unit, a surgeon falls in love with an idealistic nurse after an initially difficult meeting.",
+      "score": 0.57759264,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "11284825",
+      "title": "Le Toubib",
+      "release_date": "1979-10-27",
+      "release_year": "1979",
+      "genres": "Romantic drama; Drama; War film",
+      "cast": "Bernard Giraudeau; Alain Delon; Véronique Jannot"
+     },
+     {
+      "id": "edb95c357b3b-037431-000000",
+      "testo": "The film centres around a dugout, formed from a basement, in no-mans land between the trenches and forward lines during the First World War. A ruined house is found by a soldier stranded between the lines who discovers an injured man trapped beneath some woodwork in the basement. The man has no uniform and is rescued by two men who we finally realise are from different sides. The injured man cannot speak and is helped by the other two. They try to leave and return to their own lines but are fired upone by both sides and so return to the shelter of the basement. Eventually more soldiers find the safe haven in between all the firing and death with the credits listing the characters as The Englishman, The Frenchman, The Russian Jew, The Vaudevillian and The German. The storyline follows the arguments and discussions and ends with them marching out together with a final commentary declaring the sentiment of peace \"Marching forward. Defying their common enemy - WAR.\"",
+      "score": 0.57568043,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "26085169",
+      "title": "Hell on Earth",
+      "release_date": "1931-12-10",
+      "release_year": "1931",
+      "genres": "War film",
+      "cast": null
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "War films with a non-tragic tone, lighter adventurous elements, and a positive or hopeful outcome. Must match: tono non tragico; film bellici leggeri; avventurosi; esito positivo; War film.",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "War film",
+       "type": "genre",
+       "results": {
+        "The Big Red One (1980)": {
+         "status": "verified",
+         "evidence": "generi: Combat Films; Action; Drama; War film"
+        },
+        "Hell on Earth (1931)": {
+         "status": "verified",
+         "evidence": "generi: War film"
+        },
+        "So Proudly We Hail! (1943)": {
+         "status": "verified",
+         "evidence": "generi: Action/Adventure; Action; Drama; Black-and-white; War film"
+        }
+       }
+      },
+      {
+       "constraint": "tono non tragico",
+       "type": "plot_avoid",
+       "results": {
+        "The Big Red One (1980)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Hell on Earth (1931)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "So Proudly We Hail! (1943)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "film bellici leggeri",
+       "type": "plot_require",
+       "results": {
+        "The Big Red One (1980)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Hell on Earth (1931)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "So Proudly We Hail! (1943)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "avventurosi",
+       "type": "plot_require",
+       "results": {
+        "The Big Red One (1980)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Hell on Earth (1931)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "So Proudly We Hail! (1943)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "esito positivo",
+       "type": "plot_require",
+       "results": {
+        "The Big Red One (1980)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Hell on Earth (1931)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "So Proudly We Hail! (1943)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "finali fortemente drammatici",
+       "type": "plot_avoid",
+       "results": {
+        "The Big Red One (1980)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Hell on Earth (1931)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "So Proudly We Hail! (1943)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "atmosfere fortemente drammatiche",
+       "type": "plot_avoid",
+       "results": {
+        "The Big Red One (1980)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Hell on Earth (1931)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "So Proudly We Hail! (1943)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-031569-000000",
+      "testo": "The film begins in black and white at the end of World War I. A Private , using his trench knife, kills a German soldier who was approaching with his arms raised and muttering in German. In the background stands a wooden crucifix, the wood infested with termites. When he returns to his company's headquarters, the private is told that the war ended \"about four hours ago.\" The 1st Division patch is shown in color. The film then transitions to a Sergeant  as he leads his squad of infantrymen through North Africa, Sicily, and then on to Omaha Beach at the start of the Battle of Normandy. The squad crosses the same field where the sergeant killed the surrendering German decades before, where a memorial now stands. The following short conversation takes place: :Johnson: Would you look at how fast they put the names of all our guys who got killed? :The Sergeant: That's a World War One memorial. :Johnson: But the names are the same. :The Sergeant: They always are. The squad then treks though Europe, ending up at the liberation of Falkenau concentration camp in Czechoslovakia. At the end of the film, the sergeant is in a forest, at night, having just buried a young boy he had befriended after liberating a concentration camp. A German soldier approaches, attempting to surrender, and the sergeant stabs him. His squad then arrives and informs him that the war ended \"about four hours ago.\" This time, as the squad walks away, one of his men notices that the German is still alive; the sergeant and his men work frantically to save his life as they return to their encampment.",
+      "score": 0.3384274,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "172666",
+      "title": "The Big Red One",
+      "release_date": "1980-07-18",
+      "release_year": "1980",
+      "genres": "Combat Films; Action; Drama; War film",
+      "cast": "Mark Hamill; Stéphane Audran; Robert Carradine; Bobby Di Cicco; Siegfried Rauch; Kelly Ward; Lee Marvin"
+     },
+     {
+      "id": "edb95c357b3b-037431-000000",
+      "testo": "The film centres around a dugout, formed from a basement, in no-mans land between the trenches and forward lines during the First World War. A ruined house is found by a soldier stranded between the lines who discovers an injured man trapped beneath some woodwork in the basement. The man has no uniform and is rescued by two men who we finally realise are from different sides. The injured man cannot speak and is helped by the other two. They try to leave and return to their own lines but are fired upone by both sides and so return to the shelter of the basement. Eventually more soldiers find the safe haven in between all the firing and death with the credits listing the characters as The Englishman, The Frenchman, The Russian Jew, The Vaudevillian and The German. The storyline follows the arguments and discussions and ends with them marching out together with a final commentary declaring the sentiment of peace \"Marching forward. Defying their common enemy - WAR.\"",
+      "score": 0.3209814,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "26085169",
+      "title": "Hell on Earth",
+      "release_date": "1931-12-10",
+      "release_year": "1931",
+      "genres": "War film",
+      "cast": null
+     },
+     {
+      "id": "edb95c357b3b-023480-000000",
+      "testo": "The story covers many day to day events, and contrasts the brutality of war against the sometimes futile efforts of the nurses to provide medical aid and comfort. There are several striking moments in the movie, including a shocking \"self-sacrifice\" by a female character to save her fellow nurses. Each of the nurses has a past or present love story with a soldier, with the longest term and most interesting romance the one between the characters played by Colbert and George Reeves. The flashback narration gives a sense of historical import and resonance. The sequence where the nurses and injured soldiers are stranded in Malinta Tunnel pinned down by aircraft fire, is one of the more claustrophobic scenes in wartime cinema. Moviegoers of the time found great timeliness in the movie, since MacArthur and the battles for Bataan, and Corregidor were familiar to every American. Although the love-story plot line is the primary thrust of the film, the difficulties and emotional toll of war are strongly shown.",
+      "score": 0.26913023,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "1482867",
+      "title": "So Proudly We Hail!",
+      "release_date": "1943",
+      "release_year": "1943",
+      "genres": "Action/Adventure; Action; Drama; Black-and-white; War film",
+      "cast": "Veronica Lake; Sonny Tufts; Claudette Colbert; Paulette Goddard; George Reeves; Walter Abel; Barbara Britton; Yvonne De Carlo; Ted Hecht"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/16121?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/38784?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/150778?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 16121,
+      "media_type": "movie",
+      "title": "The Big Red One",
+      "original_title": "The Big Red One",
+      "overview": "A veteran sergeant of World War I leads a squad in World War II, always in the company of the survivor Pvt. Griff, the writer Pvt. Zab, the Sicilian Pvt. Vinci and Pvt. Johnson, in Vichy French Africa, Sicily, D-Day at Omaha Beach, Belgium and France, and ending in a concentration camp in Czechoslovakia where they face the true horror of war.",
+      "vote_average": 6.7,
+      "release_date": "1980-05-28",
+      "original_language": "en",
+      "poster_path": "/h0VcqQ3z1RroKk7WtiW0E6DDho2.jpg"
+     },
+     {
+      "id": 38784,
+      "media_type": "movie",
+      "title": "Hell on Earth",
+      "original_title": "Niemandsland",
+      "overview": "Hell on Earth (German: Niemandsland) is a 1931 German film directed by Victor Trivas. The film is also known as No Man's Land in France.",
+      "vote_average": 6.6,
+      "release_date": "1931-12-10",
+      "original_language": "de",
+      "poster_path": "/4fvUkF2FzdEOmexdUPTA2rPXAOc.jpg"
+     },
+     {
+      "id": 150778,
+      "media_type": "movie",
+      "title": "So Proudly We Hail",
+      "original_title": "So Proudly We Hail",
+      "overview": "During the start of the Pacific campaign in World War II, Lieutenant Janet Davidson is the head of a group of U.S. military nurses who are trapped behind enemy lines in the Philippines. Davidson tries to keep up the spirits of her staff, which includes Lieutenants Joan O'Doul and Olivia D'Arcy. They all seek to maintain a sense of normal life, including dating, while under constant danger as they tend to wounded soldiers.",
+      "vote_average": 5.722,
+      "release_date": "1943-09-09",
+      "original_language": "en",
+      "poster_path": "/1HELEee7lRd1ul37F4tQCRbGOiX.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "r07",
+  "kind": "rag",
+  "text": "Consigliami 3 film di guerra non tragici"
+ },
+ "seconds": 24.1
+}

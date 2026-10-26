@@ -1,0 +1,84 @@
+{
+ "answer": "Il protagonista di **Blade Runner 2049** è **Ryan Gosling**, nel ruolo dell’Agente K.\n\nIl film è uscito nel **2017**. La regia è di **Denis Villeneuve**.",
+ "tools": [
+  "tmdb_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Chi è il protagonista di Blade Runner 2049 e in che anno è uscito?",
+    "used": "Chi è il protagonista di Blade Runner 2049 e in che anno è uscito?",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "tmdb_search",
+    "purpose": "Protagonista e anno di uscita di Blade Runner 2049",
+    "arguments": {
+     "query": "Chi è il protagonista di Blade Runner 2049 e in che anno è uscito?",
+     "requests": [
+      {
+       "operation": "movie_details",
+       "title": "Blade Runner 2049",
+       "facets": [
+        "credits"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "tmdb_search",
+    "elapsed_ms": 680,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/335984?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 335984,
+      "media_type": "movie",
+      "title": "Blade Runner 2049",
+      "original_title": "Blade Runner 2049",
+      "overview": "Trent'anni dopo gli eventi del primo film, un nuovo blade runner, l'Agente K della Polizia di Los Angeles scopre un segreto sepolto da tempo che ha il potenziale di far precipitare nel caos quello che è rimasto della società. La scoperta di K lo spinge verso la ricerca di Rick Deckard, un ex-blade runner della polizia di Los Angeles sparito nel nulla da 30 anni.",
+      "vote_average": 7.611,
+      "release_date": "2017-10-04",
+      "original_language": "en",
+      "poster_path": "/4XJQG11Ytl8mKfgbl2jkoY5ZuFX.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "t01",
+  "kind": "tmdb",
+  "text": "Chi è il protagonista di Blade Runner 2049 e in che anno è uscito?"
+ },
+ "seconds": 5.9
+}

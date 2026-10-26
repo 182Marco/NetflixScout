@@ -1,0 +1,32 @@
+Phase 6 startup checks, 2026-10-26 12:34:49, Qdrant server 1.20.0 on 127.0.0.1:6333, collection netflix_scout (42,522 points)
+
+### 1) python app.py, stdin=exit, engine=qdrant
+╔════════════════════════════════════════════════════════════════════╗
+║  🎬 NETFLIXSCOUT — RAG SEARCH                                      ║
+╚════════════════════════════════════════════════════════════════════╝
+Digita una domanda sui film oppure 'exit'/'quit' per uscire.
+Tu > 
+Chiusura chat. A presto!
+exit status: 0  (re-measured separately, see the end of this file)
+
+### 2) same with chromadb blocked at import
+╔════════════════════════════════════════════════════════════════════╗
+║  🎬 NETFLIXSCOUT — RAG SEARCH                                      ║
+╚════════════════════════════════════════════════════════════════════╝
+Digita una domanda sui film oppure 'exit'/'quit' per uscire.
+Tu > 
+[check] chromadb imported: False
+Chiusura chat. A presto!
+
+### 3) negative: wrong Qdrant address (the Qdrant path is really taken)
+tool.rag.FromQueryEmbeddingToRes.store.collection.QdrantUnavailable: Cannot reach Qdrant at http://127.0.0.1:9 (ResponseHandlingException). Start the server (or set VECTORSTORE_QDRANT_URL to the right address), or use VECTORSTORE_ENGINE=chroma.
+
+### 4) web API (uvicorn web_api.main:app, port 8001): see uvicorn.log; /health 200, POST /conversations 201, GET 200, empty message 422, unknown conversation 404, DELETE 204
+
+### 5) default without environment
+default engine: chroma
+
+### 6) exit codes measured directly (server restarted for this check)
+python app.py engine=qdrant: 0
+same with chromadb blocked: 0
+wrong Qdrant address: 1 (non-zero expected)

@@ -1,0 +1,385 @@
+{
+ "answer": "Ho trovato questi risultati. I vincoli sono riportati esattamente secondo i dati disponibili.\n\n### 1. Stolen Desire (1958)\n- **Regia:** Shōhei Imamura  \n- **Cast principale:** Hiroyuki Nagato, Yōko Minamida, Osamu Takizawa, Shinichi Yanagisawa, Kō Nishimura  \n- **Sinossi:** Un gruppo di attori itineranti alterna spettacoli di teatro kabuki e numeri di spogliarello. Il risultato del RAG descrive anche rappresentazioni della vita ai margini della società giapponese e l’uso di dialetti locali.\n- **Voto TMDb:** 6,733/10, su 15 voti  \n- **Vincoli:**  \n  - Giapponese: **verificato** — genere “Japanese Movies”  \n  - Anni ʼ50: **verificato** — 1958  \n  - Vita rurale: **non verificabile**  \n  - Comunità agricole: **non verificabile**  \n  - Vita quotidiana: **non verificabile**\n\n### 2. Beauty — anno non disponibile\n- **Stato dell’identificazione:** titolo non verificato, perché ambiguo; non sono disponibili dati TMDb certi per questa voce.  \n- **Sinossi dal RAG:** La storia è ambientata in un piccolo villaggio del distretto di Ina, nella prefettura di Nagano, negli anni Trenta. Hanji assiste per la prima volta a uno spettacolo di kabuki durante una celebrazione del villaggio; affascinato da Yukio, inizia a studiare il kabuki insieme a lui e all’amica Utako. Nel 1944, Hanji e Yukio ricevono la cartolina di leva, mentre gli abitanti organizzano per loro l’ultimo spettacolo.\n- **Vincoli:**  \n  - Giapponese: **non verificabile** — il paese di produzione non è presente nei metadati  \n  - Anni ʼ50: **non verificabile** — l’anno non è presente  \n  - Vita rurale: **non verificabile**  \n  - Comunità agricole: **non verificabile**  \n  - Vita quotidiana: **non verificabile**\n\n### 3. Goryeojang (1963)\n- **Regia:** Kim Ki-young  \n- **Cast principale:** Kim Jin-kyu, Ju Jeung-nyeo, Kim Bo-ae, Kim Dong-won, Lee Yea-chun  \n- **Sinossi:** In un antico regno di Goryeo, un povero lavoratore agricolo dovrebbe portare la madre settantenne sulle montagne per lasciarla morire, secondo una tradizione locale. Decide invece di infrangere l’usanza e torna a casa con lei.\n- **Voto TMDb:** 7,4/10, su 10 voti  \n- **Vincoli:**  \n  - Giapponese: **non verificabile** — il paese di produzione non è presente nei metadati del risultato  \n  - Anni ʼ50: **contraddetto** — il film è del 1963  \n  - Vita rurale: **non verificabile**  \n  - Comunità agricole: **non verificabile**  \n  - Vita quotidiana: **non verificabile**\n\nTra questi risultati, **solo *Stolen Desire* ha sia il paese/genere giapponese sia l’anno negli anni ʼ50 verificati**; il vincolo della vita rurale non è però verificabile dai dati disponibili.",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Film giapponesi degli anni 50 sulla vita rurale",
+    "used": "Film giapponesi degli anni 50 sulla vita rurale",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Ricerca di film giapponesi degli anni 1950 sulla vita rurale",
+    "arguments": {
+     "query": "Film giapponesi degli anni 1950 incentrati sulla vita rurale e sulla quotidianità delle comunità contadine",
+     "k_finale": null,
+     "search_mode": null
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 4206,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "semantic",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "semantic",
+      "k_largo": 10,
+      "k_finale": 3,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": []
+    },
+    "standalone_query": "Film giapponesi degli anni 50 sulla vita rurale",
+    "planner_query": "Film giapponesi degli anni 1950 incentrati sulla vita rurale e sulla quotidianità delle comunità contadine",
+    "embedded_text": "Japanese films from the 1950s centered on rural life and the everyday experiences of farming communities.",
+    "signals": {
+     "positive_signals": [
+      "Japanese",
+      "1950s",
+      "rural life",
+      "farm communities",
+      "everyday life"
+     ],
+     "negative_signals": [],
+     "hard_exclusions": [],
+     "semantic_query": "Japanese films from the 1950s centered on rural life and the everyday experiences of farming communities.",
+     "genres": [],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-020921-000000",
+      "testo": "The film tells the story of a group of itinerant actors. Many of the interests to be found throughout Imamura's career are found already in this first film, including earthy depictions of sex, life on the fringes of Japanese society, and local dialects.",
+      "score": 0.54331985,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "5409364",
+      "title": "Stolen Desire",
+      "release_date": "1958",
+      "release_year": "1958",
+      "genres": "Japanese Movies",
+      "cast": "Osamu Takizawa; Shinichi Yanagisawa; Hiroyuki Nagato; Kô Nishimura; Hayao Takamura; Shojiro Ogasawara"
+     },
+     {
+      "id": "edb95c357b3b-003887-000000",
+      "testo": "The film is set in a small rural village in Japan in the 19th century. According to tradition, once a person reaches the age of 70 he or she must travel to a remote mountain to die of starvation, a practice known as ubasute. The story concerns Orin, who is 69 and of sound health, but notes that a neighbor had to drag his father to the mountain, so she resolves to avoid clinging to life beyond her term. She spends a year arranging all the affairs of her family and village: she severely punishes a family who are hoarding food, and helps her younger son lose his virginity. The film has some harsh scenes that show how brutal the conditions could be for the villagers. Interspersed between episodes in the film are brief vignettes of nature &ndash; birds, snakes, and other animals hunting, watching, singing, copulating or giving birth.",
+      "score": 0.5362377500000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "5472438",
+      "title": "The Ballad of Narayama",
+      "release_date": "1983",
+      "release_year": "1983",
+      "genres": "Japanese Movies; Drama; Comedy; World cinema; Art film",
+      "cast": "Kaoru Shimamori; Ken Ogata; Sumiko Sakamoto; Aki Takejo; Tonpei Hidari; Seiji Kurasaki; Ryutaro Tatsumi; Junko Takada; Nijiko Kiyokawa; Mitsuko Baisho"
+     },
+     {
+      "id": "edb95c357b3b-028816-000000",
+      "testo": "This film is about the daily lives of the Yamada family: Takashi and Matsuko , Shige , Noboru , Nonoko , and Pochi . It has a significantly different \"feel\" to it than the other Studio Ghibli films, not only because of its different style of animation, but also because it is not a contiguous plot, but rather a series of vignettes, each preceded by a title such as \"Father as Role Model\", \"A Family Torn Apart\" or \"Patriarchal Supremacy Restored\". These vignettes cover such issues as losing a child in a department store, the relationships between father and son, or husband and wife, the wisdom of age, getting one's first girlfriend and many more. Each is presented with humour, presenting a very believable picture of family life which crosses cultural boundaries. The relationships between Matsuko, Takashi and Shige are particularly well observed, with Shige giving advice and proverbs to all the family members, and having a great strength of character which far outweighs Matsuko's. Takashi and Matsuko's relationship is often the focus of the episodes, their rivalries, such as arguing about who has control of the television, their frustrations and their difficulties, but the overriding theme is their love for one another despite their flaws, and their desire to be the best parents possible for their children. For a much more detailed plot synopsis, covering every episode in detail see: plot synopsis.",
+      "score": 0.51759714,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "3325423",
+      "title": "My Neighbors the Yamadas",
+      "release_date": "1999-07-17",
+      "release_year": "1999",
+      "genres": "Japanese Movies; Animation; Anime; Children's; Family Film; Domestic Comedy; Comedy",
+      "cast": "Daryl Sabara; Toru Masuoka; Yukiji Asaoka; David Ogden Stiers; Molly Shannon; Jim Belushi; Liliana Mumy; Tress MacNeille; Yasuko Tomita; Tamao Nakamura; Chocho Miyako; Masako Araki; Naomi Uno; Akiko Yano"
+     },
+     {
+      "id": "edb95c357b3b-010335-000000",
+      "testo": "Warm Water Under A Red Bridge focuses on the troubles of a Japanese \"everyman\" who finds a new life with an unusual woman in a small fishing village. Imamura's last film contains considerable commentary on the search for happiness. This romantic comedy tells the story of a salary man who has been laid off from his job at an architectural firm in Tokyo and is undergoing marital difficulties. When his old friend dies, he travels to the small fishing town of Himi Toyama Prefecture to find a treasure that the old man had hidden in a house there decades before. He does not find what he expects, but takes a job with local fishermen and becomes romantically involved with a woman with an exaggerated proclivity towards female ejaculation.",
+      "score": 0.48729942,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "5409760",
+      "title": "Warm Water Under a Red Bridge",
+      "release_date": "2001-11-03",
+      "release_year": "2001",
+      "genres": "Erotic Drama; Japanese Movies; Erotica; World cinema; Fantasy; Comedy; Drama; Romantic drama; Romance Film",
+      "cast": "Taka Gadarukanaru; Kōji Yakusho; Shimizu Misa; Mitsuko Baisho; Mansaku Fuwa; Isao Natsuyagi; Yukiya Kitamura; Hijiri Kojima; Toshie Negishi; Sumiko Sakamoto; Kazuo Kitamura; Mickey Curtis"
+     },
+     {
+      "id": "edb95c357b3b-008950-000000",
+      "testo": "The films starts with the wife of Ichi  being murdered by the son of a yakuza boss. Following her death, Ichi returns to his hometown, where he hopes to resume a normal life as a farmer. However, after the yakuza start to take advantage of the local peasants, Ichi tries to protect them, once again.",
+      "score": 0.47924989999999995,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "33064104",
+      "title": "Zatoichi: The Last",
+      "release_date": "2010",
+      "release_year": "2010",
+      "genres": "Action/Adventure; Japanese Movies; Martial Arts Film; Drama; World cinema",
+      "cast": "Sousuke Takaoka; Yoshio Harada; Susumu Terajima; Arata; Takashi Sorimachi; Youki Kudoh; Shingo Katori; Satomi Ishihara; Chieko Baisho"
+     },
+     {
+      "id": "edb95c357b3b-025406-000000",
+      "testo": "The film tells the story of a poor farm-worker who, according to local tradition, must take his 70-year-old mother into the mountains to die. Deciding to break the custom, he instead returns home with his mother.Synopsis from {{cite web}} The Japanese films, The Ballad of Narayama  and The Ballad of Narayama  deal with a similar subject.{{cite web}}",
+      "score": 0.47865436,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "14790815",
+      "title": "Goryeojang",
+      "release_date": "1963-03-15",
+      "release_year": "1963",
+      "genres": "Drama",
+      "cast": "Ju Jeung-ryu; Lee Ye-Chun; Kim Bo-Ae; Goh Seon-Ae; Kim Jin-kyu"
+     },
+     {
+      "id": "edb95c357b3b-023003-000000",
+      "testo": "The film depicts carnivalesque atmosphere summed up by the cry \"Ee ja nai ka\"  in Japan in 1867 and 1868 in the days leading to the Meiji Restoration. It examines the effects of the political and social upheaval of the time, and culminates in a revelrous march on the Kokyo, which turns into a massacre. Characteristically, Imamura focuses not on the leaders of the country, but on characters in the lower classes and on the fringes of society.",
+      "score": 0.47706374999999995,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "5411035",
+      "title": "Eijanaika",
+      "release_date": "1981-03-14",
+      "release_year": "1981",
+      "genres": "Japanese Movies; Comedy-drama; Period piece; Satire; Drama; Marriage Drama; Black comedy",
+      "cast": "Masao Kusakari; Kaori Momoi; Shigeru Izumiya; Ken Ogata; Shigeru Tsuyuguchi; Mitsuko Baisho; Yūko Tanaka"
+     },
+     {
+      "id": "edb95c357b3b-033662-000000",
+      "testo": "The film depicts a couple, down on their luck during the Great Depression, who move to a farm to try to make a go of living off the land. They don't have a clue at first, but soon find other people down on their luck to help them. Soon they have a collective of people, some from the big city, who work together on a farm. There is a severe drought, killing the crops. The people then dig a ditch by hand almost two miles long to divert water from a creek to irrigate the crops. The film is an entertaining, uplifting political allegory about the virtues of collective, non-corporate action, self-sufficiency, and the rewards of hard-work rather than the rewards of rapacious finance capitalism; it is not an instructional \"how-to\" film from an agricultural institute; consequently, the film ends with the people celebrating wildly in the water then harvesting the crops, not showing how they managed to direct the narrow stream of water over the huge plain to evenly irrigate the crops.",
+      "score": 0.47247273,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "8815105",
+      "title": "Our Daily Bread",
+      "release_date": "1934",
+      "release_year": "1934",
+      "genres": "Drama; Black-and-white",
+      "cast": "Barbara Pepper; Tom Keene; Karen Morley"
+     },
+     {
+      "id": "edb95c357b3b-016451-000000",
+      "testo": "Enrai is a low-key study of a farmer, Mitsuo Wada, in 1980s Japan when modernization and urbanization were threatening rural areas. After his father leaves his wife to run off with his mistress, Mitsuo struggles to preserve his livelihood with the help of his mother, grandmother, and his arranged marriage bride, Ayako.",
+      "score": 0.45486498,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "25754522",
+      "title": "Enrai",
+      "release_date": "1981-10-24",
+      "release_year": "1981",
+      "genres": "Drama",
+      "cast": "Toshiyuki Nagashima; Eri Ishida"
+     },
+     {
+      "id": "edb95c357b3b-022401-000000",
+      "testo": "Film is set in a small village of Ina  district, Nagano Prefecture, Japan, in the 1930s. Hanji, a young boy, sees the performance of a kabuki for the first time as a dedication event in the village. He is fascinated by the performance of Yukio, a character as young as Hanji, who dances as \"Tenryu Koishibuki\". He begins to learn the Kabuki with Yukio and Utako, a girl friend, and soon becomes an excellent actor. One day in 1944, Hanji and Yukio received the draft cards. The tide of the war was against Japan. The village people held the final stage of the Kabuki for the two young men who might never return there again. After war was over, Japan was defeated. Hanji and Yukio survived the war, but they were detained in Siberia by USSR. A few years after, only Hanji could return to the village and met Utako again. He saw that the village people were utterly dejected by the war. Hanji decided that he would revive the Kabuki and the village. In the 1980s, Hanji is aware that he is near the end of his life. The village people hold the final performance of Kabuki for Hanji, and he dances \"Tenryu Koishibuki\" for Yukio.",
+      "score": 0.45314503000000006,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "9479998",
+      "title": "Beauty",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Drama",
+      "cast": "Kumiko Aso"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "Japanese films from the 1950s centered on rural life and the everyday experiences of farming communities. Must match: farm communities.",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "Japanese",
+       "type": "plot_require",
+       "results": {
+        "Stolen Desire (1958)": {
+         "status": "verified",
+         "evidence": "generi: Japanese Movies"
+        },
+        "Beauty (?)": {
+         "status": "not_verifiable",
+         "evidence": "paese di produzione assente nei metadati"
+        },
+        "Goryeojang (1963)": {
+         "status": "not_verifiable",
+         "evidence": "paese di produzione assente nei metadati"
+        }
+       }
+      },
+      {
+       "constraint": "1950s",
+       "type": "decade",
+       "results": {
+        "Stolen Desire (1958)": {
+         "status": "verified",
+         "evidence": "anno 1958"
+        },
+        "Beauty (?)": {
+         "status": "not_verifiable",
+         "evidence": "anno assente"
+        },
+        "Goryeojang (1963)": {
+         "status": "contradicted",
+         "evidence": "anno 1963"
+        }
+       }
+      },
+      {
+       "constraint": "rural life",
+       "type": "plot_require",
+       "results": {
+        "Stolen Desire (1958)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Beauty (?)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Goryeojang (1963)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "farm communities",
+       "type": "plot_require",
+       "results": {
+        "Stolen Desire (1958)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Beauty (?)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Goryeojang (1963)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "everyday life",
+       "type": "plot_require",
+       "results": {
+        "Stolen Desire (1958)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Beauty (?)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Goryeojang (1963)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-020921-000000",
+      "testo": "The film tells the story of a group of itinerant actors. Many of the interests to be found throughout Imamura's career are found already in this first film, including earthy depictions of sex, life on the fringes of Japanese society, and local dialects.",
+      "score": 0.3086594,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "5409364",
+      "title": "Stolen Desire",
+      "release_date": "1958",
+      "release_year": "1958",
+      "genres": "Japanese Movies",
+      "cast": "Osamu Takizawa; Shinichi Yanagisawa; Hiroyuki Nagato; Kô Nishimura; Hayao Takamura; Shojiro Ogasawara"
+     },
+     {
+      "id": "edb95c357b3b-022401-000000",
+      "testo": "Film is set in a small village of Ina  district, Nagano Prefecture, Japan, in the 1930s. Hanji, a young boy, sees the performance of a kabuki for the first time as a dedication event in the village. He is fascinated by the performance of Yukio, a character as young as Hanji, who dances as \"Tenryu Koishibuki\". He begins to learn the Kabuki with Yukio and Utako, a girl friend, and soon becomes an excellent actor. One day in 1944, Hanji and Yukio received the draft cards. The tide of the war was against Japan. The village people held the final stage of the Kabuki for the two young men who might never return there again. After war was over, Japan was defeated. Hanji and Yukio survived the war, but they were detained in Siberia by USSR. A few years after, only Hanji could return to the village and met Utako again. He saw that the village people were utterly dejected by the war. Hanji decided that he would revive the Kabuki and the village. In the 1980s, Hanji is aware that he is near the end of his life. The village people hold the final performance of Kabuki for Hanji, and he dances \"Tenryu Koishibuki\" for Yukio.",
+      "score": 0.05880369,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "9479998",
+      "title": "Beauty",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Drama",
+      "cast": "Kumiko Aso"
+     },
+     {
+      "id": "edb95c357b3b-025406-000000",
+      "testo": "The film tells the story of a poor farm-worker who, according to local tradition, must take his 70-year-old mother into the mountains to die. Deciding to break the custom, he instead returns home with his mother.Synopsis from {{cite web}} The Japanese films, The Ballad of Narayama  and The Ballad of Narayama  deal with a similar subject.{{cite web}}",
+      "score": 0.39473805,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "14790815",
+      "title": "Goryeojang",
+      "release_date": "1963-03-15",
+      "release_year": "1963",
+      "genres": "Drama",
+      "cast": "Ju Jeung-ryu; Lee Ye-Chun; Kim Bo-Ae; Goh Seon-Ae; Kim Jin-kyu"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/46149?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/207663?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 46149,
+      "media_type": "movie",
+      "title": "Stolen Desire",
+      "original_title": "盗まれた欲情",
+      "overview": "A rambunctious and ribald tale of a troupe of travelling actors who alternate highlights of kabuki theatre with strip shows.",
+      "vote_average": 6.733,
+      "release_date": "1958-05-20",
+      "original_language": "ja",
+      "poster_path": "/2jjtaMgtuwiYEBObStDtli1sayc.jpg"
+     },
+     {
+      "id": 207663,
+      "media_type": "movie",
+      "title": "Goryeojang",
+      "original_title": "고려장",
+      "overview": "Prior to the adoption of Confucianism, it was the tradition to abandon one's parents on a mountainside if they were over 70 years of age. In the ancient kingdom of Goryeo, now modern Korea, a nobleman defies this tradition when he refuses to leave his mother to starve to death.",
+      "vote_average": 7.4,
+      "release_date": "1963-03-15",
+      "original_language": "ko",
+      "poster_path": "/lIUIMaYptY9VVzniZrfhYKdkenq.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "r02",
+  "kind": "rag",
+  "text": "Film giapponesi degli anni 50 sulla vita rurale"
+ },
+ "seconds": 27.9
+}

@@ -1,0 +1,378 @@
+{
+ "answer": "I risultati disponibili non consentono di verificare sempre che si tratti di produzioni francesi, né che il tema della gioventù sia presente. Inoltre, solo un titolo è verificato come appartenente agli anni Sessanta.\n\n### 1. *Children of the Stork*\n- **Anno:** 1999  \n- **Regia:** Tony Gatlif  \n- **Cast principale:** Romain Duris, Rona Hartner, Ouassini Embarek, Noël Simsolo, Suzanne Flon  \n- **Voto TMDb:** 6,6/10 (16 voti)  \n- **Sinossi:** Otto, un giovane disoccupato che vive con la madre in un alloggio popolare, e la sua compagna Louna, parrucchiera inseguita dagli ufficiali giudiziari, riflettono sul senso delle loro vite, della società e del sistema. In uno spirito di ribellione contro tutto, partono in automobile per un’avventura anarchica; nella storia entra anche Ali, un adolescente immigrato arabo la cui famiglia cerca di nascondere le proprie origini etniche adottando usanze francesi.\n\n**Vincoli:**  \n- Produzione francese: **non verificabile**, perché il paese di produzione non è presente nei metadati.  \n- Anni Sessanta: **non verificabile** nei dati del vincolo, anche se TMDb riporta l’anno 1999.  \n- Gioventù: **non verificabile**.  \n- Ribellione: **probabile**, sulla base dell’indizio esplicito della trama.\n\n### 2. *Masculin, féminin*\n- **Anno:** 1966  \n- **Regia:** Jean-Luc Godard  \n- **Cast principale:** Jean-Pierre Léaud, Chantal Goya, Marlène Jobert, Michel Debord, Catherine-Isabelle Duport  \n- **Voto TMDb:** 7,2/10 (435 voti)  \n- **Sinossi:** Paul, giovane idealista e aspirante scrittore, si innamora di Madeleine, una cantante pop emergente. Nonostante le differenze nei gusti musicali e nelle posizioni politiche, i due iniziano una relazione e condividono la vita con le coinquiline di Madeleine, Catherine ed Elisabeth. Il film presenta interviste in stile documentaristico ai giovani protagonisti su amore, rapporti sessuali e politica.\n\n**Vincoli:**  \n- Produzione francese: **non verificabile**, perché il paese di produzione non è presente nei metadati.  \n- Anni Sessanta: **verificato**, anno 1966.  \n- Gioventù: **non verificabile**.  \n- Ribellione: **non verificabile**.\n\n### 3. *Maman est chez le coiffeur*\n- **Anno:** 2008  \n- **Regia:** Léa Pool  \n- **Cast principale:** Céline Bonnier, Laurent Lucas, Marianne Fortier, Élie Dupuis, Aliocha Schneider  \n- **Voto TMDb:** 6,4/10 (19 voti)  \n- **Sinossi:** Nell’estate del 1966, Élise trascorre le vacanze a Beloeil, in Québec, tra libertà, giochi nei campi e amici. L’improvviso abbandono della madre, che parte per Londra per dedicarsi al giornalismo, sconvolge la famiglia. Il fratello Coco si rifugia nella costruzione di una superautomobile, Benoît si chiude sempre più nel locale caldaia e il padre è sopraffatto dalla situazione; Élise decide allora di prendere in mano la famiglia.\n\n**Vincoli:**  \n- Produzione francese: **non verificabile**, perché il paese di produzione non è presente nei metadati.  \n- Anni Sessanta: **contraddetto**: il film è del 2008, anche se la trama è ambientata nell’estate del 1966.  \n- Gioventù: **non verificabile**.  \n- Ribellione: **non verificabile**.\n\nTra questi risultati, *Masculin, féminin* è l’unico titolo per cui il vincolo temporale degli anni Sessanta è verificato.",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Film francesi degli anni 60 sulla gioventù e la ribellione",
+    "used": "Film francesi degli anni 60 sulla gioventù e la ribellione",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Raccomandazioni di film francesi degli anni 60 sulla gioventù e la ribellione",
+    "arguments": {
+     "query": "Film francesi degli anni 60 incentrati sulla gioventù e sulla ribellione",
+     "k_finale": null,
+     "search_mode": null
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 3633,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "semantic",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "semantic",
+      "k_largo": 10,
+      "k_finale": 3,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": []
+    },
+    "standalone_query": "Film francesi degli anni 60 sulla gioventù e la ribellione",
+    "planner_query": "Film francesi degli anni 60 incentrati sulla gioventù e sulla ribellione",
+    "embedded_text": "French films from the 1960s centered on youth and rebellion",
+    "signals": {
+     "positive_signals": [
+      "French films",
+      "1960s",
+      "youth",
+      "rebellion"
+     ],
+     "negative_signals": [],
+     "hard_exclusions": [],
+     "semantic_query": "French films from the 1960s centered on youth and rebellion",
+     "genres": [],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-040251-000000",
+      "testo": "Set in the 1970s, the film depicts Italian youths experiencing the sexual revolution of the previous decade, whilst addressing differences between Italy's southern and northern regions.",
+      "score": 0.5655339,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "8637935",
+      "title": "Tutto l'amore che c'è",
+      "release_date": "2000-03-24",
+      "release_year": "2000",
+      "genres": "Drama",
+      "cast": "Sergio Rubini; Gérard Depardieu"
+     },
+     {
+      "id": "edb95c357b3b-001443-000000",
+      "testo": "In the early '70s, an attractive young Parisian student, Marc, tries to organize students to fight for gay rights. Meanwhile, his best friend, Julie, becomes involved in feminist and class causes. Sparks fly when these disparate groups unite in opposition to the status quo during a heated radio show debate, leading to radical changes… “My Super 8 Season” is freely inspired by the story of the FHAR, the Homosexual Revolutionary Action Front, and dedicated to its leaders Guy Hocquenghem and Françoise d'Eaubonne.",
+      "score": 0.5602812,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "12942227",
+      "title": "My Super 8 Season",
+      "release_date": "2005-10-23",
+      "release_year": "2005",
+      "genres": "LGBT; Drama; World cinema",
+      "cast": "Célia Pilastre; Antoine Mory; Silvana Gasparini; Simon Bonnet; Josef Chebli; Magali Domec; Thierry Barèges; Nicolas Quilliard; Marie Casterez; Luisa de Martini; Gisèle Bosc; Jean-Pierre Frankfower; Paco Perez; Axel Philippon; Jean-Paul Nicolaï; Nicolas Villena; Jean-Marc Cozic; Gabriele Ferluga; Rivka Braun; Roman Girelli"
+     },
+     {
+      "id": "edb95c357b3b-024703-000000",
+      "testo": "Two French pals, one an unemployed young man named Otto  living with his mother in state housing, and the other his girlfriend Louna , who is a hairdresser and has the bailiffs after her, reflect on the lack of meaning in their lives, their society and the system. In a spirit of rebellion against everything, they hit the road and what follows is an anarchic adventure. A teenage Arab immigrant named Ali  enters the story. Ali's family tries to hide its ethnic origins by going to extreme measures in switching to French customs.",
+      "score": 0.5506315500000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "32440494",
+      "title": "Children of the Stork",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Road movie",
+      "cast": "Romain Duris"
+     },
+     {
+      "id": "edb95c357b3b-035900-000000",
+      "testo": "In 2003, seven children had aspirations for their futures. Revisiting the neighbourhood and the children eight years later, L’Est pour toujours documents the progress they have made in their lives. Marianne Racine reconnected with his father, only to find he lives in Vancouver and does not speak French. Maxime Desjardins-Tremblay has combined work and study as a film and television actor. Though wishing to become a rapper, he still gets caught up in problems with street gangs. Proulx-Roy and Jean-Roch Beauregard, having spent time in youth centers and reform schools, are both still seeking their paths in life. Valérie Allard has aspirations of working with others through social services. Samantha Goyer has completed school. At 21, Vanessa Dumont is the oldest of the seven. She looks far younger than her biological age, but this affects her search for both job and boyfriend, and she deals with dark moods. The film shares how a person's future is not always determined by where they grew up.",
+      "score": 0.53088317,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "31757535",
+      "title": "East End Forever",
+      "release_date": "2011-02-18",
+      "release_year": "2011",
+      "genres": "Documentary",
+      "cast": null
+     },
+     {
+      "id": "edb95c357b3b-024303-000000",
+      "testo": "The French Democracy begins with a re-enactment of the real-life 27 October 2005 event that triggered riots in France: the electrocution of two teenagers, Zyed Benna and Bouna Traoré.{{harvnb}} In a televised speech, the Minister of the Interior vows to increase efforts to fight crime. Three fictional Moroccan Angered, the three riot using Molotov cocktails. and the film ends with a dedication to Benna and Traoré, lamenting the loss of the French ideals of freedom, equality, and fraternity.<ref name75}}",
+      "score": 0.52735126,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "3603335",
+      "title": "The French Democracy",
+      "release_date": "2005-11-22",
+      "release_year": "2005",
+      "genres": "Short Film; Political drama; Animation",
+      "cast": null
+     },
+     {
+      "id": "edb95c357b3b-006193-000000",
+      "testo": "The film stars Jean-Pierre Léaud as Paul, a romantic young idealist and literary lion-wannabe who chases budding pop star, Madeleine . Despite markedly different musical tastes and political leanings, the two soon become romantically involved and begin a \"ménage à quatre\" with Madeleine's two roommates, Catherine  and Elisabeth . The camera probes the young actors in a series of vérité-style interviews about love, love-making, and politics.Billard, Pierre. Masculine Feminine: a film by Jean-Luc Godard. New York: Grove Press, Inc.. 1969. SBN 68.22022. pp. 9-184.",
+      "score": 0.52485246,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "1644429",
+      "title": "Masculin, féminin",
+      "release_date": "1966",
+      "release_year": "1966",
+      "genres": "World cinema; Drama; Political drama; Black-and-white",
+      "cast": "Brigitte Bardot; Chantal Goya; Marlene Jobert; Jean-Pierre Léaud; Michel Debord; Catherine Duport; Eva Britt Standberg; Birger Malmsten; Elsa Leroy; Henri Attal; Chantal Darget; Dominique Zardi"
+     },
+     {
+      "id": "edb95c357b3b-004904-000000",
+      "testo": "Five unemployed Parisian workers, Jeannot , Charlot , Raymond, called Tintin , Jacques , and a foreigner Mario , who is threatened with expulsion, win the main prize in the National Lottery. One of them, Jeannot, has the idea of putting the money together so the group can buy an old suburban wash house in ruins, that they will transform into a guinguette - a dancing and refreshment café in the country. They will be equal co-owners. They get down to realizing the project with confidence. But the solidarity of the group proves fragile. Soon enough the group is reduced to just Charles and Jean - who are in love with the same woman, Gina . The ending, judged too pessimistic, was re-made. \"Critics have associated the film with the rise and demise of the Popular Front. Duvivier was certainly not of the Left. The film was made in June and July 1936 and coincided with the early days of the Léon Blum government and the strikes calling for better conditions. It should be pointed out nonetheless that Duvivier's portrayal of male friendship gradually being eroded by a woman and by desire for that woman was canonical by 1936, so the film does not limit itself to that reading. If the men in Duvivier's film do not get to fulfil their dream of setting up their guinguette it is because, while economically they can be solidaires - as one, sexually they cannot.On a first level of reading, therefore, it is sex before politics that drives the narrative.\" Susan Hayward French National Cinema ISBN 0-415-30783-X",
+      "score": 0.51957024,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "24193797",
+      "title": "La belle équipe",
+      "release_date": "1936-09",
+      "release_year": "1936",
+      "genres": "Drama",
+      "cast": "Jean Gabin; Charles Vanel; Viviane Romance"
+     },
+     {
+      "id": "edb95c357b3b-018383-000000",
+      "testo": "This French melodrama tells the tragic story of a rare couple: Priest Jean , who falls in love with a young woman, the 17-year-old girl Françoise , has relations with her, and gets her pregnant. That happens during World War II. Some years later Françoise waits for her majority to get her child out from the orphelinat and Jean becomes communist.",
+      "score": 0.5125516,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "13099032",
+      "title": "Forbidden Priests",
+      "release_date": "1973-11-22",
+      "release_year": "1973",
+      "genres": "Drama",
+      "cast": "Claude Jade; Robert Hossein; Claude Piéplu; Pierre Mondy"
+     },
+     {
+      "id": "edb95c357b3b-041550-000000",
+      "testo": "The film focuses on three twenty-somethings in an unconventional love triangle in Paris during the summer of 1972. Alexandre  is an unemployed young man involved with both a live-in girlfriend Marie  and the Polish nurse Veronika . He had picked up Veronika at a café after an unsuccessful reconciliation with a former love, Gilberte . With Veronika, he begins a desultory affair. Although Marie affirms her indifference to Alexandre's affairs, she quickly changes her mind when she sees how close he becomes to Veronika. This leads to a growing estrangement between her and Alexandre. The film focuses less on plot or narrative than on the confused and ambivalent life style of these three young people in post-May '68 Paris",
+      "score": 0.5064725,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "10809839",
+      "title": "The Mother and the Whore",
+      "release_date": "1973",
+      "release_year": "1973",
+      "genres": "Drama; Black-and-white",
+      "cast": "Jean-Pierre Léaud; Bernadette Lafont; Françoise Lebrun"
+     },
+     {
+      "id": "edb95c357b3b-033633-000000",
+      "testo": "It's summer 1966. Time to enjoy summer vacation, total freedom, running wild in the fields, and crazy giggles with friends. But as she becomes more aware of the dreams, sorrows and lies of the people closest to her, Élise sees her mother's sudden abandonment thoroughly disrupt her family. While her brother Coco stubbornly seeks refuge in constructing a super car, the youngest, Benoît, plummets deep into his own internal world, retreating ever-further in the furnace room. As for her father, he is simply overwhelmed by the situation. Élise decides to take the helm of her drifting family in a poignant attempt to save them. With support from the living and breathing surrounding nature and the silent comfort Monsieur Mouche offers, Élise is on the verge of experiencing a summer unlike any other.http://www.equinoxefilms.com/film.php?fmedia",
+      "score": 0.50342232,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "21487398",
+      "title": "Maman est chez le coiffeur",
+      "release_date": "2008-05-02",
+      "release_year": "2008",
+      "genres": "Period piece; Drama; Indie",
+      "cast": "Marianne Fortier; Gabriel Arcand; Laurent Lucas; Hugo St-Onge-Paquin; Céline Bonnier; Élie Dupuis; Lenie Scoffié; Paule Ducharme; Benjamin Chouinard; Antoine Desrochers"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "French films from the 1960s centered on youth and rebellion",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "French films",
+       "type": "plot_require",
+       "results": {
+        "Children of the Stork (?)": {
+         "status": "not_verifiable",
+         "evidence": "paese di produzione assente nei metadati"
+        },
+        "Masculin, féminin (1966)": {
+         "status": "not_verifiable",
+         "evidence": "paese di produzione assente nei metadati"
+        },
+        "Maman est chez le coiffeur (2008)": {
+         "status": "not_verifiable",
+         "evidence": "paese di produzione assente nei metadati"
+        }
+       }
+      },
+      {
+       "constraint": "1960s",
+       "type": "decade",
+       "results": {
+        "Children of the Stork (?)": {
+         "status": "not_verifiable",
+         "evidence": "anno assente"
+        },
+        "Masculin, féminin (1966)": {
+         "status": "verified",
+         "evidence": "anno 1966"
+        },
+        "Maman est chez le coiffeur (2008)": {
+         "status": "contradicted",
+         "evidence": "anno 2008"
+        }
+       }
+      },
+      {
+       "constraint": "youth",
+       "type": "plot_require",
+       "results": {
+        "Children of the Stork (?)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Masculin, féminin (1966)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Maman est chez le coiffeur (2008)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "rebellion",
+       "type": "plot_require",
+       "results": {
+        "Children of the Stork (?)": {
+         "status": "probable",
+         "evidence": "termini nella trama: rebellion"
+        },
+        "Masculin, féminin (1966)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Maman est chez le coiffeur (2008)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-024703-000000",
+      "testo": "Two French pals, one an unemployed young man named Otto  living with his mother in state housing, and the other his girlfriend Louna , who is a hairdresser and has the bailiffs after her, reflect on the lack of meaning in their lives, their society and the system. In a spirit of rebellion against everything, they hit the road and what follows is an anarchic adventure. A teenage Arab immigrant named Ali  enters the story. Ali's family tries to hide its ethnic origins by going to extreme measures in switching to French customs.",
+      "score": 0.6227582,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "32440494",
+      "title": "Children of the Stork",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Road movie",
+      "cast": "Romain Duris"
+     },
+     {
+      "id": "edb95c357b3b-006193-000000",
+      "testo": "The film stars Jean-Pierre Léaud as Paul, a romantic young idealist and literary lion-wannabe who chases budding pop star, Madeleine . Despite markedly different musical tastes and political leanings, the two soon become romantically involved and begin a \"ménage à quatre\" with Madeleine's two roommates, Catherine  and Elisabeth . The camera probes the young actors in a series of vérité-style interviews about love, love-making, and politics.Billard, Pierre. Masculine Feminine: a film by Jean-Luc Godard. New York: Grove Press, Inc.. 1969. SBN 68.22022. pp. 9-184.",
+      "score": 0.5272928,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "1644429",
+      "title": "Masculin, féminin",
+      "release_date": "1966",
+      "release_year": "1966",
+      "genres": "World cinema; Drama; Political drama; Black-and-white",
+      "cast": "Brigitte Bardot; Chantal Goya; Marlene Jobert; Jean-Pierre Léaud; Michel Debord; Catherine Duport; Eva Britt Standberg; Birger Malmsten; Elsa Leroy; Henri Attal; Chantal Darget; Dominique Zardi"
+     },
+     {
+      "id": "edb95c357b3b-033633-000000",
+      "testo": "It's summer 1966. Time to enjoy summer vacation, total freedom, running wild in the fields, and crazy giggles with friends. But as she becomes more aware of the dreams, sorrows and lies of the people closest to her, Élise sees her mother's sudden abandonment thoroughly disrupt her family. While her brother Coco stubbornly seeks refuge in constructing a super car, the youngest, Benoît, plummets deep into his own internal world, retreating ever-further in the furnace room. As for her father, he is simply overwhelmed by the situation. Élise decides to take the helm of her drifting family in a poignant attempt to save them. With support from the living and breathing surrounding nature and the silent comfort Monsieur Mouche offers, Élise is on the verge of experiencing a summer unlike any other.http://www.equinoxefilms.com/film.php?fmedia",
+      "score": 0.2957183,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "21487398",
+      "title": "Maman est chez le coiffeur",
+      "release_date": "2008-05-02",
+      "release_year": "2008",
+      "genres": "Period piece; Drama; Indie",
+      "cast": "Marianne Fortier; Gabriel Arcand; Laurent Lucas; Hugo St-Onge-Paquin; Céline Bonnier; Élie Dupuis; Lenie Scoffié; Paule Ducharme; Benjamin Chouinard; Antoine Desrochers"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/31670?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/4710?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/58841?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 31670,
+      "media_type": "movie",
+      "title": "Children of the Stork",
+      "original_title": "Je suis né d'une cigogne",
+      "overview": "Three French pals take to the road in a stolen car and discover a talking, wounded stork — who claims to have deserted the Algerian army — and help it to escape to the home of a relative in Germany.",
+      "vote_average": 6.6,
+      "release_date": "1999-11-24",
+      "original_language": "fr",
+      "poster_path": "/sfx4c7i1o3qfm0R5wGPu9WULBc5.jpg"
+     },
+     {
+      "id": 4710,
+      "media_type": "movie",
+      "title": "Masculin Féminin",
+      "original_title": "Masculin féminin",
+      "overview": "Paul, a young idealist trying to figure out what he wants to do with his life, takes a job interviewing people for a marketing research firm. He moves in with aspiring pop singer Madeleine. Paul, however, is disillusioned by the growing commercialism in society, while Madeleine just wants to be successful. The story is told in a series of 15 unrelated vignettes.",
+      "vote_average": 7.2,
+      "release_date": "1966-03-22",
+      "original_language": "fr",
+      "poster_path": "/AroNQnZiqjJOWf32lLNZUzWlGvd.jpg"
+     },
+     {
+      "id": 58841,
+      "media_type": "movie",
+      "title": "Mommy Is at the Hairdresser's",
+      "original_title": "Maman est chez le coiffeur",
+      "overview": "in the summer of 1966, in Beloeil, Québec, where a young girl named Élise is enjoying summer vacation. Summer 1966. It's time to enjoy the summer holiday, total freedom. Suddenly her mother leaves her family to pursue her journalism career in London. Her urge to leave is triggered when she coincidentally listens in on a conversation between her husband and his male lover. Her brother Coco seeks solace in the garage, building a super racing car. …",
+      "vote_average": 6.4,
+      "release_date": "2008-11-04",
+      "original_language": "fr",
+      "poster_path": "/tkT8iRlTJY11Wap8hFLtKuJEraI.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "r02",
+  "kind": "rag",
+  "text": "Film francesi degli anni 60 sulla gioventù e la ribellione"
+ },
+ "seconds": 27.2
+}

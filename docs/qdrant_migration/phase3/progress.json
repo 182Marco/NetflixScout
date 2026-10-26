@@ -1,0 +1,9 @@
+{
+ "collection": "netflix_scout",
+ "source_count": 42522,
+ "next_offset": 42522,
+ "started": "2026-10-26T10:23:59Z",
+ "batches_done": 86,
+ "complete": true,
+ "updated": "2026-10-26T10:26:08Z"
+}

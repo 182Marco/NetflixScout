@@ -1,0 +1,398 @@
+{
+ "answer": "Ecco i tre titoli restituiti dal RAG. Per tutti, l’animazione è verificata; invece l’appartenenza all’animazione per adulti e la presenza di temi filosofici, esistenziali o metafisici non sono verificabili dai dati disponibili.\n\n### 1. *Waking Life* (2001)\n- **Regia:** Richard Linklater  \n- **Cast principale:** Ethan Hawke, Julie Delpy, Wiley Wiggins, Bill Wise, Alex E. Jones  \n- **Sinossi:** Un giovane uomo vive in uno stato persistente simile a un sogno lucido. Inizialmente osserva, poi partecipa a discussioni su realtà, libero arbitrio, rapporti con gli altri e significato della vita.\n- **Voto TMDb:** 7,461/10 — 992 voti\n\n**Vincoli:**  \n- Animazione: verificata  \n- Animazione per adulti: non verificabile  \n- Temi filosofici: non verificabili  \n- Temi esistenziali: non verificabili  \n- Temi metafisici: non verificabili  \n\n### 2. *Everything Will Be OK* (2006)\n- **Regia:** Don Hertzfeldt  \n- **Cast principale:** Don Hertzfeldt  \n- **Sinossi:** Una serie di eventi oscuri e inquietanti costringe Bill a confrontarsi con il significato della propria vita, o con la sua eventuale mancanza.\n- **Voto TMDb:** 7,6/10 — 125 voti\n\n**Vincoli:**  \n- Animazione: verificata  \n- Animazione per adulti: non verificabile  \n- Temi filosofici: non verificabili  \n- Temi esistenziali: non verificabili  \n- Temi metafisici: non verificabili  \n\n### 3. *Tale of Tales* (1979)\n- **Regia:** Yuri Norstein  \n- **Cast principale:** Aleksandr Kalyagin  \n- **Sinossi:** Ricordi lontani e consumati dell’infanzia sono abitati da un piccolo lupo grigio. Attraverso immagini sorprendenti viene rappresentata la memoria dell’intera Russia.\n- **Voto TMDb:** 7,3/10 — 153 voti\n\n**Vincoli:**  \n- Animazione: verificata  \n- Animazione per adulti: non verificabile  \n- Temi filosofici: non verificabili  \n- Temi esistenziali: non verificabili  \n- Temi metafisici: non verificabili  \n\nI voti indicati provengono da **TMDb**, non dalla critica.",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Film di animazione per adulti con temi filosofici",
+    "used": "Film di animazione per adulti con temi filosofici",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Trovare film d'animazione per adulti con temi filosofici",
+    "arguments": {
+     "query": "Film d'animazione per adulti con temi filosofici, esistenziali o metafisici",
+     "k_finale": null,
+     "search_mode": null
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 3594,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "semantic",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "semantic",
+      "k_largo": 10,
+      "k_finale": 3,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": []
+    },
+    "standalone_query": "Film di animazione per adulti con temi filosofici",
+    "planner_query": "Film d'animazione per adulti con temi filosofici, esistenziali o metafisici",
+    "embedded_text": "An adult animated film exploring philosophical, existential, or metaphysical themes.",
+    "signals": {
+     "positive_signals": [
+      "adult animation",
+      "philosophical themes",
+      "existential themes",
+      "metaphysical themes"
+     ],
+     "negative_signals": [],
+     "hard_exclusions": [],
+     "semantic_query": "An adult animated film exploring philosophical, existential, or metaphysical themes.",
+     "genres": [
+      "Animation"
+     ],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-004540-000000",
+      "testo": "Throughout the film, a disembodied voice of a woman is heard; she express her fears through a monologue, making confessions from trivial anxiety, grotesque nightmares, to crippling sadness. # The first story is a traditional animation written and directed by Blutch. It focuses on a sinister old man and his four vicious dogs, whom he restrains on leashes, as they trek through the countryside; one by one, the man sics each dog on a victim. # The second story is a three-dimensional computer animation written and directed by Charles Burns. It focuses on a intelligent introvert, who has an immense interest in insects. In his adolescence, he captures a mysterious human-shaped beetle; it escapes, and yet the boy seems haunted by it. Come maturity, the boy becomes infatuated with a promiscuous woman; he invites her in his house, and she seems to develop an obsession with him thereafter when she wakes up with a deep gash on her arm one morning. # The third story is a two-dimensional anime animation written by Romain Slocombe and directed by Marie Caillou. It focuses on a meek girl living in rural Japan. Throughout the story, she is bullied by her sadistic classmates, and also haunted by a strange alternate-reality of a scientist sedating her to \"complete\" a reoccurring nightmare and the ghost of a samurai. # The fourth story is a traditional animation directed by Lorenzo Mattotti. It focuses on a young boy living in rural France. Having lost his uncle in a poaching trip, the boy confides in his friend, an secretive orphan, who claims that the uncle could have been \"mauled\" by a beast from the sky. The friend disappears later on, and a professional ranger is hired to hunt down the beast. A massive crocodile from the swamps is killed and displayed in the church, but the boy is haunted by shadows of his orphan friend. # The fifth story is directed by Richard McGuire. The intervals are two-dimensional computer animations written and directed by Pierre di Sciullo.Twitchfilm reviewThe story focuses on a burly mustached man finding refuge against a blizzard in a pitch-black abandoned house. As he settles in, paranoia as well as dark forces begin to creep around the man's fear. He uncovers a photo album of a woman, possibly the mistress of the house, who seemed to have a tendency to \"cut\" people out of her life.",
+      "score": 0.6698816000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "19723946",
+      "title": "Fear(s) of the Dark",
+      "release_date": "2007",
+      "release_year": "2007",
+      "genres": "Horror; World cinema; Supernatural; Computer Animation; Animation; Drama",
+      "cast": "Aure Atika; Nicole Garcia; Guillaume Depardieu"
+     },
+     {
+      "id": "edb95c357b3b-040500-000000",
+      "testo": "Described by the director as his statement on modern pornography, the film follows the misadventures of a small yellow bird, which include the adult themes of hallucinogenic drugs and sexual intercourse with a horse.",
+      "score": 0.6563597,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "9963900",
+      "title": "Chirpy",
+      "release_date": "2001",
+      "release_year": "2001",
+      "genres": "Short Film; Animation",
+      "cast": "Carlee; James Spica"
+     },
+     {
+      "id": "edb95c357b3b-002184-000000",
+      "testo": "Waking Life is about an unnamed young man living an ethereal existence that lacks transitions between everyday events and that eventually progresses to a state of self-reflective lucidity. For most of the film he observes quietly but later participates actively in philosophical discussions involving other characters—ranging from quirky scholars and artists to everyday restaurant-goers and friends—about such issues as metaphysics, free will, social philosophy, and the meaning of life. Other scenes do not even include the protagonist's presence, but rather, show an isolated person or couple speaking about such topics from a disembodied perspective. Along the way, the film touches also upon existentialism, situationist politics, posthumanity, the film theory of André Bazin, and lucid dreaming, and makes references to various celebrated intellectual and literary figures by name. Gradually, the protagonist realizes that he is living out a perpetual dream, broken up only by occasional false awakenings. So far he is mostly a passive onlooker, though this changes during a chat with a woman. After she eccentrically greets and shares her creative ideas with him, he reminds himself of his recent realization and of the fact that she must, therefore, be a figment of his own dreaming imagination. Afterwards, he starts to converse more openly with other dream characters as well; however, he ultimately begins to despair about being utterly trapped in this unending, irresolvable state of existence. The protagonist's final talk is with a character who looks somewhat similar to the protagonist himself and whom he briefly encountered previously, earlier on in the film. This last conversation reveals this other character's understanding that reality may be only a single instant that the individual interprets falsely as time ; that living is simply the individual's constant negation of God's invitation to become one with the universe; that dreams offer a glimpse into the infinite nature of reality; and that in order to be free from the illusion called life, the individual need only to accept God's invitation, though he does not explicitly explain how this is achieved. The protagonist is last seen walking into a driveway when he suddenly begins to levitate, paralleling a scene at the start of the film of a floating child in the same driveway. Unlike the child who grabbed firmly onto the handle of a nearby car, however, the protagonist uncertainly reaches toward the same handle but is too swiftly lifted above the vehicle and over the trees. He now rises into the endless blue expanse of the sky until he disappears from view altogether.",
+      "score": 0.62455932,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "244752",
+      "title": "Waking Life",
+      "release_date": "2001-01-23",
+      "release_year": "2001",
+      "genres": "Ensemble Film; Experimental film; Animation; Mystery; Fantasy; Drama; Avant-garde",
+      "cast": "Trevor Jack Brooks; Lorelei Linklater; Wiley Wiggins; Alex Jones; Timothy \"Speed\" Levitch; Ethan Hawke; Richard Linklater; Julie Delpy; Nicky Katt; Steven Soderbergh; Steve Brudniak; Kim Krizan; Adam Goldberg"
+     },
+     {
+      "id": "edb95c357b3b-027155-000000",
+      "testo": "The animation is divided into three sections. \"Factual conversation\"  shows Arcimboldo-like heads gradually reducing each other to bland copies;Re-animating the Lost Objects d'Childhood and the Everyday: Jan Svankmajer \"Passionate discourse\"  shows a clay man and woman who dissolve into one another sexually, then quarrel and reduce themselves to a frenzied, boiling pulp; and \"Exhaustive discussion\"  consists of two elderly clay heads who extrude various objects on their tongues  and intertwine them in various combinations.",
+      "score": 0.59267488,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "18736817",
+      "title": "Dimensions of Dialogue",
+      "release_date": "1983-02",
+      "release_year": "1983",
+      "genres": "Short Film; Fantasy; Comedy; Animation",
+      "cast": null
+     },
+     {
+      "id": "edb95c357b3b-005470-000000",
+      "testo": "The main character and a few of the film's scenarios were developed from sketches and webcomics Hertzfeldt did in 1999-2000 for his website while working on other film projects. The film tells the story of Bill, whose daily routines, perceptions, and dreams are illustrated onscreen via multiple split-screen windows. Though his life seems mundane, he has trouble remembering things and the sights and sounds of the world are sometimes overwhelming. His life is narrated in several humorous and dramatic anecdotes, very gradually growing darker and terrifying as he appears to be suffering from a possibly fatal mental disorder . The split-screen windows and layered audio tracks slowly battle for attention on screen and begin to smother Bill. The film illustrates the struggle many people have with mental illness, in the inherent difficulty in deciding which muddled thought or distracted perception is most important and should be paid attention to. Meanwhile, Bill is suddenly faced with the possible end of his life.",
+      "score": 0.58947972,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "9246760",
+      "title": "Everything Will Be OK",
+      "release_date": "2006",
+      "release_year": "2006",
+      "genres": "Short Film; Animation",
+      "cast": "Don Hertzfeldt"
+     },
+     {
+      "id": "edb95c357b3b-007959-000000",
+      "testo": "Angel's Egg follows the daily life of an unnamed young girl in a surreal world of darkness and shadows. The girl is the keeper of a mysterious egg. She spends her time collecting bottles and artifacts in a gothic, abandoned city. An unnamed man arrives in the dark town one day riding a machine, wearing a cross-like weapon on his back and having bandaged hands. The two meet and talk, though their dialogue consists mostly of the single, repeated question \"Who are you?\" Meanwhile, the shadows of giant coelacanths appear within the town, and then the many human statues which line it come to life and begin hunting the fishes with spears. This scares the girl and the man holds her protectively under his long coat. The girl leads the man out the city toward a strange rock where she lives and they come across a carving of a strange tree. The man tells the girl that he has seen it before but is unable to remember where. Inside the girl's vast cavernous \"refuge\", which contains many strange fossils and her collection, the man tells the girl the story of Noah's Ark, but changes the climax of that story. He waits for the girl to fall asleep and breaks the egg. The girl reacts in anguish and follows the departing man, only to fall into a ravine of water and die. Her dying exhalation under the water blossoms into bubbles of \"eggs\" on the surface. The film ends with the man standing alone on a desolate beach as a strange machine rises from the ocean carrying a statue of the girl and ascends for the heavens as the \"world\" being revealed as a settlement on the edge of a hollow shell floating through an endless sea, though this is not elaborated upon.",
+      "score": 0.5864489,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "1023955",
+      "title": "Angel's Egg",
+      "release_date": "1985-12-25",
+      "release_year": "1985",
+      "genres": "Science Fiction; Japanese Movies; Surrealism; Animation; Mystery; Anime; Fantasy; Drama; Horror",
+      "cast": "Jinpachi Nezu; Mako Hyōdō; Keiichi Noda"
+     },
+     {
+      "id": "edb95c357b3b-024418-000000",
+      "testo": "Tale of Tales, like Tarkovsky's Mirror, attempts to structure itself like a human memory. Memories are not recalled in neat chronological order; instead, they are recalled by the association of one thing with another, which means that any attempt to put memory on film cannot be told like a conventional narrative. The film is thus made up of a series of related sequences whose scenes are interspersed between each other. One of the primary themes involves war, with particular emphasis on the enormous losses the Soviet Union suffered on the Eastern Front during World War II. Several recurring characters and their interactions make up a large part of the film, such as the poet, the little girl and the bull, the little boy and the crows, the dancers and the soldiers, and especially the little grey wolf . Another symbol connecting nearly all of these different themes are green apples . Yuriy Norshteyn wrote in Iskusstvo Kino magazine that the film is \"about simple concepts that give you the strength to live.\"CONTEXT - This Week in Arts and Ideas from The Moscow Times",
+      "score": 0.57469774,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "5123115",
+      "title": "Tale of Tales",
+      "release_date": "1979",
+      "release_year": "1979",
+      "genres": "Stop motion; Short Film; Animation",
+      "cast": "Alexander Kalyagin"
+     },
+     {
+      "id": "edb95c357b3b-021230-000000",
+      "testo": "The animated short follows a six year old child as he runs through the woods, and begins a monologue about his previous life as a tree. He explains graphically what a tree feels when it is chopped down.",
+      "score": 0.5745923,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "26335888",
+      "title": "Once Upon a Time in the Woods",
+      "release_date": "2006-08-12",
+      "release_year": "2006",
+      "genres": "Short Film; Animation; Black-and-white; Animated cartoon",
+      "cast": null
+     },
+     {
+      "id": "edb95c357b3b-017431-000000",
+      "testo": "The film begins with an animated version of director Terry Gilliam reading from a children's storybook. The story, \"Don the Cockroach\", opens with a palace high atop a mountain. Inside the wall of one of its rooms lives a cheerful cockroach named Don, who is shown frolicking and generally enjoying his life as a cockroach. One day, as Don scurries across a kitchen floor, he is suddenly crushed by a foot. The narrator Gilliam remarks that this does not matter, as cockroaches are not very interesting. The story then shifts to the man who crushed Don, then to his brother, then to the brother's friend, then to the friends employer, and so forth. Eventually the chain of interconnected people reaches a cleaning lady who is involved in a search-and-destroy mission against a colony of cockroaches, one of whom is named Don. The film then loops back to Don, replaying the events that have already occurred. An intertitle appears, announcing that the animator responsible for the previous cartoon has been sacked, and promising that the next one will be better. The next segment, entitled \"The Albert Einstein Story\", revolves around an English man who happens to share the name of the famous physicist, and is \"quite interesting in his own right\". The new narrator says that Einstein is very good with his hands, and that his hands are very good to him. However, they once stayed out late at night, carousing, misbehaving, and even cheating on their owner by shaking other hands. One of the hands was once seen out with a foot, causing a scandal in the upper-class society of hands, who were prejudiced against feet. The film then cuts to a musical extravaganza starring \"Fred & Frank Feet & Their Dancing Body\". The curtains draw to a close, and the words \"The End – Yours truly, Terry Gilliam\" appear. Next the film cuts to a segment entitled \"The Christmas Card\", set on Christmas Day in 1968 London. A lonely old man receives a Christmas card in the post. A series of Christmas cards are then shown coming to life in bizarre ways, connected only by the Three Wise Men, who follow the Star of Bethlehem from one card to another. Suddenly the postman returns and takes the card back, apologising for delivering it to the wrong address.",
+      "score": 0.5739664200000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "35230042",
+      "title": "Storytime",
+      "release_date": "1968",
+      "release_year": "1968",
+      "genres": "Short Film; Comedy film; Animation",
+      "cast": null
+     },
+     {
+      "id": "edb95c357b3b-016201-000000",
+      "testo": "The film focuses on a man who visits a mystical, organic building that looks like a medieval cathedral. As he walks through the immense structure, the light from his torch falls upon the pillars, revealing human faces. The viewer later realizes that the faces are still alive, as several smile and open their eyes as the man walks past them. The building's nature is partially unveiled at sunrise as the blinding light enchants the visitor and causes organic branch-like structures to burst from his chest. These protrusions then become another set of pillars in the building.",
+      "score": 0.56840488,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "465238",
+      "title": "The Cathedral",
+      "release_date": "2002-03-24",
+      "release_year": "2002",
+      "genres": "Science Fiction; Indie; Silent film; Animation; Short Film; Drama",
+      "cast": "Jola Rzebuska; Maria Kucharska; Marcin Jaskowski; Piotr Widlarz"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "An adult animated film exploring philosophical, existential, or metaphysical themes. Must match: adult animation; Animation.",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "Animation",
+       "type": "genre",
+       "results": {
+        "Waking Life (2001)": {
+         "status": "verified",
+         "evidence": "generi: Ensemble Film; Experimental film; Animation; Mystery; Fantasy; Drama; Avant-garde"
+        },
+        "Everything Will Be OK (2006)": {
+         "status": "verified",
+         "evidence": "generi: Short Film; Animation"
+        },
+        "Tale of Tales (1979)": {
+         "status": "verified",
+         "evidence": "generi: Stop motion; Short Film; Animation"
+        }
+       }
+      },
+      {
+       "constraint": "adult animation",
+       "type": "plot_require",
+       "results": {
+        "Waking Life (2001)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Everything Will Be OK (2006)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Tale of Tales (1979)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "philosophical themes",
+       "type": "plot_require",
+       "results": {
+        "Waking Life (2001)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Everything Will Be OK (2006)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Tale of Tales (1979)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "existential themes",
+       "type": "plot_require",
+       "results": {
+        "Waking Life (2001)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Everything Will Be OK (2006)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Tale of Tales (1979)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "metaphysical themes",
+       "type": "plot_require",
+       "results": {
+        "Waking Life (2001)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Everything Will Be OK (2006)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Tale of Tales (1979)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-002184-000000",
+      "testo": "Waking Life is about an unnamed young man living an ethereal existence that lacks transitions between everyday events and that eventually progresses to a state of self-reflective lucidity. For most of the film he observes quietly but later participates actively in philosophical discussions involving other characters—ranging from quirky scholars and artists to everyday restaurant-goers and friends—about such issues as metaphysics, free will, social philosophy, and the meaning of life. Other scenes do not even include the protagonist's presence, but rather, show an isolated person or couple speaking about such topics from a disembodied perspective. Along the way, the film touches also upon existentialism, situationist politics, posthumanity, the film theory of André Bazin, and lucid dreaming, and makes references to various celebrated intellectual and literary figures by name. Gradually, the protagonist realizes that he is living out a perpetual dream, broken up only by occasional false awakenings. So far he is mostly a passive onlooker, though this changes during a chat with a woman. After she eccentrically greets and shares her creative ideas with him, he reminds himself of his recent realization and of the fact that she must, therefore, be a figment of his own dreaming imagination. Afterwards, he starts to converse more openly with other dream characters as well; however, he ultimately begins to despair about being utterly trapped in this unending, irresolvable state of existence. The protagonist's final talk is with a character who looks somewhat similar to the protagonist himself and whom he briefly encountered previously, earlier on in the film. This last conversation reveals this other character's understanding that reality may be only a single instant that the individual interprets falsely as time ; that living is simply the individual's constant negation of God's invitation to become one with the universe; that dreams offer a glimpse into the infinite nature of reality; and that in order to be free from the illusion called life, the individual need only to accept God's invitation, though he does not explicitly explain how this is achieved. The protagonist is last seen walking into a driveway when he suddenly begins to levitate, paralleling a scene at the start of the film of a floating child in the same driveway. Unlike the child who grabbed firmly onto the handle of a nearby car, however, the protagonist uncertainly reaches toward the same handle but is too swiftly lifted above the vehicle and over the trees. He now rises into the endless blue expanse of the sky until he disappears from view altogether.",
+      "score": 0.5444871,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "244752",
+      "title": "Waking Life",
+      "release_date": "2001-01-23",
+      "release_year": "2001",
+      "genres": "Ensemble Film; Experimental film; Animation; Mystery; Fantasy; Drama; Avant-garde",
+      "cast": "Trevor Jack Brooks; Lorelei Linklater; Wiley Wiggins; Alex Jones; Timothy \"Speed\" Levitch; Ethan Hawke; Richard Linklater; Julie Delpy; Nicky Katt; Steven Soderbergh; Steve Brudniak; Kim Krizan; Adam Goldberg"
+     },
+     {
+      "id": "edb95c357b3b-005470-000000",
+      "testo": "The main character and a few of the film's scenarios were developed from sketches and webcomics Hertzfeldt did in 1999-2000 for his website while working on other film projects. The film tells the story of Bill, whose daily routines, perceptions, and dreams are illustrated onscreen via multiple split-screen windows. Though his life seems mundane, he has trouble remembering things and the sights and sounds of the world are sometimes overwhelming. His life is narrated in several humorous and dramatic anecdotes, very gradually growing darker and terrifying as he appears to be suffering from a possibly fatal mental disorder . The split-screen windows and layered audio tracks slowly battle for attention on screen and begin to smother Bill. The film illustrates the struggle many people have with mental illness, in the inherent difficulty in deciding which muddled thought or distracted perception is most important and should be paid attention to. Meanwhile, Bill is suddenly faced with the possible end of his life.",
+      "score": 0.13593051,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "9246760",
+      "title": "Everything Will Be OK",
+      "release_date": "2006",
+      "release_year": "2006",
+      "genres": "Short Film; Animation",
+      "cast": "Don Hertzfeldt"
+     },
+     {
+      "id": "edb95c357b3b-024418-000000",
+      "testo": "Tale of Tales, like Tarkovsky's Mirror, attempts to structure itself like a human memory. Memories are not recalled in neat chronological order; instead, they are recalled by the association of one thing with another, which means that any attempt to put memory on film cannot be told like a conventional narrative. The film is thus made up of a series of related sequences whose scenes are interspersed between each other. One of the primary themes involves war, with particular emphasis on the enormous losses the Soviet Union suffered on the Eastern Front during World War II. Several recurring characters and their interactions make up a large part of the film, such as the poet, the little girl and the bull, the little boy and the crows, the dancers and the soldiers, and especially the little grey wolf . Another symbol connecting nearly all of these different themes are green apples . Yuriy Norshteyn wrote in Iskusstvo Kino magazine that the film is \"about simple concepts that give you the strength to live.\"CONTEXT - This Week in Arts and Ideas from The Moscow Times",
+      "score": 0.10399425,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "5123115",
+      "title": "Tale of Tales",
+      "release_date": "1979",
+      "release_year": "1979",
+      "genres": "Stop motion; Short Film; Animation",
+      "cast": "Alexander Kalyagin"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/9081?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/32532?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/36079?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 9081,
+      "media_type": "movie",
+      "title": "Waking Life",
+      "original_title": "Waking Life",
+      "overview": "Waking Life is about a young man in a persistent lucid dream-like state. The film follows its protagonist as he initially observes and later participates in philosophical discussions that weave together issues like reality, free will, our relationships with others, and the meaning of life.",
+      "vote_average": 7.461,
+      "release_date": "2001-10-19",
+      "original_language": "en",
+      "poster_path": "/2MRM4PL6H7yraAkwyUEe2EqoQH3.jpg"
+     },
+     {
+      "id": 32532,
+      "media_type": "movie",
+      "title": "Everything Will Be OK",
+      "original_title": "Everything Will Be OK",
+      "overview": "A series of dark and troubling events forces Bill to reckon with the meaning of his life… or lack thereof.",
+      "vote_average": 7.6,
+      "release_date": "2006-01-10",
+      "original_language": "en",
+      "poster_path": "/yAYKV1UGyzkOGsRbD0oJGgr0bTQ.jpg"
+     },
+     {
+      "id": 36079,
+      "media_type": "movie",
+      "title": "Tale of Tales",
+      "original_title": "Сказка сказок",
+      "overview": "Distant, well-worn memories of childhood are inhabited by a little gray wolf. Through astonishing imagery, the memory of all of Russia is depicted.",
+      "vote_average": 7.3,
+      "release_date": "1979-01-05",
+      "original_language": "ru",
+      "poster_path": "/7gWBy9z4JrkDPSfG5VbjWbbgvxk.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "r08",
+  "kind": "rag",
+  "text": "Film di animazione per adulti con temi filosofici"
+ },
+ "seconds": 18.5
+}

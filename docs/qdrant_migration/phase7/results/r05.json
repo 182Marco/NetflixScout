@@ -1,0 +1,398 @@
+{
+ "answer": "Ecco i tre titoli individuati dal **RAG**, tutti degli anni ’90:\n\n### 1. *Love Is All There Is* (1996)\n- **Regia:** Joseph Bologna, Renée Taylor  \n- **Cast principale:** Lainie Kazan, Paul Sorvino, Barbara Carrera, Joseph Bologna, Angelina Jolie  \n- **Sinossi:** Nel Bronx, una famiglia siciliana che gestisce un’attività di catering è in rivalità con una famiglia di immigrati da Firenze, proprietaria di un ristorante italiano. La storia d’amore tra i rispettivi figli, Rosario e Gina, intensifica il conflitto tra le due famiglie.\n- **Voto TMDb:** 5,2/10 (16 voti)\n\n**Vincoli:**  \n- Film romantico: verificato  \n- Commedia: verificato  \n- Commedia romantica: non verificabile  \n- Anni ’90: verificato, 1996  \n- Ambientazione a New York: probabile, con un indizio nella trama riferito a “York”\n\n### 2. *The Pompatus of Love* (1996)\n- **Regia:** Richard Schenkman  \n- **Cast principale:** Adrian Pasdar, Jon Cryer, Tim Guinee, Adam Oliensis, Mia Sara  \n- **Sinossi:** Quattro amici discutono delle loro relazioni con le donne cercando di comprenderne il significato. La vicenda si svolge tra bar eleganti, loft e appartamenti di Manhattan, mentre ciascuno cerca di risolvere i propri problemi sentimentali.\n- **Voto TMDb:** 4,188/10 (8 voti)\n\n**Vincoli:**  \n- Film romantico: verificato  \n- Commedia: verificato  \n- Commedia romantica: non verificabile  \n- Anni ’90: verificato, 1996  \n- Ambientazione a New York: non verificabile\n\n### 3. *200 Cigarettes* (1999)\n- **Regia:** Risa Bramon Garcia  \n- **Cast principale:** Ben Affleck, Casey Affleck, Dave Chappelle, Guillermo Díaz, Angela Featherstone  \n- **Sinossi:** Nella New York del 1981, durante la notte di Capodanno, diversi giovani cercano di affrontare relazioni, solitudine, desiderio e inquietudini personali, dirigendosi infine verso la festa organizzata da Monica.\n- **Voto TMDb:** 5,838/10 (188 voti)\n\n**Vincoli:**  \n- Film romantico: verificato  \n- Commedia: verificato  \n- Commedia romantica: non verificabile  \n- Anni ’90: verificato, 1999  \n- Ambientazione a New York: probabile, con un indizio nella trama riferito a “York”",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Commedie romantiche degli anni 90 ambientate a New York",
+    "used": "Commedie romantiche degli anni 90 ambientate a New York",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Trovare commedie romantiche degli anni 90 ambientate a New York",
+    "arguments": {
+     "query": "Commedie romantiche degli anni 90 ambientate a New York",
+     "k_finale": null,
+     "search_mode": null
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 4479,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "semantic",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "semantic",
+      "k_largo": 10,
+      "k_finale": 3,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": []
+    },
+    "standalone_query": "Commedie romantiche degli anni 90 ambientate a New York",
+    "planner_query": "Commedie romantiche degli anni 90 ambientate a New York",
+    "embedded_text": "A romantic comedy set in New York during the 1990s.",
+    "signals": {
+     "positive_signals": [
+      "romantic comedy",
+      "1990s",
+      "New York setting"
+     ],
+     "negative_signals": [],
+     "hard_exclusions": [],
+     "semantic_query": "A romantic comedy set in New York during the 1990s.",
+     "genres": [
+      "Romance Film",
+      "Comedy"
+     ],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-031912-000000",
+      "testo": "Love Is All There Is is a modern retelling of the Romeo and Juliet story. It is set in the Bronx during the 1990s. The Cappamezzas , Bronx-born Sicilians, own a local catering business. They develop a bitter rivalry with the pretentious Malacicis , recent immigrants from Florence and owners of a fine Italian restaurant. The Cappamezzas' son, Rosario,  falls in love with the Malacicis' daughter, Gina,  after she replaces the obese star of the neighborhood church's staging of Romeo and Juliet. The rivalry intensifies after Rosario deflowers Gina after a fight with her parents. The movie was filmed at Greentree Country Club in New Rochelle, NY and many scenes were shot in City Island, Bronx, New York.",
+      "score": 0.7308981,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "4186717",
+      "title": "Love Is All There Is",
+      "release_date": "1996-05-10",
+      "release_year": "1996",
+      "genres": "Romantic comedy; Romance Film; Indie; Comedy",
+      "cast": "Paul Sorvino; Joseph Bologna; Lainie Kazan; Bobby Alto; Abe Vigoda; Barbara Carrera; William Hickey; Nathaniel Marston; Vera Lockwood; Joy Behar; Dick Van Patten; Angelina Jolie; Connie Stevens; Renee Taylor"
+     },
+     {
+      "id": "edb95c357b3b-015951-000000",
+      "testo": "The film follows various plot arcs all occurring on New Year's Eve of 1981. Monica  is throwing a big New Year's bash and is desperately afraid no one will attend. Early on the only person to have arrived is her friend Hillary . As she tries to convince Hillary to stay, we learn about various other groupings of individuals who are all on their way. The film follows several characters as they spend New Year's Eve in New York City before eventually showing up at Monica's party. The characters are: Val  and Stephie , teens from Ronkonkoma who get lost in the seedy Alphabet City section of the borough and wander into a punk club where they meet Dave  and Tom , who have a \"package\" they need to deliver; ditsy and awkward Cindy  who is on a dinner date with the paranoid Jack ; Lucy  and her best friend Kevin  who are struggling with the sexual tension between them; Kevin's feminist ex girlfriend Ellie , who walks in on Kevin and Lucy mid-coitus in a restroom stall; a dim-witted and flirtatious bartender ; competitive friends Bridget  and Caitlyn  who attempt to ditch Bridget's boyfriend Eric  ; and the eccentric cab driver  who takes them all around town throughout the evening in his disco themed taxi. Eventually, all the characters find their way to the party, although in the meantime Monica has passed out after drowning her sorrows in alcohol. She wakes up the next morning to find many unrecognizable people on her floor, including Stephie who tells her what a big hit her party was. Monica is thrilled , especially when she finds out that Elvis Costello showed up. The final montage shows Polaroids of the party, narrated by the disco cabbie, mostly featuring the unlikely romances from the party and the unconscious Monica being propped up by her party guests.",
+      "score": 0.6983577000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "677920",
+      "title": "200 Cigarettes",
+      "release_date": "1999",
+      "release_year": "1999",
+      "genres": "Romantic comedy; Ensemble Film; Indie; Period piece; Drama; Comedy; Romantic drama; Romance Film",
+      "cast": "Paul Rudd; Christina Ricci; Angela Featherstone; Martha Plimpton; Courtney Love; Ben Affleck; Casey Affleck; Jay Mohr; Catherine Kellner; Brian McCardie; Gaby Hoffmann; Dave Chappelle; Janeane Garofalo; Kate Hudson; Nicole Ari Parker; Guillermo Díaz"
+     },
+     {
+      "id": "edb95c357b3b-008217-000000",
+      "testo": "A romantic comedy, They All Laughed is set in New York City, largely filmed outdoors on the streets, and tells the story of three private detectives investigating two beautiful women for infidelity. The detectives eventually wind up romantically pursuing the women, who turn the tables on them. They All Laughed is an updating of La Ronde, both in tone and theme. Detective John Russo  attempts to cheat on his girlfriend, country singer Christy Miller , with a blonde taxi driver , with the connivance of his colleague Arthur Brodsky . He has met the taxi driver en route from a meeting in which he's been assigned to follow Angela Niotes , wife of a European tycoon. Detective Charles Rutledge  falls in love with Dolores Martin , whose husband has also hired him to spy on her. Rutledge is cautioned against this infatuation by his buddy Arthur. Feeling slighted by Russo's infidelity, Christy Miller throws herself at Rutledge but she ultimately falls in love with Dolores Martin's extramarital paramour Jose . Russo's pursuit of Angela leads him to fall in love with her.",
+      "score": 0.6939791000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "1412446",
+      "title": "They All Laughed",
+      "release_date": "1981",
+      "release_year": "1981",
+      "genres": "Romantic comedy; Thriller; Mystery; Comedy; Crime Thriller; Romance Film; New Hollywood",
+      "cast": "George Morfogen; Patti Hansen; Dorothy Stratten; John Ritter; Audrey Hepburn; Ben Gazzara; Blaine Novak; Linda MacEwen; Colleen Camp; Sean Hepburn Ferrer"
+     },
+     {
+      "id": "edb95c357b3b-027682-000000",
+      "testo": "A romantic comedy, set on Cape Cod in 1905, about three 70-year-old retired sea captains who try to lure an attractive, middle-aged woman into marriage.",
+      "score": 0.6922354000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "8421314",
+      "title": "Chatham",
+      "release_date": "2007-11-03",
+      "release_year": "2007",
+      "genres": "Romantic comedy; Romance Film; Comedy",
+      "cast": "David Carradine; Charles Durning; Mariel Hemingway; Julie Harris; John Savage; Rip Torn; Bruce Dern; Stephen Russell; Jason Alan Smith; Angelica Torn; Christy Scott Cashman"
+     },
+     {
+      "id": "edb95c357b3b-005109-000000",
+      "testo": "The plot follows the backstage dramas of a theater company in turn of the century New York while it struggles to produce a new work.",
+      "score": 0.6915178000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "15316917",
+      "title": "Illuminata",
+      "release_date": "1999-04-28",
+      "release_year": "1999",
+      "genres": "Romantic comedy; Parody; Japanese Movies; Indie; Costume drama; Comedy-drama; Period piece; Drama; Comedy",
+      "cast": "Leo Bassi; Henri Behar; Katherine Borowitz; Jeff Braun; David Cale; Georgina Cates; Beverly D'Angelo; Christopher Walken; John Turturro; Amo Gulinello; Bill Irwin; Donal McCann; Mary Lou Rosato; Susan Sarandon; Ben Gazzara; Rufus Sewell"
+     },
+     {
+      "id": "edb95c357b3b-032678-000000",
+      "testo": "The film revolves around four friends and their relationships with women. Set to the background of upscale Manhattan bars, lofts and apartments, the guys engage in sharp banter and one-upsmanship. The characters, Mark, a therapist ; Runyon, a playwright ; Josh, a playboy  and Phil, a plumber , try  to sort out their troubled love-lives. Mark and his girlfriend  are hung up over moving in together; Runyon is hung up over his old girlfriend Kathryn , who has moved to Los Angeles; the womanizing Josh is hung up on Phil's sister, Gina , who has an abusive husband; Phil, who is married with children, finds himself hung up on an English interior designer . The characters in the film spend much of their time trying to decipher the word \"pompatus,\" wondering whether they are mis-hearing the lyrics: \"Prophetess\"? \"Impetus\"? \"Profitless\"? \"Impotence\"? \"Pompous Ass\"? Pom-pom tits?",
+      "score": 0.6908525000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "1659186",
+      "title": "The Pompatus of Love",
+      "release_date": "1996-07-26",
+      "release_year": "1996",
+      "genres": "Romantic comedy; Ensemble Film; Indie; Comedy-drama; Comedy; Romance Film",
+      "cast": "Charlie Murphy; Jon Cryer; Mia Sara; Jennifer Tilly; Paige Turco; Roscoe Lee Browne; Dana Wheeler-Nicholson; Tim Guinee; Adrian Pasdar; Kristen Wilson; Kristin Scott Thomas; Arabella Field; Chalie Murphy; Adam Oliensis"
+     },
+     {
+      "id": "edb95c357b3b-013441-000000",
+      "testo": "The film is about two guys, Natti , and Moshon , and a girl Ossi  who live together in an apartment at 99 Dizengoff Street. Ossi works for an insurance company and the three of them decide to make a movie using stolen equipment. While they are making movies, they are also having numerous romantic encounters, and having a good time.Dizengoff 99, New York Times",
+      "score": 0.67972973,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "20928879",
+      "title": "Dizengoff 99",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Romance Film",
+      "cast": "Gidi Gov; Gali Atari"
+     },
+     {
+      "id": "edb95c357b3b-020859-000000",
+      "testo": "The film tells the story of a bristly-faced resident expat, Irwin, and his friends as they experience their second coming-of-age in New York City. For Irwin, there are “women” and then there are “girls”: women want to get married and girls just want to have fun. For the single Anny, there are three types of men: married, gay and idiots. Polish polka bars, confusing self-help books and a mythical hooker who never sleeps with her clients confound the friends’ American journey.",
+      "score": 0.65518153,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "20276339",
+      "title": "Pussyfoot",
+      "release_date": "2008",
+      "release_year": "2008",
+      "genres": "Comedy",
+      "cast": "Lex Alexander; Daniela Dakich; Chiara de Luca; Atul Singh; Christian Georgescu; Irwin Pelkalvski; Jason Bittle; Jeffrey Coyne; Lael Logan; Lora Grillo; Michael De Nola; Nikoleta Sekulovic; Paula Panzarella; Ramona Ganssloser; Shana Chanel; Vinny Muffoletto"
+     },
+     {
+      "id": "edb95c357b3b-035992-000000",
+      "testo": "The film is set in Manhattan, New York City. The plot concerns the efforts of a woman  and her lover  to find the murderer of her husband before they are accused of it themselves. The story's climax occurs at the Macy's Thanksgiving Day Parade. Reginald Rose's screenplay was nominated for an Edgar Allan Poe Award.",
+      "score": 0.64924026,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "24539738",
+      "title": "Somebody Killed Her Husband",
+      "release_date": "1978-09-29",
+      "release_year": "1978",
+      "genres": "Crime Fiction; Mystery; Comedy; Comedy Thriller",
+      "cast": "Tammy Grimes; Jeff Bridges; Farrah Fawcett"
+     },
+     {
+      "id": "edb95c357b3b-037965-000000",
+      "testo": "An romantic love triangle comedy about an unlikely group of singles living together in Washington, DC.",
+      "score": 0.64266983,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "25471984",
+      "title": "Eat me!",
+      "release_date": "2000",
+      "release_year": "2000",
+      "genres": "Comedy",
+      "cast": "Kimberly Skyrme; Jack Daniel; Kris Arnold; Andy Rapoport; Waleed Zuaiter; Claiborne Lashley; Ron Jeremy; Rhea Seehorn; Delaney Williams; Chris Walker; Turdy Anus; Stephen Carpenter; Shari Lewis; Jon Sherman; Jimmy Gallagher; Chris Lane; Anthony Agnew"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "A romantic comedy set in New York during the 1990s. Must match: New York setting; Romance Film.",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "Romance Film",
+       "type": "genre",
+       "results": {
+        "Love Is All There Is (1996)": {
+         "status": "verified",
+         "evidence": "generi: Romantic comedy; Romance Film; Indie; Comedy"
+        },
+        "The Pompatus of Love (1996)": {
+         "status": "verified",
+         "evidence": "generi: Romantic comedy; Ensemble Film; Indie; Comedy-drama; Comedy; Romance Film"
+        },
+        "200 Cigarettes (1999)": {
+         "status": "verified",
+         "evidence": "generi: Romantic comedy; Ensemble Film; Indie; Period piece; Drama; Comedy; Romantic drama; Romance Film"
+        }
+       }
+      },
+      {
+       "constraint": "Comedy",
+       "type": "genre",
+       "results": {
+        "Love Is All There Is (1996)": {
+         "status": "verified",
+         "evidence": "generi: Romantic comedy; Romance Film; Indie; Comedy"
+        },
+        "The Pompatus of Love (1996)": {
+         "status": "verified",
+         "evidence": "generi: Romantic comedy; Ensemble Film; Indie; Comedy-drama; Comedy; Romance Film"
+        },
+        "200 Cigarettes (1999)": {
+         "status": "verified",
+         "evidence": "generi: Romantic comedy; Ensemble Film; Indie; Period piece; Drama; Comedy; Romantic drama; Romance Film"
+        }
+       }
+      },
+      {
+       "constraint": "romantic comedy",
+       "type": "plot_require",
+       "results": {
+        "Love Is All There Is (1996)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "The Pompatus of Love (1996)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "200 Cigarettes (1999)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "1990s",
+       "type": "decade",
+       "results": {
+        "Love Is All There Is (1996)": {
+         "status": "verified",
+         "evidence": "anno 1996"
+        },
+        "The Pompatus of Love (1996)": {
+         "status": "verified",
+         "evidence": "anno 1996"
+        },
+        "200 Cigarettes (1999)": {
+         "status": "verified",
+         "evidence": "anno 1999"
+        }
+       }
+      },
+      {
+       "constraint": "New York setting",
+       "type": "plot_require",
+       "results": {
+        "Love Is All There Is (1996)": {
+         "status": "probable",
+         "evidence": "termini nella trama: york"
+        },
+        "The Pompatus of Love (1996)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "200 Cigarettes (1999)": {
+         "status": "probable",
+         "evidence": "termini nella trama: york"
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-031912-000000",
+      "testo": "Love Is All There Is is a modern retelling of the Romeo and Juliet story. It is set in the Bronx during the 1990s. The Cappamezzas , Bronx-born Sicilians, own a local catering business. They develop a bitter rivalry with the pretentious Malacicis , recent immigrants from Florence and owners of a fine Italian restaurant. The Cappamezzas' son, Rosario,  falls in love with the Malacicis' daughter, Gina,  after she replaces the obese star of the neighborhood church's staging of Romeo and Juliet. The rivalry intensifies after Rosario deflowers Gina after a fight with her parents. The movie was filmed at Greentree Country Club in New Rochelle, NY and many scenes were shot in City Island, Bronx, New York.",
+      "score": 0.90633047,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "4186717",
+      "title": "Love Is All There Is",
+      "release_date": "1996-05-10",
+      "release_year": "1996",
+      "genres": "Romantic comedy; Romance Film; Indie; Comedy",
+      "cast": "Paul Sorvino; Joseph Bologna; Lainie Kazan; Bobby Alto; Abe Vigoda; Barbara Carrera; William Hickey; Nathaniel Marston; Vera Lockwood; Joy Behar; Dick Van Patten; Angelina Jolie; Connie Stevens; Renee Taylor"
+     },
+     {
+      "id": "edb95c357b3b-032678-000000",
+      "testo": "The film revolves around four friends and their relationships with women. Set to the background of upscale Manhattan bars, lofts and apartments, the guys engage in sharp banter and one-upsmanship. The characters, Mark, a therapist ; Runyon, a playwright ; Josh, a playboy  and Phil, a plumber , try  to sort out their troubled love-lives. Mark and his girlfriend  are hung up over moving in together; Runyon is hung up over his old girlfriend Kathryn , who has moved to Los Angeles; the womanizing Josh is hung up on Phil's sister, Gina , who has an abusive husband; Phil, who is married with children, finds himself hung up on an English interior designer . The characters in the film spend much of their time trying to decipher the word \"pompatus,\" wondering whether they are mis-hearing the lyrics: \"Prophetess\"? \"Impetus\"? \"Profitless\"? \"Impotence\"? \"Pompous Ass\"? Pom-pom tits?",
+      "score": 0.6549173,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "1659186",
+      "title": "The Pompatus of Love",
+      "release_date": "1996-07-26",
+      "release_year": "1996",
+      "genres": "Romantic comedy; Ensemble Film; Indie; Comedy-drama; Comedy; Romance Film",
+      "cast": "Charlie Murphy; Jon Cryer; Mia Sara; Jennifer Tilly; Paige Turco; Roscoe Lee Browne; Dana Wheeler-Nicholson; Tim Guinee; Adrian Pasdar; Kristen Wilson; Kristin Scott Thomas; Arabella Field; Chalie Murphy; Adam Oliensis"
+     },
+     {
+      "id": "edb95c357b3b-015951-000000",
+      "testo": "The film follows various plot arcs all occurring on New Year's Eve of 1981. Monica  is throwing a big New Year's bash and is desperately afraid no one will attend. Early on the only person to have arrived is her friend Hillary . As she tries to convince Hillary to stay, we learn about various other groupings of individuals who are all on their way. The film follows several characters as they spend New Year's Eve in New York City before eventually showing up at Monica's party. The characters are: Val  and Stephie , teens from Ronkonkoma who get lost in the seedy Alphabet City section of the borough and wander into a punk club where they meet Dave  and Tom , who have a \"package\" they need to deliver; ditsy and awkward Cindy  who is on a dinner date with the paranoid Jack ; Lucy  and her best friend Kevin  who are struggling with the sexual tension between them; Kevin's feminist ex girlfriend Ellie , who walks in on Kevin and Lucy mid-coitus in a restroom stall; a dim-witted and flirtatious bartender ; competitive friends Bridget  and Caitlyn  who attempt to ditch Bridget's boyfriend Eric  ; and the eccentric cab driver  who takes them all around town throughout the evening in his disco themed taxi. Eventually, all the characters find their way to the party, although in the meantime Monica has passed out after drowning her sorrows in alcohol. She wakes up the next morning to find many unrecognizable people on her floor, including Stephie who tells her what a big hit her party was. Monica is thrilled , especially when she finds out that Elvis Costello showed up. The final montage shows Polaroids of the party, narrated by the disco cabbie, mostly featuring the unlikely romances from the party and the unconscious Monica being propped up by her party guests.",
+      "score": 0.27418783,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "677920",
+      "title": "200 Cigarettes",
+      "release_date": "1999",
+      "release_year": "1999",
+      "genres": "Romantic comedy; Ensemble Film; Indie; Period piece; Drama; Comedy; Romantic drama; Romance Film",
+      "cast": "Paul Rudd; Christina Ricci; Angela Featherstone; Martha Plimpton; Courtney Love; Ben Affleck; Casey Affleck; Jay Mohr; Catherine Kellner; Brian McCardie; Gaby Hoffmann; Dave Chappelle; Janeane Garofalo; Kate Hudson; Nicole Ari Parker; Guillermo Díaz"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/55058?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/85328?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/15256?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 55058,
+      "media_type": "movie",
+      "title": "Love Is All There Is",
+      "original_title": "Love Is All There Is",
+      "overview": "The Malacicis, a hard-working Italian family recently immigrated from Florence, open a fancy restaurant in the Bronx, N.Y., drawing the ire of another clan. Mike and Sadie Capomezzo, equally hard-working Sicilian caterers from the area, find they cannot stand Piero and Maria Malacici. But things get complicated when the Malacicis' daughter, Gina, and the Capomezzos' son, Rosario, fall in love.",
+      "vote_average": 5.2,
+      "release_date": "1996-05-10",
+      "original_language": "en",
+      "poster_path": "/tXaewq2LMjTJmZLTuKEM6LJhBo2.jpg"
+     },
+     {
+      "id": 85328,
+      "media_type": "movie",
+      "title": "The Pompatus of Love",
+      "original_title": "The Pompatus of Love",
+      "overview": "Four guys sit around drinking beer and talking, trying to figure out the meaning of \"the pompatus of love\" (from the Steve Miller song \"Joker\") and analyzing their relationships with women.",
+      "vote_average": 4.188,
+      "release_date": "1996-07-26",
+      "original_language": "en",
+      "poster_path": "/i94UXzKj8OF1hUyXlT4BHvfgJZI.jpg"
+     },
+     {
+      "id": 15256,
+      "media_type": "movie",
+      "title": "200 Cigarettes",
+      "original_title": "200 Cigarettes",
+      "overview": "In 1981 New York City, a collection of twentysomethings try to cope with relationships, loneliness, desire and their individual neuroses on New Years Eve.",
+      "vote_average": 5.838,
+      "release_date": "1999-02-26",
+      "original_language": "en",
+      "poster_path": "/ssbx2Mk5ZCJWpXALuP2AdG0GFIT.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "r05",
+  "kind": "rag",
+  "text": "Commedie romantiche degli anni 90 ambientate a New York"
+ },
+ "seconds": 21.0
+}

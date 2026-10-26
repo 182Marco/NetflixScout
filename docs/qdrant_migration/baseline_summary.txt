@@ -1,0 +1,31 @@
+id   status    r@10  r@50 sem hyb fin  semantic_query
+q01  complete  1.00  0.94  10  10   3  A slow-paced, melancholic film about the relationship between a father
+q02  complete  1.00  0.80  10  10   3  A film about a person experiencing loneliness and isolation in outer s
+q03  complete  1.00  0.92  10  10   3  A film about a protagonist named Truman Burbank who unknowingly lives 
+q04  complete  1.00  0.94  10  10   3  A film starring Tom Hanks about a man shipwrecked and stranded alone o
+q05  complete  1.00  0.96  10  10   3  Japanese science fiction comedy films set in the 1950s
+q06  complete  1.00  0.98  10  10   3  Horror films set in a psychiatric hospital
+q07  complete  1.00  1.00  10  10   3  A Western film about a bounty hunter and an old sheriff.
+q08  complete  1.00  1.00  10  10   3  A World War I war film told from the perspective of German soldiers.
+q09  complete  1.00  0.86  10  10   3  Films about people experiencing memory loss and the gradual disappeara
+q10  complete  1.00  0.98  10  10   3  A psychological thriller about a cannibal psychiatrist named Hannibal 
+q11  complete  1.00  0.92  10  10   3  Science fiction films without robots or space travel.
+q12  complete  0.90  0.94  10  10   3  A psychological thriller focused on mental tension and suspense.
+q13  complete  1.00  1.00  10  10   3  A science fiction film about people discovering that their reality is 
+q14  complete  1.00  0.96  10  10   3  An industrial science fiction horror film about a crew trapped in an i
+q15  complete  1.00  1.00  10  10   3  A crime drama with an atmosphere of family loyalty, organized crime, p
+q16  complete  1.00  0.96  10  10   3  An emotionally epic science fiction film about space exploration, huma
+q17  complete  0.90  0.80  10  10   3  A deeply moving film that evokes tears but ends on a hopeful note.
+q18  complete  1.00  0.90  10  10   3  A 1930s gangster film set in the United States featuring an ambitious 
+q19  complete  1.00  1.00  10  10   3  A heist movie in which the carefully planned robbery goes wrong.
+q20  complete  1.00  1.00  10  10   3  A romance film set during the Second World War.
+q21  complete  0.80  0.80  10  10   3  A film featuring a character named Rick who runs a bar in Casablanca.
+q22  complete  1.00  1.00  10  10   3  A film about a mutiny aboard a Soviet nuclear submarine.
+q23  complete  1.00  1.00  10  10   3  Films about racism in the American South
+q24  complete  1.00  1.00  10  10   3  A French drama from the 1960s about a couple in crisis.
+q25  complete  1.00  0.94  10  10   3  Stories about time travel involving temporal paradoxes.
+q26  complete  0.80  0.72  10  10   3  A lighthearted, family-friendly movie suitable for watching together w
+q27  complete  1.00  0.82  10  10   3  An animated film about a robot that takes care of a young girl.
+q28  complete  1.00  0.92  10  10   3  A film about an alcoholic detective investigating an unsolved case.
+
+complete=28 partial=0 failed=0 total=28

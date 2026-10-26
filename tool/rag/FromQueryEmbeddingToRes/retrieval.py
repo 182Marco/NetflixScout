@@ -183,6 +183,7 @@ def _retrieve(query: str, config: dict, signals: QuerySignals | None = None) -> 
     collection = apri_collection(
         config["vectorstore"]["collection"],
         db_dir=config["vectorstore"]["db_dir"],
+        store_config=config["vectorstore"],
     )
 
     if config["retrieval"]["search_mode"] == SearchMode.semantic:
@@ -201,6 +202,7 @@ def _retrieve(query: str, config: dict, signals: QuerySignals | None = None) -> 
             genres=signals.genres,
             genre_boost=retrieval_config.get("genre_boost", 0.0),
             excluded_genres=signals.excluded_genres,
+            store_config=config["vectorstore"],
         )
         return _light_rerank(query, base_results, signals)
 
@@ -240,6 +242,7 @@ def _retrieve(query: str, config: dict, signals: QuerySignals | None = None) -> 
             genres=signals.genres,
             genre_boost=retrieval_config.get("genre_boost", 0.0),
             excluded_genres=signals.excluded_genres,
+            store_config=config["vectorstore"],
         )
         risultati_bm25 = cerca_bm25(keyword_query, indice_bm25, config["retrieval"]["k_largo"])
         risultati_bm25 = _apply_hard_exclusions(risultati_bm25)

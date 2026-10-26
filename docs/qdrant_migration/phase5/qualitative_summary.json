@@ -1,0 +1,625 @@
+{
+ "variants": {
+  "A": {
+   "pertinenza": 1.391,
+   "vicinanza": 1.0,
+   "assenza": 1.571,
+   "fatti": 1.957,
+   "n_cases": {
+    "pertinenza": 23,
+    "vicinanza": 21,
+    "assenza": 21,
+    "fatti": 23
+   }
+  },
+  "B": {
+   "pertinenza": 1.217,
+   "vicinanza": 0.952,
+   "assenza": 1.857,
+   "fatti": 1.957,
+   "n_cases": {
+    "pertinenza": 23,
+    "vicinanza": 21,
+    "assenza": 21,
+    "fatti": 23
+   }
+  },
+  "C": {
+   "pertinenza": 1.0,
+   "vicinanza": 0.714,
+   "assenza": 1.619,
+   "fatti": 1.957,
+   "n_cases": {
+    "pertinenza": 23,
+    "vicinanza": 21,
+    "assenza": 21,
+    "fatti": 23
+   }
+  }
+ },
+ "paired_vs_A": {
+  "B": {
+   "pertinenza": {
+    "better": 2,
+    "equal": 17,
+    "worse": 4
+   },
+   "vicinanza": {
+    "better": 6,
+    "equal": 9,
+    "worse": 6
+   },
+   "assenza": {
+    "better": 4,
+    "equal": 17,
+    "worse": 0
+   },
+   "fatti": {
+    "better": 1,
+    "equal": 21,
+    "worse": 1
+   }
+  },
+  "C": {
+   "pertinenza": {
+    "better": 1,
+    "equal": 14,
+    "worse": 8
+   },
+   "vicinanza": {
+    "better": 4,
+    "equal": 8,
+    "worse": 9
+   },
+   "assenza": {
+    "better": 5,
+    "equal": 12,
+    "worse": 4
+   },
+   "fatti": {
+    "better": 0,
+    "equal": 23,
+    "worse": 0
+   }
+  }
+ },
+ "per_case": {
+  "c01": {
+   "A": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   }
+  },
+  "c02": {
+   "A": {
+    "pertinenza": 2,
+    "vicinanza": 2,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 2,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 2,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   }
+  },
+  "c03": {
+   "A": {
+    "pertinenza": 1,
+    "vicinanza": 0,
+    "assenza": 2,
+    "fatti": 1
+   },
+   "B": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 1
+   }
+  },
+  "c04": {
+   "A": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 1,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 1,
+    "fatti": 2
+   }
+  },
+  "c05": {
+   "A": {
+    "pertinenza": 2,
+    "vicinanza": 1,
+    "assenza": 0,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 0,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 0,
+    "vicinanza": 0,
+    "assenza": 1,
+    "fatti": 2
+   }
+  },
+  "c06": {
+   "A": {
+    "pertinenza": 2,
+    "vicinanza": 1,
+    "assenza": 1,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 2,
+    "vicinanza": 2,
+    "assenza": 1,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 0,
+    "vicinanza": 0,
+    "assenza": 2,
+    "fatti": 2
+   }
+  },
+  "c07": {
+   "A": {
+    "pertinenza": 2,
+    "vicinanza": 2,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 2,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 1,
+    "vicinanza": 0,
+    "assenza": 1,
+    "fatti": 2
+   }
+  },
+  "c08": {
+   "A": {
+    "pertinenza": 1,
+    "vicinanza": 0,
+    "assenza": null,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": null,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 0,
+    "vicinanza": 0,
+    "assenza": null,
+    "fatti": 2
+   }
+  },
+  "c09": {
+   "A": {
+    "pertinenza": 2,
+    "vicinanza": 1,
+    "assenza": null,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 2,
+    "vicinanza": 1,
+    "assenza": null,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 1,
+    "vicinanza": 0,
+    "assenza": null,
+    "fatti": 2
+   }
+  },
+  "c10": {
+   "A": {
+    "pertinenza": 1,
+    "vicinanza": null,
+    "assenza": 0,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 1,
+    "vicinanza": null,
+    "assenza": 2,
+    "fatti": 1
+   },
+   "C": {
+    "pertinenza": 1,
+    "vicinanza": null,
+    "assenza": 1,
+    "fatti": 2
+   }
+  },
+  "c11": {
+   "A": {
+    "pertinenza": 2,
+    "vicinanza": null,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 1,
+    "vicinanza": null,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 2,
+    "vicinanza": null,
+    "assenza": 2,
+    "fatti": 2
+   }
+  },
+  "c12": {
+   "A": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 1,
+    "vicinanza": 2,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 1,
+    "vicinanza": 2,
+    "assenza": 2,
+    "fatti": 2
+   }
+  },
+  "c13": {
+   "A": {
+    "pertinenza": 1,
+    "vicinanza": 0,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 1,
+    "fatti": 2
+   }
+  },
+  "c14": {
+   "A": {
+    "pertinenza": 2,
+    "vicinanza": 2,
+    "assenza": 1,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 2,
+    "vicinanza": 1,
+    "assenza": 1,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 2,
+    "vicinanza": 2,
+    "assenza": 1,
+    "fatti": 2
+   }
+  },
+  "c15": {
+   "A": {
+    "pertinenza": 1,
+    "vicinanza": 0,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 2,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 1,
+    "fatti": 2
+   }
+  },
+  "c16": {
+   "A": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 0,
+    "vicinanza": 0,
+    "assenza": 1,
+    "fatti": 2
+   }
+  },
+  "c17": {
+   "A": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 1,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 1,
+    "vicinanza": 0,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   }
+  },
+  "c18": {
+   "A": {
+    "pertinenza": 2,
+    "vicinanza": 2,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 0,
+    "vicinanza": 0,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   }
+  },
+  "c20": {
+   "A": {
+    "pertinenza": 2,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 1,
+    "vicinanza": 0,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 2,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   }
+  },
+  "c25": {
+   "A": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 2,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   }
+  },
+  "c26": {
+   "A": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 1,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 1,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 1,
+    "vicinanza": 0,
+    "assenza": 2,
+    "fatti": 2
+   }
+  },
+  "c27": {
+   "A": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 0,
+    "vicinanza": 0,
+    "assenza": 2,
+    "fatti": 2
+   }
+  },
+  "c28": {
+   "A": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "B": {
+    "pertinenza": 1,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   },
+   "C": {
+    "pertinenza": 2,
+    "vicinanza": 1,
+    "assenza": 2,
+    "fatti": 2
+   }
+  }
+ },
+ "identical_lists": [
+  [
+   "c01",
+   "A",
+   "B"
+  ],
+  [
+   "c01",
+   "A",
+   "C"
+  ],
+  [
+   "c01",
+   "B",
+   "C"
+  ],
+  [
+   "c02",
+   "B",
+   "C"
+  ],
+  [
+   "c04",
+   "A",
+   "C"
+  ],
+  [
+   "c09",
+   "A",
+   "B"
+  ],
+  [
+   "c11",
+   "A",
+   "C"
+  ],
+  [
+   "c12",
+   "B",
+   "C"
+  ],
+  [
+   "c14",
+   "A",
+   "C"
+  ],
+  [
+   "c16",
+   "A",
+   "B"
+  ],
+  [
+   "c20",
+   "A",
+   "C"
+  ],
+  [
+   "c25",
+   "A",
+   "C"
+  ],
+  [
+   "c26",
+   "A",
+   "B"
+  ],
+  [
+   "c27",
+   "A",
+   "B"
+  ],
+  [
+   "c28",
+   "A",
+   "B"
+  ]
+ ]
+}

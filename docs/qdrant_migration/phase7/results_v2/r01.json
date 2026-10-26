@@ -1,0 +1,386 @@
+{
+ "answer": "Ecco i 4 titoli restituiti dalla ricerca. **La presenza di un finale commovente non è verificabile dai dati disponibili**, quindi non posso garantirlo; anche il vincolo del viaggio nello spazio risulta non verificabile per tutti i titoli.\n\n1. **Gravity (2013)**  \n   - **Regia:** Alfonso Cuarón  \n   - **Cast principale:** Sandra Bullock, George Clooney, Ed Harris, Orto Ignatiussen, Phaldut Sharma  \n   - **Sinossi:** L’ingegnera Ryan Stone, alla sua prima missione spaziale, e l’astronauta Matt Kowalski, alla sua ultima spedizione, devono sopravvivere nello spazio dopo essere stati colpiti da detriti durante un’attività extraveicolare.  \n   - **Voto TMDb:** 7,172/10  \n   - **Vincoli:** fantascienza verificata; viaggio nello spazio non verificabile; finale commovente non verificabile.\n\n2. **Conquest of Space (1955)**  \n   - **Regia:** Byron Haskin  \n   - **Cast principale:** Walter Brooke, Eric Fleming, Mickey Shaughnessy, Phil Foster, William Redfield  \n   - **Sinossi:** Un gruppo di astronauti americani lascia la stazione spaziale per la prima missione verso Marte, ma le convinzioni religiose del capitano potrebbero ostacolare la spedizione.  \n   - **Voto TMDb:** 5,6/10  \n   - **Vincoli:** fantascienza verificata; viaggio nello spazio non verificabile; finale commovente non verificabile.\n\n3. **Royal Space Force: The Wings of Honneamise (1987)**  \n   - **Regia:** Hiroyuki Yamaga  \n   - **Cast principale:** Leo Morimoto, Mitsuki Yayoi, Aya Murata, Kazuyuki Sogabe, Masato Hirano  \n   - **Sinossi:** Su una Terra alternativa, il regno di Honneamise e la Repubblica rivale si preparano alla guerra. Un piccolo gruppo cerca di portare l’umanità nello spazio attraverso il primo programma di volo spaziale del proprio mondo.  \n   - **Voto TMDb:** 6,9/10  \n   - **Vincoli:** fantascienza verificata; viaggio nello spazio non verificabile; finale commovente non verificabile.\n\n4. **Melancholia (2011)**  \n   - **Sinossi:** Un enorme pianeta si avvicina alla Terra e i due pianeti entrano in collisione. La storia è divisa in due parti, dedicate alle sorelle Justine e Claire, e inizia con il loro matrimonio in una località di villeggiatura.  \n   - **Vinoto:** non disponibile nei dati ricevuti.  \n   - **Vincoli:** fantascienza verificata; viaggio nello spazio non verificabile; finale commovente non verificabile.",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Consigliami 4 film su un viaggio nello spazio con un finale commovente",
+    "used": "Consigliami 4 film su un viaggio nello spazio con un finale commovente",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Trovare 4 film su un viaggio nello spazio con un finale commovente",
+    "arguments": {
+     "query": "Consiglia 4 film incentrati su un viaggio nello spazio e caratterizzati da un finale commovente",
+     "k_finale": 4,
+     "search_mode": null
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 5243,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "semantic",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "semantic",
+      "k_largo": 10,
+      "k_finale": 4,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": [
+      "k_finale"
+     ]
+    },
+    "standalone_query": "Consigliami 4 film su un viaggio nello spazio con un finale commovente",
+    "planner_query": "Consiglia 4 film incentrati su un viaggio nello spazio e caratterizzati da un finale commovente",
+    "embedded_text": "A film centered on a journey through space with an emotional and moving ending.",
+    "signals": {
+     "positive_signals": [
+      "space travel",
+      "moving ending"
+     ],
+     "negative_signals": [],
+     "hard_exclusions": [],
+     "semantic_query": "A film centered on a journey through space with an emotional and moving ending.",
+     "genres": [
+      "Science Fiction"
+     ],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-008874-000000",
+      "testo": "{{plot}} Sometime in the late 1950s, mankind has achieved the capability of manned space flight and built a space station in orbit around the Earth, headed by Colonel Merritt, whose son, Barney, a Captain, is feeling a little homesick. At the moment, the space station's personnel have been at work constructing a giant spaceship to go to the moon, but on one occasion, a crew member becomes a victim of space fatigue after failing to connect a wire on time. Later on, as Colonel Merritt has taken his men to the galley for dinner, the space station is lightly damaged by a meteor shower, but damages are soon repaired. After the incident, an inspector comes up from Earth and  gives Merritt fresh orders from the president: not only is Merritt being promoted to General, but the so called moonship is going to Mars instead. As General Merritt selects three men and an officer to go with him, his close friend Sgt Mahoney is turned down for being twenty years too old, although three months younger than the General. Merritt's son changes his mind about returning to Earth, and volunteers for the mission. Sgt Imoto expresses his view on the Martian mission, explaining how Japan, before World War Two, served as an example for a world becoming overpopulated and about to run out of valuable resources. After the selected crew members watch a news broadcast wishing them farewell, the Mars mission sets off, only for the General to find that Sgt Mahoney stowed away by hiding in one of the spacesuits. En route, something goes wrong with the communication antenna, so two men go out on a spacewalk to make repairs. They manage to get the antenna working just in time as the monitor shows an asteroid, twenty times bigger than the Mars ship, coming at them from the stern. Thanks to the general, the ship manages to avoid a collision, but meteors from the asteroid kill one of the spacewalking astronauts by puncturing an airline, leaving the crew to abandon him in space. Eight months later, as the crew approaches Mars, the general becomes increasingly disturbed , and as they come in for a landing and the \"space speed indicator\" approaches zero, he suddenly says \"We haven't the right!\" and puts on full throttle. His son, now the captain of the mission, struggles with him, wrenches his hand from the throttle, and brings the ship in to a rough but safe landing. Later, as the crew takes their first steps on the Martian surface, they spot water leaking from the rocket. Getting aboard quickly the captain discovers the saboteur is the general. In a fight with his son , the two struggle and Captain Merritt fires his father's gun, killing the General. Sgt. Mahoney, who'd seen the last stages of the fight, threatens to have Captain Merritt confined for his actions. The crew discovers, apparently surprised, that Mars is inhospitable and that that it is going to be a severe struggle to survive with their limited water for the year it will take for Earth to reach the right orbital position for a successful return. Despite the absence of water on Mars, like the child in Ruth Krauss's book The Carrot Seed, Japanese crew member Sgt. Imoto plants a seed hopefully in the Martian soil. The crew celebrates Christmas on Mars glumly. Wisecracking Brooklynite Sgt. Siegle plays Christmas carols somberly on a harmonica while the other actors chew the scenery. Siegle complains they are on \"a lousy, dried-up ball in the corner pocket of nowhere.\" :Sgt. Mahoney: The General wasn't crazy, he was right! We asked for it! There's a curse on this ship and everybody in it! :Sgt. Siegle: Baloney! You leave that stuff back on Earth. But it don't operate past the thousand-mile limit. \"Only God can make a tree.\" Okay? Where is it? Where's the trees, and the flowers, and the grass? Where's the water? You hear me? Where's the water?! Just then, Sgt. Imoto, who has been staring out the window yells \"Look!\" Since it is snowing on Christmas Day, the crew is saved and they manage to replenish their water supply. In due course, as the launch date approaches, the seed Imoto planted sprouts into a tiny flower. The viewer infers that Mars has water and can grow flowers; since \"only God can make a tree,\" God is present on Mars and God must intend for humankind to exploit not only the Earth but also Mars and the rest of the universe. The joy over the discovery of the flower is, however, short lived as the crew hear rumbling sounds and see rocks falling and cavities opening up in the ground, proving that Mars has underground water. The ground sinks slightly under the ship and even though the ship doesn't sink into the ground, it is leaning at an angle too risky to make an emergency liftoff. The crew then decides to try a more risky but desperate attempt to straighten up the ship: using the ship's motors to open up a new cavity, which does work, and the ship lifts off before the ground collapses. As the movie closes, Sgt. Mahoney, who had threatened to accuse Capt. Merritt of murdering his own father on their return, changes his mind and decides that it would be better to forget about it and let the world remember the general not as a nutcase who tried to sabotage the flight but as a brave man \"sacrificin' his life as he did, to bring his ship and his crew safely to a landing on the rocky desert of a new planet! … Fittin' end for a grand soldier.\" The captain nods and adds, \"For the man who conquered space.\" The Irishman offers him \"a cup o' tea\", the captains says \"thanks\", the music rises to a climax, and the rocket glides off into a starry firmament behind the words \"THE END.\"",
+      "score": 0.6722258600000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "1267905",
+      "title": "Conquest of Space",
+      "release_date": "1955-04-20",
+      "release_year": "1955",
+      "genres": "Science Fiction; Drama; Adventure",
+      "cast": "Mickey Shaughnessy; Ross Martin; Eric Fleming; Vito Scotti; Michael Fox; William Redfield; Phil Foster; Benson Fong; Iphigenie Castiglioni; Joan Shawlee; John Dennis; William Hopper"
+     },
+     {
+      "id": "edb95c357b3b-031463-000000",
+      "testo": "The film begins with the crew of a spaceship seeing explosions in space and asteroids flying by. They are afraid that they are going to be hit, but their ship's computer, named Wiz, tells them that they were seeing the \"refraction\" of an event that took place millions of years ago. Overjoyed, the ship's crew hug and kiss each other. Next follows a scene within the Orion space complex  of Captain Mike Hamilton's slapping a fellow officer. Soon he is called to report on this behavior to the base commander. He says that the other officer did not give him a command personally, but told him to follow the directions of a computer. Hamilton's attitude against such machines is one of the few themes of the story. A scene derived from 2001: A Space Odyssey next appears. Hamilton and his ship, the MK-31, are sent to repair an automated satellite. One of the crew floats over to the satellite and starts work. Viewing this on the screen, Hamilton is upset because it is required that spacewalkers work in teams of two, and predicts that the acid in the battery will eat through the astronaut's suit. The astronaut says that he's in control of the situation - but it does start to eat through his suit. Hamilton himself goes to rescue the continually screaming astronaut, whose life is saved. Next comes a scene derived from Barbarella. A couple of astronauts wish to be intimate so they recline on separate beds while a light show machine plays between them. The blue orb that separates them has the same geometric shape as the Death Star in the Star Wars series. Normally this would appear to be an homage, but this film came out the same year as Star Wars . This scene is intercut with a scene of Hamilton telling a female crewmember that he doesn't like this mechanized intimacy and kisses her. The scene ends with her telling him that the old-fashioned way was better. Even though the crew of the MK-31 are only one day's travel from their shore leave on Earth, they are apparently the nearest ship to investigate an unstable planet. Once there, two flying saucers are seen orbiting it. The sensors of the ship state that these alien machines have \"disintegrators\" and Hamilton commands that they be destroyed - but they strike first and the MK-31 starts to spin quickly. Eventually Hamilton gets the ship's engines to counteract the spin and the ship lands on the planet. There's an architectural portal on this desert planet which teleports people who walk through it underground. The first man through it, and a woman who wanders away later, get attacked, but the main body of explorers meet a race of green people who have pointed ears. Their elder says that they are under the control of an evil computer. The astronauts pledge to help the inhabitants of the planet escape their enslavement and succeed in destroying the computer. Hamilton dislikes the computer always taunting the crew by ending his commands to them with the vocative, \"earthlings.\" Unfortunately, the ensuing explosion takes out the planet as well. The spaceship crew and one surviving alien set off for Earth only to face further difficulties when a human member of the crew is possessed by the computer and goes on a killing spree. The alien eventually manages to subdue him, heroically sacrificing his own life. Although the crew are pleased at returning to Earth, the voice of the computer Wiz changes to that of the planet's computer, who ends the movie with the word \"earthlings.\"",
+      "score": 0.6638246,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "3112223",
+      "title": "Cosmos: War of the Planets",
+      "release_date": "1977",
+      "release_year": "1977",
+      "genres": "Science Fiction",
+      "cast": "John Richardson"
+     },
+     {
+      "id": "edb95c357b3b-023825-000000",
+      "testo": "The film takes place in late 1999. India has an out-of-control nuclear satellite in orbit that is about to reenter the atmosphere at any time, contaminating large areas of the earth. This has caused a massive panic, with everyone trying to flee the likely impact sites. Caught in a traffic jam, impatient and disconnected Claire Tourneur  escapes the highway congestion by taking a side road. Her Dashboard Computer System announces she left the Map Zone Database and is on her own. She then has a couple of odd encounters: first with a pair of bank robbers , and with a hitchhiker being pursued by an armed party. Claire discovers, after falling in love with the enigmatic fugitive, that he is the son of a scientist , and has absconded with the prototype of a secret research project. Multiple government agencies and freelance bounty hunters are chasing him to recover the device. The film has two distinct parts: the first is a mystery; the second a science-fiction adventure. The mystery is about the prototype, what it actually does and why so many people are interested in it. Halfway through the film the focus shifts, as the prototype is revealed to be a device for recording and translating brain impulses— a camera for the blind. The hitchhiker is traveling around the world, gathering images in the device though the reason why is not revealed. During the second part, the reason for his travels is revealed: the hitchhiker has been filming his extended family to bring home to his blind mother . As the chase moves across the globe, the nuclear satellite is shot down, causing an EMP effect that wipes out all unshielded electronics worldwide. The characters wind up in a cave in the Australian Outback, where the recordings are played back. After the death of the hitchhiker's mother, his scientist father discovers a way to use the device to record human dreams. Several characters become addicted to viewing their own dreams, while Claire's estranged lover, a novelist, remains unaffected. He writes a novel about the adventure, which ultimately rescues Claire from her addiction to the device, via the power of words.",
+      "score": 0.6630980000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "31908",
+      "title": "Until the End of the World",
+      "release_date": "1991-12-25",
+      "release_year": "1991",
+      "genres": "Road movie; Science Fiction; Drama; Adventure; Existentialism",
+      "cast": "Tom Waits; Solveig Dommartin; William Hurt; Sam Neill; Max von Sydow; Jeanne Moreau; Ernie Dingo; Lois Chiles; Rüdiger Vogler; David Byrne"
+     },
+     {
+      "id": "edb95c357b3b-009245-000000",
+      "testo": "Set in Toronto at an unknown date, Last Night tells the story of how a variety of intersecting characters spend their final evening on Earth. It seems the world is to end at midnight as the result of a calamity that is not explained, but which has been expected for several months. There are several scenes of an ominously glowing sun, which gets progressively larger and brighter even into the night. Some people in the film choose to spend their last evening alone, others with loved ones, others in prayer, others in public mayhem, and still others at raucous festivities. Duncan , the owner of a power company, spends the majority of his final day calling up every single one of his customers to reassure them that their heating gas will be kept on until the very end. Meanwhile, his wife Sandra  prepares to fulfill their suicide pact when she becomes stranded with a depressed widower Patrick  preparing to die while listening to music and drinking wine on his roof, surrounded by mementoes of his recently deceased wife. The widower's best friend Craig  participates in a nearly non-stop sex marathon as he attempts to fulfill every fantasy he has ever had, at one point awkwardly asking Patrick to join him. Sarah Polley appears as Patrick's sister Jennifer; their family chooses to have a final meal together although he leaves prematurely to seek his own finale. Jackie Burroughs makes an appearance as an apparently mentally disturbed woman who jogs around announcing how much time is left before the end. Arsinée Khanjian also appears as a mother on an abandoned streetcar who is paralyzed by despair. In the climax of the film, Patrick and Sandra decide to fulfill the suicide pact that her husband was unable to complete. As midnight approaches, they both sit on the roof facing each other, listening to the song \"Guantanamera\", each holding a loaded pistol to the other's temple. As the final minutes approach, Sandra implores Patrick to resolutely carry out the pact. But as the final seconds approach, both characters are overcome with emotion and simultaneously let their pistols slip away as they slowly embrace in a kiss and the last moments of all the major characters are seen. It is at this moment that the world, and all its variegated characters, are terminated.",
+      "score": 0.6405581300000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "2053414",
+      "title": "Last Night",
+      "release_date": "1998",
+      "release_year": "1998",
+      "genres": "Science Fiction; Indie; Doomsday film; Drama; Comedy; Disaster; Black comedy",
+      "cast": "Charmion King; Sarah Polley; Sandra Oh; Don McKellar; Callum Keith Rennie; David Cronenberg; Geneviève Bujold; Roberta Maxwell; Trent McMullen; Jessica Booker; Tracy Wright; Karen Glave"
+     },
+     {
+      "id": "edb95c357b3b-016949-000000",
+      "testo": "A spacefaring crew from an advanced civilization is preparing to return home after an extended voyage. The crew includes \"humans\"  and \"Centaurians\" . The Centaurians have been rescued from their home planet after a  devastation{{Clarify}}, and are being brought back with the spacefaring explorers with an expectation that they will be assimilated into their new parent culture. A theme of the film is acceptance between the \"human\" crew and their \"Centaurian\" guests. One of the ships in the fleet is hijacked by a few of its Centaurian passengers and crash-lands on a prehistoric planet in the \"Solaris\" system. Countermanding HQ orders, the rest of the fleet returns to search for survivors after the crash. In the film's \"twist\", by the time that the rescuers  are able to return to the planet, they are encountering the descendants of the original crash survivors - explained in a simplified version of time dilation. Linda, a Centaurian from the rescue ship, falls in love with Tang after he saves her from drowning. After fighting with the planet's indigenous species , Tang and Linda are marooned on the prehistoric planet - the latter revealed to be the captain's own daughter. In the film's coda, this savage and primitive planet is revealed to be the Earth.",
+      "score": 0.6325404,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "10970230",
+      "title": "Women of the Prehistoric Planet",
+      "release_date": "1966-04-15",
+      "release_year": "1966",
+      "genres": "Science Fiction; Action; Adventure",
+      "cast": "Stuart Margolin; John Agar; Merry Anders; Wendell Corey; Irene Tsu; Keith Larsen; Paul Gilbert"
+     },
+     {
+      "id": "edb95c357b3b-023055-000000",
+      "testo": "On an alternate Earth, an industrial civilization is flourishing amid an impending war between two bordering nations, the kingdom of Honneamise and the \"Republic\". Shirotsugh Lhadatt is an unmotivated young man who has drifted into his nation's lackadaisical space program. After the death of a fellow astronaut, he nurtures a close acquaintance with a young religious woman named Riquinni Nonderaiko, whose faith has seen her through some personal hardships.  Seeing Lhadatt as a prime example of what mankind is capable of, along with the godliness and ground-breaking nature of his work, she inspires him to become the first man in space. His training as an astronaut parallels his coming of age, and he and the rest of the members of the space project overcome technological difficulties, spiritual doubt, the machinations of their political masters, and a botched assassination attempt by the enemy nation. Amidst the debacle, Lhadatt soon becomes worn out by the overbearing publicity surrounding his space mission, prompting him to stay with Riquinni for a while; he then comes close to raping her one night while catching her undressing, causing a temporary rift between them that is later mended thanks to Riquinni's kindness. These events culminate in the eventual space launch, which is taking place in what is essentially a demilitarized zone, with the government's hope that the launch of the rocket will be viewed by the enemy nation as an act of war and attack, giving Lhadatt's country a pretext to go to war. As planned, the enemy nation launches a vast combined arms invasion, resulting in a visually stunning finale as fighter planes duel high above an armored advance towards a defensive trench network. Despite calls to pull out, Lhadatt, already in the space capsule and determined to finish what he started, convinces the frightened and vulnerable ground crew to complete the launch. The spectacular launch stuns both sides into inaction as Lhadatt goes into orbit. With no more reference to the world below , Lhadatt prays for humanity's forgiveness. In a symbolic moment, Lhadatt's capsule is suddenly bathed in sunlight, and a flashback of his own life and his world's history and achievements are shown. Meanwhile on the planet's surface, Riquinni witnesses the first snow fall and gazes into the sky, thinking of Lhadatt.",
+      "score": 0.6321024,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "103325",
+      "title": "Royal Space Force: The Wings of Honneamise",
+      "release_date": "1987-03-14",
+      "release_year": "1987",
+      "genres": "Science Fiction; Japanese Movies; Animation; Anime; Drama; Romance Film; Action",
+      "cast": "Mitsuki Yayoi; Masahiro Anzai; Steven Blum; John Snyder; Steve Bulen; Bryan Cranston; Bambi Darro; Christopher de Groot; Mari Devon; Dorothy Elias-Fahn; Richard Epcar; Jonathan Fahn; Tom Fahn; Michael Forest; Jeff Frayer; Lena Gale; Bin Shimada; Kazuyuki Sogabe; Hirotaka Suzuoki; Kōji Totani; Yoshito Yasuhara"
+     },
+     {
+      "id": "edb95c357b3b-021978-000000",
+      "testo": "The film begins with an introductory sequence involving the main characters and images from space and introducing many of the film's visual leitmotifs.<ref nameDargis |firstThis Is How the End Begins |urlNew York Times |date2 January 2012 }} A shot from outer space shows a giant planet approaching Earth; the two planets collide. The film continues in two parts, each named for one of two sisters. In part one, \"Justine\", a young couple, Justine and Michael, arrive at their wedding reception at a resort owned by Justine's sister, Claire, and her husband, John. On several occasions, Justine looks at a particular red star, which seems to shine brighter than normal; John, an amateur astronomer, identifies it as Antares. Over the course of the evening, Justine is frustrated by various personal and professional difficulties. Her bitter mother insults her in a toast, for which John attempts to throw her off of his property. Justine's boss repeatedly harasses her to write ad copy before the end of the reception. Claire becomes frustrated with Justine and chastises her for not reacting to the reception with the joy she had anticipated. Justine drifts away from the party several times – including to take a nap with her young nephew, Leo – and becomes increasingly distant from her family and new husband. Michael attempts to console Justine with a wedding present – his purchase of an apple orchard for them to enjoy as they grow older – but Justine seems unmoved. When she and Michael retreat to their room for the evening, she brushes off his advances and goes walking on the grounds, where she has sex with a coworker in a sand trap. At the end of the party, Michael leaves her. At dawn the next day, Claire takes Justine horseback riding; Justine notices that the red star has disappeared. In part two, \"Claire\", Justine has become severely depressed. She comes to stay with Claire and John, who live in the mansion where the reception took place. Justine is unable to carry out normal everyday activities like taking a bath or even eating, but gets better over time. John explains that the reason for Antares' disappearance was the rogue planet Melancholia, which has eclipsed the star. Melancholia, a blue gas giantMelancholia: when worlds collide, beautifully that had formerly been hidden behind the sun, becomes visible in the sky, approaching Earth. John is excited about the planet, and looks forward to the \"fly-by\" expected by scientists, who have assured the public that Earth and Melancholia will pass each other without colliding.  Claire is very fearful that the end of the world is imminent, despite her husband's assertions that their family is safe. She searches the Internet and finds a site describing the movements of the planet Melancholia around Earth as a \"dance of death\" in which the apparent passage of Melancholia initiates a slingshot orbit that will bring the planets into collision soon thereafter. Justine tells Claire that life on Earth is evil, and that Melancholia will hit. Justine further informs her sister that her intuition tells her that Earth is the only planet in the universe with life, and that the destruction of Earth will mean the end of all life. On the night of the fly-by, it seems that Melancholia will not hit Earth. John, Justine, and Claire watch Melancholia rise on the night of the flyby and view it through a telescope. After the fly-by, background birdsong abruptly ceases. The next day, Claire realizes that Melancholia is circling back and will collide with Earth after all. John, who has come to the same realization, commits suicide. Claire finds his body and then tries to conceal his death from Leo and Justine. Faced with the impending collision, Claire becomes distraught and suggests a \"farewell party\" on the terrace with wine and music. In response, Justine, unfazed by the impending doom, demeans Claire's idea before going to comfort Leo. She makes him a protective \"magic cave\", a teepee of wooden sticks, on the lawn of the estate. Justine, Claire and Leo enter the shelter as the planet approaches. Claire continues to remain agitated and fearful, while Justine and Leo remain calm and hold hands. Melancholia collides with Earth.",
+      "score": 0.62899483,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "26971354",
+      "title": "Melancholia",
+      "release_date": "2011-05-18",
+      "release_year": "2011",
+      "genres": "Science Fiction; Drama",
+      "cast": "Christian Geisnaes; Kirsten Dunst; Charlotte Gainsbourg; Alexander Skarsgård; Brady Corbet; Cameron Spurr; Charlotte Rampling; Jesper Christensen; John Hurt; Stellan Skarsgård; Udo Kier; Kiefer Sutherland; James Cagnard; Deborah Fronko; Charlotta Miller; Claire Miller; Gary Whitaker; Katrine Sahlstrom"
+     },
+     {
+      "id": "edb95c357b3b-006768-000000",
+      "testo": "The film begins in the cockpit of a U.S. passenger airliner , shortly before they are struck from above by another airliner  on a landing approach. The pilot handles the airplane as well as he can while the flight engineer goes back to check on the passenger cabin. He comes back in the cockpit screaming, “They're dead! All of them! They’re burned up!” Bill Smith  is a National Transportation Safety Board investigator hired to determine whether human error is the cause of a collision of two aircraft, both of which crashed. He and his team of investigators are confused by the words on the cockpit voice recorder because there had been no fire on board before the plane hit the ground. At the same time, a theoretical physicist named Dr. Arnold Mayer  has a professional curiosity about the crash, which borders on science fiction. While giving a lecture, he talks about time travel and the possibility of visitors from the future. Time travelers are, in fact, visiting the present day and stealing passengers from doomed aircraft. Every incursion into the past causes an accompanying \"timequake\" whose magnitude is proportional to the effects of the incursion into the past. Each \"timequake\" causes physical damage in the time from which the incursion has been made. This is why they are abducting people who will not be able to affect the future any further and replacing them with copies of those who would have died. Thus, the co-pilot's strange comment came because all the passengers had been replaced with pre-burned duplicates in preparation for the upcoming crash.  While on one of the missions, an operative is shot and loses a stun weapon on board a plane before it crashes. This weapon winds up in the possession of Dr. Arnold Mayer, setting him on the path to working out what's happening. Twenty-five years later, Smith finds a similar artifact in the crash portrayed at the beginning of the film. Worried that these two individuals of the 20th century might change history by their discoveries, Louise Baltimore  travels back to 1989 in order to distract Bill Smith and discourage him from pursuing his investigation further. Louise manages to gain Bill's trust, as well as seduce him into a one-night stand, which she hopes will complete the distraction. However, because of still more errors on the part of the time travel team, as well as paradoxical events, Bill becomes even more suspicious. He soon pays a visit to Dr. Mayer. At that point, Louise materializes from the future and reveals her mission to both of them. In a mishap with the stun weapon, Mayer kills himself thereby causing a major change to the timeline. Louise decides to take Bill with her to the future. Between Louise's recent visit and exposition in the future, we find that because of pollution, the human population of the future is no longer able to reproduce, except for Louise who's pregnant with Bill's baby, though that fact isn't revealed until the very end of the film. This is why they have been abducting people from the past and keeping them in stasis until a future time when they will be sent into the far future. It is hoped that in this far future, the Earth will have recovered enough that humans can repopulate the planet. The recent incursion results in a force infinity timequake which will destroy the entire civilization of the \"present\" future and the Gate  itself. It is decided that it is time to send all of the people who have been collected to the distant future before the Gate is destroyed. Bill and Louise step through and disappear into the Gate, which takes them to another time and another place, in order to save their lives, and to fulfill a destiny to repopulate Earth. A simple, but poignant, message is recited by Sherman the Robot, quoting Winston Churchill, in the closing seconds of the film. As the blast wave of the gate being destroyed vaporizes Sherman he states, \"This is not the end. This is not the beginning of the end. It is the end of the beginning\" as the scene transitions to the sun rising above the clouds.",
+      "score": 0.61909888,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "972940",
+      "title": "Millennium",
+      "release_date": "1989-08-25",
+      "release_year": "1989",
+      "genres": "Time travel; Thriller; Science Fiction; Drama; Indie",
+      "cast": "Cheryl Ladd; Kris Kristofferson; Robert Joy; Al Waxman; Daniel J. Travanti; Brent Carver; Maury Chaykin; Lawrence Dane; Lloyd Bochner"
+     },
+     {
+      "id": "edb95c357b3b-022874-000000",
+      "testo": "Dr. Ryan Stone  is a brilliant medical engineer on her first shuttle mission, with veteran astronaut Matt Kowalsky  in command of his last flight before retiring. But on a seemingly routine spacewalk, disaster strikes. The shuttle is destroyed, leaving Stone and Kowalsky completely alone--tethered to nothing but each other and spiraling out into the blackness. The deafening silence tells them they have lost any link to Earth, and any chance for rescue. As fear turns to panic, every gulp of air eats away at what little oxygen is left. But the only way home may be to go further out into the terrifying expanse of space.http://www.comingsoon.net/films.php?id=64232",
+      "score": 0.6142315,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "30294906",
+      "title": "Gravity",
+      "release_date": "2013",
+      "release_year": "2013",
+      "genres": "Thriller; Science Fiction",
+      "cast": "George Clooney; Sandra Bullock"
+     },
+     {
+      "id": "edb95c357b3b-024132-000000",
+      "testo": "While stopping at a gas station late one night in a small New Mexico town called Little Creek, a young girl gets out of the vehicle while her father goes inside. Exploring the empty main street of the town she meets a local boy, and both are soon mesmerized by a column of light from above. After a minute or two the light disappears and the young girl runs back to her father's car and they soon leave. Twenty Five years later, the deputy marshal of the town is investigating a strange case of cattle mutilations with few leads to follow so far. His efforts are soon hampered by a scientist from California . As the two conflict over the mutilations and their possible causes, they find themselves attracted to one another in an almost-familiar way, as if they share some unknown bond. As events unfold, they discover that they were the children shown at the beginning of the film and that the night depicted then changed their lives. The boy stayed and became a deputy marshal while the girl went back to California, but she always felt a strange urge to return. Along with the blossoming romance between the two, the mutilation case comes to a head when the culprit appears to be a crazy old prospector hermit living alone on the outskirts of town . The plot thickens, however, when the hermit claims that not only were the children visited by aliens that fateful night twenty five years ago - but so was he. To make matters worse, the mutilations have a purpose - he has been carving out parts of the cattle and teleporting them into space using a device secreted away in a cave behind his cabin. While confronting the man near the device, an otherwise fatal blow from the alien \"knife\" fails to kill or even harm her. After being saved by the deputy, it becomes apparent that it was all an experiment by the aliens who then leave with whatever results they garnered from the incident.",
+      "score": 0.6073911,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "16949657",
+      "title": "The Return",
+      "release_date": "1980",
+      "release_year": "1980",
+      "genres": "Thriller; Science Fiction",
+      "cast": "Raymond Burr; Cybill Shepherd; Vincent Schiavelli; Martin Landau; Jan-Michael Vincent; Neville Brand; Susan Kiger; Darby Hinton"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "A film centered on a journey through space with an emotional and moving ending. Must match: space travel; Science Fiction.",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "Science Fiction",
+       "type": "genre",
+       "results": {
+        "Gravity (2013)": {
+         "status": "verified",
+         "evidence": "generi: Thriller; Science Fiction"
+        },
+        "Conquest of Space (1955)": {
+         "status": "verified",
+         "evidence": "generi: Science Fiction; Drama; Adventure"
+        },
+        "Royal Space Force: The Wings of Honneamise (1987)": {
+         "status": "verified",
+         "evidence": "generi: Science Fiction; Japanese Movies; Animation; Anime; Drama; Romance Film; Action"
+        },
+        "Melancholia (2011)": {
+         "status": "verified",
+         "evidence": "generi: Science Fiction; Drama"
+        }
+       }
+      },
+      {
+       "constraint": "space travel",
+       "type": "plot_require",
+       "results": {
+        "Gravity (2013)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Conquest of Space (1955)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Royal Space Force: The Wings of Honneamise (1987)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Melancholia (2011)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "moving ending",
+       "type": "plot_require",
+       "results": {
+        "Gravity (2013)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Conquest of Space (1955)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Royal Space Force: The Wings of Honneamise (1987)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Melancholia (2011)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-022874-000000",
+      "testo": "Dr. Ryan Stone  is a brilliant medical engineer on her first shuttle mission, with veteran astronaut Matt Kowalsky  in command of his last flight before retiring. But on a seemingly routine spacewalk, disaster strikes. The shuttle is destroyed, leaving Stone and Kowalsky completely alone--tethered to nothing but each other and spiraling out into the blackness. The deafening silence tells them they have lost any link to Earth, and any chance for rescue. As fear turns to panic, every gulp of air eats away at what little oxygen is left. But the only way home may be to go further out into the terrifying expanse of space.http://www.comingsoon.net/films.php?id=64232",
+      "score": 0.62000114,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "30294906",
+      "title": "Gravity",
+      "release_date": "2013",
+      "release_year": "2013",
+      "genres": "Thriller; Science Fiction",
+      "cast": "George Clooney; Sandra Bullock"
+     },
+     {
+      "id": "edb95c357b3b-008874-000000",
+      "testo": "{{plot}} Sometime in the late 1950s, mankind has achieved the capability of manned space flight and built a space station in orbit around the Earth, headed by Colonel Merritt, whose son, Barney, a Captain, is feeling a little homesick. At the moment, the space station's personnel have been at work constructing a giant spaceship to go to the moon, but on one occasion, a crew member becomes a victim of space fatigue after failing to connect a wire on time. Later on, as Colonel Merritt has taken his men to the galley for dinner, the space station is lightly damaged by a meteor shower, but damages are soon repaired. After the incident, an inspector comes up from Earth and  gives Merritt fresh orders from the president: not only is Merritt being promoted to General, but the so called moonship is going to Mars instead. As General Merritt selects three men and an officer to go with him, his close friend Sgt Mahoney is turned down for being twenty years too old, although three months younger than the General. Merritt's son changes his mind about returning to Earth, and volunteers for the mission. Sgt Imoto expresses his view on the Martian mission, explaining how Japan, before World War Two, served as an example for a world becoming overpopulated and about to run out of valuable resources. After the selected crew members watch a news broadcast wishing them farewell, the Mars mission sets off, only for the General to find that Sgt Mahoney stowed away by hiding in one of the spacesuits. En route, something goes wrong with the communication antenna, so two men go out on a spacewalk to make repairs. They manage to get the antenna working just in time as the monitor shows an asteroid, twenty times bigger than the Mars ship, coming at them from the stern. Thanks to the general, the ship manages to avoid a collision, but meteors from the asteroid kill one of the spacewalking astronauts by puncturing an airline, leaving the crew to abandon him in space. Eight months later, as the crew approaches Mars, the general becomes increasingly disturbed , and as they come in for a landing and the \"space speed indicator\" approaches zero, he suddenly says \"We haven't the right!\" and puts on full throttle. His son, now the captain of the mission, struggles with him, wrenches his hand from the throttle, and brings the ship in to a rough but safe landing. Later, as the crew takes their first steps on the Martian surface, they spot water leaking from the rocket. Getting aboard quickly the captain discovers the saboteur is the general. In a fight with his son , the two struggle and Captain Merritt fires his father's gun, killing the General. Sgt. Mahoney, who'd seen the last stages of the fight, threatens to have Captain Merritt confined for his actions. The crew discovers, apparently surprised, that Mars is inhospitable and that that it is going to be a severe struggle to survive with their limited water for the year it will take for Earth to reach the right orbital position for a successful return. Despite the absence of water on Mars, like the child in Ruth Krauss's book The Carrot Seed, Japanese crew member Sgt. Imoto plants a seed hopefully in the Martian soil. The crew celebrates Christmas on Mars glumly. Wisecracking Brooklynite Sgt. Siegle plays Christmas carols somberly on a harmonica while the other actors chew the scenery. Siegle complains they are on \"a lousy, dried-up ball in the corner pocket of nowhere.\" :Sgt. Mahoney: The General wasn't crazy, he was right! We asked for it! There's a curse on this ship and everybody in it! :Sgt. Siegle: Baloney! You leave that stuff back on Earth. But it don't operate past the thousand-mile limit. \"Only God can make a tree.\" Okay? Where is it? Where's the trees, and the flowers, and the grass? Where's the water? You hear me? Where's the water?! Just then, Sgt. Imoto, who has been staring out the window yells \"Look!\" Since it is snowing on Christmas Day, the crew is saved and they manage to replenish their water supply. In due course, as the launch date approaches, the seed Imoto planted sprouts into a tiny flower. The viewer infers that Mars has water and can grow flowers; since \"only God can make a tree,\" God is present on Mars and God must intend for humankind to exploit not only the Earth but also Mars and the rest of the universe. The joy over the discovery of the flower is, however, short lived as the crew hear rumbling sounds and see rocks falling and cavities opening up in the ground, proving that Mars has underground water. The ground sinks slightly under the ship and even though the ship doesn't sink into the ground, it is leaning at an angle too risky to make an emergency liftoff. The crew then decides to try a more risky but desperate attempt to straighten up the ship: using the ship's motors to open up a new cavity, which does work, and the ship lifts off before the ground collapses. As the movie closes, Sgt. Mahoney, who had threatened to accuse Capt. Merritt of murdering his own father on their return, changes his mind and decides that it would be better to forget about it and let the world remember the general not as a nutcase who tried to sabotage the flight but as a brave man \"sacrificin' his life as he did, to bring his ship and his crew safely to a landing on the rocky desert of a new planet! … Fittin' end for a grand soldier.\" The captain nods and adds, \"For the man who conquered space.\" The Irishman offers him \"a cup o' tea\", the captains says \"thanks\", the music rises to a climax, and the rocket glides off into a starry firmament behind the words \"THE END.\"",
+      "score": 0.47051823,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "1267905",
+      "title": "Conquest of Space",
+      "release_date": "1955-04-20",
+      "release_year": "1955",
+      "genres": "Science Fiction; Drama; Adventure",
+      "cast": "Mickey Shaughnessy; Ross Martin; Eric Fleming; Vito Scotti; Michael Fox; William Redfield; Phil Foster; Benson Fong; Iphigenie Castiglioni; Joan Shawlee; John Dennis; William Hopper"
+     },
+     {
+      "id": "edb95c357b3b-023055-000000",
+      "testo": "On an alternate Earth, an industrial civilization is flourishing amid an impending war between two bordering nations, the kingdom of Honneamise and the \"Republic\". Shirotsugh Lhadatt is an unmotivated young man who has drifted into his nation's lackadaisical space program. After the death of a fellow astronaut, he nurtures a close acquaintance with a young religious woman named Riquinni Nonderaiko, whose faith has seen her through some personal hardships.  Seeing Lhadatt as a prime example of what mankind is capable of, along with the godliness and ground-breaking nature of his work, she inspires him to become the first man in space. His training as an astronaut parallels his coming of age, and he and the rest of the members of the space project overcome technological difficulties, spiritual doubt, the machinations of their political masters, and a botched assassination attempt by the enemy nation. Amidst the debacle, Lhadatt soon becomes worn out by the overbearing publicity surrounding his space mission, prompting him to stay with Riquinni for a while; he then comes close to raping her one night while catching her undressing, causing a temporary rift between them that is later mended thanks to Riquinni's kindness. These events culminate in the eventual space launch, which is taking place in what is essentially a demilitarized zone, with the government's hope that the launch of the rocket will be viewed by the enemy nation as an act of war and attack, giving Lhadatt's country a pretext to go to war. As planned, the enemy nation launches a vast combined arms invasion, resulting in a visually stunning finale as fighter planes duel high above an armored advance towards a defensive trench network. Despite calls to pull out, Lhadatt, already in the space capsule and determined to finish what he started, convinces the frightened and vulnerable ground crew to complete the launch. The spectacular launch stuns both sides into inaction as Lhadatt goes into orbit. With no more reference to the world below , Lhadatt prays for humanity's forgiveness. In a symbolic moment, Lhadatt's capsule is suddenly bathed in sunlight, and a flashback of his own life and his world's history and achievements are shown. Meanwhile on the planet's surface, Riquinni witnesses the first snow fall and gazes into the sky, thinking of Lhadatt.",
+      "score": 0.43813655,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "103325",
+      "title": "Royal Space Force: The Wings of Honneamise",
+      "release_date": "1987-03-14",
+      "release_year": "1987",
+      "genres": "Science Fiction; Japanese Movies; Animation; Anime; Drama; Romance Film; Action",
+      "cast": "Mitsuki Yayoi; Masahiro Anzai; Steven Blum; John Snyder; Steve Bulen; Bryan Cranston; Bambi Darro; Christopher de Groot; Mari Devon; Dorothy Elias-Fahn; Richard Epcar; Jonathan Fahn; Tom Fahn; Michael Forest; Jeff Frayer; Lena Gale; Bin Shimada; Kazuyuki Sogabe; Hirotaka Suzuoki; Kōji Totani; Yoshito Yasuhara"
+     },
+     {
+      "id": "edb95c357b3b-021978-000000",
+      "testo": "The film begins with an introductory sequence involving the main characters and images from space and introducing many of the film's visual leitmotifs.<ref nameDargis |firstThis Is How the End Begins |urlNew York Times |date2 January 2012 }} A shot from outer space shows a giant planet approaching Earth; the two planets collide. The film continues in two parts, each named for one of two sisters. In part one, \"Justine\", a young couple, Justine and Michael, arrive at their wedding reception at a resort owned by Justine's sister, Claire, and her husband, John. On several occasions, Justine looks at a particular red star, which seems to shine brighter than normal; John, an amateur astronomer, identifies it as Antares. Over the course of the evening, Justine is frustrated by various personal and professional difficulties. Her bitter mother insults her in a toast, for which John attempts to throw her off of his property. Justine's boss repeatedly harasses her to write ad copy before the end of the reception. Claire becomes frustrated with Justine and chastises her for not reacting to the reception with the joy she had anticipated. Justine drifts away from the party several times – including to take a nap with her young nephew, Leo – and becomes increasingly distant from her family and new husband. Michael attempts to console Justine with a wedding present – his purchase of an apple orchard for them to enjoy as they grow older – but Justine seems unmoved. When she and Michael retreat to their room for the evening, she brushes off his advances and goes walking on the grounds, where she has sex with a coworker in a sand trap. At the end of the party, Michael leaves her. At dawn the next day, Claire takes Justine horseback riding; Justine notices that the red star has disappeared. In part two, \"Claire\", Justine has become severely depressed. She comes to stay with Claire and John, who live in the mansion where the reception took place. Justine is unable to carry out normal everyday activities like taking a bath or even eating, but gets better over time. John explains that the reason for Antares' disappearance was the rogue planet Melancholia, which has eclipsed the star. Melancholia, a blue gas giantMelancholia: when worlds collide, beautifully that had formerly been hidden behind the sun, becomes visible in the sky, approaching Earth. John is excited about the planet, and looks forward to the \"fly-by\" expected by scientists, who have assured the public that Earth and Melancholia will pass each other without colliding.  Claire is very fearful that the end of the world is imminent, despite her husband's assertions that their family is safe. She searches the Internet and finds a site describing the movements of the planet Melancholia around Earth as a \"dance of death\" in which the apparent passage of Melancholia initiates a slingshot orbit that will bring the planets into collision soon thereafter. Justine tells Claire that life on Earth is evil, and that Melancholia will hit. Justine further informs her sister that her intuition tells her that Earth is the only planet in the universe with life, and that the destruction of Earth will mean the end of all life. On the night of the fly-by, it seems that Melancholia will not hit Earth. John, Justine, and Claire watch Melancholia rise on the night of the flyby and view it through a telescope. After the fly-by, background birdsong abruptly ceases. The next day, Claire realizes that Melancholia is circling back and will collide with Earth after all. John, who has come to the same realization, commits suicide. Claire finds his body and then tries to conceal his death from Leo and Justine. Faced with the impending collision, Claire becomes distraught and suggests a \"farewell party\" on the terrace with wine and music. In response, Justine, unfazed by the impending doom, demeans Claire's idea before going to comfort Leo. She makes him a protective \"magic cave\", a teepee of wooden sticks, on the lawn of the estate. Justine, Claire and Leo enter the shelter as the planet approaches. Claire continues to remain agitated and fearful, while Justine and Leo remain calm and hold hands. Melancholia collides with Earth.",
+      "score": 0.3375097,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "26971354",
+      "title": "Melancholia",
+      "release_date": "2011-05-18",
+      "release_year": "2011",
+      "genres": "Science Fiction; Drama",
+      "cast": "Christian Geisnaes; Kirsten Dunst; Charlotte Gainsbourg; Alexander Skarsgård; Brady Corbet; Cameron Spurr; Charlotte Rampling; Jesper Christensen; John Hurt; Stellan Skarsgård; Udo Kier; Kiefer Sutherland; James Cagnard; Deborah Fronko; Charlotta Miller; Claire Miller; Gary Whitaker; Katrine Sahlstrom"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/49047?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/25952?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/20043?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 49047,
+      "media_type": "movie",
+      "title": "Gravity",
+      "original_title": "Gravity",
+      "overview": "Dr Ryan Stone, an engineer on her first space mission, and Matt Kowalski, an astronaut on his final expedition, have to survive in space after they are hit by debris while spacewalking.",
+      "vote_average": 7.172,
+      "release_date": "2013-10-03",
+      "original_language": "en",
+      "poster_path": "/kZ2nZw8D681aphje8NJi8EfbL1U.jpg"
+     },
+     {
+      "id": 25952,
+      "media_type": "movie",
+      "title": "Conquest of Space",
+      "original_title": "Conquest of Space",
+      "overview": "A team of American astronauts leave their space station on the first mission to Mars, but the captain's religious beliefs may get in the way.",
+      "vote_average": 5.6,
+      "release_date": "1955-04-20",
+      "original_language": "en",
+      "poster_path": "/9RxLfVIJ3nCZQZUMgbF7ThGlrFi.jpg"
+     },
+     {
+      "id": 20043,
+      "media_type": "movie",
+      "title": "Royal Space Force - The Wings of Honneamise",
+      "original_title": "王立宇宙軍 オネアミスの翼",
+      "overview": "On a future Earth, war between the Kingdom of Honneamise and its rival, The Republic, is inevitable. As evolving technology creates new ways to wage war, a small group seeks to propel mankind into space in their world’s first spaceflight program. For astronaut candidate Shirotsugh Lhadatt, it’s a personal odyssey as he grows from an aimless young man into a leader willing to put everything on the line in order to move the human race forward and away from the brink of Armageddon.",
+      "vote_average": 6.9,
+      "release_date": "1987-03-14",
+      "original_language": "ja",
+      "poster_path": "/iIwFPYZS1BxGydf9weYH8hBFVfK.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "r01",
+  "kind": "rag",
+  "text": "Consigliami 4 film su un viaggio nello spazio con un finale commovente"
+ },
+ "seconds": 20.9
+}

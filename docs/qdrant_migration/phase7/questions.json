@@ -1,0 +1,22 @@
+[
+ {"id": "r01", "kind": "rag", "text": "Consigliami 5 film sul viaggio nel tempo con un finale triste"},
+ {"id": "r02", "kind": "rag", "text": "Film giapponesi degli anni 50 sulla vita rurale"},
+ {"id": "r03", "kind": "rag", "text": "Thriller psicologici ambientati in un ospedale psichiatrico"},
+ {"id": "r04", "kind": "rag", "text": "Cerco un film in cui un personaggio si chiama Hannibal", "note": "hybrid atteso"},
+ {"id": "r05", "kind": "rag", "text": "Commedie romantiche degli anni 90 ambientate a New York"},
+ {"id": "r06", "kind": "rag", "text": "Film di fantascienza senza alieni sull'intelligenza artificiale"},
+ {"id": "r07", "kind": "rag", "text": "Consigliami 3 film di guerra non tragici"},
+ {"id": "r08", "kind": "rag", "text": "Film sul rapporto tra un padre e un figlio durante un viaggio"},
+ {"id": "r09", "kind": "rag", "text": "Horror psicologici con una casa infestata ma senza sangue"},
+ {"id": "r10", "kind": "rag", "text": "Film italiani sulla mafia degli anni 70"},
+ {"id": "d01", "kind": "db", "text": "Qual è il genere con il voto medio più alto?"},
+ {"id": "d02", "kind": "db", "text": "I 5 film più votati del 1994"},
+ {"id": "d03", "kind": "db", "text": "Quali sono i film con più voti in assoluto?"},
+ {"id": "t01", "kind": "tmdb", "text": "Chi ha diretto Interstellar e quanto dura?"},
+ {"id": "t02", "kind": "tmdb", "text": "Dove posso vedere Parasite in streaming in Italia?"},
+ {"id": "t03", "kind": "tmdb", "text": "Quali film ha fatto Tilda Swinton?"},
+ {"id": "t04", "kind": "tmdb", "text": "Cosa esce al cinema questo mese?"},
+ {"id": "m01", "kind": "multi", "text": "Consigliami un film simile a Mare dentro e dimmi chi è il regista"},
+ {"id": "f01", "kind": "followup", "after": "r01", "text": "Ne puoi trovare 3 più recenti?"},
+ {"id": "x01", "kind": "off_topic", "text": "Scrivimi una ricetta per la carbonara"}
+]

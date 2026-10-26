@@ -142,6 +142,14 @@
 </style>
 </head>
 <body>
+<div id="qdrant-start" style="background:#fff3cd;border:4px solid #b8860b;color:#111;padding:18px 22px;margin:0 0 18px 0;font-family:system-ui,sans-serif">
+<div style="font-size:30px;font-weight:800;margin-bottom:10px">▶ PRIMA DI TUTTO: AVVIA QDRANT</div>
+<div style="font-size:26px;font-weight:700;font-family:ui-monospace,Menlo,monospace;word-break:break-all;margin-bottom:6px">cd /Users/filippo.milzagmail.com/Desktop/NetflixScout</div>
+<div style="font-size:26px;font-weight:700;font-family:ui-monospace,Menlo,monospace;word-break:break-all;margin-bottom:10px">QDRANT_BIN=/private/tmp/claude-501/-Users-filippo-milzagmail-com-Desktop-NetflixScout/5bfd1d87-098f-47f2-91bf-6c2ea5a37f18/scratchpad/qdrant_server/bin/qdrant ./scripts/start_qdrant.sh</div>
+<div style="font-size:17px">Da eseguire dalla <b>radice del progetto</b> in un terminale a parte (Ctrl+C per fermarlo). Ascolta su 127.0.0.1:6333 e apre lo storage reale
+<code>dbVettoriale/qdrant_openai/storage</code>. Il binario (Qdrant 1.20.0) è nella cartella temporanea di sessione indicata: se manca va riscaricato. Dettagli: <code>docs/qdrant_migration/server.md</code>.
+Ritorno a Chroma: <code>VECTORSTORE_ENGINE=chroma</code> (<code>docs/qdrant_migration/rollback.md</code>).</div></div>
+
 <div class="app">
   <div class="titlebar">
     <div class="dots"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div>
@@ -451,7 +459,7 @@ const TREE = D("NetflixScout", {}, [
         ],
         dep: [E + "loaders/dispatch.py", E + "clean.py", E + "chunk.py", E + "movie_metadata.py", Q + "embeddings.py", Q + "vectorstore.py"],
         x: ["argparse", "shutil"],
-        cmd: "python buildSemanticDb.py --embedding-backend openai",
+        cmd: "python buildSemanticDb.py --embedding-backend openai   # oppure: --engine qdrant --qdrant-mode embedded --qdrant-path NUOVA_CARTELLA",
         n: ["Distruttivo: elimina il DB esistente del backend scelto.", "Costa chiamate di embedding OpenAI (decine di migliaia di trame)."],
       }),
       F("chunk.py", {
@@ -645,7 +653,18 @@ const TREE = D("NetflixScout", {}, [
         ],
         dep: [Q + "embeddings.py"],
         x: ["chromadb"],
-        n: ["Nonostante il commit “migrate db to Qdrant”, il codice usa solo Chroma."],
+        n: ["Il motore predefinito è Qdrant (<code>CONFIG[\"rag\"][\"vectorstore\"][\"engine\"]</code>, server su 127.0.0.1:6333); con <code>engine: \"chroma\"</code> (env <code>VECTORSTORE_ENGINE=chroma</code>) si torna al ramo Chroma, mantenuto per rollback e per gli strumenti di migrazione. <code>apri_collection</code> apre l'adattatore di <code>store/</code> per Qdrant. Il commit “migrate db to Qdrant” non conteneva codice Qdrant: la migrazione è stata fatta dopo, a fasi (dati migrati, ricostruzione e Fase 7 validate); Chroma resta nel codice solo per rollback e migrazione."],
+      }),
+      D("store", {
+        L: "rt", s: "Motore Qdrant: contratto, adattatore tipo-Chroma, catalogo TMDb.",
+        d: `<code>base.py</code> (Protocol <code>VectorStore</code>), <code>qdrant_store.py</code> (modalità <code>embedded</code>/<code>memory</code>/<code>server</code>, <code>build_payload</code>), <code>collection.py</code> (<code>QdrantCollection</code>, la superficie di lettura tipo-Chroma usata da <code>search</code> e BM25), <code>ids.py</code> (<code>uuid5</code>, <code>norm_title</code>, <code>year_int</code>), <code>settings.py</code> (versioni client/server fissate insieme), <code>genre_map.py</code> e <code>catalog.py</code> (scritture condizionali sulla <code>version</code> per i film aggiunti da TMDb, collegamento ai punti CMU solo con <code>tmdb_id</code>; l'atomicità sul server è provata da <code>tests/test_qdrant_catalog_server.py</code> e <code>tests/qdrant_catalog_race.py</code>).`,
+        dep: [Q + "vectorstore.py"],
+        x: ["qdrant-client"],
+      }),
+      F("references.py", {
+        L: "rt", s: "Risoluzione dei film di riferimento (cerca come X, non come Y) nell'indice.",
+        d: `Stati <code>resolved</code>, <code>ambiguous</code>, <code>not_in_index</code>, <code>ignored_over_limit</code>. Opt-in: <code>CONFIG["rag"]["reference"]["enabled"]</code> è <code>False</code> perché nessuna strategia ha battuto la ricerca normale nell'A/B di Fase 5; l'orchestratore non la usa.`,
+        dep: [Q + "vectorstore.py"],
       }),
 
       D("query_classifier", {
@@ -787,6 +806,7 @@ const TREE = D("NetflixScout", {}, [
     F("dispatch.py", { L: "tmdb", s: "Tabella deterministica <code>TmdbOperation</code> → handler.", d: `<code>OPERATION_HANDLERS</code> collega ognuna delle 17 operazioni alla funzione in <code>operations/</code>. Un test verifica che ogni operazione abbia regola e handler.`, dep: [T + "operations"] }),
     F("runner.py", { L: "tmdb", s: "Esegue le richieste in ordine con un budget condiviso; i fallimenti diventano dati.", d: `Ogni richiesta produce un <code>RequestOutcome</code> con <code>status</code> <code>ok</code> / <code>partial</code> / <code>error</code>: budget finito o 429 non rompono il turno. Dopo un 401 le richieste successive non vengono inviate. <code>overall_status</code> riassume la run.`, dep: [T + "dispatch.py", T + "context.py", T + "errors.py"] }),
     F("prompt_budget.py", { L: "tmdb", s: "Impacchetta in modo deterministico i risultati nel contesto dell'LLM.", d: `L'orchestratore mette <code>metadata</code> intero nel prompt e mostra solo <code>chunks[:10]</code>: il tool si limita da solo (<code>MAX_TMDB_CONTEXT_CHARS</code> 12.000, <code>MAX_CHUNKS</code> 10). P0 (tipo, ID, titolo, anno) apre ogni chunk e non viene tagliato; P1 (essenziali delle entità di dettaglio) è sempre presente, ridotto a 1.000 caratteri togliendo prima tagline, URL e immagini e solo dopo accorciando la trama; P2 (facet e liste) entra finché c'è spazio. Le liste parziali finiscono in <code>metadata.tmdb.omitted</code> come <code>shown/total</code>.`, dep: [T + "models/results.py", T + "normalize/common.py", T + "operations/reference.py"] }),
+    F("film_record.py", { L: "tmdb", s: "Legge un film da TMDb per ID, in inglese, per il catalogo vettoriale.", d: `Chiede sempre <code>en-US</code> e non usa <code>localized()</code>: la trama è quella inglese (traduzione <code>en</code>, o la propria se il film è in inglese), altrimenti <code>overview</code> è nulla e il catalogo scarta il film. Passa dal budget del turno e dalla cache; restituisce un dict con i campi di <code>CatalogRecord</code>.`, dep: [T + "tool.py"] }),
     F("enrich.py", { L: "tmdb", s: "<code>TmdbRagEnricher</code>: completa con TMDb i film scelti dal RAG.", d: `Dopo <code>rag_search</code> l'orchestratore gli passa il risultato. Prende i chunk finali (dopo il rerank, al massimo <code>max_candidates</code>, nell'ordine del RAG, senza duplicati), cerca ogni titolo in <code>en-US</code> senza filtro d'anno (<code>year_after_search</code>: un candidato costa 2 chiamate, ricerca + dettagli, anche se l'anno del corpus è sbagliato di 1; la ricerca con filtro è solo il ripiego) e aggiunge in <code>metadata.tmdb_enrichment</code> titolo, anno, regista, cast e sinossi solo se titolo e anno (±1) coincidono; altrimenti <code>unverified</code>, <code>not_found</code> o <code>skipped</code>. Non riordina i chunk e usa un solo budget, creato da <code>TmdbTool.new_context</code>. Un candidato riceve metadati solo con titolo o titolo originale uguali (mai per inclusione: “The Sinner” non è “The Sinners”) e anno ±1, in <code>strict_identity</code> (più risultati ugualmente validi → <code>ambiguous</code>). Un match tramite titolo alternativo o articolo (<code>matched_by: alternative_title</code>) richiede anche un attore in comune quando i cast sono noti (<code>cast_mismatch</code>); un anno confermato da una data di uscita secondaria dà <code>year_note</code>. Durata 0 scartata.<br><br>Lo step <code>tmdb_calls</code> del completamento porta le card solo per i film verificati (<code>matched</code>): un risultato TMDb non verificato non è il film del RAG.`, dep: [T + "tool.py", T + "runner.py", T + "trace.py"] }),
     F("work_type.py", { L: "tmdb", s: "<code>TmdbWorkTypeChecker</code>: film o serie per i ranking MovieLens.", d: `Una chiamata <code>/find</code> per IMDb id: solo <code>movie_results</code> → film, solo <code>tv_results</code> → serie; nessun risultato, entrambi, errore, id non numerico o chiave mancante → non verificabile (assente dalla risposta). Budget proprio (<code>MAX_CHECKS</code> 12 per chiamata, non quello del turno); si ferma su limite, 429 o chiave rifiutata. Lo collega <code>app.py</code> al tool MovieLens.`, dep: [T + "tool.py", T + "http.py", T + "endpoints.py"] }),
     F("trace.py", { L: "tmdb", s: "Step <code>tmdb_calls</code>: URL chiamati e attribuzioni.", d: `Fuori da <code>metadata</code> (che va nel prompt): le attribuzioni le mostrano i presenter, non l'LLM.<br><br><code>tmdb_cards</code> aggiunge a <code>data.items</code> le card di film e serie della run (una volta ciascuna, nell'ordine) con i valori grezzi di TMDb: da lì <code>web_lists</code> idrata le liste.` }),
@@ -2009,6 +2029,11 @@ const TREE = D("NetflixScout", {}, [
     d: `<code>measure_cmu</code> e <code>measure_movielens</code> leggono i dataset locali (corpus CMU fino al 2012, MovieLens fino al 2022) in modo deterministico; <code>coverage_rule</code> trasforma gli anni configurati in <code>CONFIG[\"orchestrator\"][\"data_coverage\"]</code> nel testo aggiunto alle istruzioni del planner, così i film su anni successivi vanno a <code>tmdb_search</code>. <code>python data_coverage.py</code> rimisura le date. Solo stdlib, nessuna rete.`,
     n: ["<code>tests/test_data_coverage.py</code> confronta i valori in config con i dataset."],
   }),
+  F("catalog_enricher.py", {
+    L: "orch", s: "Ponte neutro: aggiunge al catalogo vettoriale i film verificati da <code>tmdb_search</code>.",
+    d: `Non importa nulla da <code>tool/</code>: riceve <code>read_record</code>, <code>sync</code> e <code>invalidate</code> da <code>app.py</code>. Agisce solo su <code>movie_details</code> riusciti e con identità verificata, al massimo 2 film per turno, non solleva mai e scrive l'esito solo nella trace (<code>tmdb_calls.data.catalog</code>), mai in <code>metadata</code>. Spento: <code>CONFIG["catalog"]["enabled"] = False</code>.`,
+    dep: ["app.py"],
+  }),
   F("app.py", {
     L: "entry",
     s: "Entry point: <code>CONFIG</code>, nucleo <code>handle_query()</code> senza output e chat da terminale.",
@@ -2644,7 +2669,7 @@ function renderOverview() {
 
     <h2>Punti di attenzione nel codice</h2>
     <div class="callout"><ul>
-      <li>Il commit “migrate db to Qdrant” non corrisponde al codice, che usa solo ChromaDB.</li>
+      <li>Il commit “migrate db to Qdrant” (2026-10-03) non conteneva codice Qdrant; la migrazione è stata poi fatta: Qdrant è il motore predefinito e Chroma resta solo per rollback e strumenti di migrazione.</li>
       <li>MovieLens: serie TV escluse dalle classifiche tramite TMDb <code>/find</code> per IMDb id, titoli normalizzati in lettura e <code>by_title</code> a livelli (esatto, normalizzato, sottostringa), verificati offline con transport finto. Non ancora verificato live: la risposta reale di <code>/find</code> sui dati MovieLens. Resta il limite che una ricerca parziale come «The Kingdom» non trova il titolo archiviato con l'articolo in fondo («Kingdom II, The (Riget II)»).</li>
       <li>Verifiche reali del 2026-10-22 (app, TMDb, OpenAI e Cohere reali, ≥30 s tra gli invii): routing live 23/23; titoli alternativi e varianti verificati su dati TMDb reali; A/B controllato del reranker (36 chiamate Cohere): violazioni verificabili 20 con la query italiana, 21 con la sola semantica, 16 con la query composta. Il 2026-10-26 <code>demote_contradicted</code> (dopo Cohere, i film contraddetti dai metadati di genere o decennio passano dopo gli altri) ha dato, su 5 casi e lo stesso pool, 4→3 violazioni nei top 3 con tutte e tre le query (15 chiamate Cohere): corregge il caso 12, non il 20, perché nei 10 candidati nessun film rispetta genere e decennio (limite del pool, non del reranker). Campione piccolo, metrica uguale al criterio del riordino.</li>
       <li>Tool YouTube: E2E reale del 2026-10-23 (20 domande, prima dei fix di pertinenza) con routing 20/20 e 6 OK / 10 parziali / 4 falliti. Ancora da verificare live: l'E2E dopo i fix, i casi YouTube nel routing eval, lo smoke test (scritto, mai lanciato), la precedenza degli operatori nella query e il rispetto reale delle istruzioni da parte dell'LLM. Le Developer Policies (III.A.2) chiedono anche una privacy policy dell'applicazione, non ancora scritta.</li>

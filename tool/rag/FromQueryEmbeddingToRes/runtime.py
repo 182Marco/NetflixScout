@@ -26,6 +26,10 @@ def _resolve_runtime_config(config: dict) -> dict:
 
         db_dir = db_dir_for_backend(effective_backend)
 
+    if vectorstore_config.get("qdrant") is not None:
+        # The index meta must match the embedding model actually used for the queries.
+        vectorstore_config["qdrant"] = {**vectorstore_config["qdrant"], "model": embedding_config["model"]}
+
     conversation_config = config.get(
         "conversation",
         {

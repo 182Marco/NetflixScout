@@ -1,0 +1,30 @@
+| query | tipo | raw r@10 Chroma/Qdrant/ef128 | raw r@50 Chroma/Qdrant/ef128 | sem. pool = rif. (Chroma/Qdrant) | sem. overlap rif. (C/Q) | hyb. pool = rif. (C/Q) | rerank input uguale (sem/hyb) | excl. movie_id r@10 | anno r@10 |
+|---|---|---|---|---|---|---|---|---|---|
+| q01 | theme | 1.0/1.0/1.0 | 0.94/1.00/1.00 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |
+| q02 | theme | 1.0/1.0/1.0 | 0.80/1.00/1.00 | NO/si | 0.9/1.0 | si/si | NO/si | 1.0 | 1.0 |
+| q03 | plot_lookup | 1.0/1.0/1.0 | 0.92/0.96/0.98 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |
+| q04 | plot_lookup | 1.0/1.0/1.0 | 0.94/0.98/0.98 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |
+| q05 | decade_country_genre | 1.0/1.0/1.0 | 0.96/1.00/1.00 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |
+| q06 | genre_setting | 1.0/1.0/1.0 | 0.98/0.96/1.00 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |
+| q07 | theme | 1.0/1.0/1.0 | 1.00/1.00/1.00 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |
+| q08 | setting | 1.0/1.0/1.0 | 1.00/1.00/1.00 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |
+| q09 | theme | 1.0/1.0/1.0 | 0.86/1.00/1.00 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |
+| q10 | plot_lookup | 1.0/1.0/1.0 | 0.98/1.00/1.00 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |
+| q11 | excluded_genre | 1.0/1.0/1.0 | 0.92/1.00/1.00 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |
+| q12 | excluded_genre | 0.9/1.0/1.0 | 0.94/1.00/1.00 | NO/si | 0.9/1.0 | NO/si | NO/NO | 1.0 | 1.0 |
+| q13 | reference_title | 1.0/1.0/1.0 | 1.00/1.00/1.00 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |
+| q14 | reference_title | 1.0/1.0/1.0 | 0.96/1.00/1.00 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |
+| q15 | reference_title | 1.0/1.0/1.0 | 1.00/1.00/1.00 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |
+| q16 | reference_title_absent | 1.0/1.0/1.0 | 0.96/1.00/1.00 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |
+| q17 | emotion | 0.9/0.9/1.0 | 0.80/0.96/0.98 | NO/NO | 0.9/0.9 | si/si | si/si | 0.9 | 1.0 |
+| q18 | decade_genre | 1.0/1.0/1.0 | 0.90/1.00/1.00 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 0.9 |
+| q19 | english | 1.0/1.0/1.0 | 1.00/1.00/1.00 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |
+| q20 | english | 1.0/1.0/1.0 | 1.00/1.00/1.00 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |
+| q21 | keyword_named | 0.8/1.0/1.0 | 0.80/0.98/0.98 | NO/si | 0.8/1.0 | NO/si | NO/NO | 1.0 | 1.0 |
+| q22 | keyword_rare | 1.0/1.0/1.0 | 1.00/1.00/1.00 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |
+| q23 | theme | 1.0/1.0/1.0 | 1.00/1.00/1.00 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |
+| q24 | decade_country | 1.0/1.0/1.0 | 1.00/1.00/1.00 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |
+| q25 | theme | 1.0/1.0/1.0 | 0.94/1.00/1.00 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |
+| q26 | vague | 0.8/1.0/1.0 | 0.72/0.98/1.00 | NO/si | 0.8/1.0 | NO/si | NO/NO | 1.0 | 1.0 |
+| q27 | genre_setting | 1.0/1.0/1.0 | 0.82/0.98/0.98 | NO/si | 0.9/1.0 | NO/si | NO/si | 1.0 | 1.0 |
+| q28 | theme | 1.0/1.0/1.0 | 0.92/1.00/1.00 | si/si | 1.0/1.0 | si/si | si/si | 1.0 | 1.0 |

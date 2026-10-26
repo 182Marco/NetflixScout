@@ -31,11 +31,13 @@ def recupera(
     genres=None,
     genre_boost=0.0,
     excluded_genres=None,
+    store_config=None,
 ):
     """Retrieve the top-k chunks for a query from a vector collection."""
     collection = vectorstore.apri_collection(
         collection_name,
         db_dir=db_dir,
+        store_config=store_config,
     )
     return vectorstore.search(
         collection,

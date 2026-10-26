@@ -2,7 +2,7 @@ from tool.rag.EmbeddingProcess.buildSemanticDb import *
 
 
 if __name__ == "__main__":
-    from tool.rag.EmbeddingProcess.buildSemanticDb import build_semantic_db, parse_args
+    from tool.rag.EmbeddingProcess.buildSemanticDb import build_semantic_db, parse_args, qdrant_settings
     from pathlib import Path
     from dotenv import load_dotenv
 
@@ -16,4 +16,6 @@ if __name__ == "__main__":
         embedding_backend=args.embedding_backend,
         embedding_model=args.embedding_model,
         batch_size=args.batch_size,
+        engine=args.engine,
+        qdrant=qdrant_settings(args) if args.engine == "qdrant" else None,
     )

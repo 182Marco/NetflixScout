@@ -1,0 +1,79 @@
+{
+ "guarded": true,
+ "runs": [
+  {
+   "processes": 2,
+   "wait": false,
+   "guarded": true,
+   "rounds_per_scenario": 200,
+   "observer_reads": 24554,
+   "seconds": 132.8,
+   "rounds_with_anomalies": 0,
+   "per_scenario": {
+    "text_update": {
+     "rounds": 200
+    },
+    "insert_race": {
+     "rounds": 200
+    },
+    "meta_only": {
+     "rounds": 200
+    },
+    "mixed": {
+     "rounds": 200
+    },
+    "link_race": {
+     "rounds": 200
+    },
+    "equal_ts": {
+     "rounds": 200
+    }
+   },
+   "examples": {
+    "text_update": [],
+    "insert_race": [],
+    "meta_only": [],
+    "mixed": [],
+    "link_race": [],
+    "equal_ts": []
+   }
+  },
+  {
+   "processes": 4,
+   "wait": false,
+   "guarded": true,
+   "rounds_per_scenario": 200,
+   "observer_reads": 26539,
+   "seconds": 152.8,
+   "rounds_with_anomalies": 0,
+   "per_scenario": {
+    "text_update": {
+     "rounds": 200
+    },
+    "insert_race": {
+     "rounds": 200
+    },
+    "meta_only": {
+     "rounds": 200
+    },
+    "mixed": {
+     "rounds": 200
+    },
+    "link_race": {
+     "rounds": 200
+    },
+    "equal_ts": {
+     "rounds": 200
+    }
+   },
+   "examples": {
+    "text_update": [],
+    "insert_race": [],
+    "meta_only": [],
+    "mixed": [],
+    "link_race": [],
+    "equal_ts": []
+   }
+  }
+ ]
+}

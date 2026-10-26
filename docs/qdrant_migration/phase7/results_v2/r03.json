@@ -1,0 +1,417 @@
+{
+ "answer": "Ecco tre thriller legati a un viaggio in treno. Nei dati disponibili, l’ambientazione su una nave non è verificabile per nessuno dei titoli.\n\n### 1. *Night Train* (1959)\n- **Regia:** Jerzy Kawalerowicz  \n- **Cast principale:** Lucyna Winnicka, Leon Niemczyk, Teresa Szmigielówna, Zbigniew Cybulski, Helena Dąbrowska  \n- **Sinossi:** Due sconosciuti, Jerzy e Marta, si ritrovano per errore con i biglietti per la stessa cuccetta su un treno notturno diretto verso la costa del Mar Baltico. A bordo c’è anche l’ex amante respinto di Marta. Quando la polizia sale sul treno cercando un assassino in fuga, iniziano a circolare voci e uno dei personaggi principali sembra essere il colpevole.  \n- **Vincoli:** thriller **verificato**; ambientazione ferroviaria **probabile, ma non confermata**; ambientazione su una nave **non verificabile**; tensione legata al viaggio **non verificabile**; spazi confinati **non verificabile**; suspense **non verificabile**.  \n- **Voto TMDb:** 7,6/10.\n\n### 2. *A Window in London* (1940)\n- **Regia:** Herbert Mason  \n- **Cast principale:** Michael Redgrave, Sally Gray, Paul Lukas, Hartley Power, Patricia Roc  \n- **Sinossi:** Un passeggero su un treno ferroviario britannico vede attraverso il finestrino di un altro treno quello che crede essere un omicidio e inizia a cercare il responsabile.  \n- **Vincoli:** thriller **verificato**; ambientazione ferroviaria **probabile, ma non confermata**; ambientazione su una nave **non verificabile**; tensione legata al viaggio **non verificabile**; spazi confinati **non verificabile**; suspense **non verificabile**.  \n- **Voto TMDb:** 6,2/10.\n\n### 3. *The Lady Vanishes* (1938)\n- **Regia:** Alfred Hitchcock  \n- **Cast principale:** Margaret Lockwood, Michael Redgrave, Paul Lukas, May Whitty, Basil Radford  \n- **Sinossi:** Su un treno diretto in Inghilterra, un gruppo di viaggiatori viene fermato da una valanga. Dopo la ripartenza, Iris si accorge che l’anziana Miss Froy, conosciuta prima del viaggio, è scomparsa.  \n- **Vincoli:** thriller **verificato**; ambientazione ferroviaria **probabile, ma non confermata**; ambientazione su una nave **non verificabile**; tensione legata al viaggio **non verificabile**; spazi confinati **non verificabile**; suspense **non verificabile**.  \n- **Voto TMDb:** 7,428/10.",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Thriller ambientati su un treno o su una nave",
+    "used": "Thriller ambientati su un treno o su una nave",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Trovare thriller ambientati su un treno o su una nave",
+    "arguments": {
+     "query": "Consiglia thriller ambientati principalmente su un treno o su una nave, con tensione e suspense legate al viaggio e agli spazi chiusi.",
+     "k_finale": null,
+     "search_mode": null
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 4064,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "semantic",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "semantic",
+      "k_largo": 10,
+      "k_finale": 3,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": []
+    },
+    "standalone_query": "Thriller ambientati su un treno o su una nave",
+    "planner_query": "Consiglia thriller ambientati principalmente su un treno o su una nave, con tensione e suspense legate al viaggio e agli spazi chiusi.",
+    "embedded_text": "Thrillers set primarily on a train or ship, where the journey and confined spaces create tension and suspense.",
+    "signals": {
+     "positive_signals": [
+      "train setting",
+      "ship setting",
+      "travel-related tension",
+      "confined spaces",
+      "suspense"
+     ],
+     "negative_signals": [],
+     "hard_exclusions": [],
+     "semantic_query": "Thrillers set primarily on a train or ship, where the journey and confined spaces create tension and suspense.",
+     "genres": [
+      "Thriller"
+     ],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-009576-000000",
+      "testo": "A passenger on a British railway train spots a murder being committed on another train, through the window. He embarks on a hunt to track down the killer.",
+      "score": 0.6499118500000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "19036209",
+      "title": "A Window in London",
+      "release_date": "1940",
+      "release_year": "1940",
+      "genres": "Thriller",
+      "cast": "Sally Gray; Hartley Power; Michael Redgrave; Paul Lukas"
+     },
+     {
+      "id": "edb95c357b3b-001287-000000",
+      "testo": "When the existence of a strain of plague  is revealed at the U.S. mission at the International Health Organization, three terrorists seek to blow up the U.S. mission. Two of them are shot, one mortally, by security personnel but one escapes. The surviving terrorist is hospitalized and quarantined and identified as Swedish. Dr. Elena Stradner  and U.S. Colonel Stephen Mackenzie   argue over the nature of the strain, which Stradner suspects is a biological weapon but which Colonel Mackenzie claims was in the process of being destroyed. The third terrorist escapes and stows away on a transcontinental train bound from Geneva to Stockholm. Dr. Stradner believes that the train should be stopped so that the terrorist can be removed and quarantined, but Col. Mackenzie is concerned that all of the passengers on the train may have been infected. Mackenzie insists on rerouting the train to an abandoned ex-Nazi railroad line to a quarantine camp in Janov, Poland. However the line crosses a dangerously unsound steel arch bridge known as the Kaslindrliv Bridge or Cassandra Crossing, out of use since 1948. Mackenzie understands that the bridge might collapse as the train passes over it. The presence of the infected terrorist, and the rerouting of the train, precipitates the second conflict, among passengers on the train; they include Dr. Jonathan Chamberlain , a famous neurologist, his ex-wife Jennifer Rispoli Chamberlain , and Nicole Dressler , the wife of a German arms dealer. She is embroiled in an affair with her young companion Robby Navarro. Navarro is a heroin trafficker being pursued by FBI agent Haley, who is traveling undercover as a priest. Mackenzie informs Dr. Chamberlain of the presence of the stowaway, who is found, but attempts to remove the stowaway via a helicopter are unsuccessful because the train enters a tunnel. Chamberlain is also told that the plague has a 60% mortality rate. Mackenzie, however, informs passengers that police have received reports of anarchist bombs placed along the rail line, and that the train will be rerouted to Nuremberg. There the train is sealed with an enclosed oxygen system and a U.S. Army medical team is placed aboard, with the now-deceased stowaway being placed in a hermetically-sealed coffin. Dr. Chamberlain learns of the risk of the Cassandra Crossing. He also begins to suspect the disease is not as serious as originally thought: few of the passengers have become infected and few of those have actually died. He radios MacKenzie suggesting the infected portion of the train be uncoupled and isolated, but MacKenzie has no intention of stopping the train: if the expected Cassandra Crossing collapse occurs, it will neatly cover the fact that the U.S has been harboring germ warfare agents in a neutral country. Passengers on the train work alone to stop the train before it reaches the Cassandra Crossing. The passengers manage to seize the back half of the train roughly one km before the bridge and detach it, hoping that with less weight, the front half will cross safely. But the bridge collapses, killing everyone aboard the front half. The back end applies the brakes and stops just before reaching the downed bridge. In Geneva, both Stradner and MacKenzie depart: she keeps hope of survivors while he thinks the elimination of the train means no investigations. A guard on duty orders both of them be watched.",
+      "score": 0.60563594,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "2390369",
+      "title": "The Cassandra Crossing",
+      "release_date": "1976-12-18",
+      "release_year": "1976",
+      "genres": "Thriller; Action Thrillers; Adventure; World cinema; Action/Adventure; Drama; Suspense; Disaster; Action",
+      "cast": "Sophia Loren; Richard Harris; Martin Sheen; O. J. Simpson; Lionel Stander; Ann Turkel; Ingrid Thulin; Lee Strasberg; Ava Gardner; Burt Lancaster; Lou Castel; John Phillip Law; Ray Lovelock; Alida Valli; Stefano Patrizi"
+     },
+     {
+      "id": "edb95c357b3b-013893-000000",
+      "testo": "In this police thriller that partly takes place in Chicago Union Station, a railway policeman, William Calhoun, is approached at work by an apprehensive passenger named Joyce Willecombe  who believes that two travelers aboard her train may have been up to no good. Joyce is the secretary to a rich man named Henry Murchison , whose blind daughter, Lorna, has been kidnapped and held for ransom. The railway station where Calhoun works has been chosen as the location to pay off the ransom. Calhoun and fellow cop Inspector Donnelly race against time to find the kidnappers and bring them to justice.",
+      "score": 0.6046292,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "4150566",
+      "title": "Union Station",
+      "release_date": "1950-10-04",
+      "release_year": "1950",
+      "genres": "Crime Fiction; Thriller; Black-and-white; Drama; Crime Thriller; Film noir",
+      "cast": "Herbert Heyes; William Holden; Nancy Olson; Barry Fitzgerald; Lyle Bettger; Jan Sterling; Allene Roberts; Landon Dunning"
+     },
+     {
+      "id": "edb95c357b3b-002363-000000",
+      "testo": "The film is basically a thriller film, where the hero and heroine are chased by a group of people. The Hero decides to find out the reason forms the Climax.",
+      "score": 0.60111776,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "30080133",
+      "title": "Ashokavana",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Thriller",
+      "cast": "Mohan; Komal; Tejaswini Prakash"
+     },
+     {
+      "id": "edb95c357b3b-022688-000000",
+      "testo": "Two strangers, Jerzy  and Marta , accidentally end up holding tickets for the same sleeping chamber on an overnight train to the Baltic Sea coast. Also on board is Marta's spurned lover, who will not leave her alone. When the police enter the train in search of a murderer on the lam, rumors fly and everything seems to point toward one of the main characters as the culprit.",
+      "score": 0.58455807,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "1664884",
+      "title": "Night Train",
+      "release_date": "1959",
+      "release_year": "1959",
+      "genres": "Thriller; Mystery; Drama; World cinema",
+      "cast": "Helena Dabrowska; Lucyna Winnicka; Leon Niemczyk; Teresa Szmigielówna; Zbigniew Cybulski; Ignacy Machowski; Roland Glowacki; Aleksander Sewruk; Zygmunt Zintel; Tadeusz Gwiazdowski"
+     },
+     {
+      "id": "edb95c357b3b-012281-000000",
+      "testo": "The film is set up amongst the landscape of two potentially related murders: that of an engaged woman in Sunshine, and that of seven passengers on a train in Melbourne's inner west. From there, the film deals primarily with the experiences of Lavinia Smart , a young woman who boarded the train shortly after the murders, and police Constable Graham McGahan , who is afflicted with increasingly severe tinnitus. Constable McGahan mans the night shift of a police information van in the inner-western Melbourne suburb of Sunshine, where he encounters the traumatized members of the local community. Furthermore, the film explores the fear Lavinia is in after the horrific events she witnessed.",
+      "score": 0.5801302800000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "11096384",
+      "title": "Noise",
+      "release_date": "2007-05-03",
+      "release_year": "2007",
+      "genres": "Thriller; Drama; Indie",
+      "cast": "Nicholas Bell; Katie Wall; Brendan Cowell; Henry Nixon; Damien Richardson; Richard Cawthorne; Simon King; Maia Thomas; Fiona Macleod; Maude Davey; Luke Elliot; Simon Laherty"
+     },
+     {
+      "id": "edb95c357b3b-021409-000000",
+      "testo": "Cargo tells the tale of a young man who has gotten into trouble in Africa and because of this he decides to stow away on a cargo ship leaving for Europe. During this voyage, sailors on the ship began to disappear with no apparent reason and the story turns more to the depraved life of the captain of the ship.",
+      "score": 0.5718942600000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "6415319",
+      "title": "Cargo",
+      "release_date": "2006-01-24",
+      "release_year": "2006",
+      "genres": "Thriller; Crime Thriller; Indie; Psychological thriller",
+      "cast": "Peter Mullan; Daniel Brühl; Luis Tosar; Gary Lewis; Gonzalo Cunill; Carlos Blanco"
+     },
+     {
+      "id": "edb95c357b3b-018434-000000",
+      "testo": "In Bandrika, a fictional country in an \"uncivilised\" region of immediately pre-World War II Central Europe,It has often been wrongly stated that the action of the movie is set in Nazi-controlled Austria, though Bandrika may be seen as a substitute for such. Bandrika's fictitious language has similarities to Italian, Hungarian and German, although it is unlikely to be Hungary as two travelers reference their previous stop in Hungary. Three of the railway stations seen or mentioned within the country are \"Zolnay\", \"Dravka\", and \"Morsken\". a motley group of travellers eager to return to England is delayed by an avalanche that has blocked the railway tracks. At night, a folk singer plays a tune al fresco that catches the attention of Miss Froy , an elderly lady who has worked some years abroad as a governess. The folk singer is suddenly silenced--apparently murdered.The Lady Vanishes: All Aboard!, by Geoffrey O'Brien Among the train's passengers are Gilbert , a young musicologist who has been studying the folk songs of the region, Iris , a young woman of independent means who has spent a holiday with some friends, but is now returning home to get married, and Miss Froy. When the train resumes its journey, Iris and Miss Froy become acquainted, while the remaining passengers in the compartment appear not to understand a word of English. Iris lapses into unconsciousness, the result of an earlier encounter with a falling flowerpot meant for Miss Froy. When Iris reawakens, the governess has vanished, and she is shocked to learn that the other passengers claim Miss Froy never existed. The other English travelers deny ever seeing her, for their own reasons. Fellow passenger Doctor Egon Hartz  convinces everyone that Iris must have hallucinated the scene with the old lady because of the blow to her head. Undaunted, Iris starts to investigate, joined only by a skeptical Gilbert, with whom she eventually falls in love. They discover that Miss Froy is being held prisoner in a sealed-off compartment supposedly occupied by a seriously ill patient being transported to an operation. They manage to free her, but the train is diverted to a side track, where a shootout ensues. Miss Froy intimates to Gilbert and Iris that she is in fact a British spy assigned to deliver some vital information  to the Foreign Office in London; after entrusting her message  to Gilbert, she flees under cover of the shootout. After managing to restart the train and escape, Gilbert and Iris return to London. At the Foreign Office, Gilbert, driven to joyful distraction when Iris accepts his marriage proposal, forgets the tune. Just as it appears the message has been lost, the coded folk song is heard in the background. Fortunately, Miss Froy had been able to escape, and is revealed playing the song on a piano. The plot of Hitchcock's film differs considerably from White's novel. In The Wheel Spins, Miss Froy really is an innocent old lady looking forward to seeing her octogenarian parents; she is abducted because she knows something  that would cause trouble for the local authorities if it came out. Iris' mental confusion is due to sunstroke, not a blow to the head. In White's novel, the wheel keeps spinning: the train never stops, and there is no final shootout. Additionally, the supporting cast differs somewhat; for instance, in the novel, the Gilbert character is Max Hare, a young English engineer building a dam in the hills who knows the local language, and there is also a modern-languages professor character who acts as Iris's and Max's interpreter who does not appear in the film. The characters Charters and Caldicott were created for the film, and do not appear in the novel. The story was used again in the series Alfred Hitchcock Presents, in the episode \"Into Thin Air\".",
+      "score": 0.57109198,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "9404578",
+      "title": "The Lady Vanishes",
+      "release_date": "1938",
+      "release_year": "1938",
+      "genres": "Thriller; Psychological thriller; Black-and-white; Mystery; Comedy; Spy",
+      "cast": "Linden Travers; Basil Radford; Catherine Lacey; Margaret Lockwood; Paul Lukas; Googie Withers; Philip Leaver; May Whitty; Michael Redgrave; Alfred Hitchcock; Naunton Wayne; Cecil Parker; Mary Clare; Emile Boreo"
+     },
+     {
+      "id": "edb95c357b3b-006344-000000",
+      "testo": "Six people travel by train overnight from Marseilles to Paris. When the train arrives at its destination, one of the passengers, a girl, is found dead in a sleeping berth. The police led by Inspector Grazzi investigate the other five passengers, suspecting that one of them was responsible. However, as the investigation is stepped up, the other passengers start turning up dead. It is then up to the last remaining two to solve the case, before they become the next victims.",
+      "score": 0.56675717,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "11124990",
+      "title": "The Sleeping Car Murders",
+      "release_date": "1965-11-17",
+      "release_year": "1965",
+      "genres": "Crime Fiction; Mystery; Drama; Psychological thriller; Thriller",
+      "cast": "Jacques Perrin; Catherine Allégret; Simone Signoret; Michel Piccoli; Pascale Roberts; Yves Montand; Pierre Mondy; Claude Mann; Charles Denner; Jean-Louis Trintignant; Nadine Alari; Monique Chaumette; Maurice Chevit; Jacques Dynam; Bernadette Lafont"
+     },
+     {
+      "id": "edb95c357b3b-029972-000000",
+      "testo": "When a high profile Senator  boards a train at Union Station, he is expecting a smooth ride. However, his trip is interrupted when a militia group hijacks the train, taking him and several other passengers hostage and planting a nuclear bomb somewhere on board. An ATF Agent  who happened to be a passenger on the train is the one man who just may be able of both freeing the hostages and defusing the bomb before time runs out.",
+      "score": 0.56647393,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "14577078",
+      "title": "The Last Siege: Never Surrender",
+      "release_date": "1999",
+      "release_year": "1999",
+      "genres": "Thriller; Action/Adventure; Action; Indie",
+      "cast": "Ernie Hudson; Jeff Fahey; Robert Miano; Rosalind Allen; George Gerdes; Larry Manetti; James Stephens; Patrick Kilpatrick; Beth Toussaint; Frank McRae; Ernie Hudson Jr.; Pete Antico; Becky Boxer; Brent Huff"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "Thrillers set primarily on a train or ship, where the journey and confined spaces create tension and suspense. Must match: train setting; ship setting; travel-related tension; Thriller.",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "Thriller",
+       "type": "genre",
+       "results": {
+        "Night Train (1959)": {
+         "status": "verified",
+         "evidence": "generi: Thriller; Mystery; Drama; World cinema"
+        },
+        "A Window in London (1940)": {
+         "status": "verified",
+         "evidence": "generi: Thriller"
+        },
+        "The Lady Vanishes (1938)": {
+         "status": "verified",
+         "evidence": "generi: Thriller; Psychological thriller; Black-and-white; Mystery; Comedy; Spy"
+        }
+       }
+      },
+      {
+       "constraint": "train setting",
+       "type": "plot_require",
+       "results": {
+        "Night Train (1959)": {
+         "status": "probable",
+         "evidence": "termini nella trama: train"
+        },
+        "A Window in London (1940)": {
+         "status": "probable",
+         "evidence": "termini nella trama: train"
+        },
+        "The Lady Vanishes (1938)": {
+         "status": "probable",
+         "evidence": "termini nella trama: train"
+        }
+       }
+      },
+      {
+       "constraint": "ship setting",
+       "type": "plot_require",
+       "results": {
+        "Night Train (1959)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "A Window in London (1940)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "The Lady Vanishes (1938)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "travel-related tension",
+       "type": "plot_require",
+       "results": {
+        "Night Train (1959)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "A Window in London (1940)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "The Lady Vanishes (1938)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "confined spaces",
+       "type": "plot_require",
+       "results": {
+        "Night Train (1959)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "A Window in London (1940)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "The Lady Vanishes (1938)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "suspense",
+       "type": "plot_require",
+       "results": {
+        "Night Train (1959)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "A Window in London (1940)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "The Lady Vanishes (1938)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-022688-000000",
+      "testo": "Two strangers, Jerzy  and Marta , accidentally end up holding tickets for the same sleeping chamber on an overnight train to the Baltic Sea coast. Also on board is Marta's spurned lover, who will not leave her alone. When the police enter the train in search of a murderer on the lam, rumors fly and everything seems to point toward one of the main characters as the culprit.",
+      "score": 0.34594497,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "1664884",
+      "title": "Night Train",
+      "release_date": "1959",
+      "release_year": "1959",
+      "genres": "Thriller; Mystery; Drama; World cinema",
+      "cast": "Helena Dabrowska; Lucyna Winnicka; Leon Niemczyk; Teresa Szmigielówna; Zbigniew Cybulski; Ignacy Machowski; Roland Glowacki; Aleksander Sewruk; Zygmunt Zintel; Tadeusz Gwiazdowski"
+     },
+     {
+      "id": "edb95c357b3b-009576-000000",
+      "testo": "A passenger on a British railway train spots a murder being committed on another train, through the window. He embarks on a hunt to track down the killer.",
+      "score": 0.20760037,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "19036209",
+      "title": "A Window in London",
+      "release_date": "1940",
+      "release_year": "1940",
+      "genres": "Thriller",
+      "cast": "Sally Gray; Hartley Power; Michael Redgrave; Paul Lukas"
+     },
+     {
+      "id": "edb95c357b3b-018434-000000",
+      "testo": "In Bandrika, a fictional country in an \"uncivilised\" region of immediately pre-World War II Central Europe,It has often been wrongly stated that the action of the movie is set in Nazi-controlled Austria, though Bandrika may be seen as a substitute for such. Bandrika's fictitious language has similarities to Italian, Hungarian and German, although it is unlikely to be Hungary as two travelers reference their previous stop in Hungary. Three of the railway stations seen or mentioned within the country are \"Zolnay\", \"Dravka\", and \"Morsken\". a motley group of travellers eager to return to England is delayed by an avalanche that has blocked the railway tracks. At night, a folk singer plays a tune al fresco that catches the attention of Miss Froy , an elderly lady who has worked some years abroad as a governess. The folk singer is suddenly silenced--apparently murdered.The Lady Vanishes: All Aboard!, by Geoffrey O'Brien Among the train's passengers are Gilbert , a young musicologist who has been studying the folk songs of the region, Iris , a young woman of independent means who has spent a holiday with some friends, but is now returning home to get married, and Miss Froy. When the train resumes its journey, Iris and Miss Froy become acquainted, while the remaining passengers in the compartment appear not to understand a word of English. Iris lapses into unconsciousness, the result of an earlier encounter with a falling flowerpot meant for Miss Froy. When Iris reawakens, the governess has vanished, and she is shocked to learn that the other passengers claim Miss Froy never existed. The other English travelers deny ever seeing her, for their own reasons. Fellow passenger Doctor Egon Hartz  convinces everyone that Iris must have hallucinated the scene with the old lady because of the blow to her head. Undaunted, Iris starts to investigate, joined only by a skeptical Gilbert, with whom she eventually falls in love. They discover that Miss Froy is being held prisoner in a sealed-off compartment supposedly occupied by a seriously ill patient being transported to an operation. They manage to free her, but the train is diverted to a side track, where a shootout ensues. Miss Froy intimates to Gilbert and Iris that she is in fact a British spy assigned to deliver some vital information  to the Foreign Office in London; after entrusting her message  to Gilbert, she flees under cover of the shootout. After managing to restart the train and escape, Gilbert and Iris return to London. At the Foreign Office, Gilbert, driven to joyful distraction when Iris accepts his marriage proposal, forgets the tune. Just as it appears the message has been lost, the coded folk song is heard in the background. Fortunately, Miss Froy had been able to escape, and is revealed playing the song on a piano. The plot of Hitchcock's film differs considerably from White's novel. In The Wheel Spins, Miss Froy really is an innocent old lady looking forward to seeing her octogenarian parents; she is abducted because she knows something  that would cause trouble for the local authorities if it came out. Iris' mental confusion is due to sunstroke, not a blow to the head. In White's novel, the wheel keeps spinning: the train never stops, and there is no final shootout. Additionally, the supporting cast differs somewhat; for instance, in the novel, the Gilbert character is Max Hare, a young English engineer building a dam in the hills who knows the local language, and there is also a modern-languages professor character who acts as Iris's and Max's interpreter who does not appear in the film. The characters Charters and Caldicott were created for the film, and do not appear in the novel. The story was used again in the series Alfred Hitchcock Presents, in the episode \"Into Thin Air\".",
+      "score": 0.16791369,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "9404578",
+      "title": "The Lady Vanishes",
+      "release_date": "1938",
+      "release_year": "1938",
+      "genres": "Thriller; Psychological thriller; Black-and-white; Mystery; Comedy; Spy",
+      "cast": "Linden Travers; Basil Radford; Catherine Lacey; Margaret Lockwood; Paul Lukas; Googie Withers; Philip Leaver; May Whitty; Michael Redgrave; Alfred Hitchcock; Naunton Wayne; Cecil Parker; Mary Clare; Emile Boreo"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/38898?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/252781?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/940?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 38898,
+      "media_type": "movie",
+      "title": "Night Train",
+      "original_title": "Pociąg",
+      "overview": "Two strangers, Jerzy and Marta, accidentally end up holding tickets for the same sleeping chamber on an overnight train to the Baltic Sea coast. Also on board is Marta's spurned lover, who will not leave her alone. When the police enter the train in search of a murderer on the lam, rumors fly and everything seems to point toward one of the main characters as the culprit.",
+      "vote_average": 7.6,
+      "release_date": "1959-09-06",
+      "original_language": "pl",
+      "poster_path": "/9ibViDKmJa1xbCNAV1AtGXXRxtY.jpg"
+     },
+     {
+      "id": 252781,
+      "media_type": "movie",
+      "title": "A Window in London",
+      "original_title": "A Window in London",
+      "overview": "A man witnesses a murder that isn't a murder, only to get involved with the magician and his wife who created the illusion. The insanely jealous magician husband eventually kills his wife, making for complications in life of unhappily married man who is now involved more than he ever thought he would be.",
+      "vote_average": 6.2,
+      "release_date": "1940-06-15",
+      "original_language": "en",
+      "poster_path": "/uzsydtPc7Xr85zNFXdCGRweK9FU.jpg"
+     },
+     {
+      "id": 940,
+      "media_type": "movie",
+      "title": "The Lady Vanishes",
+      "original_title": "The Lady Vanishes",
+      "overview": "On a train headed for England a group of travelers is delayed by an avalanche. Holed up in a hotel in a fictional European country, young Iris befriends elderly Miss Froy. When the train resumes, Iris suffers a bout of unconsciousness and wakes to find the old woman has disappeared. The other passengers ominously deny Miss Froy ever existed, so Iris begins to investigate with another traveler and, as the pair sleuth, romantic sparks fly.",
+      "vote_average": 7.428,
+      "release_date": "1938-10-07",
+      "original_language": "en",
+      "poster_path": "/c1t9LB76LvEARPanfEzXmkm7fwY.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "r03",
+  "kind": "rag",
+  "text": "Thriller ambientati su un treno o su una nave"
+ },
+ "seconds": 19.3
+}

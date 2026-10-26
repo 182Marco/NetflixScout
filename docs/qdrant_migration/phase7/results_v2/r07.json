@@ -1,0 +1,330 @@
+{
+ "answer": "Ecco 3 titoli western candidati. Il genere western è verificato per tutti; tuttavia, dai dati disponibili non è possibile confermare che il protagonista sia un antieroe.\n\n1. **The Broken Land (1962)**  \n   **Regia:** John A. Bushelman  \n   **Cast principale:** Kent Taylor, Diana Darrin, Jody McCrea, Robert Sampson, Jack Nicholson  \n   Un cowboy arriva in una piccola città governata con il pugno di ferro da uno sceriffo corrotto. Si unisce a una giovane abitante e ad alcuni cittadini che cercano di deporre lo sceriffo; la vicenda porta a una rapina, a un omicidio e alla sua fuga da una posse vendicativa.  \n   **Voto TMDb:** 6,0/10.\n\n2. **The Desperadoes (1943)**  \n   **Regia:** Charles Vidor  \n   **Cast principale:** Randolph Scott, Claire Trevor, Glenn Ford, Evelyn Keyes, Edgar Buchanan  \n   Nel 1863, lo sceriffo Upton cerca di mantenere l’ordine in una cittadina dello Utah. Il suo principale problema è l’amico Cheyenne, un ex criminale ormai riformato che diventa il principale sospettato dopo una rapina in banca; soltanto lo sceriffo è convinto della sua innocenza.  \n   **Voto TMDb:** 5,9/10.\n\n3. **Four Rode Out (1971)**  \n   Un desperado messicano cerca di sfuggire al suo socio, a una fidanzata determinata e a un marshal statunitense.  \n   Il genere western è verificato, ma i dati disponibili non permettono di confermare che il protagonista sia un antieroe. I dettagli TMDb su regia, cast e voto non sono disponibili.",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Consigliami 3 film western con un protagonista antieroe",
+    "used": "Consigliami 3 film western con un protagonista antieroe",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Trovare 3 film western con un protagonista antieroe",
+    "arguments": {
+     "query": "3 film western con un protagonista antieroe",
+     "k_finale": 3,
+     "search_mode": null
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 3825,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "semantic",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "semantic",
+      "k_largo": 10,
+      "k_finale": 3,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": []
+    },
+    "standalone_query": "Consigliami 3 film western con un protagonista antieroe",
+    "planner_query": "3 film western con un protagonista antieroe",
+    "embedded_text": "A Western film centered on an antihero protagonist.",
+    "signals": {
+     "positive_signals": [
+      "antihero protagonist"
+     ],
+     "negative_signals": [],
+     "hard_exclusions": [],
+     "semantic_query": "A Western film centered on an antihero protagonist.",
+     "genres": [
+      "Western"
+     ],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-003525-000000",
+      "testo": "The film is about a cowboy who rides into a small town that is ruled with an iron fist by a corrupt sheriff. He becomes involved with a pretty young town girl and some residents who are trying to oust the sheriff, resulting in a robbery, a murder and his being pursued by a vengeful posse. Written by Edward J. Lakso.",
+      "score": 0.6826591000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "19400604",
+      "title": "The Broken Land",
+      "release_date": "1962-04-02",
+      "release_year": "1962",
+      "genres": "Western",
+      "cast": "Jack Nicholson; Kent Taylor; Diana Darrin"
+     },
+     {
+      "id": "edb95c357b3b-025182-000000",
+      "testo": "{{Inappropriate tone}} The vastly lower quality of Lawless Frontier , even by poverty row film standards, is evident from the opening scenes which cuts between guys shooting out a cabin window in the darkest night, to cattle rustlers moving cows through brightest day not noticing to the gunshots, to some of the bad guys who seem to hear the gunshots & later begin to return fire. In various moments throughout the film unrelated footages were spliced together from random left-overs off the cutting room floor of several other films, & a story-of-sorts retrospectively imposed on the results. Not until John Tobin  arrives home later that night & discovers his family killed can we guess the people shooting from the window were an innocent family robbed of their cattle, though the way it was edited it looked like the people in the cabin were shooting first, at mere cattlemen. John Wayne  sets out in search Pandro Zanti  the local bandito, for all appearances a stereotyped Mexican, though the script is twice careful to tell us he is half white & half Apache & only pretends to be Mexican. Zanti plans to kidnap George \"Gabby\" Hayes's daughter Ruby ([[Sheila Terry  for his lusty needs. This is an unusual villainous trait for 1930s matinee westerns, aimed at young audiences who expected villains to be claim jumpers & killers, not rapists. Ruby & her daddy  hightail it out of there before she falls victim of the killer, escaping by a clever ruse that almost gets Ruby drowned in a river. They run into Tobin tracking his family's killers, & whose stunt double does that standard stunt of horse & rider jumping into a lake, though Tobin's afterward perfectly dry. There was a convoluted bit in the middle of the film intended to get Tobin off his white horse & on a brown one, so that the horse-leap scene could be clipped from Riders of Destiny for insertion here. Tobin then saves the sack of Ruby & then they both dry off magically fast. Ruby, Dusty & Tobin thereafter join forces. Sheriff Luke Williams  playing the tough sheriff who not only immediately takes credit for capturing Zanti when Tobin brings him in, but also arrests Tobin for the murder of Ruby's father Dusty who took a knife deep in the back & fell down dead. But Dusty will soon after, with wild disregard for probabilities, recover from death, claiming it was only a flesh wound, not even needing a bandaid or his shirt sewn. Sheriff Williams however makes a series of mistakes including handcuffing a bad guy's boot to a bed, so that all he has to do is take off his boot to escape, especially when Tobin made of point of telling Williams thatat Zanti can probably get loose. Then there is an oddly filmed chase scene with some seriously unethical editing, across the desert partly on foot, Tobin after Zanti. The plot doesn't want Tobin to be portrayed as a killer, so the bad guy just happens on a desert watering hole clearly marked \"Poison. Do not drink,\" drinks it anyway, & drops dead. However the film's not yet over, though the chief villain is now out of the picture. We're treated to plenty more hard ridin' & can't-hit-anthing shootin', as Ruby & Tobin flee from Zanti's gang. When the happy ending finally arrives, Tobin becomes the new sheriff, replacing the halfwit Williams.",
+      "score": 0.66803745,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "3610610",
+      "title": "The Lawless Frontier",
+      "release_date": "1934",
+      "release_year": "1934",
+      "genres": "Action/Adventure; Western; Action; B-Western; Black-and-white",
+      "cast": "John Wayne; George 'Gabby' Hayes; Sheila Terry; Yakima Canutt; Earl Dwire; Jack Rockwell"
+     },
+     {
+      "id": "edb95c357b3b-003969-000000",
+      "testo": "The plot is standard Western B movie fare. The Marshal of Windy Hollow  teams up with a Texas Ranger  to stop a band of outlaws who are preying on innocent settlers and stealing their gold.",
+      "score": 0.66158834,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "34330236",
+      "title": "The Marshal of Windy Hollow",
+      "release_date": "1972",
+      "release_year": "1972",
+      "genres": "Western",
+      "cast": null
+     },
+     {
+      "id": "edb95c357b3b-032879-000000",
+      "testo": "In this western, a Mexican desperado tries to flee his partner, a determined girlfriend, and a US Marshal.<ref nameallmovie.com| workhttp://www.allmovie.com/cg/avg.dll?p1:18330|accessdate=February 12, 2007}}",
+      "score": 0.65368998,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "13837647",
+      "title": "Four Rode Out",
+      "release_date": "1971-12-11",
+      "release_year": "1971",
+      "genres": "Western; Action; Adventure",
+      "cast": "Pernell Roberts; Sue Lyon; Leslie Nielsen; Julián Mateos"
+     },
+     {
+      "id": "edb95c357b3b-026451-000000",
+      "testo": "This classic western film takes place in 1863 and stars the sheriff Upton , who tries to keep the law in a small town in Utah. His main problem is his friend Cheyenne , who for a time was a criminal but has long since been reformed. When the bank is robbed, Cheyenne becomes, in the eyes of the community, the prime suspect. Only his friend seems to be convinced of his innocence.",
+      "score": 0.64647243,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "27366091",
+      "title": "The Desperadoes",
+      "release_date": "1943",
+      "release_year": "1943",
+      "genres": "Action/Adventure; Western; Action; Buddy film",
+      "cast": "Charles King; Glenn Ford; Claire Trevor; Randolph Scott; Evelyn Keyes; Porter Hall; Raymond Walburn; Guinn Williams; Edgar Buchanan"
+     },
+     {
+      "id": "edb95c357b3b-008533-000000",
+      "testo": "A reformed outlaw enlists the aid of his former gunslinging companions to defend a small shepherd community from domineering cattle barons.",
+      "score": 0.64090065,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "14809402",
+      "title": "The Gun Packer",
+      "release_date": "1919-05-24",
+      "release_year": "1919",
+      "genres": "Short Film; Silent film; Western; Indie; Black-and-white",
+      "cast": "Pete Morrison"
+     },
+     {
+      "id": "edb95c357b3b-011523-000000",
+      "testo": "The opening prologue explaining the role of the bounty hunter and an ambush by a rifle of a wanted man is very similar to the opening of Sergio Leone's For a Few Dollars More. Scott rides into the town of Twin Forks in order to capture unknown criminals that sets the townpeople into paranoia as each person has their own secrets to hide. Randolph Scott plays the title role dressed in black. A lawman without a badge, he explains his occupation as one of wishing to enforce the law but \"not wanting to break up fights or throw drunks in jail\". When asked by the town sheriff why he became a bounty hunter he counts his cash reward replying \"I'm counting the reasons, and they're ten short\".p.105 Hughes, Howard Stagecoach to Tombstone: The Filgoer's Guide to Great Westerns 2008 I.B Tauris Publishers",
+      "score": 0.6358504,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "22123302",
+      "title": "The Bounty Hunter",
+      "release_date": "1954",
+      "release_year": "1954",
+      "genres": "Western; Action",
+      "cast": "Marie Windsor; Randolph Scott; Ernest Borgnine; Fess Parker; Paul Picerni; Dub Taylor; Howard Petrie; Robert Keys; Dolores Dorn; Harry Antrim; Phil Chambers"
+     },
+     {
+      "id": "edb95c357b3b-002783-000000",
+      "testo": "Based on the novel Heritage of the Desert by Zane Grey, the film is about a rancher whose spread includes the only way out of the valley where an outlaw is hiding a huge herd of stolen cattle. When the outlaw decides to challenge the rancher's claim to the land, the rancher stays one step ahead of him and hires a surveyor to remap and confirm the property lines.",
+      "score": 0.6280689,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "26640372",
+      "title": "Heritage of the Desert",
+      "release_date": "1932-09-30",
+      "release_year": "1932",
+      "genres": "Western; Action; Romance Film",
+      "cast": "J. Farrell MacDonald; David Landau; Sally Blane; Vince Barnett; Gordon Westcott; Randolph Scott; Guinn Williams"
+     },
+     {
+      "id": "edb95c357b3b-031787-000000",
+      "testo": "In the final days of the Old West, a former desperado faces down a now drunken ex-sheriff, who was his long time nemesis.",
+      "score": 0.62427375,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "16143971",
+      "title": "Draw!",
+      "release_date": "1984-07-15",
+      "release_year": "1984",
+      "genres": "Western; Comedy",
+      "cast": "Kirk Douglas; James Coburn; Linda Sorenson"
+     },
+     {
+      "id": "edb95c357b3b-017832-000000",
+      "testo": "A man returns home to his village with Western cowboy duds and forms a gang with his old buddies. Getting into their role, the black cowboys spread panic throughout the village with brawls and robberies.",
+      "score": 0.62161014,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "34954178",
+      "title": "Hands Up!",
+      "release_date": "1966",
+      "release_year": "1966",
+      "genres": "Short Film; Western",
+      "cast": null
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "A Western film centered on an antihero protagonist.",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "Western",
+       "type": "genre",
+       "results": {
+        "The Broken Land (1962)": {
+         "status": "verified",
+         "evidence": "generi: Western"
+        },
+        "The Desperadoes (1943)": {
+         "status": "verified",
+         "evidence": "generi: Action/Adventure; Western; Action; Buddy film"
+        },
+        "Four Rode Out (1971)": {
+         "status": "verified",
+         "evidence": "generi: Western; Action; Adventure"
+        }
+       }
+      },
+      {
+       "constraint": "antihero protagonist",
+       "type": "plot_require",
+       "results": {
+        "The Broken Land (1962)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "The Desperadoes (1943)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Four Rode Out (1971)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-003525-000000",
+      "testo": "The film is about a cowboy who rides into a small town that is ruled with an iron fist by a corrupt sheriff. He becomes involved with a pretty young town girl and some residents who are trying to oust the sheriff, resulting in a robbery, a murder and his being pursued by a vengeful posse. Written by Edward J. Lakso.",
+      "score": 0.27027357,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "19400604",
+      "title": "The Broken Land",
+      "release_date": "1962-04-02",
+      "release_year": "1962",
+      "genres": "Western",
+      "cast": "Jack Nicholson; Kent Taylor; Diana Darrin"
+     },
+     {
+      "id": "edb95c357b3b-026451-000000",
+      "testo": "This classic western film takes place in 1863 and stars the sheriff Upton , who tries to keep the law in a small town in Utah. His main problem is his friend Cheyenne , who for a time was a criminal but has long since been reformed. When the bank is robbed, Cheyenne becomes, in the eyes of the community, the prime suspect. Only his friend seems to be convinced of his innocence.",
+      "score": 0.2406813,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "27366091",
+      "title": "The Desperadoes",
+      "release_date": "1943",
+      "release_year": "1943",
+      "genres": "Action/Adventure; Western; Action; Buddy film",
+      "cast": "Charles King; Glenn Ford; Claire Trevor; Randolph Scott; Evelyn Keyes; Porter Hall; Raymond Walburn; Guinn Williams; Edgar Buchanan"
+     },
+     {
+      "id": "edb95c357b3b-032879-000000",
+      "testo": "In this western, a Mexican desperado tries to flee his partner, a determined girlfriend, and a US Marshal.<ref nameallmovie.com| workhttp://www.allmovie.com/cg/avg.dll?p1:18330|accessdate=February 12, 2007}}",
+      "score": 0.19738291,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "13837647",
+      "title": "Four Rode Out",
+      "release_date": "1971-12-11",
+      "release_year": "1971",
+      "genres": "Western; Action; Adventure",
+      "cast": "Pernell Roberts; Sue Lyon; Leslie Nielsen; Julián Mateos"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/219082?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/59882?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 219082,
+      "media_type": "movie",
+      "title": "The Broken Land",
+      "original_title": "The Broken Land",
+      "overview": "A cowboy rides into a small town that is ruled with an iron fist by a corrupt sheriff. He becomes involved with a pretty young town girl and some residents who are trying to oust the sheriff, resulting in a robbery, a murder and his being pursued by a vengeful posse.",
+      "vote_average": 6.0,
+      "release_date": "1962-03-31",
+      "original_language": "en",
+      "poster_path": "/nwXjm5vk8J26domagZGLo3sHbfb.jpg"
+     },
+     {
+      "id": 59882,
+      "media_type": "movie",
+      "title": "The Desperadoes",
+      "original_title": "The Desperadoes",
+      "overview": "Popular mailcoach driver Uncle Willie is in fact in league with the town's crooked banker. They plan to have the bank robbed after emptying it, and when Willie's choice for this doesn't show in time, he gets some local boys to do it. When his man does turn up he decides to stick around, as he is pals with the sheriff and also takes a shine to Willie's daughter Allison. This gives the bad men several new problems.",
+      "vote_average": 5.9,
+      "release_date": "1943-05-25",
+      "original_language": "en",
+      "poster_path": "/xNC9av3DgKnNm3Ly5P44blqspOg.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "r07",
+  "kind": "rag",
+  "text": "Consigliami 3 film western con un protagonista antieroe"
+ },
+ "seconds": 16.5
+}

@@ -1,0 +1,316 @@
+{
+ "answer": "Ecco i tre titoli emersi dalla ricerca semantica:\n\n1. **Reminiscences**  \n   **Versione descritta:** il titolo presente nei risultati della ricerca; TMDb non ne ha verificato con certezza l’identità.  \n   **Sinossi:** un’esplorazione autobiografica della creazione e della perdita della memoria, basata su un episodio di amnesia vissuto dal regista nel 2009. Per ricostruire il proprio passato e la propria identità, il regista utilizza filmati familiari e video realizzati con dispositivi digitali.  \n   **Vincoli:**  \n   - Tema della memoria: non verificabile  \n   - Tema dell’identità: non verificabile  \n\n2. **Emile (2003)**  \n   **Regia:** Carl Bessai  \n   **Cast principale:** Ian McKellen, Tygh Runyan, Chris William Martin, Ian Tracey, Janet Wright  \n   **Sinossi:** Emile cerca una forma di redenzione nei confronti della famiglia che ha abbandonato; la storia intreccia passato e presente.  \n   **Voto TMDb:** 6,2/10, basato su 10 voti.  \n   **Vincoli:**  \n   - Tema della memoria: non verificabile  \n   - Tema dell’identità: non verificabile  \n\n3. **Photographic Memory**  \n   **Versione descritta:** il titolo presente nei risultati della ricerca; TMDb non ne ha verificato con certezza l’identità.  \n   **Sinossi:** un regista, spesso in conflitto con il figlio ormai adulto, torna in Bretagna nel luogo dove aveva lavorato da giovane come assistente di un fotografo di matrimoni, sperando di acquisire una nuova prospettiva sulla propria vita e su quella del figlio.  \n   **Vincoli:**  \n   - Tema della memoria: non verificabile  \n   - Tema dell’identità: non verificabile  \n\nI dati forniti non verificano specificamente l’assenza di violenza, quindi non posso confermare questo requisito per nessuno dei tre titoli.",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Film sul tema della memoria e dell'identità senza violenza",
+    "used": "Film sul tema della memoria e dell'identità senza violenza",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Trovare film sui temi della memoria e dell'identità, senza violenza",
+    "arguments": {
+     "query": "Film incentrati sui temi della memoria e dell'identità, privi di violenza",
+     "k_finale": null,
+     "search_mode": null
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 5031,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "semantic",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "semantic",
+      "k_largo": 10,
+      "k_finale": 3,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": []
+    },
+    "standalone_query": "Film sul tema della memoria e dell'identità senza violenza",
+    "planner_query": "Film incentrati sui temi della memoria e dell'identità, privi di violenza",
+    "embedded_text": "Films centered on themes of memory and identity without violence.",
+    "signals": {
+     "positive_signals": [
+      "memory themes",
+      "identity themes"
+     ],
+     "negative_signals": [],
+     "hard_exclusions": [],
+     "semantic_query": "Films centered on themes of memory and identity without violence.",
+     "genres": [],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-024418-000000",
+      "testo": "Tale of Tales, like Tarkovsky's Mirror, attempts to structure itself like a human memory. Memories are not recalled in neat chronological order; instead, they are recalled by the association of one thing with another, which means that any attempt to put memory on film cannot be told like a conventional narrative. The film is thus made up of a series of related sequences whose scenes are interspersed between each other. One of the primary themes involves war, with particular emphasis on the enormous losses the Soviet Union suffered on the Eastern Front during World War II. Several recurring characters and their interactions make up a large part of the film, such as the poet, the little girl and the bull, the little boy and the crows, the dancers and the soldiers, and especially the little grey wolf . Another symbol connecting nearly all of these different themes are green apples . Yuriy Norshteyn wrote in Iskusstvo Kino magazine that the film is \"about simple concepts that give you the strength to live.\"CONTEXT - This Week in Arts and Ideas from The Moscow Times",
+      "score": 0.54021526,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "5123115",
+      "title": "Tale of Tales",
+      "release_date": "1979",
+      "release_year": "1979",
+      "genres": "Stop motion; Short Film; Animation",
+      "cast": "Alexander Kalyagin"
+     },
+     {
+      "id": "edb95c357b3b-018728-000000",
+      "testo": "Reminiscencias deals with the creation and loss of memory and identity though an autobiographic exploration based on the filmmaker's own 2009 instance of amnesia. Molero had to use home movies shot by his father and grandfather, as well as digital footage shot by himself and video clips from his cell phone to determine his own past and find his identity.",
+      "score": 0.53681684,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "34008984",
+      "title": "Reminiscences",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Family Film; Documentary",
+      "cast": null
+     },
+     {
+      "id": "edb95c357b3b-018772-000000",
+      "testo": "The filmmaker finds himself in frequent conflict with his son, who is no longer the delightful child the father loved, but an argumentative young adult who inhabits virtual worlds available through the internet. To the father, the son seems to be addicted to and permanently distracted by those worlds. The filmmaker undertakes a journey to St. Quay-Portrieux in Brittany where he worked for a spring as a wedding photographer’s assistant at age 24 –slightly older than his son is now. He has not been back to St. Quay since that visit, and hopes to gain some perspective on what his own life was like when he was his son’s age. He also hopes to track down his former employer, a fascinating Frenchman named Maurice, and Maud, a woman with whom he was romantically involved during that spring 38 years ago. Photographic Memory is a meditation on the passing of time, the praxis of photography and film, digital versus analog, and the fractured love of a father for his son.",
+      "score": 0.45137585,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "32568176",
+      "title": "Photographic Memory",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Documentary",
+      "cast": null
+     },
+     {
+      "id": "edb95c357b3b-029115-000000",
+      "testo": "Through the experiences of two women in Paris and London, Ghost Dance offers an analysis of the complexity of our conceptions of ghosts, memory and the past. It is an adventure film strongly influenced by the work of Jacques Rivette and Jean Luc Godard but with a unique intellectual and artistic discourse of its own and it is this that tempts the ghosts to appear, for Ghost Dance is permeated with all kinds of phantasmal presence. The film focuses on philosopher Jacques Derrida who considers ghosts to be the memory of something which has never been present. This theory is explored in the film. This Film has also been compared with the following works; Celine and Julie Go Boating, Thelma & Louise, O Lucky Man, Sans Soleil, Week End, Viva Maria.",
+      "score": 0.44943414000000004,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "12811780",
+      "title": "Ghost Dance",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Drama; Indie",
+      "cast": "Robbie Coltrane"
+     },
+     {
+      "id": "edb95c357b3b-032195-000000",
+      "testo": "The film is a hybrid between narrative structure and documentary style set to interweave throughout the film's plot.",
+      "score": 0.44727922,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "24863901",
+      "title": "1 a Minute",
+      "release_date": "2010",
+      "release_year": "2010",
+      "genres": "Documentary",
+      "cast": "Olivia Newton-John; Daniel Baldwin; William Baldwin; Diahann Carroll; Kelly McGillis; Jaclyn Smith; Morgan Brittany; Namrata Singh Gujral; Lisa Ray; Bárbara Mori; Deepak Chopra; Melissa Etheridge; Mumtaz"
+     },
+     {
+      "id": "edb95c357b3b-013089-000000",
+      "testo": "The movie is set around a small group of characters experiencing relationships which build and crumble before the viewers eyes. The title of the film refers to the belief, expressed by several of characters, that the goldfish retains a memory of something for only three seconds. Tom, one of the principal characters in the film, draws comparisons between this and the human tendency to jump from one relationship to the next, \"forgetting\" the pain that any previous one might have caused. The film shows complexities involved in straight, gay, lesbian, and bisexual relationships. Writer/director Liz Gill says the film was influenced by the work of directors Robert Altman and Richard Linklater, particularly Linklater's film Slacker.",
+      "score": 0.4400370800000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "8496235",
+      "title": "Goldfish Memory",
+      "release_date": "2003",
+      "release_year": "2003",
+      "genres": "LGBT; Romantic comedy; Indie; Ensemble Film; Drama; Comedy; Romance Film",
+      "cast": "Stuart Graham; Flora Montgomery; Fiona Glascott; Lise Hearns; Fiona O'Shaughnessy; Sean Campion; Demien McAdam; Peter Gaynor; Aisling O'Neill; Keith McErlean"
+     },
+     {
+      "id": "edb95c357b3b-037776-000000",
+      "testo": "There is no central plot, but some of the vignettes connect loosely. All the stories show the essential humanity of the characters and address themes of life, existence and happiness. The film makes repeated use of distinctive cinematic techniques. One of these is dreams and how they reflect the fears, feelings and desires of the characters. Another is the use of music, in conjunction with dialogues and editing, both as a track and performed on camera. The film starts with a monologue, which ends up being sung to Dixieland jazz music being played by lone musicians, each in a different room in a different part of the city. The stories in the film include: * An overweight woman  laments her life while being completely self-absorbed. Her equally overweight boyfriend  tries to comfort her and invites her to dinner. The woman later rejects an admirer in a trenchcoat  who tries to give her a bouquet of flowers. * A carpenter  has a dream in which he is condemned and executed for breaking a 200-year-old china set while trying to perform the tablecloth trick. * A pickpocket  steals the wallet of a high roller  at a fine restaurant before he has paid the bill. * A psychiatrist  has lost faith in people's ability to be happy because of their selfishness. Nowadays he only prescribes pills. * A business consultant  gets his hair butchered by an upset barber  before attending a meeting where the CEO  dies of a heart attack. * A sousaphone player  makes money by playing in funerals, including the one of the CEO. * A girl  finds her musical idol, Micke Larsson , in a tavern. He invites her and her friend for a drink, but afterwards he ditches her by giving her wrong directions to a band rehearsal. Later, she tells a diner full of people a dream she had about marrying him. In the dream, their apartment building slowly drifts down a street while people outside cheer for the happy couple. * A husband and wife  have a fight and they both linger on it, causing them to get into trouble at work. The film ends with a montage of different characters who suddenly stop in the middle of everyday chores to look up into the sky. Dixieland music is once again played as the camera is put on the wing of an airplane. A large formation of B-52 bomber planes appears in front of the camera as they fly menacingly in over a large city.",
+      "score": 0.4379805400000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "7661050",
+      "title": "You, the Living",
+      "release_date": "2007",
+      "release_year": "2007",
+      "genres": "Ensemble Film; Japanese Movies; World cinema; Comedy-drama; Musical; Drama; Comedy; Black comedy",
+      "cast": "Jessika Lundberg; Ollie Olson; Björn Englund; Elisabet Helander; Leif Larsson"
+     },
+     {
+      "id": "edb95c357b3b-033903-000000",
+      "testo": "'Emile' is the third in a loose trilogy of films written and directed by Carl Bessai, all exploring aspects of personal identity. The first, 'Johnny', looked at a teenager with his life ahead of them, the second, 'Lola', portrayed a middle-aged woman trying to escape an abusive relationship, and 'Emile' is a Proustian examination of memory, imagination, regret, lost roots, and the possibility of redemption and reconciliation, all seen through the eyes of an old man whose life is almost over. As a young man, Emile went to England on a university scholarship, leaving behind his brutal older brother Carl and his creative younger brother Freddy to run the family farm in Saskatchewan. Despite promising Freddy that he would return, Emile stayed in England and became an academic, turning his back on his Canadian past and even acquiring an English accent, while his brothers died one after the other in tragic circumstances: Freddy gassing himself with exhaust fumes in his pick-up; Carl dying in a crash in the same pick-up. On his brief return  the authorities think he is there to adopt Carl's young daughter Nadia, but he abandons her simply saying \"single parent families are not allowed on campus\". All he is there to do is to resolve the family land-holdings. Invited many decades later to receive an honorary degree by a Canadian university, the retired Emile decides to take an extended visit to Victoria, British Columbia to try to get to know Carl's now adult daughter Nadia  who has recently separated from her husband, and her ten-year old daughter Maria  before it is too late. The discovery of his ancient typewriter amongst Nadia's belongings triggers a series of reveries, half memory, half fantasy, in which Emile's unresolved feelings about the past come back to haunt him.http://www.movie-gazette.com",
+      "score": 0.43055654,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "3878666",
+      "title": "Emile",
+      "release_date": "2003",
+      "release_year": "2003",
+      "genres": "Biography; Drama; Indie; Family Drama",
+      "cast": "Ian McKellen; Deborah Kara Unger; Ian Tracey; Tygh Runyan; Nancy Sivak; Janet Wright; Theo Crane; Chris William Martin"
+     },
+     {
+      "id": "edb95c357b3b-003040-000000",
+      "testo": "Opening Title Graphic:As the film begins a message appears and reminds the audience that approximately 30,000 people died during the Dirty War due to the military dictatorship's reign during the late 1970s and early 1980s. The story is then dedicated to the surviving children of the murdered. Two such children, now adults are the main characters. One, Daniela , now has her degree in film and is having trouble finding work. She's hired by an older couple, living in recluse, to film Buenos Aires for them. She goes out and documents the city. Yet, her customers are upset as they don't remember the Buenos Aires Daniela has filmed. She then shoots a reel of tourist-type shots. The other, Damián, played by Nicolás Pauls, works in a low-rent motel who discovers the real story about his parents during the dictatorship. The story is largely episodic, mashing together more than 6 different story lines.",
+      "score": 0.4300974000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "9642489",
+      "title": "Buenos Aires Vice Versa",
+      "release_date": "1996",
+      "release_year": "1996",
+      "genres": "Melodrama; Drama; Comedy; Indie",
+      "cast": "Nazareno Casero; Vera Fogwill; Fernán Mirás; Nicolás Pauls"
+     },
+     {
+      "id": "edb95c357b3b-036754-000000",
+      "testo": "Three strangers lives are fractured by thoughts and acts of seething violence. In this interactive feature film, viewers unravel their interlocked stories with a simple click.",
+      "score": 0.42934554999999996,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "14045038",
+      "title": "Late Fragment",
+      "release_date": "2007",
+      "release_year": "2007",
+      "genres": "Drama",
+      "cast": "Jeffrey Parazzo; Michael Healey; Kim Coates"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "Films centered on themes of memory and identity without violence.",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "memory themes",
+       "type": "plot_require",
+       "results": {
+        "Reminiscences (?)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Emile (2003)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Photographic Memory (?)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "identity themes",
+       "type": "plot_require",
+       "results": {
+        "Reminiscences (?)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Emile (2003)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Photographic Memory (?)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-018728-000000",
+      "testo": "Reminiscencias deals with the creation and loss of memory and identity though an autobiographic exploration based on the filmmaker's own 2009 instance of amnesia. Molero had to use home movies shot by his father and grandfather, as well as digital footage shot by himself and video clips from his cell phone to determine his own past and find his identity.",
+      "score": 0.7707586,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "34008984",
+      "title": "Reminiscences",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Family Film; Documentary",
+      "cast": null
+     },
+     {
+      "id": "edb95c357b3b-033903-000000",
+      "testo": "'Emile' is the third in a loose trilogy of films written and directed by Carl Bessai, all exploring aspects of personal identity. The first, 'Johnny', looked at a teenager with his life ahead of them, the second, 'Lola', portrayed a middle-aged woman trying to escape an abusive relationship, and 'Emile' is a Proustian examination of memory, imagination, regret, lost roots, and the possibility of redemption and reconciliation, all seen through the eyes of an old man whose life is almost over. As a young man, Emile went to England on a university scholarship, leaving behind his brutal older brother Carl and his creative younger brother Freddy to run the family farm in Saskatchewan. Despite promising Freddy that he would return, Emile stayed in England and became an academic, turning his back on his Canadian past and even acquiring an English accent, while his brothers died one after the other in tragic circumstances: Freddy gassing himself with exhaust fumes in his pick-up; Carl dying in a crash in the same pick-up. On his brief return  the authorities think he is there to adopt Carl's young daughter Nadia, but he abandons her simply saying \"single parent families are not allowed on campus\". All he is there to do is to resolve the family land-holdings. Invited many decades later to receive an honorary degree by a Canadian university, the retired Emile decides to take an extended visit to Victoria, British Columbia to try to get to know Carl's now adult daughter Nadia  who has recently separated from her husband, and her ten-year old daughter Maria  before it is too late. The discovery of his ancient typewriter amongst Nadia's belongings triggers a series of reveries, half memory, half fantasy, in which Emile's unresolved feelings about the past come back to haunt him.http://www.movie-gazette.com",
+      "score": 0.5533369,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "3878666",
+      "title": "Emile",
+      "release_date": "2003",
+      "release_year": "2003",
+      "genres": "Biography; Drama; Indie; Family Drama",
+      "cast": "Ian McKellen; Deborah Kara Unger; Ian Tracey; Tygh Runyan; Nancy Sivak; Janet Wright; Theo Crane; Chris William Martin"
+     },
+     {
+      "id": "edb95c357b3b-018772-000000",
+      "testo": "The filmmaker finds himself in frequent conflict with his son, who is no longer the delightful child the father loved, but an argumentative young adult who inhabits virtual worlds available through the internet. To the father, the son seems to be addicted to and permanently distracted by those worlds. The filmmaker undertakes a journey to St. Quay-Portrieux in Brittany where he worked for a spring as a wedding photographer’s assistant at age 24 –slightly older than his son is now. He has not been back to St. Quay since that visit, and hopes to gain some perspective on what his own life was like when he was his son’s age. He also hopes to track down his former employer, a fascinating Frenchman named Maurice, and Maud, a woman with whom he was romantically involved during that spring 38 years ago. Photographic Memory is a meditation on the passing of time, the praxis of photography and film, digital versus analog, and the fractured love of a father for his son.",
+      "score": 0.23022714,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "32568176",
+      "title": "Photographic Memory",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Documentary",
+      "cast": null
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/41757?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 41757,
+      "media_type": "movie",
+      "title": "Emile",
+      "original_title": "Emile",
+      "overview": "In a story weaving the past and present together, Emile seeks redemption from the family he abandoned.",
+      "vote_average": 6.2,
+      "release_date": "2003-01-01",
+      "original_language": "en",
+      "poster_path": "/5ToppuWv8fZgZ3NoR5IA1BrBOFj.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "r06",
+  "kind": "rag",
+  "text": "Film sul tema della memoria e dell'identità senza violenza"
+ },
+ "seconds": 20.9
+}

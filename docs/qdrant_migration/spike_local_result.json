@@ -1,0 +1,108 @@
+{
+ "qdrant_client": "?",
+ "ingest_s": 70.6,
+ "count_after_ingest": 42522,
+ "peak_rss_mb_after_ingest": 1598,
+ "store_size_mb": 742,
+ "open_s": 24.78,
+ "count_reopen": 42522,
+ "second_client_same_path": "RuntimeError: Storage folder /private/tmp/claude-501/-Users-filippo-milzagmail-com-Desktop-NetflixScout/5bfd1d87-098f-47f2-91bf-6c2ea5",
+ "normal_latency_ms": {
+  "p50": 480.1,
+  "p95": 612.3
+ },
+ "recall_vs_exact_local": {
+  "r10_min": 1.0,
+  "r10_mean": 1.0,
+  "r50_min": 1.0,
+  "r50_mean": 1.0
+ },
+ "recommend_average_vector": {
+  "p50_ms": 473.0,
+  "top5": [
+   "Terminal Voyage",
+   "The Terminators",
+   "Cosmos: War of the Planets",
+   "Odyssey 2050",
+   "Journey to the 7th Planet"
+  ],
+  "scores": [
+   0.5032,
+   0.4977,
+   0.4954
+  ]
+ },
+ "recommend_best_score": {
+  "p50_ms": 1755.6,
+  "top5": [
+   "The Terminators",
+   "Impostor",
+   "2B - The Era of Flesh is Over",
+   "Terminal Voyage",
+   "Earthling"
+  ],
+  "scores": [
+   0.6913,
+   0.6826,
+   0.6789
+  ]
+ },
+ "average_vector_matches_manual_formula": true,
+ "average_vector_score_semantics": {
+  "manual_top3": [
+   0.5032,
+   0.4977,
+   0.4954
+  ],
+  "recommend_top3": [
+   0.5032,
+   0.4977,
+   0.4954
+  ]
+ },
+ "scroll_title_norm_casablanca": [
+  [
+   "Casablanca",
+   "1942"
+  ]
+ ],
+ "recommend_by_id_excludes_self": true,
+ "recommend_by_raw_vector_contains_self": true,
+ "range_int_year_1949_1951": [
+  [
+   "Story of a Beloved Wife",
+   "1951"
+  ],
+  [
+   "Once Upon a Dream",
+   "1949"
+  ],
+  [
+   "Early Summer",
+   "1951"
+  ],
+  [
+   "The Quiet Duel",
+   "1949"
+  ],
+  [
+   "Worm's Eye View",
+   "1951"
+  ]
+ ],
+ "range_on_string_year_results": 0,
+ "scroll_filter_title_norm_ms": {
+  "p50": 594.4
+ },
+ "query_with_int_range_filter_ms": {
+  "p50": 997.9
+ },
+ "create_payload_index_local": "accepted",
+ "search_params_local": "accepted",
+ "full_scroll": {
+  "points": 42522,
+  "seconds": 1.8
+ },
+ "peak_rss_mb_final": 4873,
+ "sample_vectors_bit_identical": false
+}

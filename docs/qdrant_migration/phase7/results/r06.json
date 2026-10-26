@@ -1,0 +1,360 @@
+{
+ "answer": "Ecco i tre titoli individuati, nell’ordine dei risultati:\n\n### 1. *The Terminators* (2009)\n- **Regia:** Xavier S. Puslowski  \n- **Cast principale:** Jeremy London, A Martinez, Paul Logan, Lauren Walsh, Sara Tomko  \n- **Sinossi:** In un futuro imprecisato, l’umanità ha sviluppato robot avanzati dotati di intelligenza artificiale. Le macchine si ribellano, bombardano le città e impiegano cyborg TR-4 per eliminare gli esseri umani. Un gruppo di sopravvissuti cerca un modo per disattivarli a distanza.\n- **Vincoli:** fantascienza **verificata**; intelligenza artificiale **probabile**, sulla base di un solo indizio nella trama; assenza di alieni **non verificabile**.\n- **Voto TMDb:** 4,2/10, basato su 78 voti.\n\n### 2. *Plug & Pray* (2010)\n- **Regia:** Jens Schanze  \n- **Cast principale:** non disponibile nei dati ricevuti  \n- **Sinossi:** Esperti informatici di tutto il mondo lavorano allo sviluppo di robot intelligenti. Raymond Kurzweil e Hiroshi Ishiguro aspirano a creare macchine capaci di eguagliare i loro creatori umani, mentre Joseph Weizenbaum mette in discussione la fiducia illimitata della società nel progresso tecnologico.\n- **Vincoli:** fantascienza **verificata**; intelligenza artificiale **non verificabile**; assenza di alieni **non verificabile**.\n- **Voto TMDb:** 6,5/10, basato su 1 voto.\n\n### 3. *Polygon* (1977)\n- **Regia:** Anatoliy Petrov  \n- **Cast principale:** Aleksandr Belyavskiy, Anatoliy Kuznetsov, Vsevolod Yakut, Oleg Mokshantsev, Sergey Martynov  \n- **Sinossi:** In un futuro non lontano, uno scienziato inventa per vendetta un carro armato automatizzato capace di leggere la mente e reagire ai sentimenti umani di ostilità e paura. Dopo aver compiuto la sua vendetta, lo scienziato diventa vittima della propria creazione.\n- **Vincoli:** fantascienza **verificata**; intelligenza artificiale **non verificabile**; assenza di alieni **non verificabile**.\n- **Voto TMDb:** 6,813/10, basato su 24 voti.",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Film di fantascienza senza alieni sull'intelligenza artificiale",
+    "used": "Film di fantascienza senza alieni sull'intelligenza artificiale",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Raccomandare film di fantascienza sull'intelligenza artificiale, escludendo quelli con alieni",
+    "arguments": {
+     "query": "Film di fantascienza senza alieni incentrati sull'intelligenza artificiale",
+     "k_finale": null,
+     "search_mode": null
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 3671,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "semantic",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "semantic",
+      "k_largo": 10,
+      "k_finale": 3,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": []
+    },
+    "standalone_query": "Film di fantascienza senza alieni sull'intelligenza artificiale",
+    "planner_query": "Film di fantascienza senza alieni incentrati sull'intelligenza artificiale",
+    "embedded_text": "A science fiction film centered on artificial intelligence without aliens.",
+    "signals": {
+     "positive_signals": [
+      "artificial intelligence",
+      "no aliens"
+     ],
+     "negative_signals": [],
+     "hard_exclusions": [],
+     "semantic_query": "A science fiction film centered on artificial intelligence without aliens.",
+     "genres": [
+      "Science Fiction"
+     ],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-028376-000000",
+      "testo": "The film takes place at an undetermined point in the future, when humanity has developed advanced robotic technology with enhanced artificial intelligence. This includes the use of cybernetic organisms  for general labor. For unknown reasons, the machines instigate a cybernetic revolt against humanity, bombing cities and sending thousands of armed, identical TR-4 cyborgs to eradicate all human life. A band of survivors, led by small-town Sheriff Reed , locates a functioning shuttle and flies to an orbiting space station in an effort to find a way to shut down the TRs remotely.",
+      "score": 0.6830283400000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "22047047",
+      "title": "The Terminators",
+      "release_date": "2009-04-28",
+      "release_year": "2009",
+      "genres": "Science Fiction; Action; Indie",
+      "cast": "A Martinez; Jeremy London; Stephen Blackehart; Paul Logan; Mark Hengst; Clint Browning; Naómi Hurter; Dustin Harnish; Lauren Walsh; Sara Tomko"
+     },
+     {
+      "id": "edb95c357b3b-031463-000000",
+      "testo": "The film begins with the crew of a spaceship seeing explosions in space and asteroids flying by. They are afraid that they are going to be hit, but their ship's computer, named Wiz, tells them that they were seeing the \"refraction\" of an event that took place millions of years ago. Overjoyed, the ship's crew hug and kiss each other. Next follows a scene within the Orion space complex  of Captain Mike Hamilton's slapping a fellow officer. Soon he is called to report on this behavior to the base commander. He says that the other officer did not give him a command personally, but told him to follow the directions of a computer. Hamilton's attitude against such machines is one of the few themes of the story. A scene derived from 2001: A Space Odyssey next appears. Hamilton and his ship, the MK-31, are sent to repair an automated satellite. One of the crew floats over to the satellite and starts work. Viewing this on the screen, Hamilton is upset because it is required that spacewalkers work in teams of two, and predicts that the acid in the battery will eat through the astronaut's suit. The astronaut says that he's in control of the situation - but it does start to eat through his suit. Hamilton himself goes to rescue the continually screaming astronaut, whose life is saved. Next comes a scene derived from Barbarella. A couple of astronauts wish to be intimate so they recline on separate beds while a light show machine plays between them. The blue orb that separates them has the same geometric shape as the Death Star in the Star Wars series. Normally this would appear to be an homage, but this film came out the same year as Star Wars . This scene is intercut with a scene of Hamilton telling a female crewmember that he doesn't like this mechanized intimacy and kisses her. The scene ends with her telling him that the old-fashioned way was better. Even though the crew of the MK-31 are only one day's travel from their shore leave on Earth, they are apparently the nearest ship to investigate an unstable planet. Once there, two flying saucers are seen orbiting it. The sensors of the ship state that these alien machines have \"disintegrators\" and Hamilton commands that they be destroyed - but they strike first and the MK-31 starts to spin quickly. Eventually Hamilton gets the ship's engines to counteract the spin and the ship lands on the planet. There's an architectural portal on this desert planet which teleports people who walk through it underground. The first man through it, and a woman who wanders away later, get attacked, but the main body of explorers meet a race of green people who have pointed ears. Their elder says that they are under the control of an evil computer. The astronauts pledge to help the inhabitants of the planet escape their enslavement and succeed in destroying the computer. Hamilton dislikes the computer always taunting the crew by ending his commands to them with the vocative, \"earthlings.\" Unfortunately, the ensuing explosion takes out the planet as well. The spaceship crew and one surviving alien set off for Earth only to face further difficulties when a human member of the crew is possessed by the computer and goes on a killing spree. The alien eventually manages to subdue him, heroically sacrificing his own life. Although the crew are pleased at returning to Earth, the voice of the computer Wiz changes to that of the planet's computer, who ends the movie with the word \"earthlings.\"",
+      "score": 0.63546365,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "3112223",
+      "title": "Cosmos: War of the Planets",
+      "release_date": "1977",
+      "release_year": "1977",
+      "genres": "Science Fiction",
+      "cast": "John Richardson"
+     },
+     {
+      "id": "edb95c357b3b-000167-000000",
+      "testo": "Computer experts around the world strive towards the development of intelligent robots. Pioneers like Raymond Kurzweil and Hiroshi Ishiguro dream of fashioning intelligent machines that will equal their human creators. In this potential reality, man and machine merge as a single unity. Rejecting evolution's biological shackles tantalisingly dangles the promise of eternal life for those bold enough to seize it. But others, like Joseph Weizenbaum, counter attack against society's limitless faith in the redemptive powers of technology. Eloquent and tactful, he questions the prevailing discourses on new technologies, and their ethical relationships to human life. The film delves into a world where computer technology, robotics, biology, neuroscience, and developmental psychology merge and features the world’s leading roboticists in their laboratories in Japan, the USA, Italy and Germany.",
+      "score": 0.61940622,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "30405742",
+      "title": "Plug & Pray",
+      "release_date": "2010",
+      "release_year": "2010",
+      "genres": "Science Fiction; World cinema; Documentary",
+      "cast": "Raymond Kurzweil; Joel Moses; Hiroshi Ishiguro; Joseph Weizenbaum"
+     },
+     {
+      "id": "edb95c357b3b-007734-000000",
+      "testo": "This film takes place two years after the first film. Zane Ziminski  is found dead in a remote Eskimo community. It is believed that he died of a heart attack. His broadcast to the world about the aliens is believed to have been a UFO hoax due to his dismissal from NASA . As his death is announced on TV, five people receive envelopes with details of an alien invasion. This group of five consists of three scientists, Zane's step brother Jack Addison, a computer expert whom he has not seen in seven years, and a reporter named Bridget Riordan. They receive papers talking of global warming and of aliens terraforming Earth into a planet hot like their own dying world. The group gets together in a large freezer  to see what Zane has left them. They find some alien artifacts in an envelope left to the group. One of the five suffers from the cold and is revealed as an alien. He sets off a metal sphere . The alien and one of the men are sucked into the BHB's area of influence as well as the contents of the room but Addison, Riordan and Zarcoff manage to escape. Zarcoff in his hotel room is killed by an alien metal spider machine which injects him, making it look like his death was from a heart attack. Addison goes back to his rooms to find a BHB has cleared them of everything. A girl he picked up and slept with last night turns out to be an alien and she and another alien inject Addison and he later wakes up to find himself being \"taken for a ride\". Addison rolls out of the car and despite terrible disorientation manages to elude them and team up with Riordan again. The aliens have set the FBI on the two  as well as cancelling their credit cards and emptying Addison's bank account of $15,000. The pair have only one artifact left and that produces a perfect 3D hologram when a laser beam is shone through it. They use it to find out that an atomic power plant due to be opened near where they are in Quebec is in the hands of the aliens. Later it is revealed that it is to go critical and will spread deadly radiation over many hundreds of miles . An attempt with a better laser fails as an alien tries to frame them for murder and then they find another one at a facility. Addison uses his computer skills to walk around and interact with an alien ship in space and to program a giant BHB to go off in one hour. The aliens arrive and both are captured from the hologram. In the atomic power station, their time seems to be up till the giant BHB goes off in the alien area below it and starts ripping apart and swallowing the atomic power station. Nearly dragged into its sphere of influence, Addison uses a small BHB to stop the giant one long enough for the two to escape. They just make it as all that is left of the power station is a huge hole in the ground. Some time later, Riordan's book Alien Agenda  is still top of the Science Fiction and NY Times best seller lists after 2 months. The world seems to still consider it all fiction. The film ends with the married couple driving to Alaska and it is just beginning to snow as they cross the border, which suits them fine.",
+      "score": 0.60983905,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "4260564",
+      "title": "The Second Arrival",
+      "release_date": "1998",
+      "release_year": "1998",
+      "genres": "Alien Film; Science Fiction",
+      "cast": "Patrick Muldoon; Jane Sibbett; Michael Sarrazin"
+     },
+     {
+      "id": "edb95c357b3b-023423-000000",
+      "testo": "In 1928, on an expedition in the snowy Karakoram mountains of India, a mountaineer encounters a glowing sphere. He touches it and then finds himself awakening after a sudden loss of consciousness, with the sphere now gone and a scar on his hand. In the present day, the United States government hastily assembles a group of scientists, including Princeton professor Dr. Helen Benson , to formulate a survival plan when it is feared that a large unknown object with a speed of approximately one-tenth the speed of light, is due to impact Manhattan. The object slows down just before impact and is revealed to be a large spherical spaceship, which lands gently in Central Park. An alien emerges from the sphere, and finds himself surrounded by a hostile, heavily-armed US military force. Amidst the confusion and lack of clear chain of command, a soldier fires, shooting the alien. A gigantic robot then emerges to protect the alien by emitting an energy wave that temporarily paralyzes humans and disrupts all electrical systems in New York City. The alien then orders the robot to shut down. The injured alien is rushed to a military hospital where a surgeon removing the bullet discovers that the alien body is a placenta-like space suit covering a human-like being. The being quickly ages into Klaatu . Klaatu has the appearance of the man from the opening scene of the film from whom the earlier aliens extracted DNA. Klaatu informs Regina Jackson , the United States Secretary of Defense, that he is a representative of a group of alien races sent to talk to the United Nations. Jackson refuses his request and instead orders that Klaatu be sent to a secure location for interrogation. Klaatu manages to escape with the help of Helen, and is pursued by the authorities throughout Newark, New Jersey, and the forested Highlands, with Helen and her stepson, Jacob . Helen saved a vial of the placenta material, which Klaatu uses to rapidly heal his bullet wound. Meanwhile, the presence of the sphere has caused a worldwide panic. The United States military manages to capture the robot after it thwarts their attempts to destroy the sphere using unmanned aerial vehicles that launch missiles. Klaatu meets with Mr. Wu , another alien who has lived on earth for 70 years. Mr. Wu tells Klaatu that he has found the human race to be destructive and unwilling to change. This confirms Klaatu's experience so far, and so he determines that the planet must be cleansed of humans to ensure that the planet&mdash;with its rare ability to sustain complex life&mdash;can survive. Mr. Wu says that despite humanity's destructive tendencies, he has grown to love humans and will stay on Earth to die with them. Klaatu is perplexed by this, but continues to proceed toward eliminating the human species infecting the planet. He orders smaller spheres&mdash;hidden on Earth&mdash;to begin taking animal species off the planet. Helen drives Klaatu to a forest near a pond. She witnesses Klaatu summoning a sphere that collects various species  as Klaatu walks on water. Around the planet, the spheres collect other life forms. Helen quizzes Klaatu about his statement that he has come to save the Earth and discovers that he thinks the only way to save the planet is to exterminate humans. She begs him to realize that humans can change. A police officer driving by the pond notices strange activity. He sees Klaatu and recognizes him as the wanted man. Drawing his gun he confronts Klaatu, who defends himself by using telekinesis to move Helen's car to run the officer over, killing him. But Klaatu then revives the officer by applying some of the placenta and then laying hands on his head, Lazarus-like, and raises the officer from the dead. Hoping to appeal to Klaatu to change his mind about humanity and save it instead, Helen takes him to the home of Nobel Prize-winning Professor Barnhardt , where they discuss how Klaatu's own race went through a drastic evolution to survive their own star's demise. In meantime, the robot, named \"GORT\"  by the United States government, is subjected to experiments in an underground facility in Virginia. Trying in vain to drill into the robot, the drill bit inadvertently releases Gort's genetic material which produces winged insect-like nanites. Eventually the robot's form dissolves into a swarm of these \"insects\". The self-replicating nanites begin erasing all humans and every human-made item in their path. However it does not destroy grass, trees or non-human organisms. Apparently if unstopped the swarm will erase all vestiges of the human race, leaving the planet in its natural state. The swarm is heading to Manhattan, where the major sphere is located. After speaking with Professor Barnhardt, Klaatu believes that humans might change their ways.{{cite video}} Writer's DVD commentary The giant sphere leaves Earth.",
+      "score": 0.60837525,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "14733483",
+      "title": "The Day the Earth Stood Still",
+      "release_date": "2008-12-10",
+      "release_year": "2008",
+      "genres": "Thriller; Drama; Science Fiction; Remake; Doomsday film",
+      "cast": "John Cleese; Keanu Reeves; Jennifer Connelly; Jaden Smith; Kathy Bates; Jon Hamm; Robert Knepper; Kyle Chandler; John Rothman; James Hong; Sunita Prasad; Sam Gilroy; Rukiya Bernard; Juan Riedinger; Tanya Champoux"
+     },
+     {
+      "id": "edb95c357b3b-021295-000000",
+      "testo": "The movie takes place in the year 2079. 45 years earlier, Earth was attacked by a hostile alien civilization from Alpha Centauri. A totalitarian global military government is established to continue the war effort. The film follows Spencer Olham —a designer of top secret government weapons. He is arrested by the military, led by Major Hathaway, on the suspicion of being a replicant created by the hostile aliens. The replicants are perfect biological copies of existing humans, complete with transplanted memories... and do not know they are replicants. Each has a small, organic nuclear bomb in place of a heart, and they are programmed to detonate when they are in proximity to their target. The government intercepted an alien transmission ordering Olham's replicant to assassinate the Chancellor when he met with her weeks earlier. Olham manages to escape the prison just before Major Hathaway was to remove and examine his heart for evidence of a bomb, accidentally killing his friend Nelson in process. With the help of underground stalker Cale, Olham avoids capture and sneaks into a veteran's hospital  in order to perform a medical scan on himself to prove his innocence, but the machine malfunctions while scanning his chest. Olham and his wife are eventually recaptured by Hathaway in a forest near an alien crash site near the spot where they spent the weekend. Inside the ship they discover the corpses of the original, real Olham and Maya, who were indeed killed on their weekend picnic. At that moment Olham realizes that he really is a replicant, his self-destruct sequence engages and the nuclear bomb in his chest detonates, killing himself, Maya, Hathaway and all of his soldiers, thus destroying most of the forest as well as all evidence of the crash site. In the final scene, the news announces that Olham and Hathaway were killed in an enemy attack, and Cale wonders if he really knew Olham's true identity.",
+      "score": 0.6055383000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "3606413",
+      "title": "Impostor",
+      "release_date": "2001-12-04",
+      "release_year": "2001",
+      "genres": "Thriller; Alien Film; Science Fiction; Action; Drama",
+      "cast": "Clarence Williams III; Gary Sinise; Madeleine Stowe; Vincent D'Onofrio; Lindsay Crouse; Elizabeth Peña; Gary Dourdan; Mekhi Phifer; Tony Shalhoub; Tim Guinee; Rosalind Chao; Ivana Miličević"
+     },
+     {
+      "id": "edb95c357b3b-027806-000000",
+      "testo": "The plot is based on an anti-war military science fiction story by Sever Gansovsky. In the not-too-distant future a scientist from a military great power wants revenge for his son  and thus invents a weapon capable of ending the conflict - an automated mind-reading tank that detects and reacts to human feelings of hostility and fear. After his revenge successfully takes place  he himself falls victim to his own creation. The film has an open ending.",
+      "score": 0.6031815700000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "23927995",
+      "title": "Polygon",
+      "release_date": "1977",
+      "release_year": "1977",
+      "genres": "Short Film; Science Fiction; Animation",
+      "cast": "Anatoly Kuznetsov"
+     },
+     {
+      "id": "edb95c357b3b-023825-000000",
+      "testo": "The film takes place in late 1999. India has an out-of-control nuclear satellite in orbit that is about to reenter the atmosphere at any time, contaminating large areas of the earth. This has caused a massive panic, with everyone trying to flee the likely impact sites. Caught in a traffic jam, impatient and disconnected Claire Tourneur  escapes the highway congestion by taking a side road. Her Dashboard Computer System announces she left the Map Zone Database and is on her own. She then has a couple of odd encounters: first with a pair of bank robbers , and with a hitchhiker being pursued by an armed party. Claire discovers, after falling in love with the enigmatic fugitive, that he is the son of a scientist , and has absconded with the prototype of a secret research project. Multiple government agencies and freelance bounty hunters are chasing him to recover the device. The film has two distinct parts: the first is a mystery; the second a science-fiction adventure. The mystery is about the prototype, what it actually does and why so many people are interested in it. Halfway through the film the focus shifts, as the prototype is revealed to be a device for recording and translating brain impulses— a camera for the blind. The hitchhiker is traveling around the world, gathering images in the device though the reason why is not revealed. During the second part, the reason for his travels is revealed: the hitchhiker has been filming his extended family to bring home to his blind mother . As the chase moves across the globe, the nuclear satellite is shot down, causing an EMP effect that wipes out all unshielded electronics worldwide. The characters wind up in a cave in the Australian Outback, where the recordings are played back. After the death of the hitchhiker's mother, his scientist father discovers a way to use the device to record human dreams. Several characters become addicted to viewing their own dreams, while Claire's estranged lover, a novelist, remains unaffected. He writes a novel about the adventure, which ultimately rescues Claire from her addiction to the device, via the power of words.",
+      "score": 0.5980883,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "31908",
+      "title": "Until the End of the World",
+      "release_date": "1991-12-25",
+      "release_year": "1991",
+      "genres": "Road movie; Science Fiction; Drama; Adventure; Existentialism",
+      "cast": "Tom Waits; Solveig Dommartin; William Hurt; Sam Neill; Max von Sydow; Jeanne Moreau; Ernie Dingo; Lois Chiles; Rüdiger Vogler; David Byrne"
+     },
+     {
+      "id": "edb95c357b3b-004574-000000",
+      "testo": "The film follows the story of Doctor Daniel  and his assistant Max 404  who work on a space lab in the year 2036 on an illegal android program. The Doctor is working on the creation of a female robot Cassandra One . When Max saves a space craft he meets his first human woman. It is eventually revealed that Daniel is himself an Android. After his eventual demise Max and Cassandra, posing as Daniel and his assistant, return to an Earth where androids have been banned since the Munich revolution.",
+      "score": 0.5969738,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "2709646",
+      "title": "Android",
+      "release_date": "1982-10",
+      "release_year": "1982",
+      "genres": "Thriller; Science Fiction; Drama",
+      "cast": "Brie Howard; Don Keith Opper; Norbert Weisser; Crofton Hardester; Klaus Kinski; Kendra Kirchner"
+     },
+     {
+      "id": "edb95c357b3b-029918-000000",
+      "testo": "Set in the near future, 2B portrays a familiar decaying world on the cusp of \"great transformation and awesome wonders\". The story is based upon real science and evolving technologies. When the world's first transhuman is created by a renegade corporate CEO and bioscientist, the foundations of society's beliefs are threatened in a transhuman world where man merges with technology.World Premiere, [[Woodstock Film Festival], Retrieved 2012-06-05]",
+      "score": 0.58878052,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "24540983",
+      "title": "2B - The Era of Flesh is Over",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Science Fiction",
+      "cast": "James Remar"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "A science fiction film centered on artificial intelligence without aliens.",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "Science Fiction",
+       "type": "genre",
+       "results": {
+        "The Terminators (2009)": {
+         "status": "verified",
+         "evidence": "generi: Science Fiction; Action; Indie"
+        },
+        "Plug & Pray (2010)": {
+         "status": "verified",
+         "evidence": "generi: Science Fiction; World cinema; Documentary"
+        },
+        "Polygon (1977)": {
+         "status": "verified",
+         "evidence": "generi: Short Film; Science Fiction; Animation"
+        }
+       }
+      },
+      {
+       "constraint": "artificial intelligence",
+       "type": "plot_require",
+       "results": {
+        "The Terminators (2009)": {
+         "status": "probable",
+         "evidence": "termini nella trama: artificial, intelligence"
+        },
+        "Plug & Pray (2010)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Polygon (1977)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "no aliens",
+       "type": "plot_avoid",
+       "results": {
+        "The Terminators (2009)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Plug & Pray (2010)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Polygon (1977)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-028376-000000",
+      "testo": "The film takes place at an undetermined point in the future, when humanity has developed advanced robotic technology with enhanced artificial intelligence. This includes the use of cybernetic organisms  for general labor. For unknown reasons, the machines instigate a cybernetic revolt against humanity, bombing cities and sending thousands of armed, identical TR-4 cyborgs to eradicate all human life. A band of survivors, led by small-town Sheriff Reed , locates a functioning shuttle and flies to an orbiting space station in an effort to find a way to shut down the TRs remotely.",
+      "score": 0.7634314,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "22047047",
+      "title": "The Terminators",
+      "release_date": "2009-04-28",
+      "release_year": "2009",
+      "genres": "Science Fiction; Action; Indie",
+      "cast": "A Martinez; Jeremy London; Stephen Blackehart; Paul Logan; Mark Hengst; Clint Browning; Naómi Hurter; Dustin Harnish; Lauren Walsh; Sara Tomko"
+     },
+     {
+      "id": "edb95c357b3b-000167-000000",
+      "testo": "Computer experts around the world strive towards the development of intelligent robots. Pioneers like Raymond Kurzweil and Hiroshi Ishiguro dream of fashioning intelligent machines that will equal their human creators. In this potential reality, man and machine merge as a single unity. Rejecting evolution's biological shackles tantalisingly dangles the promise of eternal life for those bold enough to seize it. But others, like Joseph Weizenbaum, counter attack against society's limitless faith in the redemptive powers of technology. Eloquent and tactful, he questions the prevailing discourses on new technologies, and their ethical relationships to human life. The film delves into a world where computer technology, robotics, biology, neuroscience, and developmental psychology merge and features the world’s leading roboticists in their laboratories in Japan, the USA, Italy and Germany.",
+      "score": 0.6383174,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "30405742",
+      "title": "Plug & Pray",
+      "release_date": "2010",
+      "release_year": "2010",
+      "genres": "Science Fiction; World cinema; Documentary",
+      "cast": "Raymond Kurzweil; Joel Moses; Hiroshi Ishiguro; Joseph Weizenbaum"
+     },
+     {
+      "id": "edb95c357b3b-027806-000000",
+      "testo": "The plot is based on an anti-war military science fiction story by Sever Gansovsky. In the not-too-distant future a scientist from a military great power wants revenge for his son  and thus invents a weapon capable of ending the conflict - an automated mind-reading tank that detects and reacts to human feelings of hostility and fear. After his revenge successfully takes place  he himself falls victim to his own creation. The film has an open ending.",
+      "score": 0.33567795,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "23927995",
+      "title": "Polygon",
+      "release_date": "1977",
+      "release_year": "1977",
+      "genres": "Short Film; Science Fiction; Animation",
+      "cast": "Anatoly Kuznetsov"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/26342?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/71621?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/197210?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 26342,
+      "media_type": "movie",
+      "title": "The Terminators",
+      "original_title": "The Terminators",
+      "overview": "A small band of resistance fighters battle the cyborgs that have taken control of the planet.",
+      "vote_average": 4.2,
+      "release_date": "2009-04-28",
+      "original_language": "en",
+      "poster_path": "/hiGlhnaKvIbGeTd7VVPOyfA6mWc.jpg"
+     },
+     {
+      "id": 71621,
+      "media_type": "movie",
+      "title": "Plug & Pray",
+      "original_title": "Plug & Pray",
+      "overview": "Will man go beyond biology? It's an age-old dream to create intelligent machines that equal their human creators. Computer experts around the world, like Raymond Kurzweil and Hiroshi Ishiguro, strive to fulfill their bold visions. Meanwhile, of all people one of the pioneers of the computer age, Joseph Weizenbaum, battles against the limitless faith of society in the redemptive powers of technology. A fascinating yet uncanny and sometimes grotesque journey into science reality.",
+      "vote_average": 6.5,
+      "release_date": "2010-11-11",
+      "original_language": "de",
+      "poster_path": "/gHb8qRzNfMvEzCQobNbDIxiRWau.jpg"
+     },
+     {
+      "id": 197210,
+      "media_type": "movie",
+      "title": "Polygon",
+      "original_title": "Полигон",
+      "overview": "A Russian scientist creates a mind-reading weapon for his generals on a remote island. After the demonstration, the generals are pleased. Little do they realize, both the weapon, and the creator of the weapon have a mind of their own",
+      "vote_average": 6.813,
+      "release_date": "1977-05-25",
+      "original_language": "ru",
+      "poster_path": "/jDZrbwlbUWAuhNhfwmZGCntlkPV.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "r06",
+  "kind": "rag",
+  "text": "Film di fantascienza senza alieni sull'intelligenza artificiale"
+ },
+ "seconds": 20.9
+}

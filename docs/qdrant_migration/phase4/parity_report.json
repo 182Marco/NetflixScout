@@ -1,0 +1,6956 @@
+{
+ "log": {
+  "truth_matrix": [
+   42522,
+   1536
+  ],
+  "truth_load_s": 15.7,
+  "qdrant_count": 42522,
+  "chroma_count": 42522,
+  "bm25_index": {
+   "chunks": [
+    42522,
+    42522
+   ],
+   "same_ids": true,
+   "chunks_identical": true,
+   "build_seconds": {
+    "chroma": 14.5,
+    "qdrant": 14.7
+   },
+   "same_order": false,
+   "chroma_order_is_sorted_by_id": false,
+   "qdrant_order_is_sorted_by_id": false
+  }
+ },
+ "summary": {
+  "raw_vs_exact": {
+   "chroma": {
+    "recall10": {
+     "mean": 0.9786,
+     "min": 0.8
+    },
+    "recall50": {
+     "mean": 0.9307,
+     "min": 0.72
+    }
+   },
+   "qdrant_default": {
+    "recall10": {
+     "mean": 0.9964,
+     "min": 0.9
+    },
+    "recall50": {
+     "mean": 0.9929,
+     "min": 0.96
+    }
+   },
+   "qdrant_ef128": {
+    "recall10": {
+     "mean": 1.0,
+     "min": 1.0
+    },
+    "recall50": {
+     "mean": 0.9964,
+     "min": 0.98
+    }
+   },
+   "qdrant_exact": {
+    "recall10": {
+     "mean": 1.0,
+     "min": 1.0
+    },
+    "recall50": {
+     "mean": 1.0,
+     "min": 1.0
+    }
+   }
+  },
+  "thresholds": {
+   "recall10_min": 0.95,
+   "recall50_min": 0.9,
+   "tolerance": 0.0001
+  },
+  "qdrant_default_threshold_check": {
+   "recall10_mean_ok": true,
+   "recall50_mean_ok": true,
+   "queries_below_recall10": [
+    "q17"
+   ],
+   "queries_below_recall50": []
+  },
+  "qdrant_vs_chroma_raw": {
+   "k10": {
+    "overlap": {
+     "mean": 0.9821,
+     "min": 0.8
+    },
+    "set_ties": 0,
+    "set_significant": 5,
+    "inversion_ties": 0,
+    "inversion_significant": 0
+   },
+   "k50": {
+    "overlap": {
+     "mean": 0.9329,
+     "min": 0.74
+    },
+    "set_ties": 0,
+    "set_significant": 94,
+    "inversion_ties": 0,
+    "inversion_significant": 0
+   }
+  },
+  "chroma_now_equals_baseline_file": 28,
+  "pipeline_semantic": {
+   "queries": 28,
+   "same_ids_same_order_chroma_vs_qdrant": 23,
+   "queries_with_different_pool": [
+    "q02",
+    "q12",
+    "q21",
+    "q26",
+    "q27"
+   ],
+   "metadata_identical": 28,
+   "rerank_query_equal": 28,
+   "rerank_input_sets_equal": 23,
+   "final_ids_equal_with_stub": 28,
+   "chroma_pool_equals_baseline_file": 28,
+   "overlap_with_reference": {
+    "chroma": {
+     "mean": 0.9714,
+     "min": 0.8
+    },
+    "qdrant": {
+     "mean": 0.9964,
+     "min": 0.9
+    }
+   },
+   "identical_to_reference": {
+    "chroma": 22,
+    "qdrant": 27
+   },
+   "qdrant_vs_chroma": {
+    "set_ties": 0,
+    "set_significant": 7,
+    "inversion_ties": 0,
+    "inversion_significant": 0
+   },
+   "chroma_vs_reference": {
+    "set_ties": 0,
+    "set_significant": 8,
+    "inversion_ties": 0,
+    "inversion_significant": 0
+   },
+   "qdrant_vs_reference": {
+    "set_ties": 0,
+    "set_significant": 1,
+    "inversion_ties": 0,
+    "inversion_significant": 0
+   },
+   "qdrant_worse_than_chroma_vs_reference": [],
+   "qdrant_better_than_chroma_vs_reference": [
+    "q02",
+    "q12",
+    "q21",
+    "q26",
+    "q27"
+   ]
+  },
+  "pipeline_hybrid": {
+   "queries": 28,
+   "same_ids_same_order_chroma_vs_qdrant": 24,
+   "queries_with_different_pool": [
+    "q12",
+    "q21",
+    "q26",
+    "q27"
+   ],
+   "metadata_identical": 28,
+   "rerank_query_equal": 28,
+   "rerank_input_sets_equal": 25,
+   "final_ids_equal_with_stub": 27,
+   "chroma_pool_equals_baseline_file": 28,
+   "overlap_with_reference": {
+    "chroma": {
+     "mean": 0.9893,
+     "min": 0.9
+    },
+    "qdrant": {
+     "mean": 1.0,
+     "min": 1.0
+    },
+    "qdrant_sorted_bm25": {
+     "mean": 1.0,
+     "min": 1.0
+    }
+   },
+   "identical_to_reference": {
+    "chroma": 24,
+    "qdrant": 28,
+    "qdrant_sorted_bm25": 28
+   }
+  },
+  "raw_qdrant_worse_than_chroma_vs_exact": {
+   "recall10": [],
+   "recall50": [
+    "q06"
+   ]
+  },
+  "raw_qdrant_better_than_chroma_vs_exact": {
+   "recall10": [
+    "q12",
+    "q21",
+    "q26"
+   ],
+   "recall50": [
+    "q01",
+    "q02",
+    "q03",
+    "q04",
+    "q05",
+    "q09",
+    "q10",
+    "q11",
+    "q12",
+    "q14",
+    "q16",
+    "q17",
+    "q18",
+    "q21",
+    "q25",
+    "q26",
+    "q27",
+    "q28"
+   ]
+  },
+  "exclusion_by_movie_id": {
+   "recall10": {
+    "mean": 0.9964,
+    "min": 0.9
+   },
+   "recall50": {
+    "mean": 0.9936,
+    "min": 0.96
+   },
+   "leaks": 0
+  },
+  "year_range_filter": {
+   "recall10": {
+    "mean": 0.9964,
+    "min": 0.9
+   },
+   "recall50": {
+    "mean": 0.9979,
+    "min": 0.98
+   }
+  }
+ },
+ "per_query": {
+  "q01": {
+   "query": "Dammi 5 film sul rapporto tra un padre e un figlio, malinconici e lenti",
+   "kind": "theme",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 0.94
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 0.94
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q02": {
+   "query": "Consigliami un film sulla solitudine nello spazio",
+   "kind": "theme",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 0.8
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 0.8
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 10,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 10,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 10,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 10,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 10,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": false,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": false,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 0.9,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": false,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q03": {
+   "query": "Qual è quel film in cui il protagonista si chiama Truman Burbank e vive in uno show televisivo?",
+   "kind": "plot_lookup",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 0.92
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 0.92
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 0.96
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 0.98
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.92,
+      "set_ties": 0,
+      "set_significant": 4,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.92,
+      "set_ties": 0,
+      "set_significant": 4,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.92,
+      "set_ties": 0,
+      "set_significant": 4,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.92,
+      "set_ties": 0,
+      "set_significant": 4,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.96,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.98,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 0.96,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q04": {
+   "query": "Il film in cui Tom Hanks naufraga su un'isola deserta e parla con un pallone",
+   "kind": "plot_lookup",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 0.94
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 0.94
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 0.98
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 0.98
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.98,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.98,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 0.98,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q05": {
+   "query": "Consigliami 4 commedie giapponesi di fantascienza degli anni 50",
+   "kind": "decade_country_genre",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 0.96
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 0.96
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.96,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.96,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.96,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.96,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.96,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q06": {
+   "query": "Dammi 3 film horror ambientati in un ospedale psichiatrico",
+   "kind": "genre_setting",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 0.98
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 0.98
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 0.96
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.96,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.98,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.98,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.98,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.98,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.96,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 0.98,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q07": {
+   "query": "Un western con un cacciatore di taglie e un vecchio sceriffo",
+   "kind": "theme",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q08": {
+   "query": "Film di guerra sulla prima guerra mondiale visti dalla parte dei soldati tedeschi",
+   "kind": "setting",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q09": {
+   "query": "Cerco 2 film sul tema della memoria che si perde",
+   "kind": "theme",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 0.86
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 0.86
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.86,
+      "set_ties": 0,
+      "set_significant": 7,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.86,
+      "set_ties": 0,
+      "set_significant": 7,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.86,
+      "set_ties": 0,
+      "set_significant": 7,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.86,
+      "set_ties": 0,
+      "set_significant": 7,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.86,
+      "set_ties": 0,
+      "set_significant": 7,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q10": {
+   "query": "Quel film dove Hannibal Lecter è un cannibale psichiatra",
+   "kind": "plot_lookup",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 0.98
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 0.98
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.98,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.98,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.98,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.98,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.98,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q11": {
+   "query": "Consigliami film di fantascienza senza robot e senza viaggi nello spazio",
+   "kind": "excluded_genre",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 0.92
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 0.92
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.92,
+      "set_ties": 0,
+      "set_significant": 4,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.92,
+      "set_ties": 0,
+      "set_significant": 4,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.92,
+      "set_ties": 0,
+      "set_significant": 4,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.92,
+      "set_ties": 0,
+      "set_significant": 4,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.92,
+      "set_ties": 0,
+      "set_significant": 4,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q12": {
+   "query": "Voglio un thriller psicologico, niente horror",
+   "kind": "excluded_genre",
+   "raw": {
+    "chroma": {
+     "recall10": 0.9,
+     "recall50": 0.94
+    },
+    "chroma_baseline_file": {
+     "recall10": 0.9,
+     "recall50": 0.94
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": false,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": false,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 0.9,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": false,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": false,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": false,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 0.9,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": false,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [
+       "edb95c357b3b-005713-000000"
+      ],
+      "only_qdrant": [
+       "edb95c357b3b-002363-000000"
+      ]
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q13": {
+   "query": "Film simili a Matrix",
+   "kind": "reference_title",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q14": {
+   "query": "Consigliami film come Alien",
+   "kind": "reference_title",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 0.96
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 0.96
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.96,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.96,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.96,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.96,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.96,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q15": {
+   "query": "Film con atmosfera e dilemma morale simili al Padrino",
+   "kind": "reference_title",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q16": {
+   "query": "Consigliami film simili a Interstellar",
+   "kind": "reference_title_absent",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 0.96
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 0.96
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.96,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.96,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.96,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.96,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.96,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q17": {
+   "query": "Un film che mi faccia piangere ma con un finale di speranza",
+   "kind": "emotion",
+   "raw": {
+    "chroma": {
+     "recall10": 0.9,
+     "recall50": 0.8
+    },
+    "chroma_baseline_file": {
+     "recall10": 0.9,
+     "recall50": 0.8
+    },
+    "qdrant_default": {
+     "recall10": 0.9,
+     "recall50": 0.96
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 0.98
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.82,
+      "set_ties": 0,
+      "set_significant": 9,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 10,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 10,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 10,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 10,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.96,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.98,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 0.9,
+      "qdrant": 0.9
+     },
+     "same_as_reference": {
+      "chroma": false,
+      "qdrant": false
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 0.9,
+    "recall50": 0.96,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q18": {
+   "query": "Gangster movie degli anni 30 con un protagonista ambizioso",
+   "kind": "decade_genre",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 0.9
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 0.9
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 5,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 5,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 5,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 5,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 5,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 0.9,
+    "recall50": 0.98
+   }
+  },
+  "q19": {
+   "query": "Recommend a heist movie where the plan goes wrong",
+   "kind": "english",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q20": {
+   "query": "A love story set during the Second World War",
+   "kind": "english",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q21": {
+   "query": "Un film in cui compare un personaggio di nome Rick che gestisce un bar a Casablanca",
+   "kind": "keyword_named",
+   "raw": {
+    "chroma": {
+     "recall10": 0.8,
+     "recall50": 0.8
+    },
+    "chroma_baseline_file": {
+     "recall10": 0.8,
+     "recall50": 0.8
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 0.98
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 0.98
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 10,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 10,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 10,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 10,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 10,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.98,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.98,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": false,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": false,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 0.8,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": false,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": false,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": false,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 0.9,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": false,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [
+       "edb95c357b3b-031903-000000"
+      ],
+      "only_qdrant": [
+       "edb95c357b3b-018322-000000"
+      ]
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 0.98,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q22": {
+   "query": "Film in cui un sottomarino nucleare sovietico si ammutina",
+   "kind": "keyword_rare",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q23": {
+   "query": "Film sul razzismo negli Stati Uniti del sud",
+   "kind": "theme",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 0.98
+   }
+  },
+  "q24": {
+   "query": "Un dramma francese degli anni 60 su una coppia in crisi",
+   "kind": "decade_country",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q25": {
+   "query": "Storie di viaggi nel tempo con paradossi temporali",
+   "kind": "theme",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 0.94
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 0.94
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.94,
+      "set_ties": 0,
+      "set_significant": 3,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q26": {
+   "query": "Qualcosa di leggero da guardare con la famiglia",
+   "kind": "vague",
+   "raw": {
+    "chroma": {
+     "recall10": 0.8,
+     "recall50": 0.72
+    },
+    "chroma_baseline_file": {
+     "recall10": 0.8,
+     "recall50": 0.72
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 0.98
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.74,
+      "set_ties": 0,
+      "set_significant": 13,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.72,
+      "set_ties": 0,
+      "set_significant": 14,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.72,
+      "set_ties": 0,
+      "set_significant": 14,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.72,
+      "set_ties": 0,
+      "set_significant": 14,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.72,
+      "set_ties": 0,
+      "set_significant": 14,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.98,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": false,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": false,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 0.8,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": false,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 0.8,
+      "set_ties": 0,
+      "set_significant": 2,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": false,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": false,
+     "final_ids_equal_with_stub": false,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 0.9,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": false,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [
+       "edb95c357b3b-007035-000000"
+      ],
+      "only_qdrant": [
+       "edb95c357b3b-022635-000000"
+      ]
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 0.98,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 0.98
+   }
+  },
+  "q27": {
+   "query": "Un film d'animazione su un robot che si prende cura di una bambina",
+   "kind": "genre_setting",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 0.82
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 0.82
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 0.98
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 0.98
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.84,
+      "set_ties": 0,
+      "set_significant": 8,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.84,
+      "set_ties": 0,
+      "set_significant": 8,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.82,
+      "set_ties": 0,
+      "set_significant": 9,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.82,
+      "set_ties": 0,
+      "set_significant": 9,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.82,
+      "set_ties": 0,
+      "set_significant": 9,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.98,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.98,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": false,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": false,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 0.9,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": false,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 0.9,
+      "set_ties": 0,
+      "set_significant": 1,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": false,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": false,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 0.98,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  },
+  "q28": {
+   "query": "Film su un detective alcolizzato che indaga su un caso irrisolto",
+   "kind": "theme",
+   "raw": {
+    "chroma": {
+     "recall10": 1.0,
+     "recall50": 0.92
+    },
+    "chroma_baseline_file": {
+     "recall10": 1.0,
+     "recall50": 0.92
+    },
+    "qdrant_default": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_ef128": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    },
+    "qdrant_exact": {
+     "recall10": 1.0,
+     "recall50": 1.0
+    }
+   },
+   "raw_vs_chroma": {
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.92,
+      "set_ties": 0,
+      "set_significant": 4,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.92,
+      "set_ties": 0,
+      "set_significant": 4,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.92,
+      "set_ties": 0,
+      "set_significant": 4,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "raw_vs_exact": {
+    "chroma": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.92,
+      "set_ties": 0,
+      "set_significant": 4,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "chroma_baseline_file": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 0.92,
+      "set_ties": 0,
+      "set_significant": 4,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_default": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_ef128": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "qdrant_exact": {
+     "k10": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "k50": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    }
+   },
+   "chroma_now_equals_baseline_file": true,
+   "pipeline": {
+    "semantic": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true
+     },
+     "qdrant_vs_chroma": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "chroma_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     },
+     "qdrant_vs_reference": {
+      "overlap": 1.0,
+      "set_ties": 0,
+      "set_significant": 0,
+      "inversion_ties": 0,
+      "inversion_significant": 0
+     }
+    },
+    "hybrid": {
+     "pool_size": [
+      10,
+      10
+     ],
+     "same_ids_same_order": true,
+     "metadata_identical_on_common_ids": true,
+     "rerank_query_equal": true,
+     "rerank_input_sets_equal": true,
+     "final_ids_equal_with_stub": true,
+     "chroma_pool_equals_baseline_file": true,
+     "overlap_with_reference": {
+      "chroma": 1.0,
+      "qdrant": 1.0,
+      "qdrant_sorted_bm25": 1.0
+     },
+     "same_as_reference": {
+      "chroma": true,
+      "qdrant": true,
+      "qdrant_sorted_bm25": true
+     },
+     "qdrant_vs_chroma_sets_only": {
+      "only_chroma": [],
+      "only_qdrant": []
+     }
+    }
+   },
+   "exclusion_by_movie_id": {
+    "excluded": 3,
+    "recall10": 1.0,
+    "recall50": 1.0,
+    "leaked": []
+   },
+   "year_range_filter": {
+    "candidates": 5308,
+    "recall10": 1.0,
+    "recall50": 1.0
+   }
+  }
+ }
+}

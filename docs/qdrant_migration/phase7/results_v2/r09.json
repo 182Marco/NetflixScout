@@ -1,0 +1,436 @@
+{
+ "answer": "Ecco i tre titoli restituiti, nell’ordine dei risultati:\n\n### 1. *Heavens Fall* (2006)\n- **Regia:** Terry Green  \n- **Cast principale:** Timothy Hutton, David Strathairn, Leelee Sobieski, Anthony Mackie, Bill Sage  \n- **Sinossi:** Nel 1933, l’avvocato newyorkese Sam Leibowitz si reca nel Sud per difendere nove giovani afroamericani accusati di aver violentato due donne su un treno merci in Alabama.\n- **Voto TMDb:** 7,0/10, su 21 voti.\n\n**Vincoli:** dramma verificato; legal drama non verificabile; ambientazione nel Sud degli Stati Uniti non verificabile; processi non verificabile; avvocati probabile; aule di tribunale non verificabile; casi legali non verificabile.\n\n### 2. *They Won’t Forget* (1937)\n- **Regia:** Mervyn LeRoy  \n- **Cast principale:** Claude Rains, Gloria Dickson, Edward Norris, Otto Kruger, Allyn Joslyn  \n- **Sinossi:** In una città del Sud, l’omicidio della giovane Mary Clay provoca uno scandalo. Il piccolo avvocato Andrew Griffin, con ambizioni politiche, individua in Robert Hale, insegnante originario di New York, il possibile colpevole e cerca di portarlo alla condanna.\n- **Voto TMDb:** 5,897/10, su 34 voti.\n\n**Vincoli:** dramma verificato; legal drama non verificabile; ambientazione nel Sud degli Stati Uniti non verificabile; processi non verificabile; avvocati probabile; aule di tribunale non verificabile; casi legali non verificabile.\n\n### 3. *American Violet* (2009 nei risultati della ricerca; 2008 secondo TMDb)\n- **Regia:** Tim Disney  \n- **Cast principale:** Nicole Beharie, Tim Blake Nelson, Will Patton, Michael O’Keefe, Malcolm Barrett  \n- **Sinossi:** Dee, una giovane madre single di quattro figli che vive in una cittadina del Texas, viene arrestata durante un’irruzione antidroga e accusata di un crimine che non ha commesso. Rifiuta un patteggiamento che la libererebbe dal carcere ma la marchierebbe come criminale a vita.\n- **Voto TMDb:** 6,7/10, su 41 voti.\n\n**Vincoli:** dramma verificato; legal drama non verificabile; ambientazione nel Sud degli Stati Uniti non verificabile; processi non verificabile; avvocati non verificabile; aule di tribunale non verificabile; casi legali non verificabile.\n\nLe sinossi e i vincoli provengono dai risultati della ricerca; regia, cast, anni e voti provengono da **TMDb**.",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Drammi giudiziari ambientati nel sud degli Stati Uniti",
+    "used": "Drammi giudiziari ambientati nel sud degli Stati Uniti",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Trovare film che siano drammi giudiziari ambientati nel Sud degli Stati Uniti",
+    "arguments": {
+     "query": "Film drammatici giudiziari ambientati nel Sud degli Stati Uniti, con processi, avvocati, tribunali o casi legali come elementi centrali della trama.",
+     "k_finale": null,
+     "search_mode": null
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 4633,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "semantic",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "semantic",
+      "k_largo": 10,
+      "k_finale": 3,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": []
+    },
+    "standalone_query": "Drammi giudiziari ambientati nel sud degli Stati Uniti",
+    "planner_query": "Film drammatici giudiziari ambientati nel Sud degli Stati Uniti, con processi, avvocati, tribunali o casi legali come elementi centrali della trama.",
+    "embedded_text": "Dramatic legal films set in the southern United States, centered on trials, lawyers, courtrooms, or legal cases.",
+    "signals": {
+     "positive_signals": [
+      "legal drama",
+      "southern United States setting",
+      "trials",
+      "lawyers",
+      "courtrooms",
+      "legal cases"
+     ],
+     "negative_signals": [],
+     "hard_exclusions": [],
+     "semantic_query": "Dramatic legal films set in the southern United States, centered on trials, lawyers, courtrooms, or legal cases.",
+     "genres": [
+      "Drama"
+     ],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-002406-000000",
+      "testo": "In the film, two young white women  accuse nine black youths of rape in the segregated South. Timothy Hutton stars as criminal defense attorney Samuel Leibowitz. The film begins after the first trial of the nine in the present-day bustling city of Scottsboro, Alabama. Samuel Leibowitz, a successful Jewish lawyer from New York is called down past the Mason-Dixon Line to defend the nine blacks.",
+      "score": 0.6000241300000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "2750980",
+      "title": "Heavens Fall",
+      "release_date": "2006",
+      "release_year": "2006",
+      "genres": "Crime Fiction; Indie; Docudrama; Period piece; Drama; Courtroom Drama",
+      "cast": "James Tolkan; Francie Swift; Maury Chaykin; Joseph Lyle Taylor; Timothy Hutton; David Strathairn; Leelee Sobieski; Anthony Mackie; Azura Skye; Bill Sage; Bill Smitrovich"
+     },
+     {
+      "id": "edb95c357b3b-009139-000000",
+      "testo": "A southern town is rocked by scandal when teenager Mary Clay is murdered on Confederate Memorial Day. A small-time lawyer with political ambitions, Andrew Griffin, sees the crime as way to the Senate if he can find the right scapegoat to be tried for the crime. He seeks out Robert Hale, Mary's teacher at the business school where she was killed. Even though all evidence against Hale is circumstantial, Hale happens to be from New York , and Griffin works with a reporter to create a media frenzy of prejudice and hatred against the teacher. The issue moves from innocence or guilt to the continuing bigotry and suspicion between South and North, especially given the significance of the day of the murder. The film shows the immense pressures brought to bear on members of the community to help in the conviction - the black janitor who is induced to lie on the stand for fear he himself will be convicted and executed, or lynched, if Hale is not found guilty; the juror who tries to retain his freedom to make up his own mind; the barber who is afraid to testify to something he knows is true because it could exonerate Hale. The only man who stands up to the mob mentality of the town is the governor, who commutes Hale's death sentence to life imprisonment because the evidence is simply insufficient to send a man to his death. The townsfolk are enraged, and the murdered girl's brothers, who have been threatening all along to take matters into their own hands if Hale is not executed, plot and carry out Hale's abduction and murder.",
+      "score": 0.58514353,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "5266051",
+      "title": "They Won't Forget",
+      "release_date": "1937",
+      "release_year": "1937",
+      "genres": "Drama; Black-and-white; Courtroom Drama",
+      "cast": "Claude Rains; Gloria Dickson; Lana Turner; Edward Norris"
+     },
+     {
+      "id": "edb95c357b3b-039323-000000",
+      "testo": "Arthur Kirkland  is a hotheaded but idealistic young defense attorney in Baltimore. As the film opens, he is in jail on a charge of contempt of court for having thrown a punch at judge Henry T. Fleming  while arguing the case of an innocent defendant, Jeff McCullaugh . McCullaugh was stopped for a minor traffic offense, but then mistaken for a killer of the same name and convicted. He has already endured year and a half in jail, as Kirkland continues his efforts to have the case reviewed against Fleming's resistance. Though there is strong new evidence that the convicted man was innocent, Judge Fleming refused Kirkland's appeal due to a minor technicality and leaves McCullaugh in prison. Kirkland takes another case, that of meek, gentle transgender Ralph Agee , who is guilty of a small crime and becomes a victim of the legal system. Kirkland also pays regular nursing home visits to his beloved Grandfather Sam , who is becoming senile. It is revealed that Arthur was abandoned by his parents at a young age and it was Sam who raised him and put him through law school. Arthur also begins a romance with a legal ethics committee member, Gail Packer . One day, Kirkland is shocked to find himself requested to defend Judge Fleming, who to everyone's surprise has been accused of rape. The two loathe each other, but Fleming feels everyone will believe he is innocent if the person publicly known to hate him also argues his innocence. Fleming uses blackmail, telling Kirkland an old violation of lawyer-client confidentiality will be reviewed by the ethics committee and Arthur likely will be disbarred if he refuses to represent Fleming. Gail confirms this off the record. An eccentric judge named Rayford , who has a friendly relationship with Kirkland, takes him for a hair-raising ride in his personal Bell 47 helicopter over the harbor and Fort McHenry, laughing as he tests how far they can possibly go without running out of fuel, while Arthur, his terrified passenger, begs him to land the helicopter immediately. Rayford, a veteran of the Korean War, is possibly suicidal, and keeps a rifle in his chambers at the courthouse, a 1911 pistol in his shoulder holster at all times and eats his lunch out on the ledge outside his window, four stories up. Kirkland's friend and partner, Jay Porter , is also unstable. He feels guilt from gaining acquittals for defendants who were truly guilty of violent crimes and goes berserk when one commits another murder. After a breakdown at the courthouse, Jay is taken to a hospital accompanied by Kirkland. Before leaving in the ambulance, a distracted Arthur calls on another lawyer friend, Warren Fresnell , to handle Ralph's court hearing in his absence. Arthur gives Warren a corrected version of Ralph's probation report, and stresses the fact that Warren must show the corrections to the judge so that Ralph will get probation rather than being sent to jail. Unfortunately, Warren forgets to appear on time, fails to show the judge the corrected report, and Ralph is sentenced to jail where he commits suicide through hanging off-screen. Kirkland is livid, and attacks Warren's car with his briefcase in retaliation and to get his attention. Warren argues that Ralph's trial was nothing but \"nickels and dimes\" and beneath him, before Kirkland sternly reminds him \"they're people\" and then informing of Ralph's suicide . His other client, McCullaugh, abused by fellow prisoners , snaps one day and takes two hostages. Arthur pleads with him to surrender, promising to get him out, but the police shoot and kill McCullaugh after he stands up, providing a shot for a police sharpshooter, as Arthur looks on in horror. A clearly disturbed Kirkland takes on Judge Fleming's case, which Judge Rayford and a jury will hear in court. Arthur acquires evidence from another client, Carl, incriminating photographs that show Fleming in BDSM acts with a prostitute. Gail warns him not to betray a client. He shows the pictures to Fleming, who then freely admits that he is guilty of the rape. Disgusted with his situation, Kirkland goes to trial. Fleming makes a sleazy remark to Kirkland about wanting to rape the victim again, which finally pushes Kirkland to the breaking point. In his opening statement, Arthur begins by mocking the case of the prosecuting attorney  while speaking of the ultimate objective of the American legal system. He appears to be making a strong case to exonerate Fleming. But unexpectedly, he bursts out and says that prosecution is not going to get Fleming, because he is going to get him. Kirkland tells the jury, \"My client, The Honorable Henry T. Fleming, should go right to fucking jail! The son of a bitch is guilty!\" The courtroom erupts and the presiding judge Rayford, the prosecution, and the others in the court room are enraged and flabbergasted at the turn of events, including Gail. The judge calls Kirkland \"out of order,\" bangs his gavel to bring the court to order. Arthur replies, \"You're out of order! You're out of order! The whole trial's out of order!\" Arthur is dragged away, continuing to shout his rage all the way out the door and to criticize Fleming for his and the legal system's abuse of law and order that cost the lives of his two clients and let true criminals like Fleming go free to commit more crimes. As the courtroom spectators cheer for Arthur, Fleming sits down in defeat, and a fed-up Rayford walks out of his stand. In the end, Kirkland sits on the court's steps, all by himself, weary from his breakdown but satisfied, knowing his antics probably cost him his practice and career in law, but will presumably finally put Fleming in jail. His partner Jay, just released from the mental hospital, climbs up the long steps, tipping his toupee like a hat and greets him with a friendly \"Hi, Arthur\" and walks away and inside the court building.",
+      "score": 0.5777565800000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "164387",
+      "title": "...And Justice for All",
+      "release_date": "1979-06-29",
+      "release_year": "1979",
+      "genres": "Thriller; Crime Fiction; Comedy-drama; Mystery; Satire; Drama; Comedy; Legal drama; Courtroom Drama; New Hollywood; Suspense",
+      "cast": "John Forsythe; Al Pacino; Jack Warden; Lee Strasberg; Thomas G. Waites; Dominic Chianese; Larry Bryggman; Christine Lahti; Jeffrey Tambor; Craig T. Nelson; Sam Levene; Vincent Beck"
+     },
+     {
+      "id": "edb95c357b3b-010687-000000",
+      "testo": "It is about a loving couple which trying to make a living in 1950s Florida. When they are arrested, for a crime they didn't commit. The pair are given long jail terms and ripped from their children, so they begin a stunning fight for justice that has them facing off against the ruthless sheriff responsible for their incarceration.",
+      "score": 0.57555913,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "17991745",
+      "title": "Scattered Dreams",
+      "release_date": "1993",
+      "release_year": "1993",
+      "genres": "Period piece; Drama; Television movie",
+      "cast": "Gerald McRaney; Tyne Daly; Alicia Silverstone"
+     },
+     {
+      "id": "edb95c357b3b-030073-000000",
+      "testo": "Two white racists, Billy Ray Cobb  and Pete Willard , come across a 10-year-old black girl named Tonya Hailey  in rural Mississippi. They violently rape and beat Tonya and dump her in a nearby river after a failed attempt to hang her. She survives, and the men are arrested. Tonya's father, Carl Lee Hailey , seeks out Jake Brigance , an easygoing white lawyer. Carl Lee is worried that the men may be acquitted due to deep-seated racism in the Mississippi Delta area. They discuss a similar case further south in which four white teenagers were acquitted of the rape of a black girl. Brigance admits the possibility that the rapists will walk free in this case as well. Carl Lee acquires an M16 rifle, goes to the county courthouse and opens fire. This results in the deaths of both rapists and also in the unintended injury of Deputy Looney ([[Chris Cooper , who has to have his leg amputated. Carl Lee is soon arrested without resistance. Brigance agrees to provide defense for Carl Lee for a much smaller amount of money than such a trial would usually require. He intends to enter a plea of not guilty by reason of temporary insanity. The rape and subsequent revenge killing gain national media attention. The Ku Klux Klan begins to organize in the area. Freddie Lee Cobb , the brother of Billy Ray, calls Brigance and his family with death threats and organizes the formation of a Klan chapter in the county. The district attorney, Rufus Buckley , decides to seek the death penalty, and presiding Judge Omar Noose  denies Brigance a change of venue. Brigance seeks help for his defense team from sleazy divorce lawyer and close friend Harry Rex Vonner . He seeks guidance from long-time liberal activist Lucien Wilbanks , a once-great civil rights lawyer who was disbarred for violence on a picket line. Brigance is approached by Ellen Roark , a fiery liberal law student from Massachusetts who belongs to the ACLU. Brigance is initially reluctant to accept Ellen's cooperation, but he later agrees to let her help with the case. The trial begins amid much attention from the media and public. The Klan, which has a member inside the sheriff's department, burns a cross on Brigance's lawn. This incident causes an argument between Brigance and his wife to the effect that if Jake had heeded Carl Lee's warning, this wouldn't have happened. The police evacuate Jake's family out the house. Brigance and the police capture one of the Klan members, and they find a case with a bomb inside it. Brigance throws the bomb into the air, where it explodes. This motivates Jake to send his wife and young daughter away while the trial continues. As the trial begins, the KKK march down Canton's streets and meet a large group of mostly black protesters at the courthouse. Chaos ensues outside the courthouse as the police lose control of the crowd. A black teenager kills the KKK Grand Dragon  with a Molotov cocktail, burning him to death. Brigance's attraction to Roark grows, and they nearly begin an affair before Brigance regains his wits. He goes home, finding that arsonists have burned down his house. The next morning, as the Mississippi National Guard is called in to take care of the rioting, Brigance sits on the still-smoking steps of his house. Harry Rex arrives at the remains of the Brigance home and tells Jake that it is time to quit the case. Brigance argues that to quit now would make his sacrifices meaningless. The jury secretly discusses the case in a restaurant, going against the judge's instructions. All but one are leaning toward a guilty verdict and Carl Lee's fate looks sealed. Freddie Lee Cobb shoots at Brigance as he exits the courthouse, but misses. The bullet hits a national guardsman policing the demonstrations, paralyzing him. Roark is kidnapped by Klansmen, beaten, tied to a stake in the wilderness in her underwear and left to die. She is saved by an informant called \"Mickey Mouse,\" who is one of the Klansmen: Tim Nunley ([[John Diehl . Out of options, Brigance goes to see Carl Lee in his jail cell and advises accepting a lesser guilty plea. Carl Lee refuses, telling Brigance that his views on justice and race are wrong, adding: \"our kids will never play together.\" He then tells Jake that the reason he chose Jake as his defense lawyer is that he believed that Jake, a white man who knows Carl Lee well, would be the one person who would know exactly what to say to the jury to convince them to acquit. The courthouse is packed to see the attorneys' closing arguments. Brigance tells the jury to close their eyes and listen to a story. He describes, in slow and painful detail, the rape of a young 10-year-old girl, mirroring the story of Tonya's rape. He then asks the jury, in his final comment, to \"now imagine she's white.\" This final burst of imagery challenges the very nature of the trial itself, raising the very real specter - within the racist culture of the community in which the crime took place - that the actions of Hailey would not have been called to question before the court of law had the victim been white. Had it been so, it is implied that the father's motive in murdering the rapists would have been seen by the public as justified, and there would not have been any prosecution. The argument Brigance then makes is that if the jury can - at any time - be compelled to spare the life of a white man for a vengeful murder, then they must be able to do the same for a black man. After deliberation, an African-American child runs out of the courthouse and screams, \"he's innocent!\" Jubilation ensues amongst the supporters outside. The KKK, enraged, become violent again. Sheriff Ozzie Walls  arrests Freddie Lee, as well as his own racist deputy. The movie ends when Brigance brings his wife and daughter to a family cookout at Carl Lee's house. Carl Lee is surprised and standoffish. Jake explains, \"just thought our kids could play together,\" and Carl Lee smiles at that.",
+      "score": 0.5622182,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "3600824",
+      "title": "A Time to Kill",
+      "release_date": "1996-07-24",
+      "release_year": "1996",
+      "genres": "Thriller; Crime Fiction; Drama",
+      "cast": "Matthew McConaughey; Sandra Bullock; Samuel L. Jackson; Kevin Spacey; Oliver Platt; Charles S. Dutton; Brenda Fricker; Donald Sutherland; Kiefer Sutherland; Patrick McGoohan; Ashley Judd; Tonea Stewart; Rae'Ven L Kelly; Darrin Mitchell; LaConte McGrew; John Diehl; Chris Cooper; Nicky Katt; Doug Hutchison; Beth Grant; Kurtwood Smith; Joe Seneca; Anthony Heald; Alexandra Kyle"
+     },
+     {
+      "id": "edb95c357b3b-039479-000000",
+      "testo": "The story concerns the difficulties faced by an interracial marriage between an African-American office worker and a white divorcee. The climax of the film is a highly emotional courtroom custody case in which the woman's angry ex-husband demands custody of their daughter, charging that the child's welfare is threatened by the environment created by her marriage to a black man.",
+      "score": 0.5434313000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "9974147",
+      "title": "One Potato, Two Potato",
+      "release_date": "1964-07-29",
+      "release_year": "1964",
+      "genres": "Drama; Indie; Black-and-white",
+      "cast": "Barbara Barrie; Bernie Hamilton; Robert Earl Jones"
+     },
+     {
+      "id": "edb95c357b3b-028302-000000",
+      "testo": "Victor Scott  is a District Attorney with a drive to win every case. He is assisted by fellow attorney Ellen Miles  who is not quite as hard-driving, but is devoted to her D.A. boss. After Scott discovers that one of the men he sent to his death is innocent, he falls into a drunken haze, is arrested for drunk and disorderly conduct, and determines to defend one of his fellow incarcerated. This leads to a new career as a defense attorney. In the process Scott ends up defending an associate of the city's crime boss, a man he refused to work for earlier in the film due to the fact that “...no one would testify against you; you own the people who work for you”. This, in turn, leads him into direct confrontation with the very office he used to head. Over the course of the film Ellen Miles' kills her husband in self defense and Scott determines to defend her as there are no witnesses. There is a sub-plot here involving Ellen Miles husband, the crime boss, and an ongoing leak between the D.A.s office and the crime boss. The leak turns out to be Ellen's husband, Ray Borden. The new D.A., not knowing this, determines that Ellen herself is the leak and that she has murdered her husband when found out. There is also a shorter story arc in which Scott is encouraged and mentored by Ellen Miles' father. As Ms. Miles's father lies on his death-bed, Scott promises to protect Ms. Miles. As such he acts as surrogate father and mentor to Ms. Miles, encouraging her career as an attorney. There is also a hint that the relationship between Miles and Scott might have been a romantic one had Scott allowed it. Angel O'Hara  plays a small yet important role as witness for the defense. Her testimony places the role of “leak” firmly in the lap of Ray Borden , whom she testifies has had continuing contact with the crime boss, Frank Garland .",
+      "score": 0.54162052,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "25615135",
+      "title": "Illegal",
+      "release_date": "1955-10-28",
+      "release_year": "1955",
+      "genres": "Crime Fiction; Drama; Film noir",
+      "cast": "Hugh Marlowe; Edward G. Robinson; Nina Foch; Jayne Mansfield; Albert Dekker; Howard St. John; Ellen Corby; Edward Platt; Jan Merlin; Robert Ellenstein; Jay Adler; Henry Kulky; James McCallion"
+     },
+     {
+      "id": "edb95c357b3b-022908-000000",
+      "testo": "Set in the midst of the 2000 presidential election, American Violet tells the story of Dee Roberts , a 24 year-old African-American single mother of four, living in a small Texas town . One day, while Dee is working a shift at the local diner, the powerful local district attorney  leads a drug bust, sweeping Dee’s housing project. Police drag Dee from work in handcuffs, dumping her in the women’s county prison. Indicted based on the uncorroborated word of a single and dubious police informant facing his own drug charges, Dee soon discovers she has been charged as a drug dealer. Even though Dee has no prior drug record and no drugs were found on her in the raid or any subsequent searches, she is offered a hellish choice: plead guilty and go home as a convicted felon or remain in prison and fight the charges thus, jeopardizing her custody and risking a long prison sentence. Despite the urgings of her mother , and with her freedom and the custody of her children at stake, she chooses to fight the district attorney. Dee works with an ACLU attorney  and a former local narcotics officer  to take on the Texas justice system.Samuel Goldwyn Films - American Violet",
+      "score": 0.53590044,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "21705780",
+      "title": "American Violet",
+      "release_date": "2009-04-17",
+      "release_year": "2009",
+      "genres": "Drama; Courtroom Drama",
+      "cast": "Michael O'Keefe; Nicole Beharie; Tim Blake Nelson; Will Patton; Alfre Woodard; Xzibit; Charles S. Dutton; Scott A. Martin; Malcolm Barrett; Jackson Beals; Samantha Beaulieu"
+     },
+     {
+      "id": "edb95c357b3b-028418-000000",
+      "testo": "The movie tells the story of a southern man, Jesse Banks Rhodes , who is released from a prison work camp in Louisiana, 1936, after being wrongly imprisoned for eleven years. He heads back to Georgia, only to find that most people are keen to keep him down. He begins working for a plantation owner  and rents a shed from a farmer  with two daughters . After witnessing the murder of a black worker at the hands of a drunken white racist boss, Jesse is forced to prove his innocence, so injustice will not happen again.",
+      "score": 0.5288260800000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "3032133",
+      "title": "Wayward Son",
+      "release_date": "1999",
+      "release_year": "1999",
+      "genres": "Period piece; Melodrama; Drama",
+      "cast": "Harry Connick, Jr.; Pete Postlethwaite; Vinessa Shaw; Walton Goggins; Patricia Clarkson"
+     },
+     {
+      "id": "edb95c357b3b-017525-000000",
+      "testo": "The film stars James Woods as burnt-out attorney Eddie Dodd, who has left behind civil rights work to defend drug dealers. Robert Downey Jr. plays Roger Baron, an idealistic young legal clerk fresh out of law school who encourages Dodd to take on the case of Shu Kai Kim, a young Korean man, played by Yuji Okumoto, who has been imprisoned for a gang-related murder. Kim's mother believes her son was wrongfully accused. Dodd and Baron's investigation leads to a conspiracy among the district attorney, a police informant, and several police officers.<ref namehttp://rogerebert.suntimes.com/apps/pbcs.dll/article?AIDMovie reviews: True Believer|author1989-02-17|work=Chicago Sun-Times}}",
+      "score": 0.52632096,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "4876364",
+      "title": "True Believer",
+      "release_date": "1989",
+      "release_year": "1989",
+      "genres": "Crime Fiction; Drama",
+      "cast": "Charles Hallahan; James Woods; Robert Downey Jr.; Margaret Colin; Kurtwood Smith; Yuji Okumoto; Tom Bower; Luis Guzmán; Woody Harrelson"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "Dramatic legal films set in the southern United States, centered on trials, lawyers, courtrooms, or legal cases. Must match: legal drama; southern United States setting; Drama.",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "Drama",
+       "type": "genre",
+       "results": {
+        "Heavens Fall (2006)": {
+         "status": "verified",
+         "evidence": "generi: Crime Fiction; Indie; Docudrama; Period piece; Drama; Courtroom Drama"
+        },
+        "They Won't Forget (1937)": {
+         "status": "verified",
+         "evidence": "generi: Drama; Black-and-white; Courtroom Drama"
+        },
+        "American Violet (2009)": {
+         "status": "verified",
+         "evidence": "generi: Drama; Courtroom Drama"
+        }
+       }
+      },
+      {
+       "constraint": "legal drama",
+       "type": "plot_require",
+       "results": {
+        "Heavens Fall (2006)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "They Won't Forget (1937)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "American Violet (2009)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "southern United States setting",
+       "type": "plot_require",
+       "results": {
+        "Heavens Fall (2006)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "They Won't Forget (1937)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "American Violet (2009)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "trials",
+       "type": "plot_require",
+       "results": {
+        "Heavens Fall (2006)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "They Won't Forget (1937)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "American Violet (2009)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "lawyers",
+       "type": "plot_require",
+       "results": {
+        "Heavens Fall (2006)": {
+         "status": "probable",
+         "evidence": "termini nella trama: lawyers"
+        },
+        "They Won't Forget (1937)": {
+         "status": "probable",
+         "evidence": "termini nella trama: lawyers"
+        },
+        "American Violet (2009)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "courtrooms",
+       "type": "plot_require",
+       "results": {
+        "Heavens Fall (2006)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "They Won't Forget (1937)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "American Violet (2009)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "legal cases",
+       "type": "plot_require",
+       "results": {
+        "Heavens Fall (2006)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "They Won't Forget (1937)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "American Violet (2009)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-002406-000000",
+      "testo": "In the film, two young white women  accuse nine black youths of rape in the segregated South. Timothy Hutton stars as criminal defense attorney Samuel Leibowitz. The film begins after the first trial of the nine in the present-day bustling city of Scottsboro, Alabama. Samuel Leibowitz, a successful Jewish lawyer from New York is called down past the Mason-Dixon Line to defend the nine blacks.",
+      "score": 0.6307082,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "2750980",
+      "title": "Heavens Fall",
+      "release_date": "2006",
+      "release_year": "2006",
+      "genres": "Crime Fiction; Indie; Docudrama; Period piece; Drama; Courtroom Drama",
+      "cast": "James Tolkan; Francie Swift; Maury Chaykin; Joseph Lyle Taylor; Timothy Hutton; David Strathairn; Leelee Sobieski; Anthony Mackie; Azura Skye; Bill Sage; Bill Smitrovich"
+     },
+     {
+      "id": "edb95c357b3b-009139-000000",
+      "testo": "A southern town is rocked by scandal when teenager Mary Clay is murdered on Confederate Memorial Day. A small-time lawyer with political ambitions, Andrew Griffin, sees the crime as way to the Senate if he can find the right scapegoat to be tried for the crime. He seeks out Robert Hale, Mary's teacher at the business school where she was killed. Even though all evidence against Hale is circumstantial, Hale happens to be from New York , and Griffin works with a reporter to create a media frenzy of prejudice and hatred against the teacher. The issue moves from innocence or guilt to the continuing bigotry and suspicion between South and North, especially given the significance of the day of the murder. The film shows the immense pressures brought to bear on members of the community to help in the conviction - the black janitor who is induced to lie on the stand for fear he himself will be convicted and executed, or lynched, if Hale is not found guilty; the juror who tries to retain his freedom to make up his own mind; the barber who is afraid to testify to something he knows is true because it could exonerate Hale. The only man who stands up to the mob mentality of the town is the governor, who commutes Hale's death sentence to life imprisonment because the evidence is simply insufficient to send a man to his death. The townsfolk are enraged, and the murdered girl's brothers, who have been threatening all along to take matters into their own hands if Hale is not executed, plot and carry out Hale's abduction and murder.",
+      "score": 0.6211049,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "5266051",
+      "title": "They Won't Forget",
+      "release_date": "1937",
+      "release_year": "1937",
+      "genres": "Drama; Black-and-white; Courtroom Drama",
+      "cast": "Claude Rains; Gloria Dickson; Lana Turner; Edward Norris"
+     },
+     {
+      "id": "edb95c357b3b-022908-000000",
+      "testo": "Set in the midst of the 2000 presidential election, American Violet tells the story of Dee Roberts , a 24 year-old African-American single mother of four, living in a small Texas town . One day, while Dee is working a shift at the local diner, the powerful local district attorney  leads a drug bust, sweeping Dee’s housing project. Police drag Dee from work in handcuffs, dumping her in the women’s county prison. Indicted based on the uncorroborated word of a single and dubious police informant facing his own drug charges, Dee soon discovers she has been charged as a drug dealer. Even though Dee has no prior drug record and no drugs were found on her in the raid or any subsequent searches, she is offered a hellish choice: plead guilty and go home as a convicted felon or remain in prison and fight the charges thus, jeopardizing her custody and risking a long prison sentence. Despite the urgings of her mother , and with her freedom and the custody of her children at stake, she chooses to fight the district attorney. Dee works with an ACLU attorney  and a former local narcotics officer  to take on the Texas justice system.Samuel Goldwyn Films - American Violet",
+      "score": 0.5674818,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "21705780",
+      "title": "American Violet",
+      "release_date": "2009-04-17",
+      "release_year": "2009",
+      "genres": "Drama; Courtroom Drama",
+      "cast": "Michael O'Keefe; Nicole Beharie; Tim Blake Nelson; Will Patton; Alfre Woodard; Xzibit; Charles S. Dutton; Scott A. Martin; Malcolm Barrett; Jackson Beals; Samantha Beaulieu"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/34898?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/80639?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/21179?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 34898,
+      "media_type": "movie",
+      "title": "Heavens Fall",
+      "original_title": "Heavens Fall",
+      "overview": "Successful New York attorney Sam Leibowitz travels to the South in 1933 to defend nine young black men accused of raping two women on an Alabama freight train.",
+      "vote_average": 7.0,
+      "release_date": "2006-07-20",
+      "original_language": "en",
+      "poster_path": "/q0SCPx3yl0rWllrR7iCr7PMlsiq.jpg"
+     },
+     {
+      "id": 80639,
+      "media_type": "movie",
+      "title": "They Won't Forget",
+      "original_title": "They Won't Forget",
+      "overview": "A southern town is rocked by scandal when teenager Mary Clay is murdered on Confederate Decoration Day. Andrew Griffin, a small-time lawyer with political ambitions, sees the crime as his ticket to the Senate if he can find the right victim to finger for the crime. He sets out to convict Robert Hale, a transplanted northerner who was Mary's teacher at the business school where she was killed. …",
+      "vote_average": 5.897,
+      "release_date": "1937-07-14",
+      "original_language": "en",
+      "poster_path": "/j7IHtsZyrGreRTUyIV6Mi2pKpl7.jpg"
+     },
+     {
+      "id": 21179,
+      "media_type": "movie",
+      "title": "American Violet",
+      "original_title": "American Violet",
+      "overview": "A young single mother of four living in a small Texas town. Arrested during a drug raid and accused of a crime she didn't commit, Dee goes against the wishes of her mother, Alma, and rejects the plea-bargain that would free her from jail, but brand her as a felon for life. …",
+      "vote_average": 6.7,
+      "release_date": "2008-08-28",
+      "original_language": "en",
+      "poster_path": "/nNpD3w3wWwV1ICNXAazwFVd5qLu.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "r09",
+  "kind": "rag",
+  "text": "Drammi giudiziari ambientati nel sud degli Stati Uniti"
+ },
+ "seconds": 21.2
+}

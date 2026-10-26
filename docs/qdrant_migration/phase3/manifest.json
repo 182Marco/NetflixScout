@@ -1,0 +1,79 @@
+{
+ "created": "2026-10-26T10:28:33Z",
+ "versions": {
+  "qdrant_client_installed": "1.20.0",
+  "qdrant_client_pinned": "1.20.0",
+  "qdrant_server_pinned": "1.20.0",
+  "qdrant_server_running": "1.20.0",
+  "python": "3.11.16",
+  "platform": "macOS-12.7.6-x86_64-i386-64bit",
+  "chromadb": "1.5.9"
+ },
+ "configuration": {
+  "collection": "netflix_scout",
+  "embedding_model": "text-embedding-3-small",
+  "dimension": 1536,
+  "distance": "cosine",
+  "server_url": "http://127.0.0.1:6333",
+  "server_binding": "127.0.0.1",
+  "server_binary": "official release qdrant-x86_64-apple-darwin v1.20.0 (not the Docker image)",
+  "storage_path": "/Users/filippo.milzagmail.com/Desktop/NetflixScout/dbVettoriale/qdrant_openai/storage",
+  "batch_size": 500,
+  "point_id": "uuid5(namespace 6f1c2e1e-0c53-4b57-9d1a-4f5d3c1e7a10, legacy string id)",
+  "payload_added": [
+   "document",
+   "legacy_id",
+   "title_norm",
+   "release_year_int"
+  ],
+  "payload_indexes": [
+   "movie_id",
+   "release_year_int",
+   "title_norm"
+  ],
+  "vector_tolerance": 1e-06
+ },
+ "provenance": {
+  "source": "fresh copy restored from the verified backup (restore_chroma.py); Chroma opened only on that copy",
+  "source_path": "/private/tmp/claude-501/-Users-filippo-milzagmail-com-Desktop-NetflixScout/5bfd1d87-098f-47f2-91bf-6c2ea5a37f18/scratchpad/phase3/chroma_source",
+  "backup_manifest_files": {
+   "./ccd8ca3a-7582-4c5a-8a88-305387ceebcc/data_level0.bin": "13fa255588036cd730fa8b03d1961a25b069e2b2c58fda20fc49d5149d737c23",
+   "./ccd8ca3a-7582-4c5a-8a88-305387ceebcc/header.bin": "6474a94fa4a14a24435b9b8958d40e159fadb0c5ce37e0dfecce425d38fe1deb",
+   "./ccd8ca3a-7582-4c5a-8a88-305387ceebcc/index_metadata.pickle": "409d872cb85d1773de15f85fb6142bcd1485c83fa23c27b34b6dd0ff7f27d4fa",
+   "./ccd8ca3a-7582-4c5a-8a88-305387ceebcc/length.bin": "aa607389b5822e25c0b221333f5170e034c66374edbd04b0186093a5b00cd91b",
+   "./ccd8ca3a-7582-4c5a-8a88-305387ceebcc/link_lists.bin": "032e61645166ef0b5ff106ebec639e500f3ff6cd2a6bb4a785c4a155757fc47d",
+   "./chroma.sqlite3": "6319e3819e45b8845f3ab2c8a7854a923f0e44a6675ec9c5b6e25135c88291a8"
+  }
+ },
+ "target_collection": {
+  "status": "green",
+  "points": 42522,
+  "indexed_vectors": 43022,
+  "segments": 4,
+  "storage_size_bytes": 592855084,
+  "collection_metadata": {
+   "model": "text-embedding-3-small",
+   "dimension": 1536,
+   "distance": "cosine"
+  }
+ },
+ "integrity": {
+  "backup_files_match_manifest": true,
+  "original_bytes_match_pre_migration_manifest": false,
+  "original_sqlite_differing_tables": [
+   "acquire_write"
+  ],
+  "original_non_sqlite_files_unchanged": true,
+  "original_data_logically_identical_to_backup": true,
+  "target_is_separate_from_original_and_backup": true
+ },
+ "outcome": {
+  "validation_reports": [
+   "validation_report_1_after_resume.json",
+   "validation_report_2_after_idempotent_rewrite.json"
+  ],
+  "all_validations_passed": true,
+  "points": 42522,
+  "migration_validated": true
+ }
+}

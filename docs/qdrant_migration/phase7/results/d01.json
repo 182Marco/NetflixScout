@@ -1,0 +1,66 @@
+{
+ "answer": "Il genere con il voto medio più alto è **Film-Noir**, con **3,64/5**.\n\nIl dato si basa su **148 film** e **301.261 voti totali**.",
+ "tools": [
+  "movie_db_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Qual è il genere con il voto medio più alto?",
+    "used": "Qual è il genere con il voto medio più alto?",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "movie_db_search",
+    "purpose": "Calcolare e confrontare il voto medio dei film per genere",
+    "arguments": {
+     "query": "Qual è il genere cinematografico con il voto medio più alto? Calcola la media dei voti per genere e indica quello con la media maggiore."
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "movie_db_search",
+    "elapsed_ms": 1906,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "db_query",
+   "data": {
+    "queries": [
+     {
+      "sql": "SELECT g.genre, count(*) AS n_movies, round(avg(s.avg_rating), 3) AS avg_rating, sum(s.n_ratings) AS n_ratings FROM movie_genres g JOIN movie_stats s ON s.movie_id = g.movie_id JOIN movies m ON m.movie_id = g.movie_id WHERE s.n_ratings >= ? GROUP BY g.genre ORDER BY avg_rating DESC, g.genre LIMIT ?",
+      "params": [
+       50,
+       10
+      ]
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "d01",
+  "kind": "db",
+  "text": "Qual è il genere con il voto medio più alto?"
+ },
+ "seconds": 7.3
+}

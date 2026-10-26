@@ -1,0 +1,66 @@
+{
+ "answer": "I 10 film con più voti registrati nel database sono:\n\n1. **The Shawshank Redemption** (1994) — **102.929 voti**, media **4,40/5**\n2. **Forrest Gump** (1994) — **100.296 voti**, media **4,05/5**\n3. **Pulp Fiction** (1994) — **98.409 voti**, media **4,20/5**\n4. **The Matrix** (1999) — **93.808 voti**, media **4,16/5**\n5. **The Silence of the Lambs** (1991) — **90.330 voti**, media **4,15/5**\n6. **Star Wars: Episode IV - A New Hope** (1977) — **85.010 voti**, media **4,10/5**\n7. **Fight Club** (1999) — **77.332 voti**, media **4,23/5**\n8. **Jurassic Park** (1993) — **75.233 voti**, media **3,70/5**\n9. **Schindler's List** (1993) — **73.849 voti**, media **4,24/5**\n10. **The Lord of the Rings: The Fellowship of the Ring** (2001) — **73.122 voti**, media **4,09/5**\n\nLe medie e il numero di voti provengono dal database indicato nei risultati; la classifica è ordinata per quantità di voti, non per voto medio.",
+ "tools": [
+  "movie_db_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Quali sono i film con più voti in assoluto?",
+    "used": "Quali sono i film con più voti in assoluto?",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "movie_db_search",
+    "purpose": "Film con il maggior numero di voti degli utenti",
+    "arguments": {
+     "query": "Quali sono i film con il maggior numero di voti degli utenti in assoluto, ordinati per numero di voti decrescente?"
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "movie_db_search",
+    "elapsed_ms": 2851,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "db_query",
+   "data": {
+    "queries": [
+     {
+      "sql": "SELECT m.movie_id, m.clean_title AS title, m.year, s.avg_rating, s.n_ratings, (SELECT group_concat(g.genre, '|') FROM movie_genres g WHERE g.movie_id = m.movie_id) AS genres, l.imdb_id FROM movies m JOIN movie_stats s ON s.movie_id = m.movie_id LEFT JOIN links l ON l.movie_id = m.movie_id WHERE s.n_ratings >= ? ORDER BY s.n_ratings DESC, s.avg_rating DESC, m.movie_id LIMIT ?",
+      "params": [
+       50,
+       30
+      ]
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "d03",
+  "kind": "db",
+  "text": "Quali sono i film con più voti in assoluto?"
+ },
+ "seconds": 12.1
+}

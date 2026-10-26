@@ -1,0 +1,87 @@
+{
+ "answer": "In Italia, **Parasite (2019)** è disponibile secondo TMDb:\n\n- **Abbonamento:** MYmovies One\n- **Noleggio:** Apple TV Store, Rakuten TV, Amazon Video\n- **Acquisto:** Apple TV Store, Rakuten TV, Amazon Video\n\nPagina TMDb per la disponibilità: https://www.themoviedb.org/movie/496243/watch?locale=IT\n\nHo descritto la versione del **2019**. Nei risultati comparivano anche **Mutanti (1982)**, **Parasite (2004)** e **Parasite (2024)** come possibili titoli omonimi.",
+ "tools": [
+  "tmdb_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Dove posso vedere Parasite in streaming in Italia?",
+    "used": "Dove posso vedere Parasite in streaming in Italia?",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "tmdb_search",
+    "purpose": "Disponibilità in streaming in Italia di Parasite",
+    "arguments": {
+     "query": "Dove posso vedere Parasite in streaming in Italia?",
+     "requests": [
+      {
+       "operation": "movie_details",
+       "title": "Parasite",
+       "facets": [
+        "watch_providers"
+       ],
+       "region": "IT"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "tmdb_search",
+    "elapsed_ms": 443,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/496243?api_key=***"
+    ],
+    "attributions": [
+     "justwatch"
+    ],
+    "items": [
+     {
+      "id": 496243,
+      "media_type": "movie",
+      "title": "Parasite",
+      "original_title": "기생충",
+      "overview": "Tutta la famiglia di Ki-taek è senza lavoro. Ki-taek è particolarmente interessata allo stile di vita della ricchissima famiglia Park. Un giorno, suo figlio riesce a farsi assumere dai Park e le due famiglie si ritrovano così intrecciate da una serie di eventi incontrollabili.",
+      "vote_average": 8.489,
+      "release_date": "2019-05-30",
+      "original_language": "ko",
+      "poster_path": "/mMM8kcfspicib7AmPTvf97Rarwn.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "t02",
+  "kind": "tmdb",
+  "text": "Dove posso vedere Parasite in streaming in Italia?"
+ },
+ "seconds": 11.4
+}

@@ -1,0 +1,65 @@
+{
+ "validated_at": "2026-10-26T11:14:38Z",
+ "passed": true,
+ "checks": {
+  "count": {
+   "ok": true,
+   "source": 42522,
+   "target": 42522,
+   "unique_source_ids": 42522,
+   "unique_target_ids": 42522
+  },
+  "identifiers": {
+   "ok": true,
+   "qdrant_duplicates": 0
+  },
+  "dimension": {
+   "ok": true,
+   "expected": 1536
+  },
+  "metadata": {
+   "ok": true
+  },
+  "documents": {
+   "ok": true
+  },
+  "vectors": {
+   "ok": true,
+   "tolerance": 1e-06,
+   "max_error": 5.960464477539063e-08,
+   "worst_id": "edb95c357b3b-028550-000000"
+  },
+  "title_norm": {
+   "ok": true
+  },
+  "release_year_int": {
+   "ok": true,
+   "converted": 39588,
+   "no_year_in_source": 2933,
+   "not_convertible": 1,
+   "not_convertible_values": [
+    [
+     "edb95c357b3b-026307-000000",
+     "1010"
+    ]
+   ]
+  },
+  "index_meta": {
+   "ok": true,
+   "detail": {
+    "model": "text-embedding-3-small",
+    "dimension": 1536,
+    "distance": "cosine"
+   }
+  }
+ },
+ "anomaly_counts": {
+  "extra_in_qdrant": 0
+ },
+ "anomaly_samples": {},
+ "digests": {
+  "sorted_order_ids_sha256": "f7db3b3858ebe18d4a3104ace00178bc0e53cb3c69d7b12b1cba37610e3f6cd3",
+  "documents_in_source_order_sha256": "2ced98e3803950d9488e8ac1412f5cb09c6263f3a0372781b84e8f9177669053"
+ },
+ "server_version": "1.20.0"
+}

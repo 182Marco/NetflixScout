@@ -1,0 +1,66 @@
+{
+ "answer": "Non è possibile confermare **5 film** che rispettino il requisito con i dati ricevuti:\n\n- **The Shawshank Redemption (1994)** — voto medio MovieLens **4,40/5**, **102.929 voti**\n- **The Godfather (1972)** — **4,32/5**, **66.440 voti**\n- **Parasite (2019)** — **4,31/5**, **11.670 voti**\n- **Twin Peaks (1989)** — **4,30/5**, **1.140 voti**: non raggiunge la soglia di 5.000 e potrebbe essere una serie TV\n- **Twelve Angry Men (1954)** — **4,29/5**, **449 voti**: non raggiunge la soglia di 5.000\n\nMovieLens non distingue sempre tra film e serie TV, quindi un titolo potrebbe essere una serie. Tra i risultati ricevuti, solo i primi tre soddisfano chiaramente il requisito di almeno 5.000 voti.",
+ "tools": [
+  "movie_db_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Quali sono i 5 film con il voto medio più alto tra quelli con almeno 5000 voti?",
+    "used": "Quali sono i 5 film con il voto medio più alto tra quelli con almeno 5000 voti?",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "movie_db_search",
+    "purpose": "Classifica dei 5 film con voto medio più alto e almeno 5000 voti",
+    "arguments": {
+     "query": "Trova i 5 film con il voto medio più alto tra quelli con almeno 5000 voti, ordinati per voto medio decrescente."
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "movie_db_search",
+    "elapsed_ms": 4989,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "db_query",
+   "data": {
+    "queries": [
+     {
+      "sql": "SELECT m.movie_id, m.clean_title AS title, m.year, s.avg_rating, s.n_ratings, (SELECT group_concat(g.genre, '|') FROM movie_genres g WHERE g.movie_id = m.movie_id) AS genres, l.imdb_id FROM movies m JOIN movie_stats s ON s.movie_id = m.movie_id LEFT JOIN links l ON l.movie_id = m.movie_id WHERE s.n_ratings >= ? ORDER BY s.avg_rating DESC, s.n_ratings DESC, m.movie_id LIMIT ?",
+      "params": [
+       50,
+       15
+      ]
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "d01",
+  "kind": "db",
+  "text": "Quali sono i 5 film con il voto medio più alto tra quelli con almeno 5000 voti?"
+ },
+ "seconds": 15.2
+}

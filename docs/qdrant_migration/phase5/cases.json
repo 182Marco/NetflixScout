@@ -1,0 +1,603 @@
+{
+ "frozen_on": "2026-10-26",
+ "k": 10,
+ "fetch_k": 50,
+ "variants": {
+  "A": "no references (plain search)",
+  "B": "average_vector",
+  "C": "best_score"
+ },
+ "search": "exact (no HNSW) for all variants; HNSW ef=128 consistency check separately",
+ "text_repeat": 1,
+ "hard_exclusions": "every reference title is passed as a hard exclusion to ALL variants, as the parser does today",
+ "cases": [
+  {
+   "id": "c01",
+   "category": "single_pos_neg",
+   "text_id": "q13",
+   "like": [
+    {
+     "title": "The Matrix",
+     "year": 1999,
+     "expected_status": "resolved"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "Inception",
+     "year": 2010,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {}
+  },
+  {
+   "id": "c02",
+   "category": "single_pos_neg",
+   "text_id": "q14",
+   "like": [
+    {
+     "title": "Alien",
+     "year": 1979,
+     "expected_status": "resolved"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "Predator",
+     "year": 1987,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {}
+  },
+  {
+   "id": "c03",
+   "category": "single_pos_neg",
+   "text_id": "q02",
+   "like": [
+    {
+     "title": "Moon",
+     "year": 2009,
+     "expected_status": "resolved"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "Gravity",
+     "year": 2013,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {}
+  },
+  {
+   "id": "c04",
+   "category": "single_pos_neg",
+   "text_id": "q15",
+   "like": [
+    {
+     "title": "The Godfather",
+     "year": 1972,
+     "expected_status": "resolved"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "Goodfellas",
+     "year": 1990,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {}
+  },
+  {
+   "id": "c05",
+   "category": "single_pos_neg",
+   "text_id": "q08",
+   "like": [
+    {
+     "title": "Das Boot",
+     "year": 1981,
+     "expected_status": "resolved"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "Saving Private Ryan",
+     "year": 1998,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {}
+  },
+  {
+   "id": "c06",
+   "category": "single_pos_neg",
+   "text_id": "q09",
+   "like": [
+    {
+     "title": "Memento",
+     "year": 2000,
+     "expected_status": "resolved"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "Eternal Sunshine of the Spotless Mind",
+     "year": 2004,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {}
+  },
+  {
+   "id": "c07",
+   "category": "single_pos_neg",
+   "text_id": "q25",
+   "like": [
+    {
+     "title": "Primer",
+     "year": 2004,
+     "expected_status": "resolved"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "Looper",
+     "year": 2012,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {}
+  },
+  {
+   "id": "c08",
+   "category": "positive_only",
+   "text_id": "q27",
+   "like": [
+    {
+     "title": "The Iron Giant",
+     "year": 1999,
+     "expected_status": "resolved"
+    }
+   ],
+   "avoid": [],
+   "constraints": {}
+  },
+  {
+   "id": "c09",
+   "category": "positive_only",
+   "text_id": "q19",
+   "like": [
+    {
+     "title": "Rififi",
+     "year": 1955,
+     "expected_status": "resolved"
+    }
+   ],
+   "avoid": [],
+   "constraints": {}
+  },
+  {
+   "id": "c10",
+   "category": "negative_only",
+   "text_id": "q11",
+   "like": [],
+   "avoid": [
+    {
+     "title": "Blade Runner",
+     "year": 1982,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {}
+  },
+  {
+   "id": "c11",
+   "category": "negative_only",
+   "text_id": "q01",
+   "like": [],
+   "avoid": [
+    {
+     "title": "Big Fish",
+     "year": 2003,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {}
+  },
+  {
+   "id": "c12",
+   "category": "multi_positive",
+   "text_id": "q13",
+   "like": [
+    {
+     "title": "The Matrix",
+     "year": 1999,
+     "expected_status": "resolved"
+    },
+    {
+     "title": "Blade Runner",
+     "year": 1982,
+     "expected_status": "resolved"
+    },
+    {
+     "title": "The Terminator",
+     "year": 1984,
+     "expected_status": "resolved"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "Inception",
+     "year": 2010,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {}
+  },
+  {
+   "id": "c13",
+   "category": "multi_positive",
+   "text_id": "q16",
+   "like": [
+    {
+     "title": "2001: A Space Odyssey",
+     "year": 1968,
+     "expected_status": "resolved"
+    },
+    {
+     "title": "Moon",
+     "year": 2009,
+     "expected_status": "resolved"
+    },
+    {
+     "title": "Solaris",
+     "year": 1972,
+     "expected_status": "resolved"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "Gravity",
+     "year": 2013,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {}
+  },
+  {
+   "id": "c14",
+   "category": "multi_negative",
+   "text_id": "q14",
+   "like": [
+    {
+     "title": "Alien",
+     "year": 1979,
+     "expected_status": "resolved"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "Predator",
+     "year": 1987,
+     "expected_status": "resolved"
+    },
+    {
+     "title": "Aliens",
+     "year": 1986,
+     "expected_status": "resolved"
+    },
+    {
+     "title": "The Thing",
+     "year": 1982,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {}
+  },
+  {
+   "id": "c15",
+   "category": "multi_both",
+   "text_id": "q16",
+   "like": [
+    {
+     "title": "2001: A Space Odyssey",
+     "year": 1968,
+     "expected_status": "resolved"
+    },
+    {
+     "title": "Silent Running",
+     "year": 1972,
+     "expected_status": "resolved"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "Gravity",
+     "year": 2013,
+     "expected_status": "resolved"
+    },
+    {
+     "title": "Sunshine",
+     "year": 2007,
+     "expected_status": "resolved"
+    },
+    {
+     "title": "Lost in Space",
+     "year": 1998,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {}
+  },
+  {
+   "id": "c16",
+   "category": "multi_both",
+   "text_id": "q22",
+   "like": [
+    {
+     "title": "Das Boot",
+     "year": 1981,
+     "expected_status": "resolved"
+    },
+    {
+     "title": "Paths of Glory",
+     "year": 1957,
+     "expected_status": "resolved"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "Pearl Harbor",
+     "year": 2001,
+     "expected_status": "resolved"
+    },
+    {
+     "title": "Saving Private Ryan",
+     "year": 1998,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {}
+  },
+  {
+   "id": "c17",
+   "category": "ambiguous_partial",
+   "text_id": "q15",
+   "like": [
+    {
+     "title": "The Godfather",
+     "year": null,
+     "expected_status": "ambiguous"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "Goodfellas",
+     "year": 1990,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {}
+  },
+  {
+   "id": "c18",
+   "category": "ambiguous_partial",
+   "text_id": "q14",
+   "like": [
+    {
+     "title": "Alien",
+     "year": null,
+     "expected_status": "ambiguous"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "Predator",
+     "year": 1987,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {}
+  },
+  {
+   "id": "c19",
+   "category": "ambiguous_all",
+   "text_id": "q19",
+   "like": [
+    {
+     "title": "Heat",
+     "year": null,
+     "expected_status": "ambiguous"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "Ocean's Eleven",
+     "year": null,
+     "expected_status": "ambiguous"
+    }
+   ],
+   "constraints": {}
+  },
+  {
+   "id": "c20",
+   "category": "absent_partial",
+   "text_id": "q16",
+   "like": [
+    {
+     "title": "Interstellar",
+     "year": 2014,
+     "expected_status": "not_in_index"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "Gravity",
+     "year": 2013,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {}
+  },
+  {
+   "id": "c21",
+   "category": "absent_all",
+   "text_id": "q02",
+   "like": [
+    {
+     "title": "Interstellar",
+     "year": 2014,
+     "expected_status": "not_in_index"
+    }
+   ],
+   "avoid": [],
+   "constraints": {}
+  },
+  {
+   "id": "c22",
+   "category": "absent_all",
+   "text_id": "q13",
+   "like": [
+    {
+     "title": "Star Wars",
+     "year": null,
+     "expected_status": "not_in_index"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "Se7en",
+     "year": null,
+     "expected_status": "not_in_index"
+    }
+   ],
+   "constraints": {}
+  },
+  {
+   "id": "c23",
+   "category": "no_references",
+   "text_id": "q23",
+   "like": [],
+   "avoid": [],
+   "constraints": {}
+  },
+  {
+   "id": "c24",
+   "category": "no_valid_reference",
+   "text_id": "q26",
+   "like": [
+    {
+     "title": "Nonexistent Fictional Film",
+     "year": null,
+     "expected_status": "not_in_index"
+    }
+   ],
+   "avoid": [],
+   "constraints": {}
+  },
+  {
+   "id": "c25",
+   "category": "constraints",
+   "text_id": "q12",
+   "like": [
+    {
+     "title": "The Silence of the Lambs",
+     "year": 1991,
+     "expected_status": "resolved"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "The Shining",
+     "year": 1980,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {
+    "excluded_genres": [
+     "Horror"
+    ],
+    "genres": [
+     "Thriller"
+    ]
+   }
+  },
+  {
+   "id": "c26",
+   "category": "constraints_homonyms",
+   "text_id": "q18",
+   "like": [
+    {
+     "title": "Little Caesar",
+     "year": 1931,
+     "expected_status": "resolved"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "Scarface",
+     "year": 1983,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {
+    "year_range": [
+     1930,
+     1939
+    ]
+   }
+  },
+  {
+   "id": "c27",
+   "category": "constraints_homonyms",
+   "text_id": "q24",
+   "like": [
+    {
+     "title": "Jules and Jim",
+     "year": 1961,
+     "expected_status": "resolved"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "Breathless",
+     "year": 1983,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {
+    "year_range": [
+     1960,
+     1969
+    ]
+   }
+  },
+  {
+   "id": "c28",
+   "category": "constraints",
+   "text_id": "q06",
+   "like": [
+    {
+     "title": "One Flew Over the Cuckoo's Nest",
+     "year": 1975,
+     "expected_status": "resolved"
+    }
+   ],
+   "avoid": [
+    {
+     "title": "Rosemary's Baby",
+     "year": 1968,
+     "expected_status": "resolved"
+    }
+   ],
+   "constraints": {
+    "genres": [
+     "Horror"
+    ]
+   }
+  }
+ ]
+}

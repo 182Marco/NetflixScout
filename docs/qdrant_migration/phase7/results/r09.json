@@ -1,0 +1,418 @@
+{
+ "answer": "Ecco i 3 titoli restituiti dal RAG. **I dati disponibili non verificano l’assenza di sangue**, né confermano in modo definitivo che siano horror psicologici; quindi non posso garantire il rispetto completo di quel requisito.\n\n### 1. *The Haunting* (1963)\n- **Regia:** Robert Wise  \n- **Cast principale:** Julie Harris, Claire Bloom, Richard Johnson, Russ Tamblyn, Fay Compton  \n- **Sinossi:** Il dottor John Markway coinvolge tre sconosciuti in uno studio sui disturbi del sonno nella sinistra e isolata Hill House. Presto diventa chiaro che il suo vero interesse è rivolto alla villa e alla sua storia inquietante, mentre il gruppo deve confrontarsi con la natura del suo orrore.\n- **Voto TMDb:** 7,1/10 (751 voti)\n\n**Vincoli:** horror verificato; casa infestata **probabile**, sulla base di indizi nella trama; horror psicologico, tensione atmosferica, horror non grafico e violenza grafica **non verificabili**.\n\n### 2. *Spirit Trap* (2005)\n- **Regia:** David Smith  \n- **Cast principale:** Billie Piper, Luke Mably, Sam Troughton, Emma Catherwood, Chiké Okonkwo  \n- **Sinossi:** Cinque studenti si trasferiscono in una vecchia villa disabitata, dando il via a una catena di eventi inspiegabili quando un misterioso orologio degli spiriti ricomincia a funzionare. Emergono i segreti oscuri degli studenti e il confine tra mondo reale e aldilà diventa sempre meno chiaro.\n- **Voto TMDb:** 4,4/10 (43 voti)\n\n**Vincoli:** horror verificato; casa infestata, horror psicologico, tensione atmosferica, horror non grafico e violenza grafica **non verificabili**. La trama del RAG menziona inoltre paranoia, intenzioni omicide e orrore soprannaturale.\n\n### 3. *House of Bones* (2010)\n- **Regia:** Jeffery Scott Lando  \n- **Cast principale:** Charisma Carpenter, Corin Nemec, Marcus Lyle Brown, Ricky Wayne, Collin Galyean  \n- **Sinossi:** La sensitiva Heather Burton e una squadra televisiva di cacciatori di fantasmi indagano su una casa infestata circondata da voci di attività paranormali.\n- **Voto TMDb:** 4,297/10 (64 voti)\n\n**Vincoli:** horror verificato; casa infestata **probabile**, sulla base di indizi nella trama; horror psicologico, tensione atmosferica, horror non grafico e violenza grafica **non verificabili**. La trama del RAG aggiunge che la casa comincia a uccidere i membri della troupe uno dopo l’altro, quindi non è possibile presentarlo come una scelta sicuramente priva di contenuti violenti.",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Horror psicologici con una casa infestata ma senza sangue",
+    "used": "Horror psicologici con una casa infestata ma senza sangue",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Raccomandare film horror psicologici con una casa infestata e privi di sangue o violenza grafica",
+    "arguments": {
+     "query": "Horror psicologici ambientati in una casa infestata, senza sangue né violenza grafica",
+     "k_finale": null,
+     "search_mode": null
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 3885,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "semantic",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "semantic",
+      "k_largo": 10,
+      "k_finale": 3,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": []
+    },
+    "standalone_query": "Horror psicologici con una casa infestata ma senza sangue",
+    "planner_query": "Horror psicologici ambientati in una casa infestata, senza sangue né violenza grafica",
+    "embedded_text": "A psychological horror film set in a haunted house, focused on atmosphere and unsettling supernatural events without blood or graphic violence.",
+    "signals": {
+     "positive_signals": [
+      "psychological horror",
+      "haunted house",
+      "atmospheric tension",
+      "non-graphic horror"
+     ],
+     "negative_signals": [
+      "graphic violence"
+     ],
+     "hard_exclusions": [],
+     "semantic_query": "A psychological horror film set in a haunted house, focused on atmosphere and unsettling supernatural events without blood or graphic violence.",
+     "genres": [
+      "Horror"
+     ],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-006852-000000",
+      "testo": "When five unsuspecting students move into a dilapidated mansion, a mysterious spirit clock, long since disused, is set into motion. As the walls of reality slowly fall away, and dark secrets are revealed, the group are thrown headlong into a downward spiral of paranoia, murderous intent and supernatural horror.",
+      "score": 0.7115424,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "3548398",
+      "title": "Spirit Trap",
+      "release_date": "2005-08",
+      "release_year": "2005",
+      "genres": "Horror; Haunted House Film; Supernatural",
+      "cast": "Billie Piper; Luke Mably; Emma Catherwood; Sam Troughton; Алсу; Chiké Okonkwo"
+     },
+     {
+      "id": "edb95c357b3b-010606-000000",
+      "testo": "Psychic Heather Burton  and a team of TV ghost hunters travel to investigate a haunted house surrounded by rumors of paranormal activity. Upon their arrival they find a foreboding house with a mind of its own, and as darkness falls, the house begins to kill the crew one by one. With time running out, will they be able to outwit this terror and make it out alive?.but it seems all to much for the team who are now at witts end will the teams leader take the house for his own or will hee escape THE HOUSE OF BONES!!!!",
+      "score": 0.6887898,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "31309338",
+      "title": "House of Bones",
+      "release_date": "2010",
+      "release_year": "2010",
+      "genres": "Horror",
+      "cast": "Charisma Carpenter; Corin Nemec; Kyle Russell Clements; Marcus Lyle Brown; Collin Galyean; Rick Robinson Jr."
+     },
+     {
+      "id": "edb95c357b3b-017243-000000",
+      "testo": "The film begins with a voiceover by Dr. John Markway ([[Richard Johnson . Hill House was constructed by Hugh Crain as a home for his wife. She died in an accident as she approached the house for the first time. Crain remarried. His second wife died after falling down the stairs. Crain's daughter, Abigail, lived in the house the rest of her life, never moving out of the nursery. She died calling for her absent nurse-companion. The companion inherited the house, but hung herself in the library. Mrs. Sannerson inherited Hill House. It has stood empty for some time. The voiceover ends. Dr. Markway is investigating paranormal activity. He wins permission from Mrs. Sannerson to occupy the house, but must take Luke Sannerson   with him. Markway chooses two individuals to accompany him. One is the psychic, Theodora , who is also known as \"Theo\". The other is meek Eleanor \"Nell\" Lance . Eleanor spent her adult life caring for her invalid mother, and her recent death left Eleanor feeling severe guilt. Two caretakers—Mr. Dudley  and his wife —care for the house. The large, maze-like mansion contains few right angles, perspective is off, and doors open and close by themselves. The house has a library with a spiral staircase and a conservatory with some eerie statues. Eleanor feels at home at Hill House as well as unsettled by it. That night, Eleanor and Theo are terrified by ghostly occurrences outside of Theo's bedroom door. In a well-known scene, supernatural forces bang loudly on the door as if trying to gain entry. The team explores Hill House the next day, discovering a cold spot and encountering other supernatural phenomena. Dr. Markway reveals more about the hauntings which have allegedly occurred at Hill House. The team discovers the words \"HELP ELEANOR COME HOME\" on a wall. Eleanor becomes mentally unstable. Something grips Eleanor's hand tightly in the night, terrifying Eleanor and Theo. The following day, Mrs. Grace Markway  arrives at Hill House to warn her husband that a reporter has learned of Dr. Markway's investigation of Hill House. The doctor is concerned when his wife announces that she plans to join the group for the duration of the stay. She demands a bed in the nursery despite her husband's protests that it is unsafe. That night, Grace Markway disappears. Eleanor's mental instability worsens as she falls further under the spell of Hill House. She goes into the library where she climbs the metal spiral staircase. In a critical scene, Grace Markway appears unexpectedly from a trapdoor at the top of the staircase and Eleanor almost falls to her death. Dr. Markway climbs the unstable staircase and rescues her. Dr. Markway, Luke, and Theo become frightened as Eleanor becomes separated from the group and Grace cannot be found. When they locate Eleanor, Dr. Markway insists that she leave Hill House at once. He asks Luke to drive her away but before Luke can get in the car Eleanor drives off without him. As she speeds down the road to the front gates, something takes control of the steering wheel and the car starts driving erratically. Eleanor pleads with the supernatural entity to stop as she trys to drive the car. Suddenly, Grace Markway steps out from behing a tree and appears in front of Eleanor's car. Eleanor swerves to miss her, hits a tree, and dies. When Dr. Markway, Luke and Theo arrive at the crash site on foot Dr. Markway asserts that something was in the car with Eleanor. He notes that the tree that claimed Eleanor's life was the same one that killed the first Mrs. Crain. The doctor says \"There was something in the car with her, I'm sure of it. Call it what you like but Hill House is haunted.\" As the members of the group look back at the ominous abode, Luke remarks \"It ought to be burned down and the ground sowed with salt.\" The final words in the movie are a narrative by Eleanor: Hill House has stood for 90 years and might stand for 90 more. Within, walls continue upright, bricks meet...floors are firm, and doors are sensibly shut. Silence lies steadily against the wood and stone of Hill House. And we who walk here walk alone.",
+      "score": 0.6884318,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "950929",
+      "title": "The Haunting",
+      "release_date": "1963-08",
+      "release_year": "1963",
+      "genres": "Drama; Horror; Psychological horror",
+      "cast": "Claire Bloom; Julie Harris; Russ Tamblyn; Lois Maxwell; Richard Johnson; Fay Compton; Rosalie Crutchley; Diane Clare; Ronald Adam; Valentine Dyall"
+     },
+     {
+      "id": "edb95c357b3b-012497-000000",
+      "testo": "Dark House tells the story of the Old Darrode House, where Janet Darrode ran a foster home for children and then murdered all of them and killed herself. The film opens with a young girl who walks into the house on the day of the massacre and discovers the bloody scene of the crime. Fourteen years later, local girl and student actress Claire Thompson has been seeing her therapist over an experience she had in the house which left her disturbed. He suggests that she revisit the old house, but she has never been able to get past the gate. When horror mogul Walston Rey appears in her advanced acting class, he reveals that he has converted the house into a horror attraction site and that he wants to hire Claire and her classmates to work as hosts to his attraction. Claire sees the opportunity as a chance to enter the house safely surrounded by her peers. In the house, Walston and his staff proudly show off their holographic three-dimensional system which creates lifelike interactive and harmless horror figures, but when Mrs. Darrode's ghost gets into the system, the holograms become real and and are activated by fear. They start killing everyone inside as the survivors try to shut down the system and try to escape. Claire finally manages to remember what happened in the house years ago. She was fostered under the care of Mrs. Darrode, who was an abusive religious fanatic. As a child Claire one day led a rebellion among the other kids. They burned their Holy Bibles and rejected Mrs. Darrode's teachings. Mrs. Darrode flew into a psychotic rage and murdered all the children, labeling them sinners and heretics, with the exception of Claire who only managed to escape by hiding in a closet. Then struck by remorse for what she had done, Mrs. Darrode thrust her hands into the kitchen garbage disposal and killed herself. In the present day after remembering, Claire loses her fear and flies at Mrs. Darrode, who disappears. She is discovered by the police, who believe she was responsible for the murders and is committed to a mental asylum. In the final scenes of the film, the girl who discovered the scene all those years ago also comes to the house to try to come to terms with her trauma. She and her boyfriend are quickly locked into the house and killed. The film ends with Claire strapped to a hospital bed screaming \"SHE'S STILL OUT THERE!\"",
+      "score": 0.6810115,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "28199697",
+      "title": "Dark House",
+      "release_date": "2010-07-30",
+      "release_year": "2010",
+      "genres": "Thriller; Horror",
+      "cast": "Jeffrey Combs; Meghan Ory; Diane Salinger"
+     },
+     {
+      "id": "edb95c357b3b-033090-000000",
+      "testo": "The film follows a group of teenagers who travel up to a dilapidated house for some fixing up. Unbeknownst to them, the house is occupied by a murderous old woman and her sultry daughter, who proceed to pick the teens off one by one.",
+      "score": 0.67422596,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "15770244",
+      "title": "Dead Dudes in the House",
+      "release_date": "1991",
+      "release_year": "1991",
+      "genres": "B-movie; Horror; Indie",
+      "cast": "Leighann Belair; Rob Moretti; Victor Verhaeghe; Sarah Newhouse; Eugene Sautner; Bruce Spaulding Fuller; Douglas Gibson; J.D. Cerna; Mark Zobian; Darrell Gibson"
+     },
+     {
+      "id": "edb95c357b3b-039981-000000",
+      "testo": "The film tells the chilling story of Nick Di Santo , who is tormented by his ability to touch someone and see exactly how they will die. On his 23rd birthday Nick is summoned by his mother  to the asylum where she has been institutionalized since his childhood. Hoping that her request to see him is a sign of improvement, Nick is stunned by her revelation that the father he thought was dead is really alive. He is alive and may know the origin of Nick's terrible gift. Nick sets out to find his father with his best friend Ryan  and girlfriend Eve . The trio are soon frightened and alarmed as every road they take on the journey leads them back to the same abandoned mansion - a house that only existed in Nick's childhood imagination or so he thought. A house in a town that no map connects. Finally succumbing to the will of the house, Nick becomes embroiled in a battle with a dark figure . What started as a simple road trip soon turns into a terror-filled journey, full of horrifying twists and brutal surprise. \"We are thrilled to have HAUNTED as our first feature under the new entity. It doesn't get any better than our cast and crew who are the best in the industry when it comes to this kind of story-telling.\" stated C.A.P. topper Agron.",
+      "score": 0.6689369000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "35703296",
+      "title": "Haunted",
+      "release_date": "2012",
+      "release_year": "2012",
+      "genres": "Thriller; Horror",
+      "cast": null
+     },
+     {
+      "id": "edb95c357b3b-039125-000000",
+      "testo": "This original story marries three different elements into one plot. The movie is basically a film noir, where a self-destructive, down-and-out investigator takes on a case that may be more than he can handle. Incorporating standard elements like a beautiful woman, excessive drinking and subtle voiceover, the piece is set up like a standard detective film. Later a science fiction angle, which is part conspiracy and part nouveau alchemy, is introduced. This component, to some degree, extends the common understanding of quantum physics. Within this framework the unbelievable is now possible and the story is set up for special effects and general creepiness. One final ingredient is comedy. Mostly situational, the laughs come from the somewhat uncommon characters thrown together in this extraordinary scenario. Rather than punchlines; reactions, comparisons and slapstick are used to ease the tension and create a more fun atmosphere. Not to be forgotten, this is first and foremost a horror movie. Where the film consists of a variety of different genre elements, Aversion is simply a suspenseful film of demonic possession.",
+      "score": 0.6569440400000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "11020906",
+      "title": "Aversion",
+      "release_date": "2009-03-30",
+      "release_year": "2009",
+      "genres": "Crime Fiction; Thriller; Science Fiction; Horror; Detective; Supernatural; Fantasy; Zombie Film",
+      "cast": "Claire Dominguez; Mary Amy; Josh Berresford; Melantha Blackthorne; Christopher Illing; Marc Raco; Andrew Roth; Ted Spencer; George Walsh"
+     },
+     {
+      "id": "edb95c357b3b-012012-000000",
+      "testo": "Set in a world devastated by a neurological pandemic, the film focuses on two survivors who meet on an isolated farm in Scotland, where they encounter an enemy even deadlier than the one outside. Though ostensibly a zombie film, the film concentrates on the psychological states of the lead characters.{{cite news}}",
+      "score": 0.6498941800000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "18166171",
+      "title": "The Dead Outside",
+      "release_date": "2008",
+      "release_year": "2008",
+      "genres": "Zombie Film; Sci-Fi Horror; Horror; Suspense; Psychological thriller",
+      "cast": "Sandra Louise Douglas; Vivienne Harvey; Max Adair; Alton Milne; Phylis Douglas; John Erskine; Sharon Osdin"
+     },
+     {
+      "id": "edb95c357b3b-034448-000000",
+      "testo": "A group of film students plan an all-night horror film festival in order to raise funds for their cinema club. They decide to show a number of  horror films from the 1950s that rely on gimmicks such as 3-D, Odorama, and electrical \"buzzers\" in seats. Unbeknownst to the group, a homicidal maniac is stalking the theater where the festival is being held. A filmmaker named Lanyard Gates, who murdered his family during a screening of his only film in the 1970s, supplies the decoy killer character, since young Maggie  may or may not be his missing daughter.",
+      "score": 0.6462874000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "12839891",
+      "title": "Popcorn",
+      "release_date": "1991-02-01",
+      "release_year": "1991",
+      "genres": "B-movie; Comedy; Horror; Slasher; Indie",
+      "cast": "Jill Schoelen; Tom Villard; Dee Wallace-Stone; Ray Walston; Tony Roberts; Karen Witter; Malcolm Danare; Derek Rydall"
+     },
+     {
+      "id": "edb95c357b3b-026592-000000",
+      "testo": "A filmmaker and his crew spend a weekend making a documentary in a cottage in Wales. Their film is never completed due to sinister forces in the building.",
+      "score": 0.6421884,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "33175196",
+      "title": "Untitled",
+      "release_date": "2011-09",
+      "release_year": "2011",
+      "genres": "Horror",
+      "cast": "Nikki Harrup; Sabrina Dickens; Steve Purbrick; Leonora Moore"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "A psychological horror film set in a haunted house, focused on atmosphere and unsettling supernatural events without blood or graphic violence. Must match: atmospheric tension.",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "Horror",
+       "type": "genre",
+       "results": {
+        "The Haunting (1963)": {
+         "status": "verified",
+         "evidence": "generi: Drama; Horror; Psychological horror"
+        },
+        "Spirit Trap (2005)": {
+         "status": "verified",
+         "evidence": "generi: Horror; Haunted House Film; Supernatural"
+        },
+        "House of Bones (2010)": {
+         "status": "verified",
+         "evidence": "generi: Horror"
+        }
+       }
+      },
+      {
+       "constraint": "psychological horror",
+       "type": "plot_require",
+       "results": {
+        "The Haunting (1963)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Spirit Trap (2005)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "House of Bones (2010)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "haunted house",
+       "type": "plot_require",
+       "results": {
+        "The Haunting (1963)": {
+         "status": "probable",
+         "evidence": "termini nella trama: haunted, house"
+        },
+        "Spirit Trap (2005)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "House of Bones (2010)": {
+         "status": "probable",
+         "evidence": "termini nella trama: haunted, house"
+        }
+       }
+      },
+      {
+       "constraint": "atmospheric tension",
+       "type": "plot_require",
+       "results": {
+        "The Haunting (1963)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Spirit Trap (2005)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "House of Bones (2010)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "non-graphic horror",
+       "type": "plot_avoid",
+       "results": {
+        "The Haunting (1963)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Spirit Trap (2005)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "House of Bones (2010)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "graphic violence",
+       "type": "plot_avoid",
+       "results": {
+        "The Haunting (1963)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Spirit Trap (2005)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "House of Bones (2010)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-017243-000000",
+      "testo": "The film begins with a voiceover by Dr. John Markway ([[Richard Johnson . Hill House was constructed by Hugh Crain as a home for his wife. She died in an accident as she approached the house for the first time. Crain remarried. His second wife died after falling down the stairs. Crain's daughter, Abigail, lived in the house the rest of her life, never moving out of the nursery. She died calling for her absent nurse-companion. The companion inherited the house, but hung herself in the library. Mrs. Sannerson inherited Hill House. It has stood empty for some time. The voiceover ends. Dr. Markway is investigating paranormal activity. He wins permission from Mrs. Sannerson to occupy the house, but must take Luke Sannerson   with him. Markway chooses two individuals to accompany him. One is the psychic, Theodora , who is also known as \"Theo\". The other is meek Eleanor \"Nell\" Lance . Eleanor spent her adult life caring for her invalid mother, and her recent death left Eleanor feeling severe guilt. Two caretakers—Mr. Dudley  and his wife —care for the house. The large, maze-like mansion contains few right angles, perspective is off, and doors open and close by themselves. The house has a library with a spiral staircase and a conservatory with some eerie statues. Eleanor feels at home at Hill House as well as unsettled by it. That night, Eleanor and Theo are terrified by ghostly occurrences outside of Theo's bedroom door. In a well-known scene, supernatural forces bang loudly on the door as if trying to gain entry. The team explores Hill House the next day, discovering a cold spot and encountering other supernatural phenomena. Dr. Markway reveals more about the hauntings which have allegedly occurred at Hill House. The team discovers the words \"HELP ELEANOR COME HOME\" on a wall. Eleanor becomes mentally unstable. Something grips Eleanor's hand tightly in the night, terrifying Eleanor and Theo. The following day, Mrs. Grace Markway  arrives at Hill House to warn her husband that a reporter has learned of Dr. Markway's investigation of Hill House. The doctor is concerned when his wife announces that she plans to join the group for the duration of the stay. She demands a bed in the nursery despite her husband's protests that it is unsafe. That night, Grace Markway disappears. Eleanor's mental instability worsens as she falls further under the spell of Hill House. She goes into the library where she climbs the metal spiral staircase. In a critical scene, Grace Markway appears unexpectedly from a trapdoor at the top of the staircase and Eleanor almost falls to her death. Dr. Markway climbs the unstable staircase and rescues her. Dr. Markway, Luke, and Theo become frightened as Eleanor becomes separated from the group and Grace cannot be found. When they locate Eleanor, Dr. Markway insists that she leave Hill House at once. He asks Luke to drive her away but before Luke can get in the car Eleanor drives off without him. As she speeds down the road to the front gates, something takes control of the steering wheel and the car starts driving erratically. Eleanor pleads with the supernatural entity to stop as she trys to drive the car. Suddenly, Grace Markway steps out from behing a tree and appears in front of Eleanor's car. Eleanor swerves to miss her, hits a tree, and dies. When Dr. Markway, Luke and Theo arrive at the crash site on foot Dr. Markway asserts that something was in the car with Eleanor. He notes that the tree that claimed Eleanor's life was the same one that killed the first Mrs. Crain. The doctor says \"There was something in the car with her, I'm sure of it. Call it what you like but Hill House is haunted.\" As the members of the group look back at the ominous abode, Luke remarks \"It ought to be burned down and the ground sowed with salt.\" The final words in the movie are a narrative by Eleanor: Hill House has stood for 90 years and might stand for 90 more. Within, walls continue upright, bricks meet...floors are firm, and doors are sensibly shut. Silence lies steadily against the wood and stone of Hill House. And we who walk here walk alone.",
+      "score": 0.599087,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "950929",
+      "title": "The Haunting",
+      "release_date": "1963-08",
+      "release_year": "1963",
+      "genres": "Drama; Horror; Psychological horror",
+      "cast": "Claire Bloom; Julie Harris; Russ Tamblyn; Lois Maxwell; Richard Johnson; Fay Compton; Rosalie Crutchley; Diane Clare; Ronald Adam; Valentine Dyall"
+     },
+     {
+      "id": "edb95c357b3b-006852-000000",
+      "testo": "When five unsuspecting students move into a dilapidated mansion, a mysterious spirit clock, long since disused, is set into motion. As the walls of reality slowly fall away, and dark secrets are revealed, the group are thrown headlong into a downward spiral of paranoia, murderous intent and supernatural horror.",
+      "score": 0.41762826,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "3548398",
+      "title": "Spirit Trap",
+      "release_date": "2005-08",
+      "release_year": "2005",
+      "genres": "Horror; Haunted House Film; Supernatural",
+      "cast": "Billie Piper; Luke Mably; Emma Catherwood; Sam Troughton; Алсу; Chiké Okonkwo"
+     },
+     {
+      "id": "edb95c357b3b-010606-000000",
+      "testo": "Psychic Heather Burton  and a team of TV ghost hunters travel to investigate a haunted house surrounded by rumors of paranormal activity. Upon their arrival they find a foreboding house with a mind of its own, and as darkness falls, the house begins to kill the crew one by one. With time running out, will they be able to outwit this terror and make it out alive?.but it seems all to much for the team who are now at witts end will the teams leader take the house for his own or will hee escape THE HOUSE OF BONES!!!!",
+      "score": 0.39264008,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "31309338",
+      "title": "House of Bones",
+      "release_date": "2010",
+      "release_year": "2010",
+      "genres": "Horror",
+      "cast": "Charisma Carpenter; Corin Nemec; Kyle Russell Clements; Marcus Lyle Brown; Collin Galyean; Rick Robinson Jr."
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/11772?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/22060?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/50288?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 11772,
+      "media_type": "movie",
+      "title": "The Haunting",
+      "original_title": "The Haunting",
+      "overview": "Dr. John Markway recruits three strangers for a sleep-disorder study at the eerie and isolated Hill House. It soon becomes clear his real interest lies in the mansion itself and its sinister history, as they are forced to confront the nature of its horror…",
+      "vote_average": 7.1,
+      "release_date": "1963-03-28",
+      "original_language": "en",
+      "poster_path": "/fmpTnUKTcrpuxLSY23gQMUf9qu7.jpg"
+     },
+     {
+      "id": 22060,
+      "media_type": "movie",
+      "title": "Spirit Trap",
+      "original_title": "Spirit Trap",
+      "overview": "When five young students move into an old unoccupied mansion an inexplicable chain of events is set into motion as a mysterious spirit clock begins to tick again. As the story unfolds, revealing each student's dark secrets, the boundary between the real world and the afterlife is no longer clear. Will they find a way to escape or will they be trapped with the spirits forever?",
+      "vote_average": 4.4,
+      "release_date": "2005-08-12",
+      "original_language": "en",
+      "poster_path": "/xYlBOIJOwUdgeSHDwk40RGSxSK5.jpg"
+     },
+     {
+      "id": 50288,
+      "media_type": "movie",
+      "title": "House of Bones",
+      "original_title": "House of Bones",
+      "overview": "Psychic Heather Burton and a team of TV ghost hunters travel to investigate a haunted house surrounded by rumors of paranormal activity.",
+      "vote_average": 4.297,
+      "release_date": "2010-01-16",
+      "original_language": "en",
+      "poster_path": "/hQhYefeuo645iFUeusHmvRhVpvi.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "r09",
+  "kind": "rag",
+  "text": "Horror psicologici con una casa infestata ma senza sangue"
+ },
+ "seconds": 20.1
+}

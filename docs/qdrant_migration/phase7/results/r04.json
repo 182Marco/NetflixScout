@@ -1,0 +1,324 @@
+{
+ "answer": "Ho trovato questi titoli. Per ciascuno, la presenza di un personaggio chiamato “Hannibal” è indicata come **non verificabile** dai dati disponibili.\n\n### Annibale — 1959\n**Titolo registrato da TMDb:** *Hannibal*  \n**Regia:** Edgar G. Ulmer, Carlo Ludovico Bragaglia  \n**Cast principale:** Victor Mature, Gabriele Ferzetti, Rita Gam, Milly Vitale, Rik Battaglia  \n\n**Sinossi:** Un generale cartaginese cerca di attraversare le Alpi con un esercito e molti elefanti per conquistare Roma. Durante la campagna affronta difficoltà, battaglie e opposizioni interne, e si innamora di Sylvia, figlia di un senatore romano.  \n\n**Voto TMDb:** 5,6/10\n\n### The Hungry Bachelors Club — 1999\n**Regia:** Gregory Ruzzin  \n**Cast principale:** Candice Azzara, Michael Des Barres, Jorja Fox, Katherine Kendall, Suzanne Mara  \n\n**Sinossi:** Delmar Youngblood, madre single appassionata di cucina, sogna di aprire un ristorante. Insieme all’amica e coinquilina Hortense organizza cene per familiari e amici, mentre Hortense cerca di favorire una relazione tra Delmar e l’avvocato Stanley Diggers.  \n\n**Voto TMDb:** 8,0/10 — il voto si basa su 1 valutazione.\n\n### The A-Team — 2010\n**Regia:** Joe Carnahan  \n**Cast principale:** Liam Neeson, Bradley Cooper, Jessica Biel, Quinton “Rampage” Jackson, Sharlto Copley  \n\n**Sinossi:** John “Hannibal” Smith viene catturato in Messico, evade e organizza il salvataggio di Templeton “Faceman” Peck. Con l’aiuto di B.A. Baracus e degli altri membri della squadra, affronta il generale Javier Tuco e cerca di riabilitare il proprio gruppo, accusato ingiustamente di un crimine.  \n\n**Voto TMDb:** 6,421/10.",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Cerco un film in cui un personaggio si chiama Hannibal",
+    "used": "Cerco un film in cui un personaggio si chiama Hannibal",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Trovare film con un personaggio chiamato Hannibal",
+    "arguments": {
+     "query": "Film in cui un personaggio si chiama Hannibal",
+     "k_finale": null,
+     "search_mode": "hybrid"
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 18098,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "hybrid",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "hybrid",
+      "k_largo": 10,
+      "k_finale": 3,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": [
+      "search_mode"
+     ]
+    },
+    "standalone_query": "Cerco un film in cui un personaggio si chiama Hannibal",
+    "planner_query": "Film in cui un personaggio si chiama Hannibal",
+    "embedded_text": "A film featuring a character named Hannibal.",
+    "signals": {
+     "positive_signals": [
+      "character named Hannibal"
+     ],
+     "negative_signals": [],
+     "hard_exclusions": [],
+     "semantic_query": "A film featuring a character named Hannibal.",
+     "genres": [],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-023692-000000",
+      "testo": "The film begins with the Roman Senate hearing about Hannibal  crossing the Alps with his men and many elephants. The crossing is difficult, with many men dying en route, but they manage to pass through, in part because Hannibal forms an allegiance with a local chieftain. Hannibal's troops capture Sylvia, daughter of Roman senator Fabius Maximus, and she and Hannibal fall in love. Some of Hannibal's troops oppose the match and an unsuccessful attempt is made on Sylvia's life. Hannibal also loses an eye during battle. Despite the warnings of Fabius who suggests avoiding battle and waging a campaign of exhaustion, the decision is made to fight Hannibal out in the open. The consequence is a massive Roman defeat. Battle of Cannae. Fabius is recalled to lead the Roman Army and the momentum of Hannibal's campaign begins to wane. His wife and child arrive from Carthage. Sylvia returns to Rome and commits suicide. A postscript informs us that Hannibal fought on for many more years in other lands.",
+      "score": 0.04278688524590164,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "26106118",
+      "title": "Annibale",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Action; Drama; Adventure",
+      "cast": "Rita Gam"
+     },
+     {
+      "id": "edb95c357b3b-033046-000000",
+      "testo": "John \"Hannibal\" Smith is held captive in Mexico by two police officers working for renegade General Javier Tuco. Hannibal escapes and sets out to rescue Templeton \"Faceman\" Peck, who is held captive at Tuco's ranch. Hannibal saves Face after enlisting fellow Ranger BA Baracus, driving to the rescue in BA's modified GMC Vandura van.<ref namehttp://content.usatoday.com/communities/driveon/post/2010/06/recreating-the-a-team-van-for-movie-was-tough-task/1 |title2010-09-05 |workDrive On: A conversation about our cars and trucks |author June 11, 2010 }} Pursued by Tuco, they stop at a nearby Army Hospital to recruit the services of eccentric pilot H.M. \"Howling Mad\" Murdock. They flee in a medical helicopter, chased by Tuco, in a dogfight that leaves BA with a fear of flying. The battle ends when they lure Tuco's helicopter into American airspace, where it is shot down. Years later in Iraq, Hannibal is contacted by CIA Special Activities Division operative Lynch, who assigns them a black ops mission to recover U.S. Treasury plates and around over $1 billion in cash from Iraqi insurgents slated to move it out of Baghdad in an armored convoy. Hannibal's commanding officer, General Morrison, consents to the operation but Face's former lover, DCIS Capt. Charissa Sosa, tries to discourage the team against getting the plates. The mission is successful; when the team returns to base, however, the money and Morrison's vehicle are destroyed by Brock Pike and his men from the private security firm Black Forest. Without Morrison, the only proof that they were authorized to act, the team is sentenced to ten years in prison and is dishonorably discharged. Six months later, Lynch visits Hannibal in prison and tells him that Pike may be trying to sell the plates with the help of an Arab backer. Hannibal, who has been tracking Pike on his own, makes a deal with Lynch: full reinstatement and clean records for his team in return for the plates. Lynch agrees and Hannibal escapes, breaking out Face, BA, and Murdock in the process. Sosa, who was demoted to lieutenant for her role in the Iraq fiasco, is hot on the team's trail. The team hijacks a military Lockheed C-130 Hercules aircraft, which is later shot down by Reaper UCAVs, but not before the team flies away in a tank stashed aboard and make it to the ground safely. The team moves to reclaim the plates and kidnap Pike's backer. It is revealed that the backer is actually General Morrison, who plotted with Lynch and Pike to steal the plates but teamed up with Pike to double-cross Lynch and fake his death. Lynch orders an airstrike to kill the team, but Morrison dies instead. Hannibal arranges to meet Sosa on board a container ship at the Los Angeles docks, saying he will hand over Morrison and the plates. Face then calls Sosa on a drop phone he planted on her at the train station, and conspires a different plan with her. It all unfolds according to plan until Pike, who is now working with Lynch, blows up the container ship and chases Face to near death. BA finally gives up his pacifist ways and kills Pike, saving Face. Hannibal leads Lynch into a container with Murdock, who, wearing a covered bullet-proof helmet, is portraying Morrison. Lynch shoots at Murdock’s head, believing that he is killing Morrison, and is later tricked into admitting that he stole the plates, and is subsequently arrested by Sosa. The CIA comes and claims custody of Lynch. Despite their success, the military still arrests the team for escaping from prison. Sosa is reinstated to captain, but she promises to do all she can to set the team free and kisses Face as everybody is led into a prison van. In the van, Face opens his mouth and reveals the key, given to him by Sosa through the kiss.",
+      "score": 0.03674603174603174,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "16578764",
+      "title": "The A-Team",
+      "release_date": "2010-06-03",
+      "release_year": "2010",
+      "genres": "Action/Adventure; Thriller; Action; Adventure",
+      "cast": "Liam Neeson; Bradley Cooper; Jessica Biel; Quinton Jackson; Sharlto Copley; Patrick Wilson; Gerald McRaney; Henry Czerny; Yul Vazquez; Brian Bloom; Maury Sterling; Terry Chen; Omari Hardwick; David Hugghins; C. Ernst Harth; Jacob Blair"
+     },
+     {
+      "id": "edb95c357b3b-002276-000000",
+      "testo": "The Great Leslie  and Professor Fate  are competing daredevils at the turn of the 20th century. Leslie is the classic hero in white, handsome, courteous, talented, and successful; Fate is the traditional melodramatic villain, Leslie's nemesis, dressed in black, sporting a black moustache and top hat, and dogged by failure. Leslie proposes an automobile race from New York to Paris, to prove a new car, the Leslie Special. Fate builds his own race vehicle, the Hannibal Twin-8, complete with hidden devices of sabotage. Others enter cars in the race, including New York City's most prominent newspaper. Driving the newspaper's car is beautiful photojournalist Maggie DuBois , a vocal suffragette. The six-car race begins, but Fate's sidekick Maximilian Meen  has sabotaged three other cars . The surviving teams are Leslie with his loyal mechanic Hezekiah Sturdy , Maggie DuBois driving by herself, and Fate and Max. The newspaper's car breaks down and Maggie accepts a lift in the Leslie Special. Fate arrives first at a refueling point, a small frontier town where the racers see a variety show featuring singer Lilli Olay . A local outlaw named \"Texas Jack\"  becomes jealous of Olay and a saloon brawl ensues. Fate steals the fuel he needs and destroys the rest. Maggie convinces Leslie to carry her after tricking Hezekiah and pretending he has quit. The two remaining cars reach the Bering Strait and park side-by-side in a blinding snowstorm. Keeping warm during the storm, Leslie and Maggie begin to see each other as more than competitors. Mishaps compel all four racers to warm themselves in Leslie's car. They awake on a small ice floe which drifts into their intended Russian port, where Hezekiah is waiting for Leslie. Maggie is snatched by Fate, who drives off in the lead. After driving across Asia, both cars enter a small kingdom whose Crown Prince Hapnick  is a double for Fate. Usurpers under the leadership of Baron Rolf von Stuppe  and General Kuhster  kidnap the Prince as well as Fate's party. Fate is forced to masquerade as the Prince during the coronation, so that the Baron and the General can gain control of the kingdom. Max escapes, and he and Leslie rescue the others. Leslie bests Von Stuppe in a sword fight. The dueling expands into an extended pie fight involving all the racers. As the five leave the small kingdom with Maggie now back in Leslie's car, it becomes a straight road race to Paris. Nearing Paris, Leslie and Maggie have a spirited argument regarding the roles of men and women in relationships. Leslie stops his car just short of the finish line under the Eiffel Tower to prove that he loves Maggie more than he cares about winning the race. Fate drives past to claim the winner's mantle, but after a brief triumph becomes indignant that Leslie let him win. Fate demands a rematch: a race back to New York. The film ends with the start of the return race, with newlyweds Leslie and Maggie now a team. Fate lets them start first, then attempts to destroy their car, accidentally bringing down the Eiffel Tower instead.",
+      "score": 0.025384615384615387,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "265891",
+      "title": "The Great Race",
+      "release_date": "1965-07-01",
+      "release_year": "1965",
+      "genres": "Parody; Ensemble Film; Adventure; Costume Adventure; Sports; Musical; Adventure Comedy; Comedy; Family Film; Action; Romance Film; Slapstick",
+      "cast": "Larry Storch; Jack Lemmon; Tony Curtis; Natalie Wood; Peter Falk; Keenan Wynn; Dorothy Provine; Vivian Vance; Arthur O'Connell; Ross Martin; George Macready; Marvin Kaplan"
+     },
+     {
+      "id": "edb95c357b3b-026588-000000",
+      "testo": "Delmar Youngblood is a single mother with a passion for cooking; she dreams of opening her own restaurant called Food for the Heart, but in reality has a low-paid job as an insurance adjuster. Her best friend and roommate Hortense believes she would be a perfect wife for lawyer Stanley Diggers, though he wishes to advance his career before making a commitment. With their culinary talents and gift for hospitality, the two women host regular dinner parties for an assortment of family and friends. These include Jethro, Delmar's brother, who is a Mayan anthropology professor with an obsession for vintage Cadillacs, and his best friend Marlon, a freelance writer. There is also their pianist mother, Hannibal Youngblood, and her boyfiend, Mr. Ringold. When a friend of Hannibal's unexpectedly dies on one of these gatherings, her estranged daughter Missy Bainbridge comes to collect the body, and strikes up a relationship with Jethro. While searching through a junkyard to rescue a doomed Cadillac, Jethro and Marlon meet and befriend Moses Grady, a former convict who joins the gang and finds new purpose when he becomes attached to Delmar and her dream. Things get serious when Stanley makes Delmar an offer: he wants her to become a surrogate mother on behalf of his bigoted boss Mr. Spinner, whose wife is unable to conceive. This arrangement would provide Delmar with the money she needs to open her restauarant, make Stanley a partner in his law firm, and give Hortense the engagement ring she craves. Delmar accepts, and opens her restaurant in partnership with Moses, but in the third trimester she decides to keep the baby.",
+      "score": 0.025151515151515154,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "18531659",
+      "title": "The Hungry Bachelors Club",
+      "release_date": "1999-11-12",
+      "release_year": "1999",
+      "genres": "Romantic comedy; Ensemble Film; Indie; Comedy-drama; Comedy; Romance Film",
+      "cast": "Paul Provenza; Bill Nunn; Jorja Fox; Michael Des Barres; William Morgan Sheppard; Katherine Kendall; Peter Murnik; David Shackelford; Suzanne Mara"
+     },
+     {
+      "id": "edb95c357b3b-008486-000000",
+      "testo": "The film features John Huston as Jake Hannaford, an aging Hollywood director modeled on Ernest Hemingway. The film opens with narration over the wreckage of Hannaford's crashed car, casting doubt as to whether the crash which killed him on his 70th birthday was really an accident. The narrator sets the tone for the film by telling us \"This [film] was put together from many sources — from all that footage shot by the TV and documentary film-makers — and also the students, critics and young directors who happened to bring sixteen and eight millimeter cameras to his birthday party...\" Just before his death, Hannaford was trying to revive his flagging career by making a \"hip, with-it\" film in the style of Antonioni, laden with gratuitous sex scenes and violence, with mixed results. At the time of Hannaford's party, this film  has been left unfinished after its star stormed off the set, for reasons not immediately apparent to the audience. The film includes extensive excerpts of this film-within-a-film, as well as excerpts of a documentary on Hannaford's life. After the titles, we see a screening of some incomprehensible parts of Hannaford's unfinished experimental film. The screening is being held to attract \"end money\" from clearly-unimpressed studio boss Max David . Hannaford himself is absent, and a loyal member of his entourage, the aging former child star Billy Boyle ([[Norman Foster  makes an inept attempt to describe what the film is about. David asks, \"Jake is just making this up as he goes along, isn't he?\" After an awkward pause, Boyle can only reply, \"He's done it before.\" Intercut with this scene, we see various groups setting out for Hannaford's 70th birthday party at his Arizona ranch, including Hannaford and his young protégé Brooks Otterlake , a young, commercially successful director who has a talent for mimicking well-known celebrities.  One of the people they share their car with is the obnoxious cineaste reporter Mr. Pister , whose flurry of intrusive questions culminates in, \"Mr. Hannaford, in the body of your film work, how significantly would you relate the trauma of your father's suicide?\" and he is thrown out of Hannaford's car. Stranded in the desert, Pister hitches a lift on a bus that is taking crew and reporters to Hannaford's birthday party. Although there are many journalists in the bus, they are also carrying several dozen life-size clay dolls of Hannaford's leading man, taken from the set of the unfinished film. The scene is indicative of the experimental nature of the picture, and includes much overlapping dialogue: a tape recorder belonging to reporter Juliette Riche  playing back Hannaford's voice, while a member of Hannaford's entourage Pat  reads out an authoritarian anti-hippy diatribe of Hannaford's, fellow reporter Pister struggles to thread the tape back onto his reel-to-reel tape recorder, and at the same time, film footage of the scene is rapidly intercut with footage from Hannaford's film. Further scenes depict the festivities at Hannaford's party, including fireworks, assorted midgets, and a musical number with John Carroll leading a rendition of \"The Glow-Worm.\" Many of the journalists attending are all brandishing cameras, and the film follows the perspectives of individual journalists as they follow Hannaford everywhere, even to the toilet, asking personal questions. In the second half of the film they begin querying Hannaford's sexuality and whether he has long been a closet homosexual, in spite of his macho public persona. Each camera's footage is displayed in a distinctive style, representing the perspectives of different directors and cameramen. Throughout the film, there is rapid inter-cutting between simultaneous conversations at Hannaford's party, so that the viewer hears a few lines of dialogue from one conversation, switches to another conversation, then another, before returning to more of the original conversation.  Several party guests comment on the conspicuous absence of John Dale , Hannaford's androgynous-looking, leather-clad leading man in his last film, whom Hannaford first discovered when Dale was attempting suicide by jumping into the Pacific Ocean off the Mexican coast. Meanwhile, guests are shown more scenes from the film in the private cinema Hannaford has at the ranch. The scenes of the film-within-the-film intercut throughout the film include: *A scene set in a Turkish bath, which plays over the opening titles. *John Dale's onscreen character pursuing \"The red, red Indian\"  on his motorcycle, with increasing ambiguity as to which of them is pursuing the other. These scenes involve extensive use of flat landscapes and plains; and tall, high-rise glass skyscrapers, the mirrors and windows of which form various optical illusions reminiscent of the 'hall of mirrors' scene in Welles' earlier The Lady from Shanghai.  *A graphic sex scene between Random and Kodar in a station wagon being driven through heavy rain, culminating in the driver of the car  throwing Kodar out. *A sexual dream sequence involving Kodar walking at least partially nude in front of a giant black phallus.  This short scene was directed by Kodar. *The violent death of John Dale's character in the film-within-the-film. *A graphic sex scene between Random and Kodar, filmed from below, looking through the bedsprings in the style of Russ Meyer. The scene takes place on a rusting bed in a deserted movie lot. Throughout this scene, Hannaford provides increasingly voyeuristic and intrusive/abusive off-screen direction, prompting an enraged and humiliated John Dale to storm off the set. As the party continues, Hannaford gets progressively drunker. He is washing his face in the bathroom when he tearfully breaks down in front of Otterlake, asking for the young director's help to revive his flagging career, and desperately trying to sober up before returning to the screening of his still-unfinished film. A power cut in the middle of Hannaford's party interrupts the screening mid-way. The party continues by lantern-light, and eventually reconvenes to an empty drive-in cinema, where the last portion of Hannaford's film is screened. Later in the film, Dale arrives at the party. At one point, a drunken Hannaford makes a pass at Dale, and is rebuffed. Hannaford has a history of seducing the wife or girlfriend of each of his leading men, but maintains a strong attraction to the leading men themselves. Hannaford then uses a rifle from his Indian trophy room to shoot several life-sized clay dolls of Dale. This is paralleled by a subplot about the unnamed actress playing \"The red red Indian\" seducing Dale at Hannaford's party and being rebuffed, leading to her shooting at him towards the end of the film. Dale is no longer alive by the end of the film. Having relocated to the drive-in cinema, intrusive journalist Juliette Riche asked Hannaford the most explicit questions of all about his sexuality. At this moment, Billy Boyle stops the film cameras, although with the soundtrack still running, and through a montage of still photos, we gather that Hannaford violently assaults Riche. The film's final scene features Hannaford's sports car - which he had originally bought as a present for Dale - crashing into the screen of the drive-in cinema, killing him. At the time, the screen had been projecting the end of Hannaford's new film, and the sun sets behind it. It is left ambiguous whether his death was the result of drunk driving or suicide. A monologue from Hannaford is heard in voice-over during the final scene: {{quote}} The film concludes as Hannaford's voice says, \"Cut!\"",
+      "score": 0.021129032258064517,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "4829422",
+      "title": "The Other Side of the Wind",
+      "release_date": "1972",
+      "release_year": "1972",
+      "genres": "Short Film; Documentary",
+      "cast": "Susan Strasberg; Peter Bogdanovich; Orson Welles; John Huston; Gary Graver; Paul Hunt; Stéphane Audran; Claude Chabrol; Dennis Hopper; Oja Kodar; Mercedes McCambridge; Edmond O'Brien; Lilli Palmer; Robert Random"
+     },
+     {
+      "id": "edb95c357b3b-016326-000000",
+      "testo": "The Adventures of Lucky Pierre is a series of vignettes featuring the title character, Lucky Pierre, in a series of unrelated storylines involving scantly-clad or nude women.Friedman interview. Pierre, named after a childhood rhyme Friedman and Lewis remembered, would end up in a short segment where he encounters various naked women – for instance, in \"Drive-In Me Crazy\", Pierre attends a drive-in movie where the ticket taker and concession workers are all nude women who also appear in the film he's seeing.Quarles, 159. In another, Pierre, as a painter, has three nude women posing for him in a park,Friedman, 262. and another vignette had Pierre come upon two sunbathing women while birdwatching.Friedman, 263.",
+      "score": 0.021129032258064517,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "11461593",
+      "title": "The Adventures of Lucky Pierre",
+      "release_date": "1961-07",
+      "release_year": "1961",
+      "genres": "Comedy; Sexploitation",
+      "cast": "Billy Falbo; Lawrence Aberwood; William Kerwin; Kay Montie; Linda Cotton; Pat O'Farrell; Dorothy Holbrook; Toni Carroll; Ginger Hale; Gail Jordan"
+     },
+     {
+      "id": "edb95c357b3b-038227-000000",
+      "testo": "The film's plot concerns a family of cannibals descended from Victorian railway workers dwelling in the disused lines of the London Underground tube network. The last member of the family frequently visits the neighbouring Russell Square and Holborn stations to pick off passengers for food, then takes them back to the gruesome 'pantry' at an incomplete station. When the cannibal kidnaps and kills an important politician, he is hunted by a detective as well as an American college student and his English girlfriend who were the last to see the victim in the tube station. Donald Pleasence and Norman Rossington star as the two investigating police inspectors. At the climax, when finally cornered and with his wife and the last of his family members dead from disease, the cannibal screams a corrupted form of \"Mind the doors!\", having picked it up parrot-fashion from the guards on the Underground trains. Christopher Lee appears as a shady MI5 agent whom the detectives meet during their investigation.",
+      "score": 0.020625,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "2745708",
+      "title": "Death Line",
+      "release_date": "1972",
+      "release_year": "1972",
+      "genres": "Cult; Mystery; Horror; Slasher",
+      "cast": "David Ladd; Donald Pleasence; Christopher Lee; Norman Rossington; Clive Swift; James Cossins; Sharon Gurney; June Turner; Hugh Armstrong"
+     },
+     {
+      "id": "edb95c357b3b-014998-000000",
+      "testo": "The film was inspired by the 1970s heroine blaxploitation films such as Tamara Dobson's Cleopatra Jones , and Pam Grier's Coffy  and Foxy Brown . The title character even had a catchphrase; upon apprehending a criminal, Love would declare, \"you're under arrest, Sugah!\" The film proved a big success, and consequently spawned a short-lived television series on the ABC network featuring Charles Cioffi as Love's supervisor Matt Reardon and Jack Kelly as Lt. Ryan, the next supervisor. However, the series, financed on a meager budget and heavily sanitized to conform to Graves' religious morals , was eventually cancelled. One episode featured many of Graves' former Laugh-In co-stars such as Judy Carne, Jo Anne Worley and Arte Johnson in particular playing a mad bomber. Another notable guest star was Jaclyn Smith, who appeared in an episode entitled \"A Fashion Heist.\"http://www.imdb.com/title/tt0587416/",
+      "score": 0.020625,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "3590838",
+      "title": "Get Christie Love!",
+      "release_date": "1974-01-22",
+      "release_year": "1974",
+      "genres": "Thriller; Crime Fiction; Mystery; Blaxploitation; Drama; Crime Thriller",
+      "cast": "Lynne Holmes; Teresa Graves; Harry Guardino; Louise Sorel; Ron Rifkin; Titos Vandis; William Hansen; Lee Paul; Paul Stevens; Tracey Roberts"
+     },
+     {
+      "id": "edb95c357b3b-042141-000000",
+      "testo": "Psychiatrist Dr. Hannibal Lecter  hosts a dinner party in his townhouse in Baltimore, Maryland. Lecter is later visited by Will Graham , a gifted agent with the Federal Bureau of Investigation, with whom he has been working on a psychological profile of a serial killer who has removed edible body parts from his victims, leading Graham to believe that the killer could be a cannibal. During the consultation, Graham discovers evidence implicating Lecter in the murders. Lecter attacks Graham, almost disembowelling him, before Graham overpowers Lecter. Lecter is sentenced to life imprisonment in an institution for the criminally insane while Graham, traumatized by the experience, retires. Years later, another serial killer, nicknamed the \"Tooth Fairy\", appears. He stalks and kills seemingly random Southern families during sequential full moons. Hoping to capture the killer before his next attack, Special Agent Jack Crawford  seeks Graham's assistance. The death of another family weighing on his conscience, Graham reluctantly agrees. After visiting the crime scenes and speaking with Crawford, he concludes that he must once again consult Dr. Lecter. The \"Tooth Fairy\" is actually a schizophrenic named Francis Dolarhyde  who kills at the behest of an alternate personality he calls \"The Great Red Dragon.\" He is obsessed with a William Blake painting, The Great Red Dragon and the Woman Clothed in Sun, and believes that each victim he \"changes\" brings him closer to \"becoming\" the Dragon. His pathology is born from the severe child abuse he suffered at the hands of his sadistic grandmother . Freddy Lounds , a tabloid reporter who hounded Graham after Lecter's capture, now follows him for leads on the Tooth Fairy. There is a secret correspondence between Lecter and Dolarhyde. Graham's wife  and son are endangered when Lecter gives the Tooth Fairy the agent's home address, forcing them to be relocated to a farm owned by Crawford's brother. Lecter, aware that the feds are onto him, raises the stakes: in return for his help, he requests a first-class meal in his cell and the return of his book privileges. Hoping to lure the Tooth Fairy out of hiding, Graham gives Lounds an interview, in which he disparages the killer as an impotent homosexual. This provokes Dolarhyde, who kidnaps Lounds, glues him to an antique wheelchair, forces him to recant his allegations, and then sets him on fire outside his newspaper's offices. At his job in a St. Louis photo lab, Dolarhyde falls in love with Reba McClane , a blind co-worker, but his Dragon personality demands that he kill her. He takes her home, where they make love. Dolarhyde attempts to stop the Dragon's \"possession\" of him by going to the Brooklyn Museum and literally consuming the original Blake painting. Graham deduces that the killer knew the layout of his victims' houses from their home videos, which he could only have seen if he worked for the editing company that transfers home movies to video cassette. Dolarhyde finds Reba with a co-worker, Ralph Mandy , whom she actually dislikes. Enraged, Dolarhyde kills Mandy, kidnaps Reba, takes her to his house, and then sets it on fire. Finding himself unable to shoot her, Dolarhyde seems to shoot himself. Reba is able to escape as the police arrive and the house explodes. Dolarhyde, having staged his own death, turns up at Graham's home in Florida where he holds Graham's son hostage, threatening to kill him with a piece of broken glass. To defuse the situation, Graham slings insults at his son that are reminiscent of the ones Dolarhyde's grandmother had used against him. Feeling a sudden sympathy for the boy, the enraged Dolarhyde attacks Graham as the boy flees to safety. Both men are severely wounded in a shootout which ends when Graham's wife Molly fatally shoots Dolarhyde. Later, Graham receives a letter from Lecter, which bids him well and hopes that he isn't \"too ugly.\"",
+      "score": 0.020384615384615386,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "698242",
+      "title": "Red Dragon",
+      "release_date": "2002-09-30",
+      "release_year": "2002",
+      "genres": "Crime Fiction; Thriller; Horror; Psychological thriller; Mystery; Drama; Suspense; Crime Thriller; Slasher",
+      "cast": "Edward Norton; Anthony Hopkins; Ralph Fiennes; Harvey Keitel; Emily Watson; Mary-Louise Parker; Philip Seymour Hoffman; Anthony Heald; Ken Leung; Frankie Faison; Tyler Patrick Jones"
+     },
+     {
+      "id": "edb95c357b3b-036680-000000",
+      "testo": "Clarice Starling  is pulled from her training at the FBI Academy at Quantico, Virginia, by Jack Crawford  of the Bureau's Behavioral Science Unit. He tasks her with interviewing Hannibal Lecter , a former psychiatrist and incarcerated cannibalistic serial killer, believing Lecter's insight might be useful in the pursuit of a serial killer nicknamed \"Buffalo Bill\" , who skins his female victims' corpses. Starling travels to the Baltimore State Hospital for the Criminally Insane, where she is led by Dr. Frederick Chilton  to Lecter's solitary quarters. Although initially pleasant and courteous, Lecter grows impatient with Starling's attempts at \"dissecting\" him and rebuffs her. As she is leaving, one of the prisoners flicks semen at her. Lecter, who considers the discourtesy \"unspeakably ugly\", calls Starling back and tells her to seek out an old patient of his. This leads her to a storage shed where she discovers a man's severed head. She returns to Lecter, who tells her that the man is linked to Buffalo Bill. He offers to profile Buffalo Bill on the condition that he be transferred away from Chilton, whom he detests. When Buffalo Bill kidnaps a Senator's daughter, Catherine Martin, Crawford authorizes Starling to offer Lecter a fake deal promising a prison transfer if he provides information that helps find Buffalo Bill and rescue the abductee. Instead, Lecter begins a game of quid pro quo with Starling, offering comprehensive clues and insights about Buffalo Bill if Starling will give him information about her own past, something she was advised not to do. Chilton secretly records the conversation and reveals Starling's deal as a sham before offering to transfer Lecter in exchange for a deal of Chilton's own making. Lecter agrees and is flown to Memphis, Tennessee, where he reveals personal information on Buffalo Bill to federal agents. As the manhunt begins, Starling visits Lecter at his special cell in a Tennessee courthouse and confronts him with her decryption of the name he provided . Lecter refuses Starling's pleas for the truth and forces her to recount her traumatic childhood. She tells him how she was orphaned and relocated to a relative's farm, where she discovered a lamb slaughterhouse and made a failed attempt to rescue one of the lambs. Lecter gives her back the case files on Buffalo Bill after their conversation is interrupted by Chilton and the police who escort her from the building. Later that evening, Lecter kills his two guards, escapes from his cell and disappears. Starling analyzes Lecter's annotations to the case files and realizes that Buffalo Bill knew his first victim personally. Starling travels to the victim's hometown and discovers that Buffalo Bill was a tailor, with dresses and dress patterns identical to the patches of skin removed from each of his victims. She telephones Crawford to inform him that Buffalo Bill is trying to fashion a \"woman suit\" of real skin, but Crawford is already en route to make an arrest, having cross-referenced Lecter's notes with hospital archives and finding a man named Jame Gumb, who once applied unsuccessfully for a sex-change operation. Starling continues interviewing friends of Buffalo Bill's first victim in Ohio while Crawford leads an FBI tactical team to Gumb's address in Illinois. The house in Illinois is empty and Starling is led to the house of \"Jack Gordon\", who she realizes is actually Jame Gumb. She pursues him into his multi-room basement, where she discovers that Catherine is still alive, but trapped in a dry well. After turning off the basement lights, Gumb stalks Starling in the dark with night-vision goggles but gives his position away when he cocks his revolver; Starling turns around just in time and kills him. Some time later at her FBI Academy graduation party, Starling receives a phone call from Lecter, who is at an airport in Bimini. He assures her that he does not plan to pursue her and asks her to return the favor, which she says she cannot do. Lecter then hangs up the phone, saying that he is \"having an old friend for dinner\" and begins following a newly-arrived Chilton before disappearing into the crowd.",
+      "score": 0.020151515151515153,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "30006",
+      "title": "The Silence of the Lambs",
+      "release_date": "1991-02-14",
+      "release_year": "1991",
+      "genres": "Thriller; LGBT; Horror; Psychological thriller; Crime Fiction; Suspense; Drama; Crime Thriller",
+      "cast": "Frankie Faison; Jodie Foster; Scott Glenn; Anthony Hopkins; Ted Levine; Brooke Smith; Anthony Heald; Kasi Lemmons; Diane Baker; Dan Butler; Charles Napier; Darla"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "A film featuring a character named Hannibal.",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "character named Hannibal",
+       "type": "plot_require",
+       "results": {
+        "Annibale (?)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "The Hungry Bachelors Club (1999)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "The A-Team (2010)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-023692-000000",
+      "testo": "The film begins with the Roman Senate hearing about Hannibal  crossing the Alps with his men and many elephants. The crossing is difficult, with many men dying en route, but they manage to pass through, in part because Hannibal forms an allegiance with a local chieftain. Hannibal's troops capture Sylvia, daughter of Roman senator Fabius Maximus, and she and Hannibal fall in love. Some of Hannibal's troops oppose the match and an unsuccessful attempt is made on Sylvia's life. Hannibal also loses an eye during battle. Despite the warnings of Fabius who suggests avoiding battle and waging a campaign of exhaustion, the decision is made to fight Hannibal out in the open. The consequence is a massive Roman defeat. Battle of Cannae. Fabius is recalled to lead the Roman Army and the momentum of Hannibal's campaign begins to wane. His wife and child arrive from Carthage. Sylvia returns to Rome and commits suicide. A postscript informs us that Hannibal fought on for many more years in other lands.",
+      "score": 0.7343678,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "26106118",
+      "title": "Annibale",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Action; Drama; Adventure",
+      "cast": "Rita Gam"
+     },
+     {
+      "id": "edb95c357b3b-026588-000000",
+      "testo": "Delmar Youngblood is a single mother with a passion for cooking; she dreams of opening her own restaurant called Food for the Heart, but in reality has a low-paid job as an insurance adjuster. Her best friend and roommate Hortense believes she would be a perfect wife for lawyer Stanley Diggers, though he wishes to advance his career before making a commitment. With their culinary talents and gift for hospitality, the two women host regular dinner parties for an assortment of family and friends. These include Jethro, Delmar's brother, who is a Mayan anthropology professor with an obsession for vintage Cadillacs, and his best friend Marlon, a freelance writer. There is also their pianist mother, Hannibal Youngblood, and her boyfiend, Mr. Ringold. When a friend of Hannibal's unexpectedly dies on one of these gatherings, her estranged daughter Missy Bainbridge comes to collect the body, and strikes up a relationship with Jethro. While searching through a junkyard to rescue a doomed Cadillac, Jethro and Marlon meet and befriend Moses Grady, a former convict who joins the gang and finds new purpose when he becomes attached to Delmar and her dream. Things get serious when Stanley makes Delmar an offer: he wants her to become a surrogate mother on behalf of his bigoted boss Mr. Spinner, whose wife is unable to conceive. This arrangement would provide Delmar with the money she needs to open her restauarant, make Stanley a partner in his law firm, and give Hortense the engagement ring she craves. Delmar accepts, and opens her restaurant in partnership with Moses, but in the third trimester she decides to keep the baby.",
+      "score": 0.6437107,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "18531659",
+      "title": "The Hungry Bachelors Club",
+      "release_date": "1999-11-12",
+      "release_year": "1999",
+      "genres": "Romantic comedy; Ensemble Film; Indie; Comedy-drama; Comedy; Romance Film",
+      "cast": "Paul Provenza; Bill Nunn; Jorja Fox; Michael Des Barres; William Morgan Sheppard; Katherine Kendall; Peter Murnik; David Shackelford; Suzanne Mara"
+     },
+     {
+      "id": "edb95c357b3b-033046-000000",
+      "testo": "John \"Hannibal\" Smith is held captive in Mexico by two police officers working for renegade General Javier Tuco. Hannibal escapes and sets out to rescue Templeton \"Faceman\" Peck, who is held captive at Tuco's ranch. Hannibal saves Face after enlisting fellow Ranger BA Baracus, driving to the rescue in BA's modified GMC Vandura van.<ref namehttp://content.usatoday.com/communities/driveon/post/2010/06/recreating-the-a-team-van-for-movie-was-tough-task/1 |title2010-09-05 |workDrive On: A conversation about our cars and trucks |author June 11, 2010 }} Pursued by Tuco, they stop at a nearby Army Hospital to recruit the services of eccentric pilot H.M. \"Howling Mad\" Murdock. They flee in a medical helicopter, chased by Tuco, in a dogfight that leaves BA with a fear of flying. The battle ends when they lure Tuco's helicopter into American airspace, where it is shot down. Years later in Iraq, Hannibal is contacted by CIA Special Activities Division operative Lynch, who assigns them a black ops mission to recover U.S. Treasury plates and around over $1 billion in cash from Iraqi insurgents slated to move it out of Baghdad in an armored convoy. Hannibal's commanding officer, General Morrison, consents to the operation but Face's former lover, DCIS Capt. Charissa Sosa, tries to discourage the team against getting the plates. The mission is successful; when the team returns to base, however, the money and Morrison's vehicle are destroyed by Brock Pike and his men from the private security firm Black Forest. Without Morrison, the only proof that they were authorized to act, the team is sentenced to ten years in prison and is dishonorably discharged. Six months later, Lynch visits Hannibal in prison and tells him that Pike may be trying to sell the plates with the help of an Arab backer. Hannibal, who has been tracking Pike on his own, makes a deal with Lynch: full reinstatement and clean records for his team in return for the plates. Lynch agrees and Hannibal escapes, breaking out Face, BA, and Murdock in the process. Sosa, who was demoted to lieutenant for her role in the Iraq fiasco, is hot on the team's trail. The team hijacks a military Lockheed C-130 Hercules aircraft, which is later shot down by Reaper UCAVs, but not before the team flies away in a tank stashed aboard and make it to the ground safely. The team moves to reclaim the plates and kidnap Pike's backer. It is revealed that the backer is actually General Morrison, who plotted with Lynch and Pike to steal the plates but teamed up with Pike to double-cross Lynch and fake his death. Lynch orders an airstrike to kill the team, but Morrison dies instead. Hannibal arranges to meet Sosa on board a container ship at the Los Angeles docks, saying he will hand over Morrison and the plates. Face then calls Sosa on a drop phone he planted on her at the train station, and conspires a different plan with her. It all unfolds according to plan until Pike, who is now working with Lynch, blows up the container ship and chases Face to near death. BA finally gives up his pacifist ways and kills Pike, saving Face. Hannibal leads Lynch into a container with Murdock, who, wearing a covered bullet-proof helmet, is portraying Morrison. Lynch shoots at Murdock’s head, believing that he is killing Morrison, and is later tricked into admitting that he stole the plates, and is subsequently arrested by Sosa. The CIA comes and claims custody of Lynch. Despite their success, the military still arrests the team for escaping from prison. Sosa is reinstated to captain, but she promises to do all she can to set the team free and kisses Face as everybody is led into a prison van. In the van, Face opens his mouth and reveals the key, given to him by Sosa through the kiss.",
+      "score": 0.6356076,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "16578764",
+      "title": "The A-Team",
+      "release_date": "2010-06-03",
+      "release_year": "2010",
+      "genres": "Action/Adventure; Thriller; Action; Adventure",
+      "cast": "Liam Neeson; Bradley Cooper; Jessica Biel; Quinton Jackson; Sharlto Copley; Patrick Wilson; Gerald McRaney; Henry Czerny; Yul Vazquez; Brian Bloom; Maury Sterling; Terry Chen; Omari Hardwick; David Hugghins; C. Ernst Harth; Jacob Blair"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/169818?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/197200?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/34544?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 169818,
+      "media_type": "movie",
+      "title": "Hannibal",
+      "original_title": "Annibale",
+      "overview": "A Carthaginian general attempts to cross the Alps with an army of elephants in order to conquer Rome.",
+      "vote_average": 5.6,
+      "release_date": "1959-12-21",
+      "original_language": "it",
+      "poster_path": "/3KGA7vHcdcNiEQG4WADCUcYuhAr.jpg"
+     },
+     {
+      "id": 197200,
+      "media_type": "movie",
+      "title": "The Hungry Bachelors Club",
+      "original_title": "The Hungry Bachelors Club",
+      "overview": "A celebration of life, love, acceptance and family, \"Food for the Heart\" is a sweet romantic comedy, about two best friends, Delmar (Jorja Fox) and Hortense (Suzanne mara), whose culinary talents and gift for hospitality leads the two women to host evenings of love and laughter with an eccentric circle of half-baked family and friends.",
+      "vote_average": 8.0,
+      "release_date": "1999-11-12",
+      "original_language": "en",
+      "poster_path": "/qq8I0VsftSOsb6JRXX2BjAnpx1z.jpg"
+     },
+     {
+      "id": 34544,
+      "media_type": "movie",
+      "title": "The A-Team",
+      "original_title": "The A-Team",
+      "overview": "A man who loves when a plan comes together, Col. Hannibal Smith leads a close-knit team of elite operatives and Iraq War veterans. Framed for a crime they didn't commit, Smith and his men, Capt. H.M. ‘Howling Mad’ Murdock , Sgt. Bosco ‘B.A.’ Baracus, and Lt. Templeton ‘Faceman’ Peck, break out and go rogue, using their special talents to clear their names and find the perpetrator. Hot on their trail is Capt. …",
+      "vote_average": 6.421,
+      "release_date": "2010-06-09",
+      "original_language": "en",
+      "poster_path": "/bkAWEx5g5tvRPjtDQyvIZ7LRxQm.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "r04",
+  "kind": "rag",
+  "text": "Cerco un film in cui un personaggio si chiama Hannibal",
+  "note": "hybrid atteso"
+ },
+ "seconds": 37.5
+}

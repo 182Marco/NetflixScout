@@ -1,0 +1,191 @@
+{
+ "answer": "Secondo i dati TMDb, oggi **26 ottobre 2026**, questi sono i titoli con uscita cinematografica prevista in **ottobre 2026**:\n\n### Già usciti\n\n- **Mammina** — **8 ottobre**  \n  Un viaggio terrificante nel mondo sempre più oscuro di Bela, una ragazzina che instaura un rapporto con un’entità sinistra presente nella sua casa e inquietantemente simile a sua madre.  \n  **Voto TMDb:** 5,8/10\n\n- **Street Fighter** — **15 ottobre**  \n  Nel 1993, tra sale giochi e leggende nate a colpi di joystick, Ryu e Ken Masters, un tempo inseparabili, sono ormai divisi da scelte e ferite mai rimarginate.  \n  **Voto TMDb:** 6,4/10\n\n- **Whalefall - Nella balena** — **15 ottobre**  \n  Dopo la morte del padre, Jay Gardiner si immerge al largo della costa centrale della California alla ricerca dei suoi resti, ma viene inghiottito da un’enorme balena.  \n  **Voto TMDb:** 6,6/10\n\n- **Clayface** — **22 ottobre**  \n  La discesa di un uomo, da astro nascente di Hollywood a mostro assetato di vendetta, in una storia sulla perdita di identità e umanità, sull’amore corrosivo e sul lato oscuro dell’ambizione scientifica.  \n  **Voto TMDb:** 7,6/10\n\n### In uscita nei prossimi giorni\n\n- **Shaun, vita da pecora - Operazione Z.U.C.C.A.** — **28 ottobre**  \n  Con Halloween alle porte, Shaun e gli animali della fattoria si preparano alla festa coltivando un magnifico campo di zucche.  \n  **Voto TMDb:** 7,3/10\n\n- **Ice Cream Man** — **29 ottobre**  \n  Un’idilliaca cittadina di villeggiatura estiva precipita nell’orrore quando un gelataio offre ai bambini dolci prelibatezze dalle conseguenze terrificanti.  \n  **Voto TMDb:** 5,0/10\n\nI voti indicati sono **voti del pubblico TMDb**, non valutazioni della critica. I titoli con uscita prevista a novembre non sono inclusi.",
+ "tools": [
+  "tmdb_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Cosa esce al cinema questo mese?",
+    "used": "Cosa esce al cinema questo mese?",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "tmdb_search",
+    "purpose": "Film attualmente in programmazione e in uscita questo mese nei cinema italiani",
+    "arguments": {
+     "query": "Film in uscita al cinema questo mese in Italia",
+     "requests": [
+      {
+       "operation": "chart",
+       "media": "movie",
+       "chart": "now_playing",
+       "region": "IT",
+       "limit": 20
+      },
+      {
+       "operation": "chart",
+       "media": "movie",
+       "chart": "upcoming",
+       "region": "IT",
+       "limit": 20
+      }
+     ]
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "tmdb_search",
+    "elapsed_ms": 222,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/movie/now_playing?api_key=***",
+     "https://api.themoviedb.org/3/genre/movie/list?api_key=***",
+     "https://api.themoviedb.org/3/movie/upcoming?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 1400940,
+      "media_type": "movie",
+      "title": "Clayface",
+      "original_title": null,
+      "overview": "La terrificante discesa di un uomo, da astro nascente di Hollywood a mostro assetato di vendetta, in una storia che esplora la perdita di identità e umanità, l’amore corrosivo e il lato oscuro dell’ambizione scientifica.",
+      "vote_average": 7.6,
+      "release_date": "2026-10-22",
+      "original_language": "en",
+      "poster_path": "/t6snh7pOxNjqs5rwP28TZmTQ0Ul.jpg"
+     },
+     {
+      "id": 1153576,
+      "media_type": "movie",
+      "title": "Street Fighter",
+      "original_title": null,
+      "overview": "1993. Un’epoca di sale giochi, monete consumate e leggende nate a colpi di joystick. Ryu (Andrew Koji) e Ken Masters (Noah Centineo), Street Fighters un tempo inseparabili, oggi sono lontani, divisi da scelte e ferite mai rimarginate. …",
+      "vote_average": 6.408,
+      "release_date": "2026-10-15",
+      "original_language": "en",
+      "poster_path": "/ccxdepKqORLwccbzvO4eAGkN0IC.jpg"
+     },
+     {
+      "id": 1423191,
+      "media_type": "movie",
+      "title": "Resident Evil",
+      "original_title": null,
+      "overview": "Bryan, un corriere medico, si ritrova involontariamente coinvolto in una frenetica sfida contro il tempo per sopravvivere, mentre una notte sconvolgente e orribile sprofonda nel caos intorno a lui.",
+      "vote_average": 7.315,
+      "release_date": "2026-09-17",
+      "original_language": "en",
+      "poster_path": "/D8rnntI88rgzWKDK2yuxm25HTQ.jpg"
+     },
+     {
+      "id": 1255833,
+      "media_type": "movie",
+      "title": "Whalefall - Nella balena",
+      "original_title": "Whalefall",
+      "overview": "Dopo la morte di suo padre (Josh Brolin), Jay Gardiner (Austin Abrams) si immerge al largo della costa centrale della California alla ricerca dei suoi resti, ma viene inghiottito da un'enorme balena. …",
+      "vote_average": 6.604,
+      "release_date": "2026-10-15",
+      "original_language": "en",
+      "poster_path": "/auhdhcoWhQzMovY2pa71BTgDAa7.jpg"
+     },
+     {
+      "id": 1400837,
+      "media_type": "movie",
+      "title": "Mammina",
+      "original_title": "Other Mommy",
+      "overview": "Un viaggio terrificante nel mondo sempre più oscuro di Bela, una ragazzina che instaura un rapporto con un’entità sinistra presente nella sua casa, che assomiglia in modo inquietante alla sua stessa madre.",
+      "vote_average": 5.833,
+      "release_date": "2026-10-08",
+      "original_language": "en",
+      "poster_path": "/ir1esRZZk49yKaLAVQd2FgvLxLf.jpg"
+     },
+     {
+      "id": 1058424,
+      "media_type": "movie",
+      "title": "Hope",
+      "original_title": "호프",
+      "overview": "I rinforzi sono stati richiamati per fronteggiare i devastanti incendi boschivi e ogni comunicazione con l’esterno è stata interrotta. Nel piccolo posto di polizia di Hope, il comandante Bum-seok e l’agente Sung-ae lottano per proteggere un villaggio popolato quasi esclusivament…",
+      "vote_average": 6.791,
+      "release_date": "2026-11-05",
+      "original_language": "ko",
+      "poster_path": "/fbFxZSSw2kQoAkyXosVoOyBX0Z4.jpg"
+     },
+     {
+      "id": 977942,
+      "media_type": "movie",
+      "title": "The Uprising - Cuore ribelle",
+      "original_title": "The Uprising",
+      "overview": "Mentre la guerra e la peste devastano l'Inghilterra del XIV secolo, un umile contadino, unendo un esercito di popolani, dà inizio a una ribellione per sfidare il potere del re in una disperata lotta per la giustizia e la sopravvivenza.",
+      "vote_average": 7.9,
+      "release_date": "2026-11-05",
+      "original_language": "en",
+      "poster_path": "/zT1Mw02U7zrDb0hs3JNkAdzh6d3.jpg"
+     },
+     {
+      "id": 1477712,
+      "media_type": "movie",
+      "title": "Ice Cream Man",
+      "original_title": null,
+      "overview": "Un'idilliaca cittadina di villeggiatura estiva precipita nell’orrore, quando un gelataio offre ai bambini dolci prelibatezze dalle conseguenze terrificanti.",
+      "vote_average": 5.048,
+      "release_date": "2026-10-29",
+      "original_language": "en",
+      "poster_path": "/bnZUCOLv2Br3VOxnDMo5qPOncJF.jpg"
+     },
+     {
+      "id": 1477104,
+      "media_type": "movie",
+      "title": "Shaun, vita da pecora - Operazione Z.U.C.C.A.",
+      "original_title": "Shaun the Sheep: The Beast of Mossy Bottom",
+      "overview": "Halloween è alle porte. Shaun e tutti gli animali della fattoria si preparano per festeggiarlo al meglio coltivando un magnifico campo di zucche. Ma quando tutto sembrava ormai pronto, il contadino misteriosamente scompare e arriva dal bosco uno spaventoso mostro. …",
+      "vote_average": 7.3,
+      "release_date": "2026-10-28",
+      "original_language": "en",
+      "poster_path": "/hIgvOtvwbNCUclH0uBvg2qn6Ye.jpg"
+     },
+     {
+      "id": 1381071,
+      "media_type": "movie",
+      "title": "Godzilla Minus Zero",
+      "original_title": "ゴジラ-0.0",
+      "overview": "La vicenda è ambientata nel 1949, in un Giappone che sta ancora faticosamente cercando di ricostruirsi dopo i traumi della Seconda Guerra Mondiale e dopo il precedente passaggio del mostro. …",
+      "vote_average": null,
+      "release_date": "2026-11-12",
+      "original_language": "ja",
+      "poster_path": "/SS3rNoR2RICMWoV2566e32lOi6.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "t04",
+  "kind": "tmdb",
+  "text": "Cosa esce al cinema questo mese?"
+ },
+ "seconds": 20.0
+}

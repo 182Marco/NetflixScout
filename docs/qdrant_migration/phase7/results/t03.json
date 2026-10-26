@@ -1,0 +1,72 @@
+{
+ "answer": "Tilda Swinton ha partecipato a numerosi film. TMDb ne mostra qui una selezione di **20 titoli su 194 crediti cinematografici**:\n\n- **Avengers: Endgame** (2019) — The Ancient One\n- **Le cronache di Narnia - Il leone, la strega e l'armadio** (2005) — White Witch\n- **Grand Budapest Hotel** (2014) — Madame D.\n- **Doctor Strange** (2016) — The Ancient One\n- **The Beach** (2000) — Sal\n- **Chiamami col tuo nome** (2017) — Thanks\n- **Il curioso caso di Benjamin Button** (2008) — Elizabeth Abbott\n- **The French Dispatch of the Liberty, Kansas Evening Sun** (2021) — J.K.L. Berensen\n- **Le cronache di Narnia - Il principe Caspian** (2008) — White Witch\n- **Burn After Reading - A prova di spia** (2008) — Katie Cox\n- **Michael Clayton** (2007) — Karen Crowder\n- **Constantine** (2005) — Gabriel\n- **Broken Flowers** (2005) — Penny\n- **Diamanti grezzi** (2019) — Anne - Adley's Auction Manager (voce)\n- **Snowpiercer** (2013) — Mason\n- **Le cronache di Narnia - Il viaggio del veliero** (2010) — White Witch\n- **Ave, Cesare!** (2016) — Thora Thacker / Thessaly Thacker\n- **Tremila anni di attesa** (2022) — Alithea\n- **The Killer** (2023) — The Expert\n- **Pinocchio di Guillermo del Toro** (2022) — Wood Sprite / Death (voce)\n\nFonte: **TMDb**, crediti cinematografici di Tilda Swinton.",
+ "tools": [
+  "tmdb_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Quali film ha fatto Tilda Swinton?",
+    "used": "Quali film ha fatto Tilda Swinton?",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "tmdb_search",
+    "purpose": "Film interpretati da Tilda Swinton",
+    "arguments": {
+     "query": "Filmografia cinematografica di Tilda Swinton",
+     "requests": [
+      {
+       "operation": "person_details",
+       "name": "Tilda Swinton",
+       "facets": [
+        "movie_credits"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "tmdb_search",
+    "elapsed_ms": 732,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/person?api_key=***",
+     "https://api.themoviedb.org/3/person/3063?api_key=***"
+    ],
+    "attributions": [],
+    "items": []
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "t03",
+  "kind": "tmdb",
+  "text": "Quali film ha fatto Tilda Swinton?"
+ },
+ "seconds": 13.4
+}

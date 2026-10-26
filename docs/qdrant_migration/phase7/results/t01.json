@@ -1,0 +1,81 @@
+{
+ "answer": "**Interstellar** (2014) è stato diretto da **Christopher Nolan**.\n\n**Durata:** 169 minuti, cioè 2 ore e 49 minuti.  \n**Voto TMDb:** 8,5/10.",
+ "tools": [
+  "tmdb_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Chi ha diretto Interstellar e quanto dura?",
+    "used": "Chi ha diretto Interstellar e quanto dura?",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "tmdb_search",
+    "purpose": "Regista e durata di Interstellar",
+    "arguments": {
+     "query": "Chi ha diretto Interstellar e quanto dura?",
+     "requests": [
+      {
+       "operation": "movie_details",
+       "title": "Interstellar"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "tmdb_search",
+    "elapsed_ms": 501,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/157336?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 157336,
+      "media_type": "movie",
+      "title": "Interstellar",
+      "original_title": "Interstellar",
+      "overview": "In seguito alla scoperta di un cunicolo spazio-temporale, un gruppo di esploratori si avventura in una eroica missione per tentare di superare i limiti della conquista spaziale e oltrepassare le distanze che fino a quel momento avevano reso impraticabili i viaggi interstellari. L'obiettivo è quello di trovare nuovi luoghi dove coltivare il granoturco, l'unica coltivazione rimasta dopo un drastico cambiamento climatico che ha colpito soprattutto l'agricoltura.",
+      "vote_average": 8.492,
+      "release_date": "2014-11-04",
+      "original_language": "en",
+      "poster_path": "/bMKiLh0mES4Uiococ240lbbTGXQ.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "t01",
+  "kind": "tmdb",
+  "text": "Chi ha diretto Interstellar e quanto dura?"
+ },
+ "seconds": 7.2
+}

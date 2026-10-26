@@ -1,0 +1,368 @@
+{
+ "answer": "Ecco tre titoli degli anni ’70 individuati dal RAG:\n\n### 1. *Battles Without Honour and Humanity* (1973)\n- **Titolo registrato da TMDb:** *Battles Without Honor and Humanity* — il film è stato identificato tramite questo titolo alternativo.\n- **Regia:** Kinji Fukasaku\n- **Cast principale:** Bunta Sugawara, Hiroki Matsukata, Kunie Tanaka, Eiko Nakamura, Tsunehiko Watase\n- **Sinossi:** Nella Hiroshima del dopoguerra, Shozo Hirono e i suoi compagni si trovano coinvolti nei conflitti tra fazioni yakuza ambiziose. La storia parte dai mercati neri all’aperto del 1945 e segue per oltre dieci anni il ricambio di famiglie e organizzazioni criminali, segnato da faide e violenza.\n- **Voto:** 7,3/10, voto medio del pubblico TMDb.\n\n**Vincoli:**  \n- Crime Fiction: verificato  \n- Mafia giapponese: verificato  \n- Yakuza: probabile, perché il termine compare nella trama ma non costituisce una conferma  \n- Ambientazione negli anni ’70: verificato, anno 1973  \n\n### 2. *Stray Cat Rock: Sex Hunter* (1970)\n- **Regia:** Yasuharu Hasebe\n- **Cast principale:** Meiko Kaji, Rikiya Yasuoka, Tatsuya Fuji, Jiro Okazaki, Yuki Arikawa\n- **Sinossi:** Mako e le sue amiche entrano in conflitto con una banda rivale guidata da Baron, che perseguita uomini per metà giapponesi e cerca di vendere le ragazze della gang come prostitute a un gruppo di stranieri. Mako e la sua banda reagiscono e aiutano Kazuma a ritrovare la sorella scomparsa.\n- **Voto:** 6,548/10, voto medio del pubblico TMDb.\n\n**Vincoli:**  \n- Crime Fiction: verificato  \n- Mafia giapponese: verificato  \n- Yakuza: non verificabile  \n- Ambientazione negli anni ’70: verificato, anno 1970  \n\n### 3. *Battles Without Honor and Humanity: Hiroshima Deathmatch* (1973)\n- **Sinossi:** Nel 1950, Shoji Yamanaka viene condannato al carcere dopo aver accoltellato alcuni uomini durante una lite per una partita a carte. Tornato a Hiroshima, viene salvato dal leader criminale Otomo e riceve da Muraoka un’offerta per lavorare come gangster. La relazione con Yasuko, nipote di Muraoka, provoca nuove tensioni.\n- **Voto e dati di regia/cast:** non disponibili nei risultati forniti da TMDb.\n\n**Vincoli:**  \n- Crime Fiction: verificato  \n- Mafia giapponese: verificato  \n- Yakuza: non verificabile  \n- Ambientazione negli anni ’70: verificato, anno 1973",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Film sulla mafia giapponese (yakuza) degli anni 70",
+    "used": "Film sulla mafia giapponese (yakuza) degli anni 70",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Raccomandazioni di film degli anni 1970 sulla yakuza giapponese",
+    "arguments": {
+     "query": "Film degli anni 1970 sulla mafia giapponese (yakuza)",
+     "k_finale": null,
+     "search_mode": null
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 4867,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "semantic",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "semantic",
+      "k_largo": 10,
+      "k_finale": 3,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": []
+    },
+    "standalone_query": "Film sulla mafia giapponese (yakuza) degli anni 70",
+    "planner_query": "Film degli anni 1970 sulla mafia giapponese (yakuza)",
+    "embedded_text": "A 1970s film about the Japanese mafia, focusing on yakuza organizations and their criminal activities in Japan.",
+    "signals": {
+     "positive_signals": [
+      "Japanese mafia",
+      "yakuza",
+      "1970s setting"
+     ],
+     "negative_signals": [],
+     "hard_exclusions": [],
+     "semantic_query": "A 1970s film about the Japanese mafia, focusing on yakuza organizations and their criminal activities in Japan.",
+     "genres": [
+      "Crime Fiction"
+     ],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-021702-000000",
+      "testo": "The violent, documentary-like film chronicles the underworld tribulations of Shozo Hirono , a young ex-soldier and street thug in post-war Hiroshima. Starting in the open-air black markets of bombed-out Hiroshima in 1945, the film spans a period of more than ten years. The plot consists of a changing of the guard of new families and organizations with the same feuds and people, punctuated by the gritty violence. It gave way to four sequels, which form a sprawling yakuza epic. The overall tone of the series is bleak, violent and chaotic, expressing the futility of the struggles between yakuza families.",
+      "score": 0.7832039000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "2780947",
+      "title": "Battles Without Honour and Humanity",
+      "release_date": "1973-01-13",
+      "release_year": "1973",
+      "genres": "Crime Fiction; Japanese Movies; Drama",
+      "cast": "Bunta Sugawara; Hiroki Matsukata; Nobuo Kaneko"
+     },
+     {
+      "id": "edb95c357b3b-017631-000000",
+      "testo": "Shot in Los Angeles, California, Takeshi Kitano plays Yamamoto, a lone yakuza officer. Defeated in a war with a rival family, his boss killed, he heads to L.A. As time passes, Yamamoto and his new gang emerge as a powerful force, gradually expanding their turf to an extent that they must confront the Mafia. The Mafia's attacks are ruthless, and soon Yamamoto and his gang are driven into a disastrous situation of no return as they are hunted down one by one.",
+      "score": 0.7826939,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "748953",
+      "title": "Brother",
+      "release_date": "2000",
+      "release_year": "2000",
+      "genres": "Thriller; Crime Fiction; Japanese Movies; World cinema; Action/Adventure; Drama; Crime Thriller",
+      "cast": "Takeshi Kitano; Omar Epps; Ryo Ishibashi; James Shigeta; Susumu Terajima; Ren Osugi; Lombardo Boyar; Antwon Tanner; Masaya Kato; John Aprea; Manny Perez; Tuesday Knight; Eddie García; Tatyana Ali; Tetsuya Watari; Claude Maki; Joy Nakagawa; Al Vicente"
+     },
+     {
+      "id": "edb95c357b3b-027694-000000",
+      "testo": "The film is based around the interactions of a homosexual triad group with a police officer as well as opposing yakuza organizations. When the younger brother to a renegade police officer becomes the lawyer to the triad group, an argument between the two leads to the downfall of the organization.",
+      "score": 0.7519865600000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "8212258",
+      "title": "Shinjuku Triad Society",
+      "release_date": "1995",
+      "release_year": "1995",
+      "genres": "Crime Fiction; Thriller; Gangster Film; World cinema; Chase Movie; Action/Adventure; Crime Thriller; Japanese Movies",
+      "cast": "Kippei Shiina; Ren Osugi; Tomorowo Taguchi; Takeshi Caesar"
+     },
+     {
+      "id": "edb95c357b3b-025646-000000",
+      "testo": "It stars Joe Shishido as a hitman who, along with his sidekick played by Jerry Fujio, is hired by the yakuza to eliminate a rival gang's boss. The two are captured after the job, escape and are waylaid once again resulting in a climatic battle. The film was among Shishido's first starring roles, cementing him as a hardboiled action hero, and remains a personal favourite of the 170 films he made at Nikkatsu.<ref name  Schilling | first  No Borders, No Limits: Nikkatsu Action Cinema | publisher  2007 | isbn  http://www.fabpress.com/vsearch.php?CO 79, 96 }}",
+      "score": 0.7390339,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "17528498",
+      "title": "A Colt Is My Passport",
+      "release_date": "1967-02-04",
+      "release_year": "1967",
+      "genres": "Thriller; Crime Fiction; Japanese Movies; World cinema; Black-and-white; Drama; Crime Thriller; Action; Film noir",
+      "cast": "Hideaki Esumi; Jo Shishido; Chitose Kobayashi; Jerry Fujio; Akiyoshi Fukae; Zenji Yamada; Jun Hongo; Akio Miyabe; Toyoko Takechi; Kojiro Kusanagi; Ryōtarō Sugi; Takamaru Sasaki; Asao Uchida; Zeko Nakamura; Kanjūrō Arashi"
+     },
+     {
+      "id": "edb95c357b3b-005715-000000",
+      "testo": "{{main}}   The plot is loosely based on the original Yakuza game and is a \"one-night-story\"Trailer that unfolds in a hot summer night in Kamurocho, the fictitious version of Tokyo Shinjuku's Kabukichō. The night begins with a bank robbery by a manzai duo of amateur masked gunmen, and the disappearance of ten billion yen from the Tojo Clan's deposits. Meanwhile in Kamurocho streets, former yakuza Kazuma Kiryu and a young girl called Haruka Sawamura search for Mizuki Sawamura the youngster's mother and the former's childhood love, with Kiryu's rival, psychotic yakuza, Goro Majima and his gang on their trail. After a meeting with Kiryu and Haruka in the convenience store Poppo, employee Satoru and his new girlfriend Yui decide to start holding up stores for money and for fun. Elsewhere in the district a mysterious South Korean hitman, Park, tracks down the culprit behind the Tojo Clan heist which leads him toward the infamous Jingu or Mister N and the Millennium Tower. The search for Mizuki brings Kiryu to the top of the Millennium Tower and ends with a clicmatic battle with yakuza Akira Nishikiyama which is Kiryu's childhood best friend  gone deadly enemy.",
+      "score": 0.7049449600000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "20981824",
+      "title": "Like a Dragon",
+      "release_date": "2007",
+      "release_year": "2007",
+      "genres": "Action Thrillers; Crime Fiction; Action; Japanese Movies; Comedy",
+      "cast": "Sho Aikawa; Kazuki Kitamura; Tomorowo Taguchi; Kenichi Endo; Gong Yoo"
+     },
+     {
+      "id": "edb95c357b3b-035146-000000",
+      "testo": "Ryūichi and his small gang of Triad vie for control of the Japanese underworld in a crime-ridden Shinjuku quarter, while Detective Jojima tries to bring it down. Jojima attempts to start a gang war between the Triad and yakuza. Ryūichi and Jojima meet.  Dead or Alive series",
+      "score": 0.7031874600000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "1976548",
+      "title": "Dead or Alive",
+      "release_date": "1999-11-05",
+      "release_year": "1999",
+      "genres": "Thriller; Crime Fiction; Japanese Movies; World cinema; Surrealism; Psychological thriller; Action/Adventure; Gangster Film; Action",
+      "cast": "Hitoshi Ozawa; Riki Takeuchi; Sho Aikawa; Renji Ishibashi; Ren Osugi; Susumu Terajima; Hua Rong Wong; Michisuke Kashiwaya; Dankan; Kaoru Sugita; Shingo Tsurumi"
+     },
+     {
+      "id": "edb95c357b3b-040511-000000",
+      "testo": "An explosive situation erupts when a mob war thrusts a yakuza, an ex-cop, and his adolescent daughter into a deadly, no-win situation. Booted in disgrace from the L.A. police force Bob Malone suffers a seemingly endless unlucky streak. Matters don't improve when a robbery led by a crazed criminal transpires at the bank where Malone is filling out foreclosure papers. Witnessing the crime, something inside Malone snaps and he single-handedly wipes out most of the robber gang. Unfortunately, the ringleader escapes and Malone ends up jailed by his corrupt former colleague Lt. Tony Dussecq. At the same time, two Japanese yakuza arrive in L.A. to deliver a special message to L.A.'s most prominent Mafia don. The yakuza are in a restaurant when the bank robber  bursts in and threatens to blow the place up. One of the Japanese, Koji, intervenes in an explosive sequence. He too ends up at the police station just as Malone's feisty teen daughter Chelsea arrives with bail money. The yakuza suddenly escapes, taking Chelsea and Malone with him as hostages. Now pursued by the crooked coppers and the mob, the unlikely threesome have no choice but to team up to survive.",
+      "score": 0.6980082400000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "23896772",
+      "title": "Back to Back",
+      "release_date": "1996",
+      "release_year": "1996",
+      "genres": "Thriller; Crime Fiction; Television movie; Action/Adventure; Crime Thriller; Action",
+      "cast": "Stephen Furst; Danielle Harris; Tim Thomerson; Ryo Ishibashi; John Laughlin; Michael Rooker; Leland Orser; Bobcat Goldthwait; Fred Willard; Vincent Schiavelli; Koh Takasugi; Frank D'Amico; Jake Johannsen"
+     },
+     {
+      "id": "edb95c357b3b-034018-000000",
+      "testo": "Ambitious yakuza Kenji befriends harmonica-playing bartender Chuji, who moonlights as a part-time drug-dealer for the opposing gang. Their friendship is threatened by Kenji's plans for advancement, as well as by his bodyguards growing jealousy of Chuji.",
+      "score": 0.685651,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "9352740",
+      "title": "Blues Harp",
+      "release_date": "1998",
+      "release_year": "1998",
+      "genres": "Crime Fiction; Japanese Movies",
+      "cast": null
+     },
+     {
+      "id": "edb95c357b3b-007592-000000",
+      "testo": "In 1950, Shoji Yamanaka is involved in a fight over cheating in a card game and stabs several men. He is sentenced to prison. When he is released from prison, he goes back to Hiroshima. In Hiroshima, he eats at a restaurant but has no money to pay. The waitress, Yasuko  offers to let him off but a gang led by Katsutoshi Otomo, the rebellious son of gangster leader Otomo, beat him. He is saved by Otomo senior and then he is offered a job as a gangster by Muraoka, Yasuko's uncle. Yasuko visits Yamanaka at his lodgings and they sleep together. Muraoka is furious and Yamanaka must hide for a year. Muraoka redeems himself by killing the manager of a mine for Muraoka. Muraoka welcomes him back and introduces him to Yasuko again. Yamanaka kills three more men and is convicted and sent to prison. He escapes from prison by faking tuberculosis and kills the man he thinks has sold him out. The police corner him and he commits suicide. Muraoka holds a funeral service for him.",
+      "score": 0.66869106,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "9219971",
+      "title": "Battles Without Honor and Humanity: Hiroshima Deathmatch",
+      "release_date": "1973-04-28",
+      "release_year": "1973",
+      "genres": "Crime Fiction; Drama; Japanese Movies",
+      "cast": "Nobuo Kaneko; Akira Kobayashi; Kunie Tanaka; Bunta Sugawara; Sonny Chiba"
+     },
+     {
+      "id": "edb95c357b3b-008789-000000",
+      "testo": "A jeep-driving gang of racists torment half-Japanese men and try to sell the members of a female gang as prostitutes to a group of foreigners.",
+      "score": 0.65882185,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "33498195",
+      "title": "Stray Cat Rock: Sex Hunter",
+      "release_date": "1970",
+      "release_year": "1970",
+      "genres": "Thriller; Crime Fiction; Japanese Movies; World cinema; Action/Adventure; Crime Thriller",
+      "cast": "Rikiya Yasuoka; Jiro Okazaki; Meiko Kaji; Mari Koiso; Mie Hanabusa; Nobuko Aoki; Tatsuya Fuji"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "A 1970s film about the Japanese mafia, focusing on yakuza organizations and their criminal activities in Japan. Must match: 1970s setting; Crime Fiction.",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "Crime Fiction",
+       "type": "genre",
+       "results": {
+        "Battles Without Honour and Humanity (1973)": {
+         "status": "verified",
+         "evidence": "generi: Crime Fiction; Japanese Movies; Drama"
+        },
+        "Stray Cat Rock: Sex Hunter (1970)": {
+         "status": "verified",
+         "evidence": "generi: Thriller; Crime Fiction; Japanese Movies; World cinema; Action/Adventure; Crime Thriller"
+        },
+        "Battles Without Honor and Humanity: Hiroshima Deathmatch (1973)": {
+         "status": "verified",
+         "evidence": "generi: Crime Fiction; Drama; Japanese Movies"
+        }
+       }
+      },
+      {
+       "constraint": "Japanese mafia",
+       "type": "plot_require",
+       "results": {
+        "Battles Without Honour and Humanity (1973)": {
+         "status": "verified",
+         "evidence": "generi: Crime Fiction; Japanese Movies; Drama"
+        },
+        "Stray Cat Rock: Sex Hunter (1970)": {
+         "status": "verified",
+         "evidence": "generi: Thriller; Crime Fiction; Japanese Movies; World cinema; Action/Adventure; Crime Thriller"
+        },
+        "Battles Without Honor and Humanity: Hiroshima Deathmatch (1973)": {
+         "status": "verified",
+         "evidence": "generi: Crime Fiction; Drama; Japanese Movies"
+        }
+       }
+      },
+      {
+       "constraint": "yakuza",
+       "type": "plot_require",
+       "results": {
+        "Battles Without Honour and Humanity (1973)": {
+         "status": "probable",
+         "evidence": "termini nella trama: yakuza"
+        },
+        "Stray Cat Rock: Sex Hunter (1970)": {
+         "status": "not_verifiable",
+         "evidence": null
+        },
+        "Battles Without Honor and Humanity: Hiroshima Deathmatch (1973)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "1970s setting",
+       "type": "decade",
+       "results": {
+        "Battles Without Honour and Humanity (1973)": {
+         "status": "verified",
+         "evidence": "anno 1973"
+        },
+        "Stray Cat Rock: Sex Hunter (1970)": {
+         "status": "verified",
+         "evidence": "anno 1970"
+        },
+        "Battles Without Honor and Humanity: Hiroshima Deathmatch (1973)": {
+         "status": "verified",
+         "evidence": "anno 1973"
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-021702-000000",
+      "testo": "The violent, documentary-like film chronicles the underworld tribulations of Shozo Hirono , a young ex-soldier and street thug in post-war Hiroshima. Starting in the open-air black markets of bombed-out Hiroshima in 1945, the film spans a period of more than ten years. The plot consists of a changing of the guard of new families and organizations with the same feuds and people, punctuated by the gritty violence. It gave way to four sequels, which form a sprawling yakuza epic. The overall tone of the series is bleak, violent and chaotic, expressing the futility of the struggles between yakuza families.",
+      "score": 0.614464,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "2780947",
+      "title": "Battles Without Honour and Humanity",
+      "release_date": "1973-01-13",
+      "release_year": "1973",
+      "genres": "Crime Fiction; Japanese Movies; Drama",
+      "cast": "Bunta Sugawara; Hiroki Matsukata; Nobuo Kaneko"
+     },
+     {
+      "id": "edb95c357b3b-008789-000000",
+      "testo": "A jeep-driving gang of racists torment half-Japanese men and try to sell the members of a female gang as prostitutes to a group of foreigners.",
+      "score": 0.42205253,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "33498195",
+      "title": "Stray Cat Rock: Sex Hunter",
+      "release_date": "1970",
+      "release_year": "1970",
+      "genres": "Thriller; Crime Fiction; Japanese Movies; World cinema; Action/Adventure; Crime Thriller",
+      "cast": "Rikiya Yasuoka; Jiro Okazaki; Meiko Kaji; Mari Koiso; Mie Hanabusa; Nobuko Aoki; Tatsuya Fuji"
+     },
+     {
+      "id": "edb95c357b3b-007592-000000",
+      "testo": "In 1950, Shoji Yamanaka is involved in a fight over cheating in a card game and stabs several men. He is sentenced to prison. When he is released from prison, he goes back to Hiroshima. In Hiroshima, he eats at a restaurant but has no money to pay. The waitress, Yasuko  offers to let him off but a gang led by Katsutoshi Otomo, the rebellious son of gangster leader Otomo, beat him. He is saved by Otomo senior and then he is offered a job as a gangster by Muraoka, Yasuko's uncle. Yasuko visits Yamanaka at his lodgings and they sleep together. Muraoka is furious and Yamanaka must hide for a year. Muraoka redeems himself by killing the manager of a mine for Muraoka. Muraoka welcomes him back and introduces him to Yasuko again. Yamanaka kills three more men and is convicted and sent to prison. He escapes from prison by faking tuberculosis and kills the man he thinks has sold him out. The police corner him and he commits suicide. Muraoka holds a funeral service for him.",
+      "score": 0.42033842,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "9219971",
+      "title": "Battles Without Honor and Humanity: Hiroshima Deathmatch",
+      "release_date": "1973-04-28",
+      "release_year": "1973",
+      "genres": "Crime Fiction; Drama; Japanese Movies",
+      "cast": "Nobuo Kaneko; Akira Kobayashi; Kunie Tanaka; Bunta Sugawara; Sonny Chiba"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/34326?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/64651?api_key=***",
+     "https://api.themoviedb.org/3/search/movie?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 34326,
+      "media_type": "movie",
+      "title": "Battles Without Honor and Humanity",
+      "original_title": "仁義なき戦い",
+      "overview": "In the teeming black markets of postwar Japan, Shozo Hirono and his buddies find themselves in a new war between factious and ambitious yakuza.",
+      "vote_average": 7.3,
+      "release_date": "1973-01-13",
+      "original_language": "ja",
+      "poster_path": "/qQmEEj5B3bTQI8Dq8u4zq80Z7JL.jpg"
+     },
+     {
+      "id": 64651,
+      "media_type": "movie",
+      "title": "Stray Cat Rock: Sex Hunter",
+      "original_title": "野良猫ロック セックスハンター",
+      "overview": "Mako and her girl friends enter a dispute with rival street gangsters The Eagles, a band of racist macho pigs led by the evil Baron, who hate half-breeds. When one of the girls start dating a half-breed, they start a terror campaign to take all of them out of town. Mako and her gang fight back, helping their new friend Kazuma find his long gone sister.",
+      "vote_average": 6.548,
+      "release_date": "1970-09-01",
+      "original_language": "ja",
+      "poster_path": "/nz4Wvi4m1iVpzQTXVS7h3gNxLO3.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "r10",
+  "kind": "rag",
+  "text": "Film sulla mafia giapponese (yakuza) degli anni 70"
+ },
+ "seconds": 25.8
+}

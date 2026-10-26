@@ -2,8 +2,6 @@
 from pathlib import Path
 import re
 
-import chromadb
-
 from .embeddings import embed
 
 DB_ROOT = Path("dbVettoriale")
@@ -27,8 +25,18 @@ def _resolve_db_dir(db_dir=None, backend=None):
     return db_dir_for_backend(backend)
 
 
-def apri_collection(nome, db_dir=None, backend=None):
-    """Open a persistent collection, creating it on first access."""
+def apri_collection(nome, db_dir=None, backend=None, *, store_config=None):
+    """Open a persistent collection, creating it on first access (Chroma).
+
+    With `store_config["engine"] == "qdrant"` the collection is read from Qdrant instead and is
+    never created here: it must have been migrated.
+    """
+    if store_config and store_config.get("engine") == "qdrant":
+        from .store.collection import open_collection
+
+        return open_collection(nome, store_config)
+    import chromadb  # lazy: the Qdrant engine must run without Chroma
+
     persist_dir = _resolve_db_dir(db_dir=db_dir, backend=backend)
     client = chromadb.PersistentClient(path=str(persist_dir))
     return client.get_or_create_collection(
@@ -39,6 +47,8 @@ def apri_collection(nome, db_dir=None, backend=None):
 
 def crea_collection(nome, db_dir=None, backend=None):
     """Create a collection from scratch, deleting an existing one if needed."""
+    import chromadb
+
     persist_dir = _resolve_db_dir(db_dir=db_dir, backend=backend)
     client = chromadb.PersistentClient(path=str(persist_dir))
     if nome in [c.name for c in client.list_collections()]:
@@ -154,6 +164,7 @@ def search(
     genres=None,
     genre_boost=0.0,
     excluded_genres=None,
+    references=None,
 ):
     """Return the top-k most similar documents for a query.
 
@@ -161,6 +172,11 @@ def search(
     are never embedded: a bag of keywords (often not in the corpus language) drifts away
     from the user's intent. Chunks matching `genres` get `genre_boost` added to their score
     before the fetch_k pool is cut to k. Chunks with an `excluded_genres` genre are dropped.
+
+    With `references` (a `references.ReferenceSet`) that has at least one usable vector, the pool
+    comes from a steered search (text vector + positive examples, minus negative examples) instead
+    of the plain one, and no reference film can be returned. Without usable references nothing
+    changes: the call below is exactly the plain query.
     """
     negative_signals = _normalize_signals(negative_signals)
     hard_exclusions = _normalize_signals(hard_exclusions)
@@ -171,7 +187,16 @@ def search(
 
     requested_k = int(fetch_k or k)
     requested_k = max(requested_k, int(k))
-    ris = collection.query(query_embeddings=[q], n_results=requested_k)
+    steered = references is not None and references.active
+    if steered:
+        if not hasattr(collection, "recommend"):
+            raise RuntimeError("Reference search needs the Qdrant engine (vectorstore.engine = 'qdrant').")
+        ris = collection.recommend(
+            positive=[q] * references.text_repeat + references.positives(),
+            negative=references.negatives(), n_results=requested_k, strategy=references.strategy,
+            exclude_movie_ids=references.excluded_movie_ids())
+    else:
+        ris = collection.query(query_embeddings=[q], n_results=requested_k)
 
     # Soft penalty for negative signals: subtract from semantic score, never hard-filter.
     soft_penalty_per_match = 0.08
@@ -201,4 +226,8 @@ def search(
         risultati.append(risultato)
 
     risultati.sort(key=lambda item: item.get("score", 0.0), reverse=True)
+    if references is not None:
+        from .references import drop_references
+
+        risultati = drop_references(risultati, references)
     return risultati[:k]

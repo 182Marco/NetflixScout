@@ -1,0 +1,23 @@
+{
+ "answer": "Non rispondo a domande non cinematografiche",
+ "tools": [],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": false,
+    "is_italian": true,
+    "language": "it"
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "x01",
+  "kind": "off_topic",
+  "text": "Qual è la capitale della Francia?"
+ },
+ "seconds": 0.8
+}

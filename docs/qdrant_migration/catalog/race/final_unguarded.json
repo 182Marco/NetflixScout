@@ -1,0 +1,397 @@
+{
+ "guarded": false,
+ "runs": [
+  {
+   "processes": 2,
+   "wait": true,
+   "guarded": false,
+   "rounds_per_scenario": 200,
+   "observer_reads": 27135,
+   "seconds": 151.1,
+   "rounds_with_anomalies": 361,
+   "per_scenario": {
+    "text_update": {
+     "rounds": 200,
+     "rounds_with_anomalies": 66,
+     "lost_update": 66,
+     "final_not_highest_ts": 27
+    },
+    "insert_race": {
+     "rounds": 200,
+     "rounds_with_anomalies": 64,
+     "final_not_highest_ts": 39,
+     "lost_update": 64
+    },
+    "meta_only": {
+     "rounds": 200,
+     "rounds_with_anomalies": 17,
+     "lost_update": 17,
+     "final_not_highest_ts": 10
+    },
+    "mixed": {
+     "rounds": 200,
+     "rounds_with_anomalies": 129,
+     "vector_vs_document": 21,
+     "final_vector_vs_document": 21,
+     "final_not_highest_ts": 108,
+     "lost_update": 111
+    },
+    "link_race": {
+     "rounds": 200,
+     "rounds_with_anomalies": 26,
+     "links_applied": 26
+    },
+    "equal_ts": {
+     "rounds": 200,
+     "rounds_with_anomalies": 59,
+     "equal_ts_claims": 59,
+     "lost_update": 59
+    }
+   },
+   "examples": {
+    "text_update": [
+     {
+      "round": 1,
+      "issues": [
+       "lost_update:version=2 seed=1 claims=2"
+      ]
+     },
+     {
+      "round": 7,
+      "issues": [
+       "lost_update:version=2 seed=1 claims=2"
+      ]
+     },
+     {
+      "round": 13,
+      "issues": [
+       "lost_update:version=2 seed=1 claims=2"
+      ]
+     }
+    ],
+    "insert_race": [
+     {
+      "round": 8,
+      "issues": [
+       "lost_update:version=1 seed=0 claims=2",
+       "final_not_highest_ts:document",
+       "final_not_highest_ts:fetched_ts",
+       "final_not_highest_ts:text_hash"
+      ]
+     },
+     {
+      "round": 32,
+      "issues": [
+       "lost_update:version=1 seed=0 claims=2"
+      ]
+     },
+     {
+      "round": 50,
+      "issues": [
+       "lost_update:version=1 seed=0 claims=2"
+      ]
+     }
+    ],
+    "meta_only": [
+     {
+      "round": 147,
+      "issues": [
+       "lost_update:version=2 seed=1 claims=2"
+      ]
+     },
+     {
+      "round": 153,
+      "issues": [
+       "lost_update:version=2 seed=1 claims=2",
+       "final_not_highest_ts:genres",
+       "final_not_highest_ts:fetched_ts",
+       "final_not_highest_ts:meta_hash"
+      ]
+     },
+     {
+      "round": 237,
+      "issues": [
+       "lost_update:version=2 seed=1 claims=2",
+       "final_not_highest_ts:genres",
+       "final_not_highest_ts:fetched_ts",
+       "final_not_highest_ts:meta_hash"
+      ]
+     }
+    ],
+    "mixed": [
+     {
+      "round": 4,
+      "issues": [
+       "vector_vs_document",
+       "vector_vs_document",
+       "vector_vs_document",
+       "vector_vs_document",
+       "vector_vs_document",
+       "vector_vs_document"
+      ]
+     },
+     {
+      "round": 10,
+      "issues": [
+       "lost_update:version=2 seed=1 claims=2",
+       "final_not_highest_ts:document",
+       "final_not_highest_ts:genres",
+       "final_not_highest_ts:fetched_ts",
+       "final_not_highest_ts:text_hash",
+       "final_not_highest_ts:meta_hash"
+      ]
+     },
+     {
+      "round": 16,
+      "issues": [
+       "lost_update:version=2 seed=1 claims=2",
+       "final_not_highest_ts:document",
+       "final_not_highest_ts:genres",
+       "final_not_highest_ts:fetched_ts",
+       "final_not_highest_ts:text_hash",
+       "final_not_highest_ts:meta_hash"
+      ]
+     }
+    ],
+    "link_race": [
+     {
+      "round": 53,
+      "issues": [
+       "links_applied:2"
+      ]
+     },
+     {
+      "round": 71,
+      "issues": [
+       "links_applied:2"
+      ]
+     },
+     {
+      "round": 143,
+      "issues": [
+       "links_applied:2"
+      ]
+     }
+    ],
+    "equal_ts": [
+     {
+      "round": 12,
+      "issues": [
+       "lost_update:version=2 seed=1 claims=2",
+       "equal_ts_claims:2"
+      ]
+     },
+     {
+      "round": 18,
+      "issues": [
+       "lost_update:version=1 seed=0 claims=2",
+       "equal_ts_claims:2"
+      ]
+     },
+     {
+      "round": 54,
+      "issues": [
+       "lost_update:version=1 seed=0 claims=2",
+       "equal_ts_claims:2"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "processes": 4,
+   "wait": true,
+   "guarded": false,
+   "rounds_per_scenario": 200,
+   "observer_reads": 28749,
+   "seconds": 170.1,
+   "rounds_with_anomalies": 396,
+   "per_scenario": {
+    "text_update": {
+     "rounds": 200,
+     "rounds_with_anomalies": 81,
+     "final_not_highest_ts": 30,
+     "lost_update": 81
+    },
+    "insert_race": {
+     "rounds": 200,
+     "rounds_with_anomalies": 59,
+     "final_not_highest_ts": 24,
+     "version_decreased": 2,
+     "lost_update": 58
+    },
+    "meta_only": {
+     "rounds": 200,
+     "rounds_with_anomalies": 25,
+     "final_not_highest_ts": 9,
+     "lost_update": 25
+    },
+    "mixed": {
+     "rounds": 200,
+     "rounds_with_anomalies": 140,
+     "final_not_highest_ts": 44,
+     "lost_update": 117,
+     "vector_vs_document": 45,
+     "final_vector_vs_document": 24
+    },
+    "link_race": {
+     "rounds": 200,
+     "rounds_with_anomalies": 22,
+     "links_applied": 22
+    },
+    "equal_ts": {
+     "rounds": 200,
+     "rounds_with_anomalies": 69,
+     "equal_ts_claims": 69,
+     "lost_update": 69
+    }
+   },
+   "examples": {
+    "text_update": [
+     {
+      "round": 1,
+      "issues": [
+       "lost_update:version=2 seed=1 claims=2",
+       "final_not_highest_ts:document",
+       "final_not_highest_ts:fetched_ts",
+       "final_not_highest_ts:text_hash"
+      ]
+     },
+     {
+      "round": 13,
+      "issues": [
+       "lost_update:version=2 seed=1 claims=2"
+      ]
+     },
+     {
+      "round": 19,
+      "issues": [
+       "lost_update:version=4 seed=1 claims=4"
+      ]
+     }
+    ],
+    "insert_race": [
+     {
+      "round": 8,
+      "issues": [
+       "version_decreased",
+       "lost_update:version=1 seed=0 claims=3",
+       "final_not_highest_ts:document",
+       "final_not_highest_ts:fetched_ts",
+       "final_not_highest_ts:text_hash"
+      ]
+     },
+     {
+      "round": 38,
+      "issues": [
+       "lost_update:version=2 seed=0 claims=3"
+      ]
+     },
+     {
+      "round": 44,
+      "issues": [
+       "lost_update:version=1 seed=0 claims=2"
+      ]
+     }
+    ],
+    "meta_only": [
+     {
+      "round": 27,
+      "issues": [
+       "lost_update:version=3 seed=1 claims=4",
+       "final_not_highest_ts:genres",
+       "final_not_highest_ts:fetched_ts",
+       "final_not_highest_ts:meta_hash"
+      ]
+     },
+     {
+      "round": 33,
+      "issues": [
+       "lost_update:version=3 seed=1 claims=3",
+       "final_not_highest_ts:genres",
+       "final_not_highest_ts:fetched_ts",
+       "final_not_highest_ts:meta_hash"
+      ]
+     },
+     {
+      "round": 69,
+      "issues": [
+       "lost_update:version=3 seed=1 claims=3"
+      ]
+     }
+    ],
+    "mixed": [
+     {
+      "round": 4,
+      "issues": [
+       "lost_update:version=3 seed=1 claims=4",
+       "final_not_highest_ts:genres",
+       "final_not_highest_ts:fetched_ts",
+       "final_not_highest_ts:meta_hash"
+      ]
+     },
+     {
+      "round": 10,
+      "issues": [
+       "lost_update:version=3 seed=1 claims=3"
+      ]
+     },
+     {
+      "round": 22,
+      "issues": [
+       "vector_vs_document",
+       "vector_vs_document",
+       "vector_vs_document",
+       "vector_vs_document",
+       "vector_vs_document",
+       "vector_vs_document"
+      ]
+     }
+    ],
+    "link_race": [
+     {
+      "round": 95,
+      "issues": [
+       "links_applied:2"
+      ]
+     },
+     {
+      "round": 119,
+      "issues": [
+       "links_applied:2"
+      ]
+     },
+     {
+      "round": 137,
+      "issues": [
+       "links_applied:2"
+      ]
+     }
+    ],
+    "equal_ts": [
+     {
+      "round": 6,
+      "issues": [
+       "lost_update:version=1 seed=0 claims=3",
+       "equal_ts_claims:3"
+      ]
+     },
+     {
+      "round": 48,
+      "issues": [
+       "lost_update:version=2 seed=1 claims=2",
+       "equal_ts_claims:2"
+      ]
+     },
+     {
+      "round": 54,
+      "issues": [
+       "lost_update:version=1 seed=0 claims=2",
+       "equal_ts_claims:2"
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}

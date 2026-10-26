@@ -1,0 +1,22 @@
+[
+ {"id": "r01", "kind": "rag", "text": "Consigliami 4 film su un viaggio nello spazio con un finale commovente"},
+ {"id": "r02", "kind": "rag", "text": "Film francesi degli anni 60 sulla gioventù e la ribellione"},
+ {"id": "r03", "kind": "rag", "text": "Thriller ambientati su un treno o su una nave"},
+ {"id": "r04", "kind": "rag", "text": "Cerco un film in cui c'è un personaggio chiamato Norman Bates", "note": "hybrid atteso"},
+ {"id": "r05", "kind": "rag", "text": "Commedie sull'amicizia tra due uomini di età molto diversa"},
+ {"id": "r06", "kind": "rag", "text": "Film sul tema della memoria e dell'identità senza violenza"},
+ {"id": "r07", "kind": "rag", "text": "Consigliami 3 film western con un protagonista antieroe"},
+ {"id": "r08", "kind": "rag", "text": "Film di animazione per adulti con temi filosofici"},
+ {"id": "r09", "kind": "rag", "text": "Drammi giudiziari ambientati nel sud degli Stati Uniti"},
+ {"id": "r10", "kind": "rag", "text": "Film sulla mafia giapponese (yakuza) degli anni 70"},
+ {"id": "d01", "kind": "db", "text": "Quali sono i 5 film con il voto medio più alto tra quelli con almeno 5000 voti?"},
+ {"id": "d02", "kind": "db", "text": "Quali sono i film più votati del 2003?"},
+ {"id": "d03", "kind": "db", "text": "Qual è il voto medio dei film horror?"},
+ {"id": "t01", "kind": "tmdb", "text": "Chi è il protagonista di Blade Runner 2049 e in che anno è uscito?"},
+ {"id": "t02", "kind": "tmdb", "text": "Quali film ha diretto Greta Gerwig?"},
+ {"id": "t03", "kind": "tmdb", "text": "Dove posso vedere Oppenheimer in streaming in Italia?"},
+ {"id": "t04", "kind": "tmdb", "text": "Quali sono i film più popolari del momento?"},
+ {"id": "m01", "kind": "multi", "text": "Consigliami un thriller psicologico e dimmi anche chi lo ha diretto"},
+ {"id": "f01", "kind": "followup", "after": "r01", "text": "Ne hai uno più recente?"},
+ {"id": "x01", "kind": "off_topic", "text": "Qual è la capitale della Francia?"}
+]

@@ -48,6 +48,15 @@ def test_only_app_and_the_routing_eval_import_the_tools() -> None:
         "movie_db/harness/evaluation/run_eval.py",
         "movie_db/harness/evaluation/run_routing_eval.py",
         "movie_db/harness/evaluation/run_rag_params_eval.py",
+        # offline Chroma -> Qdrant migration tooling, never imported at runtime
+        "docs/qdrant_migration/capture_baseline.py",
+        "docs/qdrant_migration/restore_chroma.py",
+        "docs/qdrant_migration/spike_server.py",
+        "docs/qdrant_migration/phase3/make_manifest.py",
+        "docs/qdrant_migration/phase4/parity.py",
+        "docs/qdrant_migration/phase5/ab.py",
+        "docs/qdrant_migration/catalog/calibration/calibrate.py",  # offline, paid steps gated by an env variable
+        "web_api/harness/qdrant_live_check.py",  # manual live check, like live_stream_check.py
     }
 
 

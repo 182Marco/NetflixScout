@@ -1,0 +1,333 @@
+{
+ "answer": "Un film che potresti considerare è **_Whose Life Is It Anyway?_ (1981)**.\n\n- **Regista:** John Badham  \n- **Cast principale:** Richard Dreyfuss, John Cassavetes, Christine Lahti, Bob Balaban, Kenneth McMillan  \n- **Sinossi:** Dopo un incidente d’auto, lo scultore Ken Harrison rimane paralizzato dal collo in giù. In ospedale stringe amicizia con alcuni membri del personale e porta in tribunale la richiesta di poter morire.\n\nIl **voto è di TMDb: 7,0/10**, basato su 52 voti.\n\nPer i vincoli indicati:\n- **Drammatico:** verificato.\n- **Suicidio assistito:** non verificabile.\n- **Diritto di morire:** probabile, sulla base di un indizio nella trama.\n- **Quadriplegia:** probabile, sulla base di un indizio nella trama.\n- **Dramma emotivo:** non verificabile.\n- **Ambientazione spagnola:** non verificabile.\n- **Collegamento esplicito con _Mare dentro_ / _The Sea Inside_:** assente dal titolo e dal cast.",
+ "tools": [
+  "rag_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Consigliami un film simile a Mare dentro e dimmi chi è il regista",
+    "used": "Consigliami un film simile a Mare dentro e dimmi chi è il regista",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "rag_search",
+    "purpose": "Trovare un film simile a \"Mare dentro\" e identificarne il regista",
+    "arguments": {
+     "query": "Consigliami un film simile a \"Mare dentro\" e indicami il regista del film consigliato.",
+     "k_finale": 1,
+     "search_mode": null
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "rag_search",
+    "elapsed_ms": 5470,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "retrieval",
+   "data": {
+    "search_mode": "semantic",
+    "retrieval_params": {
+     "effective": {
+      "search_mode": "semantic",
+      "k_largo": 10,
+      "k_finale": 1,
+      "fetch_k": 50,
+      "genre_boost": 0.15
+     },
+     "overridden": [
+      "k_finale"
+     ]
+    },
+    "standalone_query": "Consigliami un film simile a Mare dentro e dimmi chi è il regista",
+    "planner_query": "Consigliami un film simile a \"Mare dentro\" e indicami il regista del film consigliato.",
+    "embedded_text": "A Spanish drama about a quadriplegic man confined to bed who campaigns for the right to die with dignity and assisted suicide, confronting family, love, law, and personal freedom.",
+    "signals": {
+     "positive_signals": [
+      "assisted suicide",
+      "right to die",
+      "quadriplegia",
+      "emotional drama",
+      "Spanish setting"
+     ],
+     "negative_signals": [],
+     "hard_exclusions": [
+      "The Sea Inside"
+     ],
+     "semantic_query": "A Spanish drama about a quadriplegic man confined to bed who campaigns for the right to die with dignity and assisted suicide, confronting family, love, law, and personal freedom.",
+     "genres": [
+      "Drama"
+     ],
+     "excluded_genres": []
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-041536-000000",
+      "testo": "After a car accident, sculptor Ken Harrison becomes a quadriplegic who sues for the right to end his life, no longer able to create art, make love or have any semblance of a normal existence. He hires a lawyer  who, reluctantly at first, represents Harrison while knowing that he is trying to win his client a death sentence. Staunchly opposed to euthanasia is a by-the-book hospital administrator , who is determined to keep his patient alive even against his wishes, and sympathetic doctor , who develops personal feelings for Harrison. She wants to keep him alive, even though Harrison's girlfriend has accepted his decision. A young orderly ([[Thomas Carter  and nurse  do what they can to keep Harrison's spirits up, even wheeling him to a hospital basement where they treat him to reggae music and marijuana. In the end, though, it is up to a judge ([[Kenneth McMillan  whether the patient has a moral, ethical and legal right to choose to die.",
+      "score": 0.7457874,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "19509640",
+      "title": "Whose Life Is It Anyway?",
+      "release_date": "1981",
+      "release_year": "1981",
+      "genres": "Drama; Medical fiction",
+      "cast": "Christine Lahti; John Cassavetes; Richard Dreyfuss; Mel Stewart; Ward Costello; Janet Eilber; Bob Balaban; Kaki Hunter; Thomas Carter; George Wyner; Kenneth MacMillan"
+     },
+     {
+      "id": "edb95c357b3b-016038-000000",
+      "testo": "The film opens at Mikel's funeral mass. A flashback spins out the circumstances of his life and death. Mikel, a young pharmacist involved in Basque Nationalist politics is living in Lekeitio, a Basque coastal town. When his wife, Begoña, returns from a long trip abroad, he picks her up at the airport. Their marriage is unhappy; the relationship between the couple is tense. Begoña wants to resolve their problems, but Mikel is indifferent. In the encounter after the return, the couple visits Mikel’s domineering mother, Doña Maria Luisa, a widow who lives in the same small town. The relationship between mother and son is also fractured. Mikel and Begoña have an argument when she tells him that she has discussed their sexual problems with his mother. They are going to have supper to house of a pair of friends, Martín a doctor who has arrived at the town fleeing the Chilean dictatorship and Martin’s wife, Arantza. The calm of town is disrupted with the senseless death of two young people, who did not stop in a nocturnal control and were killed by the Civil Guard. Mikel attends a political meeting, and is offered a seat in the next local election for the Basque independent party to which he belongs. Mikel takes parts in local festivities. At dawn, he arrives drunk at home. Having sex with his wife, Mikel bites Begoña's clitoris during an alcohol-fuelled attempt at oral sex. This incident effectively marks the end of their marriage. The next day Martín, takes cares of Begoña's wounds inflected in the attack and as a friend and mentor to Mikel, he recommends him a therapist in Bilbao. After his first session, Mikel joins an old friend in a bar and gets drunk. Mikel wakes up the following morning, knowing that he has had sex with Fama, a female impersonator, whose show he has seen at the bar. Realizing what he has done, humiliated and confused, Mikel embarks on a suicidal drive down the wrong side of the motorway, but swerves aside in time to avoid a crash. Begoña moves out and a new chapter begins in Mikel’s life. Uninvited, Fama comes to the town and gives Mikel a surprise visit in the pharmacy where he works. She offers him emotional support and recounting the story of her life, she encourages him to come to term with his sexuality. Mikel has a meeting with Begoña and is forgiven by her. He tells her that never before he has seen the future with promise like now. However, when his homosexual relationship becomes public, his political comrades reject him. Mikel’s proud mother is horrified with her son homosexual relationship. Mikel is arrested and questioned about ETA activities. His friend, Martin, has confessed that years ago both helped a wounded E.TA member to escape to France. Resisting with dignity the violent attempts of the police to get information out of him, Mikel comes out of prison enthusiastic about developing his relationship with Fama. The next morning his brother finds him death in bed in his mother's home. His death is not explained, but cinematography points clearly to the mother, who has already stated that she will not accept the public humiliation of Mikel's homosexual relationship. Mikel’s political comrades who rejected him in life appropriate his death as a forum for political protest.",
+      "score": 0.6862940000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "26100091",
+      "title": "La Muerte de Mikel",
+      "release_date": "1984-02-17",
+      "release_year": "1984",
+      "genres": "Drama",
+      "cast": "Imanol Arias"
+     },
+     {
+      "id": "edb95c357b3b-013276-000000",
+      "testo": "The film tells of two very different men who share a Brazilian prison cell: Valentin Arregui , who is imprisoned  due to his activities on behalf of a leftist revolutionary group, and Luis Molina  a homosexual in prison for having sex with an underage boy. Molina passes the time by recounting memories from one of his favorite films, a wartime romantic thriller that's also a Nazi propaganda film. He weaves the characters into a narrative meant to comfort Arregui and distract him from the harsh realities of political imprisonment and the separation from the woman he cares about. Arregui allows Molina to penetrate some of his defensive self and opens up. Despite Arregui occasionally snapping at Molina over his rather shallow views of political cinema, an unlikely friendship develops between the two. As the story develops, it becomes clear that Arregui is being poisoned by his jailers to provide Molina with a chance to befriend him, and that Molina is spying on Arregui on behalf of the Brazilian secret police. Molina has namely been promised a parole if he succeeds in obtaining information that will allow the secret police to find the revolutionary group's members. However, Molina falls in love with Arregui, and Arregui responds after a fashion, culminating in a physical consummation of their love on Molina's last night in prison. Molina is granted parole in the hopes Arregui will reveal information about his contacts when he knows Molina will be out of prison. Arregui provides Molina with a telephone number and message for his comrades. Molina at first refuses to take the number, fearing the consequences of treason, but he relents, and he and Arregui bid farewell with a kiss. In the final scenes Molina calls the telephone number, and a meeting is arranged with the revolutionary group. But the secret police have had Molina under surveillance, and a gun battle ensues, with the revolutionaries, assuming Molina has betrayed them, shooting him. As he wanders the streets wounded, the policemen catch up with him and demand that he disclose the telephone number in exchange for them taking him to the hospital for treatment, but Molina refuses and succumbs to his wounds. On the orders of the homophobic police chief , the policemen dump Molina's body in a rubbish pit and fabricate a story about his death and involvement with the revolutionary group. Meanwhile, back in the prison Arregui is being treated after being tortured once again. As the doctor administers him morphine to help him sleep, risking his job in the process, Arregui escapes into a dream where he is on a tropical island with the woman he loves. Although not made explicit, it is implied that he dies from his wounds.",
+      "score": 0.6745705000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "113452",
+      "title": "Kiss of the Spider Woman",
+      "release_date": "1985-05-13",
+      "release_year": "1985",
+      "genres": "LGBT; Crime Fiction; Indie; World cinema; Prison film; Gay Themed; Gay; Gay Interest; Drama; Film adaptation; Prison; Political drama",
+      "cast": "William Hurt; Raúl Juliá; Sônia Braga; José Lewgoy; Milton Gonçalves; Denise Dumont; Miriam Pires; Nuno Leal Maia; Herson Capri; Fernando Torres; Patricio Bisso"
+     },
+     {
+      "id": "edb95c357b3b-001098-000000",
+      "testo": "In 1959, Jaime Gil de Biedma, a wealthy poet from Barcelona, is visiting Manila on business trip as director of the Philippine Tobacco Company. At night, the poet gives free rein to his homosexuality. He meets Johnny, a young man who works in an erotic nightclub, and they have sex. The poverty of Manila makes a deep impression on Jaime and heightens his social conscience. Back in Barcelona, the Spanish police interrogate Jaime about some of his subversive friends who are still dreaming of regime change in Spain. Ironically Jaime is refused membership in the Communist Party because he is gay. He visits his friend and editor Carlos Barral, and meets Juan Marsé, a young writer about to publish his first novel. Jaime is trying to save his relationship with Luis, his lover, but although in love with him, Jaime treats Luis, who is of humble background, with contempt. After a heated argument Luis leaves him for good. Describing himself as \"a Sunday poet with a Monday conscience\", Jaime mixes his weekly working days for his family's company with a bohemian lifestyle on weekends. Don Luis, Jaime’s father, takes care of Jaime’s troubles with the police, but he warns his son he has to sort his life out because he is putting his family and the business in jeopardy. By the mid 1960’s, Jaime favorite spot is the Bocaccio nightclub where he meets the sexy and enigmatic Bel, a divorced woman with two kids. They quickly establish a relationship. Bel is entangled in a bitter battle with her ex husband for the custody of her children. Jaime buys an apartment and asks Bel to marry him, but she turns him down. They are two free spirits, getting married would condemn their relationship to failure. Overwhelmed by the events, Jaime loses himself in the night and gets drunk. That same night, Bel dies in a tragic accident. When he hears the news, Jaime, in despair, tries to take his own life. He manages to get back on his feet with the support of friends and family. However, Jaime will never write poetry again. At the beginning of the 1970’s, Jaime goes to the Philippines and has to deal with the economic changes which the company is going through under Ferdinand Marcos's dictatorship. On his return, Jaime meets Toni, a young assistant of photography of humble background, and they begin a sentimental relationship. In spite of his class awareness, he seems to be attracted to men of lower background. Toni, for his part, insists on learning all he can from Jaime and asks him to introduce him into his sophisticated world. One day, at the beach with Tony and some friends, Jaime is move to tears watching the freshness of a girl dancing with Tony. As a middle-aged poet, Jaime is painfully aware of the passage of time, his misspent youth, and the death that patiently awaits him. He writes in a poem: \"What do you want now, youth, you impudent delight of life?,\" \"What brings you to the beach? We old ones were content until you came along to wound us by reviving the most fearful of impossible dreams. You come to rummage through our imaginations.\" Jaime’s father dies and events pile up. The growing tension between Jaime and Toni leads to a violent confrontation in the country house which Jaime has bought as their love nest. Toni throws him out, and Jaime trips and is injured in the snow. He almost dies. \"The fact that life was to be taken seriously we understand only later\", he narrates in another poem, \"Like all young people, I was going to change the world. I wanted to make my mark and withdraw to applause. Growing old, dying, it was all a question of the size of the theater. But time has passed and I see the unpleasant truth. Growing old, dying, is the play's only plot.\" Years later, old and tired, Jaime lives out his days with a young stage actor. He finds out that he has AIDS. The passing of time and illness have left their mark on him. His friends, who know that Jaime is dying, organize a poetry recital at Madrid’s famous Students Residence, which turns into a public acclamation of the poet. Although old and approaching death, he still yearns for youth and beauty. He hires a young male prostitute, but in a hotel room he can only passive observe the young naked man dancing to The Pet Shop Boys's song Always on My Mind.",
+      "score": 0.6689527000000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "31206542",
+      "title": "El cónsul de Sodoma",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Biographical film; Drama",
+      "cast": "Jordi Mollà"
+     },
+     {
+      "id": "edb95c357b3b-033952-000000",
+      "testo": "The story is set in Goa. Ethan Mascarenhas  is a former magician who is paralyzed from neck down quadriplegic. He is currently a Radio Jockey. Sofia D'Souza  is his nurse, and has been so for the past twelve years. On the fourteenth anniversary of his accident, Ethan decides to file an appeal to the court for euthanasia  with the help of his best friend and lawyer Devyani Dutta . Ethan's mother Isabel Mascarenhas  also supports him in his petition, backing her son's demand. A young man named Omar Siddiqui  enters Ethan's life to learn magic from him. Judge Rajhansmoni  dismisses the case immediately when the case is presented in the court. Devyani asks Ethan to garner public support through a vote on the issue through his radio programme, which Ethan christens \"Project Eathanasia.\" . The issue comes into the limelight through news features in the television and other media. An appeal is once again submitted to the court. In between Ethan's mother passes away and Sofia is dragged away by her alcoholic husband, Neville D'Souza , against whom she had filed a divorce case. Finally the day of verdict comes and Ethan's plea is rejected by the court, citing the legal code of the country cannot be violated in any circumstance. A disheartened Ethan spends his time alone in his empty home when Sofia returns. She confesses to Ethan that she got the divorce and tells him that she will help with his mercy-killing, whatever the consequences be as Ethan means more to her. On hearing her words, Ethan realizes how much Sofia loves him. He proposes to her and Sofia agrees. Ethan throws a farewell party for their friends and guests, where Ethan speaks about everyone who has meant very dear to him and finally tells everyone about his and Sofia's love. Ethan says that he will be dying a happy man with no regrets and the heart full of Sofia's love and bids all goodbye. At these words, all the guests, come to his couch and hug him, and the shot closes on Ethan laughing heartily.",
+      "score": 0.6643864,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "23904207",
+      "title": "Guzaarish",
+      "release_date": "2010-11-16",
+      "release_year": "2010",
+      "genres": "World cinema; Musical; Drama; Comedy; Romantic drama; Romance Film; Bollywood",
+      "cast": "Rajit Kapur; Hrithik Roshan; Aishwarya Rai; Shernaz Patel; Aditya Roy Kapoor; Nafisa Ali; Monikangana Dutta; Suhel Seth; Ash Chandler; Vijay Crishna; Makrand Deshpande; Sanjay Lafont; Jineet Rath; Prahlad Kakkar; Mahabanoo Mody-Kotwal; Achint Kaur; Swara Bhaskar; Priyanka Bose"
+     },
+     {
+      "id": "edb95c357b3b-016690-000000",
+      "testo": "Benigno  Martin and Marco Zuluaga cross paths when they attend the same concert dance, only eventually meeting again at a private clinic where Benigno works. There, he is the personal nurse and caregiver for Alicia, a beautiful dance student who lies in a coma and with whom Benigno has become obsessed. Marco, a journalist and travel writer, is at the clinic to visit his girlfriend Lydia, a famous matador who is also comatose after being gored by a bull. As the men stand vigil over these women, the story unfolds in flashbacks, giving details of the two relationships. Marco leaves Lydia in the hospital when her previous lover informs him that they had reunited a month before Lydia's accident. He travels to Jordan to write a tourist guide; while there he reads in a newspaper that Lydia has died in her coma. Meanwhile, Alicia is discovered to be pregnant. Benigno, who believes his relationship with the comatose Alicia is a mutual love affair, is accused of raping her and is sent to prison in Segovia. Marco returns to Spain and begins trying to help Benigno. He finds out that Alicia had awakened during or sometime after giving birth, but the baby was stillborn. Following Benigno's lawyer's urging, he does not tell Benigno about her unexpected recovery. Desperate, Benigno ingests a large quantity of pills to try to \"escape\" and reunite with Alicia. He dies of an overdose. Meanwhile, Alicia has begun rehabilitation to recover her ability to walk and dance. The film ends with Marco, sitting two rows in front of Alicia at a dance concert, turning around and smiling at her for a moment, and then turning back around. The screen lists Marco y Alicia as the next act.",
+      "score": 0.6613652400000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "1946017",
+      "title": "Talk to Her",
+      "release_date": "2002-03-15",
+      "release_year": "2002",
+      "genres": "LGBT; Silent film; Melodrama; Indie; World cinema; Black-and-white; Drama; Comedy; Medical fiction; Romantic drama; Romance Film",
+      "cast": "Elena Anaya; Javier Cámara; Darío Grandinetti; Leonor Watling; Rosario Flores; Mariola Fuentes; Geraldine Chaplin; Lola Dueñas; Ana Fernández; Fele Martínez; Helio Pedregal; Paz Vega; Ángel Infante; Roberto Alvarez; Chus Lampreave; José Sancho; Pina Bausch"
+     },
+     {
+      "id": "edb95c357b3b-021026-000000",
+      "testo": "From a prison cell in Madrid, César ([[Eduardo Noriega , a 25-year-old in a prosthetic mask, tells his story to psychiatrist Antonio . Flashbacks reveal the following events: good-looking César is attractive to women. At his birthday party, he flirts with Sofía , the girlfriend of his best friend Pelayo . Later on, he takes her home and stays the night, although they don't sleep together. The next morning, César's obsessive ex-lover Nuria  pulls up outside Sofia's flat and when she spots César leaving in the morning, she offers him a ride back to her apartment to have sex. On the way there, however, she intentionally crashes the car, committing suicide, and César is horribly disfigured, beyond the help of cosmetic surgery. Sofía can't bear to see him like this and goes back to Pelayo. After César's disfigurement, he begins to have a series of disorienting experiences. Drunk, César falls asleep in the street. On awakening, everything has changed: Sofía now claims to love him and the surgeons restore his lost looks. But as he makes love to Sofía one night, she apparently changes into Nuria. Horrified, César smothers her with a pillow, yet finds everyone else believes Nuria was indeed the woman everyone else calls Sofía. While he is confined to the prison, fragments of his past return to him as if in a dream. It is gradually revealed that, shortly after his disfigurement, César contracted with Life Extension, a company specializing in cryonics, to be cryogenically preserved and to experience extremely lucid and lifelike virtual reality dreams. Returning to their headquarters, under supervision by prison officers, he discovers they specialise in cryonics with a twist: \"artificial perception\" or the provision of a fantasy based on the past to clients who are reborn in the future. He had committed suicide at home after sleeping drunk on the street, and was placed in cryonic suspension. His experiences from about the midpoint of the movie onward have been a dream, spliced retroactively into his actual life and replacing his true memories. At the end of the film he elects to wake up and be resurrected. Convinced his life since the drunken night in the street is simply a nightmarish vision created by Life Extension, César leaps from the roof of the company's high-rise headquarters, resolving to open his eyes once more to real life outside the cryonic fantasy.",
+      "score": 0.6584076,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "679636",
+      "title": "Abre los ojos",
+      "release_date": "1997-12-19",
+      "release_year": "1997",
+      "genres": "Thriller; Future noir; World cinema; Psychological thriller; Mystery; Drama; Romance Film",
+      "cast": "Najwa Nimri; Eduardo Noriega; Penélope Cruz; Chete Lera; Fele Martínez"
+     },
+     {
+      "id": "edb95c357b3b-017089-000000",
+      "testo": "A literary drama about a young man dying of lung cancer and his circle of friends.Synopsis from {{cite web}}",
+      "score": 0.6565353500000001,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "15260151",
+      "title": "Guests Who Arrived on the Last Train",
+      "release_date": "1967",
+      "release_year": "1967",
+      "genres": "Drama",
+      "cast": "Moon Hee; Lee Soon-jae"
+     },
+     {
+      "id": "edb95c357b3b-041230-000000",
+      "testo": "After being forced to retire, literature professor Fernando Robles  and his wife Liliana  are forced to reevaluate their lives and make major changes in them. These include setting the record straight with their son, exiled in Madrid and starting out a new life. They decide to buy a small lavender farm in Córdoba from a widowed man, Zacarías, and with the aid of their lawyer friend Carlos , attempt to start out their new business. Along the way, Fernando, an aspiring writer himself, jots down notes and ideas for a novel in a book, which he frequently narrates in voice-overs. But this attempt at a new life is cut short when Fernando suddenly contracts pneumonia one cold night on the mountains. He is hospitalized and dies over a week, with enough time to bid farewell to his family and tell his wife all he never said out loud. Liliana rejects the help of the sympathetic Carlos and the offer from her son Pedro to come live with his family in Spain. She opts to carry on her late husband's attempt of a new life, and stays in the farm Fernando helped rebuild.",
+      "score": 0.6537699,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "15922861",
+      "title": "Common Places",
+      "release_date": null,
+      "release_year": null,
+      "genres": "Drama",
+      "cast": "Federico Luppi; Mercedes Sampietro; Arturo Puig"
+     },
+     {
+      "id": "edb95c357b3b-040667-000000",
+      "testo": "The story is set in Madrid in the late 1940s early 1950s during the first years of Franco’s regime. Pedro Martín, a young and ambitious doctor, is studying the effect of cancerous cells on mice, but he has run out of mice in his laboratory, since they do not breed there, and he has no funds to purchase more of these expensive laboratory animals from the United States. Nevertheless, his assistant, Amador, informs him that he gave some of the mice to an old trapper, nicknamed “el Muecas”, who lives in precarious conditions in a shanty town outside Madrid, and that this poor man has successfully bred them with the help of the natural heat of his daughters. The incredulous scientist goes to the shanty town to obtain the mice. There, Pedro meets Muecas, Muecas's wife Ricarda and their two daughters Florita and Conchi. With the warmth of the women’s breasts, as the flirtatious Florita shows Pedro, the mice are able to reproduce. Pedro himself lives in a modest boarding house run by a military widow and her daughter Dora, who also has a vivacious daughter, Dorita. The owner of the boarding house tries to encourage the doctor to fall in love with his granddaughter, Dorita, so that his medical career may release them all from a life of squalor and penury. During her birthday reunion, Dorita clearly shows Pedro that she is interested in him. Pedro and his rich friend Matias discuss literature and painting in a café and later they go out for a night of heavy partying in a house of prostitution in which Matias gets involves with a prostitute that closely resembles his own mother. Returning to his boarding house, Pedro goes to Dorita’s bed. He excuses himself for being drunk, but she welcomes his advanced and they make love, starting a relationship. Pedro is awakened at dawn by Muecas who needs his help as a doctor and begs him to save the life of his daughter, Florita, who is severely hemorrhaging after a botched abortion. Pedro tries to do what he can to save the girl’s life, but she dies in spite of his efforts. With the horrific death of her sister, Conchi reveals that Muecas was the father of the dead child in an incestuous relationship with his own daughter. Cartucho, a low life tough guy, boyfriend of the butchered Florita, is jealous of the doctor and after talking to Amador, extracts a false confession. Amador makes him wrongly belief that Pedro is guilty of having aborted the child and killed the mother. Later that day, Pedro is sought by the local police. Dorita warns him and Pedro hides in the local brothel run by Doña Luisa. Meanwhile, Matias begs Amador to tell the police the truth of Pedro's innocence, but Amador refuses to cooperate. The police finally apprehend Pedro, who surprisingly, confesses rather than admit the truth because of the absurdity of the situation. Ricarda, Florita's mother, follows the remains of her deceased daughter to the place where the autopsy is performed. She can not calm down and is arrested for interrupting the medical examiners. Meanwhile Pedro's girlfriend, Dorita and Matias try to help him using Matias's influences in order to set Pedro free, but they do not succeed. However, in the commissary, Ricarda, realizing that the doctor has wrongly accused of her daughter death, tells what have happened. Her testimony saves the doctor from prison. To celebrate his freedom, Pedro and Dorita go to a fair. They have been followed by Cartucho, who jealously watches Pedro dance with Dorita. Still believing that Pedro is guilty of Florita's death, Cartucho takes advantage of a moment in which Pedro is away buying some sweets and stabs Dorita. When Pedro returns just a moment later, Dorita is already dead.",
+      "score": 0.65026626,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "11881682",
+      "title": "Tiempo de silencio",
+      "release_date": "1986-03-13",
+      "release_year": "1986",
+      "genres": "Drama",
+      "cast": "Juan Echanove; Victoria Abril; Imanol Arias; Francisco Rabal"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "rerank",
+   "data": {
+    "backend": "cohere",
+    "rerank_query": "A Spanish drama about a quadriplegic man confined to bed who campaigns for the right to die with dignity and assisted suicide, confronting family, love, law, and personal freedom. Must match: quadriplegia; emotional drama; Spanish setting.",
+    "constraints": {
+     "checks": [
+      {
+       "constraint": "Drama",
+       "type": "genre",
+       "results": {
+        "Whose Life Is It Anyway? (1981)": {
+         "status": "verified",
+         "evidence": "generi: Drama; Medical fiction"
+        }
+       }
+      },
+      {
+       "constraint": "assisted suicide",
+       "type": "plot_require",
+       "results": {
+        "Whose Life Is It Anyway? (1981)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "right to die",
+       "type": "plot_require",
+       "results": {
+        "Whose Life Is It Anyway? (1981)": {
+         "status": "probable",
+         "evidence": "termini nella trama: right"
+        }
+       }
+      },
+      {
+       "constraint": "quadriplegia",
+       "type": "plot_require",
+       "results": {
+        "Whose Life Is It Anyway? (1981)": {
+         "status": "probable",
+         "evidence": "termini nella trama: quadriplegia"
+        }
+       }
+      },
+      {
+       "constraint": "emotional drama",
+       "type": "plot_require",
+       "results": {
+        "Whose Life Is It Anyway? (1981)": {
+         "status": "not_verifiable",
+         "evidence": null
+        }
+       }
+      },
+      {
+       "constraint": "Spanish setting",
+       "type": "plot_require",
+       "results": {
+        "Whose Life Is It Anyway? (1981)": {
+         "status": "not_verifiable",
+         "evidence": "paese di produzione assente nei metadati"
+        }
+       }
+      },
+      {
+       "constraint": "The Sea Inside",
+       "type": "title_exclusion",
+       "results": {
+        "Whose Life Is It Anyway? (1981)": {
+         "status": "verified",
+         "evidence": "assente da titolo e cast"
+        }
+       }
+      }
+     ]
+    },
+    "chunks": [
+     {
+      "id": "edb95c357b3b-041536-000000",
+      "testo": "After a car accident, sculptor Ken Harrison becomes a quadriplegic who sues for the right to end his life, no longer able to create art, make love or have any semblance of a normal existence. He hires a lawyer  who, reluctantly at first, represents Harrison while knowing that he is trying to win his client a death sentence. Staunchly opposed to euthanasia is a by-the-book hospital administrator , who is determined to keep his patient alive even against his wishes, and sympathetic doctor , who develops personal feelings for Harrison. She wants to keep him alive, even though Harrison's girlfriend has accepted his decision. A young orderly ([[Thomas Carter  and nurse  do what they can to keep Harrison's spirits up, even wheeling him to a hospital basement where they treat him to reggae music and marijuana. In the end, though, it is up to a judge ([[Kenneth McMillan  whether the patient has a moral, ethical and legal right to choose to die.",
+      "score": 0.4513029,
+      "source": "MovieSummaries/plot_summaries.txt",
+      "movie_id": "19509640",
+      "title": "Whose Life Is It Anyway?",
+      "release_date": "1981",
+      "release_year": "1981",
+      "genres": "Drama; Medical fiction",
+      "cast": "Christine Lahti; John Cassavetes; Richard Dreyfuss; Mel Stewart; Ward Costello; Janet Eilber; Bob Balaban; Kaki Hunter; Thomas Carter; George Wyner; Kenneth MacMillan"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/movie?api_key=***",
+     "https://api.themoviedb.org/3/movie/31695?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 31695,
+      "media_type": "movie",
+      "title": "Whose Life Is It Anyway?",
+      "original_title": "Whose Life Is It Anyway?",
+      "overview": "Ken Harrison is an artist that lives to make sculptures. One day he is involved in a car accident, and is paralyzed from his neck down. All he can do is talk and move his head, and he wants to die. Whilst he is in hospital he makes friends with some of the staff, and they support him when he goes to trial to be allowed to die.",
+      "vote_average": 7.0,
+      "release_date": "1981-12-02",
+      "original_language": "en",
+      "poster_path": "/qutLxh74RsoGEWfrI205yvwAlnr.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "m01",
+  "kind": "multi",
+  "text": "Consigliami un film simile a Mare dentro e dimmi chi è il regista"
+ },
+ "seconds": 19.8
+}

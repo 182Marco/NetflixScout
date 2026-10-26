@@ -1,0 +1,68 @@
+{
+ "answer": "Secondo il database, questi sono i **10 titoli del 2003 con il voto medio più alto**:\n\n1. **The Lord of the Rings: The Return of the King** — **4,09/5** su 67.449 voti  \n2. **Old Boy** — **4,09/5** su 17.331 voti  \n3. **The Fog of War: Eleven Lessons from the Life of Robert S. McNamara** — **4,08/5** su 3.275 voti  \n4. **Memories of Murder (Salinui chueok)** — **4,05/5** su 2.860 voti  \n5. **Touching the Void** — **4,03/5** su 2.851 voti  \n6. **The Best of Youth (La meglio gioventù)** — **4,01/5** su 600 voti  \n7. **Spring, Summer, Fall, Winter... and Spring (Bom yeoreum gaeul gyeoul geurigo bom)** — **4,00/5** su 2.678 voti  \n8. **The Work of Director Michel Gondry** — **3,99/5** su 244 voti  \n9. **The Return (Vozvrashcheniye)** — **3,96/5** su 900 voti  \n10. **Capturing the Friedmans** — **3,92/5** su 2.135 voti  \n\nI voti indicati sono **medie MovieLens**, non voti della critica. MovieLens non distingue sempre tra film e serie TV: le serie riconosciute sono state escluse, ma alcuni titoli non verificati potrebbero comunque essere serie.",
+ "tools": [
+  "movie_db_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Quali sono i film più votati del 2003?",
+    "used": "Quali sono i film più votati del 2003?",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "movie_db_search",
+    "purpose": "Film del 2003 ordinati per valutazione media",
+    "arguments": {
+     "query": "Trova i film usciti nel 2003 con le valutazioni medie più alte, ordinati dal voto più alto al più basso."
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "movie_db_search",
+    "elapsed_ms": 4678,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "db_query",
+   "data": {
+    "queries": [
+     {
+      "sql": "SELECT m.movie_id, m.clean_title AS title, m.year, s.avg_rating, s.n_ratings, (SELECT group_concat(g.genre, '|') FROM movie_genres g WHERE g.movie_id = m.movie_id) AS genres, l.imdb_id FROM movies m JOIN movie_stats s ON s.movie_id = m.movie_id LEFT JOIN links l ON l.movie_id = m.movie_id WHERE s.n_ratings >= ? AND m.year >= ? AND m.year <= ? ORDER BY s.avg_rating DESC, s.n_ratings DESC, m.movie_id LIMIT ?",
+      "params": [
+       50,
+       2003,
+       2003,
+       30
+      ]
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "d02",
+  "kind": "db",
+  "text": "Quali sono i film più votati del 2003?"
+ },
+ "seconds": 19.8
+}

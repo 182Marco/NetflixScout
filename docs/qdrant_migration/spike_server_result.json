@@ -1,0 +1,176 @@
+{
+ "server_version": "1.20.0",
+ "collection": "spike_53214103",
+ "load_s": 154.2,
+ "index_wait": "timeout",
+ "indexing_wait_s": 600.6,
+ "count": 42522,
+ "status": "green",
+ "indexed_vectors": 41500,
+ "hnsw_default": {
+  "recall10_min": 1.0,
+  "recall10_mean": 1.0,
+  "recall50_min": 0.98,
+  "recall50_mean": 0.9964,
+  "latency_ms": {
+   "p50": 5.8,
+   "p95": 9.7
+  }
+ },
+ "hnsw_ef128": {
+  "recall10_min": 1.0,
+  "recall10_mean": 1.0,
+  "recall50_min": 0.98,
+  "recall50_mean": 0.9986,
+  "latency_ms": {
+   "p50": 6.1,
+   "p95": 7.1
+  }
+ },
+ "hnsw_ef256": {
+  "recall10_min": 1.0,
+  "recall10_mean": 1.0,
+  "recall50_min": 1.0,
+  "recall50_mean": 1.0,
+  "latency_ms": {
+   "p50": 10.2,
+   "p95": 28.6
+  }
+ },
+ "exact_true": {
+  "recall10_min": 1.0,
+  "recall10_mean": 1.0,
+  "recall50_min": 1.0,
+  "recall50_mean": 1.0,
+  "latency_ms": {
+   "p50": 17.1,
+   "p95": 22.5
+  }
+ },
+ "recommend_average_vector_default": {
+  "p50_ms": 6.1,
+  "top5": [
+   "Terminal Voyage",
+   "The Terminators",
+   "Cosmos: War of the Planets",
+   "Odyssey 2050",
+   "Journey to the 7th Planet"
+  ]
+ },
+ "recommend_average_vector_ef128": {
+  "p50_ms": 5.8,
+  "top5": [
+   "Terminal Voyage",
+   "The Terminators",
+   "Cosmos: War of the Planets",
+   "Odyssey 2050",
+   "Journey to the 7th Planet"
+  ]
+ },
+ "recommend_average_vector_exact": {
+  "p50_ms": 18.7,
+  "top5": [
+   "Terminal Voyage",
+   "The Terminators",
+   "Cosmos: War of the Planets",
+   "Odyssey 2050",
+   "Journey to the 7th Planet"
+  ]
+ },
+ "recommend_best_score_default": {
+  "p50_ms": 9.0,
+  "top5": [
+   "The Terminators",
+   "Impostor",
+   "2B - The Era of Flesh is Over",
+   "Terminal Voyage",
+   "Earthling"
+  ]
+ },
+ "recommend_best_score_ef128": {
+  "p50_ms": 7.0,
+  "top5": [
+   "The Terminators",
+   "Impostor",
+   "2B - The Era of Flesh is Over",
+   "Terminal Voyage",
+   "Earthling"
+  ]
+ },
+ "recommend_best_score_exact": {
+  "p50_ms": 20.9,
+  "top5": [
+   "The Terminators",
+   "Impostor",
+   "2B - The Era of Flesh is Over",
+   "Terminal Voyage",
+   "Earthling"
+  ]
+ },
+ "recommend_average_vector_recall10_default_vs_exact": 1.0,
+ "recommend_average_vector_recall10_ef128_vs_exact": 1.0,
+ "recommend_best_score_recall10_default_vs_exact": 1.0,
+ "recommend_best_score_recall10_ef128_vs_exact": 1.0,
+ "query_int_range_filter_ms": {
+  "p50": 5.9,
+  "p95": 6.8
+ },
+ "filtered_recall50_vs_exact": 1.0,
+ "find_by_title_ms": {
+  "p50": 1.8,
+  "hits": [
+   [
+    "Casablanca",
+    "1942"
+   ]
+  ]
+ },
+ "find_by_title_alien": [
+  [
+   "Alien",
+   "1979"
+  ],
+  [
+   "The Alien",
+   null
+  ]
+ ],
+ "concurrency_1_clients": {
+  "queries": 14,
+  "wall_s": 0.16,
+  "qps": 89.4,
+  "latency_ms": {
+   "p50": 8.5,
+   "p95": 11.2
+  }
+ },
+ "concurrency_4_clients": {
+  "queries": 56,
+  "wall_s": 0.29,
+  "qps": 193.0,
+  "latency_ms": {
+   "p50": 14.7,
+   "p95": 26.9
+  }
+ },
+ "concurrency_8_clients": {
+  "queries": 112,
+  "wall_s": 0.62,
+  "qps": 179.3,
+  "latency_ms": {
+   "p50": 29.2,
+   "p95": 61.2
+  }
+ },
+ "full_scroll": {
+  "points": 42522,
+  "seconds": 3.5
+ },
+ "vector_validation": {
+  "sample": 29,
+  "max_abs_diff_vs_normalised_chroma": 1.4901161193847656e-08,
+  "tolerance": 1e-06,
+  "ok": true
+ },
+ "collection_deleted": true
+}

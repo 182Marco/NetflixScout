@@ -1,0 +1,5470 @@
+{
+ "frozen": "2026-10-26",
+ "anomalies": [],
+ "info": {
+  "means_by_variant": {
+   "A": {
+    "text_sim": 0.5213,
+    "pos_mean": 0.5176,
+    "neg_mean": 0.4683,
+    "max_single_pos_mean": 0.5287
+   },
+   "B": {
+    "text_sim": 0.4825,
+    "pos_mean": 0.582,
+    "neg_mean": 0.4095,
+    "max_single_pos_mean": 0.5977
+   },
+   "C": {
+    "text_sim": 0.4423,
+    "pos_mean": 0.6582,
+    "neg_mean": 0.5123,
+    "max_single_pos_mean": 0.6772
+   }
+  },
+  "latency_ms_median_of_medians": {
+   "A": 28.4,
+   "B": 34.1,
+   "C": 38.5
+  },
+  "hnsw_ef128_min_overlap_with_exact": {
+   "B": 1.0,
+   "C": 1.0
+  },
+  "overlap_with_A_mean": {
+   "B": 0.361,
+   "C": 0.226
+  },
+  "case_counts": {
+   "total": 28,
+   "with_negative": 21,
+   "with_positive": 18,
+   "active": 23,
+   "controls": 5
+  }
+ },
+ "verdict": {
+  "B": {
+   "1_negatives": {
+    "cases": 21,
+    "mean_delta": -0.0588,
+    "share_with_drop": 0.857,
+    "ok": true
+   },
+   "2_text_relevance": {
+    "cases": 23,
+    "mean_delta": -0.0473,
+    "ok_mean": false,
+    "exceptions_per_case": [
+     [
+      "c03",
+      -0.1133
+     ],
+     [
+      "c05",
+      -0.1012
+     ],
+     [
+      "c06",
+      -0.0659
+     ],
+     [
+      "c08",
+      -0.0542
+     ],
+     [
+      "c12",
+      -0.0699
+     ],
+     [
+      "c13",
+      -0.0702
+     ],
+     [
+      "c20",
+      -0.0718
+     ],
+     [
+      "c25",
+      -0.0697
+     ]
+    ]
+   },
+   "3_positives": {
+    "cases": 18,
+    "mean_delta": 0.0645,
+    "ok_mean": true,
+    "exceptions_per_reference": []
+   },
+   "4_constraints": {
+    "total_A": 16,
+    "total_B": 19,
+    "ok_total": false,
+    "exceptions_per_case": [
+     [
+      "c26",
+      1
+     ],
+     [
+      "c27",
+      2
+     ]
+    ]
+   },
+   "5_reference_leaks": {
+    "standard_config_leaks": 0,
+    "without_hard_exclusions_resolved_refs": 0,
+    "without_hard_exclusions_ambiguous_or_absent_refs": 0,
+    "ok": true
+   },
+   "6_controls_identical_to_A": {
+    "controls": 5,
+    "identical": 5,
+    "ok": true
+   },
+   "all_ok": false,
+   "all_ok_including_per_case_checks_without_exceptions": false
+  },
+  "C": {
+   "1_negatives": {
+    "cases": 21,
+    "mean_delta": 0.0439,
+    "share_with_drop": 0.19,
+    "ok": false
+   },
+   "2_text_relevance": {
+    "cases": 23,
+    "mean_delta": -0.0962,
+    "ok_mean": false,
+    "exceptions_per_case": [
+     [
+      "c01",
+      -0.086
+     ],
+     [
+      "c03",
+      -0.125
+     ],
+     [
+      "c04",
+      -0.1031
+     ],
+     [
+      "c05",
+      -0.2141
+     ],
+     [
+      "c06",
+      -0.2479
+     ],
+     [
+      "c07",
+      -0.0903
+     ],
+     [
+      "c08",
+      -0.1568
+     ],
+     [
+      "c09",
+      -0.1847
+     ],
+     [
+      "c12",
+      -0.0901
+     ],
+     [
+      "c13",
+      -0.0579
+     ],
+     [
+      "c15",
+      -0.0568
+     ],
+     [
+      "c16",
+      -0.1801
+     ],
+     [
+      "c25",
+      -0.1303
+     ],
+     [
+      "c26",
+      -0.1193
+     ],
+     [
+      "c27",
+      -0.1228
+     ],
+     [
+      "c28",
+      -0.1334
+     ]
+    ]
+   },
+   "3_positives": {
+    "cases": 18,
+    "mean_delta": 0.1406,
+    "ok_mean": true,
+    "exceptions_per_reference": []
+   },
+   "4_constraints": {
+    "total_A": 16,
+    "total_C": 20,
+    "ok_total": false,
+    "exceptions_per_case": [
+     [
+      "c26",
+      2
+     ],
+     [
+      "c27",
+      2
+     ]
+    ]
+   },
+   "5_reference_leaks": {
+    "standard_config_leaks": 0,
+    "without_hard_exclusions_resolved_refs": 0,
+    "without_hard_exclusions_ambiguous_or_absent_refs": 0,
+    "ok": true
+   },
+   "6_controls_identical_to_A": {
+    "controls": 5,
+    "identical": 5,
+    "ok": true
+   },
+   "all_ok": false,
+   "all_ok_including_per_case_checks_without_exceptions": false
+  }
+ },
+ "cases": [
+  {
+   "id": "c01",
+   "category": "single_pos_neg",
+   "text_id": "q13",
+   "embedded_text": "A science fiction film about people discovering that their reality is an artificial simulation and joining a rebellion against intelligent machines and oppressive control.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "The Matrix",
+     "year": 1999,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "The Matrix",
+     "matched_year": 1999,
+     "movie_id": "30007"
+    },
+    {
+     "title": "Inception",
+     "year": 2010,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Inception",
+     "matched_year": 2010,
+     "movie_id": "23270459"
+    }
+   ],
+   "usable_positive": 1,
+   "usable_negative": 1,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-028376-000000",
+      "edb95c357b3b-021295-000000",
+      "edb95c357b3b-029918-000000",
+      "edb95c357b3b-004428-000000",
+      "edb95c357b3b-033728-000000",
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-013812-000000",
+      "edb95c357b3b-013991-000000",
+      "edb95c357b3b-027806-000000",
+      "edb95c357b3b-020975-000000"
+     ],
+     "titles": [
+      "The Terminators (2009)",
+      "Impostor (2001)",
+      "2B - The Era of Flesh is Over (?)",
+      "Terminal Voyage (1994)",
+      "Earthling (2010)",
+      "Cosmos: War of the Planets (1977)",
+      "Cafe (2011)",
+      "A.P.E.X. (1994)",
+      "Polygon (1977)",
+      "The Mutant Chronicles (2008)"
+     ],
+     "text_sim": 0.5518428683280945,
+     "pos_per_ref": [
+      0.5276085734367371
+     ],
+     "pos_mean": 0.5276085734367371,
+     "pos_min_ref": 0.5276085734367371,
+     "max_single_pos_mean": 0.5276085495948791,
+     "max_single_pos_min": 0.41548043489456177,
+     "neg_per_ref": [
+      0.42519545555114746
+     ],
+     "neg_mean": 0.42519545555114746,
+     "neg_max_item": 0.5382634401321411,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 24.6
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-028376-000000",
+      "edb95c357b3b-021295-000000",
+      "edb95c357b3b-032810-000000",
+      "edb95c357b3b-020975-000000",
+      "edb95c357b3b-029566-000000",
+      "edb95c357b3b-028982-000000",
+      "edb95c357b3b-003698-000000",
+      "edb95c357b3b-000167-000000",
+      "edb95c357b3b-029918-000000",
+      "edb95c357b3b-036493-000000"
+     ],
+     "titles": [
+      "The Terminators (2009)",
+      "Impostor (2001)",
+      "Robot Holocaust (?)",
+      "The Mutant Chronicles (2008)",
+      "The Animatrix (2003)",
+      "Avatar (2004)",
+      "Terminator Salvation (2009)",
+      "Plug & Pray (2010)",
+      "2B - The Era of Flesh is Over (?)",
+      "Transmorphers (2007)"
+     ],
+     "text_sim": 0.515752911567688,
+     "pos_per_ref": [
+      0.5737184286117554
+     ],
+     "pos_mean": 0.5737184286117554,
+     "pos_min_ref": 0.5737184286117554,
+     "max_single_pos_mean": 0.5737184554338455,
+     "max_single_pos_min": 0.42602694034576416,
+     "neg_per_ref": [
+      0.40103691816329956
+     ],
+     "neg_mean": 0.40103691816329956,
+     "neg_max_item": 0.5748436450958252,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 36.1,
+     "overlap_with_A": 0.4,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-029566-000000",
+      "edb95c357b3b-038375-000000",
+      "edb95c357b3b-040143-000000",
+      "edb95c357b3b-032810-000000",
+      "edb95c357b3b-004148-000000",
+      "edb95c357b3b-021295-000000",
+      "edb95c357b3b-003698-000000",
+      "edb95c357b3b-029531-000000",
+      "edb95c357b3b-017574-000000",
+      "edb95c357b3b-017575-000000"
+     ],
+     "titles": [
+      "The Animatrix (2003)",
+      "MTV Movie Awards Reloaded (2003)",
+      "The Fanimatrix (2003)",
+      "Robot Holocaust (?)",
+      "Cube Zero (2004)",
+      "Impostor (2001)",
+      "Terminator Salvation (2009)",
+      "Total Recall (2012)",
+      "The Gift (2009)",
+      "Prey Alone (2005)"
+     ],
+     "text_sim": 0.4658169150352478,
+     "pos_per_ref": [
+      0.6700695753097534
+     ],
+     "pos_mean": 0.6700695753097534,
+     "pos_min_ref": 0.6700695753097534,
+     "max_single_pos_mean": 0.6700695931911469,
+     "max_single_pos_min": 0.628028392791748,
+     "neg_per_ref": [
+      0.5245010256767273
+     ],
+     "neg_mean": 0.5245010256767273,
+     "neg_max_item": 0.6193454265594482,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 34.0,
+     "overlap_with_A": 0.1,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c02",
+   "category": "single_pos_neg",
+   "text_id": "q14",
+   "embedded_text": "An industrial science fiction horror film about a crew trapped in an isolated spaceship who must survive a terrifying alien creature in a claustrophobic environment.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "Alien",
+     "year": 1979,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Alien",
+     "matched_year": 1979,
+     "movie_id": "23487440",
+     "candidates": [
+      {
+       "title": "The Alien",
+       "release_year": null,
+       "movie_id": "7742919"
+      }
+     ]
+    },
+    {
+     "title": "Predator",
+     "year": 1987,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Predator",
+     "matched_year": 1987,
+     "movie_id": "230481"
+    }
+   ],
+   "usable_positive": 1,
+   "usable_negative": 1,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-009231-000000",
+      "edb95c357b3b-010012-000000",
+      "edb95c357b3b-008273-000000",
+      "edb95c357b3b-011740-000000",
+      "edb95c357b3b-015100-000000",
+      "edb95c357b3b-035200-000000",
+      "edb95c357b3b-004428-000000",
+      "edb95c357b3b-017109-000000",
+      "edb95c357b3b-022874-000000",
+      "edb95c357b3b-010537-000000"
+     ],
+     "titles": [
+      "Project Shadowchaser III (1995)",
+      "Creature (1985)",
+      "Ice Planet (2003)",
+      "Prometheus (2012)",
+      "Star Crystal (1986)",
+      "Decaying Orbit (2007)",
+      "Terminal Voyage (1994)",
+      "The Andromeda Nebula (1967)",
+      "Gravity (2013)",
+      "Dead Space: Downfall (2008)"
+     ],
+     "text_sim": 0.5345152616500854,
+     "pos_per_ref": [
+      0.5895534157752991
+     ],
+     "pos_mean": 0.5895534157752991,
+     "pos_min_ref": 0.5895534157752991,
+     "max_single_pos_mean": 0.5895533740520478,
+     "max_single_pos_min": 0.4891977906227112,
+     "neg_per_ref": [
+      0.5131615996360779
+     ],
+     "neg_mean": 0.5131615996360779,
+     "neg_max_item": 0.6680421829223633,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 28.5
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-010537-000000",
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-015100-000000",
+      "edb95c357b3b-004660-000000",
+      "edb95c357b3b-035200-000000",
+      "edb95c357b3b-022874-000000",
+      "edb95c357b3b-024803-000000",
+      "edb95c357b3b-009231-000000",
+      "edb95c357b3b-015264-000000",
+      "edb95c357b3b-008273-000000"
+     ],
+     "titles": [
+      "Dead Space: Downfall (2008)",
+      "Cosmos: War of the Planets (1977)",
+      "Star Crystal (1986)",
+      "Spaceflight IC-1 (?)",
+      "Decaying Orbit (2007)",
+      "Gravity (2013)",
+      "Star Trek II: The Wrath of Khan (1982)",
+      "Project Shadowchaser III (1995)",
+      "Pitch Black (2000)",
+      "Ice Planet (2003)"
+     ],
+     "text_sim": 0.5218634009361267,
+     "pos_per_ref": [
+      0.6014650464057922
+     ],
+     "pos_mean": 0.6014650464057922,
+     "pos_min_ref": 0.6014650464057922,
+     "max_single_pos_mean": 0.6014650523662567,
+     "max_single_pos_min": 0.4891977906227112,
+     "neg_per_ref": [
+      0.50560462474823
+     ],
+     "neg_mean": 0.50560462474823,
+     "neg_max_item": 0.6352623701095581,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 30.2,
+     "overlap_with_A": 0.6,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-011740-000000",
+      "edb95c357b3b-015264-000000",
+      "edb95c357b3b-010537-000000",
+      "edb95c357b3b-029857-000000",
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-029643-000000",
+      "edb95c357b3b-016707-000000",
+      "edb95c357b3b-028102-000000",
+      "edb95c357b3b-010218-000000",
+      "edb95c357b3b-010323-000000"
+     ],
+     "titles": [
+      "Prometheus (2012)",
+      "Pitch Black (2000)",
+      "Dead Space: Downfall (2008)",
+      "Virus (1999)",
+      "Cosmos: War of the Planets (1977)",
+      "Dead Space: Aftermath (2011)",
+      "Night of the Blood Beast (1958)",
+      "Pandorum (2009)",
+      "Inseminoid (1981)",
+      "Species II (1998)"
+     ],
+     "text_sim": 0.4974895119667053,
+     "pos_per_ref": [
+      0.6837095022201538
+     ],
+     "pos_mean": 0.6837095022201538,
+     "pos_min_ref": 0.6837095022201538,
+     "max_single_pos_mean": 0.6837095081806183,
+     "max_single_pos_min": 0.651917040348053,
+     "neg_per_ref": [
+      0.6193769574165344
+     ],
+     "neg_mean": 0.6193769574165344,
+     "neg_max_item": 0.6680421829223633,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 45.4,
+     "overlap_with_A": 0.2,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [
+     {
+      "title": "Alien",
+      "year": "1979",
+      "reference_status": "resolved"
+     }
+    ],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c03",
+   "category": "single_pos_neg",
+   "text_id": "q02",
+   "embedded_text": "A film about a person experiencing loneliness and isolation in outer space.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "Moon",
+     "year": 2009,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Moon",
+     "matched_year": 2009,
+     "movie_id": "20348262"
+    },
+    {
+     "title": "Gravity",
+     "year": 2013,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Gravity",
+     "matched_year": 2013,
+     "movie_id": "30294906"
+    }
+   ],
+   "usable_positive": 1,
+   "usable_negative": 1,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-017347-000000",
+      "edb95c357b3b-003022-000000",
+      "edb95c357b3b-036312-000000",
+      "edb95c357b3b-030797-000000",
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-035567-000000",
+      "edb95c357b3b-023055-000000",
+      "edb95c357b3b-040529-000000",
+      "edb95c357b3b-025431-000000",
+      "edb95c357b3b-018018-000000"
+     ],
+     "titles": [
+      "MovieSummaries/plot_summaries.txt (?)",
+      "Japón (2002)",
+      "Outside (2004)",
+      "Interkosmos (2006)",
+      "Cosmos: War of the Planets (1977)",
+      "Sur les murs de la ville (2004)",
+      "Royal Space Force: The Wings of Honneamise (1987)",
+      "Love (2011)",
+      "On the Silver Globe (1987)",
+      "2001: A Space Odyssey (1968)"
+     ],
+     "text_sim": 0.5115631818771362,
+     "pos_per_ref": [
+      0.4481096863746643
+     ],
+     "pos_mean": 0.4481096863746643,
+     "pos_min_ref": 0.4481096863746643,
+     "max_single_pos_mean": 0.4481097191572189,
+     "max_single_pos_min": 0.27424156665802,
+     "neg_per_ref": [
+      0.4570137858390808
+     ],
+     "neg_mean": 0.4570137858390808,
+     "neg_max_item": 0.5517445802688599,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 32.0
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-018318-000000",
+      "edb95c357b3b-027821-000000",
+      "edb95c357b3b-018018-000000",
+      "edb95c357b3b-021268-000000",
+      "edb95c357b3b-018510-000000",
+      "edb95c357b3b-012909-000000",
+      "edb95c357b3b-029456-000000",
+      "edb95c357b3b-007040-000000",
+      "edb95c357b3b-008134-000000",
+      "edb95c357b3b-015475-000000"
+     ],
+     "titles": [
+      "Brazil (1985)",
+      "Solaris (1972)",
+      "2001: A Space Odyssey (1968)",
+      "The Nines (2007)",
+      "Butterfly Effect: Revelation (2009)",
+      "Code 46 (2004)",
+      "The Man Who Fell to Earth (1976)",
+      "The Island (2005)",
+      "Brainstorm (1983)",
+      "Solaris (2002)"
+     ],
+     "text_sim": 0.39825284481048584,
+     "pos_per_ref": [
+      0.598387598991394
+     ],
+     "pos_mean": 0.598387598991394,
+     "pos_min_ref": 0.598387598991394,
+     "max_single_pos_mean": 0.5983875751495361,
+     "max_single_pos_min": 0.5461311340332031,
+     "neg_per_ref": [
+      0.41404181718826294
+     ],
+     "neg_mean": 0.41404181718826294,
+     "neg_max_item": 0.5059804916381836,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 42.5,
+     "overlap_with_A": 0.1,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-011411-000000",
+      "edb95c357b3b-018318-000000",
+      "edb95c357b3b-020949-000000",
+      "edb95c357b3b-015475-000000",
+      "edb95c357b3b-021185-000000",
+      "edb95c357b3b-018510-000000",
+      "edb95c357b3b-029568-000000",
+      "edb95c357b3b-020383-000000",
+      "edb95c357b3b-004428-000000",
+      "edb95c357b3b-007298-000000"
+     ],
+     "titles": [
+      "Journey to the Far Side of the Sun (1969)",
+      "Brazil (1985)",
+      "MovieSummaries/plot_summaries.txt (?)",
+      "Solaris (2002)",
+      "Saturn 3 (1980)",
+      "Butterfly Effect: Revelation (2009)",
+      "Earth Star Voyager (1988)",
+      "Body Snatchers (1993)",
+      "Terminal Voyage (1994)",
+      "Knowing (2009)"
+     ],
+     "text_sim": 0.3865135908126831,
+     "pos_per_ref": [
+      0.6303685903549194
+     ],
+     "pos_mean": 0.6303685903549194,
+     "pos_min_ref": 0.6303685903549194,
+     "max_single_pos_mean": 0.6303686022758483,
+     "max_single_pos_min": 0.6222165822982788,
+     "neg_per_ref": [
+      0.47172945737838745
+     ],
+     "neg_mean": 0.47172945737838745,
+     "neg_max_item": 0.5892525911331177,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 41.8,
+     "overlap_with_A": 0.0,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [
+     {
+      "title": "Gravity",
+      "year": "2013",
+      "reference_status": "resolved"
+     }
+    ],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c04",
+   "category": "single_pos_neg",
+   "text_id": "q15",
+   "embedded_text": "A crime drama with an atmosphere of family loyalty, organized crime, power struggles, and difficult moral dilemmas.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "The Godfather",
+     "year": 1972,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "The Godfather",
+     "matched_year": 1972,
+     "movie_id": "2466773",
+     "candidates": [
+      {
+       "title": "Godfather",
+       "release_year": "2007",
+       "movie_id": "13725762"
+      },
+      {
+       "title": "Godfather",
+       "release_year": "1989",
+       "movie_id": "7497572"
+      },
+      {
+       "title": "Godfather",
+       "release_year": "2012",
+       "movie_id": "32047438"
+      }
+     ]
+    },
+    {
+     "title": "Goodfellas",
+     "year": 1990,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Goodfellas",
+     "matched_year": 1990,
+     "movie_id": "64394"
+    }
+   ],
+   "usable_positive": 1,
+   "usable_negative": 1,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-013146-000000",
+      "edb95c357b3b-025091-000000",
+      "edb95c357b3b-034953-000000",
+      "edb95c357b3b-037653-000000",
+      "edb95c357b3b-030044-000000",
+      "edb95c357b3b-003149-000000",
+      "edb95c357b3b-034057-000000",
+      "edb95c357b3b-024046-000000",
+      "edb95c357b3b-001409-000000",
+      "edb95c357b3b-026188-000000"
+     ],
+     "titles": [
+      "The Public Enemy (1931)",
+      "Black Gunn (1972)",
+      "Customs Diary (1993)",
+      "Busting (1974)",
+      "Force of Evil (1948)",
+      "Little Odessa (1994)",
+      "The Escort (1993)",
+      "Jigsaw (1949)",
+      "The Crew (2000)",
+      "Pseudo: Blood of Our Own (?)"
+     ],
+     "text_sim": 0.5391507744789124,
+     "pos_per_ref": [
+      0.4774436056613922
+     ],
+     "pos_mean": 0.4774436056613922,
+     "pos_min_ref": 0.4774436056613922,
+     "max_single_pos_mean": 0.4774435967206955,
+     "max_single_pos_min": 0.3584580421447754,
+     "neg_per_ref": [
+      0.48947638273239136
+     ],
+     "neg_mean": 0.48947638273239136,
+     "neg_max_item": 0.607362687587738,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 26.9
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-004049-000000",
+      "edb95c357b3b-003149-000000",
+      "edb95c357b3b-018062-000000",
+      "edb95c357b3b-034953-000000",
+      "edb95c357b3b-014356-000000",
+      "edb95c357b3b-026804-000000",
+      "edb95c357b3b-006318-000000",
+      "edb95c357b3b-029723-000000",
+      "edb95c357b3b-021651-000000",
+      "edb95c357b3b-006624-000000"
+     ],
+     "titles": [
+      "Three Brothers (1981)",
+      "Little Odessa (1994)",
+      "Heavy Traffic (1973)",
+      "Customs Diary (1993)",
+      "Jane Austen's Mafia! (1998)",
+      "The Brotherhood (1968)",
+      "Kiss Toledo Goodbye (1999)",
+      "Gomorra (2008)",
+      "Rocco and His Brothers (1960)",
+      "Perfect Strangers (1984)"
+     ],
+     "text_sim": 0.49319618940353394,
+     "pos_per_ref": [
+      0.6075061559677124
+     ],
+     "pos_mean": 0.6075061559677124,
+     "pos_min_ref": 0.6075061559677124,
+     "max_single_pos_mean": 0.6075061708688736,
+     "max_single_pos_min": 0.47526007890701294,
+     "neg_per_ref": [
+      0.4984095096588135
+     ],
+     "neg_mean": 0.4984095096588135,
+     "neg_max_item": 0.6136860251426697,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 40.3,
+     "overlap_with_A": 0.2,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-018062-000000",
+      "edb95c357b3b-026804-000000",
+      "edb95c357b3b-014356-000000",
+      "edb95c357b3b-029361-000000",
+      "edb95c357b3b-011899-000000",
+      "edb95c357b3b-018333-000000",
+      "edb95c357b3b-004117-000000",
+      "edb95c357b3b-026104-000000",
+      "edb95c357b3b-026246-000000",
+      "edb95c357b3b-036179-000000"
+     ],
+     "titles": [
+      "Heavy Traffic (1973)",
+      "The Brotherhood (1968)",
+      "Jane Austen's Mafia! (1998)",
+      "A Bronx Tale (1993)",
+      "Analyze This (1999)",
+      "Road to Perdition (2002)",
+      "Bella Mafia (?)",
+      "The Valachi Papers (1972)",
+      "Wannabes (2000)",
+      "Shadowboxer (2006)"
+     ],
+     "text_sim": 0.43604403734207153,
+     "pos_per_ref": [
+      0.6882572174072266
+     ],
+     "pos_mean": 0.6882572174072266,
+     "pos_min_ref": 0.6882572174072266,
+     "max_single_pos_mean": 0.6882572174072266,
+     "max_single_pos_min": 0.6527554988861084,
+     "neg_per_ref": [
+      0.5606170892715454
+     ],
+     "neg_mean": 0.5606170892715454,
+     "neg_max_item": 0.6136860251426697,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 41.9,
+     "overlap_with_A": 0.0,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c05",
+   "category": "single_pos_neg",
+   "text_id": "q08",
+   "embedded_text": "A World War I war film told from the perspective of German soldiers.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "Das Boot",
+     "year": 1981,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Das Boot",
+     "matched_year": 1981,
+     "movie_id": "8994"
+    },
+    {
+     "title": "Saving Private Ryan",
+     "year": 1998,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Saving Private Ryan",
+     "matched_year": 1998,
+     "movie_id": "28269"
+    }
+   ],
+   "usable_positive": 1,
+   "usable_negative": 1,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-031569-000000",
+      "edb95c357b3b-019624-000000",
+      "edb95c357b3b-014771-000000",
+      "edb95c357b3b-009854-000000",
+      "edb95c357b3b-037431-000000",
+      "edb95c357b3b-039343-000000",
+      "edb95c357b3b-021144-000000",
+      "edb95c357b3b-000628-000000",
+      "edb95c357b3b-001621-000000",
+      "edb95c357b3b-040463-000000"
+     ],
+     "titles": [
+      "The Big Red One (1980)",
+      "America Goes Over (1918)",
+      "All Quiet on the Western Front (1979)",
+      "Oh! What a Lovely War (1969)",
+      "Hell on Earth (1931)",
+      "Crossing the Line (2008)",
+      "Verboten! (1959)",
+      "All Quiet on the Western Front (1930)",
+      "The Bridge (1959)",
+      "Only Old Men Are Going to Battle (?)"
+     ],
+     "text_sim": 0.557197630405426,
+     "pos_per_ref": [
+      0.5751580595970154
+     ],
+     "pos_mean": 0.5751580595970154,
+     "pos_min_ref": 0.5751580595970154,
+     "max_single_pos_mean": 0.5751580178737641,
+     "max_single_pos_min": 0.47719982266426086,
+     "neg_per_ref": [
+      0.5609617233276367
+     ],
+     "neg_mean": 0.5609617233276367,
+     "neg_max_item": 0.6703624725341797,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 27.2
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-001602-000000",
+      "edb95c357b3b-030447-000000",
+      "edb95c357b3b-038584-000000",
+      "edb95c357b3b-036866-000000",
+      "edb95c357b3b-027601-000000",
+      "edb95c357b3b-005878-000000",
+      "edb95c357b3b-015237-000000",
+      "edb95c357b3b-010827-000000",
+      "edb95c357b3b-028378-000000",
+      "edb95c357b3b-040494-000000"
+     ],
+     "titles": [
+      "U-Boote westwärts (1941)",
+      "A Defeated People (1946)",
+      "The Seventh Survivor (1941)",
+      "Germany Pale Mother (1980)",
+      "Submarine X-1 (1969)",
+      "Rotation (1949)",
+      "Lifeboat (1944)",
+      "The Empty Mirror (1996)",
+      "The Exploits of the Emden (1928)",
+      "Tag der Freiheit: Unsere Wehrmacht (1935)"
+     ],
+     "text_sim": 0.4560162127017975,
+     "pos_per_ref": [
+      0.5877741575241089
+     ],
+     "pos_mean": 0.5877741575241089,
+     "pos_min_ref": 0.5877741575241089,
+     "max_single_pos_mean": 0.5877741783857345,
+     "max_single_pos_min": 0.4403223991394043,
+     "neg_per_ref": [
+      0.41786855459213257
+     ],
+     "neg_mean": 0.41786855459213257,
+     "neg_max_item": 0.6085842847824097,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 36.0,
+     "overlap_with_A": 0.0,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-011316-000000",
+      "edb95c357b3b-015237-000000",
+      "edb95c357b3b-022682-000000",
+      "edb95c357b3b-022150-000000",
+      "edb95c357b3b-009496-000000",
+      "edb95c357b3b-036743-000000",
+      "edb95c357b3b-001010-000000",
+      "edb95c357b3b-006843-000000",
+      "edb95c357b3b-002924-000000",
+      "edb95c357b3b-021890-000000"
+     ],
+     "titles": [
+      "U-571 (2000)",
+      "Lifeboat (1944)",
+      "In Which We Serve (1942)",
+      "Sealed Cargo (1951)",
+      "The Enemy Below (1957)",
+      "Morning Departure (1950)",
+      "Action in the North Atlantic (1943)",
+      "Below (2002)",
+      "Hell Below (1933)",
+      "We Dive at Dawn (1943)"
+     ],
+     "text_sim": 0.34306567907333374,
+     "pos_per_ref": [
+      0.741287350654602
+     ],
+     "pos_mean": 0.741287350654602,
+     "pos_min_ref": 0.741287350654602,
+     "max_single_pos_mean": 0.7412872970104217,
+     "max_single_pos_min": 0.7107709646224976,
+     "neg_per_ref": [
+      0.5614994764328003
+     ],
+     "neg_mean": 0.5614994764328003,
+     "neg_max_item": 0.6297565698623657,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 38.9,
+     "overlap_with_A": 0.0,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c06",
+   "category": "single_pos_neg",
+   "text_id": "q09",
+   "embedded_text": "Films about people experiencing memory loss and the gradual disappearance of their memories.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "Memento",
+     "year": 2000,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Memento",
+     "matched_year": 2000,
+     "movie_id": "2750041"
+    },
+    {
+     "title": "Eternal Sunshine of the Spotless Mind",
+     "year": 2004,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Eternal Sunshine of the Spotless Mind",
+     "matched_year": 2004,
+     "movie_id": "537024"
+    }
+   ],
+   "usable_positive": 1,
+   "usable_negative": 1,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-018728-000000",
+      "edb95c357b3b-003760-000000",
+      "edb95c357b3b-040554-000000",
+      "edb95c357b3b-016168-000000",
+      "edb95c357b3b-033261-000000",
+      "edb95c357b3b-021103-000000",
+      "edb95c357b3b-013089-000000",
+      "edb95c357b3b-034122-000000",
+      "edb95c357b3b-014389-000000",
+      "edb95c357b3b-007559-000000"
+     ],
+     "titles": [
+      "Reminiscences (?)",
+      "Memories of tomorrow (2006)",
+      "The Night of the Hunted (1980)",
+      "Beautiful Memories (?)",
+      "Diminished Capacity (2008)",
+      "Remedy (2005)",
+      "Goldfish Memory (2003)",
+      "Before We Forget (?)",
+      "Faces in the Crowd (2011)",
+      "The Headless Woman (2008)"
+     ],
+     "text_sim": 0.48062053322792053,
+     "pos_per_ref": [
+      0.4382312297821045
+     ],
+     "pos_mean": 0.4382312297821045,
+     "pos_min_ref": 0.4382312297821045,
+     "max_single_pos_mean": 0.43823120892047884,
+     "max_single_pos_min": 0.38230204582214355,
+     "neg_per_ref": [
+      0.4440861642360687
+     ],
+     "neg_mean": 0.4440861642360687,
+     "neg_max_item": 0.5991835594177246,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 27.4
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-018728-000000",
+      "edb95c357b3b-003760-000000",
+      "edb95c357b3b-033314-000000",
+      "edb95c357b3b-014389-000000",
+      "edb95c357b3b-021103-000000",
+      "edb95c357b3b-009212-000000",
+      "edb95c357b3b-000210-000000",
+      "edb95c357b3b-027867-000000",
+      "edb95c357b3b-035038-000000",
+      "edb95c357b3b-026729-000000"
+     ],
+     "titles": [
+      "Reminiscences (?)",
+      "Memories of tomorrow (2006)",
+      "Splinter (2006)",
+      "Faces in the Crowd (2011)",
+      "Remedy (2005)",
+      "Somewhere in the Night (1946)",
+      "Diaboliquement vôtre (1967)",
+      "Dead & Buried (1981)",
+      "D.O.A. (1950)",
+      "Faces Of Death 4 (1990)"
+     ],
+     "text_sim": 0.4147537350654602,
+     "pos_per_ref": [
+      0.5079169273376465
+     ],
+     "pos_mean": 0.5079169273376465,
+     "pos_min_ref": 0.5079169273376465,
+     "max_single_pos_mean": 0.50791694521904,
+     "max_single_pos_min": 0.3825388252735138,
+     "neg_per_ref": [
+      0.38459309935569763
+     ],
+     "neg_mean": 0.38459309935569763,
+     "neg_max_item": 0.4575197994709015,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 44.1,
+     "overlap_with_A": 0.4,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-035038-000000",
+      "edb95c357b3b-031208-000000",
+      "edb95c357b3b-001345-000000",
+      "edb95c357b3b-015132-000000",
+      "edb95c357b3b-018726-000000",
+      "edb95c357b3b-000232-000000",
+      "edb95c357b3b-006716-000000",
+      "edb95c357b3b-036358-000000",
+      "edb95c357b3b-018290-000000",
+      "edb95c357b3b-004013-000000"
+     ],
+     "titles": [
+      "D.O.A. (1950)",
+      "Seeking Justice (2011)",
+      "The Pledge (2001)",
+      "Saw VI (2009)",
+      "Saw III (2006)",
+      "King of the Ants (2003)",
+      "Saw IV (2007)",
+      "Nine Dead (2010)",
+      "Vacancy (2007)",
+      "The Killing Jar (2010)"
+     ],
+     "text_sim": 0.23269963264465332,
+     "pos_per_ref": [
+      0.6468506455421448
+     ],
+     "pos_mean": 0.6468506455421448,
+     "pos_min_ref": 0.6468506455421448,
+     "max_single_pos_mean": 0.6468506336212159,
+     "max_single_pos_min": 0.6339763402938843,
+     "neg_per_ref": [
+      0.45383796095848083
+     ],
+     "neg_mean": 0.45383796095848083,
+     "neg_max_item": 0.4934801459312439,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 41.5,
+     "overlap_with_A": 0.0,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c07",
+   "category": "single_pos_neg",
+   "text_id": "q25",
+   "embedded_text": "Stories about time travel involving temporal paradoxes.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "Primer",
+     "year": 2004,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Primer",
+     "matched_year": 2004,
+     "movie_id": "1134373"
+    },
+    {
+     "title": "Looper",
+     "year": 2012,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Looper",
+     "matched_year": 2012,
+     "movie_id": "27383563"
+    }
+   ],
+   "usable_positive": 1,
+   "usable_negative": 1,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-003535-000000",
+      "edb95c357b3b-008488-000000",
+      "edb95c357b3b-023612-000000",
+      "edb95c357b3b-000917-000000",
+      "edb95c357b3b-037502-000000",
+      "edb95c357b3b-018840-000000",
+      "edb95c357b3b-003593-000000",
+      "edb95c357b3b-014168-000000",
+      "edb95c357b3b-013991-000000",
+      "edb95c357b3b-027610-000000"
+     ],
+     "titles": [
+      "The Poof Point (2001)",
+      "Je t'aime, je t'aime (1968)",
+      "AM 11:00 (?)",
+      "Timequest (2002)",
+      "Dimensions (?)",
+      "Zítra vstanu a opařím se čajem (1977)",
+      "Time Chasers (1994)",
+      "Thrill Seekers (1999)",
+      "A.P.E.X. (1994)",
+      "Journey to the Center of Time (1967)"
+     ],
+     "text_sim": 0.4957948625087738,
+     "pos_per_ref": [
+      0.5640230178833008
+     ],
+     "pos_mean": 0.5640230178833008,
+     "pos_min_ref": 0.5640230178833008,
+     "max_single_pos_mean": 0.5640230119228363,
+     "max_single_pos_min": 0.4703555703163147,
+     "neg_per_ref": [
+      0.45647650957107544
+     ],
+     "neg_mean": 0.45647650957107544,
+     "neg_max_item": 0.5377441644668579,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 28.4
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-003535-000000",
+      "edb95c357b3b-018840-000000",
+      "edb95c357b3b-023612-000000",
+      "edb95c357b3b-037502-000000",
+      "edb95c357b3b-027610-000000",
+      "edb95c357b3b-008488-000000",
+      "edb95c357b3b-006905-000000",
+      "edb95c357b3b-003593-000000",
+      "edb95c357b3b-013991-000000",
+      "edb95c357b3b-033949-000000"
+     ],
+     "titles": [
+      "The Poof Point (2001)",
+      "Zítra vstanu a opařím se čajem (1977)",
+      "AM 11:00 (?)",
+      "Dimensions (?)",
+      "Journey to the Center of Time (1967)",
+      "Je t'aime, je t'aime (1968)",
+      "Spirit of '76 (1990)",
+      "Time Chasers (1994)",
+      "A.P.E.X. (1994)",
+      "The Time Machine (1960)"
+     ],
+     "text_sim": 0.4881419241428375,
+     "pos_per_ref": [
+      0.5676064491271973
+     ],
+     "pos_mean": 0.5676064491271973,
+     "pos_min_ref": 0.5676064491271973,
+     "max_single_pos_mean": 0.5676064491271973,
+     "max_single_pos_min": 0.4703555703163147,
+     "neg_per_ref": [
+      0.44432148337364197
+     ],
+     "neg_mean": 0.44432148337364197,
+     "neg_max_item": 0.5377441644668579,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 39.6,
+     "overlap_with_A": 0.8,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-006915-000000",
+      "edb95c357b3b-008433-000000",
+      "edb95c357b3b-016306-000000",
+      "edb95c357b3b-027610-000000",
+      "edb95c357b3b-003593-000000",
+      "edb95c357b3b-027274-000000",
+      "edb95c357b3b-030063-000000",
+      "edb95c357b3b-016114-000000",
+      "edb95c357b3b-006456-000000",
+      "edb95c357b3b-036989-000000"
+     ],
+     "titles": [
+      "A Sound of Thunder (2005)",
+      "Timecop (1994)",
+      "Clockstoppers (2002)",
+      "Journey to the Center of Time (1967)",
+      "Time Chasers (1994)",
+      "Frequently Asked Questions About Time Travel (2009)",
+      "Paycheck (2003)",
+      "Time After Time (1979)",
+      "The Time Machine (2002)",
+      "Sneakers (1992)"
+     ],
+     "text_sim": 0.4055241644382477,
+     "pos_per_ref": [
+      0.6332226395606995
+     ],
+     "pos_mean": 0.6332226395606995,
+     "pos_min_ref": 0.6332226395606995,
+     "max_single_pos_mean": 0.633222621679306,
+     "max_single_pos_min": 0.6186618804931641,
+     "neg_per_ref": [
+      0.5571574568748474
+     ],
+     "neg_mean": 0.5571574568748474,
+     "neg_max_item": 0.6264612674713135,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 38.2,
+     "overlap_with_A": 0.2,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [
+     {
+      "title": "Primer",
+      "year": "2004",
+      "reference_status": "resolved"
+     }
+    ],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c08",
+   "category": "positive_only",
+   "text_id": "q27",
+   "embedded_text": "An animated film about a robot that takes care of a young girl.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "The Iron Giant",
+     "year": 1999,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "The Iron Giant",
+     "matched_year": 1999,
+     "movie_id": "842825"
+    }
+   ],
+   "usable_positive": 1,
+   "usable_negative": 0,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-031683-000000",
+      "edb95c357b3b-038607-000000",
+      "edb95c357b3b-010288-000000",
+      "edb95c357b3b-003433-000000",
+      "edb95c357b3b-030209-000000",
+      "edb95c357b3b-026270-000000",
+      "edb95c357b3b-036773-000000",
+      "edb95c357b3b-036988-000000",
+      "edb95c357b3b-004540-000000",
+      "edb95c357b3b-030291-000000"
+     ],
+     "titles": [
+      "Robot Stories (2003)",
+      "The Clockwork Girl (?)",
+      "Automatons (2006)",
+      "Kowarekake no Orgel (2009)",
+      "Robot Wrecks (1941)",
+      "And You Thought Your Parents Were Weird (1991)",
+      "Gnomes and Trolls: The Secret Chamber (2008)",
+      "Genre (1996)",
+      "Fear(s) of the Dark (2007)",
+      "A.I. Artificial Intelligence (2001)"
+     ],
+     "text_sim": 0.4688478112220764,
+     "pos_per_ref": [
+      0.45267051458358765
+     ],
+     "pos_mean": 0.45267051458358765,
+     "pos_min_ref": 0.45267051458358765,
+     "max_single_pos_mean": 0.4526705205440521,
+     "max_single_pos_min": 0.31817445158958435,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 28.3
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-030291-000000",
+      "edb95c357b3b-037688-000000",
+      "edb95c357b3b-035472-000000",
+      "edb95c357b3b-025999-000000",
+      "edb95c357b3b-011826-000000",
+      "edb95c357b3b-012160-000000",
+      "edb95c357b3b-030209-000000",
+      "edb95c357b3b-016681-000000",
+      "edb95c357b3b-010288-000000",
+      "edb95c357b3b-034608-000000"
+     ],
+     "titles": [
+      "A.I. Artificial Intelligence (2001)",
+      "Astro Boy (2009)",
+      "The Day the Earth Stopped (2008)",
+      "Inspector Gadget (1999)",
+      "Robots (2005)",
+      "Doraemon: Nobita and the Steel Troops (1986)",
+      "Robot Wrecks (1941)",
+      "WALL-E (2008)",
+      "Automatons (2006)",
+      "I, Robot (2004)"
+     ],
+     "text_sim": 0.4146173894405365,
+     "pos_per_ref": [
+      0.5916575193405151
+     ],
+     "pos_mean": 0.5916575193405151,
+     "pos_min_ref": 0.5916575193405151,
+     "max_single_pos_mean": 0.5916575253009796,
+     "max_single_pos_min": 0.4898475408554077,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 33.3,
+     "overlap_with_A": 0.3,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-005051-000000",
+      "edb95c357b3b-038004-000000",
+      "edb95c357b3b-037836-000000",
+      "edb95c357b3b-037688-000000",
+      "edb95c357b3b-035472-000000",
+      "edb95c357b3b-023423-000000",
+      "edb95c357b3b-004207-000000",
+      "edb95c357b3b-015134-000000",
+      "edb95c357b3b-026940-000000",
+      "edb95c357b3b-011826-000000"
+     ],
+     "titles": [
+      "The Tommyknockers (1993)",
+      "Teenagers from Outer Space (1959)",
+      "Small Soldiers (1998)",
+      "Astro Boy (2009)",
+      "The Day the Earth Stopped (2008)",
+      "The Day the Earth Stood Still (2008)",
+      "Jimmy Neutron: Boy Genius (2001)",
+      "Maximum Overdrive (1986)",
+      "S.S. Doomtrooper (2006)",
+      "Robots (2005)"
+     ],
+     "text_sim": 0.3120402693748474,
+     "pos_per_ref": [
+      0.6411923170089722
+     ],
+     "pos_mean": 0.6411923170089722,
+     "pos_min_ref": 0.6411923170089722,
+     "max_single_pos_mean": 0.6411922931671142,
+     "max_single_pos_min": 0.6275302767753601,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 49.4,
+     "overlap_with_A": 0.0,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c09",
+   "category": "positive_only",
+   "text_id": "q19",
+   "embedded_text": "A heist movie in which the carefully planned robbery goes wrong.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "Rififi",
+     "year": 1955,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Rififi",
+     "matched_year": 1955,
+     "movie_id": "1981903"
+    }
+   ],
+   "usable_positive": 1,
+   "usable_negative": 0,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-023126-000000",
+      "edb95c357b3b-020826-000000",
+      "edb95c357b3b-019508-000000",
+      "edb95c357b3b-025312-000000",
+      "edb95c357b3b-004859-000000",
+      "edb95c357b3b-041170-000000",
+      "edb95c357b3b-005968-000000",
+      "edb95c357b3b-013692-000000",
+      "edb95c357b3b-006963-000000",
+      "edb95c357b3b-004769-000000"
+     ],
+     "titles": [
+      "Foolproof (2003)",
+      "Big Deal on Madonna Street (1958)",
+      "Lost (2004)",
+      "A New Wave (2007)",
+      "Down the Drain (1990)",
+      "The Anderson Tapes (1971)",
+      "Living & Dying (2006)",
+      "The Box (2007)",
+      "Black (2009)",
+      "Heaven's Fire (?)"
+     ],
+     "text_sim": 0.5703145265579224,
+     "pos_per_ref": [
+      0.5152035355567932
+     ],
+     "pos_mean": 0.5152035355567932,
+     "pos_min_ref": 0.5152035355567932,
+     "max_single_pos_mean": 0.5152035534381867,
+     "max_single_pos_min": 0.3913618326187134,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 30.1
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-020826-000000",
+      "edb95c357b3b-006787-000000",
+      "edb95c357b3b-020482-000000",
+      "edb95c357b3b-018611-000000",
+      "edb95c357b3b-023126-000000",
+      "edb95c357b3b-035947-000000",
+      "edb95c357b3b-040781-000000",
+      "edb95c357b3b-029448-000000",
+      "edb95c357b3b-041170-000000",
+      "edb95c357b3b-016043-000000"
+     ],
+     "titles": [
+      "Big Deal on Madonna Street (1958)",
+      "The Brink's Job (1978)",
+      "Seven Thieves (1960)",
+      "Bottle Rocket (1996)",
+      "Foolproof (2003)",
+      "The Great St. Louis Bank Robbery (1959)",
+      "Ocean's Twelve (2004)",
+      "Le Clan des Siciliens (1969)",
+      "The Anderson Tapes (1971)",
+      "The Italian Job (2003)"
+     ],
+     "text_sim": 0.5261664390563965,
+     "pos_per_ref": [
+      0.6362095475196838
+     ],
+     "pos_mean": 0.6362095475196838,
+     "pos_min_ref": 0.6362095475196838,
+     "max_single_pos_mean": 0.6362095057964325,
+     "max_single_pos_min": 0.5184581279754639,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 30.0,
+     "overlap_with_A": 0.3,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-001814-000000",
+      "edb95c357b3b-029448-000000",
+      "edb95c357b3b-015432-000000",
+      "edb95c357b3b-012808-000000",
+      "edb95c357b3b-017748-000000",
+      "edb95c357b3b-000620-000000",
+      "edb95c357b3b-006321-000000",
+      "edb95c357b3b-006787-000000",
+      "edb95c357b3b-014356-000000",
+      "edb95c357b3b-025282-000000"
+     ],
+     "titles": [
+      "Scarface (1983)",
+      "Le Clan des Siciliens (1969)",
+      "The Man in the Back Seat (1961)",
+      "Pusher II (2004)",
+      "Saturday Night Fever (1977)",
+      "Dial M for Murder (1954)",
+      "Scarface (1932)",
+      "The Brink's Job (1978)",
+      "Jane Austen's Mafia! (1998)",
+      "Bachelor Party (2012)"
+     ],
+     "text_sim": 0.3855815529823303,
+     "pos_per_ref": [
+      0.7038124799728394
+     ],
+     "pos_mean": 0.7038124799728394,
+     "pos_min_ref": 0.7038124799728394,
+     "max_single_pos_mean": 0.7038124978542328,
+     "max_single_pos_min": 0.6785591840744019,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 37.4,
+     "overlap_with_A": 0.0,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c10",
+   "category": "negative_only",
+   "text_id": "q11",
+   "embedded_text": "Science fiction films without robots or space travel.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "Blade Runner",
+     "year": 1982,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Blade Runner",
+     "matched_year": 1982,
+     "movie_id": "3746"
+    }
+   ],
+   "usable_positive": 0,
+   "usable_negative": 1,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-028376-000000",
+      "edb95c357b3b-036312-000000",
+      "edb95c357b3b-021318-000000",
+      "edb95c357b3b-002453-000000",
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-010208-000000",
+      "edb95c357b3b-013991-000000",
+      "edb95c357b3b-010874-000000",
+      "edb95c357b3b-005153-000000",
+      "edb95c357b3b-014503-000000"
+     ],
+     "titles": [
+      "The Terminators (2009)",
+      "Outside (2004)",
+      "Mutant Swinger from Mars (2003)",
+      "Beasties (1989)",
+      "Cosmos: War of the Planets (1977)",
+      "Star Odyssey (1979)",
+      "A.P.E.X. (1994)",
+      "The Worst Movie Ever! (2011)",
+      "U.F.O. (2013)",
+      "The Witches Cave (1989)"
+     ],
+     "text_sim": 0.3887828290462494,
+     "neg_per_ref": [
+      0.3631224036216736
+     ],
+     "neg_mean": 0.3631224036216736,
+     "neg_max_item": 0.5326801538467407,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 30.7
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-036312-000000",
+      "edb95c357b3b-014503-000000",
+      "edb95c357b3b-021318-000000",
+      "edb95c357b3b-005153-000000",
+      "831c5b93a900-000000-000026",
+      "edb95c357b3b-016771-000000",
+      "edb95c357b3b-031093-000000",
+      "edb95c357b3b-012548-000000",
+      "edb95c357b3b-038566-000000",
+      "edb95c357b3b-001608-000000"
+     ],
+     "titles": [
+      "Outside (2004)",
+      "The Witches Cave (1989)",
+      "Mutant Swinger from Mars (2003)",
+      "U.F.O. (2013)",
+      "MovieSummaries/README.txt (?)",
+      "Pax Americana and the Weaponization of Space (?)",
+      "The Possibility of Hope (2007)",
+      "Orders Are Orders (1953)",
+      "World Without Sun (1964)",
+      "Boldly Going Nowhere (2009)"
+     ],
+     "text_sim": 0.3478476107120514,
+     "neg_per_ref": [
+      0.23228740692138672
+     ],
+     "neg_mean": 0.23228740692138672,
+     "neg_max_item": 0.28918617963790894,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 29.6,
+     "overlap_with_A": 0.4,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-036312-000000",
+      "edb95c357b3b-021318-000000",
+      "edb95c357b3b-010208-000000",
+      "edb95c357b3b-010874-000000",
+      "edb95c357b3b-005153-000000",
+      "edb95c357b3b-014503-000000",
+      "edb95c357b3b-038570-000000",
+      "edb95c357b3b-032299-000000",
+      "edb95c357b3b-013799-000000",
+      "edb95c357b3b-041483-000000"
+     ],
+     "titles": [
+      "Outside (2004)",
+      "Mutant Swinger from Mars (2003)",
+      "Star Odyssey (1979)",
+      "The Worst Movie Ever! (2011)",
+      "U.F.O. (2013)",
+      "The Witches Cave (1989)",
+      "Odyssey 2050 (2012)",
+      "High Desert Kill (?)",
+      "The Movie From the Future (2000)",
+      "Flutter (2006)"
+     ],
+     "text_sim": 0.37365373969078064,
+     "neg_per_ref": [
+      0.3131710886955261
+     ],
+     "neg_mean": 0.3131710886955261,
+     "neg_max_item": 0.36099860072135925,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 32.1,
+     "overlap_with_A": 0.6,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c11",
+   "category": "negative_only",
+   "text_id": "q01",
+   "embedded_text": "A slow-paced, melancholic film about the relationship between a father and his son.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "Big Fish",
+     "year": 2003,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Big Fish",
+     "matched_year": 2003,
+     "movie_id": "431014"
+    }
+   ],
+   "usable_positive": 0,
+   "usable_negative": 1,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-030283-000000",
+      "edb95c357b3b-029599-000000",
+      "edb95c357b3b-001862-000000",
+      "edb95c357b3b-018772-000000",
+      "edb95c357b3b-003149-000000",
+      "edb95c357b3b-005612-000000",
+      "edb95c357b3b-038945-000000",
+      "edb95c357b3b-020572-000000",
+      "edb95c357b3b-000792-000000",
+      "edb95c357b3b-031009-000000"
+     ],
+     "titles": [
+      "Mother and Son (1997)",
+      "Daddy (1989)",
+      "Tree Without Leaves (1986)",
+      "Photographic Memory (?)",
+      "Little Odessa (1994)",
+      "Haridas (2012)",
+      "Honey (2010)",
+      "Los Caranchos de la Florida (1938)",
+      "Dog (2001)",
+      "Punggok Rindukan Bulan (?)"
+     ],
+     "text_sim": 0.5374379754066467,
+     "neg_per_ref": [
+      0.4014159142971039
+     ],
+     "neg_mean": 0.4014159142971039,
+     "neg_max_item": 0.5326801538467407,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 28.0
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-030283-000000",
+      "edb95c357b3b-029599-000000",
+      "edb95c357b3b-003149-000000",
+      "edb95c357b3b-020572-000000",
+      "edb95c357b3b-029999-000000",
+      "edb95c357b3b-004298-000000",
+      "edb95c357b3b-031009-000000",
+      "edb95c357b3b-029005-000000",
+      "edb95c357b3b-005612-000000",
+      "edb95c357b3b-033038-000000"
+     ],
+     "titles": [
+      "Mother and Son (1997)",
+      "Daddy (1989)",
+      "Little Odessa (1994)",
+      "Los Caranchos de la Florida (1938)",
+      "Everything Goes (2004)",
+      "Birthday (1977)",
+      "Punggok Rindukan Bulan (?)",
+      "Frozen (2007)",
+      "Haridas (2012)",
+      "Asukh (1999)"
+     ],
+     "text_sim": 0.5120333433151245,
+     "neg_per_ref": [
+      0.3367123007774353
+     ],
+     "neg_mean": 0.3367123007774353,
+     "neg_max_item": 0.42643141746520996,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 40.9,
+     "overlap_with_A": 0.6,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-030283-000000",
+      "edb95c357b3b-029599-000000",
+      "edb95c357b3b-001862-000000",
+      "edb95c357b3b-018772-000000",
+      "edb95c357b3b-003149-000000",
+      "edb95c357b3b-005612-000000",
+      "edb95c357b3b-038945-000000",
+      "edb95c357b3b-020572-000000",
+      "edb95c357b3b-000792-000000",
+      "edb95c357b3b-031009-000000"
+     ],
+     "titles": [
+      "Mother and Son (1997)",
+      "Daddy (1989)",
+      "Tree Without Leaves (1986)",
+      "Photographic Memory (?)",
+      "Little Odessa (1994)",
+      "Haridas (2012)",
+      "Honey (2010)",
+      "Los Caranchos de la Florida (1938)",
+      "Dog (2001)",
+      "Punggok Rindukan Bulan (?)"
+     ],
+     "text_sim": 0.5374379754066467,
+     "neg_per_ref": [
+      0.4014159142971039
+     ],
+     "neg_mean": 0.4014159142971039,
+     "neg_max_item": 0.5326801538467407,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 35.5,
+     "overlap_with_A": 1.0,
+     "identical_to_A": true,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c12",
+   "category": "multi_positive",
+   "text_id": "q13",
+   "embedded_text": "A science fiction film about people discovering that their reality is an artificial simulation and joining a rebellion against intelligent machines and oppressive control.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "The Matrix",
+     "year": 1999,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "The Matrix",
+     "matched_year": 1999,
+     "movie_id": "30007"
+    },
+    {
+     "title": "Blade Runner",
+     "year": 1982,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Blade Runner",
+     "matched_year": 1982,
+     "movie_id": "3746"
+    },
+    {
+     "title": "The Terminator",
+     "year": 1984,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "The Terminator",
+     "matched_year": 1984,
+     "movie_id": "30327"
+    },
+    {
+     "title": "Inception",
+     "year": 2010,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Inception",
+     "matched_year": 2010,
+     "movie_id": "23270459"
+    }
+   ],
+   "usable_positive": 3,
+   "usable_negative": 1,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-021295-000000",
+      "edb95c357b3b-029918-000000",
+      "edb95c357b3b-004428-000000",
+      "edb95c357b3b-033728-000000",
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-013812-000000",
+      "edb95c357b3b-013991-000000",
+      "edb95c357b3b-027806-000000",
+      "edb95c357b3b-020975-000000",
+      "edb95c357b3b-023825-000000"
+     ],
+     "titles": [
+      "Impostor (2001)",
+      "2B - The Era of Flesh is Over (?)",
+      "Terminal Voyage (1994)",
+      "Earthling (2010)",
+      "Cosmos: War of the Planets (1977)",
+      "Cafe (2011)",
+      "A.P.E.X. (1994)",
+      "Polygon (1977)",
+      "The Mutant Chronicles (2008)",
+      "Until the End of the World (1991)"
+     ],
+     "text_sim": 0.5413370728492737,
+     "pos_per_ref": [
+      0.5277462005615234,
+      0.4853420853614807,
+      0.48547086119651794
+     ],
+     "pos_mean": 0.4995197157065074,
+     "pos_min_ref": 0.4853420853614807,
+     "max_single_pos_mean": 0.5343872636556626,
+     "max_single_pos_min": 0.41548043489456177,
+     "neg_per_ref": [
+      0.4433527886867523
+     ],
+     "neg_mean": 0.4433527886867523,
+     "neg_max_item": 0.5449073910713196,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 26.8
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-027537-000000",
+      "edb95c357b3b-003698-000000",
+      "edb95c357b3b-021295-000000",
+      "edb95c357b3b-003348-000000",
+      "edb95c357b3b-036493-000000",
+      "edb95c357b3b-016363-000000",
+      "edb95c357b3b-020975-000000",
+      "edb95c357b3b-029566-000000",
+      "edb95c357b3b-032810-000000",
+      "edb95c357b3b-037012-000000"
+     ],
+     "titles": [
+      "Terminator 2: Judgment Day (1991)",
+      "Terminator Salvation (2009)",
+      "Impostor (2001)",
+      "Terminator 3: Rise of the Machines (2003)",
+      "Transmorphers (2007)",
+      "The Creation of the Humanoids (1962)",
+      "The Mutant Chronicles (2008)",
+      "The Animatrix (2003)",
+      "Robot Holocaust (?)",
+      "Not Quite Human II (?)"
+     ],
+     "text_sim": 0.47146233916282654,
+     "pos_per_ref": [
+      0.6090792417526245,
+      0.55183345079422,
+      0.6459313035011292
+     ],
+     "pos_mean": 0.6022813320159912,
+     "pos_min_ref": 0.55183345079422,
+     "max_single_pos_mean": 0.6962841093540192,
+     "max_single_pos_min": 0.5293540358543396,
+     "neg_per_ref": [
+      0.43282946944236755
+     ],
+     "neg_mean": 0.43282946944236755,
+     "neg_max_item": 0.5748436450958252,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 49.5,
+     "overlap_with_A": 0.2,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-027537-000000",
+      "edb95c357b3b-003348-000000",
+      "edb95c357b3b-003698-000000",
+      "edb95c357b3b-029566-000000",
+      "edb95c357b3b-038375-000000",
+      "edb95c357b3b-040143-000000",
+      "edb95c357b3b-000815-000000",
+      "edb95c357b3b-021295-000000",
+      "edb95c357b3b-032810-000000",
+      "edb95c357b3b-004148-000000"
+     ],
+     "titles": [
+      "Terminator 2: Judgment Day (1991)",
+      "Terminator 3: Rise of the Machines (2003)",
+      "Terminator Salvation (2009)",
+      "The Animatrix (2003)",
+      "MTV Movie Awards Reloaded (2003)",
+      "The Fanimatrix (2003)",
+      "Replicant (2001)",
+      "Impostor (2001)",
+      "Robot Holocaust (?)",
+      "Cube Zero (2004)"
+     ],
+     "text_sim": 0.4512108266353607,
+     "pos_per_ref": [
+      0.6546496152877808,
+      0.5600523352622986,
+      0.6311208605766296
+     ],
+     "pos_mean": 0.6152742703755697,
+     "pos_min_ref": 0.5600523352622986,
+     "max_single_pos_mean": 0.7417684137821198,
+     "max_single_pos_min": 0.6551002860069275,
+     "neg_per_ref": [
+      0.48644524812698364
+     ],
+     "neg_mean": 0.48644524812698364,
+     "neg_max_item": 0.6193454265594482,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 52.8,
+     "overlap_with_A": 0.1,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c13",
+   "category": "multi_positive",
+   "text_id": "q16",
+   "embedded_text": "An emotionally epic science fiction film about space exploration, human survival, time dilation, family bonds, and cosmic mystery.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "2001: A Space Odyssey",
+     "year": 1968,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "2001: A Space Odyssey",
+     "matched_year": 1968,
+     "movie_id": "23941708"
+    },
+    {
+     "title": "Moon",
+     "year": 2009,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Moon",
+     "matched_year": 2009,
+     "movie_id": "20348262"
+    },
+    {
+     "title": "Solaris",
+     "year": 1972,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Solaris",
+     "matched_year": 1972,
+     "movie_id": "20181213",
+     "candidates": [
+      {
+       "title": "Solaris",
+       "release_year": "2002",
+       "movie_id": "4908352"
+      }
+     ]
+    },
+    {
+     "title": "Gravity",
+     "year": 2013,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Gravity",
+     "matched_year": 2013,
+     "movie_id": "30294906"
+    }
+   ],
+   "usable_positive": 3,
+   "usable_negative": 1,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-016949-000000",
+      "edb95c357b3b-022998-000000",
+      "edb95c357b3b-008273-000000",
+      "edb95c357b3b-012135-000000",
+      "edb95c357b3b-023055-000000",
+      "edb95c357b3b-023825-000000",
+      "edb95c357b3b-038194-000000",
+      "edb95c357b3b-002518-000000",
+      "edb95c357b3b-003110-000000"
+     ],
+     "titles": [
+      "Cosmos: War of the Planets (1977)",
+      "Women of the Prehistoric Planet (1966)",
+      "Flight of the Navigator (1986)",
+      "Ice Planet (2003)",
+      "The Time Travelers (1964)",
+      "Royal Space Force: The Wings of Honneamise (1987)",
+      "Until the End of the World (1991)",
+      "The Day Time Ended (1980)",
+      "John Dies at the End (2012)",
+      "Mezame No Hakobune (2005)"
+     ],
+     "text_sim": 0.5192875266075134,
+     "pos_per_ref": [
+      0.5993493795394897,
+      0.509249210357666,
+      0.5614362955093384
+     ],
+     "pos_mean": 0.556678295135498,
+     "pos_min_ref": 0.509249210357666,
+     "max_single_pos_mean": 0.6098603785037995,
+     "max_single_pos_min": 0.4759487509727478,
+     "neg_per_ref": [
+      0.4791501462459564
+     ],
+     "neg_mean": 0.4791501462459564,
+     "neg_max_item": 0.5517445802688599,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 31.4
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-022998-000000",
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-013777-000000",
+      "edb95c357b3b-011880-000000",
+      "edb95c357b3b-008134-000000",
+      "edb95c357b3b-038194-000000",
+      "edb95c357b3b-028102-000000",
+      "edb95c357b3b-006456-000000",
+      "edb95c357b3b-005051-000000",
+      "edb95c357b3b-013435-000000"
+     ],
+     "titles": [
+      "Flight of the Navigator (1986)",
+      "Cosmos: War of the Planets (1977)",
+      "Megaville (1990)",
+      "2010: The Year We Make Contact (1984)",
+      "Brainstorm (1983)",
+      "The Day Time Ended (1980)",
+      "Pandorum (2009)",
+      "The Time Machine (2002)",
+      "The Tommyknockers (1993)",
+      "Youth Without Youth (2007)"
+     ],
+     "text_sim": 0.449108362197876,
+     "pos_per_ref": [
+      0.637617826461792,
+      0.5720095038414001,
+      0.5983811020851135
+     ],
+     "pos_mean": 0.6026694774627686,
+     "pos_min_ref": 0.5720095038414001,
+     "max_single_pos_mean": 0.6461381852626801,
+     "max_single_pos_min": 0.5619902610778809,
+     "neg_per_ref": [
+      0.4305102825164795
+     ],
+     "neg_mean": 0.4305102825164795,
+     "neg_max_item": 0.5517445802688599,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 44.5,
+     "overlap_with_A": 0.3,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-011880-000000",
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-002827-000000",
+      "edb95c357b3b-028102-000000",
+      "edb95c357b3b-027252-000000",
+      "edb95c357b3b-006951-000000",
+      "edb95c357b3b-023423-000000",
+      "edb95c357b3b-013661-000000",
+      "edb95c357b3b-023574-000000",
+      "edb95c357b3b-017295-000000"
+     ],
+     "titles": [
+      "2010: The Year We Make Contact (1984)",
+      "Cosmos: War of the Planets (1977)",
+      "Apollo 18 (2011)",
+      "Pandorum (2009)",
+      "The Day the Earth Stood Still (1951)",
+      "The Black Hole (1979)",
+      "The Day the Earth Stood Still (2008)",
+      "Robinson Crusoe on Mars (1964)",
+      "Space Cowboys (2000)",
+      "Sphere (1998)"
+     ],
+     "text_sim": 0.46141189336776733,
+     "pos_per_ref": [
+      0.686872124671936,
+      0.5834618806838989,
+      0.6067563891410828
+     ],
+     "pos_mean": 0.6256967981656393,
+     "pos_min_ref": 0.5834618806838989,
+     "max_single_pos_mean": 0.6868721783161164,
+     "max_single_pos_min": 0.6625748872756958,
+     "neg_per_ref": [
+      0.5282688736915588
+     ],
+     "neg_mean": 0.5282688736915588,
+     "neg_max_item": 0.5834091901779175,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 54.6,
+     "overlap_with_A": 0.1,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [
+     {
+      "title": "2001: A Space Odyssey",
+      "year": "1968",
+      "reference_status": "resolved"
+     },
+     {
+      "title": "Gravity",
+      "year": "2013",
+      "reference_status": "resolved"
+     }
+    ],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c14",
+   "category": "multi_negative",
+   "text_id": "q14",
+   "embedded_text": "An industrial science fiction horror film about a crew trapped in an isolated spaceship who must survive a terrifying alien creature in a claustrophobic environment.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "Alien",
+     "year": 1979,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Alien",
+     "matched_year": 1979,
+     "movie_id": "23487440",
+     "candidates": [
+      {
+       "title": "The Alien",
+       "release_year": null,
+       "movie_id": "7742919"
+      }
+     ]
+    },
+    {
+     "title": "Predator",
+     "year": 1987,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Predator",
+     "matched_year": 1987,
+     "movie_id": "230481"
+    },
+    {
+     "title": "Aliens",
+     "year": 1986,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Aliens",
+     "matched_year": 1986,
+     "movie_id": "213472"
+    },
+    {
+     "title": "The Thing",
+     "year": 1982,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "The Thing",
+     "matched_year": 1982,
+     "movie_id": "30809",
+     "candidates": [
+      {
+       "title": "The Thing",
+       "release_year": "2011",
+       "movie_id": "26739428"
+      },
+      {
+       "title": "The Thing",
+       "release_year": "1951",
+       "movie_id": "76387"
+      }
+     ]
+    }
+   ],
+   "usable_positive": 1,
+   "usable_negative": 3,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-009231-000000",
+      "edb95c357b3b-010012-000000",
+      "edb95c357b3b-008273-000000",
+      "edb95c357b3b-011740-000000",
+      "edb95c357b3b-015100-000000",
+      "edb95c357b3b-035200-000000",
+      "edb95c357b3b-004428-000000",
+      "edb95c357b3b-017109-000000",
+      "edb95c357b3b-022874-000000",
+      "edb95c357b3b-010537-000000"
+     ],
+     "titles": [
+      "Project Shadowchaser III (1995)",
+      "Creature (1985)",
+      "Ice Planet (2003)",
+      "Prometheus (2012)",
+      "Star Crystal (1986)",
+      "Decaying Orbit (2007)",
+      "Terminal Voyage (1994)",
+      "The Andromeda Nebula (1967)",
+      "Gravity (2013)",
+      "Dead Space: Downfall (2008)"
+     ],
+     "text_sim": 0.5345152616500854,
+     "pos_per_ref": [
+      0.5895534157752991
+     ],
+     "pos_mean": 0.5895534157752991,
+     "pos_min_ref": 0.5895534157752991,
+     "max_single_pos_mean": 0.5895533740520478,
+     "max_single_pos_min": 0.4891977906227112,
+     "neg_per_ref": [
+      0.5131615996360779,
+      0.5670639276504517,
+      0.5436174869537354
+     ],
+     "neg_mean": 0.541281004746755,
+     "neg_max_item": 0.7068778276443481,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 27.2
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-010012-000000",
+      "edb95c357b3b-015100-000000",
+      "edb95c357b3b-017109-000000",
+      "edb95c357b3b-010537-000000",
+      "edb95c357b3b-009231-000000",
+      "edb95c357b3b-011740-000000",
+      "edb95c357b3b-008273-000000",
+      "edb95c357b3b-022874-000000",
+      "edb95c357b3b-015264-000000"
+     ],
+     "titles": [
+      "Cosmos: War of the Planets (1977)",
+      "Creature (1985)",
+      "Star Crystal (1986)",
+      "The Andromeda Nebula (1967)",
+      "Dead Space: Downfall (2008)",
+      "Project Shadowchaser III (1995)",
+      "Prometheus (2012)",
+      "Ice Planet (2003)",
+      "Gravity (2013)",
+      "Pitch Black (2000)"
+     ],
+     "text_sim": 0.5323604345321655,
+     "pos_per_ref": [
+      0.6187148690223694
+     ],
+     "pos_mean": 0.6187148690223694,
+     "pos_min_ref": 0.6187148690223694,
+     "max_single_pos_mean": 0.6187148153781891,
+     "max_single_pos_min": 0.4891977906227112,
+     "neg_per_ref": [
+      0.5359479784965515,
+      0.5913096070289612,
+      0.5588812232017517
+     ],
+     "neg_mean": 0.5620462695757548,
+     "neg_max_item": 0.7342686653137207,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 32.2,
+     "overlap_with_A": 0.8,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-011740-000000",
+      "edb95c357b3b-010537-000000",
+      "edb95c357b3b-029857-000000",
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-029643-000000",
+      "edb95c357b3b-028102-000000",
+      "edb95c357b3b-016787-000000",
+      "edb95c357b3b-007827-000000",
+      "edb95c357b3b-036699-000000",
+      "edb95c357b3b-008273-000000"
+     ],
+     "titles": [
+      "Prometheus (2012)",
+      "Dead Space: Downfall (2008)",
+      "Virus (1999)",
+      "Cosmos: War of the Planets (1977)",
+      "Dead Space: Aftermath (2011)",
+      "Pandorum (2009)",
+      "Supernova (2000)",
+      "Deep Rising (1998)",
+      "Dracula 3000 (2004)",
+      "Ice Planet (2003)"
+     ],
+     "text_sim": 0.4920261800289154,
+     "pos_per_ref": [
+      0.6715356707572937
+     ],
+     "pos_mean": 0.6715356707572937,
+     "pos_min_ref": 0.6715356707572937,
+     "max_single_pos_mean": 0.6715356469154358,
+     "max_single_pos_min": 0.6349542140960693,
+     "neg_per_ref": [
+      0.5995323657989502,
+      0.6449916958808899,
+      0.6249465346336365
+     ],
+     "neg_mean": 0.6231568654378256,
+     "neg_max_item": 0.7068778276443481,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 52.0,
+     "overlap_with_A": 0.3,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [
+     {
+      "title": "Alien",
+      "year": "1979",
+      "reference_status": "resolved"
+     }
+    ],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c15",
+   "category": "multi_both",
+   "text_id": "q16",
+   "embedded_text": "An emotionally epic science fiction film about space exploration, human survival, time dilation, family bonds, and cosmic mystery.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "2001: A Space Odyssey",
+     "year": 1968,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "2001: A Space Odyssey",
+     "matched_year": 1968,
+     "movie_id": "23941708"
+    },
+    {
+     "title": "Silent Running",
+     "year": 1972,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Silent Running",
+     "matched_year": 1972,
+     "movie_id": "539816"
+    },
+    {
+     "title": "Gravity",
+     "year": 2013,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Gravity",
+     "matched_year": 2013,
+     "movie_id": "30294906"
+    },
+    {
+     "title": "Sunshine",
+     "year": 2007,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Sunshine",
+     "matched_year": 2007,
+     "movie_id": "3252860",
+     "candidates": [
+      {
+       "title": "Sunshine",
+       "release_year": "1999",
+       "movie_id": "4413065"
+      }
+     ]
+    },
+    {
+     "title": "Lost in Space",
+     "year": 1998,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Lost in Space",
+     "matched_year": 1998,
+     "movie_id": "565318"
+    }
+   ],
+   "usable_positive": 2,
+   "usable_negative": 3,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-016949-000000",
+      "edb95c357b3b-022998-000000",
+      "edb95c357b3b-008273-000000",
+      "edb95c357b3b-012135-000000",
+      "edb95c357b3b-023055-000000",
+      "edb95c357b3b-023825-000000",
+      "edb95c357b3b-038194-000000",
+      "edb95c357b3b-002518-000000",
+      "edb95c357b3b-003110-000000"
+     ],
+     "titles": [
+      "Cosmos: War of the Planets (1977)",
+      "Women of the Prehistoric Planet (1966)",
+      "Flight of the Navigator (1986)",
+      "Ice Planet (2003)",
+      "The Time Travelers (1964)",
+      "Royal Space Force: The Wings of Honneamise (1987)",
+      "Until the End of the World (1991)",
+      "The Day Time Ended (1980)",
+      "John Dies at the End (2012)",
+      "Mezame No Hakobune (2005)"
+     ],
+     "text_sim": 0.5192875266075134,
+     "pos_per_ref": [
+      0.5993493795394897,
+      0.5259274244308472
+     ],
+     "pos_mean": 0.5626384019851685,
+     "pos_min_ref": 0.5259274244308472,
+     "max_single_pos_mean": 0.5993494153022766,
+     "max_single_pos_min": 0.4759487509727478,
+     "neg_per_ref": [
+      0.4791501462459564,
+      0.5141497254371643,
+      0.553472638130188
+     ],
+     "neg_mean": 0.5155908366044363,
+     "neg_max_item": 0.6664866805076599,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 27.4
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-011880-000000",
+      "edb95c357b3b-003110-000000",
+      "edb95c357b3b-022998-000000",
+      "edb95c357b3b-023738-000000",
+      "edb95c357b3b-028102-000000",
+      "edb95c357b3b-017172-000000",
+      "edb95c357b3b-004559-000000",
+      "edb95c357b3b-014954-000000",
+      "edb95c357b3b-024132-000000"
+     ],
+     "titles": [
+      "Cosmos: War of the Planets (1977)",
+      "2010: The Year We Make Contact (1984)",
+      "Mezame No Hakobune (2005)",
+      "Flight of the Navigator (1986)",
+      "Slaughterhouse-Five (1972)",
+      "Pandorum (2009)",
+      "Mission Stardust (1967)",
+      "Centered in the Universe (2006)",
+      "The Abyss (1989)",
+      "The Return (1980)"
+     ],
+     "text_sim": 0.4969778060913086,
+     "pos_per_ref": [
+      0.6411697268486023,
+      0.5422083139419556
+     ],
+     "pos_mean": 0.5916890203952789,
+     "pos_min_ref": 0.5422083139419556,
+     "max_single_pos_mean": 0.6411697745323182,
+     "max_single_pos_min": 0.5703929662704468,
+     "neg_per_ref": [
+      0.4505128264427185,
+      0.5132169127464294,
+      0.5446697473526001
+     ],
+     "neg_mean": 0.5027998288472494,
+     "neg_max_item": 0.6830300092697144,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 38.0,
+     "overlap_with_A": 0.3,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-011880-000000",
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-002827-000000",
+      "edb95c357b3b-028102-000000",
+      "edb95c357b3b-027252-000000",
+      "edb95c357b3b-006951-000000",
+      "edb95c357b3b-023423-000000",
+      "edb95c357b3b-013661-000000",
+      "edb95c357b3b-017295-000000",
+      "edb95c357b3b-001989-000000"
+     ],
+     "titles": [
+      "2010: The Year We Make Contact (1984)",
+      "Cosmos: War of the Planets (1977)",
+      "Apollo 18 (2011)",
+      "Pandorum (2009)",
+      "The Day the Earth Stood Still (1951)",
+      "The Black Hole (1979)",
+      "The Day the Earth Stood Still (2008)",
+      "Robinson Crusoe on Mars (1964)",
+      "Sphere (1998)",
+      "The Terrornauts (1967)"
+     ],
+     "text_sim": 0.4624902307987213,
+     "pos_per_ref": [
+      0.686491072177887,
+      0.5993038415908813
+     ],
+     "pos_mean": 0.6428974568843842,
+     "pos_min_ref": 0.5993038415908813,
+     "max_single_pos_mean": 0.6864910960197449,
+     "max_single_pos_min": 0.6609958410263062,
+     "neg_per_ref": [
+      0.527363121509552,
+      0.5989039540290833,
+      0.6274920701980591
+     ],
+     "neg_mean": 0.5845863819122314,
+     "neg_max_item": 0.6830300092697144,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 59.3,
+     "overlap_with_A": 0.1,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [
+     {
+      "title": "2001: A Space Odyssey",
+      "year": "1968",
+      "reference_status": "resolved"
+     },
+     {
+      "title": "Gravity",
+      "year": "2013",
+      "reference_status": "resolved"
+     }
+    ],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c16",
+   "category": "multi_both",
+   "text_id": "q22",
+   "embedded_text": "A film about a mutiny aboard a Soviet nuclear submarine.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "Das Boot",
+     "year": 1981,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Das Boot",
+     "matched_year": 1981,
+     "movie_id": "8994"
+    },
+    {
+     "title": "Paths of Glory",
+     "year": 1957,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Paths of Glory",
+     "matched_year": 1957,
+     "movie_id": "23255"
+    },
+    {
+     "title": "Pearl Harbor",
+     "year": 2001,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Pearl Harbor",
+     "matched_year": 2001,
+     "movie_id": "99304"
+    },
+    {
+     "title": "Saving Private Ryan",
+     "year": 1998,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Saving Private Ryan",
+     "matched_year": 1998,
+     "movie_id": "28269"
+    }
+   ],
+   "usable_positive": 2,
+   "usable_negative": 2,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-039843-000000",
+      "edb95c357b3b-032900-000000",
+      "edb95c357b3b-030510-000000",
+      "edb95c357b3b-009907-000000",
+      "edb95c357b3b-016764-000000",
+      "edb95c357b3b-035746-000000",
+      "edb95c357b3b-027601-000000",
+      "edb95c357b3b-036743-000000",
+      "edb95c357b3b-003362-000000",
+      "edb95c357b3b-006123-000000"
+     ],
+     "titles": [
+      "The Bedford Incident (1965)",
+      "Hostile Waters (1997)",
+      "K-19: The Widowmaker (2002)",
+      "Solo Voyage (1985)",
+      "Crimson Tide (1995)",
+      "The Defection of Simas Kudirka (1978)",
+      "Submarine X-1 (1969)",
+      "Morning Departure (1950)",
+      "The Russians Are Coming, the Russians Are Coming (1966)",
+      "Danger Beneath the Sea (2001)"
+     ],
+     "text_sim": 0.583949625492096,
+     "pos_per_ref": [
+      0.5852376222610474,
+      0.4345545172691345
+     ],
+     "pos_mean": 0.5098960697650909,
+     "pos_min_ref": 0.4345545172691345,
+     "max_single_pos_mean": 0.5852376639842987,
+     "max_single_pos_min": 0.4383607506752014,
+     "neg_per_ref": [
+      0.4121280610561371,
+      0.4585546553134918
+     ],
+     "neg_mean": 0.43534135818481445,
+     "neg_max_item": 0.522770881652832,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 27.9
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-027601-000000",
+      "edb95c357b3b-030510-000000",
+      "edb95c357b3b-039843-000000",
+      "edb95c357b3b-023151-000000",
+      "edb95c357b3b-036743-000000",
+      "edb95c357b3b-001602-000000",
+      "edb95c357b3b-019125-000000",
+      "edb95c357b3b-011316-000000",
+      "edb95c357b3b-032900-000000",
+      "edb95c357b3b-015237-000000"
+     ],
+     "titles": [
+      "Submarine X-1 (1969)",
+      "K-19: The Widowmaker (2002)",
+      "The Bedford Incident (1965)",
+      "The Sailor's Song (1958)",
+      "Morning Departure (1950)",
+      "U-Boote westwärts (1941)",
+      "Counter-Attack (1945)",
+      "U-571 (2000)",
+      "Hostile Waters (1997)",
+      "Lifeboat (1944)"
+     ],
+     "text_sim": 0.5355249643325806,
+     "pos_per_ref": [
+      0.6870375871658325,
+      0.49656882882118225
+     ],
+     "pos_mean": 0.5918032079935074,
+     "pos_min_ref": 0.49656882882118225,
+     "max_single_pos_mean": 0.6870376467704773,
+     "max_single_pos_min": 0.5634933710098267,
+     "neg_per_ref": [
+      0.42091822624206543,
+      0.49494004249572754
+     ],
+     "neg_mean": 0.4579291343688965,
+     "neg_max_item": 0.6169209480285645,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 41.6,
+     "overlap_with_A": 0.5,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-011316-000000",
+      "edb95c357b3b-015237-000000",
+      "edb95c357b3b-022682-000000",
+      "edb95c357b3b-022150-000000",
+      "edb95c357b3b-009496-000000",
+      "edb95c357b3b-008860-000000",
+      "edb95c357b3b-036743-000000",
+      "edb95c357b3b-009485-000000",
+      "edb95c357b3b-001010-000000",
+      "edb95c357b3b-006843-000000"
+     ],
+     "titles": [
+      "U-571 (2000)",
+      "Lifeboat (1944)",
+      "In Which We Serve (1942)",
+      "Sealed Cargo (1951)",
+      "The Enemy Below (1957)",
+      "Beau Geste (1966)",
+      "Morning Departure (1950)",
+      "Surrender (?)",
+      "Action in the North Atlantic (1943)",
+      "Below (2002)"
+     ],
+     "text_sim": 0.40381813049316406,
+     "pos_per_ref": [
+      0.7023223638534546,
+      0.5633670091629028
+     ],
+     "pos_mean": 0.6328446865081787,
+     "pos_min_ref": 0.5633670091629028,
+     "max_single_pos_mean": 0.7433341145515442,
+     "max_single_pos_min": 0.7136555314064026,
+     "neg_per_ref": [
+      0.498760849237442,
+      0.5660836100578308
+     ],
+     "neg_mean": 0.5324222296476364,
+     "neg_max_item": 0.6297565698623657,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 53.4,
+     "overlap_with_A": 0.1,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c17",
+   "category": "ambiguous_partial",
+   "text_id": "q15",
+   "embedded_text": "A crime drama with an atmosphere of family loyalty, organized crime, power struggles, and difficult moral dilemmas.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "The Godfather",
+     "year": null,
+     "role": "positive",
+     "status": "ambiguous",
+     "candidates": [
+      {
+       "title": "Godfather",
+       "release_year": "2007",
+       "movie_id": "13725762"
+      },
+      {
+       "title": "Godfather",
+       "release_year": "1989",
+       "movie_id": "7497572"
+      },
+      {
+       "title": "Godfather",
+       "release_year": "2012",
+       "movie_id": "32047438"
+      },
+      {
+       "title": "The Godfather",
+       "release_year": "1972",
+       "movie_id": "2466773"
+      }
+     ]
+    },
+    {
+     "title": "Goodfellas",
+     "year": 1990,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Goodfellas",
+     "matched_year": 1990,
+     "movie_id": "64394"
+    }
+   ],
+   "usable_positive": 0,
+   "usable_negative": 1,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-013146-000000",
+      "edb95c357b3b-025091-000000",
+      "edb95c357b3b-034953-000000",
+      "edb95c357b3b-037653-000000",
+      "edb95c357b3b-030044-000000",
+      "edb95c357b3b-003149-000000",
+      "edb95c357b3b-034057-000000",
+      "edb95c357b3b-024046-000000",
+      "edb95c357b3b-001409-000000",
+      "edb95c357b3b-026188-000000"
+     ],
+     "titles": [
+      "The Public Enemy (1931)",
+      "Black Gunn (1972)",
+      "Customs Diary (1993)",
+      "Busting (1974)",
+      "Force of Evil (1948)",
+      "Little Odessa (1994)",
+      "The Escort (1993)",
+      "Jigsaw (1949)",
+      "The Crew (2000)",
+      "Pseudo: Blood of Our Own (?)"
+     ],
+     "text_sim": 0.5391507744789124,
+     "neg_per_ref": [
+      0.48947638273239136
+     ],
+     "neg_mean": 0.48947638273239136,
+     "neg_max_item": 0.607362687587738,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 31.0
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-001174-000000",
+      "edb95c357b3b-040368-000000",
+      "edb95c357b3b-000458-000000",
+      "edb95c357b3b-019205-000000",
+      "edb95c357b3b-042034-000000",
+      "edb95c357b3b-019237-000000",
+      "edb95c357b3b-003149-000000",
+      "edb95c357b3b-026022-000000",
+      "edb95c357b3b-019648-000000",
+      "edb95c357b3b-030044-000000"
+     ],
+     "titles": [
+      "Amar (1954)",
+      "Adiós problemas (1955)",
+      "The Eternal Empire (1994)",
+      "Nasaan Ka Man (2005)",
+      "Tetro (2009)",
+      "Defiance of a Teenager (1959)",
+      "Little Odessa (1994)",
+      "Cry Uncle! (1971)",
+      "Justice Gopinath (?)",
+      "Force of Evil (1948)"
+     ],
+     "text_sim": 0.4966896176338196,
+     "neg_per_ref": [
+      0.3117012083530426
+     ],
+     "neg_mean": 0.3117012083530426,
+     "neg_max_item": 0.42682555317878723,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 27.3,
+     "overlap_with_A": 0.2,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-034953-000000",
+      "edb95c357b3b-037653-000000",
+      "edb95c357b3b-030044-000000",
+      "edb95c357b3b-003149-000000",
+      "edb95c357b3b-034057-000000",
+      "edb95c357b3b-024046-000000",
+      "edb95c357b3b-026188-000000",
+      "edb95c357b3b-020766-000000",
+      "edb95c357b3b-001121-000000",
+      "edb95c357b3b-014608-000000"
+     ],
+     "titles": [
+      "Customs Diary (1993)",
+      "Busting (1974)",
+      "Force of Evil (1948)",
+      "Little Odessa (1994)",
+      "The Escort (1993)",
+      "Jigsaw (1949)",
+      "Pseudo: Blood of Our Own (?)",
+      "Blood Out (2011)",
+      "The Nickel Ride (1974)",
+      "The Summertime Killer (1973)"
+     ],
+     "text_sim": 0.5307880640029907,
+     "neg_per_ref": [
+      0.4579337239265442
+     ],
+     "neg_mean": 0.4579337239265442,
+     "neg_max_item": 0.49452120065689087,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 32.9,
+     "overlap_with_A": 0.7,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c18",
+   "category": "ambiguous_partial",
+   "text_id": "q14",
+   "embedded_text": "An industrial science fiction horror film about a crew trapped in an isolated spaceship who must survive a terrifying alien creature in a claustrophobic environment.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "Alien",
+     "year": null,
+     "role": "positive",
+     "status": "ambiguous",
+     "candidates": [
+      {
+       "title": "Alien",
+       "release_year": "1979",
+       "movie_id": "23487440"
+      },
+      {
+       "title": "The Alien",
+       "release_year": null,
+       "movie_id": "7742919"
+      }
+     ]
+    },
+    {
+     "title": "Predator",
+     "year": 1987,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Predator",
+     "matched_year": 1987,
+     "movie_id": "230481"
+    }
+   ],
+   "usable_positive": 0,
+   "usable_negative": 1,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-009231-000000",
+      "edb95c357b3b-010012-000000",
+      "edb95c357b3b-008273-000000",
+      "edb95c357b3b-011740-000000",
+      "edb95c357b3b-015100-000000",
+      "edb95c357b3b-035200-000000",
+      "edb95c357b3b-004428-000000",
+      "edb95c357b3b-017109-000000",
+      "edb95c357b3b-022874-000000",
+      "edb95c357b3b-010537-000000"
+     ],
+     "titles": [
+      "Project Shadowchaser III (1995)",
+      "Creature (1985)",
+      "Ice Planet (2003)",
+      "Prometheus (2012)",
+      "Star Crystal (1986)",
+      "Decaying Orbit (2007)",
+      "Terminal Voyage (1994)",
+      "The Andromeda Nebula (1967)",
+      "Gravity (2013)",
+      "Dead Space: Downfall (2008)"
+     ],
+     "text_sim": 0.5345152616500854,
+     "neg_per_ref": [
+      0.5131615996360779
+     ],
+     "neg_mean": 0.5131615996360779,
+     "neg_max_item": 0.6680421829223633,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 29.5
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-009231-000000",
+      "edb95c357b3b-014665-000000",
+      "edb95c357b3b-036312-000000",
+      "edb95c357b3b-022874-000000",
+      "edb95c357b3b-005932-000000",
+      "edb95c357b3b-035200-000000",
+      "edb95c357b3b-015945-000000",
+      "edb95c357b3b-033800-000000",
+      "edb95c357b3b-004517-000000",
+      "edb95c357b3b-040655-000000"
+     ],
+     "titles": [
+      "Project Shadowchaser III (1995)",
+      "Elevator (2008)",
+      "Outside (2004)",
+      "Gravity (2013)",
+      "Kuro Arirang (1989)",
+      "Decaying Orbit (2007)",
+      "Bug Crawls (2004)",
+      "Hard to Die (1990)",
+      "The Uninvited (2008)",
+      "Ikarie XB-1 (1963)"
+     ],
+     "text_sim": 0.48937124013900757,
+     "neg_per_ref": [
+      0.3483438193798065
+     ],
+     "neg_mean": 0.3483438193798065,
+     "neg_max_item": 0.430123507976532,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 32.4,
+     "overlap_with_A": 0.3,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-009231-000000",
+      "edb95c357b3b-010012-000000",
+      "edb95c357b3b-015100-000000",
+      "edb95c357b3b-035200-000000",
+      "edb95c357b3b-017109-000000",
+      "edb95c357b3b-022874-000000",
+      "edb95c357b3b-020246-000000",
+      "edb95c357b3b-021324-000000",
+      "edb95c357b3b-004660-000000",
+      "edb95c357b3b-033800-000000"
+     ],
+     "titles": [
+      "Project Shadowchaser III (1995)",
+      "Creature (1985)",
+      "Star Crystal (1986)",
+      "Decaying Orbit (2007)",
+      "The Andromeda Nebula (1967)",
+      "Gravity (2013)",
+      "Savage Planet (2006)",
+      "Primal (2009)",
+      "Spaceflight IC-1 (?)",
+      "Hard to Die (1990)"
+     ],
+     "text_sim": 0.5250235199928284,
+     "neg_per_ref": [
+      0.46367478370666504
+     ],
+     "neg_mean": 0.46367478370666504,
+     "neg_max_item": 0.5223199129104614,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 34.9,
+     "overlap_with_A": 0.6,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [
+     {
+      "title": "Alien",
+      "year": "1979",
+      "reference_status": "ambiguous"
+     }
+    ],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c19",
+   "category": "ambiguous_all",
+   "text_id": "q19",
+   "embedded_text": "A heist movie in which the carefully planned robbery goes wrong.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "Heat",
+     "year": null,
+     "role": "positive",
+     "status": "ambiguous",
+     "candidates": [
+      {
+       "title": "Heat",
+       "release_year": "1995",
+       "movie_id": "43566"
+      },
+      {
+       "title": "Heat",
+       "release_year": "1972",
+       "movie_id": "6895434"
+      },
+      {
+       "title": "Heat",
+       "release_year": "1986",
+       "movie_id": "12555863"
+      },
+      {
+       "title": "Heat",
+       "release_year": "2006",
+       "movie_id": "21917672"
+      }
+     ]
+    },
+    {
+     "title": "Ocean's Eleven",
+     "year": null,
+     "role": "negative",
+     "status": "ambiguous",
+     "candidates": [
+      {
+       "title": "Ocean's Eleven",
+       "release_year": "2001",
+       "movie_id": "2251266"
+      },
+      {
+       "title": "Ocean's Eleven",
+       "release_year": "1960",
+       "movie_id": "154956"
+      }
+     ]
+    }
+   ],
+   "usable_positive": 0,
+   "usable_negative": 0,
+   "control": true,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-023126-000000",
+      "edb95c357b3b-020826-000000",
+      "edb95c357b3b-019508-000000",
+      "edb95c357b3b-025312-000000",
+      "edb95c357b3b-004859-000000",
+      "edb95c357b3b-041170-000000",
+      "edb95c357b3b-005968-000000",
+      "edb95c357b3b-013692-000000",
+      "edb95c357b3b-006963-000000",
+      "edb95c357b3b-004769-000000"
+     ],
+     "titles": [
+      "Foolproof (2003)",
+      "Big Deal on Madonna Street (1958)",
+      "Lost (2004)",
+      "A New Wave (2007)",
+      "Down the Drain (1990)",
+      "The Anderson Tapes (1971)",
+      "Living & Dying (2006)",
+      "The Box (2007)",
+      "Black (2009)",
+      "Heaven's Fire (?)"
+     ],
+     "text_sim": 0.5703145265579224,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 27.5
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-023126-000000",
+      "edb95c357b3b-020826-000000",
+      "edb95c357b3b-019508-000000",
+      "edb95c357b3b-025312-000000",
+      "edb95c357b3b-004859-000000",
+      "edb95c357b3b-041170-000000",
+      "edb95c357b3b-005968-000000",
+      "edb95c357b3b-013692-000000",
+      "edb95c357b3b-006963-000000",
+      "edb95c357b3b-004769-000000"
+     ],
+     "titles": [
+      "Foolproof (2003)",
+      "Big Deal on Madonna Street (1958)",
+      "Lost (2004)",
+      "A New Wave (2007)",
+      "Down the Drain (1990)",
+      "The Anderson Tapes (1971)",
+      "Living & Dying (2006)",
+      "The Box (2007)",
+      "Black (2009)",
+      "Heaven's Fire (?)"
+     ],
+     "text_sim": 0.5703145265579224,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 28.6,
+     "overlap_with_A": 1.0,
+     "identical_to_A": true,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-023126-000000",
+      "edb95c357b3b-020826-000000",
+      "edb95c357b3b-019508-000000",
+      "edb95c357b3b-025312-000000",
+      "edb95c357b3b-004859-000000",
+      "edb95c357b3b-041170-000000",
+      "edb95c357b3b-005968-000000",
+      "edb95c357b3b-013692-000000",
+      "edb95c357b3b-006963-000000",
+      "edb95c357b3b-004769-000000"
+     ],
+     "titles": [
+      "Foolproof (2003)",
+      "Big Deal on Madonna Street (1958)",
+      "Lost (2004)",
+      "A New Wave (2007)",
+      "Down the Drain (1990)",
+      "The Anderson Tapes (1971)",
+      "Living & Dying (2006)",
+      "The Box (2007)",
+      "Black (2009)",
+      "Heaven's Fire (?)"
+     ],
+     "text_sim": 0.5703145265579224,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 29.3,
+     "overlap_with_A": 1.0,
+     "identical_to_A": true,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c20",
+   "category": "absent_partial",
+   "text_id": "q16",
+   "embedded_text": "An emotionally epic science fiction film about space exploration, human survival, time dilation, family bonds, and cosmic mystery.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "Interstellar",
+     "year": 2014,
+     "role": "positive",
+     "status": "not_in_index"
+    },
+    {
+     "title": "Gravity",
+     "year": 2013,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Gravity",
+     "matched_year": 2013,
+     "movie_id": "30294906"
+    }
+   ],
+   "usable_positive": 0,
+   "usable_negative": 1,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-016949-000000",
+      "edb95c357b3b-022998-000000",
+      "edb95c357b3b-008273-000000",
+      "edb95c357b3b-018018-000000",
+      "edb95c357b3b-012135-000000",
+      "edb95c357b3b-023055-000000",
+      "edb95c357b3b-023825-000000",
+      "edb95c357b3b-038194-000000",
+      "edb95c357b3b-002518-000000"
+     ],
+     "titles": [
+      "Cosmos: War of the Planets (1977)",
+      "Women of the Prehistoric Planet (1966)",
+      "Flight of the Navigator (1986)",
+      "Ice Planet (2003)",
+      "2001: A Space Odyssey (1968)",
+      "The Time Travelers (1964)",
+      "Royal Space Force: The Wings of Honneamise (1987)",
+      "Until the End of the World (1991)",
+      "The Day Time Ended (1980)",
+      "John Dies at the End (2012)"
+     ],
+     "text_sim": 0.5209954977035522,
+     "neg_per_ref": [
+      0.4938945770263672
+     ],
+     "neg_mean": 0.4938945770263672,
+     "neg_max_item": 0.5517445802688599,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 35.6
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-003110-000000",
+      "edb95c357b3b-036760-000000",
+      "edb95c357b3b-037194-000000",
+      "edb95c357b3b-015260-000000",
+      "edb95c357b3b-038194-000000",
+      "edb95c357b3b-032195-000000",
+      "edb95c357b3b-023738-000000",
+      "edb95c357b3b-019027-000000",
+      "edb95c357b3b-039125-000000",
+      "edb95c357b3b-008512-000000"
+     ],
+     "titles": [
+      "Mezame No Hakobune (2005)",
+      "Chronos (1985)",
+      "Samsara (2012)",
+      "Doraemon: Nobita Drifts in the Universe (1999)",
+      "The Day Time Ended (1980)",
+      "1 a Minute (2010)",
+      "Slaughterhouse-Five (1972)",
+      "The Water (2009)",
+      "Aversion (2009)",
+      "Cosmic Voyage (1996)"
+     ],
+     "text_sim": 0.44916993379592896,
+     "neg_per_ref": [
+      0.29306310415267944
+     ],
+     "neg_mean": 0.29306310415267944,
+     "neg_max_item": 0.4246770739555359,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 31.8,
+     "overlap_with_A": 0.1,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-016949-000000",
+      "edb95c357b3b-022998-000000",
+      "edb95c357b3b-008273-000000",
+      "edb95c357b3b-018018-000000",
+      "edb95c357b3b-023055-000000",
+      "edb95c357b3b-023825-000000",
+      "edb95c357b3b-038194-000000",
+      "edb95c357b3b-002518-000000",
+      "edb95c357b3b-003110-000000"
+     ],
+     "titles": [
+      "Cosmos: War of the Planets (1977)",
+      "Women of the Prehistoric Planet (1966)",
+      "Flight of the Navigator (1986)",
+      "Ice Planet (2003)",
+      "2001: A Space Odyssey (1968)",
+      "Royal Space Force: The Wings of Honneamise (1987)",
+      "Until the End of the World (1991)",
+      "The Day Time Ended (1980)",
+      "John Dies at the End (2012)",
+      "Mezame No Hakobune (2005)"
+     ],
+     "text_sim": 0.5193064212799072,
+     "neg_per_ref": [
+      0.47566136717796326
+     ],
+     "neg_mean": 0.47566136717796326,
+     "neg_max_item": 0.5517445802688599,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 33.8,
+     "overlap_with_A": 0.9,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [
+     {
+      "title": "Gravity",
+      "year": "2013",
+      "reference_status": "resolved"
+     }
+    ],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c21",
+   "category": "absent_all",
+   "text_id": "q02",
+   "embedded_text": "A film about a person experiencing loneliness and isolation in outer space.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "Interstellar",
+     "year": 2014,
+     "role": "positive",
+     "status": "not_in_index"
+    }
+   ],
+   "usable_positive": 0,
+   "usable_negative": 0,
+   "control": true,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-022874-000000",
+      "edb95c357b3b-017347-000000",
+      "edb95c357b3b-003022-000000",
+      "edb95c357b3b-036312-000000",
+      "edb95c357b3b-030797-000000",
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-035567-000000",
+      "edb95c357b3b-023055-000000",
+      "edb95c357b3b-040529-000000",
+      "edb95c357b3b-025431-000000"
+     ],
+     "titles": [
+      "Gravity (2013)",
+      "MovieSummaries/plot_summaries.txt (?)",
+      "Japón (2002)",
+      "Outside (2004)",
+      "Interkosmos (2006)",
+      "Cosmos: War of the Planets (1977)",
+      "Sur les murs de la ville (2004)",
+      "Royal Space Force: The Wings of Honneamise (1987)",
+      "Love (2011)",
+      "On the Silver Globe (1987)"
+     ],
+     "text_sim": 0.518610954284668,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 27.1
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-022874-000000",
+      "edb95c357b3b-017347-000000",
+      "edb95c357b3b-003022-000000",
+      "edb95c357b3b-036312-000000",
+      "edb95c357b3b-030797-000000",
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-035567-000000",
+      "edb95c357b3b-023055-000000",
+      "edb95c357b3b-040529-000000",
+      "edb95c357b3b-025431-000000"
+     ],
+     "titles": [
+      "Gravity (2013)",
+      "MovieSummaries/plot_summaries.txt (?)",
+      "Japón (2002)",
+      "Outside (2004)",
+      "Interkosmos (2006)",
+      "Cosmos: War of the Planets (1977)",
+      "Sur les murs de la ville (2004)",
+      "Royal Space Force: The Wings of Honneamise (1987)",
+      "Love (2011)",
+      "On the Silver Globe (1987)"
+     ],
+     "text_sim": 0.518610954284668,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 39.0,
+     "overlap_with_A": 1.0,
+     "identical_to_A": true,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-022874-000000",
+      "edb95c357b3b-017347-000000",
+      "edb95c357b3b-003022-000000",
+      "edb95c357b3b-036312-000000",
+      "edb95c357b3b-030797-000000",
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-035567-000000",
+      "edb95c357b3b-023055-000000",
+      "edb95c357b3b-040529-000000",
+      "edb95c357b3b-025431-000000"
+     ],
+     "titles": [
+      "Gravity (2013)",
+      "MovieSummaries/plot_summaries.txt (?)",
+      "Japón (2002)",
+      "Outside (2004)",
+      "Interkosmos (2006)",
+      "Cosmos: War of the Planets (1977)",
+      "Sur les murs de la ville (2004)",
+      "Royal Space Force: The Wings of Honneamise (1987)",
+      "Love (2011)",
+      "On the Silver Globe (1987)"
+     ],
+     "text_sim": 0.518610954284668,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 28.1,
+     "overlap_with_A": 1.0,
+     "identical_to_A": true,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c22",
+   "category": "absent_all",
+   "text_id": "q13",
+   "embedded_text": "A science fiction film about people discovering that their reality is an artificial simulation and joining a rebellion against intelligent machines and oppressive control.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "Star Wars",
+     "year": null,
+     "role": "positive",
+     "status": "not_in_index"
+    },
+    {
+     "title": "Se7en",
+     "year": null,
+     "role": "negative",
+     "status": "not_in_index"
+    }
+   ],
+   "usable_positive": 0,
+   "usable_negative": 0,
+   "control": true,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-028376-000000",
+      "edb95c357b3b-021295-000000",
+      "edb95c357b3b-029918-000000",
+      "edb95c357b3b-004428-000000",
+      "edb95c357b3b-033728-000000",
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-013812-000000",
+      "edb95c357b3b-013991-000000",
+      "edb95c357b3b-027806-000000",
+      "edb95c357b3b-020975-000000"
+     ],
+     "titles": [
+      "The Terminators (2009)",
+      "Impostor (2001)",
+      "2B - The Era of Flesh is Over (?)",
+      "Terminal Voyage (1994)",
+      "Earthling (2010)",
+      "Cosmos: War of the Planets (1977)",
+      "Cafe (2011)",
+      "A.P.E.X. (1994)",
+      "Polygon (1977)",
+      "The Mutant Chronicles (2008)"
+     ],
+     "text_sim": 0.5518428683280945,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 29.6
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-028376-000000",
+      "edb95c357b3b-021295-000000",
+      "edb95c357b3b-029918-000000",
+      "edb95c357b3b-004428-000000",
+      "edb95c357b3b-033728-000000",
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-013812-000000",
+      "edb95c357b3b-013991-000000",
+      "edb95c357b3b-027806-000000",
+      "edb95c357b3b-020975-000000"
+     ],
+     "titles": [
+      "The Terminators (2009)",
+      "Impostor (2001)",
+      "2B - The Era of Flesh is Over (?)",
+      "Terminal Voyage (1994)",
+      "Earthling (2010)",
+      "Cosmos: War of the Planets (1977)",
+      "Cafe (2011)",
+      "A.P.E.X. (1994)",
+      "Polygon (1977)",
+      "The Mutant Chronicles (2008)"
+     ],
+     "text_sim": 0.5518428683280945,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 33.2,
+     "overlap_with_A": 1.0,
+     "identical_to_A": true,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-028376-000000",
+      "edb95c357b3b-021295-000000",
+      "edb95c357b3b-029918-000000",
+      "edb95c357b3b-004428-000000",
+      "edb95c357b3b-033728-000000",
+      "edb95c357b3b-031463-000000",
+      "edb95c357b3b-013812-000000",
+      "edb95c357b3b-013991-000000",
+      "edb95c357b3b-027806-000000",
+      "edb95c357b3b-020975-000000"
+     ],
+     "titles": [
+      "The Terminators (2009)",
+      "Impostor (2001)",
+      "2B - The Era of Flesh is Over (?)",
+      "Terminal Voyage (1994)",
+      "Earthling (2010)",
+      "Cosmos: War of the Planets (1977)",
+      "Cafe (2011)",
+      "A.P.E.X. (1994)",
+      "Polygon (1977)",
+      "The Mutant Chronicles (2008)"
+     ],
+     "text_sim": 0.5518428683280945,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 27.7,
+     "overlap_with_A": 1.0,
+     "identical_to_A": true,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c23",
+   "category": "no_references",
+   "text_id": "q23",
+   "embedded_text": "Films about racism in the American South",
+   "constraints": {},
+   "references": [],
+   "usable_positive": 0,
+   "usable_negative": 0,
+   "control": true,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-036100-000000",
+      "edb95c357b3b-005509-000000",
+      "edb95c357b3b-028418-000000",
+      "edb95c357b3b-013647-000000",
+      "edb95c357b3b-022442-000000",
+      "edb95c357b3b-031391-000000",
+      "edb95c357b3b-007221-000000",
+      "edb95c357b3b-028392-000000",
+      "edb95c357b3b-002809-000000",
+      "edb95c357b3b-018692-000000"
+     ],
+     "titles": [
+      "Midnight Ramble (1994)",
+      "Aftershock: Beyond the Civil War (2007)",
+      "Wayward Son (1999)",
+      "Small Town Gay Bar (2006)",
+      "The Bad Bunch (1973)",
+      "The Klansman (1974)",
+      "For One Night (2002)",
+      "Marching On! (1943)",
+      "Hearts in Dixie (1929)",
+      "Rosewood (1997)"
+     ],
+     "text_sim": 0.4979008138179779,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 31.0
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-036100-000000",
+      "edb95c357b3b-005509-000000",
+      "edb95c357b3b-028418-000000",
+      "edb95c357b3b-013647-000000",
+      "edb95c357b3b-022442-000000",
+      "edb95c357b3b-031391-000000",
+      "edb95c357b3b-007221-000000",
+      "edb95c357b3b-028392-000000",
+      "edb95c357b3b-002809-000000",
+      "edb95c357b3b-018692-000000"
+     ],
+     "titles": [
+      "Midnight Ramble (1994)",
+      "Aftershock: Beyond the Civil War (2007)",
+      "Wayward Son (1999)",
+      "Small Town Gay Bar (2006)",
+      "The Bad Bunch (1973)",
+      "The Klansman (1974)",
+      "For One Night (2002)",
+      "Marching On! (1943)",
+      "Hearts in Dixie (1929)",
+      "Rosewood (1997)"
+     ],
+     "text_sim": 0.4979008138179779,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 29.0,
+     "overlap_with_A": 1.0,
+     "identical_to_A": true,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-036100-000000",
+      "edb95c357b3b-005509-000000",
+      "edb95c357b3b-028418-000000",
+      "edb95c357b3b-013647-000000",
+      "edb95c357b3b-022442-000000",
+      "edb95c357b3b-031391-000000",
+      "edb95c357b3b-007221-000000",
+      "edb95c357b3b-028392-000000",
+      "edb95c357b3b-002809-000000",
+      "edb95c357b3b-018692-000000"
+     ],
+     "titles": [
+      "Midnight Ramble (1994)",
+      "Aftershock: Beyond the Civil War (2007)",
+      "Wayward Son (1999)",
+      "Small Town Gay Bar (2006)",
+      "The Bad Bunch (1973)",
+      "The Klansman (1974)",
+      "For One Night (2002)",
+      "Marching On! (1943)",
+      "Hearts in Dixie (1929)",
+      "Rosewood (1997)"
+     ],
+     "text_sim": 0.4979008138179779,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 33.0,
+     "overlap_with_A": 1.0,
+     "identical_to_A": true,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c24",
+   "category": "no_valid_reference",
+   "text_id": "q26",
+   "embedded_text": "A lighthearted, family-friendly movie suitable for watching together with the family.",
+   "constraints": {},
+   "references": [
+    {
+     "title": "Nonexistent Fictional Film",
+     "year": null,
+     "role": "positive",
+     "status": "not_in_index"
+    }
+   ],
+   "usable_positive": 0,
+   "usable_negative": 0,
+   "control": true,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-019923-000000",
+      "edb95c357b3b-041234-000000",
+      "edb95c357b3b-004380-000000",
+      "edb95c357b3b-025983-000000",
+      "edb95c357b3b-022635-000000",
+      "edb95c357b3b-028393-000000",
+      "edb95c357b3b-027227-000000",
+      "edb95c357b3b-007035-000000",
+      "edb95c357b3b-007333-000000",
+      "edb95c357b3b-011200-000000"
+     ],
+     "titles": [
+      "Little Soldiers (1996)",
+      "Under the Mud (?)",
+      "November Christmas (2010)",
+      "Totally Awesome (2006)",
+      "Treloi polyteleias (1963)",
+      "Cheaper by the Dozen 2 (2005)",
+      "Re-Uniting the Rubins (2010)",
+      "My Life as McDull (2001)",
+      "She Was an Acrobat's Daughter (1937)",
+      "A Christmas Story (1983)"
+     ],
+     "text_sim": 0.42933911085128784,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 32.2
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-019923-000000",
+      "edb95c357b3b-041234-000000",
+      "edb95c357b3b-004380-000000",
+      "edb95c357b3b-025983-000000",
+      "edb95c357b3b-022635-000000",
+      "edb95c357b3b-028393-000000",
+      "edb95c357b3b-027227-000000",
+      "edb95c357b3b-007035-000000",
+      "edb95c357b3b-007333-000000",
+      "edb95c357b3b-011200-000000"
+     ],
+     "titles": [
+      "Little Soldiers (1996)",
+      "Under the Mud (?)",
+      "November Christmas (2010)",
+      "Totally Awesome (2006)",
+      "Treloi polyteleias (1963)",
+      "Cheaper by the Dozen 2 (2005)",
+      "Re-Uniting the Rubins (2010)",
+      "My Life as McDull (2001)",
+      "She Was an Acrobat's Daughter (1937)",
+      "A Christmas Story (1983)"
+     ],
+     "text_sim": 0.42933911085128784,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 30.1,
+     "overlap_with_A": 1.0,
+     "identical_to_A": true,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-019923-000000",
+      "edb95c357b3b-041234-000000",
+      "edb95c357b3b-004380-000000",
+      "edb95c357b3b-025983-000000",
+      "edb95c357b3b-022635-000000",
+      "edb95c357b3b-028393-000000",
+      "edb95c357b3b-027227-000000",
+      "edb95c357b3b-007035-000000",
+      "edb95c357b3b-007333-000000",
+      "edb95c357b3b-011200-000000"
+     ],
+     "titles": [
+      "Little Soldiers (1996)",
+      "Under the Mud (?)",
+      "November Christmas (2010)",
+      "Totally Awesome (2006)",
+      "Treloi polyteleias (1963)",
+      "Cheaper by the Dozen 2 (2005)",
+      "Re-Uniting the Rubins (2010)",
+      "My Life as McDull (2001)",
+      "She Was an Acrobat's Daughter (1937)",
+      "A Christmas Story (1983)"
+     ],
+     "text_sim": 0.42933911085128784,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 31.3,
+     "overlap_with_A": 1.0,
+     "identical_to_A": true,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c25",
+   "category": "constraints",
+   "text_id": "q12",
+   "embedded_text": "A psychological thriller focused on mental tension and suspense.",
+   "constraints": {
+    "excluded_genres": [
+     "Horror"
+    ],
+    "genres": [
+     "Thriller"
+    ]
+   },
+   "references": [
+    {
+     "title": "The Silence of the Lambs",
+     "year": 1991,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "The Silence of the Lambs",
+     "matched_year": 1991,
+     "movie_id": "30006"
+    },
+    {
+     "title": "The Shining",
+     "year": 1980,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "The Shining",
+     "matched_year": 1980,
+     "movie_id": "1186616"
+    }
+   ],
+   "usable_positive": 1,
+   "usable_negative": 1,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-019941-000000",
+      "edb95c357b3b-002363-000000",
+      "edb95c357b3b-005412-000000",
+      "edb95c357b3b-000456-000000",
+      "edb95c357b3b-011930-000000",
+      "edb95c357b3b-005713-000000",
+      "edb95c357b3b-036526-000000",
+      "edb95c357b3b-032334-000000",
+      "edb95c357b3b-027500-000000",
+      "edb95c357b3b-012059-000000"
+     ],
+     "titles": [
+      "A Letter from Death Row (1998)",
+      "Ashokavana (?)",
+      "The Lodger (2009)",
+      "A Big Bang Love: Juvenile (2006)",
+      "The Spider (1940)",
+      "Good Neighbor (2001)",
+      "Spellbound (1945)",
+      "Mindhunters (2004)",
+      "The Caller (1987)",
+      "Occupant (2011)"
+     ],
+     "text_sim": 0.4646593928337097,
+     "pos_per_ref": [
+      0.4745577871799469
+     ],
+     "pos_mean": 0.4745577871799469,
+     "pos_min_ref": 0.4745577871799469,
+     "max_single_pos_mean": 0.4745577901601791,
+     "max_single_pos_min": 0.3666234016418457,
+     "neg_per_ref": [
+      0.4716477394104004
+     ],
+     "neg_mean": 0.4716477394104004,
+     "neg_max_item": 0.6344897747039795,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 27.5
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-019941-000000",
+      "edb95c357b3b-020040-000000",
+      "edb95c357b3b-008397-000000",
+      "edb95c357b3b-032334-000000",
+      "edb95c357b3b-015806-000000",
+      "edb95c357b3b-013698-000000",
+      "edb95c357b3b-019630-000000",
+      "edb95c357b3b-034312-000000",
+      "edb95c357b3b-013976-000000",
+      "edb95c357b3b-002969-000000"
+     ],
+     "titles": [
+      "A Letter from Death Row (1998)",
+      "Mercy (2000)",
+      "Lethal Angels (2006)",
+      "Mindhunters (2004)",
+      "Witness to Murder (1954)",
+      "Blood (2008)",
+      "Copycat (1995)",
+      "The Killing Room (2009)",
+      "Murder in My Mind (?)",
+      "Technotise Edit & I (2009)"
+     ],
+     "text_sim": 0.3949795365333557,
+     "pos_per_ref": [
+      0.5125841498374939
+     ],
+     "pos_mean": 0.5125841498374939,
+     "pos_min_ref": 0.5125841498374939,
+     "max_single_pos_mean": 0.5125841796398163,
+     "max_single_pos_min": 0.44513481855392456,
+     "neg_per_ref": [
+      0.3636903464794159
+     ],
+     "neg_mean": 0.3636903464794159,
+     "neg_max_item": 0.53279709815979,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 31.8,
+     "overlap_with_A": 0.2,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-012389-000000",
+      "edb95c357b3b-019630-000000",
+      "edb95c357b3b-032334-000000",
+      "edb95c357b3b-007700-000000",
+      "edb95c357b3b-023859-000000",
+      "edb95c357b3b-019351-000000",
+      "edb95c357b3b-031208-000000",
+      "edb95c357b3b-028715-000000",
+      "edb95c357b3b-002838-000000",
+      "edb95c357b3b-021271-000000"
+     ],
+     "titles": [
+      "Blow Out (1981)",
+      "Copycat (1995)",
+      "Mindhunters (2004)",
+      "The Jackal (1997)",
+      "The Girl Who Kicked the Hornets' Nest (2009)",
+      "The Watcher (2000)",
+      "Seeking Justice (2011)",
+      "Manhunter (1986)",
+      "Scene of the Crime (1996)",
+      "La Mariée était en noir (1968)"
+     ],
+     "text_sim": 0.3344051241874695,
+     "pos_per_ref": [
+      0.6270596385002136
+     ],
+     "pos_mean": 0.6270596385002136,
+     "pos_min_ref": 0.6270596385002136,
+     "max_single_pos_mean": 0.6270596444606781,
+     "max_single_pos_min": 0.6171234250068665,
+     "neg_per_ref": [
+      0.5056129693984985
+     ],
+     "neg_mean": 0.5056129693984985,
+     "neg_max_item": 0.6061131954193115,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 42.4,
+     "overlap_with_A": 0.1,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c26",
+   "category": "constraints_homonyms",
+   "text_id": "q18",
+   "embedded_text": "A 1930s gangster film set in the United States featuring an ambitious protagonist who seeks power and success in the criminal underworld.",
+   "constraints": {
+    "year_range": [
+     1930,
+     1939
+    ]
+   },
+   "references": [
+    {
+     "title": "Little Caesar",
+     "year": 1931,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Little Caesar",
+     "matched_year": 1931,
+     "movie_id": "15272880"
+    },
+    {
+     "title": "Scarface",
+     "year": 1983,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Scarface",
+     "matched_year": 1983,
+     "movie_id": "267848",
+     "candidates": [
+      {
+       "title": "Scarface",
+       "release_year": "1932",
+       "movie_id": "76331"
+      }
+     ]
+    }
+   ],
+   "usable_positive": 1,
+   "usable_negative": 1,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-027995-000000",
+      "edb95c357b3b-041141-000000",
+      "edb95c357b3b-031471-000000",
+      "edb95c357b3b-025091-000000",
+      "edb95c357b3b-013146-000000",
+      "edb95c357b3b-010879-000000",
+      "edb95c357b3b-012063-000000",
+      "edb95c357b3b-006010-000000",
+      "edb95c357b3b-030013-000000",
+      "edb95c357b3b-019953-000000"
+     ],
+     "titles": [
+      "Bad Charleston Charlie (1973)",
+      "Gangster Wars (1981)",
+      "Dillinger (1991)",
+      "Black Gunn (1972)",
+      "The Public Enemy (1931)",
+      "The Stone Killer (1973)",
+      "Capone (1975)",
+      "Confessions of a Thug (2006)",
+      "Born Reckless (1930)",
+      "The Racket (1951)"
+     ],
+     "text_sim": 0.5617033839225769,
+     "pos_per_ref": [
+      0.5278044939041138
+     ],
+     "pos_mean": 0.5278044939041138,
+     "pos_min_ref": 0.5278044939041138,
+     "max_single_pos_mean": 0.5278045266866684,
+     "max_single_pos_min": 0.3501909375190735,
+     "neg_per_ref": [
+      0.49624624848365784
+     ],
+     "neg_mean": 0.49624624848365784,
+     "neg_max_item": 0.6277854442596436,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 8,
+      "year_unknown": 0
+     },
+     "violations_total": 8,
+     "leaks": [],
+     "latency_ms_median": 28.9
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-027995-000000",
+      "edb95c357b3b-031471-000000",
+      "edb95c357b3b-030013-000000",
+      "edb95c357b3b-040765-000000",
+      "edb95c357b3b-041141-000000",
+      "edb95c357b3b-042268-000000",
+      "edb95c357b3b-025091-000000",
+      "edb95c357b3b-017473-000000",
+      "edb95c357b3b-015151-000000",
+      "edb95c357b3b-015755-000000"
+     ],
+     "titles": [
+      "Bad Charleston Charlie (1973)",
+      "Dillinger (1991)",
+      "Born Reckless (1930)",
+      "Six Bridges to Cross (1955)",
+      "Gangster Wars (1981)",
+      "The St. Valentine's Day Massacre (1967)",
+      "Black Gunn (1972)",
+      "Across 110th Street (1972)",
+      "Gangster Story (1960)",
+      "The Brothers Rico (1957)"
+     ],
+     "text_sim": 0.5311558842658997,
+     "pos_per_ref": [
+      0.5519816875457764
+     ],
+     "pos_mean": 0.5519816875457764,
+     "pos_min_ref": 0.5519816875457764,
+     "max_single_pos_mean": 0.5519816368818283,
+     "max_single_pos_min": 0.3501909375190735,
+     "neg_per_ref": [
+      0.4630142152309418
+     ],
+     "neg_mean": 0.4630142152309418,
+     "neg_max_item": 0.6277854442596436,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 9,
+      "year_unknown": 0
+     },
+     "violations_total": 9,
+     "leaks": [],
+     "latency_ms_median": 37.3,
+     "overlap_with_A": 0.5,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-017004-000000",
+      "edb95c357b3b-015755-000000",
+      "edb95c357b3b-039689-000000",
+      "edb95c357b3b-033480-000000",
+      "edb95c357b3b-015442-000000",
+      "edb95c357b3b-033163-000000",
+      "edb95c357b3b-013855-000000",
+      "edb95c357b3b-026246-000000",
+      "edb95c357b3b-025091-000000",
+      "edb95c357b3b-027269-000000"
+     ],
+     "titles": [
+      "The Enforcer (1951)",
+      "The Brothers Rico (1957)",
+      "Out for Justice (1991)",
+      "Vigilante (1983)",
+      "Mr. Soft Touch (1949)",
+      "Running Scared (2006)",
+      "Midnight Cowboy (1969)",
+      "Wannabes (2000)",
+      "Black Gunn (1972)",
+      "Flatfoot in Hong Kong (1976)"
+     ],
+     "text_sim": 0.44238266348838806,
+     "pos_per_ref": [
+      0.6741198301315308
+     ],
+     "pos_mean": 0.6741198301315308,
+     "pos_min_ref": 0.6741198301315308,
+     "max_single_pos_mean": 0.6741198360919952,
+     "max_single_pos_min": 0.6441881060600281,
+     "neg_per_ref": [
+      0.6101812720298767
+     ],
+     "neg_mean": 0.6101812720298767,
+     "neg_max_item": 0.6912450790405273,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 10,
+      "year_unknown": 0
+     },
+     "violations_total": 10,
+     "leaks": [],
+     "latency_ms_median": 40.9,
+     "overlap_with_A": 0.1,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c27",
+   "category": "constraints_homonyms",
+   "text_id": "q24",
+   "embedded_text": "A French drama from the 1960s about a couple in crisis.",
+   "constraints": {
+    "year_range": [
+     1960,
+     1969
+    ]
+   },
+   "references": [
+    {
+     "title": "Jules and Jim",
+     "year": 1961,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Jules and Jim",
+     "matched_year": 1961,
+     "movie_id": "2158246"
+    },
+    {
+     "title": "Breathless",
+     "year": 1983,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Breathless",
+     "matched_year": 1983,
+     "movie_id": "5989305",
+     "candidates": [
+      {
+       "title": "Breathless",
+       "release_year": "1960",
+       "movie_id": "339526"
+      },
+      {
+       "title": "Breathless",
+       "release_year": "2008",
+       "movie_id": "30607472"
+      }
+     ]
+    }
+   ],
+   "usable_positive": 1,
+   "usable_negative": 1,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-018383-000000",
+      "edb95c357b3b-015894-000000",
+      "edb95c357b3b-017038-000000",
+      "edb95c357b3b-041550-000000",
+      "edb95c357b3b-023129-000000",
+      "edb95c357b3b-004006-000000",
+      "edb95c357b3b-034583-000000",
+      "edb95c357b3b-010718-000000",
+      "edb95c357b3b-025368-000000",
+      "edb95c357b3b-003907-000000"
+     ],
+     "titles": [
+      "Forbidden Priests (1973)",
+      "Coup de foudre (1983)",
+      "Le weekend (1967)",
+      "The Mother and the Whore (1973)",
+      "5x2 (2004)",
+      "Vincent, François, Paul and the Others (1974)",
+      "Bellyful (2000)",
+      "Home Sweet Home (1973)",
+      "Boy Meets Girl (?)",
+      "Café de flore (2011)"
+     ],
+     "text_sim": 0.5608252286911011,
+     "pos_per_ref": [
+      0.5548218488693237
+     ],
+     "pos_mean": 0.5548218488693237,
+     "pos_min_ref": 0.5548218488693237,
+     "max_single_pos_mean": 0.5548218250274658,
+     "max_single_pos_min": 0.4802936315536499,
+     "neg_per_ref": [
+      0.3774563670158386
+     ],
+     "neg_mean": 0.3774563670158386,
+     "neg_max_item": 0.48214685916900635,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 8,
+      "year_unknown": 1
+     },
+     "violations_total": 8,
+     "leaks": [],
+     "latency_ms_median": 34.2
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-018383-000000",
+      "edb95c357b3b-015894-000000",
+      "edb95c357b3b-035079-000000",
+      "edb95c357b3b-023129-000000",
+      "edb95c357b3b-033509-000000",
+      "edb95c357b3b-019860-000000",
+      "edb95c357b3b-010718-000000",
+      "edb95c357b3b-003596-000000",
+      "edb95c357b3b-017067-000000",
+      "edb95c357b3b-001934-000000"
+     ],
+     "titles": [
+      "Forbidden Priests (1973)",
+      "Coup de foudre (1983)",
+      "Two English Girls (1971)",
+      "5x2 (2004)",
+      "Passion's Way (1999)",
+      "And If We All Lived Together (2011)",
+      "Home Sweet Home (1973)",
+      "The Woman Next Door (1981)",
+      "Hunting and Gathering (2007)",
+      "God Is Great and I'm Not (2001)"
+     ],
+     "text_sim": 0.5351945161819458,
+     "pos_per_ref": [
+      0.5940593481063843
+     ],
+     "pos_mean": 0.5940593481063843,
+     "pos_min_ref": 0.5940593481063843,
+     "max_single_pos_mean": 0.5940593421459198,
+     "max_single_pos_min": 0.5391207933425903,
+     "neg_per_ref": [
+      0.3503933250904083
+     ],
+     "neg_mean": 0.3503933250904083,
+     "neg_max_item": 0.4334319829940796,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 10,
+      "year_unknown": 0
+     },
+     "violations_total": 10,
+     "leaks": [],
+     "latency_ms_median": 35.0,
+     "overlap_with_A": 0.4,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-037096-000000",
+      "edb95c357b3b-033504-000000",
+      "edb95c357b3b-017067-000000",
+      "edb95c357b3b-015476-000000",
+      "edb95c357b3b-021772-000000",
+      "edb95c357b3b-031532-000000",
+      "edb95c357b3b-001743-000000",
+      "edb95c357b3b-015563-000000",
+      "edb95c357b3b-029869-000000",
+      "edb95c357b3b-034212-000000"
+     ],
+     "titles": [
+      "The Big Parade (1925)",
+      "Head in the Clouds (2004)",
+      "Hunting and Gathering (2007)",
+      "L'Atalante (1934)",
+      "The Four Horsemen of the Apocalypse (1921)",
+      "Bon Voyage (2003)",
+      "The Last Time I Saw Paris (1954)",
+      "Four Nights of a Dreamer (1971)",
+      "Before Sunset (2004)",
+      "I Love You Too (2010)"
+     ],
+     "text_sim": 0.4380117356777191,
+     "pos_per_ref": [
+      0.6771111488342285
+     ],
+     "pos_mean": 0.6771111488342285,
+     "pos_min_ref": 0.6771111488342285,
+     "max_single_pos_mean": 0.677111154794693,
+     "max_single_pos_min": 0.6615544557571411,
+     "neg_per_ref": [
+      0.4643271565437317
+     ],
+     "neg_mean": 0.4643271565437317,
+     "neg_max_item": 0.5379451513290405,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 10,
+      "year_unknown": 0
+     },
+     "violations_total": 10,
+     "leaks": [],
+     "latency_ms_median": 37.9,
+     "overlap_with_A": 0.0,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [],
+    "B": [],
+    "C": []
+   }
+  },
+  {
+   "id": "c28",
+   "category": "constraints",
+   "text_id": "q06",
+   "embedded_text": "Horror films set in a psychiatric hospital",
+   "constraints": {
+    "genres": [
+     "Horror"
+    ]
+   },
+   "references": [
+    {
+     "title": "One Flew Over the Cuckoo's Nest",
+     "year": 1975,
+     "role": "positive",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "One Flew Over the Cuckoo's Nest",
+     "matched_year": 1975,
+     "movie_id": "21913863"
+    },
+    {
+     "title": "Rosemary's Baby",
+     "year": 1968,
+     "role": "negative",
+     "status": "resolved",
+     "source": "index",
+     "matched_title": "Rosemary's Baby",
+     "matched_year": 1968,
+     "movie_id": "9830229"
+    }
+   ],
+   "usable_positive": 1,
+   "usable_negative": 1,
+   "control": false,
+   "variants": {
+    "A": {
+     "ids": [
+      "edb95c357b3b-034448-000000",
+      "edb95c357b3b-005660-000000",
+      "edb95c357b3b-017505-000000",
+      "edb95c357b3b-015299-000000",
+      "edb95c357b3b-028678-000000",
+      "edb95c357b3b-008608-000000",
+      "edb95c357b3b-030173-000000",
+      "edb95c357b3b-014963-000000",
+      "edb95c357b3b-024725-000000",
+      "edb95c357b3b-013000-000000"
+     ],
+     "titles": [
+      "Popcorn (1991)",
+      "Insanitarium (2008)",
+      "The Dead Hate the Living! (2000)",
+      "Slaughter Hotel (1971)",
+      "Asylum Seekers (2009)",
+      "Successive Slidings of Pleasure (1974)",
+      "A Cat in the Brain (1990)",
+      "Stupid Teenagers Must Die! (2007)",
+      "They (2002)",
+      "The Ugly (1997)"
+     ],
+     "text_sim": 0.5129610300064087,
+     "pos_per_ref": [
+      0.45280638337135315
+     ],
+     "pos_mean": 0.45280638337135315,
+     "pos_min_ref": 0.45280638337135315,
+     "max_single_pos_mean": 0.4528063774108887,
+     "max_single_pos_min": 0.35283568501472473,
+     "neg_per_ref": [
+      0.46739572286605835
+     ],
+     "neg_mean": 0.46739572286605835,
+     "neg_max_item": 0.5377135276794434,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 27.5
+    },
+    "B": {
+     "ids": [
+      "edb95c357b3b-028678-000000",
+      "edb95c357b3b-012666-000000",
+      "edb95c357b3b-023115-000000",
+      "edb95c357b3b-015299-000000",
+      "edb95c357b3b-009000-000000",
+      "edb95c357b3b-005660-000000",
+      "edb95c357b3b-040383-000000",
+      "edb95c357b3b-007115-000000",
+      "edb95c357b3b-013000-000000",
+      "edb95c357b3b-015112-000000"
+     ],
+     "titles": [
+      "Asylum Seekers (2009)",
+      "Deliria (1987)",
+      "The Green Elephant (1999)",
+      "Slaughter Hotel (1971)",
+      "The Sender (1982)",
+      "Insanitarium (2008)",
+      "Garden of the Dead (1974)",
+      "Autopsy (2006)",
+      "The Ugly (1997)",
+      "Shutter Island (2010)"
+     ],
+     "text_sim": 0.4704940915107727,
+     "pos_per_ref": [
+      0.5383918285369873
+     ],
+     "pos_mean": 0.5383918285369873,
+     "pos_min_ref": 0.5383918285369873,
+     "max_single_pos_mean": 0.538391825556755,
+     "max_single_pos_min": 0.44047462940216064,
+     "neg_per_ref": [
+      0.44857969880104065
+     ],
+     "neg_mean": 0.44857969880104065,
+     "neg_max_item": 0.5377135276794434,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 31.8,
+     "overlap_with_A": 0.4,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    },
+    "C": {
+     "ids": [
+      "edb95c357b3b-015251-000000",
+      "edb95c357b3b-008255-000000",
+      "edb95c357b3b-002813-000000",
+      "edb95c357b3b-023142-000000",
+      "edb95c357b3b-001976-000000",
+      "edb95c357b3b-002444-000000",
+      "edb95c357b3b-032032-000000",
+      "edb95c357b3b-028184-000000",
+      "edb95c357b3b-012666-000000",
+      "edb95c357b3b-015112-000000"
+     ],
+     "titles": [
+      "Alone in the Dark (1982)",
+      "Madhouse (2004)",
+      "Don't Look in the Basement (1973)",
+      "D-Tox (2002)",
+      "The Ninth Configuration (1980)",
+      "From Beyond (1986)",
+      "The Attic Expeditions (2001)",
+      "Fear of Clowns 2 (2007)",
+      "Deliria (1987)",
+      "Shutter Island (2010)"
+     ],
+     "text_sim": 0.37954679131507874,
+     "pos_per_ref": [
+      0.6424986124038696
+     ],
+     "pos_mean": 0.6424986124038696,
+     "pos_min_ref": 0.6424986124038696,
+     "max_single_pos_mean": 0.6424986243247985,
+     "max_single_pos_min": 0.6235345005989075,
+     "neg_per_ref": [
+      0.5618076920509338
+     ],
+     "neg_mean": 0.5618076920509338,
+     "neg_max_item": 0.6211544275283813,
+     "violations": {
+      "excluded_genre": 0,
+      "required_genre_missing": 0,
+      "year_out_of_range": 0,
+      "year_unknown": 0
+     },
+     "violations_total": 0,
+     "leaks": [],
+     "latency_ms_median": 43.6,
+     "overlap_with_A": 0.0,
+     "identical_to_A": false,
+     "hnsw_ef128_overlap_with_exact": 1.0
+    }
+   },
+   "no_hard_exclusion_leaks": {
+    "A": [],
+    "B": [],
+    "C": []
+   }
+  }
+ ]
+}

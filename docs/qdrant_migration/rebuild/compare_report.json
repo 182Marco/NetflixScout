@@ -1,0 +1,21 @@
+{
+ "count_a": 42522,
+ "count_b": 42522,
+ "common": 42522,
+ "only_in_a": 0,
+ "only_in_b": 0,
+ "only_in_a_sample": [],
+ "only_in_b_sample": [],
+ "issues": {},
+ "samples": {},
+ "cosine": {
+  "min": 0.9939819882143037,
+  "mean": 0.9999954154151808,
+  "p01": 0.9999762028018572,
+  "below_0.9999": 160,
+  "below_0.999": 67,
+  "below_0.99": 0,
+  "below_0.95": 0
+ },
+ "identical_ids_and_payloads": true
+}

@@ -1,0 +1,191 @@
+{
+ "answer": "Non posso determinare con certezza quale sia “questo mese”, perché i dati ricevuti non indicano la data corrente. I risultati TMDb disponibili riportano comunque queste uscite, tutte del 2026:\n\n- **Mammina** — 8 ottobre — horror — **voto TMDb: 5,8/10**. Bela, una ragazzina, instaura un rapporto con un’entità sinistra presente nella sua casa, simile alla madre.\n- **Street Fighter** — 15 ottobre — azione, fantasy — **voto TMDb: 6,4/10**. Nel 1993, Ryu e Ken Masters, un tempo inseparabili, sono divisi da scelte e ferite mai rimarginate.\n- **Whalefall - Nella balena** — 15 ottobre — thriller — **voto TMDb: 6,6/10**. Dopo la morte del padre, Jay Gardiner si immerge al largo della California alla ricerca dei suoi resti, ma viene inghiottito da un’enorme balena.\n- **Clayface** — 22 ottobre — horror, thriller, fantascienza — **voto TMDb: 7,6/10**. Un astro nascente di Hollywood diventa un mostro assetato di vendetta.\n- **Shaun, vita da pecora - Operazione Z.U.C.C.A.** — 28 ottobre — animazione, fantascienza, commedia — **voto TMDb: 7,3/10**. Per Halloween, Shaun e gli animali della fattoria si preparano coltivando un campo di zucche.\n- **Ice Cream Man** — 29 ottobre — horror, commedia, thriller — **voto TMDb: 5,0/10**. Una cittadina estiva precipita nell’orrore quando un gelataio offre ai bambini dolci dalle conseguenze terrificanti.\n- **Hope** — 5 novembre — fantascienza, mistero, azione — **voto TMDb: 6,8/10**. In seguito a devastanti incendi boschivi e all’interruzione delle comunicazioni con l’esterno, il comandante Bum-seok e l’agente Sung-ae proteggono il villaggio di Hope.\n- **The Uprising - Cuore ribelle** — 5 novembre — azione, dramma, storia — **voto TMDb: 7,9/10**. Nell’Inghilterra del XIV secolo, un contadino riunisce un esercito di popolani e avvia una ribellione contro il re.\n- **Godzilla Minus Zero** — 12 novembre — fantascienza, horror, azione — **voto TMDb non disponibile**. La storia è ambientata nel 1949, in un Giappone ancora impegnato a ricostruirsi dopo la Seconda guerra mondiale e il precedente passaggio del mostro.\n- **Resident Evil** — 17 settembre — horror, fantascienza, avventura — **voto TMDb: 7,3/10**. Bryan, un corriere medico, viene coinvolto in una frenetica corsa contro il tempo per sopravvivere a una notte sprofondata nel caos.\n\nIl tool ha restituito più risultati complessivi, ma qui sono disponibili i dettagli di questi 10 titoli; quindi l’elenco potrebbe non essere completo.",
+ "tools": [
+  "tmdb_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Cosa esce al cinema questo mese?",
+    "used": "Cosa esce al cinema questo mese?",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "tmdb_search",
+    "purpose": "Film in uscita e attualmente al cinema in Italia questo mese",
+    "arguments": {
+     "query": "Quali film escono al cinema in Italia questo mese?",
+     "requests": [
+      {
+       "operation": "chart",
+       "media": "movie",
+       "chart": "upcoming",
+       "region": "IT",
+       "limit": 20
+      },
+      {
+       "operation": "chart",
+       "media": "movie",
+       "chart": "now_playing",
+       "region": "IT",
+       "limit": 20
+      }
+     ]
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "tmdb_search",
+    "elapsed_ms": 363,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/movie/upcoming?api_key=***",
+     "https://api.themoviedb.org/3/genre/movie/list?api_key=***",
+     "https://api.themoviedb.org/3/movie/now_playing?api_key=***"
+    ],
+    "attributions": [],
+    "items": [
+     {
+      "id": 1058424,
+      "media_type": "movie",
+      "title": "Hope",
+      "original_title": "호프",
+      "overview": "I rinforzi sono stati richiamati per fronteggiare i devastanti incendi boschivi e ogni comunicazione con l’esterno è stata interrotta. Nel piccolo posto di polizia di Hope, il comandante Bum-seok e l’agente Sung-ae lottano per proteggere un villaggio popolato quasi esclusivament…",
+      "vote_average": 6.791,
+      "release_date": "2026-11-05",
+      "original_language": "ko",
+      "poster_path": "/fbFxZSSw2kQoAkyXosVoOyBX0Z4.jpg"
+     },
+     {
+      "id": 977942,
+      "media_type": "movie",
+      "title": "The Uprising - Cuore ribelle",
+      "original_title": "The Uprising",
+      "overview": "Mentre la guerra e la peste devastano l'Inghilterra del XIV secolo, un umile contadino, unendo un esercito di popolani, dà inizio a una ribellione per sfidare il potere del re in una disperata lotta per la giustizia e la sopravvivenza.",
+      "vote_average": 7.9,
+      "release_date": "2026-11-05",
+      "original_language": "en",
+      "poster_path": "/zT1Mw02U7zrDb0hs3JNkAdzh6d3.jpg"
+     },
+     {
+      "id": 1477712,
+      "media_type": "movie",
+      "title": "Ice Cream Man",
+      "original_title": null,
+      "overview": "Un'idilliaca cittadina di villeggiatura estiva precipita nell’orrore, quando un gelataio offre ai bambini dolci prelibatezze dalle conseguenze terrificanti.",
+      "vote_average": 5.048,
+      "release_date": "2026-10-29",
+      "original_language": "en",
+      "poster_path": "/bnZUCOLv2Br3VOxnDMo5qPOncJF.jpg"
+     },
+     {
+      "id": 1477104,
+      "media_type": "movie",
+      "title": "Shaun, vita da pecora - Operazione Z.U.C.C.A.",
+      "original_title": "Shaun the Sheep: The Beast of Mossy Bottom",
+      "overview": "Halloween è alle porte. Shaun e tutti gli animali della fattoria si preparano per festeggiarlo al meglio coltivando un magnifico campo di zucche. Ma quando tutto sembrava ormai pronto, il contadino misteriosamente scompare e arriva dal bosco uno spaventoso mostro. …",
+      "vote_average": 7.3,
+      "release_date": "2026-10-28",
+      "original_language": "en",
+      "poster_path": "/hIgvOtvwbNCUclH0uBvg2qn6Ye.jpg"
+     },
+     {
+      "id": 1381071,
+      "media_type": "movie",
+      "title": "Godzilla Minus Zero",
+      "original_title": "ゴジラ-0.0",
+      "overview": "La vicenda è ambientata nel 1949, in un Giappone che sta ancora faticosamente cercando di ricostruirsi dopo i traumi della Seconda Guerra Mondiale e dopo il precedente passaggio del mostro. …",
+      "vote_average": null,
+      "release_date": "2026-11-12",
+      "original_language": "ja",
+      "poster_path": "/SS3rNoR2RICMWoV2566e32lOi6.jpg"
+     },
+     {
+      "id": 1400940,
+      "media_type": "movie",
+      "title": "Clayface",
+      "original_title": null,
+      "overview": "La terrificante discesa di un uomo, da astro nascente di Hollywood a mostro assetato di vendetta, in una storia che esplora la perdita di identità e umanità, l’amore corrosivo e il lato oscuro dell’ambizione scientifica.",
+      "vote_average": 7.6,
+      "release_date": "2026-10-22",
+      "original_language": "en",
+      "poster_path": "/t6snh7pOxNjqs5rwP28TZmTQ0Ul.jpg"
+     },
+     {
+      "id": 1153576,
+      "media_type": "movie",
+      "title": "Street Fighter",
+      "original_title": null,
+      "overview": "1993. Un’epoca di sale giochi, monete consumate e leggende nate a colpi di joystick. Ryu (Andrew Koji) e Ken Masters (Noah Centineo), Street Fighters un tempo inseparabili, oggi sono lontani, divisi da scelte e ferite mai rimarginate. …",
+      "vote_average": 6.408,
+      "release_date": "2026-10-15",
+      "original_language": "en",
+      "poster_path": "/ccxdepKqORLwccbzvO4eAGkN0IC.jpg"
+     },
+     {
+      "id": 1423191,
+      "media_type": "movie",
+      "title": "Resident Evil",
+      "original_title": null,
+      "overview": "Bryan, un corriere medico, si ritrova involontariamente coinvolto in una frenetica sfida contro il tempo per sopravvivere, mentre una notte sconvolgente e orribile sprofonda nel caos intorno a lui.",
+      "vote_average": 7.315,
+      "release_date": "2026-09-17",
+      "original_language": "en",
+      "poster_path": "/D8rnntI88rgzWKDK2yuxm25HTQ.jpg"
+     },
+     {
+      "id": 1255833,
+      "media_type": "movie",
+      "title": "Whalefall - Nella balena",
+      "original_title": "Whalefall",
+      "overview": "Dopo la morte di suo padre (Josh Brolin), Jay Gardiner (Austin Abrams) si immerge al largo della costa centrale della California alla ricerca dei suoi resti, ma viene inghiottito da un'enorme balena. …",
+      "vote_average": 6.604,
+      "release_date": "2026-10-15",
+      "original_language": "en",
+      "poster_path": "/auhdhcoWhQzMovY2pa71BTgDAa7.jpg"
+     },
+     {
+      "id": 1400837,
+      "media_type": "movie",
+      "title": "Mammina",
+      "original_title": "Other Mommy",
+      "overview": "Un viaggio terrificante nel mondo sempre più oscuro di Bela, una ragazzina che instaura un rapporto con un’entità sinistra presente nella sua casa, che assomiglia in modo inquietante alla sua stessa madre.",
+      "vote_average": 5.833,
+      "release_date": "2026-10-08",
+      "original_language": "en",
+      "poster_path": "/ir1esRZZk49yKaLAVQd2FgvLxLf.jpg"
+     }
+    ]
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "t04",
+  "kind": "tmdb",
+  "text": "Cosa esce al cinema questo mese?"
+ },
+ "seconds": 26.4
+}

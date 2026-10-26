@@ -1,0 +1,1 @@
+queries=28 exact search, migrated vs rebuilt: top10 overlap mean=1.000 min=1.00; top50 overlap mean=1.000 min=1.00; same top-1 in 28/28

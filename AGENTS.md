@@ -1,5 +1,19 @@
 # AGENTS.md — NetflixScout
 
+# ▶▶▶ PRIMA DI TUTTO: AVVIA QDRANT (serve per usare il progetto)
+
+# `cd /Users/filippo.milzagmail.com/Desktop/NetflixScout`
+
+# `QDRANT_BIN=/private/tmp/claude-501/-Users-filippo-milzagmail-com-Desktop-NetflixScout/5bfd1d87-098f-47f2-91bf-6c2ea5a37f18/scratchpad/qdrant_server/bin/qdrant ./scripts/start_qdrant.sh`
+
+**Da eseguire dalla radice del progetto**, in un terminale a parte che resta aperto (Ctrl+C per fermarlo). Ascolta solo su `127.0.0.1:6333` e apre lo storage reale
+`/Users/filippo.milzagmail.com/Desktop/NetflixScout/dbVettoriale/qdrant_openai/storage` (collezione `netflix_scout`, 42.522 punti). Il binario (Qdrant **1.20.0**, verificato con `--version`) si trova nella cartella
+temporanea di sessione indicata sopra, che il sistema può svuotare: se manca, va riscaricato (release ufficiale `qdrant/qdrant` v1.20.0, asset `qdrant-x86_64-apple-darwin.tar.gz`) e
+`QDRANT_BIN` punta al nuovo file. Dettagli: `docs/qdrant_migration/server.md`. Senza server, `python app.py` e `uvicorn web_api.main:app` si fermano con una riga: `Error: Cannot reach Qdrant ...`.
+Per tornare a Chroma: `VECTORSTORE_ENGINE=chroma` (vedi `docs/qdrant_migration/rollback.md`).
+
+
+
 Guida operativa per agenti IA. Leggila prima di modificare il codice.
 
 ## 1. Contesto del Progetto
@@ -9,7 +23,7 @@ Guida operativa per agenti IA. Leggila prima di modificare il codice.
 **Stack**
 - Python 3.11 (`.venv/` locale), nessun `pyproject.toml`: le dipendenze stanno in `requirements.txt` (versioni pinnate).
 - LLM ed embedding: `openai` (Responses API + Chat Completions per il classificatore), `sentence-transformers`/`torch` per gli embedding locali.
-- Vector store: `chromadb` persistente in `dbVettoriale/<backend>/` (`openai` | `local`), similarità cosine.
+- Vector store: due motori, scelti da `CONFIG["rag"]["vectorstore"]["engine"]` (env `VECTORSTORE_ENGINE`, `VECTORSTORE_QDRANT_MODE|URL|PATH`): `qdrant` (**predefinito dal 2026-10-26**, serve il server su `http://127.0.0.1:6333`, storage `dbVettoriale/qdrant_openai/storage`; avvio: binario ufficiale 1.20.0, vedi sotto) oppure `chroma` (ritorno indietro con `VECTORSTORE_ENGINE=chroma`; persistente in `dbVettoriale/<backend>/`, `openai` | `local`) e `qdrant` (`qdrant-client` 1.20.0 fissato insieme alla versione del server in `store/settings.py`; modalità `embedded` | `memory` | `server`; collezione `netflix_scout` in `dbVettoriale/qdrant_openai/`). Similarità cosine. La migrazione Chroma → Qdrant è fatta e validata, inclusa la ricostruzione dai dataset (`docs/qdrant_migration/rebuild/rebuild_report.md`) e il cambio del predefinito (Fasi 1-7: due batterie di 20 domande E2E reali su Qdrant il 2026-10-26, `docs/qdrant_migration/phase7/phase7_report.md` e `phase7_report_v2.md`; guida d'insieme `docs/qdrant_migration/README.md`), il codice Chroma è mantenuto per rollback e strumenti di migrazione (`phase8/checklist.md`): i dati Chroma e il backup non si cancellano senza permesso.
 - Retrieval: semantico, BM25 (`rank-bm25`), ibrido con RRF.
 - DB MovieLens: `sqlite3` della stdlib; CSV e DB in `movie_db/data/` (ignorata da git, read-only a runtime).
 - Rerank: `cohere` (`rerank-v3.5`) oppure LLM.
@@ -49,7 +63,10 @@ Ogni step (query riscritta, tool scelto, esito e secondi, trace del tool, fallba
 | `tool/rag/EmbeddingProcess/` | pipeline offline: `loaders/` → `clean.py` → `chunk.py` (`chunk_semantic`) → embed → index (`buildSemanticDb.py`) |
 | `tool/rag/FromQueryEmbeddingToRes/` | runtime: `pipeline.run_rag`, `retrieval.py`, `rerank.py`, `constraints.py` (stati dei vincoli), `hybrid.py`, `vectorstore.py`, `embeddings.py`, `models.py`, `tool_interface.py` (`RagTool`, `rag_search`), `runtime.py`, `conversation.py` |
 | `tool/rag/FromQueryEmbeddingToRes/query_classifier/` | classificatore di dominio e lingua **attuale** |
-| `buildSemanticDb.py`, `movie_metadata.py` (root) | shim che reindirizzano a `tool/rag/EmbeddingProcess/` |
+| `tool/rag/FromQueryEmbeddingToRes/store/` | motore Qdrant: `base.py` (Protocol), `qdrant_store.py` (`build_payload`, tre modalità), `collection.py` (adattatore tipo-Chroma `QdrantCollection`, `open_collection`, `QdrantUnavailable`), `ids.py` (`uuid5` degli id, `norm_title`, `year_int`, `tmdb_legacy_id`), `settings.py`, `genre_map.py` e `catalog.py` (catalogo TMDb, vedi sotto) |
+| `tool/rag/FromQueryEmbeddingToRes/references.py` | risoluzione dei film di riferimento (`resolved`/`ambiguous`/`not_in_index`/`ignored_over_limit`); ricerca guidata "come X, non come Y" **spenta** (`CONFIG["rag"]["reference"]["enabled"] = False`: l'A/B di Fase 5 non ha trovato una strategia migliore della ricerca normale) |
+| `catalog_enricher.py` (root), `tool/tmdb/film_record.py` | catalogo TMDb → Qdrant: ponte neutro (non importa `tool.*`) e lettura `en-US` per ID; spento di default |
+| `buildSemanticDb.py`, `movie_metadata.py` (root) | shim che reindirizzano a `tool/rag/EmbeddingProcess/`; `buildSemanticDb.build_semantic_db` ha `collect_chunks` (comune) e due destinazioni, `ChromaTarget` (storica, cancella la cartella) e `QdrantTarget` (collezione nuova, mai sostitutiva) |
 | `tool/movie_db/` | **runtime**: `MovieDbTool`, `parser.py`, `models.py` (`MovieDbOperation`, `MovieDbQuery`), `trace.py`, `results.py`; `sql/` = `connection.py` (read-only), `guard.py` (authorizer + timeout), `queries.py` (SQL whitelistato), `repository.py` |
 | `tool/tmdb/` | tool `tmdb_search`: `config.py` (`TmdbConfig`, solo 3 campi), `settings.py` (costanti interne), `auth.py` (unico lettore della chiave), `endpoints.py` (unico mapping verso le path), `http.py` (**unico** punto di I/O), `budget.py`, `cache.py`, `cooldown.py`, `calls.py` (URL mascherati), `runner.py`, `dispatch.py`, `prompt_budget.py` (contesto per l'LLM), `trace.py`, `tool.py`, `enrich.py` (completamento RAG → TMDb) |
 | `tool/tmdb/models/`, `tool/tmdb/operations/`, `tool/tmdb/normalize/` | enum + regole per operazione + input/risultati; handler per famiglia (`resolve`, `reference`, `movies`, `tv`, `people`, `collections`, `discovery`, `lists`); JSON → `Entity` con facet limitate |
@@ -80,6 +97,9 @@ cp .env.example .env   # inserisci OPENAI_API_KEY, COHERE_API_KEY, VUE_APP_TMDB_
 
 # Build del DB vettoriale (CANCELLA e ricrea dbVettoriale/<backend>/)
 python buildSemanticDb.py --embedding-backend openai     # oppure: local
+# Ricostruzione su QDRANT (non distruttiva: crea una collezione NUOVA, rifiuta cartelle non vuote o collezioni esistenti,
+# controlla tutto PRIMA di chiamare gli embedding; a pagamento: ~42.000 embedding OpenAI). Procedura: docs/qdrant_migration/rebuild.md
+python buildSemanticDb.py --engine qdrant --qdrant-mode embedded --qdrant-path NUOVA_CARTELLA     # oppure --qdrant-mode server --qdrant-url URL --collection NOME_NUOVO
 #   opzioni: --dataset-dir dataset --db-dir PATH --collection netflix_scout
 #            --semantic-threshold 0.78 --embedding-model text-embedding-3-small --batch-size 128
 
@@ -108,6 +128,19 @@ python -m movie_db.harness.evaluation.run_routing_eval --live --tool wikipedia_s
 # Wikipedia live: 3 richieste (generator=search con extracts, articolo intero con intestazioni, titolo omonimo); nessuna chiave, eseguito il 2026-10-26: tutte le ipotesi confermate
 python -m tool.wikipedia.harness.live_smoke --live
 
+# Migrazione Chroma → Qdrant (sorgente: COPIA di Chroma, mai l'originale; scrive solo in Qdrant)
+python -m tool.rag.EmbeddingProcess.migrate_chroma_to_qdrant --chroma-dir COPIA --url http://127.0.0.1:6333 --run-dir DIR
+python -m tool.rag.EmbeddingProcess.validate_migration --chroma-dir COPIA --url http://127.0.0.1:6333 --report FILE
+# Ripristino di Chroma dal backup in una cartella NUOVA (rifiuta dbVettoriale/)
+python docs/qdrant_migration/restore_chroma.py --help
+# Concorrenza delle scritture del catalogo contro un server Qdrant REALE (storage temporaneo; gratis)
+python tests/qdrant_catalog_race.py --url http://127.0.0.1:6401 --rounds 200 --report FILE       # con le guardie
+python tests/qdrant_catalog_race.py --url http://127.0.0.1:6401 --rounds 200 --unguarded --report FILE   # controllo negativo
+QDRANT_URL=http://127.0.0.1:6401 python -m pytest tests/test_qdrant_catalog_server.py -q
+# Copia verificata dello storage Qdrant (server fermo, destinazione nuova) prima di accendere il catalogo
+python docs/qdrant_migration/catalog/backup_storage.py backup --storage dbVettoriale/qdrant_openai/storage --dest NUOVA_CARTELLA
+
+# Server Qdrant (OBBLIGATORIO prima di app.py / web_api): comando esatto in cima a questo file e in docs/qdrant_migration/server.md
 # Avvio della chat interattiva (exit/quit per uscire)
 python app.py
 
@@ -118,7 +151,7 @@ python -m web_api.harness.live_stream_check --live
 
 # Test
 python -m pytest tests/test_query_language.py tests/test_presenters.py tests/test_orchestrator.py tests/test_retrieval.py tests/test_rag_constraints.py tests/test_rerank_query.py tests/test_answer_constraints.py tests/test_movie_db_*.py tests/test_tmdb_*.py tests/test_youtube_*.py tests/test_wikipedia_*.py tests/test_orchestrator_follow_up.py tests/test_story_view.py tests/test_presenter_parity.py tests/test_answer_stream.py tests/test_answer_streaming.py tests/test_answer_channels.py tests/test_web_api_structure.py tests/test_tool_package.py tests/web_api -q   # offline, veloce, gratis
-python -m pytest -q                                # include l'integrazione: servono .env e un DB popolato, consuma crediti API
+python -m pytest -q                                # include l'integrazione: i test `qdrant_server`/`integration` saltano (con motivo) se il server Qdrant non risponde; con server acceso servono .env e chiavi, consumano crediti API
 ```
 
 Non c'è uno step di build o packaging: il progetto si esegue da sorgente, dalla root del repo (i path `dbVettoriale/` sono relativi alla CWD).
@@ -135,6 +168,7 @@ Non c'è uno step di build o packaging: il progetto si esegue da sorgente, dalla
 
 **Pattern architetturali**
 - **Parametri RAG scelti dal planner**: `k_finale` (quanti film chiede l'utente; null = default di `CONFIG["rag"]["retrieval"]`, con `limits.k_finale` min/max). e `search_mode` (null = `semantic`; `hybrid` solo se la richiesta si regge su parole concrete che devono comparire nella trama: personaggio, luogo, oggetto, termine raro, frase tra virgolette; `bm25` da solo non è ammesso e `resolve_retrieval` lo ignora; in hybrid la parte keyword cerca con la `semantic_query` inglese, non con le parole dell'utente, perché il corpus è inglese). `RagToolInput` li espone (`extra="forbid"`); `RagTool.run` li passa a `retrieval_params.resolve_retrieval`, che clampa `k_finale`, tiene `k_finale <= k_largo <= fetch_k`, ignora valori non validi e ogni altra chiave, e lavora su una copia della config. Lo step `retrieval` riporta `retrieval_params` (`effective`, `overridden`). `k_largo`, `fetch_k` e `genre_boost` sono stati provati nello schema del planner (insieme a `search_mode`) e **rimossi**: due A/B live del 2026-10-24 (10 domande, default contro planner) non hanno mostrato alcun beneficio oltre al conteggio (nei casi in cui differivano solo quelli, 3 su 3 uguali; commedie giapponesi anni 50: più violazioni dei vincoli per film; il planner scriveva `genre_boost` anche fuori scala, 1,5–2,0). Il guadagno netto è `k_finale` uguale al numero chiesto (7 migliori, 0 peggiori, 3 uguali nel secondo run; limite: la metrica premia il conteggio corretto, quindi è una prova sul numero di film, non sulla qualità dei titoli). `search_mode` è stato reintrodotto il 2026-10-26 limitato a `semantic`/`hybrid`: e2e reale su 2 domande (personaggio nominato → hybrid, trovato *Hannibal*; tema → semantic); il beneficio di qualità non è misurato con un A/B. Caso di routing in `routing_cases.py`. Valutazione: `routing_cases.py` (`expected_rag`) e `python -m movie_db.harness.evaluation.run_rag_params_eval --live` (A/B, ~10 planner + 20 parser + 20 Cohere, pause di 7 s). Correzione collaterale: `bm25`/`hybrid` leggono la collection a pagine e tengono l'indice in cache (`hybrid.py`; prima `collection.get()` falliva con "too many SQL variables" su 42k chunk).
+- **Catalogo TMDb → Qdrant** (`CONFIG["catalog"]["enabled"]`, **False**; piano e decisioni in `docs/qdrant_migration/catalog/`): un film citato dall'utente e assente dall'indice, verificato da `tmdb_search` (`movie_details` riuscito, identità certa), viene letto in `en-US` (`film_record.py`, mai `localized()`), incorporato con `text-embedding-3-small` (testo = solo la trama inglese, almeno 100 caratteri, altrimenti scarto) e salvato come punto `tmdb:movie:<id>` (`source="tmdb"`). Un film già nel corpus CMU (stesso titolo e anno; regole in `store/catalog.py:decide_link`) non è duplicato: si scrive solo `tmdb_id` sul punto CMU, mai documento o vettore. Ogni scrittura su un punto TMDb è un confronto condizionale sulla `version`; il ponte `catalog_enricher.py` (registrato su `tmdb_search` da `app.build_catalog_enricher` solo se acceso, con Qdrant `embedded` o `server`) non solleva mai e scrive l'esito solo in `tmdb_calls.data.catalog`. Dopo una scrittura la cache BM25 si invalida (`hybrid.invalidate_bm25`). **Stato**: logica e integrazione provate offline; atomicità sul server provata con `tests/qdrant_catalog_race.py` (vedi `docs/qdrant_migration/catalog/race_report.md`); la calibrazione C (embedding reali) e l'attivazione NON sono eseguite e richiedono l'autorizzazione del proprietario. I punti TMDb non sono ricostruibili da Chroma: prima di accendere, copia verificata dello storage Qdrant.
 - **Config-driven**: tutti i parametri (modelli, k, backend, prompt) vivono in `CONFIG` in `app.py`. Niente valori hardcoded nei moduli: passa `config` come dict. Gli override passano da `build_runtime_config(overrides)`.
 - `_resolve_runtime_config` normalizza la config RAG (backend effettivo, `db_dir`, default della conversazione): chiamala prima di accedere a vectorstore ed embedding.
 - **Contratto dei tool**: ogni tool rispetta il `Tool` Protocol (`name`, `description`, `input_schema`, `run(*, query, params, conversation_history) -> dict`). `input_schema` deriva da un modello Pydantic (`model_json_schema()`). Un nuovo tool vive in `tool/<nome>/` (mai nella root), con import relativi e senza importare altri tool, presenter o canali (`tests/test_tool_package.py`), e si registra in `build_app` e in `CONFIG["orchestrator"]["allowed_tools"]`, senza toccare il core.
@@ -215,8 +249,9 @@ Non c'è uno step di build o packaging: il progetto si esegue da sorgente, dalla
 
 **Non fare senza un permesso esplicito**
 - Leggere, stampare o modificare `.env` (contiene chiavi API). Aggiorna solo `.env.example`.
-- Lanciare `buildSemanticDb.py` (distruttivo, lento, costoso) o `buildMovieDb.py --force`, o cancellare `dbVettoriale/`, `dataset/`, `movie_db/data/`.
+- Lanciare `buildSemanticDb.py` (con `--engine chroma`, il predefinito, è distruttivo; anche con `--engine qdrant` è lento e a pagamento) o `buildMovieDb.py --force`, o cancellare `dbVettoriale/`, `dataset/`, `movie_db/data/`.
 - Eseguire la suite completa o script che chiamano OpenAI/Cohere/TMDb/YouTube/Wikipedia (costano crediti o consumano le quote: per YouTube 100 ricerche al giorno per progetto, condivise con ogni altro uso della stessa chiave), incluso `python -m tool.wikipedia.harness.live_smoke --live`, `python -m tool.tmdb.harness.live_smoke --live` e `python -m web_api.harness.live_stream_check --live` (1 chiamata LLM).
+- Eseguire la calibrazione C (`docs/qdrant_migration/catalog/calibration/calibrate.py embed-queries`, variabile `CATALOG_CALIBRATION_AUTHORIZED=yes`) o la Fase 7 (`docs/qdrant_migration/phase7/run_e2e.py`, `PHASE7_AUTHORIZED=yes`): chiamate a pagamento; le variabili non vanno mai messe in `.env`, nel codice o nei test (`tests/test_run_guards.py`).
 - Cambiare i nomi dei modelli LLM, le versioni pinnate in `requirements.txt` o i prompt di sistema (classificatore, generazione, compattazione), che sono comportamento di prodotto.
 - Indebolire il filtro di dominio e anti jailbreak in `query_classifier/`.
 - Aggiungere dipendenze o file di config di tooling (linter, pyproject) senza chiedere.

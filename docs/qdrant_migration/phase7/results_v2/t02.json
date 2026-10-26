@@ -1,0 +1,73 @@
+{
+ "answer": "Secondo i crediti cinematografici restituiti da TMDb, Greta Gerwig ha diretto:\n\n- **Lady Bird** (2017)\n- **Piccole donne** (2019)\n- **Barbie** (2023)\n- **Narnia - Il nipote del mago** (2027, indicato come progetto futuro)\n\nTMDb ha restituito solo una parte dei crediti disponibili, quindi l’elenco potrebbe non essere completo.",
+ "tools": [
+  "tmdb_search"
+ ],
+ "steps": [
+  {
+   "kind": "classification",
+   "data": {
+    "is_cinema": true,
+    "is_italian": true,
+    "language": "it"
+   }
+  },
+  {
+   "kind": "query_rewrite",
+   "data": {
+    "original": "Quali film ha diretto Greta Gerwig?",
+    "used": "Quali film ha diretto Greta Gerwig?",
+    "rewritten": false
+   }
+  },
+  {
+   "kind": "tool_selection",
+   "data": {
+    "tool": "tmdb_search",
+    "purpose": "Film diretti da Greta Gerwig",
+    "arguments": {
+     "query": "Quali film ha diretto Greta Gerwig?",
+     "requests": [
+      {
+       "operation": "person_details",
+       "name": "Greta Gerwig",
+       "department": "directing",
+       "facets": [
+        "movie_credits"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "kind": "tool_outcome",
+   "data": {
+    "tool": "tmdb_search",
+    "elapsed_ms": 640,
+    "status": "ok",
+    "reason": null
+   }
+  },
+  {
+   "kind": "tmdb_calls",
+   "data": {
+    "calls": [
+     "https://api.themoviedb.org/3/search/person?api_key=***",
+     "https://api.themoviedb.org/3/person/45400?api_key=***"
+    ],
+    "attributions": [],
+    "items": []
+   }
+  }
+ ],
+ "auto_class": "completed",
+ "auto_reasons": [],
+ "engine": "qdrant",
+ "question": {
+  "id": "t02",
+  "kind": "tmdb",
+  "text": "Quali film ha diretto Greta Gerwig?"
+ },
+ "seconds": 7.9
+}

@@ -17,12 +17,16 @@ def cosine_similarity(a, b):
     )
 
 
-def embed_openai(texts, model):
-    """Create embeddings through OpenAI's embeddings API."""
+def embed_openai(texts, model, timeout=None):
+    """Create embeddings through OpenAI's embeddings API.
+
+    `timeout` (seconds) is for callers that run inside a turn and cannot wait: it is applied with
+    no retry. Without it the client behaves exactly as before.
+    """
 
     from openai import OpenAI
 
-    client = OpenAI()
+    client = OpenAI(timeout=timeout, max_retries=0) if timeout else OpenAI()
     batch_size = 1000
     embeddings = []
 
@@ -63,10 +67,10 @@ def embed_local(texts, model):
     )
 
 
-def embed(texts, backend, model):
+def embed(texts, backend, model, timeout=None):
     """Embed a list of texts with the chosen backend and model."""
     if backend == "openai":
-        return embed_openai(texts, model)
+        return embed_openai(texts, model) if timeout is None else embed_openai(texts, model, timeout)
     elif backend == "local":
         return embed_local(texts, model)
 

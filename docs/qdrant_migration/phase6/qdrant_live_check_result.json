@@ -1,0 +1,97 @@
+{
+ "engine": "qdrant",
+ "results": [
+  {
+   "query_id": "q03",
+   "query": "Qual è quel film in cui il protagonista si chiama Truman Burbank e vive in uno show televisivo?",
+   "http": 200,
+   "events": [
+    "turn_start",
+    "...",
+    "answer_end",
+    "lists",
+    "done"
+   ],
+   "n_events": 18,
+   "step_kinds": [
+    "retrieval",
+    "rerank"
+   ],
+   "tool": "rag_search",
+   "blocked": false,
+   "answer": "Dal catalogo: The Truman Show (1998); The Icicle Thief (1990); Harrison Bergeron (1995).",
+   "seconds": 0.06,
+   "pool_equals_chroma_baseline": true,
+   "pool_overlap_with_chroma_baseline": 1.0
+  },
+  {
+   "query_id": "q10",
+   "query": "Quel film dove Hannibal Lecter è un cannibale psichiatra",
+   "http": 200,
+   "events": [
+    "turn_start",
+    "...",
+    "answer_end",
+    "lists",
+    "done"
+   ],
+   "n_events": 17,
+   "step_kinds": [
+    "retrieval",
+    "rerank"
+   ],
+   "tool": "rag_search",
+   "blocked": false,
+   "answer": "Dal catalogo: Hannibal (2001); Red Dragon (2002); The Silence of the Lambs (1991).",
+   "seconds": 0.05,
+   "pool_equals_chroma_baseline": true,
+   "pool_overlap_with_chroma_baseline": 1.0
+  },
+  {
+   "query_id": "q13",
+   "query": "Film simili a Matrix",
+   "http": 200,
+   "events": [
+    "turn_start",
+    "...",
+    "answer_end",
+    "lists",
+    "done"
+   ],
+   "n_events": 18,
+   "step_kinds": [
+    "retrieval",
+    "rerank"
+   ],
+   "tool": "rag_search",
+   "blocked": false,
+   "answer": "Dal catalogo: The Terminators (2009); Impostor (2001); 2B - The Era of Flesh is Over (?).",
+   "seconds": 0.05,
+   "pool_equals_chroma_baseline": true,
+   "pool_overlap_with_chroma_baseline": 1.0
+  },
+  {
+   "query_id": "q21",
+   "query": "Un film in cui compare un personaggio di nome Rick che gestisce un bar a Casablanca",
+   "http": 200,
+   "events": [
+    "turn_start",
+    "...",
+    "answer_end",
+    "lists",
+    "done"
+   ],
+   "n_events": 18,
+   "step_kinds": [
+    "retrieval",
+    "rerank"
+   ],
+   "tool": "rag_search",
+   "blocked": false,
+   "answer": "Dal catalogo: Casablanca (1942); Play It Again, Sam (1972); Moving McAllister (2007).",
+   "seconds": 0.06,
+   "pool_equals_chroma_baseline": false,
+   "pool_overlap_with_chroma_baseline": 0.8
+  }
+ ]
+}
