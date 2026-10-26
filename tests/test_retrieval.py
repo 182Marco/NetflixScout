@@ -149,6 +149,35 @@ def test_retrieve_without_fetch_k_keeps_the_old_pool_size(monkeypatch) -> None:
     assert calls[0]["genre_boost"] == 0.0
 
 
+def test_hybrid_keyword_search_uses_the_english_semantic_query(monkeypatch) -> None:
+    seen: dict = {}
+    semantic = [{"id": "a", "title": "A", "testo": "x"}, {"id": "b", "title": "B", "testo": "y"}]
+    keyword = [{"id": "b", "title": "B", "testo": "y"}, {"id": "c", "title": "C", "testo": "z"}]
+    monkeypatch.setattr(retrieval, "recupera", lambda query, **kwargs: list(semantic))
+    monkeypatch.setattr(retrieval, "apri_collection", lambda *a, **k: FakeCollection([]))
+    monkeypatch.setattr(retrieval, "costruisci_indice_bm25", lambda collection: "index")
+
+    def fake_bm25(query, index, k):
+        seen["query"] = query
+        return list(keyword)
+
+    monkeypatch.setattr(retrieval, "cerca_bm25", fake_bm25)
+    config = {
+        "retrieval": {"search_mode": SearchMode.hybrid, "k_largo": 10, "k_finale": 3, "rrf_costante": 60},
+        "embedding": {"backend": "openai", "model": "m"},
+        "vectorstore": {"collection": "c", "db_dir": "x"},
+    }
+
+    results = retrieval._retrieve(
+        "film con Hannibal Lecter", config, signals=QuerySignals(semantic_query="Hannibal Lecter serial killer")
+    )
+
+    assert seen["query"] == "Hannibal Lecter serial killer"
+    assert {r["id"] for r in results} == {"a", "b", "c"}  # fused from both lists
+    retrieval._retrieve("film con Hannibal Lecter", config, signals=QuerySignals())
+    assert seen["query"] == "film con Hannibal Lecter"
+
+
 def test_rerank_cohere_sees_title_and_genres() -> None:
     sent: dict = {}
 
@@ -303,14 +332,14 @@ def test_rag_tool_applies_the_planner_retrieval_params_to_a_copy_of_the_config(m
     tool = RagTool(config=config)
     planned = tool.run(
         query="dammi 5 film",
-        params={"query": "dammi 5 film", "k_finale": 50, "search_mode": "bm25", "turn_id": "t1"},  # extras ignored
+        params={"query": "dammi 5 film", "k_finale": 50, "search_mode": "hybrid", "k_largo": 99, "turn_id": "t1"},  # extras ignored
     )
 
-    assert seen["k_finale"] == 10 and seen["search_mode"] == SearchMode.semantic
+    assert seen["k_finale"] == 10 and seen["search_mode"] == SearchMode.hybrid and seen["k_largo"] == 10
     assert config["retrieval"]["k_finale"] == 3
     data = planned["trace"][0]["data"]["retrieval_params"]
-    assert data["overridden"] == ["k_finale"]
-    assert data["effective"]["search_mode"] == "semantic"
+    assert data["overridden"] == ["k_finale", "search_mode"]
+    assert data["effective"]["search_mode"] == "hybrid"
     assert planned["metadata"]["k_finale"] == 10
 
 

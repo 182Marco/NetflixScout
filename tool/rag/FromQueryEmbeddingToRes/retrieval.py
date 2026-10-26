@@ -201,6 +201,8 @@ def _retrieve(query: str, config: dict, signals: QuerySignals | None = None) -> 
         return _light_rerank(query, base_results, signals)
 
     indice_bm25 = costruisci_indice_bm25(collection)
+    # The corpus is English: keyword matching needs the English semantic query, not the user's words.
+    keyword_query = signals.semantic_query or query
 
     def _apply_hard_exclusions(chunks: list[dict]) -> list[dict]:
         if not signals.hard_exclusions and not signals.excluded_genres:
@@ -235,7 +237,7 @@ def _retrieve(query: str, config: dict, signals: QuerySignals | None = None) -> 
             genre_boost=retrieval_config.get("genre_boost", 0.0),
             excluded_genres=signals.excluded_genres,
         )
-        risultati_bm25 = cerca_bm25(query, indice_bm25, config["retrieval"]["k_largo"])
+        risultati_bm25 = cerca_bm25(keyword_query, indice_bm25, config["retrieval"]["k_largo"])
         risultati_bm25 = _apply_hard_exclusions(risultati_bm25)
         risultati = cerca_hybrid(
             risultati_semantici,
@@ -245,7 +247,7 @@ def _retrieve(query: str, config: dict, signals: QuerySignals | None = None) -> 
         )
         return _light_rerank(query, risultati, signals)
 
-    risultati_bm25 = cerca_bm25(query, indice_bm25, config["retrieval"]["k_largo"])
+    risultati_bm25 = cerca_bm25(keyword_query, indice_bm25, config["retrieval"]["k_largo"])
     risultati_bm25 = _apply_hard_exclusions(risultati_bm25)
     return _light_rerank(query, risultati_bm25, signals)
 

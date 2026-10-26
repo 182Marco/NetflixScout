@@ -398,7 +398,7 @@ const TREE = D("NetflixScout", {}, [
       F("run_rag_params_eval.py", {
         L: "test", api: 1,
         s: `A/B dei parametri di retrieval: default configurati contro la scelta del planner (consuma crediti).`,
-        d: `Storia: con <code>search_mode</code>, <code>k_largo</code>, <code>fetch_k</code> e <code>genre_boost</code> nello schema del planner (2026-10-24, due run) non si è visto alcun beneficio oltre al conteggio, e sono stati rimossi; resta <code>k_finale</code>. Lo script resta per ritestare nuovi parametri. Il verdetto conta solo i guadagni oggettivi (violazioni dei vincoli, conteggio giusto).`,
+        d: `Storia: con <code>search_mode</code>, <code>k_largo</code>, <code>fetch_k</code> e <code>genre_boost</code> nello schema del planner (2026-10-24, due run) non si è visto alcun beneficio oltre al conteggio, e sono stati rimossi; restano <code>k_finale</code> e <code>search_mode</code> (solo <code>semantic</code> o <code>hybrid</code>). Lo script resta per ritestare nuovi parametri. Il verdetto conta solo i guadagni oggettivi (violazioni dei vincoli, conteggio giusto).`,
         it: [
           [`AB_CASES · AbCase`, `Le domande dell'A/B.`],
           [`summarize · verdict`, `Riassunto e verdetto, testati offline.`],
@@ -670,10 +670,10 @@ const TREE = D("NetflixScout", {}, [
       F("retrieval_params.py", {
         L: "rt",
         s: `<code>resolve_retrieval</code>: applica la scelta del planner a una copia della config RAG.`,
-        d: `L'unico parametro che il planner sceglie è <code>k_finale</code> (quanti film chiede l'utente; null = default). Il valore viene tenuto dentro i limiti di <code>limits.k_finale</code>, con <code>k_finale ≤ k_largo ≤ fetch_k</code>; valori non validi e ogni altra chiave sono ignorati e non fanno mai fallire il turno. Lavora su una copia: la config originale non cambia. Restituisce la config effettiva e l'elenco dei campi cambiati (<code>overridden</code>), che finiscono nello step <code>retrieval</code>.`,
+        d: `I parametri che il planner sceglie sono <code>k_finale</code> (quanti film chiede l'utente; null = default) e <code>search_mode</code> (<code>hybrid</code> solo se la richiesta si regge su parole concrete della trama; <code>bm25</code> non è ammesso). <code>k_finale</code> viene tenuto dentro i limiti di <code>limits.k_finale</code>, con <code>k_finale ≤ k_largo ≤ fetch_k</code>; modalità non ammesse, valori non validi e ogni altra chiave sono ignorati e non fanno mai fallire il turno. Lavora su una copia: la config originale non cambia. Restituisce la config effettiva e l'elenco dei campi cambiati (<code>overridden</code>), che finiscono nello step <code>retrieval</code>.`,
         it: [
           [`resolve_retrieval(retrieval, arguments)`, `(config effettiva, campi sovrascritti).`],
-          [`TUNABLE`, `I campi che il planner può cambiare (oggi solo <code>k_finale</code>).`],
+          [`TUNABLE`, `I campi che il planner può cambiare (<code>k_finale</code> e <code>search_mode</code>).`],
         ],
         dep: ["tool/rag/FromQueryEmbeddingToRes/tool_interface.py"],
       }),
@@ -1694,7 +1694,7 @@ const TREE = D("NetflixScout", {}, [
     }),
     F("test_retrieval_params.py", {
       L: "test",
-      s: `Il planner sceglie solo <code>k_finale</code>: limiti, coerenza dei pool, valori non validi.`,
+      s: `Il planner sceglie <code>k_finale</code> e <code>search_mode</code>: limiti, coerenza dei pool, modalità ammesse, valori non validi.`,
       d: `4 test: no overrides keeps defaults; k finale is clamped and pools stay coherent; invalid values and other settings are ignored; defaults are not mutated`,
       dep: ["tool/rag/FromQueryEmbeddingToRes/retrieval_params.py"],
       x: ["pytest"],
@@ -2635,7 +2635,6 @@ function renderOverview() {
     <h2>Punti di attenzione nel codice</h2>
     <div class="callout"><ul>
       <li>Il commit “migrate db to Qdrant” non corrisponde al codice, che usa solo ChromaDB.</li>
-      <li>In modalità bm25/hybrid l'indice BM25 è letto a pagine e tenuto in cache per collection (<a class="vscode" href="#${Q}hybrid.py">hybrid.py</a>); la modalità resta <code>semantic</code>: il planner non la sceglie più (A/B del 2026-10-24 senza benefici) e l'utilità di bm25/hybrid non è dimostrata.</li>
       <li><code>max_iterations</code>, <code>max_execution_time</code> e <code>token_budget</code> sono in CONFIG ma il codice non li usa.</li>
       <li>La build del DB MovieLens e <code>run_eval</code> offline non fanno chiamate API, ma richiedono <code>OPENAI_API_KEY</code>: leggono <code>CONFIG</code> da <code>app.py</code>, i cui import creano il client OpenAI.</li>
       <li>Limiti noti dei dati MovieLens: nelle classifiche compaiono serie TV (Firefly, Planet Earth II…), l'articolo finale resta in fondo nei titoli con titolo alternativo tra parentesi, <code>by_title</code> cerca per sottostringa.</li>

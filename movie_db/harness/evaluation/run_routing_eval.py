@@ -247,12 +247,15 @@ def check_any_wikipedia(
 
 
 def check_rag(expected: RagExpectation, arguments: Any) -> str | None:
-    """Check the `k_finale` the planner set, as `RagTool.run` would read it."""
+    """Check the `k_finale` and `search_mode` the planner set, as `RagTool.run` would read it."""
     if not isinstance(arguments, dict):
         return "arguments is not an object"
     counts = expected.k_finale if isinstance(expected.k_finale, tuple) else (expected.k_finale,)
     if arguments.get("k_finale") not in counts:
         return f"k_finale {arguments.get('k_finale')!r} not in {counts}"
+    modes = expected.search_mode if isinstance(expected.search_mode, tuple) else (expected.search_mode,)
+    if arguments.get("search_mode") not in modes:
+        return f"search_mode {arguments.get('search_mode')!r} not in {modes}"
     return None
 
 

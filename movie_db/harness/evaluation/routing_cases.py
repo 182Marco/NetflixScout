@@ -68,12 +68,13 @@ class WikipediaExpectation:
 
 @dataclass(frozen=True)
 class RagExpectation:
-    """The `k_finale` the planner should set for a `rag_search` call.
+    """The `k_finale` and `search_mode` the planner should set for a `rag_search` call.
 
     None means "must be left null" (the configured default); a tuple lists acceptable values.
     """
 
     k_finale: int | None | tuple[int | None, ...] = None
+    search_mode: str | None | tuple[str | None, ...] = None
 
 
 @dataclass(frozen=True)
@@ -309,7 +310,13 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
     RoutingCase(
         "Qual è quel film in cui il protagonista si chiama Truman Burbank e vive in uno show televisivo?",
         RAG,
-        expected_rag=RagExpectation(k_finale=(None, 1)),
+        expected_rag=RagExpectation(k_finale=(None, 1), search_mode=(None, "hybrid")),
+    ),
+    # `search_mode`: hybrid only when concrete words must appear in the plot.
+    RoutingCase(
+        "Trovami i film dove c'è un personaggio che si chiama Hannibal Lecter",
+        RAG,
+        expected_rag=RagExpectation(k_finale=(None,), search_mode="hybrid"),
     ),
     # Data coverage (`CONFIG["orchestrator"]["data_coverage"]`): films after the last year a local
     # source covers must not start from RAG (to 2012) or MovieLens (to 2022).

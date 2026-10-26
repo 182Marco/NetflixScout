@@ -202,7 +202,7 @@ Automatic compaction:
 
 The chosen mode is propagated to the runtime retrieval components (`rag` / `hybrid`) and does not rely on fake APIs.
 
-In the chat, the orchestrator's planner sets one retrieval setting per turn: `k_finale`, the number of films the user asked for (clamped to `rag.retrieval.limits.k_finale`; null keeps the configured default). The other retrieval settings stay fixed in `CONFIG`.
+In the chat, the orchestrator's planner sets two retrieval settings per turn: `k_finale`, the number of films the user asked for (clamped to `rag.retrieval.limits.k_finale`; null keeps the configured default), and `search_mode`, `hybrid` only when the request hinges on concrete words that must appear in the plot (a character name, a place, a rare term); `bm25` alone is not offered to the planner. In hybrid mode the keyword side searches with the English `semantic_query`. The other retrieval settings stay fixed in `CONFIG`.
 
 ## RAG Tool (`rag_search`)
 

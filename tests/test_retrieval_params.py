@@ -38,6 +38,16 @@ def test_invalid_values_and_other_settings_are_ignored():
     assert overridden == {} and effective["search_mode"] == SearchMode.semantic and effective["k_largo"] == 10
 
 
+def test_planner_can_choose_hybrid_but_not_bm25():
+    effective, overridden = resolve_retrieval(DEFAULTS, {"search_mode": "hybrid"})
+    assert effective["search_mode"] == SearchMode.hybrid and overridden == {"search_mode": SearchMode.hybrid}
+    effective, _ = resolve_retrieval(DEFAULTS, {"search_mode": " Hybrid "})
+    assert effective["search_mode"] == SearchMode.hybrid
+    for bad in ("bm25", "fuzzy", 3, None, True):
+        effective, overridden = resolve_retrieval(DEFAULTS, {"search_mode": bad})
+        assert effective["search_mode"] == SearchMode.semantic and overridden == {}
+
+
 def test_defaults_are_not_mutated():
     snapshot = {**DEFAULTS, "limits": dict(DEFAULTS["limits"])}
     resolve_retrieval(DEFAULTS, {"k_finale": 5})

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -65,9 +65,10 @@ class RagResult(BaseModel):
 class RagToolInput(BaseModel):
     """Run the NetflixScout RAG pipeline on a natural language query.
 
-    `k_finale` is the only retrieval setting the planner chooses (A/B 2026-10-24: search mode,
-    candidate pool sizes and genre boost showed no measurable gain); null means the default.
-    Out-of-range values are clamped (`retrieval_params.resolve_retrieval`).
+    The planner chooses `k_finale` and, optionally, `search_mode` (`semantic` or `hybrid`); null
+    means the configured default. Candidate pool sizes and genre boost stay fixed (A/B 2026-10-24:
+    no measurable gain). Out-of-range or unknown values are clamped or ignored
+    (`retrieval_params.resolve_retrieval`).
     """
 
     model_config = ConfigDict(extra="forbid")
@@ -78,5 +79,13 @@ class RagToolInput(BaseModel):
         description=(
             "How many films to return: the number the user asked for ('un film' = 1, 'dammi 5 film' = 5), "
             "null when no number is given."
+        ),
+    )
+    search_mode: Literal["semantic", "hybrid"] | None = Field(
+        default=None,
+        description=(
+            "null (default) for requests about themes, mood or plot. 'hybrid' adds keyword matching "
+            "and helps when the request hinges on concrete words that must appear in the plot: a "
+            "character name, a place, an object, a rare term or a quoted phrase."
         ),
     )

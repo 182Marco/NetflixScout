@@ -124,7 +124,7 @@ def test_cases_cover_every_tool_and_follow_ups() -> None:
     assert tools.count(YOUTUBE) == 7
     assert any(case.history and case.expected_tool == TMDB for case in ROUTING_CASES)
     assert any(case.history and case.expected_tool == YOUTUBE for case in ROUTING_CASES)
-    assert len(ROUTING_CASES) == 58  # 43 before the Wikipedia cases (11 for it, 4 more for TMDb)
+    assert len(ROUTING_CASES) == 59  # 43 before the Wikipedia cases (11 for it, 4 more for TMDb)
 
 
 def test_every_tmdb_case_has_a_valid_request_expectation() -> None:
@@ -352,6 +352,9 @@ def test_check_rag_requires_the_asked_count() -> None:
     assert check_rag(RagExpectation(k_finale=5), {"query": "x", "k_finale": 5}) is None
     assert "k_finale" in check_rag(RagExpectation(k_finale=5), {"k_finale": 3})
     assert check_rag(RagExpectation(k_finale=(None, 1)), {"query": "x"}) is None
+    assert "search_mode" in check_rag(RagExpectation(), {"search_mode": "hybrid"})
+    assert check_rag(RagExpectation(search_mode="hybrid"), {"search_mode": "hybrid"}) is None
+    assert check_rag(RagExpectation(search_mode=(None, "hybrid")), {}) is None
 
 
 def test_rag_params_verdict_counts_only_objective_gains() -> None:
