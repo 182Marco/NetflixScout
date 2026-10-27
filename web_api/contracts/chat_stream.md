@@ -124,7 +124,7 @@ Fase di attesa senza passo proprio: `understanding` (analisi della domanda), `an
 ```
 
 ### `story`
-Una frase non tecnica, già localizzata (it/en come la domanda). `level`: `progress`, `info`, `ok`, `warn` (scegliere l'icona).
+Una frase non tecnica, già localizzata nella lingua dell'ultimo messaggio per it/en/de (inglese per ogni altra lingua). `level`: `progress`, `info`, `ok`, `warn` (scegliere l'icona).
 Ogni `status` è accompagnato da una `story` di livello `progress`.
 ```json event=story
 {"level":"ok","text":"TMDb: trovato, meno di 1 s","tool":"tmdb_search"}
@@ -164,6 +164,8 @@ non lo altera in altro modo.
 ```json event=answer_end
 {"blocked":false,"language":"it","tool":"tmdb_search","tools":["tmdb_search"],"history_compacted":false,"replace":null}
 ```
+`language` è il codice ISO 639-1 (`it`, `en`, `de`, `fr`, …) della lingua dell'**ultimo** messaggio dell'utente, qualunque fosse la lingua dei messaggi precedenti: può cambiare da un turno al successivo. Non è limitato a `it`/`en`: il frontend non deve rifiutare né mappare con un `switch` chiuso i codici sconosciuti. `labels`, `title`, `hints` e `source` degli step e le righe di `story` usano la lingua del turno per `it`, `en` e `de`, inglese per le altre; il testo della risposta, il messaggio di blocco e la domanda di chiarimento sono scritti dal modello nella lingua del turno.
+
 `blocked: true`: domanda non cinematografica, il testo è il messaggio di blocco. `history_compacted` è informativo.
 
 ### `lists`
@@ -210,4 +212,4 @@ rinviato. Il messaggio è generico (nessun dettaglio interno).
 - Concatenare i `answer_delta` senza riscriverli; applicare `replace` se non è `null`; mostrare `lists` dopo `answer_end`.
 - Ignorare gli eventi e i campi sconosciuti (il contratto può aggiungerne) e le righe di commento `:`.
 - Un solo messaggio alla volta per conversazione.
-- Il testo della risposta è Markdown; la lingua segue la domanda (`language` in `answer_end`).
+- Il testo della risposta è Markdown; la lingua segue l'ultimo messaggio dell'utente (`language` in `answer_end`, codice ISO libero), non la lingua delle fonti: la lingua di una pagina Wikipedia (`pages[].language`, di norma `en`, `it` o `de` per temi locali) non è la lingua della risposta.
