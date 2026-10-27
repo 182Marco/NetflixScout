@@ -23,7 +23,7 @@ INSTRUCTIONS = (
     "per YouTube (source youtube) il video_id è il valore di v= nell'URL. Non inventare id. "
     "`quote` è una frase o riga che copi ESATTAMENTE da `answer` e che contiene il titolo della "
     "risorsa mentre la presenta. `reason` è una frase breve (massimo 140 caratteri) nella "
-    "lingua dell'utente. `list_id` è uno slug minuscolo stabile (lettere, numeri, trattini); "
+    "lingua della risposta. `list_id` è uno slug minuscolo stabile (lettere, numeri, trattini); "
     "riusa lo stesso slug se continui un tema già trattato. `kind` è movies, series, videos o "
     "mixed. Al massimo 4 liste da 12 elementi. Se non presenti titoli o video, `lists` è []."
 )

@@ -6,7 +6,7 @@ so the story, the steps and their data are the same; the web has no emoji and no
 the frontend picks icons from `story[].level`.
 
     {
-        "answer": str, "blocked": bool, "language": "it" | "en",
+        "answer": str, "blocked": bool, "language": str,   # ISO 639-1 code of the latest message
         "tool": str | None, "tools": [str],
         "story": [{"level": "progress" | "info" | "ok" | "warn", "text": str, "tool": str | None}],
         "steps": [{"kind": ..., ...}]   # tool steps only, in order (see STEP_SERIALIZERS)

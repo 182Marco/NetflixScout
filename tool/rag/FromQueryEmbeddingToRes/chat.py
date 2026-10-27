@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from openai import OpenAI
 
+from turn import label_language
+
 from presenters.terminal.blocks import print_final_answer
 from presenters.terminal.rag import print_chunks, print_retrieval_compact
 from presenters.terminal.session import print_header, print_mode
@@ -11,12 +13,6 @@ from .rag import genera
 from .retrieval import _rerank, _retrieve
 from .runtime import _resolve_runtime_config
 from .vectorstore import apri_collection
-
-
-def _choose_block_language(query: str, classification: dict[str, bool]) -> str:
-    if classification.get("is_italian"):
-        return "it"
-    return "en"
 
 
 def run_conversation_loop(
@@ -34,7 +30,7 @@ def run_conversation_loop(
         from app import NON_CINEMA_BLOCK_MESSAGES
 
         return classification.get("block_reply") or NON_CINEMA_BLOCK_MESSAGES[
-            _choose_block_language(query, classification)
+            label_language(classification["language"])
         ]
 
     runtime_config = _resolve_runtime_config(config)

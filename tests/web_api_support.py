@@ -39,7 +39,7 @@ class FakeOrchestrator:
         self.started = threading.Event()
 
     def run(
-        self, *, query, conversation_history=None, tool_overrides=None, observer=None, final_output=None, prompt_parts=None
+        self, *, query, conversation_history=None, tool_overrides=None, observer=None, final_output=None, prompt_parts=None, answer_language=None
     ):
         self.calls.append(
             {

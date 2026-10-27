@@ -47,7 +47,7 @@ def test_db_query_step_reaches_the_turn_result(monkeypatch, movie_db_config) -> 
     monkeypatch.setattr(
         app_module,
         "classify_query_domain",
-        lambda q, history=None: {"is_cinema": True, "is_italian": True},
+        lambda q, history=None: {"is_cinema": True, "language": "it"},
     )
     client = FakeClient(
         plan={"standalone_query": "film più votati", "tool_name": MOVIE_DB_TOOL_NAME, "confidence": 0.9},

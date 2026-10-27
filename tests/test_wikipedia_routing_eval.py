@@ -175,7 +175,7 @@ def _run(case, plan: dict):
         client=RecordingClient(_Planner([json.dumps({"standalone_query": case.question, "confidence": 0.9, **plan})])),
     )
     (result,) = run_routing_cases(
-        (case,), orchestrator=orch, classify=lambda q, h: {"is_cinema": True, "is_italian": True}, context_size=0
+        (case,), orchestrator=orch, classify=lambda q, h: {"is_cinema": True, "language": "it"}, context_size=0
     )
     return result
 

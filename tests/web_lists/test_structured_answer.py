@@ -80,16 +80,17 @@ def test_without_final_output_the_final_call_is_exactly_the_old_one() -> None:
 
 
 def test_handle_query_passes_final_output_only_when_given(monkeypatch) -> None:
-    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "language": "it"})
     seen = []
 
     class _Orchestrator:
         def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None, **extra):
             seen.append(extra)
-            return {"tool": None, "tools": [], "final_answer": "ok", "final_lists": [raw_list(MOVIE_REF)] if extra else []}
+            return {"tool": None, "tools": [], "final_answer": "ok", "final_lists": [raw_list(MOVIE_REF)] if "final_output" in extra else []}
 
     app = {"config": app_module.build_runtime_config(), "orchestrator": _Orchestrator()}
     terminal = app_module.handle_query(app, "q")
     web = app_module.handle_query(app, "q", final_output=final_output())
-    assert seen == [{}, {"final_output": final_output()}]
+    # The turn language always goes to the orchestrator; `final_output` only when given.
+    assert seen == [{"answer_language": "it"}, {"answer_language": "it", "final_output": final_output()}]
     assert terminal.item_refs == [] and web.item_refs == [raw_list(MOVIE_REF)]

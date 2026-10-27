@@ -157,7 +157,7 @@ class QdrantRagOrchestrator:
     def __init__(self, rag_tool: RagTool) -> None:
         self.rag_tool = rag_tool
 
-    def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None, final_output=None):
+    def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None, final_output=None, answer_language=None):
         result = self.rag_tool.run(query=query, params={}, conversation_history=conversation_history)
         decision = {"tool": "rag_search", "tools": ["rag_search"],
                     "calls": [{"tool": "rag_search", "arguments": {}, "result": result}],
@@ -171,7 +171,7 @@ class QdrantRagOrchestrator:
 
 def test_a_whole_turn_over_http_and_sse_uses_the_qdrant_index(tmp_path, monkeypatch):
     build_index(tmp_path / "q")
-    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "language": "it"})
     monkeypatch.setattr(vectorstore, "embed", lambda texts, backend=None, model=None: np.array([_vec(0, 1.0)], dtype=np.float32))
     monkeypatch.setattr(retrieval, "_extract_query_signals",
                         lambda query, llm_model, hint=None, **kwargs: QuerySignals(semantic_query="a quiet drama"))

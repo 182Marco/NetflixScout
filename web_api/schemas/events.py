@@ -61,7 +61,8 @@ class AnswerEnd(BaseModel):
     answer, which replaces what was shown (see `streaming/events.py:replacement`)."""
 
     blocked: bool
-    language: Literal["it", "en"]
+    # ISO 639-1 code of the latest user message: any language, not only it/en.
+    language: str
     tool: str | None
     tools: list[str]
     history_compacted: bool

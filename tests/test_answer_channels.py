@@ -1,6 +1,8 @@
 """How the streamed answer reaches each channel: terminal printing, web events, `handle_query`."""
 from __future__ import annotations
 
+import pytest
+
 import app as app_module
 from presenters import OutputChannel, present
 from presenters.terminal import TerminalObserver
@@ -96,7 +98,7 @@ def test_the_web_observer_learns_the_language_from_the_classification() -> None:
 
 
 class _Orchestrator:
-    def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None, final_output=None):
+    def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None, final_output=None, answer_language=None):
         decision = {
             "tool": "rag_search", "tools": ["rag_search"], "standalone_query": query,
             "calls": [{"tool": "rag_search", "arguments": {}, "result": {"trace": []}}],
@@ -122,7 +124,7 @@ class _Deltas:
 
 
 def test_a_blocked_turn_delivers_its_message_as_a_delta(monkeypatch) -> None:
-    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": False, "is_italian": False})
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": False, "language": "en"})
     observer = _Deltas()
 
     turn = app_module.handle_query(_app(), "Who won the election?", history=[], observer=observer)
@@ -131,7 +133,7 @@ def test_a_blocked_turn_delivers_its_message_as_a_delta(monkeypatch) -> None:
 
 
 def test_a_failing_compaction_keeps_the_whole_history(monkeypatch) -> None:
-    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "language": "it"})
 
     def boom(*args, **kwargs):
         raise RuntimeError("down")
@@ -147,7 +149,7 @@ def test_a_failing_compaction_keeps_the_whole_history(monkeypatch) -> None:
 
 
 def test_the_answer_of_a_real_turn_is_delivered_through_the_observer(monkeypatch) -> None:
-    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "language": "it"})
     observer = _Deltas()
 
     turn = app_module.handle_query(_app(), "ciao", history=[], observer=observer)
@@ -177,7 +179,7 @@ class _Events:
 def _block(monkeypatch, **classification):
     monkeypatch.setattr(
         app_module, "classify_query_domain",
-        lambda q, history=None: {"is_cinema": False, "is_italian": False, **classification},
+        lambda q, history=None: {"is_cinema": False, "language": "en", **classification},
     )
 
 
@@ -192,7 +194,7 @@ def test_a_blocked_turn_says_the_classifier_refusal_and_shows_no_stage_or_story(
 
 
 def test_a_blocked_turn_without_a_usable_reply_falls_back_to_the_fixed_message(monkeypatch) -> None:
-    _block(monkeypatch, block_reply=None, is_italian=True)
+    _block(monkeypatch, block_reply=None, language="it")
 
     turn = app_module.handle_query(_app(), "Chi vince le elezioni?", history=[])
 
@@ -206,3 +208,30 @@ def test_the_terminal_prints_a_blocked_turn_as_bare_text(capsys) -> None:
     present(TurnResult(query="q", language="en", blocked=True, answer="Nope."), OutputChannel.terminal, streamed=True)
 
     assert capsys.readouterr().out == "Nope.\n"
+
+
+@pytest.mark.parametrize(
+    ("language", "fixed"),
+    [
+        ("it", app_module.NON_CINEMA_BLOCK_MESSAGES["it"]),
+        ("en", app_module.NON_CINEMA_BLOCK_MESSAGES["en"]),
+        ("de", app_module.NON_CINEMA_BLOCK_MESSAGES["de"]),
+        ("fr", app_module.NON_CINEMA_BLOCK_MESSAGES["en"]),  # no table for French: the English text
+    ],
+)
+def test_a_blocked_turn_without_a_usable_reply_uses_the_fixed_text_of_the_turn_language(
+    monkeypatch, language, fixed
+) -> None:
+    _block(monkeypatch, block_reply=None, language=language)
+
+    turn = app_module.handle_query(_app(), "Wer gewinnt die Wahl?", history=[])
+
+    assert turn.blocked and turn.answer == fixed and turn.language == language
+
+
+def test_a_blocked_turn_keeps_the_real_language_code_and_the_models_refusal(monkeypatch) -> None:
+    _block(monkeypatch, block_reply="Ich beantworte nur Fragen zum Film.", language="de")
+
+    turn = app_module.handle_query(_app(), "Wer gewinnt die Wahl?", history=[])
+
+    assert turn.answer == "Ich beantworte nur Fragen zum Film." and turn.language == "de"

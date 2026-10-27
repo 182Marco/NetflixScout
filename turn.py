@@ -24,9 +24,59 @@ STEP_TMDB_CALLS = "tmdb_calls"
 STEP_YOUTUBE_CALLS = "youtube_calls"
 STEP_WIKIPEDIA_CALLS = "wikipedia_calls"
 
-# Tool parameter set by `handle_query` with the turn language ("it" | "en") from the
-# classifier. Tools that do not use it ignore it.
+# Tool parameter set by `handle_query` with the turn language (ISO 639-1 code of the latest
+# user message, from the classifier). Tools that do not use it ignore it.
 TOOL_PARAM_TURN_LANGUAGE = "turn_language"
+
+# Languages with fixed texts (labels, refusals, fallbacks) in the presenters. Any other turn
+# language keeps its real code, but the fixed texts are shown in `DEFAULT_LANGUAGE`.
+SUPPORTED_LABEL_LANGUAGES = ("it", "en", "de")
+DEFAULT_LANGUAGE = "en"
+
+# ISO 639-1 codes and the English names the classifier or a prompt may use for them.
+_LANGUAGE_NAMES = {
+    "ar": "Arabic", "bg": "Bulgarian", "ca": "Catalan", "cs": "Czech", "da": "Danish",
+    "de": "German", "el": "Greek", "en": "English", "es": "Spanish", "et": "Estonian",
+    "fa": "Persian", "fi": "Finnish", "fr": "French", "he": "Hebrew", "hi": "Hindi",
+    "hr": "Croatian", "hu": "Hungarian", "id": "Indonesian", "it": "Italian", "ja": "Japanese",
+    "ko": "Korean", "lt": "Lithuanian", "lv": "Latvian", "nl": "Dutch", "no": "Norwegian",
+    "pl": "Polish", "pt": "Portuguese", "ro": "Romanian", "ru": "Russian", "sk": "Slovak",
+    "sl": "Slovenian", "sr": "Serbian", "sv": "Swedish", "th": "Thai", "tr": "Turkish",
+    "uk": "Ukrainian", "vi": "Vietnamese", "zh": "Chinese",
+}
+# Other ISO 639-1 codes accepted as a valid language even without a name above.
+_OTHER_CODES = frozenset(
+    "af am az be bn bs cy eu ga gl gu hy is ka kk km kn lo mk ml mn mr ms my ne pa si sq sw ta te "
+    "ur uz".split()
+)
+_NAME_TO_CODE = {name.casefold(): code for code, name in _LANGUAGE_NAMES.items()} | {
+    "deutsch": "de", "italiano": "it", "español": "es", "espanol": "es", "français": "fr",
+    "francais": "fr", "português": "pt", "portugues": "pt", "norwegian bokmål": "no",
+    "mandarin": "zh",
+}
+
+
+def normalize_language(value: object) -> str | None:
+    """The ISO 639-1 code for a classifier output (`de`, `de-DE`, `German`), else None."""
+    if not isinstance(value, str):
+        return None
+    text = value.strip().casefold().replace("_", "-")
+    if text in _NAME_TO_CODE:
+        return _NAME_TO_CODE[text]
+    code = text.split("-", 1)[0] if len(text) > 2 and text[2] == "-" else text
+    if code in _LANGUAGE_NAMES or code in _OTHER_CODES:
+        return code
+    return None
+
+
+def label_language(code: str | None) -> str:
+    """The language of the fixed texts for a turn language: it, en or de (else English)."""
+    return code if code in SUPPORTED_LABEL_LANGUAGES else DEFAULT_LANGUAGE
+
+
+def language_name(code: str | None) -> str:
+    """English name of a language for prompts ("German"); the code itself when unknown."""
+    return _LANGUAGE_NAMES.get(code or "", code or _LANGUAGE_NAMES[DEFAULT_LANGUAGE])
 
 # Tool parameter set by the orchestrator: identifies the turn. A turn can run several tools,
 # so per-turn limits (TMDb calls, YouTube searches) are counted per `turn_id`, not per run.
@@ -111,7 +161,8 @@ class TurnResult(BaseModel):
     """Everything that happened while answering one user query."""
 
     query: str
-    language: Literal["it", "en"]
+    # ISO 639-1 code of the latest user message (any language, not only it/en).
+    language: str
     blocked: bool
     answer: str
     tool: str | None = None

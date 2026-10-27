@@ -24,6 +24,8 @@ from turn import (
     NullObserver,
     TraceStep,
     TurnObserver,
+    label_language,
+    language_name,
 )
 
 DEFAULT_FINAL_INSTRUCTIONS = (
@@ -261,6 +263,39 @@ def _split_structured_output(text: str) -> tuple[str, list[Any]]:
 
 
 FALLBACK_NO_ANSWER = "Non ho abbastanza informazioni per rispondere."
+# The same fallback by turn language (it, en, de; English for any other). `FALLBACK_NO_ANSWER`
+# stays the Italian text, used when the caller gives no language.
+NO_ANSWER_TEXTS = {
+    "it": FALLBACK_NO_ANSWER,
+    "en": "I do not have enough information to answer.",
+    "de": "Ich habe nicht genug Informationen, um zu antworten.",
+}
+
+
+def _no_answer(language: str | None) -> str:
+    return NO_ANSWER_TEXTS[label_language(language)] if language else FALLBACK_NO_ANSWER
+
+
+def _answer_language_rule(language: str | None) -> str:
+    """One instruction: the answer is written in the language of the user's LATEST message,
+    whatever the language of the sources and of the conversation. Empty without a language."""
+    if not language:
+        return ""
+    return (
+        f"Scrivi la risposta in {language_name(language)} (la lingua dell'ultimo messaggio dell'utente), "
+        "qualunque sia la lingua delle fonti, dei dati ricevuti e dei messaggi precedenti; "
+        "titoli originali e nomi propri restano invariati."
+    )
+
+
+def _planner_language_rule(language: str | None) -> str:
+    """For the planner: the clarification question uses the language of the latest message."""
+    if not language:
+        return ""
+    return (
+        f"L'ultimo messaggio dell'utente è in {language_name(language)}: se chiedi un chiarimento "
+        f"(clarification_question), scrivilo in {language_name(language)}."
+    )
 
 # Events of the Responses API stream that end the answer (anything else is progress or ignored).
 EVENT_TEXT_DELTA = "response.output_text.delta"
@@ -377,15 +412,22 @@ class LLMOrchestrator:
                 )
         return lines
 
-    def _final_instructions(self, tool_name: str | Sequence[str] | None, preferences: str = "") -> str:
+    def _final_instructions(
+        self,
+        tool_name: str | Sequence[str] | None,
+        preferences: str = "",
+        language: str | None = None,
+    ) -> str:
         """`final_instructions` plus the rules of every tool that ran, if it has any
         (`tool_final_instructions`): turns of other tools do not carry them. `preferences` (the
-        user's settings for this turn, composed by the caller) goes last so it governs the form."""
+        user's settings for this turn, composed by the caller) goes last so it governs the form; the
+        language rule of the turn goes just before it."""
         base = self.orchestrator_config.get("final_instructions") or DEFAULT_FINAL_INSTRUCTIONS
         names = [tool_name] if isinstance(tool_name, str) or tool_name is None else list(tool_name)
         rules = self.orchestrator_config.get("tool_final_instructions") or {}
         extras = list(dict.fromkeys(rules[name] for name in names if name and rules.get(name)))
-        return " ".join([base, *extras, *([preferences] if preferences else [])])
+        rule = _answer_language_rule(language)
+        return " ".join([base, *extras, *([rule] if rule else []), *([preferences] if preferences else [])])
 
     def _generate_final_answer(
         self,
@@ -400,6 +442,7 @@ class LLMOrchestrator:
         lists_out: list[Any] | None = None,
         on_delta: Callable[[str], None] | None = None,
         answer_preferences: str = "",
+        answer_language: str | None = None,
     ) -> str:
         """The answer text, written by ONE streamed call; a failure is appended to `failures`.
 
@@ -413,7 +456,9 @@ class LLMOrchestrator:
         a second call.
         """
         results = tool_results or [tool_result or {}]
-        instructions = self._final_instructions([r.get("tool_name") for r in results], answer_preferences)
+        instructions = self._final_instructions(
+            [r.get("tool_name") for r in results], answer_preferences, answer_language
+        )
         extra: dict[str, Any] = {}
         decoder: AnswerFieldStream | None = None
         if final_output:
@@ -461,8 +506,9 @@ class LLMOrchestrator:
                     return answer
                 if text:
                     return text
-                show(FALLBACK_NO_ANSWER)
-                return FALLBACK_NO_ANSWER
+                no_answer = _no_answer(answer_language)
+                show(no_answer)
+                return no_answer
             except ValueError:
                 pass  # invalid JSON or no answer: the failure path below
 
@@ -471,19 +517,19 @@ class LLMOrchestrator:
         already_shown = "".join(shown).strip()
         if already_shown:
             return already_shown  # the user saw it: that is the answer
-        fallback = self._fallback_answer(results)
+        fallback = self._fallback_answer(results, answer_language)
         show(fallback)
         return fallback
 
     @staticmethod
-    def _fallback_answer(results: list[dict[str, Any]]) -> str:
+    def _fallback_answer(results: list[dict[str, Any]], language: str | None = None) -> str:
         chunks = [
             chunk
             for result in results
             for chunk in (result.get("result", {}).get("chunks") or result.get("chunks") or [])
         ]
         if not chunks:
-            return FALLBACK_NO_ANSWER
+            return _no_answer(language)
         return "\n\n".join(
             chunk.get("testo", "")
             for chunk in chunks[:3]
@@ -548,9 +594,15 @@ class LLMOrchestrator:
         coverage = self.orchestrator_config.get("data_coverage") or {}
         return {tool: info for tool, info in coverage.items() if tool in allowed}
 
-    def _planning_instructions(self, allowed: list[str], decision_prompt: str, preferences: str = "") -> str:
-        """Planner prompt. `preferences` (settings that steer routing) is appended last, after the
-        long stable prefix, and is empty when the turn carries none."""
+    def _planning_instructions(
+        self,
+        allowed: list[str],
+        decision_prompt: str,
+        preferences: str = "",
+        language_rule: str = "",
+    ) -> str:
+        """Planner prompt. `preferences` (settings that steer routing) and `language_rule` are
+        appended last, after the long stable prefix, and are empty when the turn carries none."""
         return (
             self.orchestrator_config.get("instructions", decision_prompt)
             + coverage_rule(self._coverage_for(allowed))
@@ -558,6 +610,7 @@ class LLMOrchestrator:
             + ", ".join(allowed)
             + "\nTool catalog (arguments must follow the tool parameters):\n"
             + self._catalog_text(allowed)
+            + (f"\n{language_rule}" if language_rule else "")
             + (f"\n{preferences}" if preferences else "")
         )
 
@@ -568,6 +621,7 @@ class LLMOrchestrator:
         conversation_history: list[dict[str, str]] | None = None,
         limits: _Limits | None = None,
         planner_preferences: str = "",
+        answer_language: str | None = None,
     ) -> _Plan:
         """First planner decision of the turn (see `_plan_turn`), plus `more_steps`."""
         allowed = self._allowed_tool_names()
@@ -589,7 +643,9 @@ class LLMOrchestrator:
         try:
             response = self.client.responses.create(
                 model=self.orchestrator_config.get("llm_model", "gpt-5.6-luna"),
-                instructions=self._planning_instructions(allowed, decision_prompt, planner_preferences),
+                instructions=self._planning_instructions(
+                    allowed, decision_prompt, planner_preferences, _planner_language_rule(answer_language)
+                ),
                 # Full history, unchanged and in order: a stable prompt prefix lets the
                 # provider's prompt caching reuse it across turns.
                 input=[
@@ -820,6 +876,7 @@ class LLMOrchestrator:
         observer: TurnObserver | None = None,
         final_output: Mapping[str, Any] | None = None,
         prompt_parts: Mapping[str, str] | None = None,
+        answer_language: str | None = None,
     ) -> dict[str, Any]:
         """Run the tools the request needs, one after the other, then answer.
 
@@ -843,6 +900,11 @@ class LLMOrchestrator:
         settings, see `preferences/`) is added to the planner prompts and to the final answer
         prompt. It only shapes routing priorities and the form of the answer: it never adds a
         tool call. Without it every prompt is exactly as before.
+
+        `answer_language` (ISO code of the user's LATEST message, from the classifier) adds one
+        rule to the planner (language of a clarification question) and to the final answer prompt
+        (language of the answer), and picks the language of the fixed fallback texts. Without it
+        both prompts are exactly as before.
         """
         planner_preferences = str((prompt_parts or {}).get("planner") or "")
         answer_preferences = str((prompt_parts or {}).get("answer") or "")
@@ -853,6 +915,7 @@ class LLMOrchestrator:
             conversation_history=conversation_history,
             limits=limits,
             planner_preferences=planner_preferences,
+            answer_language=answer_language,
         )
         standalone_query = plan.standalone_query
         self._emit(
@@ -982,6 +1045,7 @@ class LLMOrchestrator:
             lists_out=final_lists,
             on_delta=lambda text: self._emit_delta(observer, text),
             answer_preferences=answer_preferences,
+            answer_language=answer_language,
         )
         if answer_failures:
             self._emit(

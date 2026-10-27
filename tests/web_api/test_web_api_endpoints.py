@@ -9,7 +9,7 @@ from web_lists_support import ANSWER
 
 @pytest.fixture(autouse=True)
 def cinema(monkeypatch):
-    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "language": "it"})
 
 
 def _open(client) -> str:
@@ -95,7 +95,7 @@ def test_conversations_do_not_share_history() -> None:
 
 
 def test_a_blocked_message_streams_one_delta_and_empty_lists(monkeypatch) -> None:
-    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": False, "is_italian": True})
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": False, "language": "it"})
     with make_client(FakeOrchestrator()) as client:
         events = _send(client, _open(client), "chi vince le elezioni?")
 

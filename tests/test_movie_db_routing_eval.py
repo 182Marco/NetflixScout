@@ -60,7 +60,7 @@ def _run(cases, outputs):
     return run_routing_cases(
         cases,
         orchestrator=orchestrator,
-        classify=lambda q, history=None: {"is_cinema": True, "is_italian": True},
+        classify=lambda q, history=None: {"is_cinema": True, "language": "it"},
         context_size=2,
     )
 

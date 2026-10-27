@@ -15,7 +15,7 @@ from web_api.streaming import runner
 
 @pytest.fixture(autouse=True)
 def cinema(monkeypatch):
-    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "language": "it"})
 
 
 def _setup(orchestrator: FakeOrchestrator):

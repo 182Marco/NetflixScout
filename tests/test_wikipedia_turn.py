@@ -62,7 +62,7 @@ class _Client:
 
 @pytest.fixture(autouse=True)
 def offline(monkeypatch):
-    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "language": "it"})
 
     def no_network(*args, **kwargs):
         raise AssertionError("a test reached the network")
@@ -249,7 +249,7 @@ def test_english_is_searched_first_and_italian_only_when_the_planner_asks_for_it
     assert (shown["language"], shown["title"], shown["url"]) == ("it", TITLE_IT, "https://it.wikipedia.org/wiki/Il_ragazzo_e_l%27airone")
     # What the planner is told before the second step: the edition used, why it is not enough, what is left.
     second_plan = client.calls[1]["input"][-1]["content"]
-    assert "edizione usata: en" in second_plan and "edizione it non ancora consultata" in second_plan
+    assert "edizione usata: en" in second_plan and "edizione it o de non ancora consultata" in second_plan
     assert "nessuna pagina trovata" in second_plan
     # After the Italian step it sees both editions asked and no text it was already given.
     third_plan = client.calls[2]["input"][-1]["content"]

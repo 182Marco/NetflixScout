@@ -33,7 +33,7 @@ SPOILER: Final[dict[bool, str]] = {
         "l'atmosfera. Vale anche per trame, recensioni, sezioni della trama e titoli di video "
         "ricevuti dai tool: se un dato ricevuto contiene uno spoiler, non riportarlo. Se l'utente "
         "chiede esplicitamente uno spoiler (il finale, una svolta, chi muore, cosa succede dopo "
-        "un certo punto), non rivelarlo MAI e dì in una frase, nella sua lingua, che la richiesta "
+        "un certo punto), non rivelarlo MAI e dì in una frase, nella lingua della risposta, che la richiesta "
         "contraddice l'impostazione 'spoiler disattivati' e che per averlo deve attivare gli "
         "spoiler nelle impostazioni."
     ),

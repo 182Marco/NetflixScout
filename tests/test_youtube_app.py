@@ -154,7 +154,7 @@ def test_tmdb_final_rules_offer_youtube_when_no_trailer_is_found() -> None:
 
 
 def test_a_planned_youtube_turn_reaches_the_presenter(monkeypatch, capsys) -> None:
-    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "language": "it"})
     tool, transport = make_tool(
         {
             "/search": {"items": [search_item("vid00000001", "Interstellar - Making of")]},

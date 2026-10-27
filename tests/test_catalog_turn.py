@@ -41,7 +41,7 @@ def single_result():
 
 
 def turn_with(enrichers, monkeypatch, search=None):
-    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "language": "it"})
     payload = details()
     tool, transport = make_tool({"/search/movie": search or single_result(), f"/movie/{MOVIE_ID}": payload})
     client = FakeClient()
