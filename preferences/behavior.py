@@ -45,8 +45,13 @@ SPOILER: Final[dict[bool, str]] = {
 
 LENGTH: Final[dict[str, str]] = {
     "short": (
-        "Risposta breve: al massimo 3-5 frasi o un elenco corto, solo l'essenziale, senza premesse "
-        "né chiusure. La brevità non cambia quanti titoli presentare se l'utente ne chiede un numero."
+        "Risposta breve, davvero: al massimo 3-5 frasi o un elenco corto, solo ciò che risponde alla "
+        "domanda. Per ogni film titolo, anno e UNA riga di motivo; niente sinossi, cast, regia, voti o "
+        "dettagli non chiesti, niente premesse, chiusure, offerte di approfondire o note sui limiti "
+        "dei dati che non cambiano la risposta. Questa regola prevale su ogni altra istruzione di "
+        "completezza e di dettaglio. Le avvertenze dovute per correttezza (spoiler negato, dato non "
+        "verificato o mancante) restano, in mezza frase. La brevità non cambia quanti titoli "
+        "presentare se l'utente ne chiede un numero."
     ),
     "medium": (
         "Risposta di media lunghezza: l'essenziale più il contesto utile, in uno o due paragrafi "
@@ -83,7 +88,9 @@ APPROACH: Final[dict[str, str]] = {
         "Approccio confronto tra alternative: confronta le alternative pertinenti tra i risultati "
         "ricevuti (di solito 2-3), dicendo in cosa differiscono rispetto alla richiesta, e chiudi con "
         "la scelta che consigli. Se i risultati hanno un solo candidato pertinente non inventare "
-        "alternative. Se l'utente chiede un numero di titoli, presentane quel numero."
+        "alternative. Se l'utente chiede un numero di titoli, presentane quel numero. Il confronto "
+        "si fa sempre, anche se la lunghezza è breve: in quel caso è l'unica cosa oltre "
+        "l'essenziale, compatto (una frase per alternativa sulla differenza chiave e la scelta)."
     ),
 }
 

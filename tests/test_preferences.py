@@ -162,6 +162,14 @@ def test_the_tool_rules_no_longer_force_a_short_answer() -> None:
     assert "Rispondi in modo conciso" not in CONFIG["orchestrator"]["final_instructions"]
 
 
+def test_short_length_overrides_completeness_and_keeps_the_comparison() -> None:
+    from preferences import behavior as b
+
+    assert "prevale su ogni altra istruzione di completezza" in b.LENGTH["short"]
+    assert "niente sinossi" in b.LENGTH["short"]
+    assert "anche se la lunghezza è breve" in b.APPROACH["alternatives comparison"]
+
+
 def test_answer_settings_never_ask_for_the_provenance_of_the_data() -> None:
     from preferences import behavior as b
 
