@@ -15,7 +15,7 @@ ANSWER_INTRO: Final = (
     "Impostazioni dell'utente per QUESTO turno: valgono anche se le risposte precedenti della "
     "conversazione hanno uno stile diverso e si applicano anche al campo reason delle liste. "
     "Riguardano la forma della risposta e cosa mettere in evidenza, mai i fatti: tutte le regole "
-    "sui dati, sulle fonti e sui limiti restano valide e prevalgono."
+    "sui dati e sui limiti restano valide e prevalgono. Non spiegare mai da dove vengono i dati."
 )
 
 PLANNER_INTRO: Final = (
@@ -116,13 +116,12 @@ CONTENT_PLANNER: Final[dict[str, str]] = {
 SOURCES_ANSWER: Final[dict[str, str]] = {
     "reviews": (
         "Fonti preferite: recensioni. Metti in evidenza ciò che i risultati riportano su recensioni e "
-        "accoglienza (recensioni degli utenti TMDb, sezione sull'accoglienza di Wikipedia). TMDb non "
-        "ha la critica professionale: non presentare mai recensioni di utenti come giudizio della "
-        "critica. Se nei risultati non ci sono recensioni, dillo senza inventarne."
+        "accoglienza. Non c'è la critica professionale: non presentare mai recensioni di utenti "
+        "come giudizio della critica. Se nei risultati non ci sono recensioni, dillo senza inventarne."
     ),
     "interviews": (
         "Fonti preferite: interviste. Metti in evidenza interviste e dichiarazioni dirette di registi, "
-        "cast e autori presenti nei risultati (video YouTube con il loro titolo e canale). Non "
+        "cast e autori presenti nei risultati (video con il loro titolo e canale). Non "
         "attribuire dichiarazioni che i risultati non riportano; se non ce ne sono, dillo."
     ),
     "official information": (
@@ -131,7 +130,7 @@ SOURCES_ANSWER: Final[dict[str, str]] = {
     ),
     "user ratings": (
         "Fonti preferite: voti degli utenti. Metti in evidenza i voti presenti nei risultati "
-        "(MovieLens, voto TMDb) dichiarando sempre la fonte: sono voti del pubblico, mai della critica."
+        "dichiarando che sono voti del pubblico, mai della critica; senza nominare il database o il sito."
     ),
 }
 

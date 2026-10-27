@@ -72,12 +72,12 @@ def test_final_instructions_use_enrichment_sources_and_names_faithfully() -> Non
 
     assert "tmdb_enrichment" in final and "'matched'" in final
     assert "stesso ordine" in final and "Non attribuire mai a un film i dati di un altro" in final
-    assert "fonte dei voti" in final
+    assert "fonte dei voti" not in final and "nomina il RAG" not in final
+    assert "Non spiegare mai da dove vengono i dati" in final
     assert "candidates" in final and "quale versione" in final
     # Non-Latin names: always the original plus a declared transliteration, never invented.
     assert "alfabeto non latino" in final and "aggiungi sempre" in final and "senza" in final
     # Sources: the RAG only when it ran; no unverified match described; MovieLens type caveat.
-    assert "nomina il RAG solo se il tool è rag_search" in final
     assert "'unverified_match'" in final and "work_type_verified false" in final
     assert "episode_runtime_minutes" in final
 

@@ -160,3 +160,10 @@ def test_the_tool_rules_no_longer_force_a_short_answer() -> None:
 
     assert not any("Rispondi in modo conciso" in text for text in rules.values())
     assert "Rispondi in modo conciso" not in CONFIG["orchestrator"]["final_instructions"]
+
+
+def test_answer_settings_never_ask_for_the_provenance_of_the_data() -> None:
+    from preferences import behavior as b
+
+    assert not any("dichiarando sempre la fonte" in t for t in b.SOURCES_ANSWER.values())
+    assert "Non spiegare mai da dove vengono i dati" in b.ANSWER_INTRO
