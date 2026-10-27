@@ -26,7 +26,7 @@ DEFAULTS = {
 
 @pytest.fixture(autouse=True)
 def cinema(monkeypatch):
-    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "language": "it"})
 
 
 def _send(client, body: dict, conversation_id: str | None = None):
@@ -118,3 +118,38 @@ def test_the_settings_document_matches_the_public_definition() -> None:
         assert f"`{definition['id']}`" in DOC
         for option in definition.get("options", []):
             assert f"`{option['value']}`" in DOC
+
+
+LABEL_LANGUAGES = {"en", "it", "es", "de", "fr"}
+FIELD_ORDER = ["spoiler_plot", "response_length", "response_tone", "approach", "content_type", "preferred_sources"]
+OPTION_VALUES = {
+    "response_length": ["in-depth", "medium", "short"],
+    "response_tone": ["technician", "Homie"],
+    "approach": ["direct advice", "alternatives comparison"],
+    "content_type": ["film", "series", "both"],
+    "preferred_sources": ["reviews", "interviews", "official information", "user ratings"],
+}
+
+
+def test_every_label_has_exactly_the_five_languages_and_the_contract_is_unchanged() -> None:
+    with make_client(FakeOrchestrator()) as client:
+        body = client.get("/settings").json()
+
+    assert body["version"] == 1 and [f["id"] for f in body["fields"]] == FIELD_ORDER
+    for field in body["fields"]:
+        labels = [field["label"], *(o["label"] for o in field.get("options", []))]
+        for label in labels:
+            assert set(label) == LABEL_LANGUAGES and all(isinstance(v, str) and v.strip() for v in label.values())
+        assert field["default"] == DEFAULTS[field["id"]]
+        assert [o["value"] for o in field.get("options", [])] == OPTION_VALUES.get(field["id"], [])
+
+
+def test_the_homie_tone_labels_change_but_its_value_does_not() -> None:
+    from preferences import resolve_preferences
+
+    tone = next(f for f in public_schema()["fields"] if f["id"] == "response_tone")
+    homie = next(o for o in tone["options"] if o["value"] == "Homie")
+
+    assert homie["label"] == {"en": "Homie", "it": "Bro", "es": "Tío", "de": "Digga", "fr": "Gars"}
+    assert resolve_preferences({"response_tone": "Homie"}).preferences.as_dict()["response_tone"] == "Homie"
+    assert resolve_preferences({"response_tone": "homie"}).preferences.as_dict()["response_tone"] == "technician"

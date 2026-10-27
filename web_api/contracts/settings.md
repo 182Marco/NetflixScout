@@ -18,25 +18,33 @@ frontend: leggerli dalla risposta.
 ## 2. `GET /settings`
 
 `200`, nessun parametro, nessuna autenticazione. I campi a scelta multipla (`type: "choice"`) vanno mostrati come
-segmenti affiancati; `boolean` come interruttore. `label` e `options[].label` hanno `it` ed `en`.
+segmenti affiancati; `boolean` come interruttore. `label` e `options[].label` hanno cinque lingue: `en`, `it`, `es`, `de`, `fr` (`en` sempre presente, da usare come
+ripiego). Il client sceglie la lingua da solo: l'endpoint non prende parametri né header e manda sempre tutte le
+lingue, quindi cambiare lingua aggiorna il form senza nuove richieste.
 
 ```json settings
 {
   "version": 1,
   "fields": [
     {"id": "spoiler_plot", "type": "boolean", "default": false,
-     "label": {"it": "Spoiler sulla trama", "en": "Plot spoilers"}},
+     "label": {"en": "Plot spoilers", "it": "Spoiler sulla trama", "es": "Spoilers de la trama",
+               "de": "Handlungs-Spoiler", "fr": "Spoilers de l'intrigue"}},
     {"id": "response_length", "type": "choice", "default": "medium",
-     "label": {"it": "Lunghezza della risposta", "en": "Response length"},
+     "label": {"en": "Response length", "it": "Lunghezza della risposta", "es": "Longitud de la respuesta",
+               "de": "Länge der Antwort", "fr": "Longueur de la réponse"},
      "options": [
-       {"value": "in-depth", "label": {"it": "Approfondita", "en": "In-depth"}},
-       {"value": "medium", "label": {"it": "Media", "en": "Medium"}},
-       {"value": "short", "label": {"it": "Breve", "en": "Short"}}
+       {"value": "in-depth", "label": {"en": "In-depth", "it": "Approfondita", "es": "Detallada",
+                                       "de": "Ausführlich", "fr": "Approfondie"}},
+       {"value": "medium", "label": {"en": "Medium", "it": "Media", "es": "Media",
+                                     "de": "Mittel", "fr": "Moyenne"}},
+       {"value": "short", "label": {"en": "Short", "it": "Breve", "es": "Breve",
+                                    "de": "Kurz", "fr": "Courte"}}
      ]}
   ]
 }
 ```
 
+Le etichette del tono `Homie` sono `Homie` (en), `Bro` (it), `Tío` (es), `Digga` (de), `Gars` (fr); il `value` resta `"Homie"`.
 L'esempio è abbreviato: la risposta reale ha **sei** campi (`spoiler_plot`, `response_length`, `response_tone`,
 `approach`, `content_type`, `preferred_sources`). I valori (`value`) sono quelli da rimandare, esattamente come
 ricevuti (maiuscole e spazi inclusi, per esempio `"Homie"`, `"direct advice"`).
