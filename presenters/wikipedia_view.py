@@ -13,7 +13,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from turn import TraceStep
+from turn import TraceStep, label_language
 
 # Whitespace controls become a space so words do not merge; every other control is removed.
 _WHITESPACE_CONTROLS = {"\t", "\n", "\r", "\x0b", "\x0c", "\x85"}
@@ -64,6 +64,28 @@ LABELS = {
         "specify_year": "Give the film's year to pick the right page.",
         "add_context": "Add a detail (role, nationality, year) to tell same-name pages apart.",
     },
+    "de": {
+        "title": "WIKIPEDIA",
+        "page": "Seite",
+        "pages": "Seiten",
+        "source": "Quelle: Wikipedia, Text umformuliert und gekürzt, Lizenz {license}",
+        "called": "Aufgerufen",
+        "none": "Kein Wikipedia-Aufruf in diesem Schritt: Daten bereits im Cache.",
+        "search": "Suche",
+        "open": "Seite geöffnet",
+        "received": "erhalten",
+        "kept": "behalten",
+        "dropped": "verworfen",
+        "error": "Fehler",
+        "notes": "Hinweise",
+        "sections": "Gelesene Abschnitte",
+        "omitted": "nicht gelesene Abschnitte",
+        "license": "Lizenz",
+        "to_verify": "Zu prüfen (Seite nicht bestätigt):",
+        "no_pages": "Keine Seite anzuzeigen.",
+        "specify_year": "Nenne das Jahr des Films, um die richtige Seite zu wählen.",
+        "add_context": "Füge ein Detail hinzu (Rolle, Nationalität, Jahr), um gleichnamige Seiten zu unterscheiden.",
+    },
 }
 
 # Codes of notes, drops and errors; an unknown code is shown as it is.
@@ -104,6 +126,24 @@ CODE_LABELS = {
         "ambiguous": "disambiguation page",
         "ok": "read",
     },
+    "de": {
+        "disambiguation": "Begriffsklärungsseite",
+        "empty_extract": "kein Text",
+        "not_relevant": "Seite nicht passend",
+        "title_partial": "Titel nur teilweise gleich",
+        "title_differs": "Titel weicht vom gesuchten ab",
+        "year_conflict": "anderes Jahr",
+        "already_delivered": "in diesem Durchgang schon gelesen, kein neuer Abschnitt",
+        "rate_limited": "zu viele Anfragen, kurze Pause",
+        "timeout": "Zeitüberschreitung",
+        "network_error": "Netzwerkfehler",
+        "http_error": "ungültige Antwort",
+        "response_too_large": "Seite zu groß zum Lesen",
+        "turn_limit": "Aufruflimit pro Durchgang",
+        "not_found": "Seite nicht gefunden",
+        "ambiguous": "Begriffsklärungsseite",
+        "ok": "gelesen",
+    },
 }
 
 
@@ -122,13 +162,13 @@ def printable(value: Any) -> str:
 
 
 def labels(language: str | None) -> dict[str, str]:
-    return LABELS["it"] if language == "it" else LABELS["en"]
+    return LABELS[label_language(language)]
 
 
 def code_label(code: Any, language: str | None) -> str:
     if not isinstance(code, str):
         return "?"
-    return CODE_LABELS["it" if language == "it" else "en"].get(code, printable(code))
+    return CODE_LABELS[label_language(language)].get(code, printable(code))
 
 
 class SearchView(BaseModel):

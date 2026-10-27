@@ -37,7 +37,7 @@ from .rag import render_rerank, render_retrieval
 from .wikipedia import render_wikipedia_calls
 from .youtube import render_youtube_calls
 
-# A renderer gets the step and the turn language ("it" | "en") for its labels.
+# A renderer gets the step and the turn language (ISO code) for its labels.
 StepRenderer = Callable[[TraceStep, str], None]
 
 # Tool steps only: the flow steps (classification, query used, tool chosen and its outcome,
@@ -87,7 +87,7 @@ class TerminalObserver:
             if not text:
                 return
             if not self._plain_answer:
-                print_answer_header()
+                print_answer_header(self._story.language)
             self._answer_started = True
         print_answer_text(text)
 
@@ -104,6 +104,6 @@ def render(turn: TurnResult, *, streamed: bool = False) -> None:
         observer = TerminalObserver(turn.language)
         for step in turn.steps:
             observer.step(step)
-        print_final_answer(turn.answer)
+        print_final_answer(turn.answer, turn.language)
     if turn.history_compacted:
-        print_compact_notice()
+        print_compact_notice(turn.language)

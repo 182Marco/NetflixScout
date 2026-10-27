@@ -14,12 +14,13 @@ from .blocks import (
 
 
 def render_retrieval(step: TraceStep, language: str | None = None) -> None:
-    view = retrieval_view(step)
-    print_retrieval_params(view.params, view.overridden)
-    print_retrieval_query(view.embedded_text, view.genres)
-    print_references(view)
+    language = language or "it"
+    view = retrieval_view(step, language)
+    print_retrieval_params(view.params, view.overridden, language)
+    print_retrieval_query(view.embedded_text, view.genres, language)
+    print_references(view, language)
     print_retrieval_compact(view, "📚")
 
 
 def render_rerank(step: TraceStep, language: str | None = None) -> None:
-    print_chunks(rerank_view(step), "🏆")
+    print_chunks(rerank_view(step, language), "🏆", language or "it")

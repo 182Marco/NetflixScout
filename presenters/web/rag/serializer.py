@@ -9,5 +9,5 @@ from ...rag_view import rerank_view, retrieval_view
 
 
 def serialize_rag_step(step: TraceStep, language: str | None = None) -> dict[str, Any]:
-    view = rerank_view(step) if step.kind == STEP_RERANK else retrieval_view(step)
+    view = rerank_view(step, language) if step.kind == STEP_RERANK else retrieval_view(step, language)
     return view.model_dump(mode="json")

@@ -10,12 +10,20 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from turn import TraceStep
+from turn import TraceStep, label_language
 
 PREVIEW_CHARS = 200
 
-RETRIEVAL_TITLE = "K LARGO — {n} CHUNK RECUPERATI"
-RERANK_TITLE = "RERANKING — {n} CHUNK SELEZIONATI"
+RETRIEVAL_TITLE = {
+    "it": "K LARGO — {n} CHUNK RECUPERATI",
+    "en": "WIDE K — {n} CHUNKS RETRIEVED",
+    "de": "WEITES K — {n} CHUNKS ABGERUFEN",
+}
+RERANK_TITLE = {
+    "it": "RERANKING — {n} CHUNK SELEZIONATI",
+    "en": "RERANKING — {n} CHUNKS SELECTED",
+    "de": "RERANKING — {n} CHUNKS AUSGEWÄHLT",
+}
 
 
 class ChunkView(BaseModel):
@@ -98,13 +106,13 @@ def _reference_views(data: dict[str, Any]) -> list[ReferenceView]:
     return views
 
 
-def retrieval_view(step: TraceStep) -> RagStepView:
+def retrieval_view(step: TraceStep, language: str | None = None) -> RagStepView:
     chunks = _chunks(step)
     signals = step.data.get("signals") or {}
     refs = step.data.get("references") or {}
     return RagStepView(
         kind=step.kind,
-        title=RETRIEVAL_TITLE.format(n=len(chunks)),
+        title=RETRIEVAL_TITLE[label_language(language)].format(n=len(chunks)),
         embedded_text=step.data.get("embedded_text"),
         genres=list(signals.get("genres") or []),
         params=dict((step.data.get("retrieval_params") or {}).get("effective") or {}),
@@ -117,6 +125,6 @@ def retrieval_view(step: TraceStep) -> RagStepView:
     )
 
 
-def rerank_view(step: TraceStep) -> RagStepView:
+def rerank_view(step: TraceStep, language: str | None = None) -> RagStepView:
     chunks = _chunks(step)
-    return RagStepView(kind=step.kind, title=RERANK_TITLE.format(n=len(chunks)), chunks=chunks)
+    return RagStepView(kind=step.kind, title=RERANK_TITLE[label_language(language)].format(n=len(chunks)), chunks=chunks)

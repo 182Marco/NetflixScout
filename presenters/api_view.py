@@ -1,8 +1,8 @@
 """Channel-neutral view of a `tmdb_calls` step, shared by the terminal and web presenters.
 
 Shows only the endpoints actually called (credential already masked by the tool) and the
-sources that must be credited (JustWatch). Labels are Italian when the turn is Italian, English
-otherwise; this never affects the language of the LLM answer.
+sources that must be credited (JustWatch). Labels follow the turn language (it, en, de; English
+for any other); this never affects the language of the LLM answer.
 """
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from turn import TraceStep
+from turn import TraceStep, label_language
 
 ATTRIBUTION_SOURCES = {"justwatch": "JustWatch"}
 
@@ -26,6 +26,12 @@ LABELS = {
         "called": "Called",
         "none": "No TMDb call in this turn: data already cached.",
         "justwatch": "Streaming availability data: JustWatch",
+    },
+    "de": {
+        "title": "TMDB-ANFRAGEN",
+        "called": "Aufgerufen",
+        "none": "Keine TMDb-Anfrage in diesem Durchgang: Daten bereits im Cache.",
+        "justwatch": "Daten zur Streaming-Verfügbarkeit: JustWatch",
     },
 }
 
@@ -44,7 +50,7 @@ class TmdbCallsView(BaseModel):
 
 
 def labels(language: str | None) -> dict[str, str]:
-    return LABELS["it"] if language == "it" else LABELS["en"]
+    return LABELS[label_language(language)]
 
 
 def _calls(raw: Any) -> list[str]:

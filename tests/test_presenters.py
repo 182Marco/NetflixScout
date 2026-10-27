@@ -44,7 +44,7 @@ class _FakeOrchestrator:
         self.calls = 0
         self.tool_overrides = None
 
-    def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None):
+    def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None, answer_language=None):
         self.calls += 1
         self.tool_overrides = tool_overrides
         decision = {
@@ -62,7 +62,7 @@ def _fake_app() -> dict:
 
 
 def test_handle_query_records_steps_in_order(monkeypatch) -> None:
-    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "language": "it"})
 
     turn = app_module.handle_query(_fake_app(), "un film con robot", history=[])
 
@@ -78,7 +78,7 @@ def test_handle_query_records_steps_in_order(monkeypatch) -> None:
 
 
 def test_handle_query_passes_the_turn_language_to_the_tools(monkeypatch) -> None:
-    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": False})
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "language": "en"})
     fake_app = _fake_app()
 
     turn = app_module.handle_query(fake_app, "Who directed Dune?", history=[])
@@ -88,7 +88,7 @@ def test_handle_query_passes_the_turn_language_to_the_tools(monkeypatch) -> None
 
 
 def test_handle_query_blocks_non_cinema_without_orchestrator(monkeypatch) -> None:
-    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": False, "is_italian": False})
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": False, "language": "en"})
     fake_app = _fake_app()
 
     turn = app_module.handle_query(fake_app, "what's the weather?", history=[])
@@ -110,7 +110,7 @@ def _sample_turn() -> TurnResult:
             TraceStep(
                 kind="classification",
                 title="Classificazione",
-                data={"is_cinema": True, "is_italian": True},
+                data={"is_cinema": True, "language": "it"},
             ),
             TraceStep(
                 kind="query_rewrite",
@@ -169,7 +169,7 @@ def test_handle_query_gives_recent_history_to_the_classifier(monkeypatch) -> Non
 
     def fake_classifier(query, history=None):
         captured["history"] = history
-        return {"is_cinema": True, "is_italian": True}
+        return {"is_cinema": True, "language": "it"}
 
     monkeypatch.setattr(app_module, "classify_query_domain", fake_classifier)
     history = [
@@ -186,7 +186,7 @@ def test_handle_query_gives_recent_history_to_the_classifier(monkeypatch) -> Non
 
 
 class _ClarifyingOrchestrator:
-    def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None):
+    def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None, answer_language=None):
         decision = {
             "tool": None,
             "clarification": True,
@@ -199,7 +199,7 @@ class _ClarifyingOrchestrator:
 
 
 def test_clarification_turn_is_recorded_and_printed_without_a_tool(monkeypatch, capsys) -> None:
-    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "language": "it"})
     fake_app = {"config": app_module.build_runtime_config(), "orchestrator": _ClarifyingOrchestrator()}
 
     turn = app_module.handle_query(fake_app, "chi c'era in quel film di Sorrentino?", history=[])
@@ -214,10 +214,10 @@ def test_clarification_turn_is_recorded_and_printed_without_a_tool(monkeypatch, 
 
 def test_handle_query_records_one_selection_per_tool_each_followed_by_its_trace(monkeypatch) -> None:
     """A multi-tool turn shows only the steps of the tools that ran (no RAG steps here)."""
-    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "language": "it"})
 
     class _TwoTools(_FakeOrchestrator):
-        def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None):
+        def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None, answer_language=None):
             decision = {
                 "tool": "tmdb_search",
                 "tools": ["tmdb_search", "youtube_search"],
@@ -246,10 +246,10 @@ def test_handle_query_records_one_selection_per_tool_each_followed_by_its_trace(
 
 
 def test_planning_step_is_recorded_and_printed_when_a_part_was_not_run(monkeypatch, capsys) -> None:
-    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "language": "it"})
 
     class _Pending(_FakeOrchestrator):
-        def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None):
+        def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None, answer_language=None):
             part = {"part": "un'intervista", "tool": "youtube_search"}
             decision = {
                 "tool": "tmdb_search",
@@ -279,7 +279,7 @@ def test_planning_step_is_recorded_and_printed_when_a_part_was_not_run(monkeypat
 
 
 def test_a_single_tool_turn_has_no_planning_step(monkeypatch) -> None:
-    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "language": "it"})
 
     turn = app_module.handle_query(_fake_app(), "un film con robot", history=[])
 

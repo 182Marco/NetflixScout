@@ -12,7 +12,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from turn import TraceStep
+from turn import TraceStep, label_language
 
 # Whitespace controls become a space so words do not merge; every other control is removed.
 _WHITESPACE_CONTROLS = {"\t", "\n", "\r", "\x0b", "\x0c", "\x85"}
@@ -56,6 +56,25 @@ LABELS = {
         "specify_year": "Give the film's year to rule out homonyms.",
         "original_title": "If the film has a different original title, giving it can help.",
     },
+    "de": {
+        "title": "YOUTUBE",
+        "videos": "Videos",
+        "source": "Quelle: YouTube (Suchergebnisse, nicht als offiziell geprüft)",
+        "called": "Aufgerufen",
+        "no_calls": "Kein YouTube-Aufruf in diesem Durchgang.",
+        "search": "Suche",
+        "received": "erhalten",
+        "kept": "behalten",
+        "dropped": "verworfen",
+        "error": "Fehler",
+        "not_searched": "Nicht gesucht",
+        "quota_paused": "YouTube-Suchkontingent erschöpft (vom Google-Projekt geteilt) bis",
+        "no_videos": "Kein Video anzuzeigen.",
+        "notes": "Hinweise",
+        "to_verify": "Zu prüfen (Kategorie oder Film nicht bestätigt):",
+        "specify_year": "Nenne das Jahr des Films, um Namensgleiche auszuschließen.",
+        "original_title": "Hat der Film einen anderen Originaltitel, kann dessen Angabe helfen.",
+    },
 }
 
 KIND_LABELS = {
@@ -74,6 +93,14 @@ KIND_LABELS = {
         "making_of": "making-of",
         "behind_the_scenes": "behind the scenes",
         "author_commentary": "authors' commentary",
+    },
+    "de": {
+        "trailer": "Trailer",
+        "director_interview": "Interviews mit der Regie",
+        "cast_interview": "Interviews mit der Besetzung",
+        "making_of": "Making-of",
+        "behind_the_scenes": "Blick hinter die Kulissen",
+        "author_commentary": "Kommentare der Macher",
     },
 }
 
@@ -131,6 +158,39 @@ CODE_LABELS = {
         "duration_unknown": "unknown duration",
         "title_from_search": "search data",
     },
+    "de": {
+        "turn_limit": "Suchlimit pro Durchgang",
+        "quota_exceeded": "Tageskontingent erschöpft",
+        "rate_limited": "zu viele Anfragen, kurze Pause",
+        "unauthorized": "API-Schlüssel abgelehnt",
+        "api_not_enabled": "YouTube Data API nicht aktiviert",
+        "timeout": "Zeitüberschreitung",
+        "network_error": "Netzwerkfehler",
+        "http_error": "ungültige Antwort",
+        "no_anchor": "Film nicht genannt",
+        "negative_pattern": "Reaction/Parodie/Fan-Made",
+        "other_format": "anderes Format (Kritik, ganzer Film, Trailer)",
+        "year_conflict": "anderes Jahr",
+        "homonym_risk": "möglicherweise ein Namensgleicher",
+        "short_video": "Short",
+        "unavailable": "nicht mehr verfügbar",
+        "invalid_id": "kein Video",
+        "duplicate_of_other_kind": "schon in einer anderen Kategorie",
+        "kind_unconfirmed": "Kategorie vom Titel nicht bestätigt",
+        "title_in_description_only": "Film nur in der Beschreibung genannt",
+        "film_title_absent": "Filmtitel fehlt",
+        "homonym_unchecked": "Namensgleichheit nicht prüfbar",
+        "very_short": "sehr kurz",
+        "duration_unknown": "Dauer unbekannt",
+        "title_from_search": "Daten aus der Suche",
+    },
+}
+
+
+BLOCKED_IN = {
+    "it": "non visibile in {country}",
+    "en": "not viewable in {country}",
+    "de": "nicht abrufbar in {country}",
 }
 
 
@@ -149,21 +209,21 @@ def printable(value: Any) -> str:
 
 
 def labels(language: str | None) -> dict[str, str]:
-    return LABELS["it"] if language == "it" else LABELS["en"]
+    return LABELS[label_language(language)]
 
 
 def kind_label(kind: Any, language: str | None) -> str:
-    table = KIND_LABELS["it" if language == "it" else "en"]
+    table = KIND_LABELS[label_language(language)]
     return table.get(kind, printable(kind)) if isinstance(kind, str) else "?"
 
 
 def code_label(code: Any, language: str | None) -> str:
     if not isinstance(code, str):
         return "?"
-    table = CODE_LABELS["it" if language == "it" else "en"]
+    table = CODE_LABELS[label_language(language)]
     if code.startswith("blocked_in:"):
         country = printable(code.split(":", 1)[1])
-        return f"non visibile in {country}" if language == "it" else f"not viewable in {country}"
+        return BLOCKED_IN[label_language(language)].format(country=country)
     return table.get(code, printable(code))
 
 

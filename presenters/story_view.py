@@ -21,6 +21,7 @@ from turn import (
     STEP_TOOL_SELECTION,
     StoryLine,
     TraceStep,
+    label_language,
 )
 
 # After this many successful tool runs the "found" lines are dropped, so a long turn stays
@@ -54,6 +55,19 @@ TEXT = {
         "seconds": "{n} s",
         "under_second": "under 1 s",
     },
+    "de": {
+        "understanding": "Ich verstehe die Frage…",
+        "answering": "Ich schreibe die Antwort…",
+        "understood": "Ich habe die Frage so verstanden: {query}",
+        "clarify": "Ich brauche eine Klärung, bevor ich suche.",
+        "searching": "Ich suche {where}",
+        "found": "{tool}: gefunden",
+        "empty": "{tool}: keine Ergebnisse",
+        "failed": "{tool}: {reason}",
+        "not_searched": "Nicht gesucht: {parts}",
+        "seconds": "{n} s",
+        "under_second": "unter 1 s",
+    },
 }
 
 # tool -> (where it searches, short name)
@@ -71,6 +85,13 @@ TOOLS = {
         "tmdb_search": ("on TMDb", "TMDb"),
         "youtube_search": ("on YouTube", "YouTube"),
         "wikipedia_search": ("on Wikipedia", "Wikipedia"),
+    },
+    "de": {
+        "rag_search": ("in den Filmhandlungen", "Handlungen"),
+        "movie_db_search": ("in den MovieLens-Bewertungen und Ranglisten", "Bewertungen"),
+        "tmdb_search": ("auf TMDb", "TMDb"),
+        "youtube_search": ("auf YouTube", "YouTube"),
+        "wikipedia_search": ("auf Wikipedia", "Wikipedia"),
     },
 }
 
@@ -104,6 +125,20 @@ REASONS = {
         "response_too_large": "page too large to read",
         "default": "it did not work",
     },
+    "de": {
+        "unsupported_request": "diese Art von Anfrage kann hier nicht gesucht werden",
+        "parser_failed": "ich konnte die Anfrage nicht verstehen",
+        "unverified_match": "Titel nicht bestätigt, es gibt ähnliche Versionen",
+        "invalid_request": "ungültige Anfrage",
+        "quota_exceeded": "Tageskontingent erschöpft",
+        "turn_limit": "Suchlimit für diese Frage erreicht",
+        "rate_limited": "zu viele Anfragen, versuche es gleich noch einmal",
+        "timeout": "Zeitüberschreitung",
+        "network_error": "Netzwerkfehler",
+        "http_error": "ungültige Antwort",
+        "response_too_large": "Seite zu groß zum Lesen",
+        "default": "es hat nicht geklappt",
+    },
 }
 
 FALLBACKS = {
@@ -129,11 +164,22 @@ FALLBACKS = {
         "token_budget": "I reached the token budget for this question.",
         "answer_failed": "I could not write the full answer: here are the results I found.",
     },
+    "de": {
+        "planner_failed": "Ich wusste nicht genau, wie ich suchen soll: ich habe die Handlungssuche benutzt.",
+        "low_confidence": "Ich war unsicher, wie ich suchen soll: ich habe die Handlungssuche benutzt.",
+        "unknown_tool": "Ich war unsicher, wie ich suchen soll: ich habe die Handlungssuche benutzt.",
+        "next_step_failed": "Ich konnte den nächsten Schritt nicht planen: ich antworte mit dem, was ich habe.",
+        "max_tool_calls": "Ich habe das Schrittlimit für diese Frage erreicht.",
+        "max_iterations": "Ich habe das Planungslimit für diese Frage erreicht.",
+        "max_execution_time": "Ich habe das Zeitlimit für diese Frage erreicht.",
+        "token_budget": "Ich habe das Token-Budget für diese Frage erreicht.",
+        "answer_failed": "Ich konnte die vollständige Antwort nicht schreiben: hier sind die gefundenen Ergebnisse.",
+    },
 }
 
 
 def _table(table: dict[str, dict], language: str) -> dict:
-    return table["it"] if language == "it" else table["en"]
+    return table[label_language(language)]
 
 
 def _seconds(elapsed_ms: object, language: str) -> str:
@@ -147,7 +193,7 @@ class StoryBuilder:
 
     The terminal and the turn itself each hold one, so the live story and `TurnResult.story`
     are the same text by construction. The language comes from the `classification` step
-    (Italian until then).
+    (Italian until then); any language code is kept, the fixed texts fall back to English.
     """
 
     def __init__(self, language: str = "it") -> None:
@@ -166,7 +212,7 @@ class StoryBuilder:
 
     def _classification(self, step: TraceStep) -> list[StoryLine]:
         language = step.data.get("language")
-        if language in ("it", "en"):
+        if isinstance(language, str) and language:
             self.language = language
         return []
 

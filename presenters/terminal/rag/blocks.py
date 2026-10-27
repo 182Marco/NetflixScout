@@ -7,9 +7,10 @@ from __future__ import annotations
 
 from ...rag_view import RagStepView
 from ..box import print_box
+from ..texts import texts
 
 
-def print_chunks(view: RagStepView, emoji: str) -> None:
+def print_chunks(view: RagStepView, emoji: str, language: str = "it") -> None:
     print_box(emoji, view.title)
 
     for index, chunk in enumerate(view.chunks, start=1):
@@ -29,7 +30,7 @@ def print_chunks(view: RagStepView, emoji: str) -> None:
             print(f"  🏷️ GENRES   : {chunk.genres}")
         if chunk.cast:
             print(f"  👥 CAST     : {chunk.cast}")
-        print(f'  📝 TESTO    : "{chunk.preview}"')
+        print(f'  📝 {texts(language)["plot"]:<8}: "{chunk.preview}"')
 
 
 def print_retrieval_compact(view: RagStepView, emoji: str) -> None:
@@ -39,34 +40,37 @@ def print_retrieval_compact(view: RagStepView, emoji: str) -> None:
         print(f"  {chunk.title or 'N/A'} ({chunk.year or 'N/A'})")
 
 
-def print_retrieval_query(embedded_text: str | None, genres: list[str]) -> None:
+def print_retrieval_query(embedded_text: str | None, genres: list[str], language: str = "it") -> None:
+    text = texts(language)
     if embedded_text:
-        print(f"\n🔎 Testo usato per l'embedding: {embedded_text}")
+        print(f"\n🔎 {text['embedded']}: {embedded_text}")
     if genres:
-        print(f"   Generi richiesti: {', '.join(genres)}")
+        print(f"   {text['genres']}: {', '.join(genres)}")
 
 
-def print_retrieval_params(params: dict, overridden: list[str]) -> None:
+def print_retrieval_params(params: dict, overridden: list[str], language: str = "it") -> None:
     if not params:
         return
+    text = texts(language)
     parts = [f"{k}={v}{'*' if k in overridden else ''}" for k, v in params.items()]
-    print(f"\n⚙️  Parametri di ricerca: {', '.join(parts)}" + ("  (* scelti dal planner)" if overridden else ""))
+    print(f"\n⚙️  {text['params']}: {', '.join(parts)}" + (f"  (* {text['by_planner']})" if overridden else ""))
 
 
-def print_references(view: RagStepView) -> None:
+def print_references(view: RagStepView, language: str = "it") -> None:
     """Which cited movies gave a real vector to the search and how (no vectors are ever printed)."""
     if not view.references and not view.reference_note:
         return
-    state = f"ricerca guidata ({view.reference_strategy})" if view.reference_steered else "ricerca non guidata"
-    print(f"\n🎯 Film di riferimento: {state}" + (f" - {view.reference_note}" if view.reference_note else ""))
+    text = texts(language)
+    state = f"{text['guided']} ({view.reference_strategy})" if view.reference_steered else text["not_guided"]
+    print(f"\n🎯 {text['references']}: {state}" + (f" - {view.reference_note}" if view.reference_note else ""))
     for ref in view.references:
-        role = "simile a" if ref.role == "positive" else "diverso da"
+        role = text["similar"] if ref.role == "positive" else text["different"]
         how = ref.source or "-"
         extra = []
         if ref.tmdb_calls:
-            extra.append(f"{ref.tmdb_calls} chiamate TMDb")
+            extra.append(f"{ref.tmdb_calls} {text['tmdb_calls']}")
         if ref.embedding_created:
-            extra.append("embedding creato")
+            extra.append(text["embedding_created"])
         if ref.reason:
             extra.append(ref.reason)
         print(f"   {role} {ref.title}{f' ({ref.year})' if ref.year else ''}: {ref.status} [{how}]"

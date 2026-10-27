@@ -36,9 +36,9 @@ def test_terminal_shows_only_called_urls_in_the_turn_language(language, label, c
     assert "JustWatch" not in out
 
 
-def test_other_languages_get_english_labels() -> None:
-    # The turn language is "it" or "en"; a German question is classified "en".
-    assert serialize_tmdb_calls_step(_step(), "de")["calls"][0]["label"] == "Called"
+def test_labels_exist_in_german_and_other_languages_get_english() -> None:
+    assert serialize_tmdb_calls_step(_step(), "de")["calls"][0]["label"] == "Aufgerufen"
+    assert serialize_tmdb_calls_step(_step(), "fr")["calls"][0]["label"] == "Called"
 
 
 def test_justwatch_attribution_is_shown_by_both_channels(capsys) -> None:

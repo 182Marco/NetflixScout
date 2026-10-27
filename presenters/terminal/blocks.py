@@ -5,6 +5,7 @@ from __future__ import annotations
 from turn import StoryLine
 
 from .box import print_box
+from .texts import texts
 
 STORY_MARKS = {"progress": "⏳", "info": "💡", "ok": "✅", "warn": "⚠️"}
 
@@ -20,10 +21,11 @@ def print_generic_step(title: str, data: dict) -> None:
         print(f"  {key}: {value}")
 
 
-def print_answer_header() -> None:
+def print_answer_header(language: str = "it") -> None:
+    title = f"║  🤖  {texts(language)['answer_title']}"
     print("\n")
     print("╔" + "═" * 68 + "╗")
-    print("║  🤖  RISPOSTA FINALE DELL'LLM" + " " * 38 + "║")
+    print(title + " " * max(69 - len(title) - 1, 1) + "║")
     print("╚" + "═" * 68 + "╝")
     print()
 
@@ -37,11 +39,11 @@ def print_answer_end() -> None:
     print("\n")
 
 
-def print_final_answer(answer: str) -> None:
-    print_answer_header()
+def print_final_answer(answer: str, language: str = "it") -> None:
+    print_answer_header(language)
     print(answer)
     print()
 
 
-def print_compact_notice() -> None:
-    print("🧠 Soglia raggiunta: history compattata. 💬 Continuiamo!")
+def print_compact_notice(language: str = "it") -> None:
+    print(texts(language)["compact"])

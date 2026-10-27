@@ -115,10 +115,10 @@ def test_the_story_of_a_real_turn_equals_the_story_rebuilt_from_its_steps(monkey
     import app as app_module
     from turn_support import stream_decision
 
-    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": False})
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "language": "en"})
 
     class _Orchestrator:
-        def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None):
+        def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None, answer_language=None):
             decision = {
                 "tool": "tmdb_search",
                 "tools": ["tmdb_search"],
