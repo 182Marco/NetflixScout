@@ -56,9 +56,10 @@ def test_routing_rules_are_prioritized_by_need() -> None:
     # Real eval: with "let TMDb results disambiguate" the planner used `search` (no credits).
     assert "usa movie_details o tv_details con il titolo" in tmdb and "search solo quando" in tmdb
     assert db.startswith("2) movie_db_search") and all(topic in db for topic in ("voti", "classifiche", "confronti"))
-    assert rag.startswith("3) rag_search") and all(topic in rag for topic in ("raccomandazioni", "temi", "somiglianze"))
-    assert "solo come riferimento" in rag and "non tmdb_search" in rag
-    assert "cast" not in rag and "diretto" not in rag
+    assert rag.startswith("3) rag_search") and all(topic in rag for topic in ("trama", "temi", "sentimenti"))
+    # A title named even only as a reference never reaches the RAG: it goes to TMDb.
+    assert "NON va scelto" in rag and "'film come X'" in rag and "usa tmdb_search" in rag
+    assert "scegli rag_search e non tmdb_search" not in rag
     assert mixed.startswith("4) Richieste composte") and "un solo tool per turno" not in mixed
     assert "more_steps" in mixed and "mai un tool in più" in mixed
     # MovieLens has no people nor critics; the RAG is never a fallback for them.

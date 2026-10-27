@@ -124,11 +124,11 @@ def test_cases_cover_every_tool_and_follow_ups() -> None:
     assert tools.count(YOUTUBE) == 7
     assert any(case.history and case.expected_tool == TMDB for case in ROUTING_CASES)
     assert any(case.history and case.expected_tool == YOUTUBE for case in ROUTING_CASES)
-    assert len(ROUTING_CASES) == 59  # 43 before the Wikipedia cases (11 for it, 4 more for TMDb)
+    assert len(ROUTING_CASES) == 60  # 43 before the Wikipedia cases (11 for it, 4 more for TMDb)
 
 
 def test_every_tmdb_case_has_a_valid_request_expectation() -> None:
-    assert len(TMDB_CASES) == 22  # 18 before the Wikipedia cases (filmography boundary and 3 controls)
+    assert len(TMDB_CASES) == 25  # 18 before the Wikipedia cases (filmography boundary and 3 controls)
     for case in TMDB_CASES:
         assert case.expected_request is not None
         options = case.expected_request if isinstance(case.expected_request, tuple) else (case.expected_request,)
@@ -214,7 +214,7 @@ def test_known_regressions_are_routing_cases() -> None:
     assert by_question["Parlami del film Arrival"].expected_tool == TMDB
     assert by_question["Dimmi qualcosa su Dune"].expected_tool == TMDB
     assert by_question["Di cosa parla Inception?"].expected_tool == TMDB
-    assert sum(case.expected_tool == RAG and "temi di Mare dentro" in case.question for case in ROUTING_CASES) == 1
+    assert sum(case.expected_tool == TMDB and "temi di Mare dentro" in case.question for case in ROUTING_CASES) == 1
 
 
 def test_any_acceptable_request_passes_and_none_fails() -> None:

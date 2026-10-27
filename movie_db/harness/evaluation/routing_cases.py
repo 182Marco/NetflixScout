@@ -147,7 +147,13 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
         expected_request=RequestExpectation("movie_details", fields=(("title", "inception"),)),
     ),
     RoutingCase("Vorrei un film malinconico ambientato in Giappone", RAG),
-    RoutingCase("Il film in cui Tom Hanks naufraga su un'isola deserta", RAG),
+    # An actor named: never the RAG.
+    RoutingCase(
+        "Il film in cui Tom Hanks naufraga su un'isola deserta",
+        TMDB,
+        expected_request=(RequestExpectation("discover_movies"), RequestExpectation("search", fields=(("kind", "movie"), ("search_query", "tom hanks")))),
+    ),
+    RoutingCase("Vorrei un film su un ex killer che cerca la redenzione in un paesino di montagna", RAG),
     RoutingCase("E degli anni '90?", DB, history=_HORROR_80S, standalone_must_contain=("horror", "90")),
     # Follow-up in another language that acts on the film just suggested: once blocked as off-topic.
     RoutingCase(
@@ -212,9 +218,25 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
             RequestExpectation("search", fields=(("kind", "movie"), ("search_query", "dune"))),
         ),
     ),
-    # A title used only as a reference for what to look for stays on the RAG.
-    RoutingCase("Mi sono piaciuti i temi di Mare dentro: ci sono altri film che toccano le stesse questioni?", RAG),
-    RoutingCase("Vorrei un film con l'atmosfera e il dilemma morale del Padrino, ma con un finale meno tragico", RAG),
+    # A title used only as a reference never goes to the RAG: TMDb similar/recommendations.
+    RoutingCase(
+        "Mi sono piaciuti i temi di Mare dentro: ci sono altri film che toccano le stesse questioni?",
+        TMDB,
+        expected_request=(
+            RequestExpectation("movie_details", fields=(("title", "mare dentro"),), facets=("similar",)),
+            RequestExpectation("movie_details", fields=(("title", "mare dentro"),), facets=("recommendations",)),
+        ),
+    ),
+    RoutingCase(
+        "Vorrei un film con l'atmosfera e il dilemma morale del Padrino, ma con un finale meno tragico",
+        TMDB,
+        expected_request=(
+            RequestExpectation("movie_details", fields=(("title", "padrino"),), facets=("similar",)),
+            RequestExpectation("movie_details", fields=(("title", "padrino"),), facets=("recommendations",)),
+            RequestExpectation("movie_details", fields=(("title", "godfather"),), facets=("recommendations",)),
+            RequestExpectation("movie_details", fields=(("title", "godfather"),), facets=("similar",)),
+        ),
+    ),
     # From a MovieLens ranking to the first film's credits.
     RoutingCase(
         "E chi l'ha diretto?",
