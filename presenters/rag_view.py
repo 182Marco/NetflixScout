@@ -30,6 +30,20 @@ class ChunkView(BaseModel):
     preview: str = ""
 
 
+class ReferenceView(BaseModel):
+    """One movie cited as a reference and what was done with it (never a vector)."""
+
+    title: str
+    year: int | None = None
+    role: str
+    status: str
+    source: str | None = None
+    matched: str | None = None
+    tmdb_calls: int | None = None
+    embedding_created: bool | None = None
+    reason: str | None = None
+
+
 class RagStepView(BaseModel):
     kind: str
     title: str
@@ -39,6 +53,11 @@ class RagStepView(BaseModel):
     params: dict[str, Any] = Field(default_factory=dict)
     overridden: list[str] = Field(default_factory=list)
     chunks: list[ChunkView] = Field(default_factory=list)
+    # Reference films of a "like X, not like Y" request (retrieval step only): steered search, strategy, per-film outcome.
+    references: list[ReferenceView] = Field(default_factory=list)
+    reference_steered: bool | None = None
+    reference_strategy: str | None = None
+    reference_note: str | None = None
 
 
 def _text(value: Any) -> str | None:
@@ -67,9 +86,22 @@ def _chunks(step: TraceStep) -> list[ChunkView]:
     return [_chunk_view(chunk) for chunk in step.data.get("chunks") or []]
 
 
+def _reference_views(data: dict[str, Any]) -> list[ReferenceView]:
+    views = []
+    for entry in data.get("references") or []:
+        detail = entry.get("detail") or {}
+        views.append(ReferenceView(
+            title=str(entry.get("title") or ""), year=entry.get("year"), role=str(entry.get("role") or ""),
+            status=str(entry.get("status") or ""), source=_text(entry.get("source") or detail.get("origin")),
+            matched=_text(entry.get("matched_title")), tmdb_calls=detail.get("tmdb_calls"),
+            embedding_created=detail.get("embedding_created"), reason=_text(detail.get("reason"))))
+    return views
+
+
 def retrieval_view(step: TraceStep) -> RagStepView:
     chunks = _chunks(step)
     signals = step.data.get("signals") or {}
+    refs = step.data.get("references") or {}
     return RagStepView(
         kind=step.kind,
         title=RETRIEVAL_TITLE.format(n=len(chunks)),
@@ -78,6 +110,10 @@ def retrieval_view(step: TraceStep) -> RagStepView:
         params=dict((step.data.get("retrieval_params") or {}).get("effective") or {}),
         overridden=list((step.data.get("retrieval_params") or {}).get("overridden") or []),
         chunks=chunks,
+        references=_reference_views(refs),
+        reference_steered=refs.get("steered") if refs else None,
+        reference_strategy=_text(refs.get("strategy")) if refs.get("steered") else None,
+        reference_note=_text(refs.get("skipped")),
     )
 
 

@@ -51,3 +51,23 @@ def print_retrieval_params(params: dict, overridden: list[str]) -> None:
         return
     parts = [f"{k}={v}{'*' if k in overridden else ''}" for k, v in params.items()]
     print(f"\n⚙️  Parametri di ricerca: {', '.join(parts)}" + ("  (* scelti dal planner)" if overridden else ""))
+
+
+def print_references(view: RagStepView) -> None:
+    """Which cited movies gave a real vector to the search and how (no vectors are ever printed)."""
+    if not view.references and not view.reference_note:
+        return
+    state = f"ricerca guidata ({view.reference_strategy})" if view.reference_steered else "ricerca non guidata"
+    print(f"\n🎯 Film di riferimento: {state}" + (f" - {view.reference_note}" if view.reference_note else ""))
+    for ref in view.references:
+        role = "simile a" if ref.role == "positive" else "diverso da"
+        how = ref.source or "-"
+        extra = []
+        if ref.tmdb_calls:
+            extra.append(f"{ref.tmdb_calls} chiamate TMDb")
+        if ref.embedding_created:
+            extra.append("embedding creato")
+        if ref.reason:
+            extra.append(ref.reason)
+        print(f"   {role} {ref.title}{f' ({ref.year})' if ref.year else ''}: {ref.status} [{how}]"
+              + (f" - {', '.join(extra)}" if extra else ""))

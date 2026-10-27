@@ -48,6 +48,33 @@ def rerank_cohere(query, chunks, model, cohere_api_client=None):
 
 
 
+def _candidate_line(index, chunk, plot_chars=600):
+    year = f" ({chunk['release_year']})" if chunk.get("release_year") else ""
+    genres = f" | {chunk['genres']}" if chunk.get("genres") else ""
+    return f"[{index}] {chunk.get('title') or '?'}{year}{genres} | {str(chunk.get('testo') or '')[:plot_chars]}"
+
+
+def rerank_llm_request(request, wanted, avoid, chunks, model, openai_client=None):
+    """List-wise LLM rerank for "like X, not like Y": the model knows the cited films, which a cross-encoder given
+    a description cannot use as a contrast. Candidates are ranked best to worst; unlisted ones keep their order after."""
+    elenco = "\n".join(_candidate_line(i, chunk) for i, chunk in enumerate(chunks))
+    instructions = (
+        "You rank candidate films for a recommendation request. Use your own knowledge of the films named in the request. "
+        "Best = clearly the same kind of story and experience as the film the user likes AND clearly unlike what they want to avoid. "
+        "Penalise candidates that resemble the film to avoid, its franchise, tone or style. Never prefer a candidate because it is famous. "
+        "Return ALL candidate indices, best first, each once."
+    )
+    prompt = f"Request: {request}\nWanted (English): {wanted}\nAvoid (English): {avoid}\n\nCandidates:\n{elenco}"
+    active_client = openai_client or _default_client()
+    risposta = active_client.responses.parse(model=model, instructions=instructions, input=prompt, text_format=Ordine)
+    ordine = []
+    for i in risposta.output_parsed.indici:
+        if 0 <= i < len(chunks) and i not in ordine:
+            ordine.append(i)
+    ordine += [i for i in range(len(chunks)) if i not in ordine]
+    return [{**chunks[i], "score": float(len(chunks) - position)} for position, i in enumerate(ordine)]
+
+
 class Ordine(BaseModel):
     """Indices of chunks ordered from most to least relevant."""
     indici: list[int]

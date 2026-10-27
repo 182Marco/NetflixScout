@@ -14,13 +14,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_config_has_exactly_the_three_public_settings() -> None:
     assert set(app_module.CONFIG["tmdb"]) == {"max_results", "max_calls_per_turn", "cache_ttl"}
-    assert load_tmdb_config(app_module.CONFIG["tmdb"]) == TmdbConfig(max_results=5, max_calls_per_turn=6, cache_ttl=3600)
+    assert load_tmdb_config(app_module.CONFIG["tmdb"]) == TmdbConfig(max_results=5, max_calls_per_turn=10, cache_ttl=3600)
 
 
 def test_overrides_are_deep_merged_and_validated() -> None:
     merged = app_module.build_runtime_config({"tmdb": {"max_results": 3}})
 
-    assert load_tmdb_config(merged["tmdb"]).model_dump() == {"max_results": 3, "max_calls_per_turn": 6, "cache_ttl": 3600}
+    assert load_tmdb_config(merged["tmdb"]).model_dump() == {"max_results": 3, "max_calls_per_turn": 10, "cache_ttl": 3600}
     assert app_module.CONFIG["tmdb"]["max_results"] == 5
 
 

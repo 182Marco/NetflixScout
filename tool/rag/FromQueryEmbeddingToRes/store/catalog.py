@@ -77,6 +77,7 @@ class Candidate:
     cast: tuple[str, ...]
     tmdb_id: int | None
     via_alternative: bool = False
+    title: str = ""  # the corpus title as written (articles kept): tells "Contact" from "The Contact"
 
 
 @dataclass(frozen=True)
@@ -142,6 +143,18 @@ def cast_overlap(record_cast: Sequence[str], candidate_cast: Sequence[str]) -> b
     return bool(mine & theirs)
 
 
+def _narrow(record: CatalogRecord, kept: list[tuple["Candidate", int | None]]) -> list[tuple["Candidate", int | None]]:
+    """Several corpus films collapse to the same normalised title and year. Two facts the corpus can confirm tell them
+    apart: the title exactly as written (articles kept) and, failing that, an actor in common. Anything else stays ambiguous."""
+    wanted = {str(t).strip().casefold() for t in (record.title, record.original_title) if t}
+    exact = [item for item in kept if item[0].title.strip().casefold() in wanted]
+    if len(exact) == 1:
+        return exact
+    pool = exact or kept
+    shared = [item for item in pool if cast_overlap(record.cast, item[0].cast) is True]
+    return shared if len(shared) == 1 else kept
+
+
 def decide_link(record: CatalogRecord, candidates: Sequence[Candidate]) -> LinkDecision:
     """Insert, link to one CMU point, or refuse (never insert when a candidate exists).
 
@@ -158,6 +171,8 @@ def decide_link(record: CatalogRecord, candidates: Sequence[Candidate]) -> LinkD
             kept.append((cand, delta))
     if not kept:
         return LinkDecision("insert")
+    if len(kept) > 1:
+        kept = _narrow(record, kept)
     if len(kept) > 1:
         return LinkDecision("ambiguous", reason="several_candidates")
     cand, delta = kept[0]
@@ -235,7 +250,8 @@ class CatalogStore:
                 else year_int(payload.get("release_year")),
                 cast=tuple(n.strip() for n in str(payload.get("cast") or "").split(";") if n.strip()),
                 tmdb_id=payload.get("tmdb_id") if isinstance(payload.get("tmdb_id"), int) else None,
-                via_alternative=payload.get("title_norm", "") not in main))
+                via_alternative=payload.get("title_norm", "") not in main,
+                title=str(payload.get("title") or "")))
         return found
 
     # -- the one entry point

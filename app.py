@@ -20,6 +20,7 @@ from tool.rag.FromQueryEmbeddingToRes.embeddings import embed
 from tool.rag.FromQueryEmbeddingToRes.hybrid import invalidate_bm25
 from tool.rag.FromQueryEmbeddingToRes.query_classifier.query_classifier import classify_query_domain
 from tool.rag.FromQueryEmbeddingToRes.runtime import _resolve_runtime_config
+from tool.rag.FromQueryEmbeddingToRes.reference_flow import ReferenceFlow
 from tool.rag.FromQueryEmbeddingToRes.store.catalog import CatalogRecord, CatalogStore
 from tool.rag.FromQueryEmbeddingToRes.store.collection import QdrantUnavailable
 from tool.rag.FromQueryEmbeddingToRes.models import RerankBackend, SearchMode
@@ -27,7 +28,7 @@ from tool.rag.FromQueryEmbeddingToRes.tool_interface import RagTool
 from tool.rag.FromQueryEmbeddingToRes.vectorstore import apri_collection
 from tool.tmdb.config import load_tmdb_config
 from tool.tmdb.enrich import TmdbRagEnricher
-from tool.tmdb.film_record import read_film_record
+from tool.tmdb.film_record import read_film, read_film_record
 from tool.tmdb.operations.resolve import ALTERNATIVE_TITLE_MATCH
 from tool.tmdb.tool import TmdbTool
 from tool.tmdb.work_type import TmdbWorkTypeChecker
@@ -364,7 +365,15 @@ CONFIG = {
             "backend": RerankBackend.cohere,
             "cohere_model": "rerank-v3.5",
             "llm_model": "gpt-5.6-luna",
+            # "Like X, not like Y" (measured 2026-10-26 on 40 questions: good films 0.44 -> 0.78): when the parser finds
+            # something to avoid, the candidate pool grows to `avoid_pool` and an LLM that knows the cited films ranks it
+            # instead of Cohere. Falls back to Cohere on any LLM error.
+            "avoid_llm": True,
+            "avoid_pool": 50,
         },
+        # Query parser options. avoid_query: the parser puts what to avoid in its own field instead of
+        # inside the embedded sentence (an embedding of "without X" is close to X).
+        "signals": {"avoid_query": True, "reference_titles": True},
         "generation": {
             "model": "gpt-5.6-luna",
             "instructions": (
@@ -381,30 +390,30 @@ CONFIG = {
             "backend": "openai",
             "model": "text-embedding-3-small",
         },
-        # "Like X, not like Y" (Qdrant engine only). Off until an A/B decides whether any strategy
-        # beats the plain search enough (docs/qdrant_migration/protocol.md); not read by the
-        # orchestrator yet.
+        # Movies cited as references of closeness / distance (see docs/qdrant_migration/reference_embeddings_report.md).
         "reference": {
-            "enabled": False,
-            "strategy": None,  # average_vector | best_score, set by the A/B outcome
-            "max_positive": 3,
-            "max_negative": 3,
-            "text_repeat": 1,
+            # Movies cited as "like X" / "not like Y" get a REAL vector (from the index, or from their TMDb plot, embedded
+            # once and kept in Qdrant) that steers the Qdrant search. Needs `signals.reference_titles` and a writable Qdrant
+            # (mode server or embedded).
+            "enabled": True,
+            "strategy": "best_score",  # best_score (default: nominally best of those tried, not statistically distinguishable) | average_vector
+            "max_positive": 2,
+            "max_negative": 2,
+            "text_repeat": 1,  # how many times the query vector enters the positive examples
+            "persist": True,  # write the plot vector of a new movie to the index
+            "refresh_days": 180,  # re-read a stored TMDb plot older than this (best effort); 0 = never
+            "max_lookups_per_turn": 4,  # TMDb reads (new movies and refreshes) per turn
         },
+        # Qdrant is the only vector store. `mode` is server (the Qdrant server at `url`, started with
+        # scripts/start_qdrant.sh) | embedded (a folder, one process at a time) | memory (tests only); the embedding
+        # model is injected from CONFIG["rag"]["embedding"].
         "vectorstore": {
             "collection": "netflix_scout",
-            "db_dir": None,
-            # `engine` is qdrant | chroma. Qdrant is the default (migrated 2026-10; needs the Qdrant server on `url`);
-            # VECTORSTORE_ENGINE=chroma goes back to the old Chroma folder, which is kept for that and for the
-            # migration tools. Qdrant `mode` is embedded | memory | server; the embedding model is injected
-            # from CONFIG["rag"]["embedding"].
-            "engine": "qdrant",
             "qdrant": {"mode": "server", "path": None, "url": "http://127.0.0.1:6333"},
         },
     },
     # Movies a user cites that the plot index lacks can be read from TMDb and added to Qdrant.
-    # Off in development; on only after the calibration in docs/qdrant_migration. Needs
-    # rag.vectorstore.engine = qdrant with mode embedded or server (never memory).
+    # Off: not calibrated (docs/qdrant_migration/catalog). Needs rag.vectorstore.qdrant.mode embedded or server.
     "catalog": {"enabled": False},
     "movie_db": {
         "enabled": True,
@@ -444,7 +453,9 @@ CONFIG = {
     # Only these three: timeouts, cache size and context limits are internal to tool/tmdb/.
     "tmdb": {
         "max_results": 5,
-        "max_calls_per_turn": 6,
+        # 10 (was 6): a movie cited as a reference that the index lacks costs 2 calls (search + details) before the
+        # search; the enrichment of the 3 final candidates still needs up to 6.
+        "max_calls_per_turn": 10,
         "cache_ttl": 3600,
     },
     # Only these two: the search quota of the Google project is 100 search.list calls a day.
@@ -495,24 +506,21 @@ CATALOG_QDRANT_TIMEOUT = 10  # seconds per Qdrant call of the catalog
 CATALOG_MODES = ("embedded", "server")  # memory loses the films at exit
 
 
-def build_catalog_enricher(runtime_config: dict[str, Any], tmdb_tool: TmdbTool) -> CatalogEnricher:
-    """The `tmdb_search` enricher that writes verified movies to the Qdrant catalog.
+def _catalog_parts(runtime_config: dict[str, Any], purpose: str = "catalog.enabled"):
+    """`(collection, CatalogStore, embed_text)` on the Qdrant index, or a ValueError saying why it cannot be written.
 
-    Refuses to start when the setting cannot work: another engine, a volatile store, or an
-    embedding other than the one the index was built with.
-    """
+    Shared by the catalog enricher and the reference-film flow: same store, same embedding (timeout, no retry)."""
     rag = _resolve_runtime_config(runtime_config["rag"])
     store_config = rag["vectorstore"]
     qdrant = store_config.get("qdrant") or {}
-    if store_config.get("engine") != "qdrant" or qdrant.get("mode") not in CATALOG_MODES:
+    if qdrant.get("mode") not in CATALOG_MODES:
         raise ValueError(
-            "catalog.enabled needs rag.vectorstore.engine='qdrant' with mode 'embedded' or 'server' "
-            "(set VECTORSTORE_ENGINE=qdrant): Chroma and an in-memory store cannot keep the films."
+            f"{purpose} needs rag.vectorstore.qdrant.mode 'embedded' or 'server': an in-memory store cannot keep the films."
         )
     embedding = rag["embedding"]
     if embedding["backend"] != "openai":
-        raise ValueError("catalog.enabled needs the openai embedding the index was built with")
-    collection = apri_collection(store_config["collection"], db_dir=store_config["db_dir"], store_config=store_config)
+        raise ValueError(f"{purpose} needs the openai embedding the index was built with")
+    collection = apri_collection(store_config["collection"], store_config=store_config)
     store = collection.store
     catalog = CatalogStore(store.client, store.collection, store.meta.model, store.meta.dimension,
                            timeout=CATALOG_QDRANT_TIMEOUT)
@@ -521,6 +529,17 @@ def build_catalog_enricher(runtime_config: dict[str, Any], tmdb_tool: TmdbTool) 
     def embed_text(text: str) -> list[float]:
         return list(embed([text], embedding["backend"], embedding["model"], timeout=CATALOG_EMBED_TIMEOUT)[0])
 
+    return collection, catalog, embed_text
+
+
+def build_catalog_enricher(runtime_config: dict[str, Any], tmdb_tool: TmdbTool) -> CatalogEnricher:
+    """The `tmdb_search` enricher that writes verified movies to the Qdrant catalog.
+
+    Refuses to start when the setting cannot work: a volatile store, or an embedding other than the one the index
+    was built with.
+    """
+    collection, catalog, embed_text = _catalog_parts(runtime_config)
+    store = collection.store
     return CatalogEnricher(
         read_record=lambda tmdb_id, turn_id: read_film_record(tmdb_tool, tmdb_id, turn_id=turn_id),
         sync=lambda record: catalog.sync(CatalogRecord(**record), embed_text),
@@ -531,11 +550,47 @@ def build_catalog_enricher(runtime_config: dict[str, Any], tmdb_tool: TmdbTool) 
     )
 
 
+def build_reference_flow_provider(runtime_config: dict[str, Any], tmdb_tool: TmdbTool):
+    """A callable returning the `ReferenceFlow` (built on first use), or None when it cannot work.
+
+    Built lazily so that starting the application does not need Qdrant or TMDb; a failure is remembered for the
+    process (the search then goes on with the description alone and the trace says why)."""
+    state: dict[str, Any] = {}
+
+    def provider() -> ReferenceFlow | None:
+        if "flow" in state:
+            return state["flow"]
+        settings = runtime_config["rag"].get("reference") or {}
+        try:
+            collection, catalog, embed_text = _catalog_parts(runtime_config, "rag.reference")
+        except ValueError:
+            state["flow"] = None
+            return None
+        store = collection.store
+        state["flow"] = ReferenceFlow(
+            store=store,
+            catalog=catalog,
+            read_film=lambda **kw: read_film(tmdb_tool, **kw),
+            embed_text=embed_text,
+            strategy=settings.get("strategy") or "best_score",
+            text_repeat=int(settings.get("text_repeat") or 1),
+            max_positive=int(settings.get("max_positive") or 2),
+            max_negative=int(settings.get("max_negative") or 2),
+            max_lookups=int(settings.get("max_lookups_per_turn") or 4),
+            refresh_days=int(settings.get("refresh_days") or 0),
+            persist=bool(settings.get("persist", True)),
+            invalidate=lambda: invalidate_bm25(store.collection),
+        )
+        return state["flow"]
+
+    return provider
+
+
 def build_app(overrides: dict[str, Any] | None = None) -> dict[str, Any]:
     runtime_config = build_runtime_config(overrides)
-    tools = [RagTool(config=runtime_config["rag"])]
     movie_db_config = load_movie_db_config(runtime_config["movie_db"])
     tmdb_tool = TmdbTool(config=load_tmdb_config(runtime_config["tmdb"]))
+    tools = [RagTool(config=runtime_config["rag"], reference_flow=build_reference_flow_provider(runtime_config, tmdb_tool))]
     if movie_db_config.enabled:
         # Series are dropped from MovieLens rankings by checking the type on TMDb.
         tools.append(MovieDbTool(config=movie_db_config, work_type_checker=TmdbWorkTypeChecker(tool=tmdb_tool)))
@@ -560,19 +615,12 @@ def build_app(overrides: dict[str, Any] | None = None) -> dict[str, Any]:
 
 
 def ensure_collection_ready(runtime_rag: dict[str, Any]) -> None:
-    collection = apri_collection(
-        runtime_rag["vectorstore"]["collection"],
-        db_dir=runtime_rag["vectorstore"]["db_dir"],
-        store_config=runtime_rag["vectorstore"],
-    )
+    collection = apri_collection(runtime_rag["vectorstore"]["collection"], store_config=runtime_rag["vectorstore"])
     if collection.count() == 0:
-        if runtime_rag["vectorstore"].get("engine") == "qdrant":
-            raise RuntimeError(
-                "The Qdrant collection is empty. Run `python -m tool.rag.EmbeddingProcess.migrate_chroma_to_qdrant "
-                "--chroma-dir <copy of the Chroma index> --url <server> --run-dir <folder>` before querying."
-            )
         raise RuntimeError(
-            "Collection is empty. Run `python buildSemanticDb.py --embedding-backend <backend>` before querying."
+            "The Qdrant collection is empty. Build the index with "
+            "`python buildSemanticDb.py --qdrant-mode server --qdrant-url <server> --collection <new name>` "
+            "(it creates a NEW collection) and point rag.vectorstore.collection at it."
         )
 
 
@@ -690,38 +738,27 @@ def handle_query(
     )
 
 
-ENV_VECTOR_ENGINE = "VECTORSTORE_ENGINE"  # chroma (default) | qdrant
 ENV_QDRANT_MODE = "VECTORSTORE_QDRANT_MODE"  # server (default) | embedded | memory
 ENV_QDRANT_URL = "VECTORSTORE_QDRANT_URL"
 ENV_QDRANT_PATH = "VECTORSTORE_QDRANT_PATH"
-VECTOR_ENGINES = ("chroma", "qdrant")
 
 
 def vector_store_overrides(env: Mapping[str, str] | None = None) -> dict[str, Any]:
-    """Deployment choice of the vector engine from the environment, as `build_runtime_config`
-    overrides. Unset or empty means the defaults of `CONFIG` (Qdrant; `VECTORSTORE_ENGINE=chroma` goes back to Chroma). The Qdrant API key is not
-    handled here: `store.collection` is its only reader."""
+    """Where the Qdrant index lives, from the environment, as `build_runtime_config` overrides. Unset or empty
+    means the defaults of `CONFIG` (server at http://127.0.0.1:6333). The Qdrant API key is not handled here:
+    `store.collection` is its only reader."""
     source = os.environ if env is None else env
-    engine = (source.get(ENV_VECTOR_ENGINE) or "").strip().lower()
-    if not engine:
-        return {}
-    if engine not in VECTOR_ENGINES:
-        raise ValueError(f"{ENV_VECTOR_ENGINE}={engine!r} is not valid: use one of {VECTOR_ENGINES}")
-    vectorstore: dict[str, Any] = {"engine": engine}
-    if engine == "qdrant":
-        qdrant = {key: value.strip() for key, name in (("mode", ENV_QDRANT_MODE), ("url", ENV_QDRANT_URL),
-                                                         ("path", ENV_QDRANT_PATH))
-                  if (value := source.get(name)) and value.strip()}
-        if qdrant:
-            vectorstore["qdrant"] = qdrant
-    return {"rag": {"vectorstore": vectorstore}}
+    qdrant = {key: value.strip() for key, name in (("mode", ENV_QDRANT_MODE), ("url", ENV_QDRANT_URL),
+                                                     ("path", ENV_QDRANT_PATH))
+              if (value := source.get(name)) and value.strip()}
+    return {"rag": {"vectorstore": {"qdrant": qdrant}}} if qdrant else {}
 
 
 def build_ready_app(overrides: dict[str, Any] | None = None, env: Mapping[str, str] | None = None) -> dict[str, Any]:
     """`build_app` plus the startup checks every entry point needs: it fails with an
     operational message if the vector collection or the MovieLens database is missing.
 
-    The vector engine comes from the environment (`vector_store_overrides`); explicit `overrides`
+    The Qdrant location comes from the environment (`vector_store_overrides`); explicit `overrides`
     win over it. Both `python app.py` and the web API start here, so they always agree."""
     app = build_app(_deep_merge(vector_store_overrides(env), overrides))
     runtime_rag = _resolve_runtime_config(app["config"]["rag"])

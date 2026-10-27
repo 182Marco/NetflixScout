@@ -207,21 +207,21 @@ def test_negative_only_still_has_the_text_as_positive(col):
     assert got and "Love Story" not in [r["title"] for r in got]
 
 
-def test_chroma_style_collection_refuses_reference_search(col):
+def test_a_collection_that_cannot_recommend_refuses_reference_search(col):
     class NoRecommend:
         def query(self, **kw):
             raise AssertionError("not reached")
 
-    with pytest.raises(RuntimeError, match="Qdrant engine"):
+    with pytest.raises(RuntimeError, match="can `recommend`"):
         vectorstore.embed = lambda texts, backend=None, model=None: np.array([_vec(1)], dtype=np.float32)
         vectorstore.search(NoRecommend(), "q", 3, backend="local", model="m", references=_refs(col, like=[("Star Hero",)]))
 
 
-def test_reference_config_is_off_by_default():
+def test_reference_config_defaults():
     from app import CONFIG
     ref = CONFIG["rag"]["reference"]
-    assert ref["enabled"] is False and ref["strategy"] is None
-    assert (ref["max_positive"], ref["max_negative"], ref["text_repeat"]) == (3, 3, 1)
+    assert ref["enabled"] is True and ref["strategy"] == "best_score"
+    assert (ref["max_positive"], ref["max_negative"], ref["text_repeat"]) == (2, 2, 1)
 
 
 def test_empty_reference_set_dataclass():

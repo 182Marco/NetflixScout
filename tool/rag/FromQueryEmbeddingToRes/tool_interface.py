@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from turn import OUTCOME_EMPTY, OUTCOME_OK, tool_outcome
+from turn import OUTCOME_EMPTY, OUTCOME_OK, TOOL_PARAM_TURN_ID, tool_outcome
 
 from .constraints import constraint_summary
 from .models import RagToolInput
@@ -26,6 +26,8 @@ class RagTool:
         default_factory=lambda: RagToolInput.model_json_schema()
     )
     config: dict[str, Any] = field(default_factory=dict)
+    # Builds (lazily) the flow that gives real vectors to the movies cited as references; injected by `app.py`.
+    reference_flow: Any = None
 
     def run(
         self,
@@ -46,7 +48,10 @@ class RagTool:
         # configured limits; unusable values fall back to the defaults and never fail the turn.
         retrieval, overridden = resolve_retrieval(self.config.get("retrieval") or {}, arguments)
         call_config = {**self.config, "retrieval": retrieval}
-        result = run_rag(config=call_config, query=payload.query, history=conversation_history, query_hint=hint)
+        result = run_rag(
+            config=call_config, query=payload.query, history=conversation_history, query_hint=hint,
+            reference_flow=self.reference_flow, turn_id=arguments.get(TOOL_PARAM_TURN_ID),
+        )
 
         chunks = [chunk.model_dump(mode="json") for chunk in result.chunks]
 
@@ -62,6 +67,7 @@ class RagTool:
                 # The prompt gets one readable line per film and constraint; the full report
                 # (statuses, evidence) stays in the trace.
                 **({"constraints_summary": constraint_summary(result.constraints)} if result.constraints else {}),
+                **({"references_summary": result.references["summary"]} if result.references.get("summary") else {}),
             },
             # Procedure steps for the presenters (same shape as turn.TraceStep).
             # Kept outside "metadata": the orchestrator puts metadata in the LLM prompt.
@@ -83,6 +89,7 @@ class RagTool:
                         "planner_query": planner_query or None,
                         "embedded_text": result.embedded_text,
                         "signals": result.signals.model_dump(mode="json") if result.signals else None,
+                        "references": result.references or None,
                         "chunks": [c.model_dump(mode="json") for c in result.candidates],
                     },
                 },

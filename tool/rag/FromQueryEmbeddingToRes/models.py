@@ -30,6 +30,14 @@ class RagChunk(BaseModel):
     cast: str | None = None
 
 
+class ReferenceTitle(BaseModel):
+    """A movie the user cites as a model ("like X") or as a contrast ("not like Y")."""
+
+    title: str
+    # Release year, only when the parser is sure of it (it tells homonyms apart); null otherwise.
+    year: int | None = None
+
+
 class QuerySignals(BaseModel):
     """Structured retrieval intent extracted from a user query."""
 
@@ -38,6 +46,12 @@ class QuerySignals(BaseModel):
     hard_exclusions: list[str] = Field(default_factory=list)
     # English sentence embedded for semantic search (the corpus is English plot summaries).
     semantic_query: str = ""
+    # English sentence on the themes and tone the user wants to AVOID or be different from (the movie
+    # cited as "not like Y", described in plain words). Filled only when `rag.signals.avoid_query` is on.
+    avoid_query: str = ""
+    # Movies cited as references of closeness / distance (filled only when `rag.signals.reference_titles` is on).
+    like_titles: list[ReferenceTitle] = Field(default_factory=list)
+    avoid_titles: list[ReferenceTitle] = Field(default_factory=list)
     # Requested genres, in the corpus vocabulary (e.g. "Science Fiction").
     genres: list[str] = Field(default_factory=list)
     # Genres the user rules out ("senza fantascienza"), same vocabulary: checked on the
@@ -60,6 +74,8 @@ class RagResult(BaseModel):
     rerank_query: str | None = None
     # Status of each extracted constraint on the final chunks (`constraints.constraint_report`).
     constraints: dict[str, Any] = Field(default_factory=dict)
+    # Reference films ("like X, not like Y"): what was resolved, where each vector came from, whether the search was steered.
+    references: dict[str, Any] = Field(default_factory=dict)
 
 
 class RagToolInput(BaseModel):

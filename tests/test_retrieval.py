@@ -10,7 +10,7 @@ QUERY = "Consigliami 3 dei migliori film di fantascienza che hanno fatto la stor
 
 
 class FakeCollection:
-    """Chroma-like collection returning fixed results ordered by distance."""
+    """Collection returning fixed results ordered by distance."""
 
     def __init__(self, rows: list[dict]) -> None:
         self.rows = rows
@@ -117,7 +117,7 @@ def test_retrieve_passes_fetch_k_genres_and_semantic_query(monkeypatch) -> None:
     config = {
         "retrieval": {"search_mode": SearchMode.semantic, "k_largo": 10, "k_finale": 3, "fetch_k": 50, "genre_boost": 0.15},
         "embedding": {"backend": "openai", "model": "m"},
-        "vectorstore": {"collection": "c", "db_dir": "x"},
+        "vectorstore": {"collection": "c"},
     }
     signals = QuerySignals(
         positive_signals=["science fiction"],
@@ -140,7 +140,7 @@ def test_retrieve_without_fetch_k_keeps_the_old_pool_size(monkeypatch) -> None:
     config = {
         "retrieval": {"search_mode": SearchMode.semantic, "k_largo": 10, "k_finale": 3},
         "embedding": {"backend": "openai", "model": "m"},
-        "vectorstore": {"collection": "c", "db_dir": "x"},
+        "vectorstore": {"collection": "c"},
     }
 
     retrieval._retrieve(QUERY, config, signals=QuerySignals())
@@ -165,7 +165,7 @@ def test_hybrid_keyword_search_uses_the_english_semantic_query(monkeypatch) -> N
     config = {
         "retrieval": {"search_mode": SearchMode.hybrid, "k_largo": 10, "k_finale": 3, "rrf_costante": 60},
         "embedding": {"backend": "openai", "model": "m"},
-        "vectorstore": {"collection": "c", "db_dir": "x"},
+        "vectorstore": {"collection": "c"},
     }
 
     results = retrieval._retrieve(
@@ -202,16 +202,16 @@ def test_run_rag_returns_signals_and_embedded_text(monkeypatch) -> None:
     monkeypatch.setattr(pipeline, "_build_signal_aware_query", lambda query, config, hint=None: signals)
     received: dict = {}
 
-    def fake_retrieve(query, config, signals=None):
+    def fake_retrieve(query, config, signals=None, references=None):
         received["signals"] = signals
         return []
 
     monkeypatch.setattr(pipeline, "_retrieve", fake_retrieve)
-    monkeypatch.setattr(pipeline, "_rerank", lambda query, chunks, config, signals=None: [])
+    monkeypatch.setattr(pipeline, "_rerank", lambda query, chunks, config, signals=None, request=None: [])
     config = {
         "retrieval": {"search_mode": SearchMode.semantic},
         "rerank": {"backend": RerankBackend.cohere},
-        "vectorstore": {"collection": "c", "db_dir": "x"},
+        "vectorstore": {"collection": "c"},
     }
 
     result = pipeline.run_rag(config=config, query=QUERY)
@@ -226,10 +226,10 @@ def _run_rag_with(monkeypatch, signals, retrieved):
     monkeypatch.setattr(pipeline, "_resolve_runtime_config", lambda config: config)
     monkeypatch.setattr(pipeline, "apri_collection", lambda *a, **k: FakeCollection(ROWS))
     monkeypatch.setattr(pipeline, "_build_signal_aware_query", lambda query, config, hint=None: signals)
-    monkeypatch.setattr(pipeline, "_retrieve", lambda query, config, signals=None: retrieved)
+    monkeypatch.setattr(pipeline, "_retrieve", lambda query, config, signals=None, references=None: retrieved)
     sent: dict = {}
 
-    def fake_rerank(query, chunks, config, signals=None):
+    def fake_rerank(query, chunks, config, signals=None, request=None):
         sent["query"] = query
         return chunks
 
@@ -237,7 +237,7 @@ def _run_rag_with(monkeypatch, signals, retrieved):
     config = {
         "retrieval": {"search_mode": SearchMode.semantic},
         "rerank": {"backend": RerankBackend.cohere},
-        "vectorstore": {"collection": "c", "db_dir": "x"},
+        "vectorstore": {"collection": "c"},
     }
     return pipeline.run_rag(config=config, query="Mare dentro mi ha colpito. Temi simili?"), sent["query"]
 
@@ -294,7 +294,7 @@ def test_rag_tool_keeps_the_user_query_and_passes_the_planner_rewrite_as_a_hint(
     """Real case 13 (v3): a vague planner rewrite must not replace the user's request."""
     received: dict = {}
 
-    def fake_run_rag(*, config, query, history=None, query_hint=None):
+    def fake_run_rag(*, config, query, history=None, query_hint=None, **kwargs):
         received.update(query=query, hint=query_hint)
         return pipeline.RagResult(query=query, search_mode=SearchMode.semantic, rerank_backend=RerankBackend.cohere,
                                   chunks=[], rerank_query="themes", constraints={"x": 1})
@@ -317,7 +317,7 @@ def test_rag_tool_keeps_the_user_query_and_passes_the_planner_rewrite_as_a_hint(
 def test_rag_tool_applies_the_planner_retrieval_params_to_a_copy_of_the_config(monkeypatch) -> None:
     seen: dict = {}
 
-    def fake_run_rag(*, config, query, history=None, query_hint=None):
+    def fake_run_rag(*, config, query, history=None, query_hint=None, **kwargs):
         seen.update(config["retrieval"])
         return pipeline.RagResult(query=query, search_mode=config["retrieval"]["search_mode"],
                                   rerank_backend=RerankBackend.cohere, chunks=[])

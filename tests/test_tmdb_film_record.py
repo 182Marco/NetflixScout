@@ -73,3 +73,52 @@ def test_the_call_spends_the_turn_budget_and_a_repeat_is_free():
     ctx = other_tool.new_context(other_tool._credentials(), api_language="en-US", turn_id="t")
     ctx.budget.try_reserve()
     assert read_film_record(other_tool, MOVIE_ID, turn_id="t") == (None, "call_limit_reached")
+
+
+# ---- read_film: a movie by title (+ year) with a verified identity, or by id
+from tmdb_support import search_movie_payload  # noqa: E402
+
+from tool.tmdb.film_record import read_film  # noqa: E402
+
+
+def routes(**extra):
+    return {"/search/movie": search_movie_payload(), f"/movie/{MOVIE_ID}": details(), **extra}
+
+
+def test_read_film_by_title_and_year_resolves_reads_and_counts_its_calls():
+    tool, transport = make_tool(routes())
+    got = read_film(tool, title="Interstellar", year=2014, turn_id="t", now_ms=lambda: 7)
+    assert got.reason == "" and got.tmdb_id == MOVIE_ID and got.record["overview"] == LONG and got.record["fetched_ts"] == 7
+    assert got.calls == 2 and transport.paths == ["/search/movie", f"/movie/{MOVIE_ID}"]
+    assert transport.params("/search/movie")["language"] == "en-US"
+
+
+def test_read_film_refuses_equally_good_homonyms_instead_of_picking_one():
+    tool, transport = make_tool(routes())
+    got = read_film(tool, title="Interstellar", year=None)
+    assert got.record is None and got.reason == "unverified_match:ambiguous" and f"/movie/{MOVIE_ID}" not in transport.paths
+
+
+def test_read_film_with_a_wrong_title_or_year_is_not_a_match():
+    tool, _ = make_tool(routes())
+    assert read_film(tool, title="Totally Different", year=2014).reason.startswith("unverified_match")
+    tool, _ = make_tool(routes())
+    assert read_film(tool, title="Interstellar", year=1850).reason.startswith("unverified_match")
+
+
+def test_read_film_by_id_skips_the_search_and_reports_errors_and_adult_content():
+    tool, transport = make_tool(routes())
+    assert read_film(tool, tmdb_id=MOVIE_ID).calls == 1 and transport.paths == [f"/movie/{MOVIE_ID}"]
+    tool, _ = make_tool({f"/movie/{MOVIE_ID}": details(adult=True)})
+    assert read_film(tool, tmdb_id=MOVIE_ID).reason == "adult"
+    tool, _ = make_tool({})
+    assert read_film(tool, tmdb_id=MOVIE_ID).reason == "not_found"
+    assert read_film(tool).reason == "no_title"
+
+
+def test_read_film_respects_the_turn_budget_and_repeats_are_free():
+    tool, transport = make_tool(routes(), max_calls=2)
+    assert read_film(tool, title="Interstellar", year=2014, turn_id="t").reason == ""
+    assert read_film(tool, title="Interstellar", year=2014, turn_id="t").reason == "" and len(transport.calls) == 2
+    tool, _ = make_tool(routes(), max_calls=1)
+    assert read_film(tool, title="Interstellar", year=2014, turn_id="t").reason == "call_limit_reached"

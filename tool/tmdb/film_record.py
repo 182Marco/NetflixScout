@@ -16,9 +16,13 @@ from collections.abc import Callable
 from typing import Any
 
 from . import endpoints
-from .errors import TmdbError
+from dataclasses import dataclass
+
+from .errors import TmdbError, TmdbUnverifiedMatch
 from .http import get_json
+from .models.enums import SearchKind
 from .normalize.common import clean_text, year_of
+from .operations.resolve import resolve
 from .tool import TmdbTool
 
 CATALOG_LANGUAGE = "en-US"
@@ -105,3 +109,56 @@ def read_film_record(
     if data.get("adult") is True:
         return None, "adult"
     return record_from_details(data, fetched_ts=fetched), ""
+
+
+@dataclass(frozen=True)
+class FilmRead:
+    """Result of reading one movie: the catalog record or the reason it could not be read.
+
+    `calls` is the number of HTTP calls this read actually sent (cache and turn-memo hits are free)."""
+
+    record: dict[str, Any] | None
+    reason: str = ""
+    calls: int = 0
+    tmdb_id: int | None = None
+
+
+def read_film(
+    tool: TmdbTool,
+    *,
+    title: str | None = None,
+    year: int | None = None,
+    tmdb_id: int | None = None,
+    turn_id: str | None = None,
+    now_ms: Callable[[], int] = lambda: int(time.time() * 1000),
+) -> FilmRead:
+    """Resolve a movie by TMDb id or by title (+ year) and read its English record.
+
+    By title the identity is verified (`strict_identity`): the title or original title must be the requested
+    one and the year within +-1; several equally good works are refused (`unverified_match:ambiguous`) instead of
+    picking the most popular, so a homonym is never taken for the cited film. Same turn budget and cache as any
+    other TMDb call; reasons are TMDb error codes, `unverified_match:<why>`, `adult` or `invalid_response`.
+    """
+    ctx = None
+    try:
+        ctx = tool.new_context(tool._credentials(), api_language=CATALOG_LANGUAGE, turn_id=turn_id)
+        ctx.strict_identity = True
+        resolved_id = tmdb_id
+        if resolved_id is None:
+            if not (title and title.strip()):
+                return FilmRead(None, "no_title")
+            resolved_id = resolve(ctx, SearchKind.movie, text=title.strip(), year=year).tmdb_id
+        endpoint = endpoints.details(
+            "movie", resolved_id, language=CATALOG_LANGUAGE, appends=endpoints.MOVIE_IDENTITY_APPENDS)
+        fetched = now_ms()
+        data = get_json(ctx, endpoint)
+    except TmdbUnverifiedMatch as exc:
+        return FilmRead(None, f"unverified_match:{exc.reason}", len(ctx.recorder.calls) if ctx else 0)
+    except TmdbError as exc:
+        return FilmRead(None, exc.code, len(ctx.recorder.calls) if ctx else 0)
+    sent = len(ctx.recorder.calls)
+    if not isinstance(data, dict) or not isinstance(data.get("id"), int):
+        return FilmRead(None, "invalid_response", sent, resolved_id)
+    if data.get("adult") is True:
+        return FilmRead(None, "adult", sent, resolved_id)
+    return FilmRead(record_from_details(data, fetched_ts=fetched), "", sent, int(data["id"]))

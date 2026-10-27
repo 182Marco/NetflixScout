@@ -308,3 +308,18 @@ def test_any_recorded_release_year_can_confirm_the_candidate():
     other = record(year=1964, release_years=(1962, 1964))  # "The Dungeon of Harrow": premiere 1962
     assert decide_link(other, [cand(year=1962)]).action == "link"
     assert decide_link(record(year=1964), [cand(year=1962)]).action == "insert"
+
+
+def test_homonyms_collapsing_to_one_normalised_title_are_told_apart_by_the_written_title_or_a_shared_actor():
+    exact = Candidate(point_id="a", title_norm="contact", year=1997, cast=(), tmdb_id=None, title="Contact")
+    other = Candidate(point_id="b", title_norm="contact", year=1997, cast=(), tmdb_id=None, title="The Contact")
+    rec = record(title="Contact", year=1997)
+    decision = decide_link(rec, [other, exact])
+    assert decision.action == "link" and decision.target.point_id == "a"
+    # no exact title: one actor in common decides, none or two do not
+    a = Candidate(point_id="a", title_norm="x", year=1997, cast=(A, "Z Z"), tmdb_id=None, title="X One")
+    b = Candidate(point_id="b", title_norm="x", year=1997, cast=("Q Q",), tmdb_id=None, title="X Two")
+    assert decide_link(record(title="X", year=1997, cast=(A,)), [a, b]).target.point_id == "a"
+    assert decide_link(record(title="X", year=1997, cast=("N N",)), [a, b]).reason == "several_candidates"
+    twin = Candidate(point_id="c", title_norm="x", year=1997, cast=(A,), tmdb_id=None, title="X Three")
+    assert decide_link(record(title="X", year=1997, cast=(A,)), [a, twin]).reason == "several_candidates"

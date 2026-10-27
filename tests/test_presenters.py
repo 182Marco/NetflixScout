@@ -14,7 +14,7 @@ def _chunk(idx: int, title: str) -> RagChunk:
     return RagChunk(id=f"c{idx}", testo=f"trama {idx}", score=0.9 - idx / 10, title=title, release_year="1999")
 
 
-def _fake_run_rag(*, config, query, history=None, query_hint=None) -> RagResult:
+def _fake_run_rag(*, config, query, history=None, query_hint=None, **kwargs) -> RagResult:
     return RagResult(
         query=query,
         search_mode=SearchMode.semantic,

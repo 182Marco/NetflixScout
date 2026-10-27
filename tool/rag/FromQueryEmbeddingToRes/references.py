@@ -10,7 +10,8 @@ from dataclasses import dataclass, field
 
 from .store import norm_title, year_int
 
-STATUSES = ("resolved", "ambiguous", "not_in_index", "estimated", "ignored_over_limit")
+# no_plot: the film was found but no usable English plot exists (no embedding made); unavailable: a source failed
+STATUSES = ("resolved", "ambiguous", "not_in_index", "estimated", "ignored_over_limit", "duplicate", "no_plot", "unavailable")
 YEAR_WINDOW = 1
 
 
@@ -34,6 +35,8 @@ class ResolvedReference:
     candidates: list[dict] = field(default_factory=list)
     vector: list[float] | None = field(default=None, repr=False)
     homonym_movie_ids: list[str] = field(default_factory=list)
+    # How the vector was obtained (external calls, embedding created, catalog outcome, reason): shown in the trace.
+    detail: dict = field(default_factory=dict)
 
     def trace(self) -> dict:
         """What a presenter may show: never a vector."""
@@ -42,8 +45,12 @@ class ResolvedReference:
             out["source"] = self.source
         if self.status == "resolved":
             out.update(matched_title=self.matched_title, matched_year=self.matched_year, movie_id=self.movie_id)
+        if self.status == "resolved":
+            out["legacy_id"] = self.legacy_id
         if self.candidates:
             out["candidates"] = [{k: c.get(k) for k in ("title", "release_year", "movie_id")} for c in self.candidates]
+        if self.detail:
+            out["detail"] = dict(self.detail)
         return out
 
 
@@ -60,8 +67,16 @@ class ReferenceSet:
 
     @property
     def active(self) -> bool:
-        """Steering happens only if at least one reference gave a real vector."""
-        return bool(self.usable)
+        """Steering happens only if at least one POSITIVE reference gave a real vector.
+
+        A search steered by a negative example alone ("the query minus Y") drifts away from Y without anything to
+        approach and was measured to make the results worse; without a positive vector the plain search runs instead."""
+        return any(e.role == "positive" for e in self.usable)
+
+    @property
+    def negative_only(self) -> bool:
+        """A negative vector exists but no positive one: the safe fallback (plain search) applies."""
+        return bool(self.usable) and not self.active
 
     def positives(self) -> list[list[float]]:
         return [e.vector for e in self.usable if e.role == "positive"]
@@ -79,7 +94,8 @@ class ReferenceSet:
 
     def excluded_titles(self) -> list[tuple[str, int | None]]:
         """Title-based exclusion for references with no index point (not_in_index / estimated)."""
-        return [(norm_title(e.title), e.year) for e in self.entries if e.status in ("not_in_index", "estimated")]
+        return [(norm_title(e.title), e.year) for e in self.entries
+                if e.status in ("not_in_index", "estimated", "no_plot", "unavailable")]
 
     def trace(self) -> dict:
         same_title = [{"reference": e.title, "title": c.get("title"), "release_year": c.get("release_year"),

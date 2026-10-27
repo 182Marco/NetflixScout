@@ -1,69 +1,17 @@
-"""Persistent vector store helpers backed by ChromaDB."""
-from pathlib import Path
+"""Access to the vector index (Qdrant) and the filters, penalties and boosts applied to its results."""
 import re
 
 from .embeddings import embed
 
-DB_ROOT = Path("dbVettoriale")
 
+def apri_collection(nome, *, store_config):
+    """Open the Qdrant collection described by `CONFIG["rag"]["vectorstore"]`.
 
-def db_dir_for_backend(backend):
-    """Return the persistent directory associated with an embedding backend."""
-    if backend not in ("openai", "local"):
-        raise ValueError(
-            f"backend {backend!r} sconosciuto: "
-            "'openai' o 'local'"
-        )
-    return DB_ROOT / backend
-
-
-def _resolve_db_dir(db_dir=None, backend=None):
-    if db_dir is not None:
-        return Path(db_dir)
-    if backend is None:
-        raise ValueError("Serve db_dir oppure backend.")
-    return db_dir_for_backend(backend)
-
-
-def apri_collection(nome, db_dir=None, backend=None, *, store_config=None):
-    """Open a persistent collection, creating it on first access (Chroma).
-
-    With `store_config["engine"] == "qdrant"` the collection is read from Qdrant instead and is
-    never created here: it must have been migrated.
+    The collection is never created here: it is built by `buildSemanticDb.py`.
     """
-    if store_config and store_config.get("engine") == "qdrant":
-        from .store.collection import open_collection
+    from .store.collection import open_collection
 
-        return open_collection(nome, store_config)
-    import chromadb  # lazy: the Qdrant engine must run without Chroma
-
-    persist_dir = _resolve_db_dir(db_dir=db_dir, backend=backend)
-    client = chromadb.PersistentClient(path=str(persist_dir))
-    return client.get_or_create_collection(
-        nome,
-        metadata={"hnsw:space": "cosine"},
-    )
-
-
-def crea_collection(nome, db_dir=None, backend=None):
-    """Create a collection from scratch, deleting an existing one if needed."""
-    import chromadb
-
-    persist_dir = _resolve_db_dir(db_dir=db_dir, backend=backend)
-    client = chromadb.PersistentClient(path=str(persist_dir))
-    if nome in [c.name for c in client.list_collections()]:
-        client.delete_collection(nome)
-    return client.create_collection(nome, metadata={"hnsw:space": "cosine"})
-
-
-def indicizza(collection, ids, testi, embeddings, metadatas=None):
-    """Upsert explicit embeddings into a Chroma collection."""
-    collection.upsert(
-        ids=ids,
-        documents=testi,
-        embeddings=embeddings,
-        metadatas=metadatas,
-    )
+    return open_collection(nome, store_config)
 
 
 def _normalize_signals(signals):
@@ -190,7 +138,7 @@ def search(
     steered = references is not None and references.active
     if steered:
         if not hasattr(collection, "recommend"):
-            raise RuntimeError("Reference search needs the Qdrant engine (vectorstore.engine = 'qdrant').")
+            raise RuntimeError("Reference search needs a collection that can `recommend` (the Qdrant adapter).")
         ris = collection.recommend(
             positive=[q] * references.text_repeat + references.positives(),
             negative=references.negatives(), n_results=requested_k, strategy=references.strategy,
