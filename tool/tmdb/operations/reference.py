@@ -50,10 +50,21 @@ def _match(wanted: str, table: dict[str, int], what: str) -> int:
     raise TmdbUnresolvedFilter(f"A {what} name in the filters could not be matched.")
 
 
+# Series have their own, shorter genre list ("Mystery", "Sci-Fi & Fantasy"; no "Thriller"), so a name
+# that exists for films may be absent for series (live check of 2026-10-27: `discover_tv` with
+# "Thriller" failed with `unresolved_filter`). Only the pairs whose meaning is the same are listed;
+# names without an equivalent still fail and the planner is told (`tool.UNRESOLVED_ERRORS`).
+TV_GENRE_ALIASES = {
+    "thriller": "mystery",
+    "science fiction": "sci fi and fantasy",
+}
+
+
 def genre_ids(ctx: TmdbContext, media: MediaType, wanted: list[str]) -> list[int]:
     data = get_json(ctx, endpoints.genre_list(media, language=REFERENCE_LANGUAGE))
     table = {normalize_name(name): genre_id for genre_id, name in _genre_table(data).items()}
-    return [_match(name, table, "genre") for name in wanted]
+    aliases = TV_GENRE_ALIASES if media is MediaType.tv else {}
+    return [_match(aliases.get(normalize_name(name), name), table, "genre") for name in wanted]
 
 
 def _providers(data: dict[str, Any]) -> list[dict[str, Any]]:

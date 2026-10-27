@@ -60,7 +60,12 @@ def _failure(query: str, error: str, **details: Any) -> dict[str, Any]:
 # Errors that mean "TMDb has nothing for this": the answer may be elsewhere, so the planner is asked
 # (`turn.RESULT_FOLLOW_UP`) instead of the turn ending on the failure. Other errors (limits, keys,
 # network) have no other place to look and are not offered.
-UNRESOLVED_ERRORS = ("not_found", "unverified_match")
+UNRESOLVED_ERRORS = ("not_found", "unverified_match", "unresolved_filter")
+
+FILTER_NAME_HINT = (
+    " Un filtro per nome (per esempio un genere) non corrisponde a niente in TMDb: i nomi dei generi "
+    "di film e serie sono diversi; controlla quelli validi con l'operazione genres (media giusto) e riprova."
+)
 
 
 def _request_label(request: Any) -> str:
@@ -80,6 +85,7 @@ def _unresolved_follow_up(requests: list[Any], outcomes: list[Any], *, empty: bo
         "TMDb non ha trovato dati per: " + (", ".join(labels) or "la richiesta") + f". Richieste risolte: {resolved}. "
         "Se l'informazione può stare altrove (un'opera, una trilogia o una serie di film che non è una raccolta "
         "TMDb, un dettaglio di trama o di struttura), scegli un altro tool con i dati già ottenuti; altrimenti ritorna done."
+        + (FILTER_NAME_HINT if any(o.error == "unresolved_filter" for o in failed) else "")
     )
     return {"available": True, "reasons": [o.error for o in failed] or ["empty"], "summary": summary}
 
