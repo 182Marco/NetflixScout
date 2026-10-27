@@ -45,7 +45,7 @@ def test_cinema_question_uses_openai_classifier(monkeypatch) -> None:
         "Dimmi il più bel film di sport che hai tra i documenti e poi dimmi quando uscirà il prossimo film di sport su un grande personaggio con budget relativamente alto"
     )
 
-    assert result == {"is_cinema": True, "is_italian": True}
+    assert result == {"is_cinema": True, "is_italian": True, "block_reply": None}
     assert captured["model"] == "gpt-4o-mini"
 
 
@@ -174,3 +174,34 @@ def test_language_markers() -> None:
     assert detect_language_markers("Chi recita in La La Land?") == "it"
     assert detect_language_markers("Who stars in La La Land?") is None  # one English marker only
     assert detect_language_markers("") is None
+
+
+def _classifier_says(monkeypatch, content: str) -> None:
+    message = type("Message", (), {"content": content})()
+    response = type("Response", (), {"choices": [type("Choice", (), {"message": message})()]})()
+    completions = type("Completions", (), {"create": staticmethod(lambda **kwargs: response)})
+    monkeypatch.setattr(
+        "tool.rag.FromQueryEmbeddingToRes.query_classifier.query_classifier.OpenAI",
+        lambda: type("Client", (), {"chat": type("Chat", (), {"completions": completions})()})(),
+    )
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ('"No respondo preguntas que no son de cine."', "No respondo preguntas que no son de cine."),
+        ("null", None),
+        ('""', None),
+        ("42", None),
+        ('"uno\\ndue"', None),
+        ('"' + "x" * 201 + '"', None),
+    ],
+)
+def test_block_reply_is_kept_only_when_it_is_one_short_line(monkeypatch, raw, expected) -> None:
+    _classifier_says(monkeypatch, '{"is_cinema": false, "is_italian": false, "block_reply": ' + raw + "}")
+    assert classify_query_domain("¿Quién ganó?")["block_reply"] == expected
+
+
+def test_a_cinema_query_has_no_block_reply(monkeypatch) -> None:
+    _classifier_says(monkeypatch, '{"is_cinema": true, "is_italian": true, "block_reply": "ignorata"}')
+    assert classify_query_domain("Consigliami un film")["block_reply"] is None

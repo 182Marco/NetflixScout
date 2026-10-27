@@ -33,8 +33,9 @@ def run_conversation_loop(
         # Lazy import avoids circular imports while keeping the shared message source in app.py.
         from app import NON_CINEMA_BLOCK_MESSAGES
 
-        language = _choose_block_language(query, classification)
-        return NON_CINEMA_BLOCK_MESSAGES[language]
+        return classification.get("block_reply") or NON_CINEMA_BLOCK_MESSAGES[
+            _choose_block_language(query, classification)
+        ]
 
     runtime_config = _resolve_runtime_config(config)
 

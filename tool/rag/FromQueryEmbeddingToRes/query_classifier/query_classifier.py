@@ -37,9 +37,16 @@ def detect_language_markers(query: str) -> str | None:
     return None
 
 
+# Longest refusal accepted from the classifier; anything else falls back to the fixed text.
+MAX_BLOCK_REPLY_CHARS = 200
+
+
 class QueryClassification(TypedDict):
     is_cinema: bool
     is_italian: bool
+    # The refusal of a non-film query, in the user's language; None when the query is about film
+    # or the model gave no usable text (the caller then uses its fixed message).
+    block_reply: str | None
 
 
 def classify_query_domain(
@@ -76,7 +83,15 @@ def classify_query_domain(
                     "is_italian si riferisce solo all'ultima query: i titoli citati nella "
                     "conversazione o nella query possono essere in altre lingue e non indicano la "
                     "lingua dell'utente. "
-                    'Ritorna solo JSON valido con le chiavi is_cinema e is_italian.'
+                    'Scrivi anche query_language: il nome inglese della lingua in cui è scritta '
+                    "l'ultima query (es. German, Spanish, Italian). "
+                    'Se is_cinema è false, scrivi anche block_reply: una sola frase secca che dice che '
+                    'rispondi solo a domande di cinema, SCRITTA NELLA LINGUA query_language '
+                    '(es. per German: "Ich beantworte nur Fragen zum Film.", per Spanish: '
+                    '"Solo respondo preguntas de cine."), senza rispondere alla domanda né spiegare. '
+                    'Se is_cinema è true, block_reply è null. '
+                    'Ritorna solo JSON valido con le chiavi is_cinema, is_italian, query_language e block_reply, '
+                    'in quest\'ordine.'
                 ),
             },
             *_context_messages(history),
@@ -120,4 +135,15 @@ def _validate_classification(raw: dict) -> QueryClassification:
     return {
         'is_cinema': is_cinema,
         'is_italian': is_italian,
+        'block_reply': None if is_cinema else _clean_block_reply(raw.get('block_reply')),
     }
+
+
+def _clean_block_reply(value: object) -> str | None:
+    """The model's refusal if it is one short line of text, else None (never raises)."""
+    if not isinstance(value, str):
+        return None
+    reply = value.strip()
+    if not reply or len(reply) > MAX_BLOCK_REPLY_CHARS or '\n' in reply:
+        return None
+    return reply
