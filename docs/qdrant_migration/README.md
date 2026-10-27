@@ -1,6 +1,6 @@
-# Ricerca semantica RAG e migrazione da Chroma a Qdrant - guida d'insieme
+# Ricerca semantica RAG su Qdrant - guida d'insieme
 
-Stato al 2026-10-26: **Qdrant è il motore predefinito.** Chroma resta nel codice e su disco solo per tornare indietro e per gli strumenti di migrazione.
+Stato finale: **Qdrant è l'unico motore.** ChromaDB è stato rimosso da codice, dipendenze, configurazione e test. Gli strumenti di migrazione, il ritorno a Chroma e gli script di confronto con Chroma sono stati cancellati; i report di fase in questa cartella sono un registro **storico** della migrazione e citano Chroma per questo.
 
 ## Perché una ricerca semantica
 Le raccomandazioni di NetflixScout non devono dipendere dalle parole esatte. "Un film su un uomo che perde i ricordi e cerca chi è" deve trovare
@@ -22,11 +22,11 @@ e un id UUID ricavato in modo deterministico dal vecchio id (`uuid5`). La ricerc
 `exact=True` fa la scansione completa ed è il riferimento con cui si misura la qualità. Il server mantiene gli indici sui campi usati dai filtri.
 
 ## Cosa è cambiato
-- **Codice**: pacchetto `tool/rag/FromQueryEmbeddingToRes/store/` (contratto `VectorStore`, `QdrantStore`, adattatore `QdrantCollection` con la stessa superficie di lettura di Chroma, id e normalizzatori, versioni client/server fissate insieme); `references.py` (riferimenti "come X", spento); catalogo TMDb (spento).
+- **Codice**: pacchetto `tool/rag/FromQueryEmbeddingToRes/store/` (contratto `VectorStore`, `QdrantStore`, adattatore `QdrantCollection` con la superficie di lettura usata da `search` e BM25, id e normalizzatori, versioni client/server fissate insieme); `references.py` (riferimenti "come X", spento); catalogo TMDb (spento).
 - **Configurazione**: `CONFIG["rag"]["vectorstore"]` con `engine` (predefinito `qdrant`) e `qdrant.{mode,url,path}`; variabili `VECTORSTORE_ENGINE`, `VECTORSTORE_QDRANT_MODE|URL|PATH`, `QDRANT_API_KEY` (letta in un solo punto).
-- **Architettura**: terminale, chat legacy, API web e builder partono dalla stessa configurazione (`build_ready_app_or_exit`); `chromadb` si importa solo se serve; il server irraggiungibile dà un messaggio di una riga.
-- **Costruzione dell'indice**: `buildSemanticDb.py --engine qdrant` crea una collezione nuova, non sostituisce mai nulla (vedi `rebuild.md`).
-- **Strumenti**: `migrate_chroma_to_qdrant.py`, `validate_migration.py`, `restore_chroma.py`, `backup_storage.py`, `compare_indexes.py`, `scripts/start_qdrant.sh`.
+- **Architettura**: terminale, chat legacy, API web e builder partono dalla stessa configurazione (`build_ready_app_or_exit`); il server irraggiungibile dà un messaggio di una riga.
+- **Costruzione dell'indice**: `buildSemanticDb.py` crea una collezione nuova, non sostituisce mai nulla (vedi `rebuild.md`).
+- **Strumenti**: `backup_storage.py`, `compare_indexes.py`, `scripts/start_qdrant.sh`.
 
 ## Migrazione dei 42.522 elementi e verifiche di equivalenza
 - I vettori OpenAI esistenti sono stati **trasferiti senza rigenerarli** (da una copia di Chroma); validazione di tutti i punti: conteggio, id, dimensione, documenti, ogni metadato, vettori (errore massimo 5,96e-8 sul vettore normalizzato, tolleranza 1e-6), campi derivati. Un solo anno non convertibile (*Hunting Season*, "1010"), riportato e non inventato.
@@ -35,18 +35,18 @@ e un id UUID ricavato in modo deterministico dal vecchio id (`uuid5`). La ricerc
 - Integrità: l'indice migrato è identico (202 file, hash) alla copia di backup dopo le prove; Chroma originale e backup non sono stati cancellati.
 
 ## Come avviare, eseguire, testare
-- **Server**: vedi `server.md` (comando esatto, directory, percorsi reali). **Progetto**: `python app.py` (terminale) o `uvicorn web_api.main:app --host 127.0.0.1 --port 8000` (un solo worker).
+- **Server**: vedi `server.md` (comando esatto e directory). **Progetto**: `python app.py` (terminale) o `uvicorn web_api.main:app --host 127.0.0.1 --port 8000` (un solo worker).
 - **Test offline** (senza server): `python -m pytest tests -q`; i test che richiedono un server saltano **con il motivo** se non risponde. **Con server temporaneo isolato**: avviare un server su uno storage vuoto (porta 6401) e `QDRANT_URL=http://127.0.0.1:6401 python -m pytest tests -m qdrant_server`. Mai puntare i test sullo storage reale.
 
-## Tornare a Chroma
-`rollback.md`: `VECTORSTORE_ENGINE=chroma`, e come provarlo su una **copia** del database Chroma (il database originale non va aperto inutilmente: Chroma può scrivere tabelle di servizio).
+## Chroma
+Rimosso: non esiste più un ritorno a Chroma. La cartella `dbVettoriale/openai` (vecchio indice) è un dato inutilizzato che si può cancellare a mano.
 
 ## Risultati dei test reali
 Due batterie di 20 domande con servizi reali: `phase7/phase7_report.md` (14 complete, 5 parziali, 1 corretta durante il test) e `phase7/phase7_report_v2.md` (13 complete, 5 parziali, 2 errate). Nessun problema infrastrutturale.
 
 ## Limiti e questioni aperte
 - Immagine Docker non provata (nessun runtime): provato solo il binario ufficiale 1.20.0 (`docker_status.md`).
-- Il binario Qdrant in uso sta in una cartella temporanea di sessione; va riscaricato se manca (`server.md`).
+- Il binario Qdrant sta in `bin/qdrant` (ignorato da git); va riscaricato se manca (`server.md`).
 - Errori di risposta aperti: reranker che preferisce una menzione di passaggio (r04), follow-up "più recente" che propone film non usciti (f01), soglia di voti scelta dall'utente non supportata (d01), "più votati" ambiguo (d02).
 - Catalogo TMDb: implementato e provato offline e sul server (concorrenza), **spento e non calibrato** (`catalog/`).
-- Codice Chroma non rimosso (rollback e migrazione). Costo delle batterie reali non misurato.
+- Costo delle batterie reali non misurato.

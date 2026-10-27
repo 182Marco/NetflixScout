@@ -10,9 +10,9 @@
 ## Comandi
 ```
 # embedded (una cartella NUOVA o vuota)
-python buildSemanticDb.py --engine qdrant --qdrant-mode embedded --qdrant-path dbVettoriale/qdrant_rebuild
+python buildSemanticDb.py --qdrant-mode embedded --qdrant-path dbVettoriale/qdrant_rebuild
 # server (collezione NUOVA)
-python buildSemanticDb.py --engine qdrant --qdrant-mode server --qdrant-url http://127.0.0.1:6333 --collection netflix_scout_rebuild
+python buildSemanticDb.py --qdrant-mode server --qdrant-url http://127.0.0.1:6333 --collection netflix_scout_rebuild
 ```
 Il builder controlla cartella/collezione **prima** di chiamare gli embedding, valida id univoci, metadati stringa, dimensione costante,
 vettori finiti e non nulli, e a fine corsa che il numero di punti sia quello dei chunk. Gli id punto sono gli stessi `uuid5` dell'indice migrato.
@@ -20,7 +20,7 @@ vettori finiti e non nulli, e a fine corsa che il numero di punti sia quello dei
 ## Verifica
 Con gli indici nuovo e migrato sullo stesso server: stesso conteggio e stessi `legacy_id`; i testi uguali (`docs/qdrant_migration/phase3/`
 ha gli script di manifest); i vettori ricalcolati possono differire di poco da quelli storici (embedding rifatti): confrontare con
-`phase4/parity.py` contro la baseline prima di usarlo. Per usarlo: `VECTORSTORE_QDRANT_PATH`/`URL` e `rag.vectorstore.collection` (nome della collezione).
+`catalog/compare_indexes.py` prima di usarlo. Per usarlo: `VECTORSTORE_QDRANT_PATH`/`URL` e `rag.vectorstore.collection` (nome della collezione).
 
 ## Confronto
 `python docs/qdrant_migration/rebuild/compare_indexes.py --a URL_MIGRATO --b URL_RICOSTRUITO --report FILE` (sola lettura).

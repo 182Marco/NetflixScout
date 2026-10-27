@@ -142,13 +142,6 @@
 </style>
 </head>
 <body>
-<div id="qdrant-start" style="background:#fff3cd;border:4px solid #b8860b;color:#111;padding:18px 22px;margin:0 0 18px 0;font-family:system-ui,sans-serif">
-<div style="font-size:30px;font-weight:800;margin-bottom:10px">▶ PRIMA DI TUTTO: AVVIA QDRANT</div>
-<div style="font-size:26px;font-weight:700;font-family:ui-monospace,Menlo,monospace;word-break:break-all;margin-bottom:6px">cd /Users/filippo.milzagmail.com/Desktop/NetflixScout</div>
-<div style="font-size:26px;font-weight:700;font-family:ui-monospace,Menlo,monospace;word-break:break-all;margin-bottom:10px">QDRANT_BIN=/private/tmp/claude-501/-Users-filippo-milzagmail-com-Desktop-NetflixScout/5bfd1d87-098f-47f2-91bf-6c2ea5a37f18/scratchpad/qdrant_server/bin/qdrant ./scripts/start_qdrant.sh</div>
-<div style="font-size:17px">Da eseguire dalla <b>radice del progetto</b> in un terminale a parte (Ctrl+C per fermarlo). Ascolta su 127.0.0.1:6333 e apre lo storage reale
-<code>dbVettoriale/qdrant_openai/storage</code>. Il binario (Qdrant 1.20.0) è nella cartella temporanea di sessione indicata: se manca va riscaricato. Dettagli: <code>docs/qdrant_migration/server.md</code>.
-Ritorno a Chroma: <code>VECTORSTORE_ENGINE=chroma</code> (<code>docs/qdrant_migration/rollback.md</code>).</div></div>
 
 <div class="app">
   <div class="titlebar">
@@ -190,7 +183,7 @@ Ritorno a Chroma: <code>VECTORSTORE_ENGINE=chroma</code> (<code>docs/qdrant_migr
   <footer class="statusbar">
     <span>⎇ main</span>
     <span id="git-count"></span>
-    <span class="r"><span>Python 3.11 (.venv)</span><span>ChromaDB</span><span>UTF-8</span></span>
+    <span class="r"><span>Python 3.11 (.venv)</span><span>Qdrant</span><span>UTF-8</span></span>
   </footer>
 </div>
 
@@ -227,11 +220,11 @@ const LAYERS = {
 const F = (name, info = {}) => ({ type: "file", name, ...info });
 const D = (name, info = {}, children = []) => ({ type: "dir", name, children, ...info });
 
-/* ---------- File generati da ChromaDB (riusati in ogni cartella del DB) ---------- */
+/* ---------- File del vecchio Chroma (dati non più usati, riusati in ogni cartella) ---------- */
 const SQLITE = {
   L: "data", ig: true,
   s: "Database SQLite di Chroma: documenti, metadati e definizione delle collection.",
-  d: `File principale di un <code>chromadb.PersistentClient</code>. Contiene il testo dei chunk, i metadati (<code>title</code>, <code>release_year</code>, <code>genres</code>, <code>cast</code>, …), gli id e la configurazione della collection (<code>hnsw:space = cosine</code>). I vettori veri e propri stanno nella sottocartella con nome UUID.`,
+  d: `File principale del vecchio database Chroma (non più usato dall'app). Contiene il testo dei chunk, i metadati (<code>title</code>, <code>release_year</code>, <code>genres</code>, <code>cast</code>, …), gli id e la configurazione della collection (<code>hnsw:space = cosine</code>). I vettori veri e propri stanno nella sottocartella con nome UUID.`,
   n: ["Non va modificato a mano: si rigenera con <code>python buildSemanticDb.py</code>."],
 };
 const BIN = {
@@ -253,7 +246,7 @@ function chromaDir(name, uuid, files, info) {
 }
 const BINS4 = ["data_level0.bin", "header.bin", "length.bin", "link_lists.bin"];
 const BINS5 = ["data_level0.bin", "header.bin", "index_metadata.pickle", "length.bin", "link_lists.bin"];
-const DIAG_NOTE = "Cartella di diagnostica creata durante il debug della validazione dei metadati a batch. Il codice non la usa (legge solo <code>openai/</code> e <code>local/</code>): si può cancellare.";
+const DIAG_NOTE = "Cartella di diagnostica creata durante il debug della validazione dei metadati a batch. Il codice non la usa (non la legge più nessuno): si può cancellare.";
 
 /* ====================================================================== */
 const TREE = D("NetflixScout", {}, [
@@ -286,12 +279,12 @@ const TREE = D("NetflixScout", {}, [
 
   D("dbVettoriale", {
     L: "data", ig: true,
-    s: "Database vettoriale Chroma persistente, una sottocartella per backend di embedding.",
-    d: `<code>vectorstore.DB_ROOT</code> punta qui. A runtime <code>runtime._resolve_runtime_config</code> sceglie <code>openai/</code> o <code>local/</code>: se ne esiste una sola usa quella, altrimenti segue <code>CONFIG["rag"]["embedding"]["backend"]</code>. La collection si chiama <code>netflix_scout</code>.`,
-    n: ["La query va embeddata con lo stesso backend e modello usati per costruire il DB, altrimenti i risultati non hanno senso.", "Le cartelle <code>diag_*</code> e <code>test_*</code> sono residui di debug."],
+    s: "Cartella dati del vecchio Chroma e dello storage Qdrant (l'indice vivo è in qdrant_openai/storage).",
+    d: `L'app non legge più nulla da qui tramite <code>db_dir</code>: l'unico motore è Qdrant, in modalità server su 127.0.0.1:6333, avviato da <code>./scripts/start_qdrant.sh</code> sullo storage <code>qdrant_openai/storage</code> (la collection si chiama <code>netflix_scout</code>). Le cartelle <code>openai/</code>, <code>local/</code> e <code>diag_*</code>/<code>test_*</code> sono dati Chroma non più usati: restano su disco, si possono cancellare a mano.`,
+    n: ["La query va embeddata con lo stesso modello usato per costruire l'indice, altrimenti i risultati non hanno senso."],
   }, [
-    chromaDir("openai", "ccd8ca3a-7582-4c5a-8a88-305387ceebcc", BINS5, { s: "DB costruito con embedding OpenAI text-embedding-3-small (backend di default).", d: `Generato da <code>python buildSemanticDb.py --embedding-backend openai</code>. È il DB che usa l'app con la configurazione attuale.` }),
-    chromaDir("local", "ab13cb76-df1d-42d3-af67-7f60f102b828", BINS5, { s: "DB costruito con embedding locali (sentence-transformers).", d: `Generato da <code>python buildSemanticDb.py --embedding-backend local --embedding-model &lt;modello HF&gt;</code>. Non richiede chiamate a OpenAI per gli embedding.` }),
+    chromaDir("openai", "ccd8ca3a-7582-4c5a-8a88-305387ceebcc", BINS5, { s: "DB costruito con embedding OpenAI text-embedding-3-small (backend di default).", d: `Vecchio indice Chroma, non più usato dall'app (l'indice vivo è Qdrant). Dato inutilizzato.` }),
+    chromaDir("local", "ab13cb76-df1d-42d3-af67-7f60f102b828", BINS5, { s: "DB costruito con embedding locali (sentence-transformers).", d: `Vecchio indice Chroma con embedding locali, non più usato dall'app. Dato inutilizzato.` }),
     chromaDir("diag_metadata_batch", "9e7ec721-7943-4bfe-a11c-24adcb6fc939", BINS4, { s: "Residuo di diagnostica (validazione metadati).", d: DIAG_NOTE }),
     chromaDir("diag_metadata_batch2", "93be12ac-ec64-4712-a51c-50d086cda8a3", BINS5, { s: "Residuo di diagnostica (validazione metadati).", d: DIAG_NOTE }),
     chromaDir("diag_metadata_batch_fixed", "0305a07c-6617-43b2-8ae4-82fc2cc0ec4b", BINS5, { s: "Residuo di diagnostica (validazione metadati).", d: DIAG_NOTE }),
@@ -453,13 +446,13 @@ const TREE = D("NetflixScout", {}, [
           ["build_semantic_db()", "Orchestra tutta la build e ritorna il numero di chunk indicizzati."],
           ["_iter_texts()", "Generatore sui file del dataset: salta <code>.tsv</code> e <code>.DS_Store</code>, gestisce a parte le trame e usa i loader per gli altri formati."],
           ["_stable_id()", "Id deterministico del chunk (percorso + indice documento + indice chunk), così le rebuild sono riproducibili."],
-          ["_stringify_metadata()", "Converte i metadati in tipi primitivi accettati da Chroma."],
+          ["_stringify_metadata()", "Converte i metadati in tipi primitivi per il payload Qdrant."],
           ["_validate_batch_metadata()", "Blocca la build con un errore chiaro se un metadato non è str/int/float/bool (es. tipi numpy)."],
           ["parse_args()", "CLI: <code>--dataset-dir --db-dir --collection --semantic-threshold --embedding-backend --embedding-model --batch-size</code>."],
         ],
         dep: [E + "loaders/dispatch.py", E + "clean.py", E + "chunk.py", E + "movie_metadata.py", Q + "embeddings.py", Q + "vectorstore.py"],
         x: ["argparse", "shutil"],
-        cmd: "python buildSemanticDb.py --embedding-backend openai   # oppure: --engine qdrant --qdrant-mode embedded --qdrant-path NUOVA_CARTELLA",
+        cmd: "python buildSemanticDb.py --collection NOME_NUOVO   # oppure: --qdrant-mode embedded --qdrant-path NUOVA_CARTELLA",
         n: ["Distruttivo: elimina il DB esistente del backend scelto.", "Costa chiamate di embedding OpenAI (decine di migliaia di trame)."],
       }),
       F("chunk.py", {
@@ -624,8 +617,8 @@ const TREE = D("NetflixScout", {}, [
         x: ["openai"],
       }),
       F("runtime.py", {
-        L: "rt", s: "Normalizza la config RAG prima dell'uso (backend effettivo, db_dir, default).",
-        d: `<code>_resolve_runtime_config(config)</code> copia le sottosezioni, decide il backend effettivo guardando quali cartelle esistono in <code>dbVettoriale/</code> (oppure usa <code>db_dir</code> se è impostato), calcola il percorso del DB e aggiunge i default della sezione <code>conversation</code>. Va chiamata prima di toccare vectorstore ed embedding.`,
+        L: "rt", s: "Normalizza la config RAG prima dell'uso (backend effettivo, modello, default).",
+        d: `<code>_resolve_runtime_config(config)</code> copia le sottosezioni, risolve il backend e il modello di embedding, li passa alla configurazione Qdrant e aggiunge i default della sezione <code>conversation</code>. Va chiamata prima di toccare vectorstore ed embedding.`,
         dep: [Q + "vectorstore.py"],
       }),
       F("tool_interface.py", {
@@ -641,23 +634,19 @@ const TREE = D("NetflixScout", {}, [
         n: ["Il formato restituito da <code>run()</code> è un contratto verificato da <code>tests/test_tool_contract.py</code> e <code>tests/test_presenters.py</code>.", "Ogni tool futuro deve restituire la sua <code>trace</code> con la stessa forma."],
       }),
       F("vectorstore.py", {
-        L: "rt", s: "Tutto ciò che riguarda ChromaDB: apertura, creazione, upsert, ricerca.",
+        L: "rt", s: "Apertura della collection Qdrant e ricerca (semantica, con film di riferimento).",
         d: `<code>search()</code> è il cuore della ricerca semantica: fa l'embedding di <code>semantic_query</code> (o della query originale se è vuota) e <b>mai</b> del join dei segnali positivi, che con keyword italiane portava a film italiani o storici. Poi recupera <code>fetch_k</code> risultati, scarta le hard exclusions (titolo, cast, …), sottrae 0.08 per ogni segnale negativo trovato, aggiunge <code>genre_boost</code> ai chunk il cui metadato <code>genres</code> contiene un genere richiesto, riordina e taglia a k. Lo score è <code>1 − distanza coseno</code>. <code>has_excluded_genre</code> scarta i chunk con un genere escluso (parole intere sui <code>genres</code>).`,
         it: [
-          ["DB_ROOT · db_dir_for_backend(backend)", "<code>dbVettoriale/openai</code> o <code>dbVettoriale/local</code>."],
-          ["apri_collection(nome, db_dir)", "Apre la collection o la crea se manca (cosine)."],
-          ["crea_collection(nome, db_dir)", "La ricrea da zero (cancella quella esistente)."],
-          ["indicizza(collection, ids, testi, embeddings, metadatas)", "Upsert con embedding già calcolati."],
+          ["apri_collection(nome, *, store_config)", "Apre la collection Qdrant esistente (server o embedded); se manca dice di eseguire <code>buildSemanticDb.py</code>."],
           ["search(collection, query, k, backend, model, *, …signals, fetch_k, semantic_query, genres, genre_boost)", "Ricerca con gestione dei segnali e boost di genere."],
           ["_matches_genres(result, genres)", "True se un genere richiesto compare nei <code>genres</code> del chunk (separati da <code>;</code>)."],
         ],
         dep: [Q + "embeddings.py"],
-        x: ["chromadb"],
-        n: ["Il motore predefinito è Qdrant (<code>CONFIG[\"rag\"][\"vectorstore\"][\"engine\"]</code>, server su 127.0.0.1:6333); con <code>engine: \"chroma\"</code> (env <code>VECTORSTORE_ENGINE=chroma</code>) si torna al ramo Chroma, mantenuto per rollback e per gli strumenti di migrazione. <code>apri_collection</code> apre l'adattatore di <code>store/</code> per Qdrant. Il commit “migrate db to Qdrant” non conteneva codice Qdrant: la migrazione è stata fatta dopo, a fasi (dati migrati, ricostruzione e Fase 7 validate); Chroma resta nel codice solo per rollback e migrazione."],
+        n: ["L'unico motore è Qdrant (<code>CONFIG[\"rag\"][\"vectorstore\"][\"qdrant\"]</code>, server su 127.0.0.1:6333); ChromaDB è stato rimosso. <code>apri_collection</code> apre l'adattatore di <code>store/</code>. Il commit “migrate db to Qdrant” non conteneva codice Qdrant: la migrazione è stata fatta dopo, a fasi."],
       }),
       D("store", {
-        L: "rt", s: "Motore Qdrant: contratto, adattatore tipo-Chroma, catalogo TMDb.",
-        d: `<code>base.py</code> (Protocol <code>VectorStore</code>), <code>qdrant_store.py</code> (modalità <code>embedded</code>/<code>memory</code>/<code>server</code>, <code>build_payload</code>), <code>collection.py</code> (<code>QdrantCollection</code>, la superficie di lettura tipo-Chroma usata da <code>search</code> e BM25), <code>ids.py</code> (<code>uuid5</code>, <code>norm_title</code>, <code>year_int</code>), <code>settings.py</code> (versioni client/server fissate insieme), <code>genre_map.py</code> e <code>catalog.py</code> (scritture condizionali sulla <code>version</code> per i film aggiunti da TMDb, collegamento ai punti CMU solo con <code>tmdb_id</code>; l'atomicità sul server è provata da <code>tests/test_qdrant_catalog_server.py</code> e <code>tests/qdrant_catalog_race.py</code>).`,
+        L: "rt", s: "Motore Qdrant: contratto, adattatore di lettura, catalogo TMDb.",
+        d: `<code>base.py</code> (Protocol <code>VectorStore</code>), <code>qdrant_store.py</code> (modalità <code>embedded</code>/<code>memory</code>/<code>server</code>, <code>build_payload</code>), <code>collection.py</code> (<code>QdrantCollection</code>, la superficie di lettura usata da <code>search</code> e BM25), <code>ids.py</code> (<code>uuid5</code>, <code>norm_title</code>, <code>year_int</code>), <code>settings.py</code> (versioni client/server fissate insieme), <code>genre_map.py</code> e <code>catalog.py</code> (scritture condizionali sulla <code>version</code> per i film aggiunti da TMDb, collegamento ai punti CMU solo con <code>tmdb_id</code>; l'atomicità sul server è provata da <code>tests/test_qdrant_catalog_server.py</code> e <code>tests/qdrant_catalog_race.py</code>).`,
         dep: [Q + "vectorstore.py"],
         x: ["qdrant-client"],
       }),
@@ -930,7 +919,6 @@ const TREE = D("NetflixScout", {}, [
     L: "web",
     s: `Server HTTP/SSE (FastAPI) per il frontend: conversazioni, risposta in streaming, liste.`,
     d: `Tutto il codice FastAPI/SSE e lo stato delle conversazioni sta qui; nessun altro modulo del repository importa FastAPI o <code>web_api</code>. Riusa il nucleo senza modificarlo: <code>handle_query(..., observer=WebObserver, final_output=web_lists.final_output())</code>, <code>present(turn, web)</code> e <code>attach_lists</code>. Il turno è sincrono e invariato; gira in un thread dentro una task <b>indipendente dal client</b>: la history si registra quando <code>handle_query</code> ritorna (una sola volta, in <code>finish_turn</code>), la conversazione resta occupata fino alla fine reale e alla disconnessione il turno prosegue.`,
-    cmd: `uvicorn web_api.main:app --reload --host 127.0.0.1 --port 8000`,
     n: [`Nessuna autenticazione né rate limit, per scelta (portfolio, budget limitato sulla chiave backend).`, `Un solo worker: le conversazioni sono nella memoria del processo.`, `<code>FRONTEND_API.md</code> è il contratto per il frontend; il suo test lo confronta con i modelli degli eventi.`],
   }, [
     F("__init__.py", {
@@ -944,7 +932,6 @@ const TREE = D("NetflixScout", {}, [
       d: `Crea <code>app = create_app()</code>. Le conversazioni stanno nella memoria del processo, quindi più worker le dividerebbero.`,
       dep: ["web_api/server.py"],
       x: ["fastapi"],
-      cmd: `uvicorn web_api.main:app --reload --host 127.0.0.1 --port 8000`,
     }),
     F("server.py", {
       L: "web",
@@ -1574,7 +1561,7 @@ const TREE = D("NetflixScout", {}, [
     F("test_presenter_parity.py", { L: "test", s: "Terminale e web: stesse chiavi, stessa storia, stessi dati.", d: `<code>STEP_RENDERERS</code> e <code>STEP_SERIALIZERS</code> hanno le stesse chiavi e nessuna coincide con uno step di flusso; il terminale stampa le righe che il web invia; dal vivo e in replay si stampa lo stesso; il payload non ha emoji né <code>═</code>; ogni step ha la forma web con i dati del terminale; uno step sconosciuto passa in entrambi; la storia di un turno vero coincide con quella ricostruita dagli step.`, dep: ["presenters/web/payload.py", "presenters/terminal/renderer.py", "presenters/story_view.py"], x: ["pytest"] }),
     F("test_retrieval.py", {
       L: "test", s: "Unit test offline del testo dell'embedding, del boost di genere e del rerank.",
-      d: `Usa una collection Chroma finta e un <code>embed</code> finto. Verifica che <code>search</code> faccia l'embedding di <code>semantic_query</code> e non delle keyword, con fallback sulla query originale; che il <code>genre_boost</code> riordini il pool <code>fetch_k</code> prima del taglio a k e ignori generi non correlati; che <code>_retrieve</code> passi <code>fetch_k</code>, generi e <code>semantic_query</code> (e senza <code>fetch_k</code> mantenga il pool di prima); che Cohere riceva titolo e generi; che <code>run_rag</code> restituisca <code>signals</code> ed <code>embedded_text</code>.<br><br>Aggiunti: il tool RAG applica le scelte del planner a una copia della config; l'indice BM25 legge la collection a pagine ed è in cache.`,
+      d: `Usa una collection finta e un <code>embed</code> finto. Verifica che <code>search</code> faccia l'embedding di <code>semantic_query</code> e non delle keyword, con fallback sulla query originale; che il <code>genre_boost</code> riordini il pool <code>fetch_k</code> prima del taglio a k e ignori generi non correlati; che <code>_retrieve</code> passi <code>fetch_k</code>, generi e <code>semantic_query</code> (e senza <code>fetch_k</code> mantenga il pool di prima); che Cohere riceva titolo e generi; che <code>run_rag</code> restituisca <code>signals</code> ed <code>embedded_text</code>.<br><br>Aggiunti: il tool RAG applica le scelte del planner a una copia della config; l'indice BM25 legge la collection a pagine ed è in cache.`,
       dep: [Q + "pipeline.py", Q + "retrieval.py", Q + "vectorstore.py", Q + "rerank.py", Q + "models.py"],
       x: ["pytest", "numpy"],
     }),
@@ -2005,7 +1992,7 @@ const TREE = D("NetflixScout", {}, [
   }),
   F(".gitignore", {
     L: "cfg", s: "Cosa resta fuori da git: segreti, venv, dataset, DB vettoriali, cache.",
-    d: `Esclude <code>.env*</code> (tranne <code>.env.example</code>), <code>.venv/</code>, <code>__pycache__/</code>, <code>dataset/</code>, <code>datasets/*</code>, <code>dbVettoriale/*</code>, <code>movie_db/data/*</code> (tranne <code>.gitkeep</code>: CSV e DB MovieLens non si redistribuiscono), <code>semanticDb/</code> e le cartelle tipiche dei vector store (<code>chroma/</code>, <code>qdrant_storage/</code>, <code>faiss_index/</code>…).`,
+    d: `Esclude <code>.env*</code> (tranne <code>.env.example</code>), <code>.venv/</code>, <code>__pycache__/</code>, <code>dataset/</code>, <code>datasets/*</code>, <code>dbVettoriale/*</code>, <code>movie_db/data/*</code> (tranne <code>.gitkeep</code>: CSV e DB MovieLens non si redistribuiscono), <code>semanticDb/</code> e le cartelle tipiche dei vector store (<code>qdrant_storage/</code>, <code>faiss_index/</code>…).`,
   }),
   F("AGENTS.md", {
     L: "cfg", s: "Guida per gli agenti IA: stack, comandi, convenzioni, regole.",
@@ -2052,7 +2039,7 @@ const TREE = D("NetflixScout", {}, [
       ["ensure_collection_ready(runtime_rag)", "Errore esplicito se il DB vettoriale è vuoto (vale per ogni canale)."],
       ["handle_query(app, query, history, openai_client=None, observer=None)", "Nucleo senza print → <code>TurnResult</code> con risposta, step, storia e history aggiornata; gli step vanno all'osservatore mentre accadono."],
       ["_TurnRecorder", "Raccoglie step e storia del turno e li inoltra all'osservatore, ignorandone gli errori."],
-      ["run_terminal_chat() · main()", "All'avvio controlla Chroma e, se il tool DB è attivo, <code>ensure_db_ready</code>; non stampa avvisi. Loop REPL: <code>handle_query(…, observer=TerminalObserver())</code> → <code>present(…, OutputChannel.terminal, streamed=True)</code> (<code>exit</code>/<code>quit</code> per uscire)."],
+      ["run_terminal_chat() · main()", "All'avvio controlla Qdrant e, se il tool DB è attivo, <code>ensure_db_ready</code>; non stampa avvisi. Loop REPL: <code>handle_query(…, observer=TerminalObserver())</code> → <code>present(…, OutputChannel.terminal, streamed=True)</code> (<code>exit</code>/<code>quit</code> per uscire)."],
       [`build_ready_app(overrides)`, `<code>build_app</code> più i controlli d'avvio comuni a ogni canale: errore operativo se la collection vettoriale o il DB MovieLens mancano. Lo usano il terminale e il server web.`],
       [`CONFIG["wikipedia"]`, `I cinque parametri pubblici del tool Wikipedia, validati da <code>WikipediaConfig</code>.`],
       [`CONFIG["orchestrator"]["data_coverage"]`, `Ultimo anno coperto per fonte (RAG 2012, MovieLens 2022) e nota; <code>tests/test_data_coverage.py</code> li confronta con i dataset.`],
@@ -2136,7 +2123,7 @@ const TREE = D("NetflixScout", {}, [
   }),
   F("requirements.txt", {
     L: "cfg", s: "Dipendenze Python con versioni pinnate.",
-    d: `openai, chromadb, pydantic, python-dotenv, cohere, rank-bm25, beautifulsoup4, markdown-it-py, pypdf, python-docx, numpy, sentence-transformers, torch, fastapi, uvicorn.`,
+    d: `openai, qdrant-client, pydantic, python-dotenv, cohere, rank-bm25, beautifulsoup4, markdown-it-py, pypdf, python-docx, numpy, sentence-transformers, torch, fastapi, uvicorn.`,
     cmd: "pip install -r requirements.txt",
     n: ["<code>pytest</code> non è nell'elenco: va installato a parte.", "Non cambiare le versioni senza permesso.", `<code>fastapi</code> e <code>uvicorn</code> servono solo al server web (<code>web_api/</code>).`],
   }),
@@ -2307,7 +2294,8 @@ treeEl.addEventListener("keydown", ev => {
 /* ====================================================================== */
 /* Tab + routing                                                           */
 /* ====================================================================== */
-const state = { tabs: [""], active: "" };
+const START = "avvio-servizi";
+const state = { tabs: ["", START], active: "" };
 const tabsEl = document.getElementById("tabs");
 const crumbsEl = document.getElementById("crumbs");
 const contentEl = document.getElementById("content");
@@ -2320,19 +2308,20 @@ function go(path) {
 addEventListener("hashchange", () => open(decodeURIComponent(location.hash.slice(1))));
 
 function open(path) {
-  if (path && !BY_PATH.has(path)) path = "";
+  if (path && path !== START && !BY_PATH.has(path)) path = "";
   if (!state.tabs.includes(path)) state.tabs.push(path);
   state.active = path;
   renderTabs();
   renderCrumbs(path);
-  contentEl.innerHTML = path ? renderNodePage(BY_PATH.get(path)) : renderOverview();
+  contentEl.innerHTML = path === START ? renderStart() : path ? renderNodePage(BY_PATH.get(path)) : renderOverview();
   contentEl.scrollTop = 0;
-  if (path) reveal(path); else treeEl.querySelectorAll(".row.active").forEach(r => r.classList.remove("active"));
-  document.getElementById("title").textContent = (path ? BY_PATH.get(path).name + " — " : "") + "NetflixScout — Mappa del progetto";
+  if (path && path !== START) reveal(path); else treeEl.querySelectorAll(".row.active").forEach(r => r.classList.remove("active"));
+  document.getElementById("title").textContent = (path === START ? "Avvio servizi — " : path ? BY_PATH.get(path).name + " — " : "") + "NetflixScout — Mappa del progetto";
 }
 
 function renderTabs() {
   tabsEl.innerHTML = state.tabs.map(p => {
+    if (p === START) return `<div class="tab${p === state.active ? " on" : ""}" data-tab="${p}" title="Avvio dei servizi"><span class="ico"><span style="color:#89d185">▶</span></span><span>Avvio servizi</span><span class="x" data-close="${p}">✕</span></div>`;
     const n = p ? BY_PATH.get(p) : null;
     const ico = n ? (n.type === "dir" ? FOLDER_ICO : icon(n)) : `<span style="color:#3794ff">◈</span>`;
     const name = n ? n.name : "Panoramica";
@@ -2361,7 +2350,36 @@ tabsEl.addEventListener("auxclick", ev => {
   if (ev.button === 1 && t && t.dataset.tab) t.querySelector("[data-close]").click();
 });
 
+function renderStart() {
+  const row = (k, v) => `<tr><td><b>${k}</b></td><td>${v}</td></tr>`;
+  return `<div class="page">
+    <h1>▶ Avvio servizi</h1>
+    <p class="lead">Per usare l'app servono due terminali distinti, entrambi aperti nella <b>radice del progetto</b> (la cartella che contiene <code>app.py</code>). Il primo avvia il database vettoriale, il secondo il backend.</p>
+    <pre class="cmd"># Terminale 1 — Qdrant
+./scripts/start_qdrant.sh
+
+# Terminale 2 — backend NetflixScout
+source .venv/bin/activate &amp;&amp; uvicorn web_api.main:app --host 127.0.0.1 --port 8000</pre>
+    <h2>1 · Avvio di Qdrant</h2>
+    <table class="items">
+      ${row("Dove", "radice del progetto")}
+      ${row("A cosa serve", "mette a disposizione l'indice dei film (collection <code>netflix_scout</code>) su cui la ricerca RAG fa le interrogazioni; i film di riferimento citati dall'utente vengono salvati qui")}
+      ${row("Servizio avviato", "server Qdrant 1.20.0 su <code>127.0.0.1:6333</code>, con lo storage <code>dbVettoriale/qdrant_openai/storage</code>. Il binario è cercato in <code>$QDRANT_BIN</code>, poi <code>bin/qdrant</code>, poi nel PATH")}
+      ${row("Pronto quando", "<code>curl http://127.0.0.1:6333/collections</code> elenca <code>netflix_scout</code>")}
+    </table>
+    <h2>2 · Avvio del backend NetflixScout</h2>
+    <table class="items">
+      ${row("Dove", "radice del progetto, con il virtualenv <code>.venv</code> attivato dal comando stesso")}
+      ${row("A cosa serve", "espone l'API HTTP/SSE usata dal frontend: classificatore, orchestratore e tool (RAG, MovieLens, TMDb, YouTube, Wikipedia). Un solo worker: le conversazioni stanno in memoria")}
+      ${row("Servizio avviato", "server FastAPI (uvicorn) su <code>127.0.0.1:8000</code>")}
+      ${row("Pronto quando", "<code>curl http://127.0.0.1:8000/health</code> risponde <code>{\"status\":\"ok\"}</code>")}
+    </table>
+    <p class="none">Avvia prima Qdrant, poi il backend. Ctrl+C in ciascun terminale ferma il rispettivo servizio.</p>
+  </div>`;
+}
+
 function renderCrumbs(path) {
+  if (path === START) { crumbsEl.innerHTML = `<a href="#">NetflixScout</a><span class="sep">›</span><span>Avvio servizi</span>`; return; }
   if (!path) { crumbsEl.innerHTML = `<a href="#">NetflixScout</a><span class="sep">›</span><span>Panoramica</span>`; return; }
   const parts = path.split("/");
   crumbsEl.innerHTML = `<a href="#">NetflixScout</a>` + parts.map((p, i) => {
@@ -2435,7 +2453,7 @@ const NODES = [
   { id: "chunk", x: 455, y: 100, w: 120, k: "off", t: "chunk.py", s: "chunk semantico", p: E + "chunk.py", api: 1 },
   { id: "emb", x: 600, y: 100, w: 120, k: "rt", t: "embeddings.py", s: "OpenAI | locale", p: Q + "embeddings.py", api: 1 },
   { id: "vs1", x: 745, y: 100, w: 120, k: "rt", t: "vectorstore.py", s: "indicizza (upsert)", p: Q + "vectorstore.py" },
-  { id: "db1", x: 888, y: 92, w: 92, h: 62, k: "data", t: "dbVettoriale/", s: "Chroma", p: "dbVettoriale", cyl: true },
+  { id: "db1", x: 888, y: 92, w: 92, h: 62, k: "data", t: "dbVettoriale/", s: "Qdrant", p: "dbVettoriale", cyl: true },
   { id: "meta", x: 20, y: 162, w: 132, h: 34, k: "off", t: "movie_metadata.py", p: E + "movie_metadata.py" },
   // ② runtime
   { id: "user", x: 24, y: 262, w: 120, k: "ext", t: "Utente", s: "terminale" },
@@ -2643,7 +2661,7 @@ function renderOverview() {
   return `<div class="page" style="max-width:1120px">
     <h1><span style="color:#3794ff">◈</span>NetflixScout</h1>
     <div class="path">Mappa del progetto · grafico della struttura</div>
-    <p class="lead">Assistente da terminale e da web (server FastAPI/SSE) che consiglia film con una pipeline RAG sul CMU Movie Summary Corpus (ChromaDB per la ricerca, Cohere per il rerank, OpenAI per classificazione, segnali, embedding e risposta) risponde a domande su voti e classifiche con un database SQLite read-only di MovieLens 32M e recupera dati aggiornati (cast, regia, streaming, trailer, trending, serie) dall'API di TMDb e video su un film (interviste a regista e cast, making-of, dietro le quinte, commenti degli autori) dalla YouTube Data API; per informazioni enciclopediche (biografie, storia e produzione di un film, antologie, confronti con l'opera d'origine) legge Wikipedia a sezioni. Ogni tool vive in <code>tool/</code>; il database MovieLens resta in <code>movie_db/</code>.</p>
+    <p class="lead">Assistente da terminale e da web (server FastAPI/SSE) che consiglia film con una pipeline RAG sul CMU Movie Summary Corpus (Qdrant per la ricerca, Cohere per il rerank, OpenAI per classificazione, segnali, embedding e risposta) risponde a domande su voti e classifiche con un database SQLite read-only di MovieLens 32M e recupera dati aggiornati (cast, regia, streaming, trailer, trending, serie) dall'API di TMDb e video su un film (interviste a regista e cast, making-of, dietro le quinte, commenti degli autori) dalla YouTube Data API; per informazioni enciclopediche (biografie, storia e produzione di un film, antologie, confronti con l'opera d'origine) legge Wikipedia a sezioni. Ogni tool vive in <code>tool/</code>; il database MovieLens resta in <code>movie_db/</code>.</p>
     <p style="color:var(--muted)">Clicca un riquadro del grafico, oppure un file o una cartella nell'explorer a sinistra, per leggerne la spiegazione.</p>
     <div class="diagram" id="diagram">${renderDiagram()}</div>
     <div class="legend">
@@ -2653,7 +2671,7 @@ function renderOverview() {
 
     <h2>Il flusso in 12 passi</h2>
     <ol class="steps">
-      <li><b>Indicizzazione (una volta sola).</b> <a class="vscode" href="#buildSemanticDb.py">buildSemanticDb.py</a> legge <code>dataset/</code>. Ogni trama diventa un chunk con titolo, anno, generi e cast; gli embedding finiscono in Chroma, in <code>dbVettoriale/&lt;backend&gt;/</code>.</li>
+      <li><b>Indicizzazione (una volta sola).</b> <a class="vscode" href="#buildSemanticDb.py">buildSemanticDb.py</a> legge <code>dataset/</code>. Ogni trama diventa un chunk con titolo, anno, generi e cast; gli embedding finiscono in Qdrant (collection <code>netflix_scout</code>).</li>
       <li><b>Guardrail.</b> <a class="vscode" href="#app.py">app.py</a> riceve la domanda e <a class="vscode" href="#${Q}query_classifier/query_classifier.py">query_classifier</a> (gpt-4o-mini) blocca quelle che non riguardano il cinema, rispondendo in italiano o in inglese. Vede anche l'ultimo scambio della conversazione (<code>classifier_context_messages = 2</code>), così un follow-up come “ne puoi trovare 3 più recenti?” non viene scambiato per off-topic; giudica comunque solo l'ultima domanda. Considera cinematografiche anche le domande statistiche su voti, classifiche e generi.</li>
       <li><b>Orchestrazione.</b> <a class="vscode" href="#orchestrator.py">orchestrator.py</a>, con una chiamata LLM, riscrive le domande di follow-up in una query autonoma usando la history (“e uno più recente?” → “film di fantascienza con robot più recenti”) e sceglie il tool: <code>rag_search</code> per trama, temi, generi, interpretazione e raccomandazioni (è anche il fallback), <code>movie_db_search</code> per classifiche, voti medi, numero di voti, generi per anno e tag, <code>tmdb_search</code> per dati fattuali e aggiornati (chi ha diretto, chi recita, streaming, trailer, trending, serie), <code>youtube_search</code> per interviste e making-of, <code>wikipedia_search</code> per le informazioni enciclopediche. Una regola di copertura dei dati manda a <code>tmdb_search</code> i film più recenti di ciò che RAG (fino al 2012) e MovieLens (fino al 2022) contengono. Il prompt contiene il catalogo dei tool con i loro schemi. La query autonoma vale per qualunque tool. Una richiesta composta (per esempio un film e un'intervista) elenca le sue parti e i tool le eseguono in sequenza nello stesso turno, ognuno con i dati dei precedenti, fino a <code>max_tool_calls_per_turn</code>.</li>
       <li><b>Retrieval.</b> <a class="vscode" href="#${Q}retrieval.py">retrieval.py</a> estrae i segnali in inglese dalla query (cosa vuoi, cosa evitare, cosa escludere, la frase da embeddare <code>semantic_query</code> e i generi), fa l'embedding di <code>semantic_query</code>, dà un boost (<code>genre_boost = 0.15</code>) ai film del genere richiesto su un pool di <code>fetch_k = 50</code> e tiene fino a <code>k_largo = 10</code> candidati, in modalità <code>semantic</code>, <code>bm25</code> o <code>hybrid</code> (l'indice BM25 è letto a pagine e tenuto in cache). Il planner sceglie solo <code>k_finale</code>, cioè quanti film chiede l'utente (<a class="vscode" href="#${Q}retrieval_params.py">retrieval_params.py</a>).</li>
@@ -2669,7 +2687,7 @@ function renderOverview() {
 
     <h2>Punti di attenzione nel codice</h2>
     <div class="callout"><ul>
-      <li>Il commit “migrate db to Qdrant” (2026-10-03) non conteneva codice Qdrant; la migrazione è stata poi fatta: Qdrant è il motore predefinito e Chroma resta solo per rollback e strumenti di migrazione.</li>
+      <li>Il commit “migrate db to Qdrant” (2026-10-03) non conteneva codice Qdrant; la migrazione è stata poi fatta: Qdrant è l'unico motore: ChromaDB è stato rimosso.</li>
       <li>MovieLens: serie TV escluse dalle classifiche tramite TMDb <code>/find</code> per IMDb id, titoli normalizzati in lettura e <code>by_title</code> a livelli (esatto, normalizzato, sottostringa), verificati offline con transport finto. Non ancora verificato live: la risposta reale di <code>/find</code> sui dati MovieLens. Resta il limite che una ricerca parziale come «The Kingdom» non trova il titolo archiviato con l'articolo in fondo («Kingdom II, The (Riget II)»).</li>
       <li>Verifiche reali del 2026-10-22 (app, TMDb, OpenAI e Cohere reali, ≥30 s tra gli invii): routing live 23/23; titoli alternativi e varianti verificati su dati TMDb reali; A/B controllato del reranker (36 chiamate Cohere): violazioni verificabili 20 con la query italiana, 21 con la sola semantica, 16 con la query composta. Il 2026-10-26 <code>demote_contradicted</code> (dopo Cohere, i film contraddetti dai metadati di genere o decennio passano dopo gli altri) ha dato, su 5 casi e lo stesso pool, 4→3 violazioni nei top 3 con tutte e tre le query (15 chiamate Cohere): corregge il caso 12, non il 20, perché nei 10 candidati nessun film rispetta genere e decennio (limite del pool, non del reranker). Campione piccolo, metrica uguale al criterio del riordino.</li>
       <li>Tool YouTube: E2E reale del 2026-10-23 (20 domande, prima dei fix di pertinenza) con routing 20/20 e 6 OK / 10 parziali / 4 falliti. Ancora da verificare live: l'E2E dopo i fix, i casi YouTube nel routing eval, lo smoke test (scritto, mai lanciato), la precedenza degli operatori nella query e il rispetto reale delle istruzioni da parte dell'LLM. Le Developer Policies (III.A.2) chiedono anche una privacy policy dell'applicazione, non ancora scritta.</li>

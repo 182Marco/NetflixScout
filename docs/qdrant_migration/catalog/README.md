@@ -17,7 +17,7 @@ identità verificata), la sua trama inglese viene incorporata e salvata come pun
 | `tool/rag/FromQueryEmbeddingToRes/store/catalog.py` | `CatalogRecord`, `decide_link`, `CatalogStore.sync`, hash, payload |
 | `tool/rag/FromQueryEmbeddingToRes/store/genre_map.py` | 6 generi TMDb → vocabolario del corpus |
 | `catalog_enricher.py` | ponte neutro su `tmdb_search`: selezione, tetto di 2 film per turno, nessuna eccezione verso l'alto |
-| `app.py` (`build_catalog_enricher`) | collegamento; errore all'avvio con Chroma o Qdrant `memory` |
+| `app.py` (`build_catalog_enricher`) | collegamento; errore all'avvio con Qdrant `memory` |
 | `tool/rag/FromQueryEmbeddingToRes/hybrid.py` | una sola voce BM25 per collezione, `invalidate_bm25` |
 
 ## Regole che contano
@@ -36,7 +36,7 @@ identità verificata), la sua trama inglese viene incorporata e salvata come pun
 - Attivazione, test end-to-end con LLM reali, copia verificata dello storage Qdrant reale prima di accendere.
 
 ## Copia dello storage prima di accendere (procedura)
-I film TMDb non si ricostruiscono da Chroma, quindi prima di qualsiasi attivazione:
+I film TMDb non si ricostruiscono dal corpus, quindi prima di qualsiasi attivazione:
 1. fermare il server Qdrant (una cartella viva non è una copia coerente);
 2. `python docs/qdrant_migration/catalog/backup_storage.py backup --storage dbVettoriale/qdrant_openai/storage --dest <CARTELLA NUOVA> --url <URL del server>`
    (rifiuta se la destinazione esiste o è dentro la sorgente, o se il server risponde; legge soltanto la sorgente; scrive un manifesto SHA-256 e rilegge la copia);

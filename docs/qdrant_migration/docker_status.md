@@ -9,7 +9,5 @@ Il criterio "compatibile con la distribuzione Docker" resta **aperto**. Per chiu
 ```
 docker run -d -p 6333:6333 -v $PWD/qdrant_storage:/qdrant/storage qdrant/qdrant:v1.20.0
 QDRANT_URL=http://127.0.0.1:6333 python -m pytest tests/test_qdrant_store.py tests/test_qdrant_catalog_server.py -q
-python -m tool.rag.EmbeddingProcess.migrate_chroma_to_qdrant --chroma-dir <COPIA> --url http://127.0.0.1:6333 --run-dir <DIR>
-python -m tool.rag.EmbeddingProcess.validate_migration --chroma-dir <COPIA> --url http://127.0.0.1:6333 --report <FILE>
 ```
 (usare un volume nuovo, mai `dbVettoriale/qdrant_openai`).

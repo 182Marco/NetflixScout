@@ -2,26 +2,28 @@
 
 This repository integrates the RAG modules into a reproducible local pipeline and a public runtime entrypoint.
 
-# ▶▶▶ PRIMA DI TUTTO: AVVIA QDRANT (serve per usare il progetto)
+## Start the services (two terminals, from the repository root)
 
-# `cd /Users/filippo.milzagmail.com/Desktop/NetflixScout`
+NetflixScout needs two processes. Qdrant must be up before the application.
 
-# `QDRANT_BIN=/private/tmp/claude-501/-Users-filippo-milzagmail-com-Desktop-NetflixScout/5bfd1d87-098f-47f2-91bf-6c2ea5a37f18/scratchpad/qdrant_server/bin/qdrant ./scripts/start_qdrant.sh`
+```bash
+./scripts/start_qdrant.sh                                       # terminal 1: the Qdrant server (vector store)
+source .venv/bin/activate && uvicorn web_api.main:app --host 127.0.0.1 --port 8000   # terminal 2: the backend API for the frontend
+```
 
-**Da eseguire dalla radice del progetto**, in un terminale a parte che resta aperto (Ctrl+C per fermarlo). Ascolta solo su `127.0.0.1:6333` e apre lo storage reale
-`/Users/filippo.milzagmail.com/Desktop/NetflixScout/dbVettoriale/qdrant_openai/storage` (collezione `netflix_scout`, 42.522 punti). Il binario (Qdrant **1.20.0**, verificato con `--version`) si trova nella cartella
-temporanea di sessione indicata sopra, che il sistema può svuotare: se manca, va riscaricato (release ufficiale `qdrant/qdrant` v1.20.0, asset `qdrant-x86_64-apple-darwin.tar.gz`) e
-`QDRANT_BIN` punta al nuovo file. Dettagli: `docs/qdrant_migration/server.md`. Senza server, `python app.py` e `uvicorn web_api.main:app` si fermano con una riga: `Error: Cannot reach Qdrant ...`.
-Per tornare a Chroma: `VECTORSTORE_ENGINE=chroma` (vedi `docs/qdrant_migration/rollback.md`).
+- `scripts/start_qdrant.sh` runs the official Qdrant 1.20.0 binary on `127.0.0.1:6333` over `dbVettoriale/qdrant_openai/storage`.
+  It looks for the binary in `$QDRANT_BIN`, then `bin/qdrant` (not versioned), then the `PATH`; if none is found it says where to put
+  it (official release: https://github.com/qdrant/qdrant/releases/tag/v1.20.0). Ready when `curl http://127.0.0.1:6333/collections` lists `netflix_scout`.
+- The backend (`web_api/main.py`, one worker only) is ready when `curl http://127.0.0.1:8000/health` answers `{"status":"ok"}`. For the terminal chat use `python app.py`
+  instead of the second command. If Qdrant is down both stop with one line: `Error: Cannot reach Qdrant at ...`.
 
 ## Project Layout
 
 ```text
 /
 ├── dataset/            # local corpus input (not versioned)
-├── dbVettoriale/       # local vector DB persistence (not versioned)
-│   ├── openai/
-│   └── local/
+├── dbVettoriale/       # local data (not versioned): qdrant_openai/storage is the Qdrant index
+├── scripts/            # start_qdrant.sh
 ├── movie_db/           # MovieLens database side (the tool is in tool/movie_db/)
 │   ├── config.py       # validated view of CONFIG["movie_db"]
 │   ├── schema.py       # tables, columns, DDL (shared)
@@ -112,7 +114,7 @@ From repository root:
 python -m venv .venv
 .venv\Scripts\activate
 pip install --upgrade pip
-pip install openai python-dotenv pydantic chromadb qdrant-client==1.20.0 numpy rank-bm25 cohere beautifulsoup4 markdown-it-py pypdf python-docx sentence-transformers
+pip install -r requirements.txt
 ```
 
 ## Download the Dataset
@@ -134,54 +136,49 @@ dataset/
     └── tvtropes.clusters.txt
 ```
 
-## Build dbVettoriale/
+## The vector index (Qdrant)
 
-Single command (full rebuild from zero, OpenAI backend):
+Why a semantic search: recommendations must match meaning, not words. Every plot of the corpus is stored as a 1536-number vector
+(`text-embedding-3-small`); a question is turned into a vector the same way and the closest plots are returned (cosine similarity),
+optionally fused with keyword search (BM25, `hybrid`) and reranked (Cohere, or an LLM for "like X, not like Y" requests).
+Qdrant is the only vector store: it holds the 42,522 points (vector + plot text + metadata) in `dbVettoriale/qdrant_openai/storage`
+and finds neighbours with an HNSW index. Settings: `CONFIG["rag"]["vectorstore"]` (collection and server URL); the optional
+variables `VECTORSTORE_QDRANT_MODE|URL|PATH` and `QDRANT_API_KEY` only say where the server is.
+
+### Movies cited as references ("like X, not like Y")
+A cited movie gets a real vector, not only a description written by the LLM: if the index has it, its stored vector is reused;
+if not, its English plot is read from TMDb (identity verified by title and year), embedded once and kept in Qdrant as
+`tmdb:movie:<id>` (or linked to the corpus point of the same work); a movie without a usable plot gets no vector and the trace says so.
+The vectors steer the Qdrant search (`best_score`) only when at least one liked movie was resolved; otherwise the plain search runs.
+The cited movies themselves never come back. Settings: `CONFIG["rag"]["reference"]`, `CONFIG["rag"]["signals"]`; traces in the
+`retrieval` step. Measurements and limits: `docs/qdrant_migration/reference_embeddings_report.md`.
+
+### Rebuild the index from the dataset
+Creates a NEW collection (nothing is overwritten; it uses paid OpenAI embeddings). With the Qdrant server running:
 
 ```bash
-python buildSemanticDb.py --embedding-backend openai
+python buildSemanticDb.py --collection netflix_scout_new          # then set CONFIG["rag"]["vectorstore"]["collection"]
+python buildSemanticDb.py --qdrant-mode embedded --qdrant-path NEW_FOLDER   # alternative: a folder, no server
 ```
 
-For the local backend:
+The build scans `dataset/`, cleans and chunks the text, embeds the chunks with `tool.rag.FromQueryEmbeddingToRes.embeddings`
+and indexes them. It refuses an existing collection or a non-empty folder before calling the embedding API. See `docs/qdrant_migration/rebuild.md`.
 
-```bash
-python buildSemanticDb.py --embedding-backend local
-```
-
-What the build does:
-
-1. Deletes and recreates `dbVettoriale/<backend>/`.
-2. Scans all files under `dataset/` in deterministic sorted order.
-3. Cleans text with `tool.rag.EmbeddingProcess.clean` pipelines.
-4. Chunks text with `tool.rag.EmbeddingProcess.chunk` semantic chunking (`chunk_semantic`).
-5. Embeds chunks with `tool.rag.FromQueryEmbeddingToRes.embeddings`.
-6. Indexes into Chroma via `tool.rag.FromQueryEmbeddingToRes.vectorstore` APIs.
-
-### Semantic search and Qdrant (default engine)
-
-Why: recommendations must match meaning, not words: every plot is stored as a 1536-number vector (`text-embedding-3-small`) and a question is turned into a vector the same way; the closest plots are returned (cosine similarity), optionally fused with keyword search (BM25, `hybrid`) and reranked (Cohere). Qdrant stores the 42,522 points (vector + plot text + metadata) and finds neighbours with an HNSW index. The 42,522 existing vectors were migrated unchanged and checked point by point; the index was also rebuilt from the dataset and found equivalent. Full guide, results and limits: `docs/qdrant_migration/README.md`.
-
-#### Qdrant engine
-
-To rebuild the index on Qdrant from the dataset (new collection, nothing is overwritten; paid OpenAI embeddings): `python buildSemanticDb.py --engine qdrant --qdrant-mode embedded --qdrant-path NEW_FOLDER` (or `--qdrant-mode server --qdrant-url URL --collection NEW_NAME`); see `docs/qdrant_migration/rebuild.md`.
-
-The index can also be served by Qdrant (`VECTORSTORE_ENGINE=qdrant`, with `VECTORSTORE_QDRANT_MODE=embedded|server`, `VECTORSTORE_QDRANT_URL` / `VECTORSTORE_QDRANT_PATH`). The existing OpenAI vectors are migrated without recomputing them (`python -m tool.rag.EmbeddingProcess.migrate_chroma_to_qdrant`, then `validate_migration`); the full procedure, thresholds and results are in `docs/qdrant_migration/`. Qdrant is now the default engine (a Qdrant 1.20.0 server must be running at `http://127.0.0.1:6333` on the folder `dbVettoriale/qdrant_openai/storage`, e.g. the official binary started with `QDRANT__SERVICE__HOST=127.0.0.1 QDRANT__STORAGE__STORAGE_PATH=dbVettoriale/qdrant_openai/storage ./qdrant` run from a folder outside the repository; set `VECTORSTORE_ENGINE=chroma` to go back to the old Chroma folder, which is kept; see `docs/qdrant_migration/rollback.md` for a way that alters no storage). The rebuild from the dataset was run and validated (`docs/qdrant_migration/rebuild/rebuild_report.md`). Install `qdrant-client==1.20.0` (pinned in `requirements.txt` together with the server version used for the tests).
-
-Films cited by the user and missing from the index can be added from TMDb (`CONFIG["catalog"]["enabled"]`, **off** by default and not yet calibrated); see `docs/qdrant_migration/catalog/README.md`.
+Films cited by the user and missing from the index can also be added from any `tmdb_search` result (`CONFIG["catalog"]["enabled"]`, **off** by default and not calibrated); see `docs/qdrant_migration/catalog/README.md`.
 
 ## Verify Build
 
 After build, verify:
 
-1. `dbVettoriale/openai/` or `dbVettoriale/local/` exists.
-2. The build log shows final chunk count and collection name.
+1. The Qdrant server is running and `curl http://127.0.0.1:6333/collections` lists the collection.
+2. After a rebuild, the build log shows the final chunk count and collection name.
 3. Runtime check:
 
 ```bash
 python app.py
 ```
 
-If the collection is empty, `app.py` raises an explicit error telling you to run `python buildSemanticDb.py --embedding-backend <backend>`.
+If the collection is empty, `app.py` raises an explicit error telling you to run `python buildSemanticDb.py`.
 
 When the collection is available, `app.py` starts an interactive terminal chat.
 
