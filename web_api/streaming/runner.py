@@ -15,6 +15,7 @@ from typing import Any
 from openai import OpenAI
 
 from app import handle_query
+from preferences import Resolution, resolve_preferences
 from presenters.web import WebObserver
 from presenters.web.observer import EVENT_ANSWER_DELTA, Emit
 from turn import TurnResult
@@ -86,15 +87,22 @@ async def _run_turn(
     content: str,
     bot_app: dict[str, Any],
     client: OpenAI,
+    resolution: Resolution,
 ) -> None:
     streamed: list[str] = []
     turn: TurnResult | None = None
     failure: EventPayload | None = None
     try:
-        deliver(sub, EVENT_TURN_START, TurnStart(conversation_id=conv.id, turn=turn_number).model_dump())
+        start = TurnStart(
+            conversation_id=conv.id,
+            turn=turn_number,
+            preferences=resolution.preferences.as_dict(),
+            ignored_preferences=resolution.ignored,
+        )
+        deliver(sub, EVENT_TURN_START, start.model_dump())
         observer = WebObserver(thread_emitter(asyncio.get_running_loop(), sub, streamed))
         turn = await asyncio.to_thread(
-            handle_query, bot_app, content, conv.history, client, observer, final_output()
+            handle_query, bot_app, content, conv.history, client, observer, final_output(), resolution.preferences
         )
     except asyncio.CancelledError:
         failure = (EVENT_ERROR, ErrorEvent(code=ERROR_INTERNAL, message="The server is stopping.").model_dump())
@@ -123,12 +131,14 @@ def launch_turn(
     content: str,
     bot_app: dict[str, Any],
     client: OpenAI,
+    resolution: Resolution | None = None,
 ) -> Subscription:
-    """Start the turn and return its events. Raises `TurnInProgress` if the conversation is busy."""
+    """Start the turn and return its events. Raises `TurnInProgress` if the conversation is busy.
+    `resolution` holds the settings of this turn; without it every default applies."""
     turn_number = begin_turn(conv, time.monotonic())
     sub = Subscription()
     task = asyncio.get_running_loop().create_task(
-        _run_turn(sub, store, conv, turn_number, content, bot_app, client)
+        _run_turn(sub, store, conv, turn_number, content, bot_app, client, resolution or resolve_preferences(None))
     )
     store.tasks.add(task)
     task.add_done_callback(store.tasks.discard)

@@ -25,8 +25,13 @@ ERROR_INTERNAL: Final = "internal_error"
 
 
 class TurnStart(BaseModel):
+    """`preferences`: the settings applied to this turn (defaults filled in); `ignored_preferences`:
+    names of the fields whose value was not valid and fell back to the default."""
+
     conversation_id: str
     turn: int
+    preferences: dict[str, Any] | None = None
+    ignored_preferences: list[str] = []
 
 
 class Status(BaseModel):
@@ -76,7 +81,7 @@ class ErrorEvent(BaseModel):
     message: str
 
 
-# Event name -> payload model (what `FRONTEND_API.md` documents and its test validates).
+# Event name -> payload model (what `chat_stream.md` documents and its test validates).
 EVENT_MODELS: Final[dict[str, type[BaseModel]]] = {
     EVENT_TURN_START: TurnStart,
     "status": Status,

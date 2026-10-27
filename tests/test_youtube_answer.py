@@ -49,7 +49,8 @@ def test_turn_limit_wording_hints_and_conciseness() -> None:
     assert "per il limite di ricerche per turno" in text and "limite di turni" not in text
     assert "'specify_year', suggerisci di indicare l'anno del film" in text
     assert "'original_title'" in text and "senza proporne uno" in text
-    assert "Non mescolare link TMDb e YouTube" in text and "Rispondi in modo conciso" in text
+    # The length of the answer belongs to the user's settings (`preferences/`), not to this rule.
+    assert "Non mescolare link TMDb e YouTube" in text and "Rispondi in modo conciso" not in text
 
 
 def test_the_shared_final_rules_do_not_carry_the_youtube_rules() -> None:

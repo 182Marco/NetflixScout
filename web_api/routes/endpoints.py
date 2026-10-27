@@ -1,6 +1,7 @@
 """The endpoints. Thin: they validate, call the store and the runner, and answer."""
 from __future__ import annotations
 
+import logging
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -9,6 +10,7 @@ from typing import Any
 from fastapi import APIRouter, Request, Response
 from fastapi.responses import StreamingResponse
 from openai import OpenAI
+from preferences import Resolution, public_schema, resolve_preferences
 
 from ..conversations.store import (
     ConversationStore,
@@ -24,6 +26,7 @@ from ..streaming.sse import SSE_HEADERS
 from .errors import MessageTooLong
 
 router = APIRouter()
+logger = logging.getLogger("web_api.preferences")
 
 
 def now_iso() -> str:
@@ -50,6 +53,24 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@router.get("/settings")
+def read_settings() -> dict[str, Any]:
+    """The public definition of the user settings (fields, options, defaults), nothing else."""
+    return public_schema()
+
+
+def _log_preference_issues(conversation_id: str, resolution: Resolution) -> None:
+    """A preference problem never fails the request: it is logged and the default is used."""
+    for issue in resolution.issues:
+        logger.warning(
+            "preference ignored: field=%s code=%s value=%s conversation=%s",
+            issue.field,
+            issue.code,
+            issue.value,
+            conversation_id,
+        )
+
+
 @router.post("/conversations", status_code=201)
 def open_conversation(request: Request) -> ConversationCreated:
     conv = create_conversation(_state(request).store, time.monotonic(), now_iso())
@@ -74,7 +95,9 @@ async def send_message(conversation_id: str, body: MessageRequest, request: Requ
     if len(body.content) > state.settings.max_message_chars:
         raise MessageTooLong()
     conv = get_conversation(state.store, conversation_id)
-    sub = launch_turn(state.store, conv, body.content, state.bot_app, state.client)
+    resolution = resolve_preferences(body.preferences)
+    _log_preference_issues(conversation_id, resolution)
+    sub = launch_turn(state.store, conv, body.content, state.bot_app, state.client, resolution)
     return StreamingResponse(
         stream_events(sub, state.settings.heartbeat_seconds),
         media_type="text/event-stream",

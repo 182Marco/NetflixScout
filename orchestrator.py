@@ -377,14 +377,15 @@ class LLMOrchestrator:
                 )
         return lines
 
-    def _final_instructions(self, tool_name: str | Sequence[str] | None) -> str:
+    def _final_instructions(self, tool_name: str | Sequence[str] | None, preferences: str = "") -> str:
         """`final_instructions` plus the rules of every tool that ran, if it has any
-        (`tool_final_instructions`): turns of other tools do not carry them."""
+        (`tool_final_instructions`): turns of other tools do not carry them. `preferences` (the
+        user's settings for this turn, composed by the caller) goes last so it governs the form."""
         base = self.orchestrator_config.get("final_instructions") or DEFAULT_FINAL_INSTRUCTIONS
         names = [tool_name] if isinstance(tool_name, str) or tool_name is None else list(tool_name)
         rules = self.orchestrator_config.get("tool_final_instructions") or {}
         extras = list(dict.fromkeys(rules[name] for name in names if name and rules.get(name)))
-        return " ".join([base, *extras])
+        return " ".join([base, *extras, *([preferences] if preferences else [])])
 
     def _generate_final_answer(
         self,
@@ -398,6 +399,7 @@ class LLMOrchestrator:
         final_output: Mapping[str, Any] | None = None,
         lists_out: list[Any] | None = None,
         on_delta: Callable[[str], None] | None = None,
+        answer_preferences: str = "",
     ) -> str:
         """The answer text, written by ONE streamed call; a failure is appended to `failures`.
 
@@ -411,7 +413,7 @@ class LLMOrchestrator:
         a second call.
         """
         results = tool_results or [tool_result or {}]
-        instructions = self._final_instructions([r.get("tool_name") for r in results])
+        instructions = self._final_instructions([r.get("tool_name") for r in results], answer_preferences)
         extra: dict[str, Any] = {}
         decoder: AnswerFieldStream | None = None
         if final_output:
@@ -546,7 +548,9 @@ class LLMOrchestrator:
         coverage = self.orchestrator_config.get("data_coverage") or {}
         return {tool: info for tool, info in coverage.items() if tool in allowed}
 
-    def _planning_instructions(self, allowed: list[str], decision_prompt: str) -> str:
+    def _planning_instructions(self, allowed: list[str], decision_prompt: str, preferences: str = "") -> str:
+        """Planner prompt. `preferences` (settings that steer routing) is appended last, after the
+        long stable prefix, and is empty when the turn carries none."""
         return (
             self.orchestrator_config.get("instructions", decision_prompt)
             + coverage_rule(self._coverage_for(allowed))
@@ -554,6 +558,7 @@ class LLMOrchestrator:
             + ", ".join(allowed)
             + "\nTool catalog (arguments must follow the tool parameters):\n"
             + self._catalog_text(allowed)
+            + (f"\n{preferences}" if preferences else "")
         )
 
     def _plan_first(
@@ -562,6 +567,7 @@ class LLMOrchestrator:
         query: str,
         conversation_history: list[dict[str, str]] | None = None,
         limits: _Limits | None = None,
+        planner_preferences: str = "",
     ) -> _Plan:
         """First planner decision of the turn (see `_plan_turn`), plus `more_steps`."""
         allowed = self._allowed_tool_names()
@@ -583,7 +589,7 @@ class LLMOrchestrator:
         try:
             response = self.client.responses.create(
                 model=self.orchestrator_config.get("llm_model", "gpt-5.6-luna"),
-                instructions=self._planning_instructions(allowed, decision_prompt),
+                instructions=self._planning_instructions(allowed, decision_prompt, planner_preferences),
                 # Full history, unchanged and in order: a stable prompt prefix lets the
                 # provider's prompt caching reuse it across turns.
                 input=[
@@ -666,6 +672,7 @@ class LLMOrchestrator:
         calls: list[_Call],
         parts: list[dict[str, str]] | None = None,
         limits: _Limits | None = None,
+        planner_preferences: str = "",
     ) -> tuple[_Plan | None, str, dict[str, Any] | None]:
         """Next step of the turn after `calls` and why the turn stops when there is none.
 
@@ -697,7 +704,7 @@ class LLMOrchestrator:
         try:
             response = self.client.responses.create(
                 model=self.orchestrator_config.get("llm_model", "gpt-5.6-luna"),
-                instructions=self._planning_instructions(allowed, "") + NEXT_STEP_FORMAT,
+                instructions=self._planning_instructions(allowed, "", planner_preferences) + NEXT_STEP_FORMAT,
                 input=[
                     *list(conversation_history or []),
                     {"role": "user", "content": query},
@@ -812,6 +819,7 @@ class LLMOrchestrator:
         tool_overrides: dict[str, Any] | None = None,
         observer: TurnObserver | None = None,
         final_output: Mapping[str, Any] | None = None,
+        prompt_parts: Mapping[str, str] | None = None,
     ) -> dict[str, Any]:
         """Run the tools the request needs, one after the other, then answer.
 
@@ -830,10 +838,22 @@ class LLMOrchestrator:
         `final_output` (web channel only, see `web_lists.final_output`) makes the final answer
         call return the answer plus structured list references in the same call; they come
         back as `final_lists`. Without it nothing changes.
+
+        `prompt_parts` (`{"planner", "answer"}`, plain text composed by the caller from the user's
+        settings, see `preferences/`) is added to the planner prompts and to the final answer
+        prompt. It only shapes routing priorities and the form of the answer: it never adds a
+        tool call. Without it every prompt is exactly as before.
         """
+        planner_preferences = str((prompt_parts or {}).get("planner") or "")
+        answer_preferences = str((prompt_parts or {}).get("answer") or "")
         observer = observer or NullObserver()
         limits = _Limits(self.orchestrator_config)
-        plan = self._plan_first(query=query, conversation_history=conversation_history, limits=limits)
+        plan = self._plan_first(
+            query=query,
+            conversation_history=conversation_history,
+            limits=limits,
+            planner_preferences=planner_preferences,
+        )
         standalone_query = plan.standalone_query
         self._emit(
             observer,
@@ -927,6 +947,7 @@ class LLMOrchestrator:
                 calls=calls,
                 parts=parts,
                 limits=limits,
+                planner_preferences=planner_preferences,
             )
 
         if stop_reason in LIMIT_STOPS:
@@ -960,6 +981,7 @@ class LLMOrchestrator:
             final_output=final_output,
             lists_out=final_lists,
             on_delta=lambda text: self._emit_delta(observer, text),
+            answer_preferences=answer_preferences,
         )
         if answer_failures:
             self._emit(

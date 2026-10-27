@@ -145,7 +145,7 @@ def run_tool(tool, *, query: str = "domanda", **arguments: Any) -> dict[str, Any
 
 
 def doc_step():
-    """The `wikipedia_calls` step whose web form is the example in `web_api/FRONTEND_API.md`."""
+    """The `wikipedia_calls` step whose web form is the example in `web_api/contracts/chat_stream.md`."""
     from turn import STEP_WIKIPEDIA_CALLS, TraceStep
 
     return TraceStep(

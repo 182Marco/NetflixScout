@@ -30,6 +30,7 @@ Leggi, in quest'ordine, e annota per ciascun tool cosa è **convenzione** e cosa
 4. Un tool completo: `tool/youtube/` (`config`, `settings`, `auth`, `errors`, `http`, `models`, `queries`, `relevance`, `trace`, `tool`).
 5. Presenter: `presenters/youtube_view.py`, `presenters/terminal/youtube/`, `presenters/web/youtube/`, `STEP_RENDERERS`, `STEP_SERIALIZERS`, `story_view.TOOLS`.
 6. Test: `tests/test_youtube_*.py` + `youtube_support.py`, `tests/test_presenter_parity.py`, `movie_db/harness/evaluation/routing_cases.py`.
+7. Impostazioni: `preferences/fields.json` (pubblico), `preferences/behavior.py` (privato: `SOURCE_TOOLS`, `SOURCES_PLANNER`, `SOURCES_ANSWER`), `tests/test_preferences.py`, `web_api/contracts/settings.md` (vedi §2f).
 
 | Convenzione (copiala) | Peculiarità (non copiarla) |
 |---|---|
@@ -61,6 +62,30 @@ URL, SQL, filtri e limiti li costruisce il codice da frammenti costanti (`tool/y
 
 **e) Limiti, quote, dati da non conservare.** Limite per turno su `turn_id` (`_searches_left`, `CallBudget`); chi è
 l'autorità sulla quota; cosa non si può memorizzare per i termini dell'API. Le policy esterne vanno nel docstring del modulo.
+
+**f) Quale fonte dell'utente serve questo tool (SEMPRE, non opzionale).** L'utente sceglie nelle impostazioni
+"Preferred sources" (`preferences/fields.json`: `reviews`, `interviews`, `official information`, `user ratings`).
+Un tool nuovo non è finito finché non è deciso, **con motivazione scritta e verificata sui dati reali** (risposte
+registrate o fixture, mai solo la documentazione dell'API), a quale preferenza si aggancia in modo prevalente:
+1. **Che tipo di dato porta davvero?** Guarda i campi che arrivano nel risultato: voti degli utenti, testo di
+   recensioni (utenti o critica professionale: sono cose diverse e vanno dichiarate come tali), dichiarazioni dirette di
+   registi/cast/autori, dati strutturati o enciclopedici. Annota cosa **non** porta.
+2. **Quale preferenza serve?** Una sola prevalente (la riga di `SOURCE_TOOLS` in `preferences/behavior.py`); se ne
+   serve più d'una, scrivi quale e perché. Se nessuna delle quattro descrive i suoi dati, non forzarla: proponi un
+   valore nuovo (`fields.json`, `behavior.py`, test e `web_api/contracts/settings.md`, in un commit a parte).
+3. **Sovrapposizioni.** Con quali tool esistenti dà lo stesso tipo di dato? Chi è più affidabile, più aggiornato, più
+   costoso (quota, chiamate)? Scrivi la regola di priorità: l'intento della richiesta e le regole numerate di routing
+   prevalgono sempre sulla preferenza, che serve solo da criterio secondario tra tool che già servono la richiesta.
+4. **Nessuna chiamata in più.** La preferenza orienta e mette in evidenza (`SOURCES_PLANNER`, `SOURCES_ANSWER`): non
+   aggiunge passi né tool. Se il nuovo tool ha quote o costi, dichiaralo.
+5. **Spoiler e tipo di contenuto.** Il tool può restituire trame, finali o recensioni che spoilerano? Copre film, serie
+   o entrambi? Va scritto, perché `spoiler_plot` e `content_type` si basano su questo.
+6. **Conflitti da testare.** Almeno un caso in cui la preferenza e l'intento esplicito divergono, con l'esito atteso
+   (l'intento vince, il limite è detto nella risposta).
+
+Se per questa decisione serve una fonte che oggi non esiste (per esempio recensioni della critica professionale),
+non inventarla: segnala all'utente le API o i server MCP gratuiti candidati (licenza, quota, dati, condizioni d'uso
+verificati) e proponi un nuovo tool con questa stessa procedura.
 
 ## 3. Struttura e responsabilità
 
@@ -122,7 +147,8 @@ Non creare cartelle, classi astratte o layer "per il futuro". Dividi un file qua
 7. Registrazione: `build_app` + `allowed_tools` + regola di routing in `instructions` + `tool_final_instructions["<nome>"]` (solo per i tool che ne hanno bisogno) + test come `tests/test_youtube_app.py` (registrato, nel catalogo del planner, regola nella posizione giusta, regole finali solo nei turni del tool).
 8. Presenter: vista condivisa `presenters/<x>_view.py`; `presenters/terminal/<x>/` (`blocks.py`, `renderer.py`); `presenters/web/<x>/serializer.py`; registrazione in `STEP_RENDERERS` **e** `STEP_SERIALIZERS`; voce in `story_view.TOOLS` (it/en) e `REASONS` se servono nuovi codici; nuovo `STEP_<X>_CALLS` in `turn.py`. Test: parità terminale/web, lingue it/en, nessun import del pacchetto del dominio dai presenter (`tests/test_youtube_presenters.py`).
 9. Routing: casi in `routing_cases.py` (con `expected_*` se serve validare gli `arguments`) + test offline in `tests/test_movie_db_routing_eval.py`. **Non eseguire** `--live` senza permesso: consuma crediti. Cambiare lo schema cambia il prompt del planner: dichiara che il routing live è da rieseguire.
-10. Documentazione: riga in "Mappa del codice" e sezione del tool in `AGENTS.md`, `README.md`. Comandi di verifica live (smoke) in `tool/<nome>/harness/`, mai importato a runtime. Se sposti o aggiungi file, aggiorna anche `mappa.html` (albero scritto a mano).
+10. Preferenze (§2f): riga del tool in `SOURCE_TOOLS` (`preferences/behavior.py`) con la motivazione nel messaggio di commit; se il tool cambia cosa si può dire per una fonte, aggiorna `SOURCES_PLANNER`/`SOURCES_ANSWER` e le regole di routing; `tests/test_preferences.py` verifica che ogni tool di `allowed_tools` sia dichiarato. Aggiungi un test del conflitto tra preferenza e intento esplicito.
+11. Documentazione: riga in "Mappa del codice" e sezione del tool in `AGENTS.md`, `README.md`. Comandi di verifica live (smoke) in `tool/<nome>/harness/`, mai importato a runtime. Se sposti o aggiungi file, aggiorna anche `mappa.html` (albero scritto a mano).
 
 ## 6. Integrazione con l'orchestratore, senza un secondo orchestratore
 
@@ -153,7 +179,7 @@ python -m movie_db.harness.evaluation.run_eval       # solo offline; mai --live-
 git diff --stat && git diff                           # niente file non voluti, niente .env, nessun print fuori da presenters/terminal
 ```
 
-Controlla a mano: il codice sta in `tool/<nome>/`, non nella root; nessun import tra domini; nessun `print`; nessun default duplicato fuori da `CONFIG`; nessuna
+Controlla a mano: la decisione §2f è scritta e motivata (che dato porta, a quale preferenza si aggancia, sovrapposizioni, spoiler, film/serie), non solo una riga in `SOURCE_TOOLS`; il codice sta in `tool/<nome>/`, non nella root; nessun import tra domini; nessun `print`; nessun default duplicato fuori da `CONFIG`; nessuna
 modifica ai test dei tool esistenti salvo l'elenco dei tool registrati (es. `tests/test_movie_db_app.py:31`); il test
 di parità `STEP_RENDERERS == STEP_SERIALIZERS` passa. Riporta cosa **non** hai verificato (live, routing eval).
 

@@ -12,6 +12,7 @@ from movie_db.config import load_movie_db_config
 from tool.movie_db.movie_db_tool import MovieDbTool
 from tool.movie_db.sql.connection import ensure_db_ready
 from orchestrator import LLMOrchestrator
+from preferences import build_prompt_parts
 from presenters import OutputChannel, present, terminal
 from presenters.story_view import StoryBuilder
 from tool.rag.FromQueryEmbeddingToRes.chat import _choose_block_language
@@ -192,10 +193,11 @@ CONFIG = {
             "TMDb o trama del RAG): non aggiungere temi, interpretazioni, intenzioni dei "
             "personaggi o dettagli che non vi compaiono, anche se li conosci. "
             "Se nei Metadata c'è tmdb_enrichment, i film da presentare restano quelli dei "
-            "risultati del RAG, nello stesso ordine, e il motivo del consiglio deve venire dagli "
+            "risultati del RAG (non aggiungerne altri; se li elenchi tutti, nello stesso ordine), e il motivo del consiglio deve venire dagli "
             "elementi delle loro trame: citali come elementi della trama, senza scrivere che il "
             "RAG o i risultati giudicano un film simile o vicino al titolo citato dall'utente. "
-            "Per ogni candidato con status 'matched' presenta titolo, anno, "
+            "Per ogni candidato con status 'matched' presenta, con il livello di dettaglio che le "
+            "impostazioni dell'utente indicano se ci sono, titolo, anno, "
             "regista e cast principale presi dal suo blocco tmdb e una breve sinossi; se ha "
             "matched_by 'alternative_title', usa il titolo dei risultati del RAG e indica il "
             "titolo con cui TMDb registra il film; per i "
@@ -280,8 +282,7 @@ CONFIG = {
                 "nazionalità) senza proporne uno. Se i metadata hanno candidates (pagine trovate ma non aperte perché non verificate), dillo e non "
                 "attribuire loro fatti. Non inventare date o fatti assenti dal testo e non "
                 "mescolare i dati di Wikipedia con quelli di TMDb senza indicare la fonte di ciascuno. "
-                "I link alle pagine e la licenza CC BY-SA 4.0 li mostra l'interfaccia: non scrivere URL. "
-                "Rispondi in modo conciso."
+                "I link alle pagine e la licenza CC BY-SA 4.0 li mostra l'interfaccia: non scrivere URL."
             ),
             "youtube_search": (
                 "Se il tool usato è youtube_search, presenta i video come risultati di ricerca "
@@ -299,7 +300,7 @@ CONFIG = {
                 "motivo. Dichiara le categorie senza risultati e gli errori di quota. Se hints "
                 "contiene 'specify_year', suggerisci di indicare l'anno del film; se contiene "
                 "'original_title', di' in una frase che indicare il titolo originale può aiutare, "
-                "senza proporne uno. Non mescolare link TMDb e YouTube. Rispondi in modo conciso."
+                "senza proporne uno. Non mescolare link TMDb e YouTube."
             ),
         },
         # Last release year each local source covers fully; measured by `data_coverage.py`
@@ -662,6 +663,7 @@ def handle_query(
     openai_client: OpenAI | None = None,
     observer: TurnObserver | None = None,
     final_output: dict[str, Any] | None = None,
+    preferences: Any | None = None,
 ) -> TurnResult:
     """Answer one query and record every step. Never prints: output is up to presenters/.
 
@@ -670,6 +672,10 @@ def handle_query(
 
     `observer` receives the steps while they happen (the orchestrator streams them), so a
     channel can show the work during the wait; `TurnResult` has the same steps and story.
+
+    `preferences` (the web entry point only: a validated `preferences.Preferences`) shapes the
+    planner and the final answer for this turn; it never adds a tool call. `None` (the terminal,
+    the tests) leaves every prompt exactly as it was.
     """
     runtime_config = app["config"]
     history = list(history or [])
@@ -701,6 +707,7 @@ def handle_query(
         observer=recorder,
         # Only when given: the terminal call stays exactly as it was.
         **({"final_output": final_output} if final_output else {}),
+        **({"prompt_parts": build_prompt_parts(preferences)} if preferences is not None else {}),
     )
     answer = decision["final_answer"]
 

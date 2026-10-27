@@ -919,7 +919,7 @@ const TREE = D("NetflixScout", {}, [
     L: "web",
     s: `Server HTTP/SSE (FastAPI) per il frontend: conversazioni, risposta in streaming, liste.`,
     d: `Tutto il codice FastAPI/SSE e lo stato delle conversazioni sta qui; nessun altro modulo del repository importa FastAPI o <code>web_api</code>. Riusa il nucleo senza modificarlo: <code>handle_query(..., observer=WebObserver, final_output=web_lists.final_output())</code>, <code>present(turn, web)</code> e <code>attach_lists</code>. Il turno è sincrono e invariato; gira in un thread dentro una task <b>indipendente dal client</b>: la history si registra quando <code>handle_query</code> ritorna (una sola volta, in <code>finish_turn</code>), la conversazione resta occupata fino alla fine reale e alla disconnessione il turno prosegue.`,
-    n: [`Nessuna autenticazione né rate limit, per scelta (portfolio, budget limitato sulla chiave backend).`, `Un solo worker: le conversazioni sono nella memoria del processo.`, `<code>FRONTEND_API.md</code> è il contratto per il frontend; il suo test lo confronta con i modelli degli eventi.`],
+    n: [`Nessuna autenticazione né rate limit, per scelta (portfolio, budget limitato sulla chiave backend).`, `Un solo worker: le conversazioni sono nella memoria del processo.`, `<code>contracts/</code> contiene i contratti per il frontend; il suo test lo confronta con i modelli degli eventi.`],
   }, [
     F("__init__.py", {
       L: "web",
@@ -953,13 +953,26 @@ const TREE = D("NetflixScout", {}, [
       ],
       x: ["pydantic"],
     }),
-    F("FRONTEND_API.md", {
+    D("contracts", {
       L: "cfg",
-      s: `Contratto per il frontend: endpoint, eventi SSE e payload di esempio.`,
-      d: `Descrive ciò che il codice fa davvero: come aprire una conversazione, inviare un messaggio e leggere lo stream, l'ordine degli eventi, gli errori e come mostrare le fonti (Wikipedia CC BY-SA, attribuzioni TMDb e YouTube). Gli esempi sono prodotti dal codice reale con un bot finto.`,
-      dep: ["web_api/schemas/events.py"],
-      n: [`I blocchi di esempio sono validati da <code>tests/web_api/test_web_api_doc.py</code> contro i modelli degli eventi: documento e codice non possono divergere in silenzio.`],
-    }),
+      s: `Contratti per il frontend, un file per argomento.`,
+      d: `L'unica cartella dei contratti API per il frontend: <code>chat_stream.md</code> (conversazioni e stream SSE) e <code>settings.md</code> (impostazioni utente), senza duplicazioni tra i due.`,
+    }, [
+      F("chat_stream.md", {
+        L: "cfg",
+        s: `Contratto per il frontend: endpoint, eventi SSE e payload di esempio.`,
+        d: `Descrive ciò che il codice fa davvero: come aprire una conversazione, inviare un messaggio e leggere lo stream, l'ordine degli eventi, gli errori e come mostrare le fonti (Wikipedia CC BY-SA, attribuzioni TMDb e YouTube). Gli esempi sono prodotti dal codice reale con un bot finto.`,
+        dep: ["web_api/schemas/events.py"],
+        n: [`I blocchi di esempio sono validati da <code>tests/web_api/test_web_api_doc.py</code> contro i modelli degli eventi: documento e codice non possono divergere in silenzio.`],
+      }),
+      F("settings.md", {
+        L: "cfg",
+        s: `Contratto delle impostazioni utente: GET /settings, campo preferences, fallback.`,
+        d: `Quando chiamare <code>GET /settings</code>, schema pubblico, invio di <code>preferences</code> con ogni messaggio, validazione e fallback per campo, effetto su <code>turn_start</code>. Non contiene mai le istruzioni interne.`,
+        dep: ["preferences/fields.json"],
+        n: [`L'esempio è validato da <code>tests/web_api/test_web_api_settings.py</code> contro <code>preferences/fields.json</code>.`],
+      }),
+    ]),
     D("conversations", {
       L: "web",
       s: `Stato delle conversazioni.`,
@@ -1039,7 +1052,7 @@ const TREE = D("NetflixScout", {}, [
       F("events.py", {
         L: "web",
         s: `Gli eventi dello stream: nomi, modelli dei payload, elemento della coda.`,
-        d: `Ordine di un turno: <code>turn_start</code>, poi <code>status</code>, <code>story</code>, <code>step</code> e <code>answer_delta</code> man mano che accadono, poi <code>answer_end</code>, <code>lists</code>, <code>done</code>; oppure <code>error</code> (e nulla dopo) se il turno è fallito. I primi quattro vengono da <code>presenters/web/observer.py</code> e ne mantengono i payload; gli altri appartengono a questo package. <code>EVENT_MODELS</code> è ciò che <code>FRONTEND_API.md</code> documenta e il suo test valida.`,
+        d: `Ordine di un turno: <code>turn_start</code>, poi <code>status</code>, <code>story</code>, <code>step</code> e <code>answer_delta</code> man mano che accadono, poi <code>answer_end</code>, <code>lists</code>, <code>done</code>; oppure <code>error</code> (e nulla dopo) se il turno è fallito. I primi quattro vengono da <code>presenters/web/observer.py</code> e ne mantengono i payload; gli altri appartengono a questo package. <code>EVENT_MODELS</code> è ciò che <code>contracts/chat_stream.md</code> documenta e il suo test valida.`,
         it: [
           [`AnswerEnd(blocked, language, tool, tools, history_compacted, replace)`, `<code>replace</code> è null se il testo in streaming è la risposta; altrimenti l'intera risposta, che sostituisce quanto mostrato.`],
           [`SseEvent(id, name, data) · END`, `Elemento della coda di un turno e suo marcatore di fine.`],
@@ -1096,6 +1109,36 @@ const TREE = D("NetflixScout", {}, [
         dep: ["web_api/schemas/events.py"],
       }),
     ]),
+  ]),
+
+  D("preferences", {
+    L: "web",
+    s: `Impostazioni utente per turno: definizione pubblica, validazione e istruzioni private.`,
+    d: `<code>fields.json</code> è l'unica fonte pubblica (id, opzioni, default); <code>behavior.py</code> contiene le istruzioni private; <code>resolve.py</code> valida ogni campo da solo; <code>compose.py</code> compone i due testi (planner e risposta) che <code>handle_query</code> passa all'orchestratore. Nessuna impostazione aggiunge chiamate; il terminale non le usa.`,
+    n: [`Non importa tool, presenter né canali.`, `Il client riceve solo <code>fields.json</code> (<code>GET /settings</code>), mai <code>behavior.py</code>.`],
+  }, [
+    F("fields.json", {
+      L: "cfg",
+      s: `Definizione pubblica dei sei campi: tipo, opzioni, etichette it/en, default.`,
+      d: `Servita così com'è da <code>GET /settings</code>; unica fonte per id, opzioni e default (lunghezza predefinita: <code>medium</code>).`,
+      n: [`Verificata con 10 turni reali il 2026-10-27: spoiler, lunghezza, tono, approccio, tipo di contenuto e fonti si comportano come previsto e nessuna impostazione aggiunge chiamate. Difetto noto: con <code>series</code> il genere «Thriller» non esiste tra i generi TV di TMDb e la ricerca torna vuota.`],
+    }),
+    F("behavior.py", {
+      L: "cfg",
+      s: `Istruzioni private associate a ogni scelta e fonte preferita di ogni tool.`,
+      d: `Un frammento per opzione (un test verifica la corrispondenza con <code>fields.json</code>) e <code>SOURCE_TOOLS</code>: a quale fonte dell'utente si aggancia ogni tool.`,
+    }),
+    F("resolve.py", {
+      L: "web",
+      s: `Validazione per campo con ripiego sul default.`,
+      d: `<code>resolve_preferences(raw)</code> non solleva mai: un campo errato torna al default, gli altri restano; le chiavi sconosciute sono ignorate; restituisce gli errori da registrare.`,
+      x: ["pydantic"],
+    }),
+    F("compose.py", {
+      L: "web",
+      s: `Compone i testi di planner e risposta dalle impostazioni valide.`,
+      d: `Funzione pura: ogni frammento compare una volta, il blocco del planner contiene solo tipo di contenuto e fonti.`,
+    }),
   ]),
 
   D("web_lists", {
@@ -1902,9 +1945,9 @@ const TREE = D("NetflixScout", {}, [
     }, [
       F("test_web_api_doc.py", {
         L: "test",
-        s: `<code>FRONTEND_API.md</code> descrive ciò che il codice fa: eventi, route ed esempi validati.`,
-        d: `web_api/FRONTEND_API.md describes what the code does: events, routes and example payloads. 3 test: every event is documented with a valid example; every route and error code is documented; every setting is documented`,
-        dep: ["web_api/FRONTEND_API.md", "web_api/schemas/events.py"],
+        s: `<code>chat_stream.md</code> descrive ciò che il codice fa: eventi, route ed esempi validati.`,
+        d: `web_api/contracts/chat_stream.md describes what the code does: events, routes and example payloads. 3 test: every event is documented with a valid example; every route and error code is documented; every setting is documented`,
+        dep: ["web_api/contracts/chat_stream.md", "web_api/schemas/events.py"],
         x: ["pytest"],
       }),
       F("test_web_api_endpoints.py", {

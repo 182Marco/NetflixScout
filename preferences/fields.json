@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "fields": [
+    {
+      "id": "spoiler_plot",
+      "type": "boolean",
+      "default": false,
+      "label": {"it": "Spoiler sulla trama", "en": "Plot spoilers"}
+    },
+    {
+      "id": "response_length",
+      "type": "choice",
+      "default": "medium",
+      "label": {"it": "Lunghezza della risposta", "en": "Response length"},
+      "options": [
+        {"value": "in-depth", "label": {"it": "Approfondita", "en": "In-depth"}},
+        {"value": "medium", "label": {"it": "Media", "en": "Medium"}},
+        {"value": "short", "label": {"it": "Breve", "en": "Short"}}
+      ]
+    },
+    {
+      "id": "response_tone",
+      "type": "choice",
+      "default": "technician",
+      "label": {"it": "Tono della risposta", "en": "Response tone"},
+      "options": [
+        {"value": "technician", "label": {"it": "Tecnico", "en": "Technician"}},
+        {"value": "Homie", "label": {"it": "Homie", "en": "Homie"}}
+      ]
+    },
+    {
+      "id": "approach",
+      "type": "choice",
+      "default": "alternatives comparison",
+      "label": {"it": "Approccio", "en": "Approach"},
+      "options": [
+        {"value": "direct advice", "label": {"it": "Consiglio diretto", "en": "Direct advice"}},
+        {"value": "alternatives comparison", "label": {"it": "Confronto tra alternative", "en": "Alternatives comparison"}}
+      ]
+    },
+    {
+      "id": "content_type",
+      "type": "choice",
+      "default": "both",
+      "label": {"it": "Tipo di contenuto", "en": "Content type"},
+      "options": [
+        {"value": "film", "label": {"it": "Film", "en": "Film"}},
+        {"value": "series", "label": {"it": "Serie", "en": "Series"}},
+        {"value": "both", "label": {"it": "Entrambi", "en": "Both"}}
+      ]
+    },
+    {
+      "id": "preferred_sources",
+      "type": "choice",
+      "default": "official information",
+      "label": {"it": "Fonti preferite", "en": "Preferred sources"},
+      "options": [
+        {"value": "reviews", "label": {"it": "Recensioni", "en": "Reviews"}},
+        {"value": "interviews", "label": {"it": "Interviste", "en": "Interviews"}},
+        {"value": "official information", "label": {"it": "Informazioni ufficiali", "en": "Official information"}},
+        {"value": "user ratings", "label": {"it": "Voti degli utenti", "en": "User ratings"}}
+      ]
+    }
+  ]
+}

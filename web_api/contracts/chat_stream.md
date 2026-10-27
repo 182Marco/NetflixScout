@@ -40,8 +40,11 @@ CORS ammette `GET`, `POST`, `DELETE` e l'header `Content-Type`.
 | `GET /conversations/{id}` | stato della conversazione | `200 {"conversation_id", "busy", "turns_completed"}` |
 | `DELETE /conversations/{id}` | chiude la conversazione | `204` |
 | `GET /health` | verifica | `200 {"status": "ok"}` |
+| `GET /settings` | definizione pubblica delle impostazioni utente (vedi `settings.md`) | `200 {"version", "fields"}` |
 
-Body di `POST …/messages`: `{"content": "testo"}` (non vuoto, al massimo `WEB_API_MAX_MESSAGE_CHARS`, nessun altro campo).
+Body di `POST …/messages`: `{"content": "testo"}` (non vuoto, al massimo `WEB_API_MAX_MESSAGE_CHARS`) e, facoltativo,
+`"preferences": {...}` (le impostazioni correnti: schema, validazione e fallback in `settings.md`). Nessun altro campo.
+Un `preferences` sbagliato o incompleto **non** è mai un errore HTTP: i campi non validi usano il default.
 
 Errori HTTP (sempre `{"error": {"code", "message"}}`):
 
@@ -107,8 +110,11 @@ va ignorata. Il testo e `lists` sono generati dalla **stessa** chiamata del mode
 dopo il testo perché si conosce solo a risposta finita.
 
 ### `turn_start`
+`preferences` sono le impostazioni applicate a questo turno (con i default dove mancavano o erano invalide);
+`ignored_preferences` elenca i campi il cui valore non era valido (vuoto nel caso normale). Il client può usarli
+per riallineare la modale. Vedi `settings.md`.
 ```json event=turn_start
-{"conversation_id":"e2c6b0d7663e4af6a8061e24d0e6a544","turn":1}
+{"conversation_id":"e2c6b0d7663e4af6a8061e24d0e6a544","turn":1,"preferences":{"spoiler_plot":false,"response_length":"medium","response_tone":"technician","approach":"alternatives comparison","content_type":"both","preferred_sources":"official information"},"ignored_preferences":[]}
 ```
 
 ### `status`

@@ -27,7 +27,7 @@ from web_api import create_app
 from web_api.schemas.events import EVENT_MODELS
 from web_api.settings import WebApiSettings
 
-DOC = (Path(__file__).resolve().parents[1] / "web_api" / "FRONTEND_API.md").read_text(encoding="utf-8")
+DOC = (Path(__file__).resolve().parents[1] / "web_api" / "contracts" / "chat_stream.md").read_text(encoding="utf-8")
 LEAD = "Park Chan-wook è un regista sudcoreano. Ha diretto Oldboy."
 ANSWER = "Park Chan-wook esordì nel 1992; il successo arrivò con Joint Security Area."
 FINAL = json.dumps({"answer": ANSWER, "lists": []})

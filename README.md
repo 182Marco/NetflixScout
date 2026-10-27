@@ -65,7 +65,7 @@ source .venv/bin/activate && uvicorn web_api.main:app --host 127.0.0.1 --port 80
 │   │   └── rag/ db/ api/ youtube/ wikipedia/   # blocks.py + renderer.py per tool
 │   └── web/            # observer.py (WebObserver, live events), payload.py (to_payload, STEP_SERIALIZERS)
 │       └── rag/ db/ api/ youtube/ wikipedia/   # serializer.py per tool, same shared view as the terminal
-├── web_api/            # HTTP/SSE server (FastAPI): conversations, streamed answer, web_lists; see FRONTEND_API.md
+├── web_api/            # HTTP/SSE server (FastAPI): conversations, streamed answer, web_lists; see contracts/
 ├── web_lists/          # web channel only: the lists of films/videos returned with the final answer
 ├── app.py              # CONFIG, build_app, handle_query (no printing) and the terminal chat
 ├── orchestrator.py     # LLMOrchestrator: planning, multi-tool loop, final answer
@@ -471,7 +471,7 @@ Each step adds a `wikipedia_calls` step: base URLs, the pages read (title, langu
 sections read, sections left out), and the credit the licence requires. Wikipedia text is CC BY-SA
 4.0: the terminal and the web name the source, link every page and the licence, and say the text
 was reworded and shortened. The text of an article is third-party data and is never treated as
-instructions. The web frontend must render the new step (`web_api/FRONTEND_API.md`).
+instructions. The web frontend must render the new step (`web_api/contracts/chat_stream.md`).
 
 Requests carry the User-Agent `NetflixScout/1.0 (https://github.com/182Marco/NetflixScout;
 marcomilza@gmail.com) python-urllib`, as the Wikimedia policy asks. Offline tests:
@@ -510,5 +510,15 @@ All FastAPI code lives in `web_api/`. A frontend opens a conversation (`POST /co
 messages (`POST /conversations/{id}/messages`) and reads a Server-Sent Events stream: live progress
 (`story`, `step`), the answer text as the model writes it (`answer_delta`), then `answer_end`, the
 `web_lists` structured lists (`lists`) and `done`. The terminal gets the same progressive text. The
-contract, payloads, errors, CORS and environment variables are in `web_api/FRONTEND_API.md`. There is
+contract, payloads, errors, CORS and environment variables are in `web_api/contracts/chat_stream.md`. There is
 no authentication: the backend key and its budget are the only protection (portfolio project).
+
+**User settings.** `GET /settings` returns the public definition of six per-turn settings (plot spoilers,
+response length, tone, approach, content type, preferred sources) from `preferences/fields.json`; the
+frontend sends the current values in the optional `preferences` field of each message. The backend validates
+every field on its own (an invalid one falls back to its default, the others are kept, the problem is only
+logged), the settings never add a tool call (defaults: no spoilers, `medium` length, `technician` tone,
+alternatives comparison, films and series, official information; checked with 10 real turns on 2026-10-27),
+and the instructions behind each choice stay private
+(`preferences/behavior.py`). The terminal always behaves as before. Contract for the frontend:
+`web_api/contracts/settings.md`.

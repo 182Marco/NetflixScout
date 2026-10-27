@@ -38,8 +38,17 @@ class FakeOrchestrator:
         self.calls: list[dict[str, Any]] = []
         self.started = threading.Event()
 
-    def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None, final_output=None):
-        self.calls.append({"query": query, "history": list(conversation_history or []), "final_output": final_output})
+    def run(
+        self, *, query, conversation_history=None, tool_overrides=None, observer=None, final_output=None, prompt_parts=None
+    ):
+        self.calls.append(
+            {
+                "query": query,
+                "history": list(conversation_history or []),
+                "final_output": final_output,
+                "prompt_parts": prompt_parts,
+            }
+        )
         self.started.set()
         if self.error:
             raise self.error

@@ -1,4 +1,4 @@
-"""`web_api/FRONTEND_API.md` describes what the code does: events, routes and example payloads."""
+"""`web_api/contracts/chat_stream.md` describes what the code does: events, routes and example payloads."""
 from __future__ import annotations
 
 import json
@@ -16,7 +16,7 @@ from web_api.settings import (
     ENV_MAX_MESSAGE_CHARS,
 )
 
-DOC = (Path(__file__).resolve().parents[2] / "web_api" / "FRONTEND_API.md").read_text(encoding="utf-8")
+DOC = (Path(__file__).resolve().parents[2] / "web_api" / "contracts" / "chat_stream.md").read_text(encoding="utf-8")
 EXAMPLE = re.compile(r"```json event=(\w+)\n(.*?)\n```", re.S)
 
 
