@@ -96,6 +96,9 @@ class RoutingCase:
     # Other tools accepted as the FIRST step (the case is still judged on `expected_tool`'s arguments only
     # when that tool is the one chosen).
     alternative_first_tools: tuple[str, ...] = ()
+    # TMDb requests accepted when TMDb (an alternative first tool) is chosen instead of `expected_tool`:
+    # the planner must still name the film (`RequestExpectation`; a tuple lists alternatives).
+    expected_alternative_request: RequestExpectation | tuple[RequestExpectation, ...] | None = None
     # Tools the plan must use in the turn: the first one or any `parts` entry of the planner's answer.
     also_uses: tuple[str, ...] = ()
 
@@ -151,19 +154,24 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
     RoutingCase(
         "Il film in cui Tom Hanks naufraga su un'isola deserta",
         TMDB,
-        expected_request=(RequestExpectation("discover_movies"), RequestExpectation("search", fields=(("kind", "movie"), ("search_query", "tom hanks")))),
+        # The planner may also name the film itself (Cast Away): `movie_details` is accepted then.
+        expected_request=(
+            RequestExpectation("discover_movies"),
+            RequestExpectation("search", fields=(("kind", "movie"), ("search_query", "tom hanks"))),
+            RequestExpectation("movie_details", fields=(("title", "cast away"),)),
+        ),
     ),
     RoutingCase("Vorrei un film su un ex killer che cerca la redenzione in un paesino di montagna", RAG),
     RoutingCase("E degli anni '90?", DB, history=_HORROR_80S, standalone_must_contain=("horror", "90")),
     # Follow-up in another language that acts on the film just suggested: once blocked as off-topic.
+    # A detailed plot is encyclopedic (rule 1c, added after this case): Wikipedia; a short synopsis stays on TMDb.
     RoutingCase(
         "Could you get in english the plot from the movie you just advised?",
-        TMDB,
+        WIKIPEDIA,
         history=_EUTHANASIA_TOP,
         standalone_must_contain=("sea inside",),
-        expected_request=(
-            RequestExpectation("movie_details", fields=(("title", "sea inside"),)),
-            RequestExpectation("movie_details", fields=(("title", "mar adentro"),)),
+        expected_wikipedia=WikipediaExpectation(
+            "sea inside", kinds=("film",), depths=("sections", "full"), allowed=(("year", "2004"),)
         ),
     ),
     RoutingCase(
@@ -333,6 +341,12 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
         "Qual è quel film in cui il protagonista si chiama Truman Burbank e vive in uno show televisivo?",
         RAG,
         expected_rag=RagExpectation(k_finale=(None, 1), search_mode=(None, "hybrid")),
+        # The planner may recognise the film (The Truman Show, 1998): TMDb is accepted when it names it.
+        alternative_first_tools=(TMDB,),
+        expected_alternative_request=(
+            RequestExpectation("movie_details", fields=(("title", "truman show"),)),
+            RequestExpectation("search", fields=(("kind", "movie"), ("search_query", "truman"))),
+        ),
     ),
     # `search_mode`: hybrid only when concrete words must appear in the plot.
     RoutingCase(

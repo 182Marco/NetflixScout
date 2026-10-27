@@ -128,7 +128,7 @@ def test_cases_cover_every_tool_and_follow_ups() -> None:
 
 
 def test_every_tmdb_case_has_a_valid_request_expectation() -> None:
-    assert len(TMDB_CASES) == 25  # 18 before the Wikipedia cases (filmography boundary and 3 controls)
+    assert len(TMDB_CASES) == 24  # 18 before the Wikipedia cases (filmography boundary and 3 controls); the plot follow-up moved to Wikipedia
     for case in TMDB_CASES:
         assert case.expected_request is not None
         options = case.expected_request if isinstance(case.expected_request, tuple) else (case.expected_request,)
@@ -367,3 +367,42 @@ def test_rag_params_verdict_counts_only_objective_gains() -> None:
     assert verdict(arm, {**arm}, AbCase("x")) == "same"
     named = AbCase("quel film", title="truman")
     assert verdict(arm, {**arm, "title_rank": 1}, named) == "better"
+
+
+def _case(prefix: str):
+    return next(c for c in ROUTING_CASES if c.question.startswith(prefix))
+
+
+def test_truman_burbank_accepts_tmdb_only_when_it_names_the_film() -> None:
+    case = _case("Qual è quel film in cui il protagonista si chiama Truman")
+    named = {"requests": [{"operation": "movie_details", "title": "The Truman Show"}]}
+    searched = {"requests": [{"operation": "search", "kind": "movie", "search_query": "Truman Burbank"}]}
+    other = {"requests": [{"operation": "movie_details", "title": "Cast Away"}]}
+
+    results = _run((case,) * 4, [_plan(TMDB, arguments=named), _plan(TMDB, arguments=searched), _plan(TMDB, arguments=other), _plan(RAG)])
+
+    assert [result.passed for result in results] == [True, True, False, True]
+
+
+def test_tom_hanks_accepts_the_film_named_by_the_planner() -> None:
+    case = _case("Il film in cui Tom Hanks")
+    named = {"requests": [{"operation": "movie_details", "title": "Cast Away"}]}
+    filmography = {"requests": [{"operation": "person_details", "name": "Tom Hanks", "facets": ["movie_credits"]}]}
+
+    named_result, filmography_result = _run((case, case), [_plan(TMDB, arguments=named), _plan(TMDB, arguments=filmography)])
+
+    assert named_result.passed and not filmography_result.passed
+
+
+def test_plot_in_english_follow_up_expects_wikipedia() -> None:
+    case = _case("Could you get in english the plot")
+    plan = {"topic": "The Sea Inside", "kind": "film", "year": 2004, "depth": "full", "keywords": ["plot"]}
+    tmdb = {"requests": [{"operation": "movie_details", "title": "The Sea Inside"}]}
+
+    wikipedia_result, tmdb_result = _run(
+        (case, case), [_plan("wikipedia_search", standalone="Plot of The Sea Inside", arguments=plan), _plan(TMDB, standalone="Plot of The Sea Inside", arguments=tmdb)]
+    )
+
+    assert case.expected_tool == "wikipedia_search"
+    assert wikipedia_result.passed and not tmdb_result.passed
+

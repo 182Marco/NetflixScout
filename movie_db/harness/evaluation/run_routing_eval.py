@@ -91,6 +91,8 @@ class RoutingResult:
     def requests_problem(self) -> str | None:
         """Why the planned TMDb or YouTube arguments are wrong; None when fine or not checked."""
         if self.tool != self.case.expected_tool:
+            if self.tool in self.case.alternative_first_tools and self.case.expected_alternative_request is not None:
+                return check_any_request(self.case.expected_alternative_request, self.arguments, self.standalone_query)
             return None
         if self.case.expected_request is not None:
             return check_any_request(self.case.expected_request, self.arguments, self.standalone_query)

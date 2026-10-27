@@ -25,7 +25,7 @@ def _arguments_for(option: WikipediaExpectation, **extra) -> dict:
 
 
 def test_there_are_wikipedia_cases_with_a_follow_up_and_a_boundary_with_tmdb() -> None:
-    assert len(WIKI_CASES) == 11
+    assert len(WIKI_CASES) == 12  # 11 + the plot in English follow-up (2026-10-27)
     assert any(case.history for case in WIKI_CASES)
     assert BY_QUESTION["Dammi la filmografia di Park Chan-wook"].expected_tool == TMDB
 
