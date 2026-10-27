@@ -81,6 +81,12 @@ def classify_query_domain(
                     'Sono cinematografiche anche le richieste su un film citato nella conversazione '
                     '(trama, dettagli, cast, riassunto, traduzione), '
                     "es. 'Could you give me the plot of the movie you just advised?'. "
+                    "Un seguito che da solo non nomina il film o la persona ma si riferisce a ciò che la conversazione "
+                    "ha appena citato (dove vederlo in streaming, formazione, cast, durata) è cinematografico. "
+                    'Sono cinematografiche anche le domande enciclopediche sul mondo del cinema: storia e produzione '
+                    'dei film, doppiaggio, correnti e scuole, biografie di registi e attori, e il confronto tra un film '
+                    "e l'opera da cui è tratto (romanzo, racconto, fumetto, remake). "
+                    "Un tema storico o letterario senza alcun legame con film, serie o persone del cinema non lo è. "
                     "Classifica sempre l'ultima query: se cambia argomento rispetto al cinema, is_cinema è false. "
                     "Scrivi anche language: il codice ISO 639-1 (es. it, en, de, es, fr) della lingua in cui è "
                     "scritta l'ULTIMA query, anche se la conversazione precedente era in un'altra lingua: la "
