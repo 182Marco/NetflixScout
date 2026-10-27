@@ -75,7 +75,9 @@ def test_keywords_are_cleaned_deduplicated_and_limited() -> None:
 def test_the_language_is_optional_and_the_planner_is_told_english_is_the_default() -> None:
     description = WikipediaToolInput.model_fields["language"].description
 
-    assert _input().language is None and "English" in description and "another language" in description
+    assert _input().language is None and "English" in description and "whatever the user's language" in description
+    # A local edition is chosen by the country of the topic, never by the language of the user.
+    assert "it or de only for a topic local to Italy or German-speaking countries" in description
 
 
 @pytest.mark.parametrize(

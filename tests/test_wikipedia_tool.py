@@ -342,7 +342,7 @@ def test_an_empty_english_search_does_not_try_italian_by_itself() -> None:
     assert result["outcome"] == {"status": "empty", "reason": None}
     follow_up = result[RESULT_FOLLOW_UP]
     assert follow_up["available"] and follow_up["reasons"] == ["empty"]
-    assert "edizione usata: en; consultate nel turno: en; edizione it non ancora consultata (si apre con language it)" in follow_up["summary"]
+    assert "edizione usata: en; consultate nel turno: en; edizione it o de non ancora consultata (si apre con language it o de)" in follow_up["summary"]
 
 
 def test_a_page_not_found_by_title_in_english_offers_a_retry_and_does_not_retry() -> None:
@@ -364,7 +364,7 @@ def test_the_italian_step_shares_the_http_budget_of_the_turn() -> None:
 
     assert transport.languages == ["en", "it"]
     assert first[RESULT_FOLLOW_UP]["available"] and not second[RESULT_FOLLOW_UP]["available"]
-    assert "tutte le edizioni già consultate" in second[RESULT_FOLLOW_UP]["summary"]
+    assert "edizione de non ancora consultata" in second[RESULT_FOLLOW_UP]["summary"]  # only German is left
     assert third["outcome"] == {"status": "error", "reason": "turn_limit"} and len(transport.calls) == 2
 
 
@@ -638,3 +638,35 @@ def test_an_empty_search_summary_suggests_the_english_title_without_proposing_on
     assert result[RESULT_FOLLOW_UP]["reasons"] == ["empty"]
     assert "titolo inglese o originale (solo se noto con certezza o dato da un altro passo)" in summary
     assert "Vengeance" not in summary  # the tool never makes up a title for the planner
+
+
+@pytest.mark.parametrize("turn_language", ["de", "it", "fr"])
+def test_a_local_topic_can_use_the_german_edition_whatever_the_user_language(turn_language) -> None:
+    tool, transport = _en_tool()
+
+    result = run_tool(tool, language="de", **{TOOL_PARAM_TURN_LANGUAGE: turn_language})
+
+    assert transport.languages == ["de"]
+    step = result["trace"][0]["data"]
+    assert step["calls"] == ["https://de.wikipedia.org/w/api.php"]
+    assert step["searches"][0]["language"] == "de"
+    assert _meta(result)["pages"][0]["text"][0]["section"] == "Einleitung"
+
+
+def test_german_non_prose_sections_are_not_delivered_unless_asked_by_name() -> None:
+    from tool.wikipedia.models import Section
+    from tool.wikipedia.sections import is_prose
+
+    assert not is_prose(Section(title="Einzelnachweise", level=2, text="x"), "de")
+    assert not is_prose(Section(title="Weblinks", level=2, text="x"), "de")
+    assert is_prose(Section(title="Handlung", level=2, text="x"), "de")
+
+
+def test_the_planner_can_name_the_german_edition_and_an_unknown_one_is_refused() -> None:
+    from pydantic import ValidationError
+
+    from tool.wikipedia.models import WikipediaToolInput
+
+    assert WikipediaToolInput.model_validate({"query": "q", "topic": "Das Boot", "language": "de"}).language == "de"
+    with pytest.raises(ValidationError):
+        WikipediaToolInput.model_validate({"query": "q", "topic": "Das Boot", "language": "fr"})

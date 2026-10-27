@@ -8,7 +8,7 @@ def _essentials(result: dict) -> dict:
     return tmdb_meta(result)["requests"][0]["entities"][f"movie:{MOVIE_ID}"]["essentials"]
 
 
-@pytest.mark.parametrize(("turn_language", "api_language"), [("it", "it-IT"), ("en", "en-US"), (None, "en-US"), ("de", "en-US")])
+@pytest.mark.parametrize(("turn_language", "api_language"), [("it", "it-IT"), ("en", "en-US"), (None, "en-US"), ("de", "de-DE"), ("fr", "en-US")])
 def test_api_language_follows_the_turn(turn_language, api_language) -> None:
     tool, transport = make_tool({f"/movie/{MOVIE_ID}": movie_payload()})
 

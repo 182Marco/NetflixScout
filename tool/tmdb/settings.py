@@ -23,7 +23,7 @@ IMAGE_SIZE = "w500"
 TMDB_WEB_URL = "https://www.themoviedb.org"
 
 # Turn language (from the classifier) → TMDb `language` parameter.
-API_LANGUAGES = {"it": "it-IT", "en": "en-US"}
+API_LANGUAGES = {"it": "it-IT", "en": "en-US", "de": "de-DE"}
 DEFAULT_API_LANGUAGE = "en-US"
 # Genre and provider names are matched in English, whatever the turn language.
 REFERENCE_LANGUAGE = "en-US"

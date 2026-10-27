@@ -359,7 +359,7 @@ class _Run:
         config, state = self.config, self.state
         hints = lookup_hints(self.request, self.kept, self.dropped) if self.searched_ok else []
         untried = [language for language in LANGUAGES if language not in state.languages_tried]
-        other_edition = untried[0] if untried else None
+        other_edition = " o ".join(untried) if untried else None
         absent = any(keywords_mostly_absent(page.keywords) for page in self.pages)
         reasons = [] if self.error == WikipediaRateLimited.code else follow_up_reasons(
             pages=self.pages,

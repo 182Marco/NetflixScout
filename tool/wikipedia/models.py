@@ -20,7 +20,7 @@ MAX_KEYWORDS = 6
 MAX_KEYWORD_CHARS = 60
 MAX_REPORTED_ERRORS = 20
 
-Language = Literal["it", "en"]
+Language = Literal["it", "en", "de"]
 
 
 class Subject(str, Enum):
@@ -77,9 +77,9 @@ class WikipediaToolInput(BaseModel):
     language: Language | None = Field(
         default=None,
         description=(
-            "Wikipedia edition. null = English (the default), even if the user writes in another language. "
-            "Use it only for a local topic, to reopen a page of an earlier result (copy its language), or to "
-            "try the other edition when the tool says English was not enough."
+            "Wikipedia edition. null = English (default), whatever the user's language. it or de only for a "
+            "topic local to Italy or German-speaking countries, to reopen a page of an earlier result "
+            "(copy its language), or when the tool says English was not enough."
         ),
     )
     depth: Depth = Field(

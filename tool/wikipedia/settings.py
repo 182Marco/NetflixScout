@@ -12,7 +12,7 @@ from __future__ import annotations
 
 # Hosts are chosen from this table, never from the model's input. The edition searched when the
 # planner names none is `CONFIG["wikipedia"]["default_language"]`.
-LANGUAGES = ("it", "en")
+LANGUAGES = ("it", "en", "de")
 HOST = "{language}.wikipedia.org"
 API_PATH = "/w/api.php"
 PAGE_PATH = "/wiki/"
@@ -61,5 +61,7 @@ NON_PROSE_SECTIONS = frozenset(
         "riferimenti", "fonti", "annotazioni", "approfondimenti",
         "references", "external links", "see also", "further reading", "notes", "sources",
         "footnotes", "citations", "bibliography",
+        "einzelnachweise", "literatur", "weblinks", "siehe auch", "anmerkungen", "quellen",
+        "fussnoten", "belege", "weiterfuhrende literatur",
     }
 )

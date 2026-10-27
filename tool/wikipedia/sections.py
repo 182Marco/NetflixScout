@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from .models import Section, normalize_text
 from .settings import MAX_OUTLINE_SECTIONS, NON_PROSE_SECTIONS
 
-LEAD_TITLES = {"it": "Introduzione", "en": "Introduction"}
+LEAD_TITLES = {"it": "Introduzione", "en": "Introduction", "de": "Einleitung"}
 _HEADING = re.compile(r"^(={2,6})[ \t]*(.+?)[ \t]*\1[ \t]*$", re.MULTILINE)
 _SENTENCE_END = re.compile(r"[.!?…][\"')\]]*(?:\s|$)")
 # A section that does not fit is cut at a sentence only if at least this much room is left.
@@ -58,7 +58,9 @@ GENERIC_KEYWORDS = frozenset(
         "protagonista protagonisti continuazione continuazioni sequel prequel collegato collegati collegamento "
         "collegamenti correlato correlati relazione relazioni rapporto rapporti originale originali fonte fonti "
         "letteraria letterarie letterario adattamento adattamenti opera opere riassunto contesto storia tema temi "
-        "struttura strutture numero totale membri"
+        "struttura strutture numero totale membri "
+        "film filme regisseur regie schauspieler darsteller handlung geschichte figur figuren rolle rollen "
+        "titel jahr jahre reihenfolge unterschied unterschiede fortsetzung vorlage roman buch"
     ).split()
 )
 
@@ -166,9 +168,11 @@ def scoring_terms(keywords: list[str], query: str, topic: str) -> list[str]:
 # no word with the question and would otherwise rank after sections that merely repeat the film's name.
 PLOT_TRIGGERS = frozenset(
     {"adaptation", "adaptations", "adapted", "novel", "book", "differences", "difference", "compare",
-     "comparison", "plot", "story", "romanzo", "libro", "adattamento", "differenze", "trama", "confronta"}
+     "comparison", "plot", "story", "romanzo", "libro", "adattamento", "differenze", "trama", "confronta",
+     "handlung", "roman", "buch", "adaption", "unterschiede", "unterschied", "vergleich"}
 )
-PLOT_TITLES = frozenset({"plot", "plot summary", "synopsis", "summary", "story", "trama", "sinossi"})
+PLOT_TITLES = frozenset({"plot", "plot summary", "synopsis", "summary", "story", "trama", "sinossi",
+                         "handlung", "inhalt", "inhaltsangabe", "zusammenfassung"})
 _PLOT_BONUS = 100
 
 
