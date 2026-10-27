@@ -156,14 +156,23 @@ def test_alternative_titles_are_or_alternatives_of_the_title() -> None:
     assert build_q(payload, VideoKind.making_of).startswith('"The Sea Inside"|"Mar adentro"|"Mare dentro" ')
 
 
-def test_director_is_an_alternative_term_only_for_interviews() -> None:
-    # Multi-word title: the director stays an OR alternative (unchanged by fix 4).
+def test_director_is_a_required_group_only_for_interviews() -> None:
     payload = request(title="Dune: Part Two", director="Denis Villeneuve", kinds=["director_interview", "making_of"])
 
     assert build_q(payload, VideoKind.director_interview) == (
-        '"Dune: Part Two" interview|intervista|director|regista|"Denis Villeneuve" -reaction -parody'
+        '"Dune: Part Two" "Denis Villeneuve"|"Villeneuve" interview|intervista|director|regista -reaction -parody'
     )
     assert "Villeneuve" not in build_q(payload, VideoKind.making_of)
+
+
+def test_critters_3_cast_interview_requires_the_person() -> None:
+    """Live 2026-10-27: with the person as an OR alternative this query returned 0 results."""
+    payload = request(title="Critters 3", cast=["Leonardo DiCaprio"], kinds=["cast_interview"])
+
+    assert build_q(payload, VideoKind.cast_interview) == (
+        '"Critters 3" "Leonardo DiCaprio"|"DiCaprio" '
+        'interview|intervista|cast|"red carpet"|junket|"press conference" -reaction -parody'
+    )
 
 
 # --- fix 4: one-word titles with a known person -------------------------------------------------
@@ -323,12 +332,12 @@ def test_cast_is_optional_trimmed_deduplicated_and_capped() -> None:
         request(cast="Cillian Murphy")
 
 
-def test_cast_interview_query_with_names_as_alternatives() -> None:
+def test_cast_interview_query_with_names_in_one_required_group() -> None:
     payload = request(title="Oppenheimer: the film", cast=["Cillian Murphy", "Emily Blunt"], kinds=["cast_interview"])
 
     assert build_q(payload, VideoKind.cast_interview) == (
-        '"Oppenheimer: the film" interview|intervista|cast|"red carpet"|junket|"press conference"'
-        '|"Cillian Murphy"|"Emily Blunt" -reaction -parody'
+        '"Oppenheimer: the film" "Cillian Murphy"|"Murphy"|"Emily Blunt"|"Blunt" '
+        'interview|intervista|cast|"red carpet"|junket|"press conference" -reaction -parody'
     )
 
 

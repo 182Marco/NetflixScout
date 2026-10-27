@@ -81,8 +81,8 @@ def people_group(names: list[str]) -> str | None:
     return "|".join(dict.fromkeys(part for group in groups for part in group.split("|"))) or None
 
 
-# The people an interview kind is about: their names are alternatives to the kind words
-# ("Denis Villeneuve on Dune", "Cillian Murphy talks Oppenheimer" have no kind word).
+# The people an interview kind is about: a required group next to the title, so a video that
+# names them but has no kind word ("Denis Villeneuve on Dune") is still found.
 _INTERVIEWED = {
     VideoKind.director_interview: lambda request: [request.director] if request.director else [],
     VideoKind.cast_interview: lambda request: list(request.cast),
@@ -94,7 +94,8 @@ def build_q(request: YoutubeToolInput, kind: VideoKind) -> str:
 
     A one-word title ("Her", "Barbie") matches unrelated videos, so when every title is a
     single word and a person of the film is known (director or cast), the people become a
-    required (AND) group: `"Her" "Spike Jonze"|"Jonze" "making of"|...`. Without a known
+    required (AND) group: `"Her" "Spike Jonze"|"Jonze" "making of"|...`. For an interview
+    kind the person it is about is a required group for any title. Without a known
     person nothing is added.
     """
     all_titles = (request.title, *request.alternative_titles)
@@ -104,9 +105,12 @@ def build_q(request: YoutubeToolInput, kind: VideoKind) -> str:
     people = people_group(request.people)
     required_people = people is not None and all(is_one_word_title(title) for title in all_titles)
     interviewed = _INTERVIEWED.get(kind, lambda request: [])(request)
-    if interviewed and not required_people:
-        terms.extend(dict.fromkeys(group for name in interviewed if (group := phrase(name))))
-    groups = [title_group, people] if required_people else [title_group]
+    # The interviewed people are required too, whatever the title: as one more OR alternative
+    # next to the kind words, `"Critters 3" interview|...|"Leonardo DiCaprio" -reaction -parody`
+    # returned 0 raw results on the live API (2026-10-27), the same query with the people in
+    # AND returned 9.
+    anchor = people if required_people else people_group(interviewed)
+    groups = [title_group, anchor] if anchor else [title_group]
     return " ".join([*groups, "|".join(terms), *EXCLUDED_TERMS])
 
 

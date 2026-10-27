@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parent.parent
 def test_the_smoke_variants_include_the_query_the_tool_builds() -> None:
     queries = dict(_variants())
 
-    assert queries["Critters 3, query built by the tool"].startswith('"Critters 3" interview|')
+    assert queries["Critters 3, query built by the tool"].startswith('"Critters 3" "Leonardo DiCaprio"|"DiCaprio" interview|')
     assert '"Leonardo DiCaprio"' in queries["Critters 3, query built by the tool"]
     assert len(queries) == 7
 

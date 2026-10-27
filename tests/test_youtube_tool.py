@@ -356,6 +356,19 @@ def test_a_video_missing_from_the_lookup_is_unavailable() -> None:
     assert [hit["video_id"] for hit in row["hits"]] == [ID2] and row["filtered_out"] == {"unavailable": 1}
 
 
+def test_videos_text_is_not_decoded_twice() -> None:
+    """`/videos` answers in plain text: a literal "&amp;" in a real title must stay as it is."""
+    routes = making_of_routes()
+    routes["/search"] = {"items": [search_item(ID1, "Tom &amp;amp; Jerry: the making of", channel="A &amp;amp; B")]}
+    routes["/videos"] = {"items": [video_item(ID1, "Tom &amp; Jerry: the making of", channel="A &amp; B")]}
+    tool, _ = make_tool(routes)
+
+    hit = kinds(run_tool(tool, title="Tom & Jerry"))["making_of"]["hits"][0]
+
+    assert (hit["title"], hit["channel"]) == ("Tom &amp; Jerry: the making of", "A &amp; B")
+    assert "title_from_search" not in hit["notes"]
+
+
 def test_failed_lookup_keeps_search_data_decoded_and_noted() -> None:
     routes = making_of_routes()
     routes["/search"] = {"items": [search_item(ID1, "Schindler&#39;s List: making of", channel="Film &amp; TV")]}
@@ -699,7 +712,7 @@ def test_original_title_from_the_history_reaches_the_query() -> None:
     assert any("Mar adentro" in message["content"] for message in client.calls[0]["input"])
     # ...and its arguments reach the search unchanged.
     assert decision["tool"] == "youtube_search"
-    assert transport.calls[0][1]["q"].startswith('"Mare dentro"|"Mar adentro" interview|')
+    assert transport.calls[0][1]["q"].startswith('"Mare dentro"|"Mar adentro" "Alejandro Amenábar"|"Amenábar" interview|')
 
 
 def test_without_alternatives_in_the_plan_the_search_uses_the_title_as_given() -> None:
