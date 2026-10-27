@@ -40,7 +40,6 @@ def run_conversation_loop(
 
     collection = apri_collection(
         runtime_config["vectorstore"]["collection"],
-        db_dir=runtime_config["vectorstore"]["db_dir"],
         store_config=runtime_config["vectorstore"],
     )
 

@@ -67,7 +67,7 @@ def test_phase7_runner_with_a_fake_app_writes_one_file_per_question_and_chains_t
         return Turn(text, history)
 
     fake_app = types.SimpleNamespace(
-        build_ready_app=lambda: {"config": {"rag": {"vectorstore": {"engine": "qdrant"}}, "catalog": {"enabled": False}}},
+        build_ready_app=lambda: {"config": {"rag": {}, "catalog": {"enabled": False}}},
         handle_query=handle)
     monkeypatch.setitem(sys.modules, "app", fake_app)
     monkeypatch.setitem(sys.modules, "openai", types.SimpleNamespace(OpenAI=lambda: object()))
@@ -80,15 +80,13 @@ def test_phase7_runner_with_a_fake_app_writes_one_file_per_question_and_chains_t
     assert follow[1] > 0  # received the history of the question it follows
 
 
-def test_phase7_runner_refuses_chroma_and_an_active_catalog(tmp_path, monkeypatch):
+def test_phase7_runner_refuses_an_active_catalog(tmp_path, monkeypatch):
     monkeypatch.setitem(sys.modules, "openai", types.SimpleNamespace(OpenAI=lambda: object()))
     monkeypatch.setenv("PHASE7_AUTHORIZED", "yes")
-    for engine, catalog in (("chroma", False), ("qdrant", True)):
-        fake = types.SimpleNamespace(build_ready_app=lambda e=engine, c=catalog: {
-            "config": {"rag": {"vectorstore": {"engine": e}}, "catalog": {"enabled": c}}},
-            handle_query=lambda *a: pytest.fail("must not run"))
-        monkeypatch.setitem(sys.modules, "app", fake)
-        assert e2e.main(["--out", str(tmp_path / engine)]) == 2
+    fake = types.SimpleNamespace(build_ready_app=lambda: {"config": {"rag": {}, "catalog": {"enabled": True}}},
+                                 handle_query=lambda *a: pytest.fail("must not run"))
+    monkeypatch.setitem(sys.modules, "app", fake)
+    assert e2e.main(["--out", str(tmp_path / "out")]) == 2
 
 
 def test_phase7_questions_are_twenty_unique_and_the_followup_points_at_a_real_one():
@@ -181,7 +179,7 @@ def test_phase7_summary_counts_errors_and_returns_failure(tmp_path, monkeypatch)
         return Turn()
 
     fake = types.SimpleNamespace(
-        build_ready_app=lambda: {"config": {"rag": {"vectorstore": {"engine": "qdrant"}}, "catalog": {"enabled": False}}},
+        build_ready_app=lambda: {"config": {"rag": {}, "catalog": {"enabled": False}}},
         handle_query=handle)
     monkeypatch.setitem(sys.modules, "app", fake)
     monkeypatch.setitem(sys.modules, "openai", types.SimpleNamespace(OpenAI=lambda: object()))

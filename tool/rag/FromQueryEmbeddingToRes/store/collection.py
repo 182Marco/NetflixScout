@@ -1,8 +1,8 @@
-"""Chroma-shaped read surface over a `QdrantStore`.
+"""Read surface over a `QdrantStore` for the retrieval code.
 
-`vectorstore.search` and the BM25 builder only need `count`, `query` and `get`; giving them those
-three with Chroma's return shapes keeps their logic (filters, boosts, penalties, ranking) untouched
-while the engine underneath changes. Distances are `1 - cosine`, like Chroma's cosine space.
+`vectorstore.search` and the BM25 builder only need `count`, `query` and `get`, returning plain dicts of
+parallel lists (`ids`, `documents`, `distances`, `metadatas`), so their logic (filters, boosts, penalties,
+ranking) does not depend on the vector store. Distances are `1 - cosine`.
 """
 from __future__ import annotations
 
@@ -64,7 +64,7 @@ class QdrantCollection:
         }
 
     def get(self, limit, offset=0, include=None) -> dict:
-        """Chroma-style paging. Qdrant pages by cursor, so sequential offsets reuse the cursor of
+        """Offset paging. Qdrant pages by cursor, so sequential offsets reuse the cursor of
         the previous page; any other offset is reached by walking from the start."""
         limit, offset = int(limit), int(offset)
         empty = {"ids": [], "documents": [], "metadatas": []}
@@ -116,11 +116,11 @@ def open_collection(name: str, store_config: dict, *, client: QdrantClient | Non
     except Exception as exc:  # noqa: BLE001  (connection errors come in many client-specific types)
         raise QdrantUnavailable(
             f"Cannot reach Qdrant at {where or q.get('mode')} ({type(exc).__name__}). Start the server "
-            "(or set VECTORSTORE_QDRANT_URL to the right address), or use VECTORSTORE_ENGINE=chroma.") from None
+            "(`./scripts/start_qdrant.sh`, or set VECTORSTORE_QDRANT_URL to the right address).") from None
     if not present:
         raise RuntimeError(
             f"Qdrant collection {name!r} not found at {where or q.get('mode')}. Run "
-            "`python -m tool.rag.EmbeddingProcess.migrate_chroma_to_qdrant ...` first.")
+            "`python buildSemanticDb.py ...` first (it creates a new collection).")
     verified = (key, name, meta.model, meta.dimension)
     if verified not in _VERIFIED:
         store.check_meta()

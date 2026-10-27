@@ -31,7 +31,6 @@ from pydantic import BaseModel                   # noqa: E402 — Modulo 2 · Le
 from pypdf import PdfReader
 from rank_bm25 import BM25Okapi                  # noqa: E402 — la libreria di stasera
 from typing import Literal
-import chromadb
 import cohere                                    # noqa: E402 — la libreria di stasera
 import docx
 import json

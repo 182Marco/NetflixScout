@@ -12,7 +12,7 @@ MIN_YEAR, MAX_YEAR = 1850, 2100
 
 
 def point_uuid(legacy_id: str) -> str:
-    """Qdrant accepts only integers or UUIDs: derive the UUID from the Chroma-era string id."""
+    """Qdrant accepts only integers or UUIDs: derive the UUID from the stable string id of the chunk."""
     return str(uuid.uuid5(NAMESPACE, legacy_id))
 
 

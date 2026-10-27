@@ -21,7 +21,6 @@ def recupera(
     k,
     embedding_backend,
     embedding_model,
-    db_dir=None,
     *,
     positive_signals=None,
     negative_signals=None,
@@ -32,11 +31,11 @@ def recupera(
     genre_boost=0.0,
     excluded_genres=None,
     store_config=None,
+    references=None,
 ):
     """Retrieve the top-k chunks for a query from a vector collection."""
     collection = vectorstore.apri_collection(
         collection_name,
-        db_dir=db_dir,
         store_config=store_config,
     )
     return vectorstore.search(
@@ -53,6 +52,7 @@ def recupera(
         genres=genres,
         genre_boost=genre_boost,
         excluded_genres=excluded_genres,
+        references=references,
     )
 
 
@@ -117,7 +117,7 @@ def rispondi(
     embedding_model,
     model,
     instructions,
-    db_dir=None,
+    store_config,
     storia=None,
     openai_client=None,
 ):
@@ -128,7 +128,7 @@ def rispondi(
         k=k,
         embedding_backend=embedding_backend,
         embedding_model=embedding_model,
-        db_dir=db_dir,
+        store_config=store_config,
     )
     return genera(
         chunks,

@@ -55,9 +55,6 @@ def main(argv=None) -> int:
     import app as app_module
 
     application = app_module.build_ready_app()
-    if application["config"]["rag"]["vectorstore"].get("engine") != "qdrant":
-        sys.stderr.write("Refused: phase 7 tests the Qdrant engine; set VECTORSTORE_ENGINE=qdrant.\n")
-        return 2
     if application["config"]["catalog"]["enabled"]:
         sys.stderr.write("Refused: the catalog must be off for the main phase 7 questions.\n")
         return 2
@@ -78,7 +75,7 @@ def main(argv=None) -> int:
             record = {"error": f"{type(exc).__name__}: {exc}"[:300]}
         record["auto_class"], record["auto_reasons"] = classify(record, question)
         results.append({"id": question["id"], "auto_class": record["auto_class"], "reasons": record["auto_reasons"]})
-        record |= {"engine": "qdrant", "question": question, "seconds": round(time.time() - started, 1)}
+        record |= {"question": question, "seconds": round(time.time() - started, 1)}
         (out / f"{question['id']}.json").write_text(json.dumps(record, indent=1, ensure_ascii=False, default=str), encoding="utf-8")
         if position < len(questions) - 1:
             time.sleep(PAUSE_SECONDS)

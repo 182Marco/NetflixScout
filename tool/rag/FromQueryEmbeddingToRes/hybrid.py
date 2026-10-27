@@ -8,7 +8,7 @@ def tokenizza(testo):
     return re.findall(r"\w+", testo.lower())
 
 
-# Chroma rejects a single get() of tens of thousands of rows ("too many SQL variables").
+# A single get() of tens of thousands of rows is too heavy: documents are read page by page.
 _BM25_PAGE_SIZE = 5000
 _BM25_CACHE: dict[tuple[str, int], dict] = {}
 

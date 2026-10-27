@@ -1,9 +1,8 @@
-"""Phase 6: the Qdrant engine inside the real application and Web API (embedded index, no network).
+"""Qdrant inside the real application and Web API (embedded index, no network).
 
-Chroma is the default and stays untouched. Here the engine is chosen from the environment, both
-entry points start from `build_ready_app`, the Qdrant path never imports Chroma, and a whole turn
-(HTTP -> SSE -> `handle_query` -> real `RagTool` -> Qdrant) works with the LLM/embedding/rerank
-calls replaced by fakes.
+The index location comes from the environment, both entry points start from `build_ready_app`, the application
+never imports Chroma (it is no longer a dependency), and a whole turn (HTTP -> SSE -> `handle_query` -> real
+`RagTool` -> Qdrant) works with the LLM/embedding/rerank calls replaced by fakes.
 """
 from __future__ import annotations
 
@@ -55,7 +54,7 @@ def build_index(path: Path, *, model: str = "text-embedding-3-small", points: bo
 
 
 def env_for(path: Path, **extra: str) -> dict[str, str]:
-    return {"VECTORSTORE_ENGINE": "qdrant", "VECTORSTORE_QDRANT_MODE": "embedded",
+    return {"VECTORSTORE_QDRANT_MODE": "embedded",
             "VECTORSTORE_QDRANT_PATH": str(path), **extra}
 
 
@@ -66,42 +65,36 @@ def _isolated(monkeypatch):
     close_clients()
 
 
-# ---------------------------------------------------------------- selection of the engine
-def test_qdrant_is_the_default_and_the_environment_can_still_select_either_engine():
+# ---------------------------------------------------------------- where the index is
+def test_qdrant_is_the_only_store_and_the_environment_only_says_where_it_is():
     default = app_module.CONFIG["rag"]["vectorstore"]
-    assert default["engine"] == "qdrant" and default["qdrant"]["mode"] == "server"
+    assert set(default) == {"collection", "qdrant"} and default["qdrant"]["mode"] == "server"
     assert default["qdrant"]["url"] == "http://127.0.0.1:6333"
-    assert app_module.vector_store_overrides({}) == {} and app_module.vector_store_overrides({"VECTORSTORE_ENGINE": ""}) == {}
-    chosen = app_module.vector_store_overrides({"VECTORSTORE_ENGINE": " Qdrant ", "VECTORSTORE_QDRANT_URL": "http://h:6333",
-                                                "VECTORSTORE_QDRANT_MODE": "", "QDRANT_API_KEY": "never-in-config"})
-    assert chosen == {"rag": {"vectorstore": {"engine": "qdrant", "qdrant": {"url": "http://h:6333"}}}}
+    assert app_module.vector_store_overrides({}) == {} and app_module.vector_store_overrides({"VECTORSTORE_QDRANT_URL": " "}) == {}
+    chosen = app_module.vector_store_overrides({"VECTORSTORE_QDRANT_URL": "http://h:6333", "VECTORSTORE_QDRANT_MODE": "",
+                                                "QDRANT_API_KEY": "never-in-config"})
+    assert chosen == {"rag": {"vectorstore": {"qdrant": {"url": "http://h:6333"}}}}
     assert "never-in-config" not in str(chosen)  # the key has a single reader, in the store package
-    with pytest.raises(ValueError, match="not valid"):
-        app_module.vector_store_overrides({"VECTORSTORE_ENGINE": "faiss"})
-
-
-def test_chroma_settings_are_ignored_when_the_engine_is_chroma():
-    assert app_module.vector_store_overrides({"VECTORSTORE_ENGINE": "chroma", "VECTORSTORE_QDRANT_URL": "http://h"}) == {
-        "rag": {"vectorstore": {"engine": "chroma"}}}
+    assert not hasattr(app_module, "ENV_VECTOR_ENGINE")  # there is no other engine to select
 
 
 def test_build_ready_app_starts_on_qdrant_and_explicit_overrides_win(tmp_path):
     build_index(tmp_path / "q")
     ready = app_module.build_ready_app(env=env_for(tmp_path / "q"))
     vs = ready["config"]["rag"]["vectorstore"]
-    assert vs["engine"] == "qdrant" and vs["qdrant"]["mode"] == "embedded" and vs["qdrant"]["path"] == str(tmp_path / "q")
+    assert vs["qdrant"]["mode"] == "embedded" and vs["qdrant"]["path"] == str(tmp_path / "q")
     assert "rag_search" in ready["orchestrator"].tools  # the RAG tool is wired on the Qdrant config
-    assert ready["orchestrator"].tools["rag_search"].config["vectorstore"]["engine"] == "qdrant"
+    assert ready["orchestrator"].tools["rag_search"].config["vectorstore"]["qdrant"]["path"] == str(tmp_path / "q")
     other = app_module.build_ready_app({"rag": {"vectorstore": {"qdrant": {"path": str(tmp_path / "q")}}}},
                                        env=env_for(tmp_path / "ignored"))
     assert other["config"]["rag"]["vectorstore"]["qdrant"]["path"] == str(tmp_path / "q")
 
 
 # ---------------------------------------------------------------- operational errors
-def test_a_missing_collection_tells_how_to_migrate(tmp_path):
+def test_a_missing_collection_tells_how_to_build_it(tmp_path):
     client = open_client("embedded", path=tmp_path / "q")
     client.close()
-    with pytest.raises(RuntimeError, match="migrate_chroma_to_qdrant"):
+    with pytest.raises(RuntimeError, match="buildSemanticDb"):
         app_module.build_ready_app(env=env_for(tmp_path / "q"))
 
 
@@ -119,16 +112,16 @@ def test_an_index_of_another_model_is_refused(tmp_path):
 
 def test_an_unreachable_server_gives_an_operational_message_without_the_key(tmp_path, monkeypatch):
     monkeypatch.setenv("QDRANT_API_KEY", "secret-key-123")
-    env = {"VECTORSTORE_ENGINE": "qdrant", "VECTORSTORE_QDRANT_MODE": "server", "VECTORSTORE_QDRANT_URL": "http://127.0.0.1:9"}
+    env = {"VECTORSTORE_QDRANT_MODE": "server", "VECTORSTORE_QDRANT_URL": "http://127.0.0.1:9"}
     with pytest.raises(QdrantUnavailable) as caught:
         app_module.build_ready_app(env=env)
     text = str(caught.value)
-    assert "http://127.0.0.1:9" in text and "VECTORSTORE_ENGINE=chroma" in text and "secret-key-123" not in text
+    assert "http://127.0.0.1:9" in text and "start_qdrant.sh" in text and "secret-key-123" not in text
     assert caught.value.__cause__ is None and caught.value.__suppress_context__
 
 
-# ---------------------------------------------------------------- no Chroma on the Qdrant path
-def test_the_qdrant_path_runs_without_chroma(tmp_path):
+# ---------------------------------------------------------------- no Chroma anywhere
+def test_the_application_runs_without_chroma_installed(tmp_path):
     build_index(tmp_path / "q")
     script = textwrap.dedent(f"""
         import sys
@@ -146,7 +139,7 @@ def test_the_qdrant_path_runs_without_chroma(tmp_path):
         v = np.zeros(1536, dtype=np.float32); v[0] = 1
         vectorstore.embed = lambda texts, backend=None, model=None: np.array([v])
         cfg = _resolve_runtime_config(ready["config"]["rag"])
-        col = vectorstore.apri_collection("netflix_scout", db_dir=cfg["vectorstore"]["db_dir"], store_config=cfg["vectorstore"])
+        col = vectorstore.apri_collection("netflix_scout", store_config=cfg["vectorstore"])
         rows = vectorstore.search(col, "q", 2, backend="local", model="m")
         assert rows[0]["title"] == "Film Alpha", rows
         assert "chromadb" not in sys.modules
@@ -181,7 +174,7 @@ def test_a_whole_turn_over_http_and_sse_uses_the_qdrant_index(tmp_path, monkeypa
     monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "is_italian": True})
     monkeypatch.setattr(vectorstore, "embed", lambda texts, backend=None, model=None: np.array([_vec(0, 1.0)], dtype=np.float32))
     monkeypatch.setattr(retrieval, "_extract_query_signals",
-                        lambda query, llm_model, hint=None: QuerySignals(semantic_query="a quiet drama"))
+                        lambda query, llm_model, hint=None, **kwargs: QuerySignals(semantic_query="a quiet drama"))
     monkeypatch.setattr(retrieval, "rerank_cohere",
                         lambda query, chunks, model, cohere_api_client=None: [{**c, "score": 1.0 - n / 10} for n, c in enumerate(chunks)])
     config = app_module.build_runtime_config(app_module.vector_store_overrides(env_for(tmp_path / "q")))
@@ -210,7 +203,7 @@ def test_the_web_api_builds_its_bot_on_qdrant_from_the_environment(tmp_path, mon
         assert client.get("/health").json() == {"status": "ok"}
         assert client.post("/conversations").status_code == 201
         bot = client.app.state.web_api.bot_app
-        assert bot["config"]["rag"]["vectorstore"]["engine"] == "qdrant"
+        assert bot["config"]["rag"]["vectorstore"]["qdrant"]["mode"] == "embedded"
 
 
 def test_the_web_api_refuses_to_start_when_the_index_is_missing(tmp_path, monkeypatch):
@@ -218,7 +211,7 @@ def test_the_web_api_refuses_to_start_when_the_index_is_missing(tmp_path, monkey
     for key, value in env_for(tmp_path / "q").items():
         monkeypatch.setenv(key, value)
     monkeypatch.setenv("OPENAI_API_KEY", "not-used")
-    with pytest.raises(RuntimeError, match="migrate_chroma_to_qdrant"):
+    with pytest.raises(RuntimeError, match="buildSemanticDb"):
         with TestClient(create_app(WebApiSettings())):
             pass
 
@@ -230,16 +223,14 @@ def test_the_default_web_api_tests_still_use_the_fake_bot():
         assert client.get("/health").status_code == 200
 
 
-def test_every_entry_point_gets_the_same_default_engine():
+def test_every_entry_point_starts_from_the_same_configuration():
     """Terminal (`run_terminal_chat`), web API (`create_app`) and the legacy loop all start from `build_ready_app`
-    / the same CONFIG: one default, one switch (VECTORSTORE_ENGINE)."""
+    / the same CONFIG: one default location (CONFIG, or the VECTORSTORE_QDRANT_* variables)."""
     import inspect
 
     assert "build_ready_app_or_exit()" in inspect.getsource(app_module.run_terminal_chat)
     assert "build_ready_app_or_exit" in (Path(__file__).resolve().parents[1] / "web_api" / "main.py").read_text()
-    assert app_module.build_runtime_config()["rag"]["vectorstore"]["engine"] == "qdrant"
-    assert app_module.build_runtime_config(app_module.vector_store_overrides({"VECTORSTORE_ENGINE": "chroma"}))[
-        "rag"]["vectorstore"]["engine"] == "chroma"
+    assert app_module.build_runtime_config()["rag"]["vectorstore"]["qdrant"]["mode"] == "server"
 
 
 def _down(*a, **k):

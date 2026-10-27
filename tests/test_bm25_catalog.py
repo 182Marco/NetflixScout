@@ -78,6 +78,6 @@ def test_semantic_mode_never_builds_the_keyword_index(monkeypatch):
     config = {
         "retrieval": {"search_mode": SearchMode.semantic, "k_largo": 10, "k_finale": 3},
         "embedding": {"backend": "openai", "model": "m"},
-        "vectorstore": {"collection": "c", "db_dir": "x"},
+        "vectorstore": {"collection": "c"},
     }
     retrieval._retrieve("q", config, signals=QuerySignals())

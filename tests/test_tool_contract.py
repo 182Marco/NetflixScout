@@ -19,8 +19,6 @@ def test_app_config_has_orchestrator_and_rag_sections() -> None:
 
 def _qdrant_server_answers() -> tuple[bool, str]:
     store = CONFIG["rag"]["vectorstore"]
-    if store.get("engine") != "qdrant":
-        return True, ""  # another engine: nothing to probe, the test runs and fails on its own errors
     url = (store.get("qdrant") or {}).get("url") or ""
     try:
         urllib.request.urlopen(url, timeout=2).close()
@@ -31,7 +29,7 @@ def _qdrant_server_answers() -> tuple[bool, str]:
 
 @pytest.mark.integration
 def test_rag_tool_returns_structured_results() -> None:
-    """Integration: the default engine (Qdrant server on the configured URL) plus real OpenAI/Cohere calls.
+    """Integration: the Qdrant server on the configured URL plus real OpenAI/Cohere calls.
 
     Skipped ONLY when the Qdrant server does not answer; once it answers, any failure is a real failure.
     """

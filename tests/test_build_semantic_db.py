@@ -57,8 +57,8 @@ def _close():
 def build(dataset, folder, monkeypatch, fake=None, **kw):
     fake = fake or FakeEmbed()
     monkeypatch.setattr(bsd, "embed", fake)
-    count = bsd.build_semantic_db(dataset, None, kw.pop("collection", "netflix_scout"), 0.78, "openai", MODEL, kw.pop("batch_size", 2),
-                                  engine="qdrant", qdrant={"mode": "embedded", "path": str(folder)})
+    count = bsd.build_semantic_db(dataset, kw.pop("collection", "netflix_scout"), 0.78, "openai", MODEL, kw.pop("batch_size", 2),
+                                  qdrant={"mode": "embedded", "path": str(folder)})
     return count, fake
 
 
@@ -82,7 +82,7 @@ def test_rebuild_on_a_temporary_embedded_storage_reads_back_like_the_runtime_doe
     assert "release_year_int" not in store.client.retrieve("netflix_scout", ids=[point_uuid(no_year)], with_payload=True)[0].payload
 
 
-def test_a_rebuilt_index_has_the_ids_and_documents_of_the_chunks_collected_for_any_engine(dataset, tmp_path, monkeypatch):
+def test_a_rebuilt_index_has_the_ids_and_documents_of_the_chunks_collected(dataset, tmp_path, monkeypatch):
     ids, texts, metas = bsd.collect_chunks(dataset, 0.78, "openai", MODEL)
     build(dataset, tmp_path / "q", monkeypatch)
     store = QdrantStore(open_client("embedded", path=tmp_path / "q"), "netflix_scout", IndexMeta(MODEL, DIM))
@@ -115,8 +115,8 @@ def test_an_existing_collection_is_never_replaced_and_costs_nothing(dataset, tmp
     fake = FakeEmbed()
     monkeypatch.setattr(bsd, "embed", fake)
     with pytest.raises(FileExistsError, match="already exists"):
-        bsd.build_semantic_db(dataset, None, "netflix_scout", 0.78, "openai", MODEL, 2,
-                              engine="qdrant", qdrant={"mode": "server", "url": "http://x"})
+        bsd.build_semantic_db(dataset, "netflix_scout", 0.78, "openai", MODEL, 2,
+                              qdrant={"mode": "server", "url": "http://x"})
     assert fake.calls == 0 and created == []  # nothing embedded, nothing created or replaced
 
 
@@ -128,7 +128,7 @@ def test_an_existing_collection_is_never_replaced_and_costs_nothing(dataset, tmp
 def test_bad_embeddings_stop_the_build(dataset, tmp_path, monkeypatch, vectors, message):
     monkeypatch.setattr(bsd, "embed", lambda texts, backend=None, model=None: vectors(texts))
     with pytest.raises(ValueError, match=message):
-        bsd.build_semantic_db(dataset, None, "c", 0.78, "openai", MODEL, 2, engine="qdrant",
+        bsd.build_semantic_db(dataset, "c", 0.78, "openai", MODEL, 2,
                               qdrant={"mode": "embedded", "path": str(tmp_path / "q")})
 
 
@@ -136,7 +136,7 @@ def test_embeddings_with_a_changing_dimension_are_refused(dataset, tmp_path, mon
     sizes = iter([8, 9])
     monkeypatch.setattr(bsd, "embed", lambda texts, backend=None, model=None: np.ones((len(texts), next(sizes)), dtype=np.float32))
     with pytest.raises(ValueError, match="dimensions"):
-        bsd.build_semantic_db(dataset, None, "c", 0.78, "openai", MODEL, 2, engine="qdrant",
+        bsd.build_semantic_db(dataset, "c", 0.78, "openai", MODEL, 2,
                               qdrant={"mode": "embedded", "path": str(tmp_path / "q")})
 
 
@@ -145,47 +145,26 @@ def test_non_string_metadata_is_refused():
         bsd._validate_qdrant_metadata([{"title": "x", "year": 1999}], 0)
 
 
-@pytest.mark.parametrize("kwargs,error", [
-    ({"engine": "qdrant", "qdrant": {"mode": "memory"}}, "lost at exit"),
-    ({"engine": "qdrant", "qdrant": {"mode": "embedded"}}, "needs a storage path"),
-    ({"engine": "qdrant", "qdrant": {"mode": "server"}}, "needs a URL"),
-    ({"engine": "qdrant", "qdrant": {"mode": "embedded", "path": "x"}, "backend": "local"}, "openai embedding"),
-    ({"engine": "nope"}, "unknown"),
+@pytest.mark.parametrize("qdrant,backend,error", [
+    ({"mode": "memory"}, "openai", "lost at exit"),
+    ({"mode": "embedded"}, "openai", "needs a storage path"),
+    ({"mode": "server"}, "openai", "needs a URL"),
+    ({"mode": "embedded", "path": "x"}, "local", "openai embedding"),
 ])
-def test_configuration_errors_are_explicit(dataset, tmp_path, monkeypatch, kwargs, error):
-    backend = kwargs.pop("backend", "openai")
-    if kwargs.get("qdrant", {}).get("path"):
-        kwargs["qdrant"]["path"] = str(tmp_path / "q")
+def test_configuration_errors_are_explicit(dataset, tmp_path, qdrant, backend, error):
+    if qdrant.get("path"):
+        qdrant = {**qdrant, "path": str(tmp_path / "q")}
     with pytest.raises(ValueError, match=error):
-        bsd.build_semantic_db(dataset, None, "c", 0.78, backend, MODEL, 2, **kwargs)
-
-
-def test_the_chroma_engine_keeps_its_legacy_behaviour(dataset, tmp_path, monkeypatch):
-    calls = []
-    db = tmp_path / "chroma"
-    db.mkdir()
-    (db / "old").write_text("x")
-
-    class Coll:
-        def count(self):
-            return 3
-
-    monkeypatch.setattr(bsd, "crea_collection", lambda name, db_dir: calls.append(("create", name, Path(db_dir))) or Coll())
-    monkeypatch.setattr(bsd, "indicizza", lambda c, ids, texts, vecs, metas: calls.append(("index", len(ids))))
-    monkeypatch.setattr(bsd, "embed", FakeEmbed())
-    assert bsd.build_semantic_db(dataset, db, "c", 0.78, "openai", MODEL, 2) == 3
-    assert not (db / "old").exists()  # legacy: the Chroma folder is recreated
-    assert calls == [("create", "c", db), ("index", 2), ("index", 1)]
+        bsd.build_semantic_db(dataset, "c", 0.78, backend, MODEL, 2, qdrant=qdrant)
 
 
 def test_cli_defaults_follow_the_environment_like_the_app(monkeypatch):
-    monkeypatch.setenv("VECTORSTORE_ENGINE", "qdrant")
     monkeypatch.setenv("VECTORSTORE_QDRANT_MODE", "embedded")
     monkeypatch.setenv("VECTORSTORE_QDRANT_PATH", "/tmp/qq")
     monkeypatch.setattr(sys, "argv", ["x"])
     args = bsd.parse_args()
-    assert args.engine == "qdrant" and bsd.qdrant_settings(args) == {"mode": "embedded", "url": None, "path": "/tmp/qq"}
-    monkeypatch.delenv("VECTORSTORE_ENGINE")
+    assert bsd.qdrant_settings(args) == {"mode": "embedded", "url": None, "path": "/tmp/qq"}
+    assert not hasattr(args, "engine") and not hasattr(args, "db_dir")  # Qdrant is the only target
     monkeypatch.delenv("VECTORSTORE_QDRANT_MODE")
     args = bsd.parse_args()
-    assert args.engine == "chroma" and args.qdrant_mode == "server" and args.qdrant_url == "http://127.0.0.1:6333"
+    assert args.qdrant_mode == "server" and args.qdrant_url == "http://127.0.0.1:6333"

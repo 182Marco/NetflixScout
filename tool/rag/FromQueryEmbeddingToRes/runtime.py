@@ -1,33 +1,12 @@
 from __future__ import annotations
 
-from pathlib import Path
-
-from .vectorstore import db_dir_for_backend
-
 
 def _resolve_runtime_config(config: dict) -> dict:
-    db_root = Path("dbVettoriale")
+    """Runtime copy of the RAG configuration: the index meta must match the embedding model used for queries."""
     vectorstore_config = dict(config["vectorstore"])
     embedding_config = dict(config["embedding"])
 
-    if vectorstore_config["db_dir"]:
-        db_dir = Path(vectorstore_config["db_dir"])
-        effective_backend = embedding_config["backend"]
-    else:
-        openai_dir = db_root / "openai"
-        local_dir = db_root / "local"
-
-        if openai_dir.exists() and not local_dir.exists():
-            effective_backend = "openai"
-        elif local_dir.exists() and not openai_dir.exists():
-            effective_backend = "local"
-        else:
-            effective_backend = embedding_config["backend"]
-
-        db_dir = db_dir_for_backend(effective_backend)
-
     if vectorstore_config.get("qdrant") is not None:
-        # The index meta must match the embedding model actually used for the queries.
         vectorstore_config["qdrant"] = {**vectorstore_config["qdrant"], "model": embedding_config["model"]}
 
     conversation_config = config.get(
@@ -50,8 +29,8 @@ def _resolve_runtime_config(config: dict) -> dict:
         "rerank": dict(config["rerank"]),
         "generation": dict(config["generation"]),
         "conversation": dict(conversation_config),
-        "embedding": {**embedding_config, "backend": effective_backend},
-        "vectorstore": {**vectorstore_config, "db_dir": db_dir},
+        "embedding": embedding_config,
+        "vectorstore": vectorstore_config,
     }
 
     return runtime_config

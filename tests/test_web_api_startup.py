@@ -17,7 +17,7 @@ def import_main(env_extra: dict[str, str]) -> subprocess.CompletedProcess:
 
 
 def test_server_down_stops_the_start_with_one_clear_line():
-    result = import_main({"VECTORSTORE_ENGINE": "qdrant", "VECTORSTORE_QDRANT_MODE": "server",
+    result = import_main({"VECTORSTORE_QDRANT_MODE": "server",
                           "VECTORSTORE_QDRANT_URL": "http://127.0.0.1:1"})
     assert result.returncode != 0 and "Traceback" not in result.stderr
     assert result.stderr.strip().startswith("Error: Cannot reach Qdrant at http://127.0.0.1:1")

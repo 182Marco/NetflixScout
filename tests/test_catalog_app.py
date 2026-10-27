@@ -42,10 +42,10 @@ def qdrant_folder(tmp_path):
     close_clients()
 
 
-def config(folder, enabled=True, engine="qdrant", mode="embedded"):
+def config(folder, enabled=True, mode="embedded"):
     return app.build_runtime_config({
         "catalog": {"enabled": enabled},
-        "rag": {"vectorstore": {"engine": engine, "db_dir": None,
+        "rag": {"vectorstore": {
                                  "qdrant": {"mode": mode, "path": str(folder), "url": None}}},
     })
 
@@ -71,10 +71,9 @@ def test_off_registers_no_tmdb_enricher_and_touches_nothing(monkeypatch, qdrant_
     assert set(built["orchestrator"].enrichers) <= {"rag_search"}
 
 
-@pytest.mark.parametrize("engine,mode", [("chroma", "embedded"), ("qdrant", "memory")])
-def test_on_with_an_engine_that_cannot_keep_films_fails_at_startup(qdrant_folder, engine, mode):
+def test_on_with_a_volatile_store_fails_at_startup(qdrant_folder):
     with pytest.raises(ValueError, match="catalog.enabled"):
-        app.build_app(config(qdrant_folder, engine=engine, mode=mode))
+        app.build_app(config(qdrant_folder, mode="memory"))
 
 
 def test_film_record_fields_are_exactly_the_catalog_record_fields():
@@ -98,7 +97,7 @@ def test_on_a_verified_movie_is_stored_once_and_found_by_tmdb_id(monkeypatch, qd
     assert (out["metadata"], out["chunks"]) == before
     assert fake.calls == [([LONG.strip()], "openai", MODEL, app.CATALOG_EMBED_TIMEOUT)]
     assert transport.paths.count(f"/movie/{MOVIE_ID}") == 1  # the details call is shared via the cache
-    store = app.apri_collection("netflix_scout", db_dir=None, store_config=config(qdrant_folder)["rag"]["vectorstore"]).store
+    store = app.apri_collection("netflix_scout", store_config=config(qdrant_folder)["rag"]["vectorstore"]).store
     point = store.client.retrieve("netflix_scout", ids=[point_uuid(f"tmdb:movie:{MOVIE_ID}")], with_payload=True)[0]
     assert point.payload["genres"] == "Crime Fiction" and point.payload["source"] == "tmdb"
     assert store.count() == 2
@@ -118,5 +117,30 @@ def test_embedding_failure_leaves_metadata_untouched(monkeypatch, qdrant_folder)
     out = enricher.enrich(tool_result={**result, "turn_id": "t"})
     assert out["metadata"] == result["metadata"] and "enrichment_error" not in out["metadata"]
     assert out["trace"][0]["data"]["catalog"][0] == {"status": "error", "reason": "TimeoutError", "tmdb_id": MOVIE_ID}
-    store = app.apri_collection("netflix_scout", db_dir=None, store_config=config(qdrant_folder)["rag"]["vectorstore"]).store
+    store = app.apri_collection("netflix_scout", store_config=config(qdrant_folder)["rag"]["vectorstore"]).store
     assert store.count() == 1
+
+
+# ---- the reference-film flow shares the wiring, but is built lazily and never blocks the start
+def test_reference_flow_provider_is_lazy_and_degrades_without_a_writable_qdrant(qdrant_folder, monkeypatch):
+    from tool.rag.FromQueryEmbeddingToRes.reference_flow import ReferenceFlow
+
+    tool, _ = make_tool({})
+    opened = []
+    monkeypatch.setattr(app, "apri_collection", lambda *a, **k: opened.append(1))
+    provider = app.build_reference_flow_provider(config(qdrant_folder, mode="memory"), tool)
+    assert opened == []  # nothing is opened when the application is built
+    assert provider() is None and provider() is None and opened == []  # cannot work: remembered, no error
+
+    monkeypatch.undo()
+    monkeypatch.setattr(app, "embed", CountingEmbed())
+    good = app.build_reference_flow_provider(config(qdrant_folder), tool)
+    flow = good()
+    assert isinstance(flow, ReferenceFlow) and good() is flow
+    assert flow.strategy == "best_score" and flow.max_positive == 2 and flow.max_lookups == 4 and flow.persist is True
+
+
+def test_build_app_gives_the_rag_tool_the_provider_without_touching_qdrant(monkeypatch):
+    monkeypatch.setattr(app, "apri_collection", lambda *a, **k: (_ for _ in ()).throw(AssertionError("Qdrant touched at build time")))
+    rag = app.build_app()["orchestrator"].tools["rag_search"]
+    assert callable(rag.reference_flow)

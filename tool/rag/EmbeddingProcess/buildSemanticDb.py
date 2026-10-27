@@ -4,7 +4,6 @@ import argparse
 import hashlib
 import math
 import os
-import shutil
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -14,7 +13,6 @@ from tool.rag.EmbeddingProcess.loaders import load
 from tool.rag.EmbeddingProcess.movie_metadata import iter_plot_rows
 from tool.rag.EmbeddingProcess.chunk import chunk_semantic
 from tool.rag.FromQueryEmbeddingToRes.embeddings import embed
-from tool.rag.FromQueryEmbeddingToRes.vectorstore import crea_collection, db_dir_for_backend, indicizza
 
 
 SUPPORTED_LOADER_EXTENSIONS = {".pdf", ".docx", ".html", ".htm", ".md", ".markdown", ".txt"}
@@ -45,51 +43,6 @@ def _stringify_metadata(metadata: dict) -> dict:
         else:
             flattened[key] = str(value).strip()
     return {key: value for key, value in flattened.items() if value is not None and value != ""}
-
-
-def _has_numpy_like_type(value: object) -> bool:
-    return type(value).__module__.startswith("numpy") or hasattr(value, "dtype") and type(value).__module__.startswith("numpy")
-
-
-def _validate_chroma_metadata_value(value: object) -> bool:
-    if value is None:
-        return True
-    if isinstance(value, (str, int, bool)):
-        return True
-    if isinstance(value, float):
-        return math.isfinite(value)
-    if _has_numpy_like_type(value):
-        return False
-    if isinstance(value, (list, tuple, set, dict)):
-        return False
-    if hasattr(value, "__dict__") and type(value).__module__ not in {"builtins", "__main__"}:
-        return False
-    return False
-
-
-def _validate_batch_metadata(batch_meta: list[dict], batch_start_index: int) -> None:
-    for local_index, metadata in enumerate(batch_meta):
-        global_chunk_index = batch_start_index + local_index
-        if not isinstance(metadata, dict):
-            print("INVALID_CHROMA_METADATA: metadata entry is not a dict")
-            print(f"  global_chunk_index={global_chunk_index}")
-            print(f"  type(metadata)={type(metadata).__name__}")
-            print(f"  repr(metadata)={metadata!r}")
-            raise ValueError("metadata entry is not a dict")
-
-        for key, value in metadata.items():
-            if not _validate_chroma_metadata_value(value):
-                movie_id = metadata.get("movie_id", "")
-                title = metadata.get("title", "")
-                print("INVALID_CHROMA_METADATA")
-                print(f"  global_chunk_index={global_chunk_index}")
-                print(f"  movie_id={movie_id!r}")
-                print(f"  title={title!r}")
-                print(f"  metadata_key={key!r}")
-                print(f"  type(value)={type(value).__name__}")
-                print(f"  repr(value)={value!r}")
-                raise ValueError(f"Invalid Chroma metadata value at key {key!r}")
-
 
 
 def _iter_texts(dataset_dir: Path):
@@ -123,7 +76,7 @@ def _iter_texts(dataset_dir: Path):
 def collect_chunks(
     dataset_dir: Path, semantic_threshold: float, embedding_backend: str, embedding_model: str
 ) -> tuple[list[str], list[str], list[dict]]:
-    """Ids, texts and string metadata of every chunk of the dataset (same for every vector engine)."""
+    """Ids, texts and string metadata of every chunk of the dataset (independent of where they are stored)."""
     ids: list[str] = []
     texts: list[str] = []
     metadatas: list[dict] = []
@@ -179,33 +132,8 @@ def collect_chunks(
     return ids, texts, metadatas
 
 
-class ChromaTarget:
-    """Legacy engine: deletes and recreates the Chroma folder (as it always did)."""
-
-    def __init__(self, db_dir: Path, collection_name: str) -> None:
-        self.db_dir, self.collection_name, self.collection = db_dir, collection_name, None
-
-    def prepare(self) -> None:
-        if self.db_dir.exists():
-            shutil.rmtree(self.db_dir)
-        self.db_dir.mkdir(parents=True, exist_ok=True)
-        self.collection = crea_collection(self.collection_name, db_dir=self.db_dir)
-
-    def write(self, ids, texts, vectors, metadatas) -> None:
-        indicizza(self.collection, ids, texts, vectors, metadatas)
-
-    def count(self) -> int:
-        return self.collection.count()
-
-    def where(self) -> str:
-        return str(self.db_dir)
-
-    def close(self) -> None:
-        pass
-
-
 class QdrantTarget:
-    """Qdrant engine: builds a NEW collection and never replaces or deletes anything.
+    """Builds a NEW Qdrant collection and never replaces or deletes anything.
 
     The point ids are the same `uuid5` of the stable chunk id as in the migrated index, so a rebuilt
     index and a migrated one are comparable point by point. The vector dimension is taken from the
@@ -290,31 +218,24 @@ def _validate_qdrant_metadata(batch_meta: list[dict], batch_start_index: int) ->
 
 def build_semantic_db(
     dataset_dir: Path,
-    db_dir: Path | None,
     collection_name: str,
     semantic_threshold: float,
     embedding_backend: str,
     embedding_model: str,
     batch_size: int,
-    engine: str = "chroma",
-    qdrant: dict | None = None,
+    qdrant: dict,
 ) -> int:
-    """Chunk, embed and index the dataset. `engine` is `chroma` (legacy: deletes `db_dir` first) or
-    `qdrant` (a new collection described by `qdrant`: mode, url or path; nothing is ever replaced)."""
+    """Chunk, embed and index the dataset into a NEW Qdrant collection described by `qdrant` (mode, url or path).
+
+    Nothing is ever replaced: an existing collection or a non-empty storage folder is refused before any embedding."""
     if not dataset_dir.exists():
         raise FileNotFoundError(f"Dataset directory not found: {dataset_dir}")
-    if engine == "qdrant":
-        if embedding_backend != "openai":
-            raise ValueError("the Qdrant engine is built with the openai embedding (the local index is obsolete)")
-        target = QdrantTarget(collection_name, qdrant or {}, embedding_model)
-        validate = _validate_qdrant_metadata
-    elif engine == "chroma":
-        target = ChromaTarget(db_dir or db_dir_for_backend(embedding_backend), collection_name)
-        validate = _validate_batch_metadata
-    else:
-        raise ValueError(f"engine {engine!r} unknown: use 'chroma' or 'qdrant'")
+    if embedding_backend != "openai":
+        raise ValueError("the index is built with the openai embedding (the local backend is no longer supported)")
+    target = QdrantTarget(collection_name, qdrant or {}, embedding_model)
+    validate = _validate_qdrant_metadata
 
-    target.prepare()  # checks first (for Qdrant: nothing is touched yet), then the legacy Chroma reset
+    target.prepare()  # checks first: nothing is touched, nothing is embedded yet
     ids, texts, metadatas = collect_chunks(dataset_dir, semantic_threshold, embedding_backend, embedding_model)
     if not texts:
         raise RuntimeError("No chunks were produced from dataset/. Nothing to index.")
@@ -342,16 +263,13 @@ def build_semantic_db(
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Build the semantic index (Chroma or Qdrant) from dataset/")
+    parser = argparse.ArgumentParser(description="Build the semantic Qdrant index from dataset/ (a NEW collection)")
     parser.add_argument("--dataset-dir", default="dataset", help="Dataset directory")
-    parser.add_argument("--db-dir", default=None, help="Override persistent Chroma directory")
     parser.add_argument("--collection", default="netflix_scout", help="Collection name")
     parser.add_argument("--semantic-threshold", type=float, default=0.78, help="Semantic chunk split threshold")
-    parser.add_argument("--embedding-backend", choices=["openai", "local"], default="openai")
+    parser.add_argument("--embedding-backend", choices=["openai"], default="openai")
     parser.add_argument("--embedding-model", default="text-embedding-3-small", help="Embedding model to use with the selected backend")
     parser.add_argument("--batch-size", type=int, default=128)
-    parser.add_argument("--engine", choices=["chroma", "qdrant"], default=os.getenv("VECTORSTORE_ENGINE") or "chroma",
-                        help="Vector engine (default: $VECTORSTORE_ENGINE, else chroma). Qdrant builds a NEW collection")
     parser.add_argument("--qdrant-mode", choices=["embedded", "server"], default=os.getenv("VECTORSTORE_QDRANT_MODE") or "server")
     parser.add_argument("--qdrant-url", default=os.getenv("VECTORSTORE_QDRANT_URL") or "http://127.0.0.1:6333")
     parser.add_argument("--qdrant-path", default=os.getenv("VECTORSTORE_QDRANT_PATH"), help="Storage folder (mode embedded; must be new or empty)")
@@ -368,12 +286,10 @@ if __name__ == "__main__":
     args = parse_args()
     build_semantic_db(
         dataset_dir=Path(args.dataset_dir),
-        db_dir=Path(args.db_dir) if args.db_dir else None,
         collection_name=args.collection,
         semantic_threshold=args.semantic_threshold,
         embedding_backend=args.embedding_backend,
         embedding_model=args.embedding_model,
         batch_size=args.batch_size,
-        engine=args.engine,
-        qdrant=qdrant_settings(args) if args.engine == "qdrant" else None,
+        qdrant=qdrant_settings(args),
     )
