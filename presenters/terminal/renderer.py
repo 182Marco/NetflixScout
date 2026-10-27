@@ -9,6 +9,7 @@ from __future__ import annotations
 from collections.abc import Callable
 
 from turn import (
+    STEP_CLASSIFICATION,
     STEP_DB_QUERY,
     STEP_RERANK,
     STEP_RETRIEVAL,
@@ -63,6 +64,8 @@ class TerminalObserver:
         self._story = StoryBuilder(language)
         # The answer is printed as it arrives: the header comes with the first visible text.
         self._answer_started = False
+        # A non-film query gets the bare refusal: no header box around it.
+        self._plain_answer = False
 
     def _show(self, lines: list[StoryLine]) -> None:
         for line in lines:
@@ -72,6 +75,8 @@ class TerminalObserver:
         self._show(self._story.status(stage))
 
     def step(self, step: TraceStep) -> None:
+        if step.kind == STEP_CLASSIFICATION and step.data.get("is_cinema") is False:
+            self._plain_answer = True
         self._show(self._story.step(step))
         if step.kind not in STORY_STEP_KINDS:
             STEP_RENDERERS.get(step.kind, _render_unknown)(step, self._story.language)
@@ -81,7 +86,8 @@ class TerminalObserver:
             text = text.lstrip()  # no empty lines between the header and the answer
             if not text:
                 return
-            print_answer_header()
+            if not self._plain_answer:
+                print_answer_header()
             self._answer_started = True
         print_answer_text(text)
 
@@ -89,7 +95,10 @@ class TerminalObserver:
 def render(turn: TurnResult, *, streamed: bool = False) -> None:
     """Print the end of a turn. `streamed`: a `TerminalObserver` already printed the steps and
     the answer as they came, so only the end of the answer is left."""
-    if streamed:
+    if turn.blocked:
+        # Only the refusal; streamed, the observer already printed it.
+        print() if streamed else print(turn.answer)
+    elif streamed:
         print_answer_end()
     else:
         observer = TerminalObserver(turn.language)

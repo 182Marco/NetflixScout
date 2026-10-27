@@ -48,6 +48,7 @@ from tool.wikipedia.tool import WikipediaTool
 from tool.youtube.config import load_youtube_config
 from tool.youtube.tool import YoutubeTool
 
+# Fallback only: the classifier writes the refusal in the user's language (`block_reply`).
 NON_CINEMA_BLOCK_MESSAGES = {
     "it": "Non rispondo a domande non cinematografiche",
     "en": "I do not answer non-film questions",
@@ -681,24 +682,26 @@ def handle_query(
     history = list(history or [])
     recorder = _TurnRecorder(observer or NullObserver())
 
-    recorder.status(STAGE_UNDERSTANDING)
     context_size = runtime_config["orchestrator"].get("classifier_context_messages", 0)
     classification = classify_query_domain(query, history[-context_size:] if context_size else [])
     language = _choose_block_language(query, classification)
     recorder.step(TraceStep(kind=STEP_CLASSIFICATION, title="Classificazione", data={**classification, "language": language}))
 
     if not classification["is_cinema"]:
-        recorder.answer_delta(NON_CINEMA_BLOCK_MESSAGES[language])
+        # Nothing but the dry refusal, in the user's language: no stage, no story, no box.
+        block_message = classification.get("block_reply") or NON_CINEMA_BLOCK_MESSAGES[language]
+        recorder.answer_delta(block_message)
         return TurnResult(
             query=query,
             language=language,
             blocked=True,
-            answer=NON_CINEMA_BLOCK_MESSAGES[language],
+            answer=block_message,
             steps=recorder.steps,
             story=recorder.story,
             history=history,
         )
 
+    recorder.status(STAGE_UNDERSTANDING)
     decision = app["orchestrator"].run(
         query=query,
         conversation_history=history,

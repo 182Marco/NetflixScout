@@ -153,3 +153,56 @@ def test_the_answer_of_a_real_turn_is_delivered_through_the_observer(monkeypatch
     turn = app_module.handle_query(_app(), "ciao", history=[], observer=observer)
 
     assert "".join(observer.deltas) == turn.answer
+
+
+# --- non-film refusal: the bare text, in the user's language -----------------------------------------------
+
+
+class _Events:
+    def __init__(self) -> None:
+        self.stages: list[str] = []
+        self.steps: list[str] = []
+        self.deltas: list[str] = []
+
+    def step(self, step) -> None:
+        self.steps.append(step.kind)
+
+    def status(self, stage) -> None:
+        self.stages.append(stage)
+
+    def answer_delta(self, text) -> None:
+        self.deltas.append(text)
+
+
+def _block(monkeypatch, **classification):
+    monkeypatch.setattr(
+        app_module, "classify_query_domain",
+        lambda q, history=None: {"is_cinema": False, "is_italian": False, **classification},
+    )
+
+
+def test_a_blocked_turn_says_the_classifier_refusal_and_shows_no_stage_or_story(monkeypatch) -> None:
+    _block(monkeypatch, block_reply="No respondo preguntas que no son de cine.")
+    observer = _Events()
+
+    turn = app_module.handle_query(_app(), "¿Quién ganó las elecciones?", history=[], observer=observer)
+
+    assert turn.answer == "No respondo preguntas que no son de cine." and observer.deltas == [turn.answer]
+    assert observer.stages == [] and turn.story == []  # no "understanding" line before the refusal
+
+
+def test_a_blocked_turn_without_a_usable_reply_falls_back_to_the_fixed_message(monkeypatch) -> None:
+    _block(monkeypatch, block_reply=None, is_italian=True)
+
+    turn = app_module.handle_query(_app(), "Chi vince le elezioni?", history=[])
+
+    assert turn.answer == app_module.NON_CINEMA_BLOCK_MESSAGES["it"]
+
+
+def test_the_terminal_prints_a_blocked_turn_as_bare_text(capsys) -> None:
+    observer = TerminalObserver()
+    observer.step(TraceStep(kind="classification", title="c", data={"is_cinema": False, "language": "en"}))
+    observer.answer_delta("Nope.")
+    present(TurnResult(query="q", language="en", blocked=True, answer="Nope."), OutputChannel.terminal, streamed=True)
+
+    assert capsys.readouterr().out == "Nope.\n"

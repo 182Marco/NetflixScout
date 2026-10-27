@@ -144,5 +144,5 @@ def test_the_story_of_a_real_turn_equals_the_story_rebuilt_from_its_steps(monkey
 
     assert turn.story == build_story(turn.steps)
     assert [line.text for line in turn.story] == ["Searching on TMDb: Who directed Dune?", "TMDb: no results, under 1 s"]
-    assert seen[0] == "status:understanding" and seen[1] == "classification"
+    assert seen[0] == "classification" and seen[1] == "status:understanding"
     assert [s for s in seen if not s.startswith("status")] == [s.kind for s in turn.steps]

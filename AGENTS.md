@@ -27,7 +27,7 @@ Qdrant va acceso prima. Lo script cerca il binario in `$QDRANT_BIN`, poi `bin/qd
 
 **Flusso a runtime** (`app.py`)
 ```
-input + ultimi classifier_context_messages della history → classify_query_domain (gpt-4o-mini, JSON) ──non cinema──→ messaggio di blocco it/en
+input + ultimi classifier_context_messages della history → classify_query_domain (gpt-4o-mini, JSON) ──non cinema──→ rifiuto secco (`block_reply` dello stesso classificatore, nella lingua dell'utente; ripiego fisso it/en), senza stadio, storia né riquadro
                          │ cinema
                          ▼
 LLMOrchestrator (orchestrator.py) → sceglie il tool → RagTool.run → run_rag (retrieve + rerank, nessuna generazione) → TmdbRagEnricher (metadati TMDb dei candidati)
