@@ -83,3 +83,11 @@ def test_schema_stays_compact_for_the_planner_prompt() -> None:
 
     assert len(schema) < 9_000
     assert len(schema) + len(describe_operations()) < 13_000
+
+
+def test_title_field_tells_the_planner_not_to_use_a_character_name() -> None:
+    from tool.tmdb.models.requests import TmdbRequest
+
+    description = TmdbRequest.model_json_schema()["properties"]["title"]["description"]
+
+    assert "never a character's name" in description and "`search`" in description

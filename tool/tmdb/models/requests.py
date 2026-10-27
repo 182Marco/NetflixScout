@@ -144,7 +144,7 @@ class TmdbRequest(BaseModel):
     operation: TmdbOperation
     kind: SearchKind | None = None
     search_query: str | None = Field(default=None, min_length=1, max_length=200)
-    title: str | None = Field(default=None, min_length=1, max_length=200, description="Movie or series title.")
+    title: str | None = Field(default=None, min_length=1, max_length=200, description="Movie or series title, never a character's name (to find a film from a character use `search`).")
     name: str | None = Field(default=None, min_length=1, max_length=200, description="Person, collection or company.")
     year: int | None = Field(default=None, ge=1870, le=2100)
     tmdb_id: int | None = Field(default=None, ge=1, le=MAX_TMDB_ID)

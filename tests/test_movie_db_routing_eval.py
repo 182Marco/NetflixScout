@@ -406,3 +406,13 @@ def test_plot_in_english_follow_up_expects_wikipedia() -> None:
     assert case.expected_tool == "wikipedia_search"
     assert wikipedia_result.passed and not tmdb_result.passed
 
+
+def test_truman_burbank_character_name_as_a_movie_title_is_rejected() -> None:
+    case = _case("Qual è quel film in cui il protagonista si chiama Truman")
+    character = {"requests": [{"operation": "movie_details", "title": "Truman Burbank"}]}
+    film = {"requests": [{"operation": "movie_details", "title": "The Truman Show", "year": 1998}]}
+
+    wrong, right = _run((case, case), [_plan(TMDB, arguments=character), _plan(TMDB, arguments=film)])
+
+    assert not wrong.passed and "no request matches" in wrong.requests_problem
+    assert right.passed
