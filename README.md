@@ -517,7 +517,8 @@ no authentication: the backend key and its budget are the only protection (portf
 response length, tone, approach, content type, preferred sources) from `preferences/fields.json`; the
 frontend sends the current values in the optional `preferences` field of each message. The backend validates
 every field on its own (an invalid one falls back to its default, the others are kept, the problem is only
-logged), the settings never add a tool call (defaults: no spoilers, `medium` length, `technician` tone,
+logged), the settings add no tool call except the `interviews` source, which also searches YouTube for an
+identified film or series (defaults: no spoilers, `medium` length, `technician` tone,
 alternatives comparison, films and series, official information; checked with 10 real turns on 2026-10-27),
 and the instructions behind each choice stay private
 (`preferences/behavior.py`). The terminal always behaves as before. Contract for the frontend:

@@ -76,8 +76,11 @@ registrate o fixture, mai solo la documentazione dell'API), a quale preferenza s
 3. **Sovrapposizioni.** Con quali tool esistenti dà lo stesso tipo di dato? Chi è più affidabile, più aggiornato, più
    costoso (quota, chiamate)? Scrivi la regola di priorità: l'intento della richiesta e le regole numerate di routing
    prevalgono sempre sulla preferenza, che serve solo da criterio secondario tra tool che già servono la richiesta.
-4. **Nessuna chiamata in più.** La preferenza orienta e mette in evidenza (`SOURCES_PLANNER`, `SOURCES_ANSWER`): non
-   aggiunge passi né tool. Se il nuovo tool ha quote o costi, dichiaralo.
+4. **Nessuna chiamata in più, salvo eccezione decisa.** La preferenza orienta e mette in evidenza
+   (`SOURCES_PLANNER`, `SOURCES_ANSWER`): non aggiunge passi né tool. L'unica eccezione oggi è `interviews`, che per un
+   titolo identificato aggiunge un passo `youtube_search` per decisione del proprietario; ogni altra eccezione va
+   chiesta e dichiarata nel modulo (`behavior.py`), in `PLANNER_INTRO` e in `AGENTS.md`. Se il nuovo tool ha quote o
+   costi, dichiaralo.
 5. **Spoiler e tipo di contenuto.** Il tool può restituire trame, finali o recensioni che spoilerano? Copre film, serie
    o entrambi? Va scritto, perché `spoiler_plot` e `content_type` si basano su questo.
 6. **Conflitti da testare.** Almeno un caso in cui la preferenza e l'intento esplicito divergono, con l'esito atteso

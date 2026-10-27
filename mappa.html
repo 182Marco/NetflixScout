@@ -1114,14 +1114,14 @@ const TREE = D("NetflixScout", {}, [
   D("preferences", {
     L: "web",
     s: `Impostazioni utente per turno: definizione pubblica, validazione e istruzioni private.`,
-    d: `<code>fields.json</code> è l'unica fonte pubblica (id, opzioni, default); <code>behavior.py</code> contiene le istruzioni private; <code>resolve.py</code> valida ogni campo da solo; <code>compose.py</code> compone i due testi (planner e risposta) che <code>handle_query</code> passa all'orchestratore. Nessuna impostazione aggiunge chiamate; il terminale non le usa.`,
+    d: `<code>fields.json</code> è l'unica fonte pubblica (id, opzioni, default); <code>behavior.py</code> contiene le istruzioni private; <code>resolve.py</code> valida ogni campo da solo; <code>compose.py</code> compone i due testi (planner e risposta) che <code>handle_query</code> passa all'orchestratore. Nessuna impostazione aggiunge chiamate, tranne la fonte «interviste» che per un titolo identificato aggiunge una ricerca YouTube; il terminale non le usa.`,
     n: [`Non importa tool, presenter né canali.`, `Il client riceve solo <code>fields.json</code> (<code>GET /settings</code>), mai <code>behavior.py</code>.`],
   }, [
     F("fields.json", {
       L: "cfg",
       s: `Definizione pubblica dei sei campi: tipo, opzioni, etichette it/en, default.`,
       d: `Servita così com'è da <code>GET /settings</code>; unica fonte per id, opzioni e default (lunghezza predefinita: <code>medium</code>).`,
-      n: [`Verificata con 10 turni reali il 2026-10-27: spoiler, lunghezza, tono, approccio, tipo di contenuto e fonti si comportano come previsto e nessuna impostazione aggiunge chiamate. Difetto noto: con <code>series</code> il genere «Thriller» non esiste tra i generi TV di TMDb e la ricerca torna vuota.`],
+      n: [`Verificata con 10 turni reali il 2026-10-27: spoiler, lunghezza, tono, approccio, tipo di contenuto e fonti si comportano come previsto e nessuna impostazione aggiunge chiamate (da allora la fonte «interviste» aggiunge una ricerca YouTube per un titolo identificato). Il difetto trovato con <code>series</code> (genere «Thriller» assente tra i generi TV di TMDb) è risolto con alias per le serie e con un <code>follow_up</code> per i generi senza equivalente.`],
     }),
     F("behavior.py", {
       L: "cfg",
@@ -1764,6 +1764,13 @@ const TREE = D("NetflixScout", {}, [
       s: `TMDb offre un altro passo quando una richiesta non trova nulla.`,
       d: `When TMDb finds nothing for a request, the tool offers the planner another step (turn.RESULT_FOLLOW_UP) instead of the turn ending on the failure; when it found what was asked, nothing is added. 5 test: a request that is not found offers the planner to look elsewhere; a collection that does not exist is the trilogy case; a partial result keeps its data and still offers the missing part; a successful run has no follow up and an unrelated error has none either; the orchestrator asks the planner and a second tool can answer`,
       dep: ["tool/tmdb/tool.py", "orchestrator.py"],
+      x: ["pytest"],
+    }),
+    F("test_tmdb_tv_genres.py", {
+      L: "test",
+      s: `Generi delle serie TV: alias e follow_up per i nomi senza equivalente.`,
+      d: `Series have their own genre list: thriller means Mystery and science fiction means Sci-Fi & Fantasy for series, films are unchanged, and a series genre without an equivalent offers the planner another step instead of ending the turn. 5 test.`,
+      dep: ["tool/tmdb/operations/reference.py", "tool/tmdb/tool.py"],
       x: ["pytest"],
     }),
     F("test_tmdb_turn_budget.py", {

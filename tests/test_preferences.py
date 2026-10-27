@@ -133,7 +133,20 @@ def test_the_planner_part_has_only_routing_settings_and_never_asks_for_a_call() 
     assert behavior.SOURCES_PLANNER["reviews"] in parts["planner"]
     for text in (*behavior.TONE.values(), *behavior.LENGTH.values(), *behavior.SPOILER.values()):
         assert text not in parts["planner"]
-    assert "Non aggiungono tool né passi" in parts["planner"]
+    assert "non aggiungono tool né passi" in parts["planner"]
+    assert "youtube_search" not in parts["planner"]  # the reviews source adds no step
+
+
+def test_only_the_interviews_source_adds_a_step_and_only_for_an_identified_title() -> None:
+    steps = {
+        value: build_prompt_parts(resolve_preferences({"preferred_sources": value}).preferences)["planner"]
+        for value in behavior.SOURCES_PLANNER
+    }
+
+    assert [value for value, text in steps.items() if "youtube_search" in text] == ["interviews"]
+    assert "more_steps true" in steps["interviews"] and "identificati da un titolo" in steps["interviews"]
+    assert "NON classifiche" in steps["interviews"]
+    assert "ONE declared" in behavior.__doc__
 
 
 def test_a_contradicting_spoiler_request_is_never_answered_and_the_user_is_told() -> None:

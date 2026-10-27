@@ -1,8 +1,10 @@
 """PRIVATE behaviour of each setting: the instructions that reach the prompts. Never sent to a client.
 
 One fragment per option of `fields.json` (a test checks the two match). The planner fragments only
-say how to break ties between tools that already fit the request; they never ask for a call: the
-numbered routing rules and the explicit request always come first, and a setting adds no tool call.
+say how to break ties between tools that already fit the request: the numbered routing rules and
+the explicit request always come first, and a setting adds no tool call, with ONE declared
+exception (owner's decision of 2026-10-27): the `interviews` source adds a `youtube_search` step
+for an identified film or series (YouTube quota: at most `max_searches_per_turn` searches).
 The answer fragments shape the form of the answer and what to put forward, never the facts.
 """
 from __future__ import annotations
@@ -18,9 +20,10 @@ ANSWER_INTRO: Final = (
 
 PLANNER_INTRO: Final = (
     "Preferenze dell'utente per questo turno: sono solo un criterio secondario tra tool che già "
-    "servono alla richiesta. Non aggiungono tool né passi, non cambiano k_finale né gli altri "
-    "parametri di ricerca, e non prevalgono mai sull'intento della richiesta, sulle regole "
-    "numerate o su una richiesta esplicita dell'utente."
+    "servono alla richiesta. Non cambiano k_finale né gli altri parametri di ricerca e non "
+    "prevalgono mai sull'intento della richiesta, sulle regole numerate o su una richiesta "
+    "esplicita dell'utente. Salvo dove una preferenza dice espressamente di aggiungere un passo, "
+    "non aggiungono tool né passi."
 )
 
 SPOILER: Final[dict[bool, str]] = {
@@ -154,8 +157,14 @@ SOURCES_PLANNER: Final[dict[str, str]] = {
         "passo in più). Per Wikipedia l'accoglienza sta nelle sezioni di un articolo già scelto."
     ),
     "interviews": (
-        "Fonti preferite: interviste. Non cercare video se la richiesta non li chiede (regola 1b): la "
-        "preferenza vale quando la richiesta li ammette già."
+        "Fonti preferite: interviste. Se la richiesta riguarda un film o una serie identificati da un "
+        "titolo (informazioni, 'parlami di X', dettagli; NON classifiche, raccomandazioni senza "
+        "titolo, domande statistiche o sulla sola trama), aggiungi in parts anche un passo "
+        "youtube_search per le interviste (kinds: director_interview e poi cast_interview; title e, "
+        "solo se compaiono nella richiesta, nella conversazione o nei dati già ottenuti in questo "
+        "turno, year, director e cast) e imposta more_steps true. È l'unica preferenza che aggiunge "
+        "un passo; il tool applica da solo il limite di ricerche per turno. Se la richiesta chiede "
+        "già video vale la regola 1b."
     ),
     "official information": (
         "Fonti preferite: informazioni ufficiali. Nessuna modifica al routing: le regole numerate già "

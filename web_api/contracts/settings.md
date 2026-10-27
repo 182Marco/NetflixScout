@@ -105,7 +105,10 @@ interrompe la richiesta. Le classi di errore restano distinte:
   che l'utente ha scelto.
 - La cronologia contiene le risposte dei turni precedenti, scritte con le impostazioni di allora: ogni turno applica
   solo quelle del proprio messaggio.
-- Le impostazioni non aggiungono chiamate ai tool: orientano la scelta tra tool già adatti e la forma della risposta.
+- Le impostazioni orientano la scelta tra tool già adatti e la forma della risposta e non aggiungono chiamate, tranne
+  `preferred_sources: "interviews"`: per un film o una serie identificati da un titolo il bot cerca anche i video di
+  interviste su YouTube, e i video compaiono nell'evento `lists` (e negli eventi `step` `youtube_calls`) come per ogni
+  altra ricerca di video. Il turno dura quindi un passo in più e consuma ricerche YouTube.
 - Gli spoiler disattivati sono una richiesta al modello, non un filtro sui dati: se l'utente chiede esplicitamente uno
   spoiler, la risposta non lo rivela e dice che la richiesta contraddice l'impostazione.
 - Il tono non si applica ai messaggi fissi (domanda di chiarimento, blocco di una domanda non cinematografica, testo
