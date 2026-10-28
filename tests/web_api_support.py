@@ -29,12 +29,15 @@ class FakeOrchestrator:
         piece: int = 11,
         gate: threading.Event | None = None,
         error: Exception | None = None,
+        steps: list[Any] | None = None,
     ) -> None:
         self.answer = answer
         self.refs = [raw_list(MOVIE_REF, TV_REF)] if refs is None else refs
         self.piece = piece
         self.gate = gate
         self.error = error
+        # Tool steps to stream instead of the default TMDb and YouTube ones.
+        self.steps = [TMDB_STEP, YOUTUBE_STEP] if steps is None else steps
         self.calls: list[dict[str, Any]] = []
         self.started = threading.Event()
 
@@ -52,7 +55,7 @@ class FakeOrchestrator:
         self.started.set()
         if self.error:
             raise self.error
-        trace = [step.model_dump() for step in (TMDB_STEP, YOUTUBE_STEP)]
+        trace = [step.model_dump() for step in self.steps]
         decision = {
             "tool": "tmdb_search",
             "tools": ["tmdb_search"],

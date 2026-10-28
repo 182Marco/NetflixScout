@@ -27,6 +27,8 @@ from tool.rag.FromQueryEmbeddingToRes.models import RerankBackend, SearchMode
 from tool.rag.FromQueryEmbeddingToRes.tool_interface import RagTool
 from tool.rag.FromQueryEmbeddingToRes.vectorstore import apri_collection
 from tool.tmdb.config import load_tmdb_config
+from tool.omdb.config import load_omdb_config
+from tool.omdb.tool import OmdbTool
 from tool.tmdb.enrich import TmdbRagEnricher
 from tool.tmdb.film_record import read_film, read_film_record
 from tool.tmdb.operations.resolve import ALTERNATIVE_TITLE_MATCH
@@ -158,6 +160,28 @@ CONFIG = {
             "sezioni della stessa pagina o una pagina più pertinente); se l'edizione inglese non trova "
             "la pagina o non copre un dettaglio locale (il tool lo segnala), scegli un passo con "
             "language it o de, secondo il Paese del tema; altrimenti ritorna done. "
+            "1d) omdb_search dà solo i punteggi di UN film o di UNA serie identificati: il voto IMDb (del "
+            "pubblico), il Metascore e il punteggio Rotten Tomatoes (aggregati della critica professionale, "
+            "solo punteggi, mai il testo delle recensioni). È l'unica fonte del Metascore e di Rotten "
+            "Tomatoes. Scegli omdb_search come primo tool, prima di tmdb_search, quando la richiesta chiede "
+            "esplicitamente il giudizio o i punteggi della critica su un titolo identificato (cosa dice la "
+            "critica, come è stato accolto dalla critica, voto della critica, Metascore, Rotten Tomatoes) E "
+            "le preferenze dell'utente indicano le recensioni come fonte preferita. Senza quella "
+            "preferenza una domanda generica sulla critica segue le regole 1 e 2 e non va a omdb_search, "
+            "salvo che la richiesta nomini esplicitamente il Metascore, Rotten Tomatoes o il voto IMDb. "
+            "Non sceglierlo per classifiche o elenchi di titoli (regole 1 e 2), cast, trama, streaming, testi "
+            "di recensioni o voti degli utenti di MovieLens e TMDb, né quando i punteggi richiesti sono già "
+            "nei risultati dei passi precedenti del turno. Per omdb_search compila arguments con imdb_id solo "
+            "se compare nella richiesta, nella conversazione o in un passo già fatto di questo turno (non "
+            "aggiungere una chiamata a tmdb_search solo per ottenerlo e non scrivere mai un imdb_id "
+            "ricordato a memoria), altrimenti con title e, solo se la richiesta o la conversazione li "
+            "danno, year e type: il tool cerca il titolo e non assegna punteggi a un'opera dubbia. "
+            "Eccezione, solo con le preferenze «recensioni»: se la richiesta chiede film o serie con ottime "
+            "recensioni o acclamati dalla critica (raccomandazioni o elenchi con un vincolo di qualità "
+            "critica), il primo passo resta tmdb_search per i candidati; poi aggiungi in parts un passo "
+            "omdb_search per ciascuno dei primi cinque candidati (title e year presi dai risultati di "
+            "TMDb, mai inventati; more_steps true fino all'ultimo) così la qualità critica è verificata "
+            "e non dedotta dal voto del pubblico. "
             "2) movie_db_search è il punto di partenza per voti, valutazioni, classifiche, numero di "
             "voti, confronti basati sui punteggi, film per genere e anno ordinati per voto e tag "
             "degli utenti di MovieLens. MovieLens contiene solo voti e tag degli utenti: nessun "
@@ -329,6 +353,31 @@ CONFIG = {
                 "'original_title', di' in una frase che indicare il titolo originale può aiutare, "
                 "senza proporne uno. Non mescolare link TMDb e YouTube."
             ),
+            "omdb_search": (
+                "Se il tool usato è omdb_search, riporta solo i punteggi presenti nei metadata, uno per "
+                "fonte, dicendo che cosa misurano: il voto IMDb è del pubblico; il Metascore e il "
+                "punteggio Rotten Tomatoes sono aggregati di recensioni di critici professionisti, ma "
+                "sono solo punteggi (non hai il testo delle recensioni né i nomi delle testate). Scrivi ogni "
+                "punteggio esattamente come il campo display dei metadata (9.3/10, 82/100, 93%): Rotten "
+                "Tomatoes è una percentuale e non va mai scritto «93/100». Se confronti pubblico e critica, "
+                "elenca separatamente per ogni fonte il nome, il punteggio e la scala (0-10, 0-100, "
+                "percentuale) e non dichiarare quale sia più alto, migliore, favorito o vincente: le scale "
+                "non sono equivalenti e non si confrontano direttamente; se la domanda chiede un verdetto, "
+                "spiega che i valori non sono comparabili e mostrali. Se hai i punteggi di più titoli "
+                "(verifica di candidati), ordina o filtra per Metascore e Rotten Tomatoes soltanto i titoli "
+                "che li hanno, scrivendo per ciascuno i suoi valori, e dì quali candidati non hanno un "
+                "punteggio della critica; non presentare mai i voti del pubblico (TMDb, IMDb) come giudizio "
+                "della critica. Se un punteggio ha status not_available, dì che per questo titolo non è "
+                "disponibile; se è unparsed, che non è stato possibile leggerlo; non stimarlo, non "
+                "dedurlo da un'altra fonte, non calcolare medie né convertire scale, e non sostituire "
+                "un punteggio mancante con un altro. Non presentare mai il voto IMDb come giudizio "
+                "della critica. Se lo status è ambiguous o unverified, nessuna opera è stata "
+                "identificata con certezza: non dare punteggi, elenca le alternative ricevute (titolo, "
+                "anno, tipo) e chiedi quale intende (o l'anno); se è not_found dì che il titolo non è "
+                "stato trovato; se è un errore (outcome error) dì che i punteggi non sono stati "
+                "recuperati, senza riprovare e senza usare punteggi ricordati a memoria. Nomina il "
+                "titolo e l'anno ricevuti. Non scrivere URL e non nominare il servizio."
+            ),
         },
         # Last release year each local source covers fully; measured by `data_coverage.py`
         # (tests/test_data_coverage.py checks these values against the datasets). The planner
@@ -356,7 +405,7 @@ CONFIG = {
         "memory_window_size": 12,
         # Last history messages shown to the domain classifier, so follow-ups are not blocked.
         "classifier_context_messages": 2,
-        "allowed_tools": ["rag_search", "movie_db_search", "tmdb_search", "youtube_search", "wikipedia_search"],
+        "allowed_tools": ["rag_search", "movie_db_search", "tmdb_search", "youtube_search", "wikipedia_search", "omdb_search"],
         "required_tools": [],
         "tool_confidence_threshold": 0.6,
         "fallback_tool": "rag_search",
@@ -490,6 +539,12 @@ CONFIG = {
     "you_tube": {
         "max_results": 3,
         "max_searches_per_turn": 2,
+    },
+    # Only this: timeout and the other constants are internal to tool/omdb/. A title lookup costs 2 requests
+    # (search, then the record), an IMDb ID given directly 1; 10 covers the five candidates of a "recommend
+    # films with excellent reviews" turn; the free key allows 1,000 a day.
+    "omdb": {
+        "max_calls_per_turn": 10,
     },
     # `context_chars_per_turn` protects the final prompt, it does not cap what can be fetched:
     # an article is downloaded whole and handed out section by section (tool/wikipedia/sections.py).
@@ -625,6 +680,7 @@ def build_app(overrides: dict[str, Any] | None = None) -> dict[str, Any]:
     tools.append(tmdb_tool)
     tools.append(YoutubeTool(config=load_youtube_config(runtime_config["you_tube"])))
     tools.append(WikipediaTool(config=load_wikipedia_config(runtime_config["wikipedia"])))
+    tools.append(OmdbTool(config=load_omdb_config(runtime_config["omdb"])))
     enrichment = runtime_config["orchestrator"].get("rag_enrichment") or {}
     enrichers = {}
     if enrichment.get("enabled"):

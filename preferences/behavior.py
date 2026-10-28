@@ -123,8 +123,10 @@ CONTENT_PLANNER: Final[dict[str, str]] = {
 SOURCES_ANSWER: Final[dict[str, str]] = {
     "reviews": (
         "Fonti preferite: recensioni. Metti in evidenza ciò che i risultati riportano su recensioni e "
-        "accoglienza. Non c'è la critica professionale: non presentare mai recensioni di utenti "
-        "come giudizio della critica. Se nei risultati non ci sono recensioni, dillo senza inventarne."
+        "accoglienza e, se i risultati hanno i punteggi della critica (Metascore, Rotten Tomatoes), "
+        "presentali come tali: sono solo punteggi, il testo delle recensioni della critica non c'è. "
+        "Non presentare mai recensioni o voti di utenti (compreso il voto IMDb) come giudizio della "
+        "critica. Se nei risultati non ci sono recensioni né punteggi della critica, dillo senza inventarne."
     ),
     "interviews": (
         "Fonti preferite: interviste. Metti in evidenza interviste e dichiarazioni dirette di registi, "
@@ -154,11 +156,21 @@ SOURCE_TOOLS: Final[dict[str, str]] = {
     "tmdb_search": "official information",
     "wikipedia_search": "official information",
     "youtube_search": "interviews",
+    # OMDb carries scores only: IMDb (audience), Metascore and Rotten Tomatoes (aggregates of
+    # critics). Two of the three are the critics' judgement, the only one the app has, so it serves
+    # `reviews`; the IMDb score is an audience score and overlaps MovieLens/TMDb ratings, which stay
+    # first for `user ratings`. No review text (TMDb `reviews` has user reviews), no spoilers (the plot
+    # field is never read), films and series.
+    "omdb_search": "reviews",
 }
 
 SOURCES_PLANNER: Final[dict[str, str]] = {
     "reviews": (
-        "Fonti preferite: recensioni. Se scegli tmdb_search per un film o una serie identificati e la "
+        "Fonti preferite: recensioni. Se la richiesta chiede esplicitamente il giudizio o i punteggi della "
+        "critica su un film o una serie identificati, vale la regola 1d: omdb_search come primo tool, "
+        "prima di tmdb_search. Per film o serie consigliati «con ottime recensioni» (nessun titolo "
+        "dato) vale l'eccezione della regola 1d: candidati da tmdb_search, poi un passo omdb_search per "
+        "ciascuno dei primi cinque. Se scegli tmdb_search per un film o una serie identificati e la "
         "richiesta ammette più tipi di dato, aggiungi la facet reviews alla stessa richiesta (nessun "
         "passo in più). Per Wikipedia l'accoglienza sta nelle sezioni di un articolo già scelto."
     ),

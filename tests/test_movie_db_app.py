@@ -29,10 +29,10 @@ def test_build_app_registers_the_tool_when_enabled(monkeypatch) -> None:
     enabled = app_module.build_app()["orchestrator"]
     disabled = app_module.build_app({"movie_db": {"enabled": False}})["orchestrator"]
 
-    assert set(enabled.tools) == {"rag_search", MOVIE_DB_TOOL_NAME, "tmdb_search", "youtube_search", "wikipedia_search"}
+    assert set(enabled.tools) == {"rag_search", MOVIE_DB_TOOL_NAME, "tmdb_search", "youtube_search", "wikipedia_search", "omdb_search"}
     assert isinstance(enabled.tools[MOVIE_DB_TOOL_NAME], MovieDbTool)
-    assert set(disabled.tools) == {"rag_search", "tmdb_search", "youtube_search", "wikipedia_search"}
-    assert disabled._allowed_tool_names() == ["rag_search", "tmdb_search", "youtube_search", "wikipedia_search"]
+    assert set(disabled.tools) == {"rag_search", "tmdb_search", "youtube_search", "wikipedia_search", "omdb_search"}
+    assert disabled._allowed_tool_names() == ["rag_search", "tmdb_search", "youtube_search", "wikipedia_search", "omdb_search"]
 
 
 def test_config_routes_db_questions_and_keeps_rag_fallback() -> None:

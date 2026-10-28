@@ -213,3 +213,102 @@ def test_a_second_message_gets_409_while_the_first_runs_and_a_closed_stream_stil
     assert busy.status_code == 409 and busy.json()["error"]["code"] == "turn_in_progress"
     assert info == {"conversation_id": conversation_id, "busy": False, "turns_completed": 1}
     assert len(orchestrator.calls) == 1
+
+
+# --- the HTTP calls of the tools in the stream ---------------------------------------------------------------
+
+
+def _steps_of(tool_run) -> list:
+    from turn import TraceStep
+
+    result, sent, secret = tool_run()
+    return [TraceStep(**step) for step in result["trace"]], sent, secret
+
+
+def test_every_http_call_of_every_tool_reaches_the_client_in_order_with_the_key_masked() -> None:
+    import test_http_call_trace as calls
+
+    from turn import mask_url
+
+    builders = {"tmdb_calls": calls._tmdb, "youtube_calls": calls._youtube, "wikipedia_calls": calls._wikipedia, "omdb_calls": calls._omdb}
+    for kind, build in builders.items():
+        steps, sent, secret = _steps_of(build)
+        with make_client(FakeOrchestrator(steps=steps)) as client:
+            response = client.post(f"/conversations/{_open(client)}/messages", json={"content": "q"})
+        events = parse_sse(response.text)
+        tool_steps = [data for _, name, data in events if name == "step" and data["kind"] == kind]
+
+        assert len(tool_steps) == 1, kind
+        received = tool_steps[0]["calls"]
+        assert [(c["method"], c["url"]) for c in received] == [("GET", mask_url(url, [secret])) for url in sent], kind
+        assert len(received) >= 2  # several calls in the same turn: none is lost
+        assert not secret or secret not in response.text, kind
+
+
+def test_a_tool_step_with_credentials_in_any_url_format_never_leaks_them_to_the_client() -> None:
+    from turn import TraceStep
+
+    leaky = TraceStep(
+        kind="omdb_calls",
+        title="OMDb",
+        data={
+            "calls": [
+                {"method": "GET", "url": "https://h.test/?i=tt1&apikey=LEAK1"},
+                {"method": "GET", "url": "https://h.test/?API_KEY=LEAK2&x=1&key=LEAK3"},
+                {"method": "GET", "url": "https://user:LEAK4@h.test/p?access_token=LEAK5#frag"},
+                "https://h.test/plain?token=LEAK6",
+            ],
+            "status": "ok",
+        },
+    )
+    with make_client(FakeOrchestrator(steps=[leaky])) as client:
+        response = client.post(f"/conversations/{_open(client)}/messages", json={"content": "q"})
+
+    step = next(data for _, name, data in parse_sse(response.text) if name == "step")
+    assert "LEAK" not in response.text
+    assert [c["url"] for c in step["calls"]] == [
+        "https://h.test/?i=tt1&apikey=***",
+        "https://h.test/?API_KEY=***&x=1&key=***",
+        "https://***@h.test/p?access_token=***#frag",
+        "https://h.test/plain?token=***",
+    ]
+
+
+# --- a question the classifier says is not about cinema ---------------------------------------------------------
+
+
+def test_a_blocked_turn_sends_only_the_events_the_chat_needs_and_runs_no_tool(monkeypatch) -> None:
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": False, "language": "it"})
+    orchestrator = FakeOrchestrator()
+    with make_client(orchestrator) as client:
+        conversation = _open(client)
+        events = _send(client, conversation, "chi vince le elezioni?")
+        info = client.get(f"/conversations/{conversation}").json()
+
+    assert names(events) == ["turn_start", "answer_delta", "answer_end", "lists", "done"]
+    assert orchestrator.calls == []  # no planner, no tool, no HTTP call
+    by_name = {name: data for _, name, data in events}
+    assert by_name["answer_delta"]["text"] == "Non rispondo a domande non cinematografiche"
+    assert by_name["answer_end"] == {"blocked": True, "language": "it", "tool": None, "tools": [],
+                                     "history_compacted": False, "replace": None}
+    assert by_name["lists"] == {"lists": []}
+    assert "step" not in names(events) and "story" not in names(events) and "status" not in names(events)
+    assert info["turns_completed"] == 1
+
+
+def test_a_blocked_turn_leaves_the_history_alone_and_the_next_cinema_turn_is_normal(monkeypatch) -> None:
+    verdicts = iter([False, True])
+    monkeypatch.setattr(
+        app_module,
+        "classify_query_domain",
+        lambda q, history=None: {"is_cinema": next(verdicts), "language": "it"},
+    )
+    orchestrator = FakeOrchestrator()
+    with make_client(orchestrator) as client:
+        conversation = _open(client)
+        blocked = _send(client, conversation, "chi vince le elezioni?")
+        normal = _send(client, conversation, "film di Nolan")
+
+    assert "step" not in names(blocked)
+    assert {"status", "story", "step"} <= set(names(normal))  # cinema turns keep their whole progress
+    assert [call["history"] for call in orchestrator.calls] == [[]]  # the refusal is not in the history

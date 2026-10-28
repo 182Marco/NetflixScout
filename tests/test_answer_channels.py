@@ -235,3 +235,56 @@ def test_a_blocked_turn_keeps_the_real_language_code_and_the_models_refusal(monk
     turn = app_module.handle_query(_app(), "Wer gewinnt die Wahl?", history=[])
 
     assert turn.answer == "Ich beantworte nur Fragen zum Film." and turn.language == "de"
+
+
+class _NoToolOrchestrator:
+    """Any use means a tool or the planner ran for a question that is not about cinema."""
+
+    def run(self, **kwargs):
+        raise AssertionError("the orchestrator must not run for a blocked turn")
+
+
+def test_a_blocked_turn_shows_no_tool_presenter_on_any_channel(monkeypatch, capsys) -> None:
+    _block(monkeypatch, language="it")
+    events: list[tuple[str, dict]] = []
+    bot = {"config": app_module.build_runtime_config(), "orchestrator": _NoToolOrchestrator()}
+
+    turn = app_module.handle_query(bot, "Chi vince le elezioni?", history=[], observer=WebObserver(lambda n, d: events.append((n, d))))
+
+    # Live web channel: the refusal and nothing else.
+    assert [name for name, _ in events] == [EVENT_ANSWER_DELTA]
+    # Replay (`to_payload`): no story, no tool step, no tool.
+    payload = to_payload(turn)
+    assert payload["blocked"] is True and payload["story"] == [] and payload["steps"] == []
+    assert payload["tool"] is None and payload["tools"] == []
+    # The only step is the classification, which no channel prints.
+    assert [step.kind for step in turn.steps] == ["classification"] and turn.history == []
+    present(turn, OutputChannel.terminal, streamed=True)
+    printed = capsys.readouterr().out
+    for marker in ("TMDB", "YOUTUBE", "OMDB", "WIKIPEDIA", "http", "Chiamato", "Called"):
+        assert marker not in printed
+
+
+def test_a_cinema_turn_keeps_its_stage_story_and_tool_steps(monkeypatch) -> None:
+    monkeypatch.setattr(app_module, "classify_query_domain", lambda q, history=None: {"is_cinema": True, "language": "it"})
+    events: list[tuple[str, dict]] = []
+
+    class Orchestrator:
+        def run(self, *, query, observer=None, **kwargs):
+            decision = {
+                "tool": "tmdb_search",
+                "tools": ["tmdb_search"],
+                "calls": [{"tool": "tmdb_search", "arguments": {}, "result": {"trace": [STEPS[9].model_dump()]}}],
+                "standalone_query": query,
+                "result": {"trace": [STEPS[9].model_dump()]},
+                "final_answer": "Ecco.",
+            }
+            stream_decision(observer, query, decision)
+            return decision
+
+    bot = {"config": app_module.build_runtime_config(), "orchestrator": Orchestrator()}
+    turn = app_module.handle_query(bot, "film di Nolan", history=[], observer=WebObserver(lambda n, d: events.append((n, d))))
+
+    names = [name for name, _ in events]
+    assert not turn.blocked and EVENT_STATUS in names and EVENT_STORY in names and EVENT_STEP in names
+    assert names[-1] == EVENT_ANSWER_DELTA and to_payload(turn)["tools"] == ["tmdb_search"]

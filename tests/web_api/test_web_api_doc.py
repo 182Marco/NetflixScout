@@ -39,3 +39,43 @@ def test_every_route_and_error_code_is_documented() -> None:
 def test_every_setting_is_documented() -> None:
     for name in (ENV_CORS_ORIGINS, ENV_CONVERSATION_TTL, ENV_MAX_CONVERSATIONS, ENV_MAX_MESSAGE_CHARS, ENV_HEARTBEAT):
         assert f"`{name}`" in DOC
+
+
+STEP_EXAMPLE = re.compile(r"```json step=(\w+)\n(.*?)\n```", re.S)
+
+
+def test_every_tool_step_kind_is_named_in_the_contract_and_its_calls_are_described() -> None:
+    from presenters.web.payload import STEP_SERIALIZERS
+
+    for kind in STEP_SERIALIZERS:
+        assert f"`{kind}`" in DOC, kind
+    section = DOC[DOC.index("#### Le chiamate HTTP dei tool"):]
+    for text in ("`{\"method\",\"url\"}`", "ogni", "nell'ordine", "`***`", "più eventi"):
+        assert text in section.split("\n### ")[0], text
+
+
+def test_the_documented_omdb_step_is_what_the_serializer_produces_and_its_calls_are_masked() -> None:
+    from omdb_support import doc_step
+    from presenters.web.payload import serialize_step
+
+    examples = {kind: json.loads(body) for kind, body in STEP_EXAMPLE.findall(DOC)}
+    documented = examples["omdb_calls"]
+
+    assert documented == json.loads(json.dumps(serialize_step(doc_step(), "it")))
+    assert len(documented["calls"]) == 2 and all(set(call) == {"method", "url"} for call in documented["calls"])
+    assert all(call["url"].startswith("https://") and "apikey=***" in call["url"] for call in documented["calls"])
+
+
+def test_every_documented_step_example_keeps_credentials_masked() -> None:
+    for _, body in STEP_EXAMPLE.findall(DOC) + EXAMPLE.findall(DOC):
+        for url in re.findall(r'"url":"([^"]+)"', body):
+            assert not re.search(r"(?i)(api_?key|key|token|secret|password)=(?!\*\*\*)", url), url
+
+
+def test_the_blocked_turn_contract_lists_only_the_necessary_events() -> None:
+    section = DOC[DOC.index("`blocked: true`"):]
+    sentence = section[: section.index("### `lists`")]
+
+    for event in ("turn_start", "answer_delta", "answer_end", "lists", "done"):
+        assert event in sentence
+    assert "mai `status`, `story` né `step`" in sentence

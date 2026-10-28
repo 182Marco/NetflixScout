@@ -245,7 +245,7 @@ def test_the_stronger_rules_reach_only_wikipedia_turns_and_the_other_tools_are_u
     base = app_module.CONFIG["orchestrator"]["final_instructions"]
 
     assert "Non verificato:" not in base and "Non verificato:" not in FINAL_RULES["youtube_search"]
-    assert set(FINAL_RULES) == {"wikipedia_search", "youtube_search"}
+    assert set(FINAL_RULES) == {"wikipedia_search", "youtube_search", "omdb_search"}
     with_wikipedia = _turn(WIKIPEDIA_TOOL_NAME, tools=[make_tool(by_mode(lookup=lookup_answer(page("Park Chan-wook")), article={}))[0]])
     assert "Non verificato:" in with_wikipedia.calls[-1]["instructions"]
 
