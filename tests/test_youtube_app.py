@@ -147,7 +147,7 @@ def test_tmdb_final_rules_offer_youtube_when_no_trailer_is_found() -> None:
     final = app_module.CONFIG["orchestrator"]["final_instructions"]
 
     assert "Se il tool usato è tmdb_search, sono stati chiesti i video e non risultano trailer" in final
-    assert "proponi di cercarli su YouTube" in final
+    assert "proponi di cercarli come video online, senza nominare la piattaforma" in final
 
 
 # --- the whole turn with fake clients -------------------------------------------------------

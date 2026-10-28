@@ -27,7 +27,6 @@ from .trace import build_omdb_trace
 from .turns import TurnSessions
 
 OMDB_TOOL_NAME = "omdb_search"
-SOURCE = "OMDb"
 
 _DESCRIPTION = (
     "Look up the scores of ONE identified film or series on OMDb: the IMDb rating (voted by the "
@@ -62,7 +61,7 @@ def _failure(query: str, error: str, *, calls: list[dict[str, str]] | None = Non
         "query": query,
         "chunks": [],
         "outcome": tool_outcome(OUTCOME_ERROR, error),
-        "metadata": {"omdb": {"status": STATUS_ERROR, "source": SOURCE, "error": error, **details}},
+        "metadata": {"omdb": {"status": STATUS_ERROR, "error": error, **details}},
         # No step when nothing was called.
         "trace": build_omdb_trace(calls, status=STATUS_ERROR, reason=error) if calls else [],
     }
@@ -87,7 +86,6 @@ def _result(
         outcome = tool_outcome(OUTCOME_EMPTY, reason or status)
     metadata: dict[str, Any] = {
         "status": status,
-        "source": SOURCE,
         "imdb_id": imdb_id,
         "title": title if isinstance(title, str) else None,
         "year": year if isinstance(year, str) else None,

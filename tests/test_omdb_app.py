@@ -253,4 +253,4 @@ def test_the_budget_covers_five_title_lookups_and_the_final_rules_cover_several_
     assert load_omdb_config(app_module.CONFIG["omdb"]).max_calls_per_turn >= 2 * 5
     text = RULES["omdb_search"]
     assert "di più titoli" in text and "non hanno un punteggio della critica" in text
-    assert "non presentare mai i voti del pubblico (TMDb, IMDb) come giudizio della critica" in text
+    assert "non presentare mai i voti del pubblico come giudizio della critica" in text

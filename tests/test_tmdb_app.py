@@ -198,4 +198,4 @@ def test_final_instructions_do_not_invent_missing_steps_or_trailers() -> None:
 
     assert "non ha chiesto video o trailer non parlarne" in final
     assert "NON eseguite" in final and "mai 'non trovate'" in final
-    assert "applied_filters" in final and "voti sono del pubblico TMDb, mai della critica" in final
+    assert "applied_filters" in final and "voti sono del pubblico, mai della critica" in final and "pubblico TMDb" not in final
