@@ -3,6 +3,7 @@ providers) are resolved to IDs first; if any cannot be resolved, discover is not
 because partial filters would return wrong results."""
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import Any
 
 from .. import endpoints
@@ -78,8 +79,22 @@ def build_params(
     date_field = _DATE_FIELD[media]
     if filters.year_from:
         params[f"{date_field}.gte"] = f"{filters.year_from}-01-01"
-    if filters.year_to:
-        params[f"{date_field}.lte"] = f"{filters.year_to}-12-31"
+    upper = f"{filters.year_to}-12-31" if filters.year_to else None
+    if not filters.include_unreleased:
+        # "Recent" never lists films that are not out yet: the upper bound is today (ISO dates compare as text).
+        today = ctx.today().isoformat()
+        if upper is None or upper > today:
+            upper = today
+            applied["released_up_to"] = today
+    else:
+        applied["include_unreleased"] = True
+        if not filters.year_from:
+            # A list of upcoming titles starts tomorrow (a title out today is out), not in 1895.
+            tomorrow = (ctx.today() + timedelta(days=1)).isoformat()
+            params[f"{date_field}.gte"] = tomorrow
+            applied["released_from"] = tomorrow
+    if upper:
+        params[f"{date_field}.lte"] = upper
     # Genres and people: all must match (","); companies, keywords, providers: any (|).
     if filters.genres:
         params["with_genres"] = ",".join(str(i) for i in reference.genre_ids(ctx, media, filters.genres))
@@ -139,11 +154,36 @@ def build_params(
     return params
 
 
+def _by_date(sort: DiscoverSort | None) -> bool:
+    return sort in (DiscoverSort.release_date_desc, DiscoverSort.release_date_asc)
+
+
+def _only_released(outcome: RequestOutcome, today: str, *, dated: bool) -> None:
+    """Guard on the results: a title whose release date is after today is dropped even if TMDb returned it, and, when
+    the list is about dates (a year range or a sort by release date), so is a title with no release date, whose
+    release cannot be verified. Dropped counts are noted (`excluded_unreleased`, `excluded_undated`)."""
+    kept, future, undated = [], 0, 0
+    for item in outcome.items:
+        if item.release_date and item.release_date > today:
+            future += 1
+        elif not item.release_date and dated:
+            undated += 1
+        else:
+            kept.append(item)
+    outcome.items = kept
+    if future:
+        outcome.notes.append(f"excluded_unreleased:{future}")
+    if undated:
+        outcome.notes.append(f"excluded_undated:{undated}")
+
+
 def _discover(ctx: TmdbContext, request: TmdbRequest, media: MediaType) -> RequestOutcome:
     filters = request.filters or DiscoverFilters()
     applied: dict[str, Any] = {}
     data = get_json(ctx, endpoints.discover(media, build_params(ctx, media, filters, applied)))
     outcome = list_outcome(ctx, request, data, kind=media.value)
+    if not filters.include_unreleased:
+        _only_released(outcome, ctx.today().isoformat(), dated=bool(filters.year_from) or _by_date(filters.sort))
     outcome.applied_filters = applied
     # TMDb has no critics' scores: the ratings used for filtering and sorting are user votes.
     outcome.notes.append("ratings_are_tmdb_user_votes")

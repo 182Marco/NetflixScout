@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
+from datetime import date
 from typing import Any
 
 from .auth import TmdbCredentials
@@ -25,6 +26,8 @@ class TmdbContext:
     budget: CallBudget
     transport: Transport
     api_language: str
+    # The current date: what "already released" means (injected in tests).
+    today: Callable[[], date] = date.today
     recorder: CallRecorder = field(default_factory=CallRecorder)
     # Responses already obtained in this turn: never requested twice, even with cache_ttl=0.
     memo: dict[CacheKey, dict[str, Any]] = field(default_factory=dict)

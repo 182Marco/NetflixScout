@@ -2,6 +2,8 @@
 and small TMDb-shaped payloads. Nothing here reads `.env` or touches the network."""
 from __future__ import annotations
 
+from datetime import date
+
 import json
 from collections.abc import Callable
 from typing import Any
@@ -12,6 +14,8 @@ from tool.tmdb.cache import TtlCache
 from tool.tmdb.config import TmdbConfig
 from tool.tmdb.tool import TmdbTool
 
+# The date every TMDb test runs on: what "already released" means must not depend on the real clock.
+TODAY = date(2026, 10, 28)
 SECRET = "0123456789abcdef0123456789abcdef"
 TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.c2lnbmF0dXJlLXNlY3JldA"
 BASE = "https://api.themoviedb.org/3"
@@ -67,7 +71,7 @@ def make_tool(
     config = TmdbConfig(max_results=max_results, max_calls_per_turn=max_calls, cache_ttl=cache_ttl)
     transport = FakeTransport(routes)
     cache = TtlCache(cache_ttl, clock=clock) if clock else None
-    tool = TmdbTool(config=config, credentials=credentials(mode), transport=transport, cache=cache)
+    tool = TmdbTool(config=config, credentials=credentials(mode), transport=transport, cache=cache, today=lambda: TODAY)
     return tool, transport
 
 

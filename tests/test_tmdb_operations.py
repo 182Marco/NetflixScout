@@ -286,6 +286,7 @@ def test_discover_reports_the_filters_it_really_applied() -> None:
         "cast": [{"name": "Leonardo DiCaprio", "tmdb_id": 6193}],
         "max_rating": 6.0,
         "vote_count": 200,
+        "released_up_to": "2026-10-28",
     }
     # TMDb has no critics' scores.
     assert "ratings_are_tmdb_user_votes" in request["notes"]

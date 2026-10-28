@@ -101,6 +101,14 @@ class DiscoverFilters(BaseModel):
     tv_status: TvStatus | None = None
     tv_type: TvType | None = None
     sort: DiscoverSort | None = None
+    include_unreleased: bool = Field(
+        default=False,
+        description=(
+            "true ONLY when the user explicitly asks for upcoming, announced or not-yet-released titles; with no "
+            "year_from the list then starts tomorrow. Otherwise leave false: discover then returns only titles "
+            "already released today, so 'recent' or 'latest' never lists future films."
+        ),
+    )
 
     @field_validator("origin_country", "watch_region", "certification_country", "region", mode="before")
     @classmethod

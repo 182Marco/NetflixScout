@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
+from datetime import date
 from typing import Any
 
 from pydantic import ValidationError
@@ -108,6 +110,8 @@ class TmdbTool:
     # Shared across turns (one tool per app); created from `cache_ttl` when not given.
     cache: TtlCache | None = None
     cooldown: Cooldown = field(default_factory=Cooldown)
+    # The current date, for "already released" filters; injected in tests.
+    today: Callable[[], date] = date.today
     _budget: CallBudget | None = field(default=None, init=False, repr=False)
     _budget_turn_id: str | None = field(default=None, init=False, repr=False)
 
@@ -144,6 +148,7 @@ class TmdbTool:
             budget=self._turn_budget(turn_id),
             transport=self.transport,
             api_language=api_language,
+            today=self.today,
         )
 
     def run(
