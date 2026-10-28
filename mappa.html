@@ -200,6 +200,7 @@ const MT = "tool/movie_db/";
 const T = "tool/tmdb/";
 const W = "tool/wikipedia/";
 const Y = "tool/youtube/";
+const O = "tool/omdb/";
 
 const LAYERS = {
   entry:  { label: "Entry point",            color: "#b48cff" },
@@ -214,6 +215,7 @@ const LAYERS = {
   tmdb:   { label: "Tool TMDb",              color: "#c3e88d" },
   youtube: { label: "Tool YouTube",          color: "#ffcb6b" },
   wikipedia: { label: "Tool Wikipedia",        color: "#89ddff" },
+  omdb:   { label: "Tool OMDb",              color: "#ffa07a" },
   web:    { label: "Server web / liste",     color: "#e06c75" },
 };
 
@@ -416,7 +418,7 @@ const TREE = D("NetflixScout", {}, [
   D("tool", {
     L: "cfg",
     s: "Tutti i tool in-process dell'orchestratore, un pacchetto per ciascuno.",
-    d: `Qui sta il codice dei tool: <code>rag</code>, <code>movie_db</code>, <code>tmdb</code>, <code>wikipedia</code>, <code>youtube</code>. Un tool nuovo si aggiunge come <code>tool/&lt;nome&gt;/</code>. Dentro <code>tool/</code> gli import sono relativi (un tool importa solo sé stesso, mai un altro tool, i presenter o i canali; unico modulo del nucleo ammesso: <code>turn</code>) e li collega solo <code>app.py</code>. Restano fuori, per scelta: <code>movie_db/</code> (il database), <code>dbVettoriale/</code>, <code>presenters/</code>, <code>web_api/</code>, <code>web_lists/</code> e <code>tests/</code>.`,
+    d: `Qui sta il codice dei tool: <code>rag</code>, <code>movie_db</code>, <code>tmdb</code>, <code>wikipedia</code>, <code>youtube</code>, <code>omdb</code>. Un tool nuovo si aggiunge come <code>tool/&lt;nome&gt;/</code>. Dentro <code>tool/</code> gli import sono relativi (un tool importa solo sé stesso, mai un altro tool, i presenter o i canali; unico modulo del nucleo ammesso: <code>turn</code>) e li collega solo <code>app.py</code>. Restano fuori, per scelta: <code>movie_db/</code> (il database), <code>dbVettoriale/</code>, <code>presenters/</code>, <code>web_api/</code>, <code>web_lists/</code> e <code>tests/</code>.`,
     n: ["<code>tests/test_tool_package.py</code> verifica il layout e le regole sugli import."],
   }, [
     F("__init__.py", { L: "cfg", s: "Docstring dell'elenco dei tool.", d: `Nessun codice.` }),
@@ -790,7 +792,7 @@ const TREE = D("NetflixScout", {}, [
     F("cache.py", { L: "tmdb", s: "Cache TTL in memoria, condivisa tra i turni.", d: `Chiave = (path, parametri ordinati) costruita <b>prima</b> di aggiungere la credenziale, quindi senza chiave API. Salva solo risposte riuscite, scarta le voci scadute e le meno recenti oltre 256. Con <code>cache_ttl = 0</code> è disattivata (il memo del turno resta).`, dep: [T + "settings.py"] }),
     F("cooldown.py", { L: "tmdb", s: "Pausa dopo un HTTP 429: finché dura le richieste non vengono inviate né contate.", d: `La durata viene da <code>Retry-After</code>, limitata tra 1 e 120 secondi (10 s se manca). Nessun retry automatico.`, dep: [T + "settings.py"] }),
     F("calls.py", { L: "tmdb", s: "URL mostrati all'utente: solo base + path, credenziale mascherata.", d: `<code>display_url</code> ricostruisce l'URL dal path dell'endpoint, mai da quello inviato: niente parametri di ricerca né <code>append_to_response</code>; con chiave v3 aggiunge <code>?api_key=***</code>, con Bearer nessuna credenziale. <code>CallRecorder</code> raccoglie gli URL del turno per la trace.`, dep: [T + "auth.py"] }),
-    F("context.py", { L: "tmdb", s: "<code>TmdbContext</code>: dipendenze esplicite di una run (un turno).", d: `Config, credenziali, cache, cooldown, budget, transport, lingua API, recorder delle chiamate, memo delle risposte e dei fallimenti del turno, risoluzioni già fatte. <code>limit(requested)</code> applica <code>max_results</code> alle liste.`, dep: [T + "auth.py", T + "budget.py", T + "cache.py", T + "calls.py", T + "config.py", T + "cooldown.py"] }),
+    F("context.py", { L: "tmdb", s: "<code>TmdbContext</code>: dipendenze esplicite di una run (un turno).", d: `Config, credenziali, cache, cooldown, budget, transport, lingua API, recorder delle chiamate, memo delle risposte e dei fallimenti del turno, risoluzioni già fatte. <code>limit(requested)</code> applica <code>max_results</code> alle liste. Include <code>today</code>, la data corrente iniettabile.`, dep: [T + "auth.py", T + "budget.py", T + "cache.py", T + "calls.py", T + "config.py", T + "cooldown.py"] }),
     F("endpoints.py", { L: "tmdb", s: "<b>Unico</b> mapping operazione → path e parametri TMDb.", d: `I segmenti del path vengono solo da interi validati, enum chiusi o ID esterni controllati con regex ed escapati; titoli e nomi viaggiano solo come parametri codificati. <code>include_adult</code> sempre <code>false</code>; <code>append_to_response</code> rispetta il massimo documentato e le raccolte non lo usano. <code>IDENTITY_APPENDS</code> / <code>identity_appends(namespace)</code>: append fissi dei dettagli film e serie (credits, translations, alternative_titles e, per i film, release_dates), usati anche dalla verifica dell'identità così che sia la stessa chiamata dei dettagli.`, dep: [T + "models/enums.py"] }),
     F("dispatch.py", { L: "tmdb", s: "Tabella deterministica <code>TmdbOperation</code> → handler.", d: `<code>OPERATION_HANDLERS</code> collega ognuna delle 17 operazioni alla funzione in <code>operations/</code>. Un test verifica che ogni operazione abbia regola e handler.`, dep: [T + "operations"] }),
     F("runner.py", { L: "tmdb", s: "Esegue le richieste in ordine con un budget condiviso; i fallimenti diventano dati.", d: `Ogni richiesta produce un <code>RequestOutcome</code> con <code>status</code> <code>ok</code> / <code>partial</code> / <code>error</code>: budget finito o 429 non rompono il turno. Dopo un 401 le richieste successive non vengono inviate. <code>overall_status</code> riassume la run.`, dep: [T + "dispatch.py", T + "context.py", T + "errors.py"] }),
@@ -821,7 +823,7 @@ const TREE = D("NetflixScout", {}, [
       F("tv.py", { L: "tmdb", s: "<code>tv_details</code>, <code>tv_season</code>, <code>tv_episode</code>.", d: `Una chiamata con append per ciascuno, dopo la risoluzione della serie.`, dep: [T + "operations/details.py", T + "operations/resolve.py"] }),
       F("people.py", { L: "tmdb", s: "<code>person_details</code> con filmografia via facet.", d: `Credits e altre facet nella stessa chiamata; la persona si sceglie anche in base al dipartimento.`, dep: [T + "operations/details.py", T + "operations/resolve.py"] }),
       F("collections.py", { L: "tmdb", s: "Raccolte (saghe) e case di produzione.", d: `<code>/collection/{id}</code> non supporta <code>append_to_response</code>: immagini e traduzioni sono chiamate separate e opzionali, solo se avanza budget.`, dep: [T + "http.py", T + "operations/resolve.py"] }),
-      F("discovery.py", { L: "tmdb", s: "<code>discover_movies</code> / <code>discover_tv</code> con filtri.", d: `Generi, persone, case, keyword e provider vengono prima risolti in ID; se uno non si risolve, discover non parte, perché filtri parziali darebbero risultati sbagliati. Con l'ordinamento per voto applica un numero minimo di voti.`, dep: [T + "operations/resolve.py", T + "operations/reference.py", T + "operations/listing.py"] }),
+      F("discovery.py", { L: "tmdb", s: "<code>discover_movies</code> / <code>discover_tv</code> con filtri.", d: `Generi, persone, case, keyword e provider vengono prima risolti in ID; se uno non si risolve, discover non parte, perché filtri parziali darebbero risultati sbagliati. Con l'ordinamento per voto applica un numero minimo di voti. <br><br><b>Film recenti e futuri</b>: senza <code>include_unreleased</code> il limite superiore è la data di oggi (<code>ctx.today()</code>) e i titoli con uscita futura (o, in una lista per date, senza data) sono scartati con le note <code>excluded_unreleased</code> / <code>excluded_undated</code>; con <code>include_unreleased</code> e senza <code>year_from</code> la lista parte da domani.`, dep: [T + "operations/resolve.py", T + "operations/reference.py", T + "operations/listing.py"] }),
       F("lists.py", { L: "tmdb", s: "<code>trending</code> e <code>chart</code> (popular, top_rated, now_playing, upcoming, on_the_air…).", d: `Una chiamata ciascuno; i risultati passano da <code>listing.list_outcome</code> e rispettano <code>max_results</code>.`, dep: [T + "operations/listing.py"] }),
       F("listing.py", { L: "tmdb", s: "Forma comune delle risposte a lista.", d: `Usata da search, find, discover, trending e classifiche: normalizza gli elementi, applica il limite e conserva il totale.` }),
       F("reference.py", { L: "tmdb", s: "Dati di riferimento: generi, provider di streaming, certificazioni.", d: `Usati internamente per trasformare nomi in ID (confronto in inglese) ed esposti come operazioni. Sempre tramite <code>get_json</code>: in cache e contati come ogni chiamata. Definisce l'attribuzione <code>JUSTWATCH</code>.`, dep: [T + "http.py", T + "endpoints.py"] }),
@@ -862,6 +864,39 @@ const TREE = D("NetflixScout", {}, [
     D("harness", { L: "test", s: "Controllo live facoltativo, mai importato a runtime.", d: `Tre richieste reali (<code>generator=search</code> con estratti, articolo intero con intestazioni, titolo omonimo). Mai eseguito.` }, [
       F("__init__.py", { L: "test", s: "Docstring del package.", d: `Nessun codice.` }),
       F("live_smoke.py", { L: "test", api: 1, s: "Controllo live facoltativo: 3 richieste Wikipedia reali.", d: `Conferma le ipotesi sull'API che la documentazione non esplicita. Richiede <code>--live</code>.` }),
+    ]),
+  ]),
+
+  D("omdb", {
+    L: "omdb",
+    s: "Tool <code>omdb_search</code>: punteggi di un film o di una serie identificati (IMDb, Metascore, Rotten Tomatoes).",
+    d: `Sesto tool dell'orchestratore, <b>in-process</b>: nessun MCP, nessuna dipendenza nuova, nessun import da <code>tmdb/</code>. Il planner compila <code>imdb_id</code> (solo se già noto) oppure <code>title</code> con <code>year</code> e <code>type</code> (solo dalla richiesta o dalla conversazione). Con l'ID una richiesta; con il titolo prima una ricerca (<code>s=</code>), poi il record per ID, e solo se un'unica opera ha esattamente quel titolo (e quell'anno, se dato): altrimenti restano le alternative e nessun punteggio. Ogni punteggio ha stato <code>available</code>, <code>not_available</code> (<code>N/A</code> o assente) o <code>unparsed</code>. Nessuna cache tra i turni, nulla su disco; la preferenza «recensioni» lo mette per primo solo se la richiesta chiede la critica (regola 1d).`,
+    n: [
+      "<code>CONFIG[\"omdb\"]</code> ha solo <code>max_calls_per_turn</code> (10: un titolo costa 2 richieste, dieci coprono i cinque candidati di una raccomandazione «con ottime recensioni»), contate sul <code>turn_id</code>. Chiave <code>OMDB_API_KEY</code> letta solo da <code>auth.py</code>.",
+      "Termini OMDb: uso personale e non commerciale (CC BY-NC 4.0), niente indici né ridistribuzione; scelta del proprietario per un uso da portfolio.",
+      "Verificato live il 2026-10-28 (6 richieste): forma del record, fonti dell'array <code>Ratings</code>, anni delle serie (<code>2008–2013</code>) e l'errore di un ID sconosciuto («Error getting data.», HTTP 200). Non osservati: i testi di limite giornaliero, chiave non valida e «Too many results».",
+    ],
+  }, [
+    F("__init__.py", { L: "omdb", s: "Docstring del package.", d: `Nessun codice.` }),
+    F("tool.py", { L: "omdb", s: "<code>OmdbTool</code>: valida l'input, identifica l'opera, legge il record, estrae i punteggi.", d: `<code>run</code> restituisce <code>outcome</code> (<code>ok</code>; <code>empty</code> con motivo <code>ambiguous</code>, <code>unverified</code>, <code>not_found</code> o <code>no_ratings</code>; <code>error</code>), <code>metadata.omdb</code> (senza il nome del servizio: arriva al prompt) (stato, titolo, anno, tipo, punteggi, alternative: mai la trama) e la trace. Un record con un ID o un titolo diverso da quello identificato è <code>id_mismatch</code>.`, dep: [O + "http.py", O + "identify.py", O + "ratings.py", O + "turns.py", "turn.py"] }),
+    F("config.py", { L: "omdb", s: "<code>OmdbConfig</code>: un solo campo, nessun default.", d: `<code>max_calls_per_turn</code> (1–10); <code>extra="forbid"</code>.`, x: ["pydantic"] }),
+    F("settings.py", { L: "omdb", s: "Costanti interne e termini d'uso.", d: `URL base costante, timeout 8 s, alternative elencate (5), turni ricordati (16). Il docstring riporta i termini OMDb.` }),
+    F("errors.py", { L: "omdb", s: "Errori OMDb con codici sicuri.", d: `<code>not_configured</code>, <code>unauthorized</code>, <code>quota_exceeded</code>, <code>turn_limit</code>, <code>timeout</code>, <code>network_error</code>, <code>http_error</code>, <code>api_error</code>, <code>id_mismatch</code>.` }),
+    F("auth.py", { L: "omdb", s: "Credenziali: <b>unico</b> modulo che legge <code>OMDB_API_KEY</code>.", d: `<code>load_dotenv(override=False)</code> + <code>os.environ</code>; <code>repr</code> mascherato; <code>authorize</code> aggiunge <code>apikey</code>.`, x: ["python-dotenv"] }),
+    F("http.py", { L: "omdb", s: "<b>Unico</b> punto di I/O verso OMDb: memo del turno → budget → registrazione → invio.", d: `Un solo endpoint. L'URL con la chiave esiste solo in <code>_transmit</code>; gli errori sono sollevati fuori da ogni <code>except</code>. Il testo <code>Error</code> dell'API è solo classificato, mai copiato. Nessun retry.`, dep: [O + "auth.py", O + "calls.py", O + "errors.py", O + "responses.py", O + "settings.py"] }),
+    F("turns.py", { L: "omdb", s: "<code>TurnSessions</code>: budget e memo di un solo turno.", d: `Una sessione per <code>turn_id</code>, in memoria, scartata dopo 16 turni: un turno nuovo richiede sempre dati freschi.` }),
+    F("calls.py", { L: "omdb", s: "URL mostrato: base e chiave sempre <code>***</code>.", d: `Mai l'URL inviato: niente titolo né ID.` }),
+    F("models.py", { L: "omdb", s: "<code>OmdbToolInput</code>.", d: `<code>imdb_id</code> (tt + 7–8 cifre) o <code>title</code>, più <code>year</code> e <code>type</code>; le descrizioni vietano di inventare o ricordare un ID.`, x: ["pydantic"] }),
+    F("responses.py", { L: "omdb", s: "Busta di una risposta: ok, non trovato, troppi risultati, limite, chiave, errore.", d: `Funzione pura; il testo dell'errore è confrontato con frammenti fissi.` }),
+    F("identify.py", { L: "omdb", s: "Quale opera identifica una ricerca per titolo.", d: `Titolo uguale (maiuscole, accenti e punteggiatura ignorati; l'articolo conta) ed eventuale anno compatibile con intervalli come <code>2008–2013</code>; più opere → <code>ambiguous</code>, solo titoli simili → <code>unverified</code>.` }),
+    F("ratings.py", { L: "omdb", s: "Punteggi IMDb, Metascore, Rotten Tomatoes con stato esplicito.", d: `<code>N/A</code>, assente o vuoto → <code>not_available</code>; forma o intervallo inattesi → <code>unparsed</code>. Ogni punteggio disponibile ha <code>display</code> nella sua scala (<code>9.3/10</code>, <code>82/100</code>, <code>93%</code>: Rotten Tomatoes è una percentuale, mai «93/100»). Niente medie, conversioni o stime.` }),
+    F("trace.py", { L: "omdb", s: "Step <code>omdb_calls</code>.", d: `Chiamata mascherata, stato, opera, punteggi e alternative. Fuori da <code>metadata</code>.`, dep: ["turn.py"] }),
+    D("harness", {
+      L: "test",
+      s: `Controllo live facoltativo, mai importato a runtime.`,
+      d: `Lo verifica <code>tests/test_tool_package.py</code>.`,
+    }, [
+      F("live_smoke.py", { L: "test", api: 1, s: `Controllo live: forma delle risposte OMDb (6 richieste).`, d: `Stampa solo la forma (campi, fonti, testi d'errore dell'API), mai la chiave né l'URL. Eseguito il 2026-10-28.`, cmd: `python -m tool.omdb.harness.live_smoke --live` }),
     ]),
   ]),
 
@@ -1380,6 +1415,18 @@ const TREE = D("NetflixScout", {}, [
       dep: ["turn.py"],
       x: ["pydantic"],
     }),
+    F("calls_view.py", {
+      L: "out", s: "Le chiamate HTTP di uno step, uguali per tutti i tool: metodo e URL completo.",
+      d: `<code>call_views(raw)</code> → <code>CallView{method,url}</code> nell'ordine reale: solo https, caratteri di controllo tolti, e <code>turn.mask_url</code> ancora una volta (idempotente) così un tool che dimentica di mascherare non può far trapelare una chiave. Usata da <code>api_view</code>, <code>youtube_view</code>, <code>wikipedia_view</code> e <code>omdb_view</code>.`,
+      dep: ["turn.py"],
+      x: ["pydantic"],
+    }),
+    F("omdb_view.py", {
+      L: "out", s: "Vista condivisa dello step <code>omdb_calls</code>: etichette it/en/de, punteggi, alternative.",
+      d: `<code>omdb_calls_view(step, language)</code> → <code>OmdbCallsView</code>: fonte OMDb, chiamata mascherata, stato, ogni punteggio (IMDb, Metascore, Rotten Tomatoes) con la scala e ciò che misura, «non disponibile» per i valori mancanti, le alternative di un titolo ambiguo. Legge solo <code>step.data</code> e toglie i caratteri di controllo dalla copia mostrata.`,
+      dep: ["turn.py"],
+      x: ["pydantic"],
+    }),
     F("youtube_view.py", {
       L: "out", s: "Vista condivisa dello step <code>youtube_calls</code>: etichette it/en, <code>printable</code>, ricerche, video e suggerimenti.",
       d: `<code>youtube_calls_view(step, language)</code> → <code>YoutubeCallsView</code>: fonte YouTube, chiamate mascherate, per ogni categoria query, ricevuti/tenuti/scartati per motivo, le categorie non cercate (solo nel terminale, in una riga breve “Non cercato: interviste al cast”, senza motivo; il web non le mostra), pausa di quota, i video per categoria (confermati prima, poi “da verificare”, nell'ordine ricevuto) con note, e i suggerimenti (anno, titolo originale). Titoli e canali sono quelli dell'API: <code>printable</code> toglie solo i caratteri di controllo C0/C1 dalla copia mostrata, metadata e prompt restano invariati. Solo URL <code>https://</code>. Importa solo <code>turn</code> e pydantic, mai il package <code>youtube</code>.`,
@@ -1462,6 +1509,14 @@ const TREE = D("NetflixScout", {}, [
         F("blocks.py", { L: "out", s: "<code>print_tmdb_calls(view)</code>.", d: `Stampa \"Chiamato: URL\" per ogni chiamata (o \"Nessuna chiamata a TMDb in questo turno: dati già in cache.\") e l'attribuzione JustWatch quando i dati sullo streaming entrano nel contesto.`, dep: ["presenters/api_view.py", "presenters/terminal/box.py"] }),
         F("renderer.py", { L: "out", s: "<code>render_tmdb_calls(step, language)</code>.", d: `Legge lo step con <code>api_view</code> e lo passa a <code>blocks.print_tmdb_calls</code>.`, dep: ["presenters/api_view.py", "presenters/terminal/api/blocks.py", "turn.py"] }),
       ]),
+      D("omdb", {
+        L: "out", s: "Output da terminale del tool OMDb: box ⭐ OMDB.",
+        d: `Stampa la vista condivisa <code>omdb_view</code> (la stessa che serializza il web): fonte OMDb, chiamata mascherata, stato, i tre punteggi con ciò che misurano (pubblico o critica) e le alternative quando il titolo è ambiguo.`,
+      }, [
+        F("__init__.py", { L: "out", s: "Re-esporta <code>render_omdb_calls</code>.", d: `<code>render_omdb_calls</code> è registrato in <code>STEP_RENDERERS</code>.`, dep: ["presenters/terminal/omdb/renderer.py"] }),
+        F("blocks.py", { L: "out", s: "<code>print_omdb_calls(view)</code>.", d: `Stampa la vista nel formato del terminale.`, dep: ["presenters/omdb_view.py", "presenters/terminal/box.py"] }),
+        F("renderer.py", { L: "out", s: "<code>render_omdb_calls(step, language)</code>.", d: `Costruisce la vista con <code>omdb_calls_view</code> e la passa a <code>blocks.print_omdb_calls</code>.`, dep: ["presenters/omdb_view.py", "presenters/terminal/omdb/blocks.py", "turn.py"] }),
+      ]),
       D("youtube", {
         L: "out", s: "Output da terminale del tool YouTube: box ▶️ YOUTUBE.",
         d: `Stampa la vista condivisa <code>youtube_view</code> (la stessa che serializza il web): fonte YouTube, chiamate mascherate, query e scarti per motivo di ogni categoria, una riga breve “Non cercato: …” con le sole categorie (senza motivo), pausa di quota, poi per ogni categoria i video confermati e, sotto “Da verificare”, quelli incerti nell'ordine ricevuto, con note e suggerimenti (anno, titolo originale). Etichette it/en; interviste al regista e al cast distinte. Non importa mai il package <code>youtube</code>.`,
@@ -1530,6 +1585,13 @@ const TREE = D("NetflixScout", {}, [
       }, [
         F("__init__.py", { L: "out", s: "Re-esporta <code>serialize_tmdb_calls_step</code>.", d: `API del sotto-canale.`, dep: ["presenters/web/api/serializer.py"] }),
         F("serializer.py", { L: "out", s: "<code>serialize_tmdb_calls_step(step, language)</code>.", d: `Stesso contenuto del terminale, da <code>api_view</code>. Il frontend dovrà tenere visibili le attribuzioni (JustWatch) accanto alla risposta.`, dep: ["presenters/api_view.py", "turn.py"] }),
+      ]),
+      D("omdb", {
+        L: "out", s: "Serializzazione JSON dello step <code>omdb_calls</code>.",
+        d: `Registrata in <code>STEP_SERIALIZERS</code> di <code>payload.py</code>. Il frontend deve nominare OMDb come fonte (<code>source</code>) e mostrare ogni punteggio con ciò che misura (<code>kind_label</code>: pubblico o critica) oppure il testo «non disponibile».`,
+      }, [
+        F("__init__.py", { L: "out", s: "Re-esporta <code>serialize_omdb_calls_step</code>.", d: `API del sotto-canale.`, dep: ["presenters/web/omdb/serializer.py"] }),
+        F("serializer.py", { L: "out", s: "<code>serialize_omdb_calls_step(step, language)</code> → <code>{kind, ...OmdbCallsView}</code>.", d: `Stesso contenuto del terminale, da <code>omdb_view</code>.`, dep: ["presenters/omdb_view.py", "turn.py"] }),
       ]),
       D("youtube", {
         L: "out", s: "Serializzazione JSON dello step <code>youtube_calls</code>.",
@@ -1698,10 +1760,21 @@ const TREE = D("NetflixScout", {}, [
     F("tmdb_support.py", { L: "test", s: "Helper offline dei test TMDb: transport finto che conta le chiamate.", d: `Credenziali finte, <code>make_tool</code> con transport e cache iniettati, payload TMDb minimi (film, ricerca, provider). Non legge <code>.env</code> e non usa la rete.`, dep: [T + "tool.py"], x: ["pytest"] }),
     F("test_tmdb_app.py", { L: "test", s: "Integrazione offline in <code>app.py</code>.", d: `Registrazione del tool e override di <code>CONFIG["tmdb"]</code>; credenziali non lette alla build; step <code>tmdb_calls</code> nel <code>TurnResult</code> con la lingua del turno; il planner vede il catalogo; arguments non validi producono comunque una risposta senza HTTP; il runtime non importa <code>tool/tmdb/harness</code>; le istruzioni di routing assegnano cast e regia solo a TMDb e lasciano al RAG trama, temi, generi, interpretazione e raccomandazioni.`, dep: ["app.py", T + "tool.py", "orchestrator.py"], x: ["pytest"] }),
     F("test_tmdb_auth.py", { L: "test", s: "Credenziali, allowlist del base URL e mascheramento.", d: `Chiave mancante → errore di config; base URL diverso da <code>api.themoviedb.org/3</code> rifiutato; v3 nel parametro, v4 nell'header; URL mostrati mascherati e senza parametri; il segreto non compare in errori di rete, trace o metadata.`, dep: [T + "auth.py", T + "calls.py", T + "http.py"], x: ["pytest"] }),
+    F("test_http_call_trace.py", { L: "test", s: "Le chiamate mostrate sono le richieste davvero inviate, per tutti i tool con HTTP.", d: `<code>mask_url</code> (nomi di credenziali, user:password, segreto noto anche percent-encoded, il resto intatto), presenter che mascherano ancora, TMDb/YouTube/Wikipedia/OMDb: ogni richiesta del transport ha una voce con lo stesso URL a meno della chiave, nel payload web e nel terminale; eccezioni del transport con la chiave non trapelano.` }),
+    F("test_omdb_tool.py", { L: "test", s: "Tool OMDb: identificazione, punteggi, errori, budget e assenza di cache tra i turni.", d: `ID diretto (una richiesta), titolo (ricerca poi record), titolo ambiguo o non verificato, <code>N/A</code>, errori HTTP/API/timeout, chiave mai nell'output, memo solo nello stesso turno.` }),
+    F("test_omdb_app.py", { L: "test", s: "Registrazione, regola 1d (con l'eccezione dei candidati «ottime recensioni»), preferenza «recensioni» e turno completo con client finti.", d: `Controlla i testi dei prompt e il cablaggio, non la scelta del planner reale. Include le regressioni della verifica live: formato <code>display</code>, nessun vincitore tra scale, budget di 10 richieste per cinque titoli.` }),
+    F("test_answer_provenance_rules.py", { L: "test", s: "Il testo per l'utente non nomina fonti o provider.", d: `Legge i prompt di risposta: nessuna istruzione chiede «voto TMDb», «su YouTube», «MovieLens non distingue»…; regola generale con divieto anche come aggettivo e nomi di punteggio ammessi solo come nome; regola OMDb (pubblico e critica distinti, <code>display</code>, nessun vincitore tra scale); il risultato OMDb nel prompt non porta il nome del servizio. Mostra le istruzioni, non ciò che il modello scrive (osservato dal vivo).` }),
+    F("test_omdb_http.py", { L: "test", s: "HTTP OMDb: memo, budget, errori tipizzati, nessun retry, unico punto di I/O.", d: `Transport finto.` }),
+    F("test_omdb_ratings.py", { L: "test", s: "Punteggi: tutti presenti, <code>N/A</code>, illeggibili, fuori scala.", d: `Funzione pura.` }),
+    F("test_omdb_identify.py", { L: "test", s: "Identificazione per titolo e anno, omonimi, titoli simili.", d: `Funzione pura.` }),
+    F("test_omdb_presenters.py", { L: "test", s: "Vista condivisa, terminale e web dello step <code>omdb_calls</code>.", d: `Lingue it/en/de, dati sporchi, nessun import del pacchetto del tool.` }),
+    F("test_omdb_config.py", { L: "test", s: "<code>CONFIG[\"omdb\"]</code> e <code>OmdbConfig</code>.", d: `Un solo campo.` }),
+    F("test_omdb_auth.py", { L: "test", s: "Chiave OMDb: mancante, mascherata, unico lettore.", d: `Nessun accesso a <code>.env</code>.` }),
     F("test_tmdb_config.py", { L: "test", s: "<code>CONFIG[\"tmdb\"]</code> e <code>TmdbConfig</code>.", d: `Esattamente tre campi pubblici, deep merge degli override, valori fuori range o chiavi extra rifiutati, solo il budget legge il limite di chiamate.`, dep: ["app.py", T + "config.py"], x: ["pytest"] }),
     F("test_tmdb_endpoints.py", { L: "test", s: "Mapping operazioni → endpoint e descrizione del tool.", d: `Ogni operazione ha regola e handler; path fissi; il testo libero viaggia solo come parametro codificato; limite di <code>append_to_response</code>; raccolte senza append; descrizione generata da <code>RULES</code>; schema compatto per il prompt del planner.`, dep: [T + "endpoints.py", T + "dispatch.py", T + "models/operation_rules.py"], x: ["pytest"] }),
     F("test_tmdb_http.py", { L: "test", s: "Budget, cache, memo, 429 e unicità del punto di I/O.", d: `Riserva atomica del budget; TTL, LRU e cache disattivata; chiave di cache senza credenziale; conteggio esatto delle chiamate e hit gratis tra i turni; memo del turno anche senza cache; budget rispettato per qualunque limite; chiamate opzionali saltate a budget finito; 429 → pausa senza retry; 401 ferma le chiamate successive; un test AST verifica che <code>http.py</code> sia l'unico punto di I/O.`, dep: [T + "http.py", T + "budget.py", T + "cache.py", T + "cooldown.py"], x: ["pytest"] }),
     F("test_tmdb_language.py", { L: "test", s: "Lingua del turno e fallback di traduzione.", d: `<code>it-IT</code>/<code>en-US</code> dalla lingua del turno; <code>translations</code> sempre in append per i campi vuoti; fallback di lingua per immagini e video nella stessa chiamata; recensioni italiane vuote → una chiamata in inglese contata; la lingua fa parte della chiave di cache; <code>turn_language</code> non è nello schema LLM.`, dep: [T + "tool.py", T + "operations/details.py"], x: ["pytest"] }),
+    F("test_tmdb_released.py", { L: "test", s: "«Recenti» non include film non ancora usciti.", d: `Data fissa; limite superiore a oggi (anche con <code>year_to</code> futuro, e per le serie), <code>include_unreleased</code> senza limite e con inizio domani, titoli futuri o senza data scartati e contati, lista per voto che tiene i senza data.` }),
     F("test_tmdb_operations.py", { L: "test", s: "Un caso per famiglia di operazioni, con le chiamate esatte.", d: `Dettagli film con facet in una chiamata; fallback dei provider contato; raccolta del film; stagioni ed episodi; persona con <code>combined_credits</code>; facet delle raccolte opzionali; casa di produzione; discover con nomi risolti, non eseguito con filtri irrisolti o senza budget; trending, classifiche, ricerca e dati di riferimento.`, dep: [T + "operations"], x: ["pytest"] }),
     F("test_tmdb_presenters.py", { L: "test", s: "Output terminale e web dello step <code>tmdb_calls</code>.", d: `Solo URL chiamati, con etichette it/en; attribuzione JustWatch in entrambi i canali, anche con dati in cache; serializer coerente con il terminale; nessun parametro o JSON grezzo mostrato; confini di import dei presenter (mai il package <code>tmdb</code>) e struttura <code>presenters/{terminal,web}/{rag,db,api,youtube}</code> senza altre cartelle <code>presenters/</code>; step presente nel payload web.`, dep: ["presenters/api_view.py", "presenters/terminal/api/renderer.py", "presenters/web/api/serializer.py"], x: ["pytest"] }),
     F("test_tmdb_prompt_budget.py", { L: "test", s: "Contesto TMDb limitato, deterministico, con omissioni segnalate.", d: `Quattro richieste con tutte le facet restano nel limite; packing deterministico; risultati piccoli non tagliati; liste oltre 10 chunk diventano righe compatte; gli essenziali tolgono tagline e URL prima di accorciare la trama.`, dep: [T + "prompt_budget.py"], x: ["pytest"] }),
@@ -1963,14 +2036,14 @@ const TREE = D("NetflixScout", {}, [
       F("test_web_api_doc.py", {
         L: "test",
         s: `<code>chat_stream.md</code> descrive ciò che il codice fa: eventi, route ed esempi validati.`,
-        d: `web_api/contracts/chat_stream.md describes what the code does: events, routes and example payloads. 3 test: every event is documented with a valid example; every route and error code is documented; every setting is documented`,
+        d: `web_api/contracts/chat_stream.md describes what the code does: events, routes and example payloads. Also: every tool step kind is named, the <code>calls</code> section is present, the documented <code>omdb_calls</code> example equals the serializer output with masked URLs, no documented URL carries an unmasked credential, and the blocked-turn event list is documented. 3 test: every event is documented with a valid example; every route and error code is documented; every setting is documented`,
         dep: ["web_api/contracts/chat_stream.md", "web_api/schemas/events.py"],
         x: ["pytest"],
       }),
       F("test_web_api_endpoints.py", {
         L: "test",
         s: `Il contratto HTTP end to end su un bot finto (il vero <code>handle_query</code>, nessuna API).`,
-        d: `The HTTP contract, end to end on a fake bot (the real handle_query, no API call). 14 test: health and a new conversation; a turn streams progress then the text then the lists; the closing events carry the metadata and the structured lists; steps are the serialised tool steps and never flow steps; the web call asks for lists and the history grows between messages; conversations do not share history; a blocked message streams one delta and empty lists; an error before the answer streams error and keeps the history; a failed turn can be sent again; a failing compaction still commits the whole turn; compaction is reported in answer end; http errors use one shape…`,
+        d: `The HTTP contract, end to end on a fake bot (the real handle_query, no API call). Also: every HTTP call of every tool reaches the client in order with the key masked, credentials in any URL format never leak, a blocked turn sends only turn_start, answer_delta, answer_end, lists, done and runs no tool, and the next cinema turn is normal. 14 test: health and a new conversation; a turn streams progress then the text then the lists; the closing events carry the metadata and the structured lists; steps are the serialised tool steps and never flow steps; the web call asks for lists and the history grows between messages; conversations do not share history; a blocked message streams one delta and empty lists; an error before the answer streams error and keeps the history; a failed turn can be sent again; a failing compaction still commits the whole turn; compaction is reported in answer end; http errors use one shape…`,
         dep: ["web_api/server.py", "web_api/routes/endpoints.py"],
         x: ["pytest"],
       }),
@@ -2171,8 +2244,9 @@ const TREE = D("NetflixScout", {}, [
       ["TraceStep", "Un passaggio: <code>kind</code>, <code>title</code>, <code>data</code>."],
       ["TurnResult", "Tutto ciò che è successo in un turno di chat, storia inclusa."],
       ["StoryLine(level, text, tool)", "Una frase della storia del turno, uguale per ogni canale (<code>progress</code>, <code>info</code>, <code>ok</code>, <code>warn</code>)."],
+      ["MASK · CREDENTIAL_PARAMS · mask_url · http_call", "Le chiamate HTTP dei tool come le vede l'utente: <code>http_call(\"GET\", url, [segreto])</code> registra <code>{method, url}</code> con l'URL realmente inviato e <code>***</code> solo al posto del valore di una credenziale (per nome del parametro, user:password o valore noto, anche percent-encoded); <code>mask_url</code> è idempotente e la riapplicano anche i presenter."],
       ["TurnObserver · NullObserver", "Chi riceve gli step e gli stadi mentre il turno è in corso, e il testo della risposta pezzo per pezzo (<code>answer_delta</code>, anche per messaggio di blocco, chiarimento e ripiego); il nucleo non stampa mai."],
-      ["STEP_CLASSIFICATION · STEP_QUERY_REWRITE · STEP_TOOL_SELECTION · STEP_TOOL_OUTCOME · STEP_PLANNING · STEP_RETRIEVAL · STEP_RERANK · STEP_DB_QUERY · STEP_TMDB_CALLS · STEP_YOUTUBE_CALLS · STEP_WIKIPEDIA_CALLS", "I <code>kind</code> conosciuti: i primi cinque sono step di flusso (li racconta la storia), gli altri sono dei tool (<code>db_query</code> MovieLens, <code>tmdb_calls</code> TMDb, <code>youtube_calls</code> YouTube, <code>wikipedia_calls</code> Wikipedia). I tool futuri possono aggiungerne altri."],
+      ["STEP_CLASSIFICATION · STEP_QUERY_REWRITE · STEP_TOOL_SELECTION · STEP_TOOL_OUTCOME · STEP_PLANNING · STEP_RETRIEVAL · STEP_RERANK · STEP_DB_QUERY · STEP_TMDB_CALLS · STEP_YOUTUBE_CALLS · STEP_OMDB_CALLS · STEP_WIKIPEDIA_CALLS", "I <code>kind</code> conosciuti: i primi cinque sono step di flusso (li racconta la storia), gli altri sono dei tool (<code>db_query</code> MovieLens, <code>tmdb_calls</code> TMDb, <code>youtube_calls</code> YouTube, <code>wikipedia_calls</code> Wikipedia). I tool futuri possono aggiungerne altri."],
       ["tool_outcome(status, reason) · OUTCOME_OK/EMPTY/ERROR", "Forma dell'esito che un tool mette in <code>result[\"outcome\"]</code>; <code>reason</code> è un codice breve che i presenter traducono in una frase."],
       ["STAGE_UNDERSTANDING · STAGE_ANSWERING", "Gli stadi passeggeri di <code>status</code>."],
       ["TOOL_PARAM_TURN_LANGUAGE", "<code>\"turn_language\"</code>: parametro che <code>handle_query</code> passa a ogni tool con la lingua del turno; chi non lo usa lo ignora."],

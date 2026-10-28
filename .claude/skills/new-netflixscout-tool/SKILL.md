@@ -13,6 +13,22 @@ divergono, vale il codice.
 Esempio di riferimento per un'API esterna: `tool/youtube/` (il più recente e pulito). Per una fonte locale: `tool/movie_db/`.
 Per un tool di sola lettura molto ampio: `tool/tmdb/`. Ognuno ha peculiarità che **non** vanno copiate (vedi §1).
 
+## Principio obbligatorio: tutte le chiamate HTTP, visibili nel frontend
+
+**Ogni nuovo tool che effettua chiamate HTTP deve esporre nei presenter frontend tutte le chiamate realmente
+eseguite, con metodo ed endpoint completo. Le chiavi e gli altri segreti devono essere mascherati prima
+dell'esposizione. L'integrazione non è completa finché tracing, payload SSE, presenter frontend e relativi test
+non sono verificati end-to-end.** Come si realizza (contratto completo: `AGENTS.md`, «Chiamate HTTP dei tool»):
+
+- Nel punto di `http.py` dove si costruisce l'URL che si invia, registra `session.recorder.record(http_call("GET", url, [segreto]))`
+  (`turn.http_call`, `turn.mask_url`): URL reale con path e **tutti** i parametri, solo il valore della credenziale diventa `***`.
+  Mai ricostruire l'URL da una descrizione, mai un secondo punto di registrazione, mai una chiamata fatta solo per popolare la traccia.
+- La trace porta `calls: [{"method", "url"}]` nell'ordine reale, una voce per OGNI richiesta inviata (le risposte da memo o cache non sono chiamate).
+- La vista condivisa usa `presenters/calls_view.call_views` (maschera ancora, idempotente) e terminale e web mostrano `METODO URL` per ogni chiamata.
+- Il frontend (`marco-m-netflix`, `src/features/chat/messages/render.js`) ha una funzione di righe per il nuovo `kind` che usa `callLines`.
+- Test obbligatori: `tests/test_http_call_trace.py` (aggiungi il tool alla parametrizzazione: ogni richiesta del transport ↔ una voce della trace con lo stesso URL a meno della chiave,
+  più chiamate nello stesso turno tutte visibili, credenziali in URL di altro formato e nelle eccezioni del transport mai nell'output) e la verifica del §8 sul frontend renderizzato.
+
 ## 0. Vincoli di processo
 
 - Un concern per volta, un commit per concern (messaggi brevi, inglese, minuscolo, senza prefissi). Commit solo se richiesti.
@@ -146,9 +162,9 @@ Non creare cartelle, classi astratte o layer "per il futuro". Dividi un file qua
 3. `models.py` (input/risultati) + test di validazione e di `describe_validation_errors`.
 4. Funzioni pure (`queries`, `relevance`/normalizzazione) + test su casi reali tratti dal dominio.
 5. `http.py` + test con transport finto (errori mappati dal solo `reason`, nessun retry, test AST "solo `http.py` fa I/O", chiave mai in errori/trace).
-6. `trace.py` + `tool.py` + test del contratto del risultato (`outcome`, `metadata`, `trace`, `turn_id`/limiti). Verifica `isinstance(tool, Tool)`.
+6. `trace.py` + `tool.py` (le chiamate si registrano in `http.py`, vedi il principio obbligatorio) + test del contratto del risultato (`outcome`, `metadata`, `trace`, `turn_id`/limiti). Verifica `isinstance(tool, Tool)`.
 7. Registrazione: `build_app` + `allowed_tools` + regola di routing in `instructions` + `tool_final_instructions["<nome>"]` (solo per i tool che ne hanno bisogno) + test come `tests/test_youtube_app.py` (registrato, nel catalogo del planner, regola nella posizione giusta, regole finali solo nei turni del tool).
-8. Presenter: vista condivisa `presenters/<x>_view.py`; `presenters/terminal/<x>/` (`blocks.py`, `renderer.py`); `presenters/web/<x>/serializer.py`; registrazione in `STEP_RENDERERS` **e** `STEP_SERIALIZERS`; voce in `story_view.TOOLS` (it/en) e `REASONS` se servono nuovi codici; nuovo `STEP_<X>_CALLS` in `turn.py`. Test: parità terminale/web, lingue it/en, nessun import del pacchetto del dominio dai presenter (`tests/test_youtube_presenters.py`).
+8. Presenter: vista condivisa `presenters/<x>_view.py` (con `calls: list[CallView]` da `calls_view.call_views`, §0); `presenters/terminal/<x>/` (`blocks.py`, `renderer.py`); `presenters/web/<x>/serializer.py`; registrazione in `STEP_RENDERERS` **e** `STEP_SERIALIZERS`; voce in `story_view.TOOLS` (it/en) e `REASONS` se servono nuovi codici; nuovo `STEP_<X>_CALLS` in `turn.py`. Test: parità terminale/web, lingue it/en, nessun import del pacchetto del dominio dai presenter (`tests/test_youtube_presenters.py`).
 9. Routing: casi in `routing_cases.py` (con `expected_*` se serve validare gli `arguments`) + test offline in `tests/test_movie_db_routing_eval.py`. **Non eseguire** `--live` senza permesso: consuma crediti. Cambiare lo schema cambia il prompt del planner: dichiara che il routing live è da rieseguire.
 10. Preferenze (§2f): riga del tool in `SOURCE_TOOLS` (`preferences/behavior.py`) con la motivazione nel messaggio di commit; se il tool cambia cosa si può dire per una fonte, aggiorna `SOURCES_PLANNER`/`SOURCES_ANSWER` e le regole di routing; `tests/test_preferences.py` verifica che ogni tool di `allowed_tools` sia dichiarato. Aggiungi un test del conflitto tra preferenza e intento esplicito.
 11. Documentazione: riga in "Mappa del codice" e sezione del tool in `AGENTS.md`, `README.md`. Comandi di verifica live (smoke) in `tool/<nome>/harness/`, mai importato a runtime. Se sposti o aggiungi file, aggiorna anche `mappa.html` (albero scritto a mano).
@@ -162,7 +178,7 @@ Il catalogo del planner contiene `description` e `input_schema` compatto: tienil
 ## 7. Sicurezza e privacy (checklist)
 
 - La chiave passa solo da `auth.authorize` → `http.py`; trace, metadata, errori, cache, log: mai. Test che cerca la chiave in tutto l'output.
-- URL mostrati ricostruiti da costanti + path (`?key=***`), mai l'URL inviato.
+- URL mostrati: l'URL realmente inviato, registrato in `http.py` con `turn.http_call` (solo il valore della credenziale è `***`, per nome del parametro e per valore noto), mai ricostruito da costanti.
 - Errori sollevati fuori da ogni `except` (nessun `__cause__` con l'URL) e solo il `reason` dell'API, mai `error.message`.
 - Valori utente nelle query: solo come frasi quotate, senza operatori (`queries.py`).
 - Dati mostrati all'utente: quelli dell'API, invariati; l'LLM non li riscrive (URL, titoli, canali vengono dal presenter).
@@ -175,12 +191,15 @@ source .venv/bin/activate
 python -m pytest tests/test_query_language.py tests/test_presenters.py tests/test_orchestrator.py \
   tests/test_retrieval.py tests/test_rag_constraints.py tests/test_rerank_query.py \
   tests/test_answer_constraints.py tests/test_movie_db_*.py tests/test_tmdb_*.py \
-  tests/test_youtube_*.py tests/test_wikipedia_*.py tests/test_story_view.py tests/test_presenter_parity.py \
+  tests/test_youtube_*.py tests/test_wikipedia_*.py tests/test_omdb_*.py tests/test_http_call_trace.py tests/test_answer_provenance_rules.py tests/test_story_view.py tests/test_presenter_parity.py \
   tests/test_tool_package.py -q
 python -m pytest tests/test_<nuovo>_*.py -q          # i tuoi
 python -m movie_db.harness.evaluation.run_eval       # solo offline; mai --live-parser senza permesso
 git diff --stat && git diff                           # niente file non voluti, niente .env, nessun print fuori da presenters/terminal
 ```
+
+**Verifica end-to-end del principio obbligatorio** (obbligatoria per ogni tool con chiamate HTTP): turno reale attraverso `web_api` (LLM scriptato se non si vuole spendere, tool e API reali) → SSE → frontend `marco-m-netflix` renderizzato in un browser;
+nel DOM del blocco del passo devono comparire tutte le chiamate (`METODO URL`, parametri compresi) con la chiave come `***` e il valore della chiave non deve comparire in SSE, DOM, log. Non dichiarare il tool concluso con i soli test unitari.
 
 Controlla a mano: la decisione §2f è scritta e motivata (che dato porta, a quale preferenza si aggancia, sovrapposizioni, spoiler, film/serie), non solo una riga in `SOURCE_TOOLS`; il codice sta in `tool/<nome>/`, non nella root; nessun import tra domini; nessun `print`; nessun default duplicato fuori da `CONFIG`; nessuna
 modifica ai test dei tool esistenti salvo l'elenco dei tool registrati (es. `tests/test_movie_db_app.py:31`); il test

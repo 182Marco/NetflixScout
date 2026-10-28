@@ -57,14 +57,19 @@ source .venv/bin/activate && uvicorn web_api.main:app --host 127.0.0.1 --port 80
 │       ├── queries.py      # search queries from constant fragments
 │       ├── relevance.py    # deterministic relevance filter and confirmed / to-verify label
 │       └── models.py       # VideoKind, YoutubeToolInput, VideoHit, KindOutcome
+│   └── omdb/               # OMDb tool (omdb_search): IMDb / Metascore / Rotten Tomatoes scores, in-process, no MCP
+│       ├── tool.py         # OmdbTool: validate → identify the work → read the record → scores with a status
+│       ├── http.py         # the only HTTP module: turn memo → turn budget → send
+│       ├── identify.py     # which work a title search identifies (never by title alone when in doubt)
+│       └── ratings.py      # scores: available / not_available (N/A) / unparsed
 ├── presenters/         # the only output layer: present(turn, channel)
 │   ├── channel.py      # OutputChannel (terminal | web)
 │   ├── story_view.py   # the turn story: a few plain sentences (what, where, how it went), it/en
-│   ├── rag_view.py db_view.py api_view.py youtube_view.py wikipedia_view.py   # channel-neutral views of the tool steps
+│   ├── rag_view.py db_view.py api_view.py youtube_view.py wikipedia_view.py omdb_view.py   # channel-neutral views of the tool steps
 │   ├── terminal/       # box.py, session.py, blocks.py, renderer.py (TerminalObserver, STEP_RENDERERS)
-│   │   └── rag/ db/ api/ youtube/ wikipedia/   # blocks.py + renderer.py per tool
+│   │   └── rag/ db/ api/ youtube/ wikipedia/ omdb/   # blocks.py + renderer.py per tool
 │   └── web/            # observer.py (WebObserver, live events), payload.py (to_payload, STEP_SERIALIZERS)
-│       └── rag/ db/ api/ youtube/ wikipedia/   # serializer.py per tool, same shared view as the terminal
+│       └── rag/ db/ api/ youtube/ wikipedia/ omdb/   # serializer.py per tool, same shared view as the terminal
 ├── web_api/            # HTTP/SSE server (FastAPI): conversations, streamed answer, web_lists; see contracts/
 ├── web_lists/          # web channel only: the lists of films/videos returned with the final answer
 ├── app.py              # CONFIG, build_app, handle_query (no printing) and the terminal chat
@@ -95,10 +100,13 @@ COHERE_API_KEY=...
 VUE_APP_TMDB_API_KEY=...        # TMDb v3 API key or v4 read access token
 VUE_APP_TMDB_BASE_URL=https://api.themoviedb.org/3
 YOUTUBE_API_KEY=...             # YouTube Data API v3 key (Google Cloud project)
+OMDB_API_KEY=...                # OMDb key (free: 1,000 requests a day; non-commercial use)
 ```
 
 `YOUTUBE_API_KEY` is read only by `tool/youtube/auth.py`, on the first YouTube search; the base URL is
 a constant (`https://www.googleapis.com/youtube/v3`), never read from the environment.
+`OMDB_API_KEY` is read only by `tool/omdb/auth.py`, on the first OMDb request; the base URL is a constant
+(`https://www.omdbapi.com/`).
 
 The TMDb key is read only by the Python backend (`tool/tmdb/auth.py`). The `VUE_APP_` prefix is
 the Vue CLI convention for variables exposed to client bundles: never point a Vue frontend at
@@ -185,7 +193,7 @@ When the collection is available, `app.py` starts an interactive terminal chat.
 Conversation flow:
 
 1. Type a query in terminal.
-2. The domain classifier blocks off-topic and jailbreak requests; otherwise the orchestrator (`orchestrator.py`) rewrites the query as standalone, picks a tool (`rag_search`, `movie_db_search`, `tmdb_search`, `youtube_search`, `wikipedia_search`) and may chain more tools in the same turn.
+2. The domain classifier blocks off-topic and jailbreak requests; otherwise the orchestrator (`orchestrator.py`) rewrites the query as standalone, picks a tool (`rag_search`, `movie_db_search`, `tmdb_search`, `youtube_search`, `wikipedia_search`, `omdb_search`) and may chain more tools in the same turn.
 3. Each step is narrated while it happens, then the final answer is streamed (one LLM call, written only from the tool results).
 4. Conversation history is updated and reused in the next turns.
 5. Type `exit` or `quit` to close.
@@ -309,7 +317,7 @@ MovieLens is licensed for non-commercial use without redistribution: never commi
 
 A third orchestrator tool queries The Movie Database API for up-to-date facts: cast and crew,
 release dates, streaming providers, trailers, images, reviews, recommendations, TV series with
-seasons and episodes, people and filmographies, collections, companies, discover by filters,
+seasons and episodes, people and filmographies, collections, companies, discover by filters (released titles only, unless the user explicitly asks for upcoming ones),
 trending and charts, genres and certifications (17 typed operations, see
 `tool/tmdb/models/operation_rules.py`). Account, session, write, list, `changes` and deprecated
 endpoints are deliberately not exposed.
@@ -354,8 +362,8 @@ always kept, long lists are capped and omissions are listed in `metadata.tmdb.om
 data is requested in the turn language (`it-IT` for Italian questions, `en-US` otherwise) with
 appended translations as fallback; the answer language is up to the LLM.
 
-Each run adds one `tmdb_calls` step with only the endpoints called, key masked
-(`Chiamato: https://api.themoviedb.org/3/movie/157336?api_key=***`; no credential at all with a
+Each run adds one `tmdb_calls` step with every request actually sent, method and full URL, only the key masked
+(`Chiamato: GET https://api.themoviedb.org/3/movie/157336?language=it-IT&api_key=***`; no credential at all with a
 Bearer token), labels in Italian or English after the question, printed by `presenters/terminal/api/`.
 `presenters/web/api/` serializes the same step for the future API (`presenters/web/payload.to_payload` builds the JSON-ready form of a turn, no route yet).
 
@@ -414,7 +422,7 @@ Latin film title inside a title in another script. Kind words and roles ("traile
 under "Da verificare", and may suggest giving the film's year or its original title (never
 proposing one).
 
-Each run adds one `youtube_calls` step: masked calls (`https://www.googleapis.com/youtube/v3/search?key=***`),
+Each run adds one `youtube_calls` step: every request sent, method and full URL (`GET https://www.googleapis.com/youtube/v3/search?part=snippet&q=...&key=***`),
 the query of each kind with the drops per reason, kinds not searched and why, the videos with
 titles and channels exactly as returned, and the dropped titles with their reason (`dropped`: not
 printed, kept for tests and evaluations to spot false negatives). The terminal prints it in `presenters/terminal/youtube/`
@@ -426,6 +434,36 @@ A live E2E run of 20 questions (2026-10-23, before the relevance fixes) routed 2
 `youtube_search` with 6 OK, 10 partial and 4 failed answers. Still pending: a live run after the
 fixes, a live run of the YouTube routing cases (prepared offline, not run yet), a live smoke check (none exists yet), and live
 confirmation of the query operator precedence and of the API error reasons.
+
+## OMDb Tool (`omdb_search`)
+
+A sixth orchestrator tool reads the scores OMDb holds for one identified film or series: the IMDb
+rating (voted by the audience), the Metascore and the Rotten Tomatoes score (aggregates of
+professional critics' reviews). Scores only: no review text, no plot. It runs in-process (standard
+library `urllib`, no new dependency, no MCP) and is chosen only when the request asks for the critics'
+judgement or names one of those scores (routing rule 1d); with the **Preferred sources: reviews**
+setting a critics question goes to OMDb before TMDb. It is never called on every turn.
+
+- **Identification**: by IMDb ID when the request, the conversation or an earlier step of the turn gives one;
+  otherwise the title is searched and a work is accepted only if exactly one has that title (and year, if
+  given). Several matches or only similar titles return the alternatives and **no score**.
+- **Missing data**: every source is always listed as `available`, `not_available` (OMDb says `N/A` or has no
+  value) or `unparsed`; nothing is estimated, averaged or taken from another source.
+- **Limits**: `CONFIG["omdb"]["max_calls_per_turn"]` (10: an ID costs 1 request, a title 2; ten cover the five candidates verified for a "recommend films with excellent reviews" request); the free key allows
+  1,000 requests a day. No cache between turns and nothing on disk: each turn asks OMDb again, a turn only
+  avoids repeating the same request within itself. No retries.
+- **Key**: `OMDB_API_KEY` in `.env`, read only by `tool/omdb/auth.py`; it never appears in code, logs, tests,
+  trace or the frontend (every call is shown with method and full URL, e.g. `GET https://www.omdbapi.com/?i=tt0111161&r=json&apikey=***`).
+- **Terms**: OMDb content is CC BY-NC 4.0 and its terms allow personal, non-commercial use only (no indexes or
+  redistribution). Commercial use would need the maintainer's written permission. Not affiliated with IMDb.
+- **Text**: the answer never names a source or provider (the interface shows it); a score's own name (Metascore, Rotten Tomatoes, IMDb rating) is
+  used only as the name of that score. Each score is written as its `display` (`9.3/10`, `82/100`, `93%`), audience and critics scores are shown
+  separately with their scale and no winner is declared between them.
+- **Step**: `omdb_calls` (shared view `presenters/omdb_view.py`): source, every request sent (method and full URL, key masked), status, scores with what
+  they measure, alternatives.
+- **Checks**: `tests/test_omdb_*.py tests/test_http_call_trace.py tests/test_answer_provenance_rules.py` run offline. `python -m tool.omdb.harness.live_smoke --live` sends 6 real
+  requests and prints only the shape of the answers (run on 2026-10-28). The live routing eval does not
+  include OMDb cases yet.
 
 ## Wikipedia Tool (`wikipedia_search`)
 
@@ -467,7 +505,7 @@ How much text is read depends on the question and on what the first reading show
 - Rate limits and replication lag (`maxlag`, answered with HTTP 200) never make the turn wait: the
   step fails at once, the next requests are paused for a few seconds, nothing is retried.
 
-Each step adds a `wikipedia_calls` step: base URLs, the pages read (title, language, public URL,
+Each step adds a `wikipedia_calls` step: every request sent (method and full URL), the pages read (title, language, public URL,
 sections read, sections left out), and the credit the licence requires. Wikipedia text is CC BY-SA
 4.0: the terminal and the web name the source, link every page and the licence, and say the text
 was reworded and shortened. The text of an article is third-party data and is never treated as
