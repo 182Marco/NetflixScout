@@ -19,8 +19,10 @@ from dataclasses import dataclass, field
 from typing import Any
 from urllib.parse import urlencode
 
+from turn import http_call
+
 from .auth import YoutubeCredentials, authorize
-from .calls import CallRecorder, display_url
+from .calls import CallRecorder
 from .errors import (
     YoutubeApiNotEnabled,
     YoutubeAuthError,
@@ -94,6 +96,8 @@ def _transmit(
     (the only one holding the URL with the key) is never part of a traceback."""
     query, headers = authorize(session.credentials, params)
     url = f"{BASE_URL}{path}?{urlencode(query)}"
+    # Recorded where the URL is built, so what is shown is what is sent; the key is masked here.
+    session.recorder.record(http_call("GET", url, [session.credentials.secret]))
     try:
         return session.transport(url, headers, HTTP_TIMEOUT_SECONDS)
     except Exception as exc:  # noqa: BLE001 - any transport failure; its message may contain the URL
@@ -141,7 +145,6 @@ def _send(session: HttpSession, path: str, params: Mapping[str, str]) -> dict[st
     if blocked == YoutubeRateLimited.code:
         raise YoutubeRateLimited("YouTube rate limit: paused.")
 
-    session.recorder.record(display_url(path))
     response = _transmit(session, path, params)
     if isinstance(response, YoutubeError):
         raise response

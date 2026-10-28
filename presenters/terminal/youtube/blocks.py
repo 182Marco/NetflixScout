@@ -20,8 +20,8 @@ def print_youtube_calls(view: YoutubeCallsView) -> None:
     print()
     if not view.calls:
         print(f"  {text['no_calls']}")
-    for url in view.calls:
-        print(f"  {text['called']}: {url}")
+    for call in view.calls:
+        print(f"  {text['called']}: {call.text()}")
 
     for search in view.searches:
         print(f"\n  🔎 {text['search']} {search.kind_label}: {search.q}")

@@ -14,7 +14,6 @@ import pytest
 from youtube_support import BASE, SECRET, error_body, make_session
 
 from tool.youtube import http as yt_http
-from tool.youtube.calls import display_url
 from tool.youtube.errors import (
     YoutubeApiNotEnabled,
     YoutubeAuthError,
@@ -34,7 +33,7 @@ VIDEOS = {"part": "snippet,contentDetails", "id": "abcdefghijk"}
 URL_WITH_KEY = f"{BASE}/search?part=snippet&key={SECRET}"
 
 
-def test_success_sends_the_key_but_records_only_the_masked_endpoint() -> None:
+def test_success_sends_the_key_and_records_the_full_url_with_only_the_key_masked() -> None:
     session, transport = make_session({"/search": {"items": []}})
 
     assert get_json(session, "/search", SEARCH) == {"items": []}
@@ -42,8 +41,12 @@ def test_success_sends_the_key_but_records_only_the_masked_endpoint() -> None:
     path, params, headers, url = transport.calls[0]
     assert path == "/search" and params == {**SEARCH, "key": SECRET}
     assert url.startswith(f"{BASE}/search?") and headers == {"Accept": "application/json"}
-    assert session.recorder.calls == [f"{BASE}/search?key=***"] == [display_url("/search")]
-    assert "Dune" not in session.recorder.calls[0]
+    recorded = session.recorder.calls[0]
+    assert recorded["method"] == "GET" and SECRET not in recorded["url"]
+    # Same URL as the one sent, query included; only the key value is replaced.
+    assert recorded["url"] == url.replace(SECRET, "***") and recorded["url"].endswith("&key=***")
+    assert "part=snippet" in recorded["url"] and "type=video" in recorded["url"]
+    assert len(session.recorder.calls) == 1
 
 
 def test_the_same_request_is_sent_once_per_run() -> None:
@@ -211,7 +214,8 @@ def test_transport_failures_are_classified(failure, error) -> None:
     with pytest.raises(error):
         get_json(session, "/search", SEARCH)
 
-    assert session.recorder.calls == [display_url("/search")]
+    assert [call["method"] for call in session.recorder.calls] == ["GET"]
+    assert SECRET not in str(session.recorder.calls)
 
 
 def _assert_no_secret(exc: BaseException) -> None:

@@ -15,6 +15,8 @@ from pydantic import BaseModel, Field
 
 from turn import TraceStep, label_language
 
+from .calls_view import CallView, call_views
+
 # Whitespace controls become a space so words do not merge; every other control is removed.
 _WHITESPACE_CONTROLS = {"\t", "\n", "\r", "\x0b", "\x0c", "\x85"}
 DEFAULT_LICENSE = "CC BY-SA 4.0"
@@ -205,7 +207,7 @@ class WikipediaCallsView(BaseModel):
     title: str
     source: str
     labels: dict[str, str]
-    calls: list[str] = Field(default_factory=list)
+    calls: list[CallView] = Field(default_factory=list)
     reused: int = 0
     searches: list[SearchView] = Field(default_factory=list)
     opens: list[OpenView] = Field(default_factory=list)
@@ -284,7 +286,7 @@ def wikipedia_calls_view(step: TraceStep, language: str | None) -> WikipediaCall
         source=text["source"].format(license=license_name),
         # `source` is a template filled above: the channels get the finished line, not the template.
         labels={key: value for key, value in text.items() if key != "source"},
-        calls=[printable(url) for url in raw_calls if _https(url)] if isinstance(raw_calls, list) else [],
+        calls=call_views(raw_calls),
         reused=reused if isinstance(reused, int) else 0,
         searches=searches,
         opens=opens,

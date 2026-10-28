@@ -152,7 +152,7 @@ def doc_step():
         kind=STEP_WIKIPEDIA_CALLS,
         title="Wikipedia",
         data={
-            "calls": ["https://it.wikipedia.org/w/api.php"],
+            "calls": [{"method": "GET", "url": "https://it.wikipedia.org/w/api.php?action=query&gsrsearch=%22Park+Chan-wook%22"}],
             "reused": 0,
             "searches": [
                 {"language": "it", "q": '"Park Chan-wook"', "result": "ok", "error": None, "returned": 3, "kept": 2,
@@ -168,3 +168,10 @@ def doc_step():
             "license": {"name": "CC BY-SA 4.0", "url": "https://creativecommons.org/licenses/by-sa/4.0/"},
         },
     )
+
+
+def bases(calls) -> list[str]:
+    """Endpoints (URL without the query) of the calls recorded in a step: each call is `{"method", "url"}`
+    with the full URL; the query is checked where it matters."""
+    assert all(call["method"] == "GET" for call in calls)
+    return [call["url"].split("?")[0] for call in calls]

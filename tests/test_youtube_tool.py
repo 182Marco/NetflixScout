@@ -24,8 +24,15 @@ from tool.youtube.quota import QuotaBucket, QuotaLatch
 from tool.youtube.tool import YOUTUBE_TOOL_NAME, overall_status
 
 ID1, ID2, ID3, ID4 = "vid00000001", "vid00000002", "vid00000003", "vid00000004"
-SEARCH_URL = f"{BASE}/search?key=***"
-VIDEOS_URL = f"{BASE}/videos?key=***"
+SEARCH_URL = f"{BASE}/search"
+VIDEOS_URL = f"{BASE}/videos"
+
+
+def endpoints(data: dict) -> list[str]:
+    """Calls of a `youtube_calls` step, checked as full URLs: GET, parameters kept, only the key masked."""
+    calls = data["calls"]
+    assert all(call["method"] == "GET" and call["url"].endswith("&key=***") and "?" in call["url"] for call in calls)
+    return [call["url"].split("?")[0] for call in calls]
 
 
 def meta(result: dict) -> dict:
@@ -95,7 +102,7 @@ def test_happy_path_one_search_and_one_videos_lookup() -> None:
     making = kinds(result)["making_of"]
     assert (making["status"], making["result"], making["returned"]) == ("searched", "ok", 2)
     assert [hit["video_id"] for hit in making["hits"]] == [ID1, ID2]  # API order kept
-    assert step(result)["calls"] == [SEARCH_URL, SEARCH_URL, VIDEOS_URL]
+    assert endpoints(step(result)) == [SEARCH_URL, SEARCH_URL, VIDEOS_URL]
 
 
 def test_titles_channels_and_urls_are_the_api_values() -> None:
@@ -417,7 +424,8 @@ def test_trace_lists_calls_queries_and_videos() -> None:
 
     data = step(run_tool(tool, kinds=["making_of", "behind_the_scenes"]))
 
-    assert data["calls"] == [SEARCH_URL, SEARCH_URL, VIDEOS_URL]
+    assert endpoints(data) == [SEARCH_URL, SEARCH_URL, VIDEOS_URL]
+    assert "q=%22Dune" in data["calls"][0]["url"]  # the query actually sent is visible
     assert [row["kind"] for row in data["searches"]] == ["making_of", "behind_the_scenes"]
     assert data["searches"][0]["q"].startswith('"Dune: Part Two" "making of"')
     assert data["searches"][0]["kept"] == 2 and data["searches"][0]["returned"] == 2

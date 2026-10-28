@@ -41,7 +41,7 @@ def tmdb_cards(outcomes: list[RequestOutcome]) -> list[dict[str, Any]]:
 
 
 def build_tmdb_trace(
-    calls: list[str],
+    calls: list[dict[str, str]],
     attributions: list[str],
     items: list[dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:

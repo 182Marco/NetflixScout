@@ -16,9 +16,10 @@ from collections.abc import Mapping
 from typing import Any
 from urllib.parse import urlencode
 
+from turn import http_call
+
 from .auth import authorize
 from .cache import cache_key
-from .calls import display_url
 from .context import TmdbContext
 from .cooldown import retry_after_seconds
 from .endpoints import Endpoint
@@ -57,7 +58,7 @@ def _send(ctx: TmdbContext, endpoint: Endpoint) -> dict[str, Any]:
     url = f"{ctx.credentials.base_url}{endpoint.path}"
     if params:
         url = f"{url}?{urlencode(params)}"
-    ctx.recorder.record(display_url(ctx.credentials, endpoint.path))
+    ctx.recorder.record(http_call("GET", url, [ctx.credentials.secret]))
 
     try:
         status, response_headers, body = ctx.transport(url, headers, HTTP_TIMEOUT_SECONDS)

@@ -39,7 +39,8 @@ def test_success_sends_the_user_agent_and_records_only_the_base_url() -> None:
     language, params, headers, url = transport.calls[0]
     assert language == "it" and params == PARAMS and headers["User-Agent"] == USER_AGENT
     assert url.startswith("https://it.wikipedia.org/w/api.php?")
-    assert session.calls == ["https://it.wikipedia.org/w/api.php"] and "gsrsearch" not in repr(session.calls)
+    # The call recorded is the URL sent, query included: nothing is rebuilt or left out.
+    assert session.calls == [{"method": "GET", "url": url}] and "gsrsearch=%22Park+Chan-wook%22" in url
 
 
 def test_an_unsupported_language_is_refused_before_any_call() -> None:

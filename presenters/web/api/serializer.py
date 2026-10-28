@@ -17,6 +17,6 @@ def serialize_tmdb_calls_step(step: TraceStep, language: str | None = None) -> d
     return {
         "kind": step.kind,
         "title": view.title,
-        "calls": [{"label": view.called_label, "url": url} for url in view.calls],
+        "calls": [{"label": view.called_label, **call.model_dump()} for call in view.calls],
         "attributions": [attribution.model_dump() for attribution in view.attributions],
     }

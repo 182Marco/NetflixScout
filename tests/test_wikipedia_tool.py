@@ -6,6 +6,7 @@ import json
 import pytest
 from wikipedia_support import (
     ARTICLE_TEXT,
+    bases,
     EN_ARTICLE_TEXT,
     article_answer,
     by_mode,
@@ -86,7 +87,8 @@ def test_the_trace_has_urls_licence_and_no_extract_text() -> None:
 
     assert step["kind"] == "wikipedia_calls" and step["title"] == "Wikipedia"
     data = step["data"]
-    assert data["calls"] == ["https://it.wikipedia.org/w/api.php"] and data["reused"] == 0
+    assert bases(data["calls"]) == ["https://it.wikipedia.org/w/api.php"] and data["reused"] == 0
+    assert "gsrsearch=%22Park+Chan-wook%22" in data["calls"][0]["url"]
     assert data["pages"][0]["url"] == "https://it.wikipedia.org/wiki/Park_Chan-wook"
     assert data["license"] == {"name": "CC BY-SA 4.0", "url": "https://creativecommons.org/licenses/by-sa/4.0/"}
     assert data["searches"][0]["q"] == '"Park Chan-wook"' and data["searches"][0]["kept"] == 2
@@ -311,7 +313,7 @@ def test_the_search_is_in_english_whatever_the_language_of_the_user(turn_languag
     assert _meta(result)["language"] == "en" and page_meta["language"] == "en"
     assert page_meta["text"][0]["section"] == "Introduction"
     (step,) = result["trace"]
-    assert step["data"]["calls"] == ["https://en.wikipedia.org/w/api.php"]
+    assert bases(step["data"]["calls"]) == ["https://en.wikipedia.org/w/api.php"]
     assert step["data"]["pages"][0]["url"] == "https://en.wikipedia.org/wiki/Park_Chan-wook"
     assert step["data"]["searches"][0]["language"] == "en"
 
@@ -427,7 +429,7 @@ def test_the_same_english_page_is_read_from_the_cache_and_italian_is_a_separate_
 
     assert transport.languages == ["en", "it"]
     assert again["trace"][0]["data"]["calls"] == [] and again["trace"][0]["data"]["reused"] == 1
-    assert italian["trace"][0]["data"]["calls"] == ["https://it.wikipedia.org/w/api.php"]
+    assert bases(italian["trace"][0]["data"]["calls"]) == ["https://it.wikipedia.org/w/api.php"]
     assert italian_again["trace"][0]["data"]["reused"] == 1 and italian_again["trace"][0]["data"]["calls"] == []
 
 
@@ -648,7 +650,7 @@ def test_a_local_topic_can_use_the_german_edition_whatever_the_user_language(tur
 
     assert transport.languages == ["de"]
     step = result["trace"][0]["data"]
-    assert step["calls"] == ["https://de.wikipedia.org/w/api.php"]
+    assert bases(step["calls"]) == ["https://de.wikipedia.org/w/api.php"]
     assert step["searches"][0]["language"] == "de"
     assert _meta(result)["pages"][0]["text"][0]["section"] == "Einleitung"
 

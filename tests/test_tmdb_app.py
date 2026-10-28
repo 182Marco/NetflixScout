@@ -151,7 +151,8 @@ def test_tmdb_step_reaches_the_turn_with_the_turn_language(monkeypatch) -> None:
 
     assert turn.tool == TMDB_TOOL_NAME and turn.answer == "Risposta finale."
     assert [s.kind for s in turn.steps] == ["classification", "query_rewrite", "tool_selection", "tool_outcome", "tmdb_calls"]
-    assert turn.steps[-1].data["calls"][-1].endswith(f"/movie/{MOVIE_ID}?api_key=***")
+    last = turn.steps[-1].data["calls"][-1]
+    assert last["method"] == "GET" and f"/movie/{MOVIE_ID}?" in last["url"] and last["url"].endswith("api_key=***")
     assert transport.params(f"/movie/{MOVIE_ID}")["language"] == "it-IT"
     final_prompt = client.calls[-1]["input"][-1]["content"]
     assert "Christopher Nolan" in final_prompt and "api_key" not in final_prompt

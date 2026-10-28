@@ -18,8 +18,8 @@ def print_wikipedia_calls(view: WikipediaCallsView) -> None:
     print()
     if not view.calls:
         print(f"  {text['none']}")
-    for url in view.calls:
-        print(f"  {text['called']}: {url}")
+    for call in view.calls:
+        print(f"  {text['called']}: {call.text()}")
 
     for search in view.searches:
         print(f"\n  🔎 {text['search']} [{search.language}]: {search.q}")

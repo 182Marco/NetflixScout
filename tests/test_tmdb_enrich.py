@@ -101,7 +101,8 @@ def test_each_candidate_gets_only_its_own_metadata_and_ranking_is_unchanged() ->
     assert transport.paths == ["/search/movie", "/movie/501", "/search/movie", "/movie/502"]
     assert all(call[1]["language"] == "en-US" for call in transport.calls)
     assert [step["kind"] for step in result["trace"]] == ["retrieval", "tmdb_calls"]
-    assert all(url.endswith("?api_key=***") for url in result["trace"][-1]["data"]["calls"])
+    calls = result["trace"][-1]["data"]["calls"]
+    assert len(calls) == 4 and all(c["method"] == "GET" and c["url"].endswith("api_key=***") for c in calls)
 
 
 def test_trace_items_hold_only_the_verified_matches() -> None:

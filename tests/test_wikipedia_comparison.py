@@ -157,6 +157,6 @@ def test_both_runs_share_the_turn_budget() -> None:
 
     decision = orch.run(query="differenze", conversation_history=[])
 
-    ids = {c["result"]["trace"][0]["data"]["calls"][0] for c in decision["calls"]}
+    ids = {c["result"]["trace"][0]["data"]["calls"][0]["url"].split("?")[0] for c in decision["calls"]}
     assert ids == {"https://en.wikipedia.org/w/api.php"}  # one host, and the HTTP count of the turn is the sum of both
     assert len(transport.calls) == 4

@@ -25,6 +25,8 @@ from dataclasses import dataclass, field
 from typing import Any
 from urllib.parse import urlencode
 
+from turn import http_call
+
 from .budget import TurnState
 from .errors import (
     WikipediaBudgetExhausted,
@@ -138,7 +140,7 @@ class HttpSession:
     cache: TtlCache
     pause: RateLimitPause
     # Display URLs of the requests sent in this run (no parameters).
-    calls: list[str] = field(default_factory=list)
+    calls: list[dict[str, str]] = field(default_factory=list)
     # Requests of this run served by the cache.
     reused: int = 0
     memo: dict[RequestKey, dict[str, Any]] = field(default_factory=dict)
@@ -155,11 +157,10 @@ def _is_timeout(exc: BaseException) -> bool:
 
 
 def _transmit(
-    session: HttpSession, language: str, params: Mapping[str, str]
+    session: HttpSession, url: str
 ) -> tuple[int, Mapping[str, str], bytes] | WikipediaError:
     """Send one request; transport failures are returned, never raised, so this frame (the only
     one holding the URL with the topic) is never part of a traceback."""
-    url = f"{api_url(language)}?{urlencode(dict(params))}"
     headers = {"User-Agent": USER_AGENT, "Accept": "application/json"}
     try:
         return session.transport(url, headers, HTTP_TIMEOUT_SECONDS)
@@ -193,9 +194,11 @@ def _send(session: HttpSession, language: str, params: Mapping[str, str]) -> dic
         raise WikipediaRateLimited("Wikipedia rate limit: paused.")
     if not session.state.try_reserve_http(session.max_calls):
         raise WikipediaBudgetExhausted("Wikipedia call limit for this turn reached.")
-    session.calls.append(api_url(language))
+    # Recorded where the URL is built, so what is shown is what is sent (Wikipedia needs no key).
+    url = f"{api_url(language)}?{urlencode(dict(params))}"
+    session.calls.append(http_call("GET", url))
 
-    response = _transmit(session, language, params)
+    response = _transmit(session, url)
     if isinstance(response, WikipediaError):
         raise response
     status, headers, body = response

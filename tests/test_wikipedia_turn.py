@@ -14,7 +14,7 @@ from pathlib import Path
 import pytest
 from stream_support import reply
 from web_api_support import names, parse_sse, streamed_text
-from wikipedia_support import EN_ARTICLE_TEXT, by_mode, doc_step, lookup_answer, make_tool, page, article_answer
+from wikipedia_support import EN_ARTICLE_TEXT, bases, by_mode, doc_step, lookup_answer, make_tool, page, article_answer
 
 import app as app_module
 from app import handle_query
@@ -116,7 +116,7 @@ def test_the_first_step_carries_the_sources_and_the_credit() -> None:
     assert (shown["title"], shown["language"], shown["url"], shown["verification"]) == ("Park Chan-wook", "it", URL, "confirmed")
     assert shown["sections"] == ["Introduzione"]
     assert first["license"] == {"name": "CC BY-SA 4.0", "url": "https://creativecommons.org/licenses/by-sa/4.0/"}
-    assert first["calls"] == ["https://it.wikipedia.org/w/api.php"] and first["reused"] == 0
+    assert bases(first["calls"]) == ["https://it.wikipedia.org/w/api.php"] and first["reused"] == 0
 
 
 def test_the_second_step_opens_the_article_and_reads_only_what_was_not_read() -> None:
@@ -242,9 +242,9 @@ def test_english_is_searched_first_and_italian_only_when_the_planner_asks_for_it
 
     first, second = _steps(events)
     assert transport.languages == ["en", "it"]  # one request each, in this order
-    assert first["calls"] == ["https://en.wikipedia.org/w/api.php"] and first["pages"] == []
+    assert bases(first["calls"]) == ["https://en.wikipedia.org/w/api.php"] and first["pages"] == []
     assert first["searches"][0]["language"] == "en"
-    assert second["calls"] == ["https://it.wikipedia.org/w/api.php"]
+    assert bases(second["calls"]) == ["https://it.wikipedia.org/w/api.php"]
     (shown,) = second["pages"]
     assert (shown["language"], shown["title"], shown["url"]) == ("it", TITLE_IT, "https://it.wikipedia.org/wiki/Il_ragazzo_e_l%27airone")
     # What the planner is told before the second step: the edition used, why it is not enough, what is left.

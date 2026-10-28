@@ -132,12 +132,26 @@ Ogni `status` è accompagnato da una `story` di livello `progress`.
 
 ### `step`
 Il risultato di un tool, già serializzato per il web; `kind` è `retrieval`, `rerank`, `db_query`, `tmdb_calls`,
-`youtube_calls` o `wikipedia_calls`; gli altri campi dipendono dal tipo (sono quelli di
+`youtube_calls`, `wikipedia_calls` o `omdb_calls`; gli altri campi dipendono dal tipo (sono quelli di
 `presenters/web/<tool>/serializer.py`). Un turno può avere **più passi dello stesso tool** (per esempio due
 `wikipedia_calls`: prima l'introduzione, poi altre sezioni della pagina): ognuno è un evento `step` a sé.
 Un `kind` sconosciuto va mostrato in modo generico o ignorato.
 ```json event=step
-{"kind":"tmdb_calls","title":"CHIAMATE TMDB","calls":[{"label":"Chiamato","url":"https://api.themoviedb.org/3/movie/157336?api_key=***"}],"attributions":[{"source":"JustWatch","text":"Dati sulla disponibilità in streaming: JustWatch"}]}
+{"kind":"tmdb_calls","title":"CHIAMATE TMDB","calls":[{"label":"Chiamato","method":"GET","url":"https://api.themoviedb.org/3/movie/157336?language=it-IT&api_key=***"}],"attributions":[{"source":"JustWatch","text":"Dati sulla disponibilità in streaming: JustWatch"}]}
+```
+
+#### Le chiamate HTTP dei tool (`calls`)
+Gli step dei tool che fanno richieste HTTP (`tmdb_calls`, `youtube_calls`, `wikipedia_calls`, `omdb_calls`) hanno tutti
+`calls`: una voce per **ogni** richiesta realmente inviata in quel passo, nell'ordine in cui è avvenuta, `{"method","url"}`
+(TMDb aggiunge `label`). `url` è l'URL completo (path e tutti i parametri) esattamente come inviato; il backend sostituisce
+con `***` solo il **valore** delle credenziali (`apikey=***`, `api_key=***`, `key=***`, anche user:password nell'URL): il
+frontend non maschera né ricostruisce nulla. `calls` vuoto = nessuna richiesta in questo passo (dati già in cache). Le
+richieste servite da cache o da memo non sono chiamate. Più passi dello stesso tool nello stesso turno sono più eventi
+`step`, ciascuno con le proprie `calls`. RAG (Qdrant, SDK) e MovieLens (SQL) non hanno `calls`. Esempio, `omdb_calls`
+con una ricerca per titolo e la lettura del record per IMDb ID (oltre a `calls` ci sono `status`, `ratings` e
+`candidates`, vedi «Cosa il frontend deve rispettare»):
+```json step=omdb_calls
+{"kind":"omdb_calls","title":"OMDB","source":"Fonte: OMDb API (uso non commerciale; non affiliata a IMDb)","labels":{"title":"OMDB","source":"Fonte: OMDb API (uso non commerciale; non affiliata a IMDb)","called":"Chiamato","no_calls":"Nessuna chiamata a OMDb in questo turno.","imdb":"IMDb","metascore":"Metascore","rotten_tomatoes":"Rotten Tomatoes","audience":"pubblico","critics":"critica","not_available":"non disponibile","unparsed":"valore non leggibile","votes":"voti","candidates":"Opere con titolo simile","ok":"Punteggi trovati","empty":"Nessun punteggio disponibile per questo titolo","ambiguous":"Più opere corrispondono: nessun punteggio assegnato","unverified":"Titolo non verificato: nessun punteggio assegnato","not_found":"Titolo non trovato","error":"Errore"},"calls":[{"method":"GET","url":"https://www.omdbapi.com/?s=Sample+Movie&r=json&type=movie&apikey=***"},{"method":"GET","url":"https://www.omdbapi.com/?i=tt1000001&r=json&apikey=***"}],"status":"ok","status_label":"Punteggi trovati","reason":null,"work":"Sample Movie (2016)","imdb_id":"tt1000001","ratings":[{"source_label":"IMDb","kind_label":"pubblico","value":"7.9/10","available":true,"votes":"720.000 voti"},{"source_label":"Metascore","kind_label":"critica","value":"81/100","available":true,"votes":null},{"source_label":"Rotten Tomatoes","kind_label":"critica","value":"non disponibile","available":false,"votes":null}],"candidates":[]}
 ```
 
 Lo step `wikipedia_calls` porta le fonti del testo di Wikipedia: `pages[]` (`title`, `language`, `url` pubblico di
@@ -146,7 +160,7 @@ Wikipedia, `verification` `confirmed` o `to_verify`, `notes`, `sections` lette, 
 della licenza CC BY-SA), `calls` (le richieste inviate in questo passo: vuoto se i dati vengono dalla cache, e allora
 `reused` è maggiore di 0), `searches`, `opens` e `hints`. Esempio (in italiano):
 ```json step=wikipedia_calls
-{"kind":"wikipedia_calls","title":"WIKIPEDIA — 1 pagina","source":"Fonte: Wikipedia, testo riformulato e abbreviato, licenza CC BY-SA 4.0","labels":{"title":"WIKIPEDIA","page":"pagina","pages":"pagine","called":"Chiamato","none":"Nessuna chiamata a Wikipedia in questo passo: dati già in cache.","search":"Ricerca","open":"Pagina aperta","received":"ricevuti","kept":"tenuti","dropped":"scartati","error":"errore","notes":"note","sections":"Sezioni lette","omitted":"sezioni non lette","license":"Licenza","to_verify":"Da verificare (pagina non confermata):","no_pages":"Nessuna pagina da mostrare.","specify_year":"Indica l'anno del film per scegliere la pagina giusta.","add_context":"Aggiungi un dettaglio (ruolo, nazionalità, anno) per distinguere le pagine omonime."},"calls":["https://it.wikipedia.org/w/api.php"],"reused":0,"searches":[{"language":"it","q":"\"Park Chan-wook\"","summary":"3 ricevuti, 2 tenuti; scartati: pagina di disambiguazione 1","error":null}],"opens":[{"language":"it","title":"Park Chan-wook","result":"letta","error":null}],"pages":[{"title":"Park Chan-wook","language":"it","url":"https://it.wikipedia.org/wiki/Park_Chan-wook","verification":"confirmed","notes":[],"sections":["Introduzione","Biografia","Carriera"],"omitted":6,"chars":"5230/18420"}],"license":{"name":"CC BY-SA 4.0","url":"https://creativecommons.org/licenses/by-sa/4.0/"},"hints":[]}
+{"kind":"wikipedia_calls","title":"WIKIPEDIA — 1 pagina","source":"Fonte: Wikipedia, testo riformulato e abbreviato, licenza CC BY-SA 4.0","labels":{"title":"WIKIPEDIA","page":"pagina","pages":"pagine","called":"Chiamato","none":"Nessuna chiamata a Wikipedia in questo passo: dati già in cache.","search":"Ricerca","open":"Pagina aperta","received":"ricevuti","kept":"tenuti","dropped":"scartati","error":"errore","notes":"note","sections":"Sezioni lette","omitted":"sezioni non lette","license":"Licenza","to_verify":"Da verificare (pagina non confermata):","no_pages":"Nessuna pagina da mostrare.","specify_year":"Indica l'anno del film per scegliere la pagina giusta.","add_context":"Aggiungi un dettaglio (ruolo, nazionalità, anno) per distinguere le pagine omonime."},"calls":[{"method":"GET","url":"https://it.wikipedia.org/w/api.php?action=query&gsrsearch=%22Park+Chan-wook%22"}],"reused":0,"searches":[{"language":"it","q":"\"Park Chan-wook\"","summary":"3 ricevuti, 2 tenuti; scartati: pagina di disambiguazione 1","error":null}],"opens":[{"language":"it","title":"Park Chan-wook","result":"letta","error":null}],"pages":[{"title":"Park Chan-wook","language":"it","url":"https://it.wikipedia.org/wiki/Park_Chan-wook","verification":"confirmed","notes":[],"sections":["Introduzione","Biografia","Carriera"],"omitted":6,"chars":"5230/18420"}],"license":{"name":"CC BY-SA 4.0","url":"https://creativecommons.org/licenses/by-sa/4.0/"},"hints":[]}
 ```
 
 ### `answer_delta`
@@ -167,6 +181,9 @@ non lo altera in altro modo.
 `language` è il codice ISO 639-1 (`it`, `en`, `de`, `fr`, …) della lingua dell'**ultimo** messaggio dell'utente, qualunque fosse la lingua dei messaggi precedenti: può cambiare da un turno al successivo. Non è limitato a `it`/`en`: il frontend non deve rifiutare né mappare con un `switch` chiuso i codici sconosciuti. `labels`, `title`, `hints` e `source` degli step e le righe di `story` usano la lingua del turno per `it`, `en` e `de`, inglese per le altre; il testo della risposta, il messaggio di blocco e la domanda di chiarimento sono scritti dal modello nella lingua del turno.
 
 `blocked: true`: domanda non cinematografica, il testo è il messaggio di blocco. `history_compacted` è informativo.
+Un turno bloccato emette **solo** `turn_start`, un `answer_delta` con il messaggio, `answer_end` (`tool` null, `tools` vuoto),
+`lists` con `lists: []` e `done`: mai `status`, `story` né `step` (nessun tool, nessuna chiamata HTTP, nessun dettaglio di
+tracing); la cronologia della conversazione non cambia.
 
 ### `lists`
 Output strutturato **solo web**: liste tematiche di film, serie e video che la risposta presenta, già verificate contro i
@@ -203,12 +220,17 @@ rinviato. Il messaggio è generico (nessun dettaglio interno).
 
 ## 6. Cosa il frontend deve rispettare
 
+- **Chiamate HTTP**: mostrare tutte le `calls` di ogni step, una riga `METODO URL` ciascuna, come ricevute (vedi «Le chiamate
+  HTTP dei tool»): non nascondere parametri, non riordinare, non cercare né mostrare la chiave.
 - **Attribuzioni**: mostrare le `attributions` (JustWatch) degli step `tmdb_calls` accanto ai dati di streaming. Per i
   video YouTube (step `youtube_calls` e video in `lists`) mostrare titolo, canale e URL esattamente come ricevuti e
   indicare YouTube come fonte. Per le pagine Wikipedia (step `wikipedia_calls`) mostrare titolo, lingua e link di
   ogni pagina, la riga `source` e la licenza (`license.name` con il link `license.url`): il testo è CC BY-SA e chiede
   di accreditare le pagine, indicare la licenza e dire che il testo è stato riformulato. I link vanno aperti in una
-  nuova scheda (`target="_blank" rel="noopener noreferrer"`).
+  nuova scheda (`target="_blank" rel="noopener noreferrer"`). Per i punteggi OMDb (step `omdb_calls`) mostrare la riga
+  `source` e, per ogni elemento di `ratings`, il valore con `kind_label` (pubblico o critica) oppure il testo di
+  `value` quando non è disponibile (`available` false): mai un punteggio assente sostituito da un altro. Con
+  `status` `ambiguous` o `unverified` mostrare `candidates` e nessun punteggio.
 - Concatenare i `answer_delta` senza riscriverli; applicare `replace` se non è `null`; mostrare `lists` dopo `answer_end`.
 - Ignorare gli eventi e i campi sconosciuti (il contratto può aggiungerne) e le righe di commento `:`.
 - Un solo messaggio alla volta per conversazione.

@@ -83,7 +83,8 @@ def tmdb_meta(result: dict[str, Any]) -> dict[str, Any]:
 
 
 def calls_shown(result: dict[str, Any]) -> list[str]:
-    return result["trace"][0]["data"]["calls"] if result["trace"] else []
+    """URLs of the calls recorded in the step (each call is `{"method", "url"}`)."""
+    return [call["url"] for call in result["trace"][0]["data"]["calls"]] if result["trace"] else []
 
 
 # --- payloads -------------------------------------------------------------------------

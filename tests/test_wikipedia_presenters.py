@@ -19,11 +19,12 @@ from turn import STEP_WIKIPEDIA_CALLS, TraceStep, TurnResult
 ROOT = Path(__file__).resolve().parents[1]
 URL = "https://it.wikipedia.org/wiki/Park_Chan-wook"
 LICENSE_URL = "https://creativecommons.org/licenses/by-sa/4.0/"
+SEARCH_CALL = "https://it.wikipedia.org/w/api.php?action=query&gsrsearch=%22Park+Chan-wook%22"
 
 
 def _step(**data) -> TraceStep:
     base = {
-        "calls": ["https://it.wikipedia.org/w/api.php", "https://it.wikipedia.org/w/api.php"],
+        "calls": [{"method": "GET", "url": SEARCH_CALL}, {"method": "GET", "url": SEARCH_CALL}],
         "reused": 0,
         "searches": [
             {"language": "it", "q": '"Park Chan-wook"', "result": "ok", "error": None, "returned": 3, "kept": 2,
@@ -78,7 +79,7 @@ def test_italian_block_shows_pages_urls_sections_and_the_credit(capsys) -> None:
     assert f"[it] Park Chan-wook (5230/18420)" in out and URL in out
     assert "Sezioni lette: Introduzione, Biografia, Carriera" in out and "6 sezioni non lette" in out
     assert f"Licenza: CC BY-SA 4.0 — {LICENSE_URL}" in out
-    assert "Chiamato: https://it.wikipedia.org/w/api.php" in out
+    assert f"Chiamato: GET {SEARCH_CALL}" in out
     assert "3 ricevuti, 2 tenuti; scartati: pagina di disambiguazione 1" in out
 
 
@@ -127,7 +128,7 @@ def test_hints_are_shown_in_the_turn_language(language, hint, capsys) -> None:
 
 def test_only_https_urls_and_well_formed_rows_are_shown(capsys) -> None:
     step = _step(
-        calls=["http://it.wikipedia.org/w/api.php", 5, "https://it.wikipedia.org/w/api.php"],
+        calls=[{"method": "GET", "url": "http://it.wikipedia.org/w/api.php"}, 5, {"method": "GET", "url": SEARCH_CALL}],
         pages=[
             {"title": "Plain http", "language": "it", "url": "http://it.wikipedia.org/wiki/X", "verification": "confirmed"},
             {"title": "javascript", "language": "it", "url": "javascript:alert(1)", "verification": "confirmed"},
@@ -193,7 +194,7 @@ def test_the_web_step_has_the_documented_format() -> None:
         "sections": ["Introduzione", "Biografia", "Carriera"], "omitted": 6, "chars": "5230/18420",
     }]
     assert payload["license"] == {"name": "CC BY-SA 4.0", "url": LICENSE_URL}
-    assert payload["calls"] == ["https://it.wikipedia.org/w/api.php"] * 2 and payload["reused"] == 0
+    assert payload["calls"] == [{"method": "GET", "url": SEARCH_CALL}] * 2 and payload["reused"] == 0
     assert json.loads(json.dumps(payload)) == payload  # JSON-ready
 
 

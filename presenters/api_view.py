@@ -12,6 +12,8 @@ from pydantic import BaseModel, Field
 
 from turn import TraceStep, label_language
 
+from .calls_view import CallView, call_views
+
 ATTRIBUTION_SOURCES = {"justwatch": "JustWatch"}
 
 LABELS = {
@@ -44,18 +46,13 @@ class Attribution(BaseModel):
 class TmdbCallsView(BaseModel):
     title: str
     called_label: str
-    calls: list[str] = Field(default_factory=list)
+    calls: list[CallView] = Field(default_factory=list)
     empty_message: str
     attributions: list[Attribution] = Field(default_factory=list)
 
 
 def labels(language: str | None) -> dict[str, str]:
     return LABELS[label_language(language)]
-
-
-def _calls(raw: Any) -> list[str]:
-    # Only display URLs built by the tool; anything else is not shown.
-    return [url for url in raw or [] if isinstance(url, str) and url.startswith("https://")]
 
 
 def tmdb_calls_view(step: TraceStep, language: str | None) -> TmdbCallsView:
@@ -68,7 +65,7 @@ def tmdb_calls_view(step: TraceStep, language: str | None) -> TmdbCallsView:
     return TmdbCallsView(
         title=text["title"],
         called_label=text["called"],
-        calls=_calls(step.data.get("calls")),
+        calls=call_views(step.data.get("calls")),
         empty_message=text["none"],
         attributions=attributions,
     )

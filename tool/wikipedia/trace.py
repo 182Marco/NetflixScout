@@ -36,7 +36,7 @@ KEYWORD_TEXT = {
 
 
 def build_wikipedia_trace(
-    calls: list[str],
+    calls: list[dict[str, str]],
     reused: int,
     searches: list[dict[str, Any]],
     opens: list[dict[str, Any]],

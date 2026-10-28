@@ -1,24 +1,16 @@
-"""Executed calls as shown to the user: endpoint URL only, key masked.
+"""Executed calls as shown to the user: the request actually sent, key masked.
 
-The display URL is rebuilt from `BASE_URL` and the endpoint path, never from the URL
-actually sent: search parameters are left out and the key is always `***`.
+`http_call` (turn.py) records method and the full URL (path and every query parameter, the search
+`q` included) where `http.py` builds it; only the value of the key is replaced by `***`.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from .settings import BASE_URL
-
-MASK = "***"
-
-
-def display_url(path: str) -> str:
-    return f"{BASE_URL}{path}?key={MASK}"
-
 
 @dataclass
 class CallRecorder:
-    calls: list[str] = field(default_factory=list)
+    calls: list[dict[str, str]] = field(default_factory=list)
 
-    def record(self, url: str) -> None:
-        self.calls.append(url)
+    def record(self, call: dict[str, str]) -> None:
+        self.calls.append(call)

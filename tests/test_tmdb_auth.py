@@ -7,10 +7,10 @@ from tmdb_support import BASE, MOVIE_ID, SECRET, TOKEN, calls_shown, make_tool, 
 
 from presenters import OutputChannel, present
 from tool.tmdb.auth import AuthMode, authorize, detect_mode, load_credentials, validate_base_url
-from tool.tmdb.calls import display_url
 from tool.tmdb.errors import TmdbConfigError
 from presenters.web.api import serialize_tmdb_calls_step
-from turn import TraceStep, TurnResult
+from turn import TraceStep, TurnResult, http_call
+from urllib.parse import urlencode
 
 
 def test_credentials_come_from_the_given_environment() -> None:
@@ -52,12 +52,18 @@ def test_authorize_puts_the_credential_where_the_mode_requires() -> None:
     assert detect_mode("not-a-jwt") is AuthMode.query
 
 
-def test_display_url_masks_the_key_and_hides_parameters() -> None:
+def test_the_recorded_call_is_the_url_sent_with_only_the_key_masked() -> None:
     query_creds = load_credentials({"VUE_APP_TMDB_API_KEY": SECRET})
     bearer_creds = load_credentials({"VUE_APP_TMDB_API_KEY": TOKEN})
+    params, _ = authorize(query_creds, {"append_to_response": "credits", "language": "it-IT"})
+    sent = f"{BASE}/movie/{MOVIE_ID}?{urlencode(params)}"
 
-    assert display_url(query_creds, f"/movie/{MOVIE_ID}/credits") == f"{BASE}/movie/{MOVIE_ID}/credits?api_key=***"
-    assert display_url(bearer_creds, f"/movie/{MOVIE_ID}") == f"{BASE}/movie/{MOVIE_ID}"
+    assert http_call("GET", sent, [query_creds.secret]) == {
+        "method": "GET",
+        "url": f"{BASE}/movie/{MOVIE_ID}?append_to_response=credits&language=it-IT&api_key=***",
+    }
+    # Bearer: the token is a header, so the URL has no credential and nothing is hidden.
+    assert http_call("GET", f"{BASE}/movie/{MOVIE_ID}", [bearer_creds.secret])["url"] == f"{BASE}/movie/{MOVIE_ID}"
 
 
 @pytest.mark.parametrize("mode", [AuthMode.query, AuthMode.bearer])
@@ -85,5 +91,7 @@ def test_secret_never_leaves_the_http_layer(mode, capsys) -> None:
     # The real request did carry the credential.
     sent_url, sent_headers = transport.calls[0][3], transport.calls[0][2]
     assert secret in sent_url or secret in sent_headers.get("Authorization", "")
-    expected = f"{BASE}/movie/{MOVIE_ID}" + ("?api_key=***" if mode is AuthMode.query else "")
-    assert calls_shown(result)[0] == expected
+    shown = calls_shown(result)[0]
+    # The full URL actually sent (path and parameters), with only the key value masked.
+    assert shown.startswith(f"{BASE}/movie/{MOVIE_ID}?language=")
+    assert shown.endswith("&api_key=***") if mode is AuthMode.query else "api_key" not in shown

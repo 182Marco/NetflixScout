@@ -5,7 +5,10 @@ channel in `presenters/` decides how to show it (terminal text, web payload, ...
 """
 from __future__ import annotations
 
+import re
+from collections.abc import Iterable
 from typing import Any, Literal, Protocol
+from urllib.parse import quote, quote_plus, urlsplit
 
 from pydantic import BaseModel, Field
 
@@ -22,6 +25,7 @@ STEP_RERANK = "rerank"
 STEP_DB_QUERY = "db_query"
 STEP_TMDB_CALLS = "tmdb_calls"
 STEP_YOUTUBE_CALLS = "youtube_calls"
+STEP_OMDB_CALLS = "omdb_calls"
 STEP_WIKIPEDIA_CALLS = "wikipedia_calls"
 
 # Tool parameter set by `handle_query` with the turn language (ISO 639-1 code of the latest
@@ -97,6 +101,49 @@ RESULT_FOLLOW_UP = "follow_up"
 
 def tool_outcome(status: str, reason: str | None = None) -> dict[str, str | None]:
     return {"status": status, "reason": reason}
+
+
+# HTTP calls of the tools, as the user sees them: the request actually sent (method and full URL, path and
+# every query parameter) with ONLY the value of a credential replaced by `***`. A tool records a call with
+# `http_call` at the point where it builds the URL it sends, so what is shown is never rebuilt from a
+# description; the presenters mask once more (`mask_url` is idempotent) so a tool cannot leak by forgetting.
+MASK = "***"
+# Names a credential travels under in the tools' APIs (TMDb `api_key`, YouTube `key`, OMDb `apikey`) and the
+# usual others; the match is case-insensitive and on the whole name.
+CREDENTIAL_PARAMS = frozenset(
+    {"api_key", "apikey", "key", "access_token", "token", "auth", "authorization", "client_secret", "secret", "password"}
+)
+_METHOD = re.compile(r"^[A-Z]{3,7}$")
+
+
+def _mask_query(query: str) -> str:
+    pairs = []
+    for pair in query.split("&"):
+        name, sep, _ = pair.partition("=")
+        pairs.append(f"{name}={MASK}" if sep and name.lower() in CREDENTIAL_PARAMS else pair)
+    return "&".join(pairs)
+
+
+def mask_url(url: str, secrets: Iterable[str] = ()) -> str:
+    """`url` with the value of every credential parameter, any user:password and every occurrence of a known
+    secret (raw or percent-encoded, wherever it is) replaced by `***`; the rest is left exactly as it is."""
+    try:
+        parts = urlsplit(url)
+        netloc = parts.netloc
+        if "@" in netloc:
+            netloc = f"{MASK}@{netloc.rpartition('@')[2]}"
+        masked = parts._replace(netloc=netloc, query=_mask_query(parts.query)).geturl()
+    except ValueError:
+        masked = MASK
+    for secret in sorted({value for value in secrets if isinstance(value, str) and value}, key=len, reverse=True):
+        for form in dict.fromkeys((secret, quote(secret, safe=""), quote_plus(secret))):
+            masked = masked.replace(form, MASK)
+    return masked
+
+
+def http_call(method: str, url: str, secrets: Iterable[str] = ()) -> dict[str, str]:
+    """The record of one HTTP request for a tool trace: `{"method", "url"}` with the credentials masked."""
+    return {"method": method.upper() if _METHOD.match(method.upper()) else "?", "url": mask_url(url, secrets)}
 
 
 class TraceStep(BaseModel):

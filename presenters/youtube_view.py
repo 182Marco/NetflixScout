@@ -14,6 +14,8 @@ from pydantic import BaseModel, Field
 
 from turn import TraceStep, label_language
 
+from .calls_view import CallView, call_views
+
 # Whitespace controls become a space so words do not merge; every other control is removed.
 _WHITESPACE_CONTROLS = {"\t", "\n", "\r", "\x0b", "\x0c", "\x85"}
 
@@ -253,7 +255,7 @@ class YoutubeCallsView(BaseModel):
     title: str
     source: str
     labels: dict[str, str]
-    calls: list[str] = Field(default_factory=list)
+    calls: list[CallView] = Field(default_factory=list)
     searches: list[SearchView] = Field(default_factory=list)
     not_searched: str | None = None
     quota_paused: str | None = None
@@ -318,7 +320,7 @@ def youtube_calls_view(step: TraceStep, language: str | None) -> YoutubeCallsVie
         title=f"{text['title']} — {len(videos)} {text['videos']}",
         source=text["source"],
         labels=text,
-        calls=[printable(url) for url in raw_calls if _https(url)] if isinstance(raw_calls, list) else [],
+        calls=call_views(raw_calls),
         searches=searches,
         # Terminal only, and short: the categories, not the reasons (errors and the quota
         # pause have their own lines). The web serializer leaves it out.

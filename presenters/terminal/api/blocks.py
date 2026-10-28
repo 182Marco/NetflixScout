@@ -9,8 +9,8 @@ def print_tmdb_calls(view: TmdbCallsView) -> None:
     print_box("🎞️", f"{view.title} — {len(view.calls)}")
     if not view.calls:
         print(f"\n  {view.empty_message}")
-    for url in view.calls:
-        print(f"  {view.called_label}: {url}")
+    for call in view.calls:
+        print(f"  {view.called_label}: {call.text()}")
     for attribution in view.attributions:
         print(f"\n  ℹ️  {attribution.text}")
 

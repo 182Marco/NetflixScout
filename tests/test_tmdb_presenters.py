@@ -70,7 +70,7 @@ def test_web_serializer_matches_terminal_and_is_json_ready(capsys) -> None:
     assert all(f"Chiamato: {call['url']}" in out for call in payload["calls"])
 
 
-def test_presenters_never_show_parameters_or_raw_json(capsys) -> None:
+def test_presenters_never_show_raw_json_or_non_https_urls(capsys) -> None:
     step = _step(calls=(URL, "javascript:alert(1)", {"sql": "x"}))
     step.data["raw"] = {"api_key": "x", "results": [1, 2]}
 
@@ -78,7 +78,8 @@ def test_presenters_never_show_parameters_or_raw_json(capsys) -> None:
     out = capsys.readouterr().out
 
     assert "javascript" not in out and "results" not in out and "language=" not in out
-    assert serialize_tmdb_calls_step(step)["calls"] == [{"label": "Called", "url": URL}]
+    # A plain URL (the older step shape) is shown as it is, without inventing a method.
+    assert serialize_tmdb_calls_step(step)["calls"] == [{"label": "Called", "method": "", "url": URL}]
 
 
 def test_end_to_end_step_from_the_tool_with_providers(capsys) -> None:
@@ -88,8 +89,10 @@ def test_end_to_end_step_from_the_tool_with_providers(capsys) -> None:
     present(_turn(TraceStep(**result["trace"][0])), OutputChannel.terminal)
 
     out = capsys.readouterr().out
-    assert f"Chiamato: {URL}" in out and "JustWatch" in out
-    assert "append_to_response" not in out and "it-IT" not in out
+    call = result["trace"][0]["data"]["calls"][0]
+    # Method and the full URL with its parameters, exactly as recorded; only the key is masked.
+    assert f"Chiamato: GET {call['url']}" in out and "JustWatch" in out
+    assert "append_to_response=" in call["url"] and "language=it-IT" in call["url"] and call["url"].endswith("api_key=***")
 
 
 def test_tmdb_presenters_import_only_turn_and_their_own_view() -> None:

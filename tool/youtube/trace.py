@@ -20,7 +20,7 @@ YOUTUBE_CALLS_TITLE = "YouTube"
 
 
 def build_youtube_trace(
-    calls: list[str],
+    calls: list[dict[str, str]],
     outcomes: list[KindOutcome],
     queries: dict[str, str],
     *,
