@@ -26,6 +26,7 @@ STEP_DB_QUERY = "db_query"
 STEP_TMDB_CALLS = "tmdb_calls"
 STEP_YOUTUBE_CALLS = "youtube_calls"
 STEP_OMDB_CALLS = "omdb_calls"
+STEP_TVMAZE_CALLS = "tvmaze_calls"
 STEP_WIKIPEDIA_CALLS = "wikipedia_calls"
 
 # Tool parameter set by `handle_query` with the turn language (ISO 639-1 code of the latest

@@ -5,7 +5,7 @@ import ast
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ("rag", "tmdb", "youtube", "wikipedia", "movie_db", "omdb")
+TOOLS = ("rag", "tmdb", "youtube", "wikipedia", "movie_db", "omdb", "tvmaze")
 ENTRY = {"rag": "FromQueryEmbeddingToRes/tool_interface.py", "movie_db": "movie_db_tool.py"}
 # Legacy terminal loop of the RAG, kept as it was before the move (see AGENTS.md).
 LEGACY_PRESENTER_IMPORT = "tool/rag/FromQueryEmbeddingToRes/chat.py"
