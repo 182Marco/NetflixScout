@@ -68,14 +68,21 @@ source .venv/bin/activate && uvicorn web_api.main:app --host 127.0.0.1 --port 80
 │       ├── session.py      # per-turn budget and memo, process-wide pause after an HTTP 429
 │       ├── identify.py     # which series a title search identifies (never by title alone when in doubt)
 │       └── normalize.py    # TVmaze JSON → the small dicts the model and the presenters read
+│   └── wikidata/           # Wikidata tool (wikidata_search): identify a work among homonyms, read its declared relations, in-process, no key, no MCP
+│       ├── tool.py         # WikidataTool: validate → identify the work → relations / franchise → data + follow_up
+│       ├── queries.py      # constant SPARQL fragments; only validated ids are written into a query, never the user's words
+│       ├── http.py         # the only HTTP module: turn memo → rate-limit pause → turn budget → send
+│       ├── session.py      # per-turn budget and memo, process-wide pause after an HTTP 429
+│       ├── identify.py     # which work a title or an external id identifies (never by title alone when in doubt)
+│       └── normalize.py    # SPARQL rows → merged, filtered, ordered works (no duplicates, no unreleased)
 ├── presenters/         # the only output layer: present(turn, channel)
 │   ├── channel.py      # OutputChannel (terminal | web)
 │   ├── story_view.py   # the turn story: a few plain sentences (what, where, how it went), it/en
-│   ├── rag_view.py db_view.py api_view.py youtube_view.py wikipedia_view.py omdb_view.py tvmaze_view.py   # channel-neutral views of the tool steps
+│   ├── rag_view.py db_view.py api_view.py youtube_view.py wikipedia_view.py omdb_view.py tvmaze_view.py wikidata_view.py   # channel-neutral views of the tool steps
 │   ├── terminal/       # box.py, session.py, blocks.py, renderer.py (TerminalObserver, STEP_RENDERERS)
-│   │   └── rag/ db/ api/ youtube/ wikipedia/ omdb/ tvmaze/   # blocks.py + renderer.py per tool
+│   │   └── rag/ db/ api/ youtube/ wikipedia/ omdb/ tvmaze/ wikidata/   # blocks.py + renderer.py per tool
 │   └── web/            # observer.py (WebObserver, live events), payload.py (to_payload, STEP_SERIALIZERS)
-│       └── rag/ db/ api/ youtube/ wikipedia/ omdb/ tvmaze/   # serializer.py per tool, same shared view as the terminal
+│       └── rag/ db/ api/ youtube/ wikipedia/ omdb/ tvmaze/ wikidata/   # serializer.py per tool, same shared view as the terminal
 ├── web_api/            # HTTP/SSE server (FastAPI): conversations, streamed answer, web_lists; see contracts/
 ├── web_lists/          # web channel only: the lists of films/videos returned with the final answer
 ├── app.py              # CONFIG, build_app, handle_query (no printing) and the terminal chat
@@ -199,7 +206,7 @@ When the collection is available, `app.py` starts an interactive terminal chat.
 Conversation flow:
 
 1. Type a query in terminal.
-2. The domain classifier blocks off-topic and jailbreak requests; otherwise the orchestrator (`orchestrator.py`) rewrites the query as standalone, picks a tool (`rag_search`, `movie_db_search`, `tmdb_search`, `youtube_search`, `wikipedia_search`, `omdb_search`, `tvmaze_search`) and may chain more tools in the same turn.
+2. The domain classifier blocks off-topic and jailbreak requests; otherwise the orchestrator (`orchestrator.py`) rewrites the query as standalone, picks a tool (`rag_search`, `movie_db_search`, `tmdb_search`, `youtube_search`, `wikipedia_search`, `omdb_search`, `tvmaze_search`, `wikidata_search`) and may chain more tools in the same turn.
 3. Each step is narrated while it happens, then the final answer is streamed (one LLM call, written only from the tool results).
 4. Conversation history is updated and reused in the next turns.
 5. Type `exit` or `quit` to close.
@@ -513,6 +520,48 @@ air dates, and the upcoming episode. No key, standard library `urllib`, no new d
   instead of an answer; a title with a qualifier (“The Office (US)”) is not found on TVmaze, so the turn falls back to TMDb
   with one more planning step; specials are not counted in the seasons (“Sherlock” shows 12 episodes, 13 with the special);
   episode titles come in TVmaze's original language (“Dark” in German) and the answer does not say so.
+
+## Wikidata Tool (`wikidata_search`)
+
+An eighth orchestrator tool reads **declared relations between works** from Wikidata, for one film or series,
+and tells works that share a title apart:
+
+- **What it gives**: `operation: resolve` returns the works that fit a title with year, director and IMDb and
+  TMDb ids; `operation: relations` identifies the work and returns the works it is based on (a book, a comic, an
+  earlier film), the works based on it (remakes, adaptations, inspired works), the previous and next work in its
+  series and the other works of its franchise. Nothing about cast, plot, awards or scores: awards are
+  incomplete on Wikidata (a film can have one Oscar nomination there and ten on Wikipedia), so they are not read.
+- **Routing** (rule 1f, the only place that says it): Wikidata for the source of a work, remakes and adaptations,
+  order in a series, franchise membership; `resolve` only when the request asks to tell homonyms apart or an
+  earlier step could not identify an ambiguous title, never as a preliminary step of every search. TMDb keeps
+  cast, plot, scores, streaming, filmographies and lists; Wikipedia (rule 1c) keeps the prose on how an adaptation
+  differs. One fallback step to TMDb or Wikipedia when the work is not found, never a second try.
+- **Controlled queries**: the SPARQL text is built from constant fragments; only ids that pass a strict pattern are
+  written into it, the user's title is just the search parameter of the entity search. Every query is bound to
+  given items and limited to 500 rows. The model never writes SPARQL.
+- **Filters**: unreleased works and announced projects are dropped (and counted), rows of the same item are merged,
+  items without a label or of another kind (albums, characters, tracks) are ignored, groups are ordered and cut at
+  12 works. A missing date or director never counts as a match; a title shared by several works is returned as a
+  list of alternatives, with no data attributed.
+- **Honesty about gaps**: the answer is told that the relations are those recorded, that "based on" does not tell a
+  remake from an inspired work, that previous/next is the order in a series and not "sequel" or "prequel", and
+  that an empty list does not prove there is nothing. A work with no recorded relation leads to one step to
+  Wikipedia.
+- **Limits**: `CONFIG["wikidata"]["max_calls_per_turn"]` (8): a title costs 1 request to identify (all films and series with
+  that exact label; 3 if it falls back to the text search; an IMDb or TMDb id 1), the relations 1, the franchise members 1. Timeout 15 s, no retries, a short pause after an HTTP 429,
+  no cache between turns, no key. Wikimedia asks for a descriptive User-Agent.
+- **Step**: `wikidata_calls` (shared view `presenters/wikidata_view.py`): source and licence, every request sent
+  (method and full URL, SPARQL text included), the work with its Wikidata page, the related works with their pages,
+  alternatives, what could not be read.
+- **Licence**: Wikidata data is CC0 (official licensing page): no attribution is required, the interface names the
+  source with a link anyway. The Query Service terms and rate limits were not read in full.
+- **Checks**: `tests/test_wikidata_*.py tests/test_http_call_trace.py` run offline with a fake transport. The
+  queries ran live on 2026-10-29 (`live_smoke`, 8 requests): they are accepted and the film, series and literary
+  work classes work; the ids of the classes film project, video game and comic were not seen at work. Homonyms are
+  found by exact label (the text search ranks by notoriety and hid a 1996 film behind a 2004 one) and a single fit in a
+  cut list is never presented as certain. Alternatives are listed up to 5 (oldest first); the others are counted
+  ("+N more not shown") and a list cut at its search limit is flagged partial, so a complete list is told apart from a partial one. The routing with a real LLM was not evaluated:
+  `python -m movie_db.harness.evaluation.run_routing_eval --live --tool wikidata_search` (LLM credits) needs permission.
 
 ## Wikipedia Tool (`wikipedia_search`)
 

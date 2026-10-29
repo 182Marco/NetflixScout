@@ -202,6 +202,7 @@ const W = "tool/wikipedia/";
 const Y = "tool/youtube/";
 const O = "tool/omdb/";
 const TV = "tool/tvmaze/";
+const WD = "tool/wikidata/";
 
 const LAYERS = {
   entry:  { label: "Entry point",            color: "#b48cff" },
@@ -218,6 +219,7 @@ const LAYERS = {
   wikipedia: { label: "Tool Wikipedia",        color: "#89ddff" },
   omdb:   { label: "Tool OMDb",              color: "#ffa07a" },
   tvmaze: { label: "Tool TVmaze",            color: "#d7a8ff" },
+  wikidata: { label: "Tool Wikidata",          color: "#a8e6cf" },
   web:    { label: "Server web / liste",     color: "#e06c75" },
 };
 
@@ -420,7 +422,7 @@ const TREE = D("NetflixScout", {}, [
   D("tool", {
     L: "cfg",
     s: "Tutti i tool in-process dell'orchestratore, un pacchetto per ciascuno.",
-    d: `Qui sta il codice dei tool: <code>rag</code>, <code>movie_db</code>, <code>tmdb</code>, <code>wikipedia</code>, <code>youtube</code>, <code>omdb</code>, <code>tvmaze</code>. Un tool nuovo si aggiunge come <code>tool/&lt;nome&gt;/</code>. Dentro <code>tool/</code> gli import sono relativi (un tool importa solo sé stesso, mai un altro tool, i presenter o i canali; unico modulo del nucleo ammesso: <code>turn</code>) e li collega solo <code>app.py</code>. Restano fuori, per scelta: <code>movie_db/</code> (il database), <code>dbVettoriale/</code>, <code>presenters/</code>, <code>web_api/</code>, <code>web_lists/</code> e <code>tests/</code>.`,
+    d: `Qui sta il codice dei tool: <code>rag</code>, <code>movie_db</code>, <code>tmdb</code>, <code>wikipedia</code>, <code>youtube</code>, <code>omdb</code>, <code>tvmaze</code>, <code>wikidata</code>. Un tool nuovo si aggiunge come <code>tool/&lt;nome&gt;/</code>. Dentro <code>tool/</code> gli import sono relativi (un tool importa solo sé stesso, mai un altro tool, i presenter o i canali; unico modulo del nucleo ammesso: <code>turn</code>) e li collega solo <code>app.py</code>. Restano fuori, per scelta: <code>movie_db/</code> (il database), <code>dbVettoriale/</code>, <code>presenters/</code>, <code>web_api/</code>, <code>web_lists/</code> e <code>tests/</code>.`,
     n: ["<code>tests/test_tool_package.py</code> verifica il layout e le regole sugli import."],
   }, [
     F("__init__.py", { L: "cfg", s: "Docstring dell'elenco dei tool.", d: `Nessun codice.` }),
@@ -924,6 +926,33 @@ const TREE = D("NetflixScout", {}, [
     F("identify.py", { L: "tvmaze", s: "Quale serie identifica una ricerca per titolo.", d: `Titolo uguale (l'articolo conta) ed eventuale anno della prima messa in onda; più serie → <code>ambiguous</code>, solo titoli simili → <code>unverified</code>.` }),
     F("normalize.py", { L: "tvmaze", s: "JSON TVmaze → dati ridotti.", d: `HTML della sinossi tolto, riassunti degli episodi mai letti, righe e cast limitati.` }),
     F("trace.py", { L: "tvmaze", s: "Step <code>tvmaze_calls</code>.", d: `Chiamate, stato, serie con link, licenza e alternative. Fuori da <code>metadata</code>.`, dep: ["turn.py"] }),
+  ]),
+
+  D("wikidata", {
+    L: "wikidata",
+    s: "Tool <code>wikidata_search</code>: distingue opere omonime e legge le relazioni dichiarate tra opere di UN film o UNA serie.",
+    d: `Ottavo tool dell'orchestratore, <b>in-process</b>: nessuna chiave, nessun MCP, nessuna dipendenza nuova, nessun import da altri tool. Il planner compila <code>operation</code> (<code>resolve</code> o <code>relations</code>), <code>title</code> (con <code>year</code>, <code>director</code>, <code>type</code>, <code>imdb_id</code>, <code>tmdb_id</code> solo se noti) e il codice fa il resto: ricerca di entità, dettagli, relazioni (fonte, opere basate su, precedente e successiva nella serie) e membri del franchise con <b>query SPARQL predefinite</b>, mai scritte dal modello. Filtra opere non uscite, duplicati e tipi irrilevanti; non integra premi, cast né trama.`,
+    n: [
+      "<code>CONFIG[\"wikidata\"]</code> ha solo <code>max_calls_per_turn</code> (8), contate sul <code>turn_id</code>: un titolo costa 2 richieste per identificarlo, un ID 1, le relazioni 1, il franchise 1. Dopo un 429 una pausa in memoria, nessun retry, nessuna cache.",
+      "Dati CC0: nessuna attribuzione richiesta, l'interfaccia mostra comunque la fonte con i link alle pagine Wikidata e alla licenza. Le relazioni sono quelle registrate: un elenco può essere incompleto.",
+      "Smoke test live del 2026-10-29 superato (query composte accettate, classi film, serie e opera letteraria funzionanti). Gli omonimi si leggono per etichetta esatta (la ricerca di testo nascondeva un film del 1996). Le alternative oltre le 5 mostrate sono contate e un elenco tagliato è segnalato come parziale. Non verificati gli id di progetto, videogioco e fumetto; <code>run_routing_eval --live --tool wikidata_search</code> non è stato eseguito.",
+    ],
+  }, [
+    F("__init__.py", { L: "wikidata", s: "Docstring del package.", d: `Nessun codice.` }),
+    F("tool.py", { L: "wikidata", s: "<code>WikidataTool</code>: valida l'input, identifica l'opera, legge relazioni e franchise.", d: `<code>run</code> restituisce <code>outcome</code> (<code>ok</code>; <code>empty</code> per opera non identificata o senza relazioni; <code>error</code>), <code>metadata.wikidata</code> (senza id Wikidata né URL), <code>trace</code> e <code>follow_up</code>.`, dep: [WD + "config.py", WD + "errors.py", WD + "http.py", WD + "identify.py", WD + "models.py", WD + "normalize.py", WD + "queries.py", WD + "session.py", WD + "trace.py", "turn.py"] }),
+    F("config.py", { L: "wikidata", s: "<code>WikidataConfig</code>: un solo campo, nessun default.", d: `<code>max_calls_per_turn</code> (1–12); <code>extra="forbid"</code>.`, x: ["pydantic"] }),
+    F("settings.py", { L: "wikidata", s: "Costanti interne, User-Agent e licenza.", d: `URL dei due endpoint, timeout 15 s, limite di righe, opere per gruppo, pausa dopo un 429, nome e URL della licenza CC0.` }),
+    F("errors.py", { L: "wikidata", s: "Errori Wikidata con codici sicuri.", d: `<code>rate_limited</code>, <code>turn_limit</code>, <code>timeout</code>, <code>network_error</code>, <code>http_error</code>, <code>response_too_large</code>; mai URL né testo SPARQL.` }),
+    F("http.py", { L: "wikidata", s: "<b>Unico</b> punto di I/O verso Wikidata: memo → pausa 429 → budget → registrazione → invio.", d: `Allowlist dei due endpoint, nessun retry. L'URL registrato è quello inviato, testo SPARQL compreso.`, dep: [WD + "errors.py", WD + "queries.py", WD + "session.py", WD + "settings.py", "turn.py"] }),
+    F("session.py", { L: "wikidata", s: "Sessione del turno (budget, memo, chiamate) e pausa dopo un 429.", d: `<code>HttpSession</code>, <code>TurnSessions</code> e <code>RateLimitPause</code> condivisa dal processo.` }),
+    F("models.py", { L: "wikidata", s: "<code>WikidataToolInput</code>.", d: `<code>operation</code>, <code>title</code>, <code>language</code>, <code>year</code>, <code>director</code>, <code>type</code>, <code>imdb_id</code>, <code>tmdb_id</code>; serve un titolo o un ID, e <code>type</code> con <code>tmdb_id</code>.`, x: ["pydantic"] }),
+    F("queries.py", { L: "wikidata", s: "Richieste da frammenti costanti.", d: `Funzioni pure; nel SPARQL entrano solo id validati; il titolo dell'utente è solo il parametro <code>search</code>.`, dep: [WD + "models.py", WD + "settings.py"] }),
+    F("identify.py", { L: "wikidata", s: "Quale opera identifica un titolo o un ID.", d: `Titolo (l'articolo conta), anno e regista devono combaciare; un dato mancante non è una corrispondenza. Più opere → <code>ambiguous</code>, solo simili → <code>unverified</code>.`, dep: [WD + "normalize.py", WD + "settings.py"] }),
+    F("normalize.py", { L: "wikidata", s: "Righe SPARQL → opere unite, filtrate e ordinate.", d: `Una riga per data, regista o ID diventa un solo elemento; scartati tipi irrilevanti, senza etichetta, progetti e opere non ancora uscite; gruppi tagliati a 12.`, dep: [WD + "queries.py", WD + "settings.py"] }),
+    F("trace.py", { L: "wikidata", s: "Step <code>wikidata_calls</code>.", d: `Chiamate, stato, opera con link, relazioni con link, franchise, alternative e licenza. Fuori da <code>metadata</code>.`, dep: [WD + "normalize.py", WD + "settings.py", "turn.py"] }),
+    D("harness", { L: "test", s: "Controllo live facoltativo, mai importato a runtime.", d: `Tre esecuzioni reali del tool (circa 9 richieste). Mai eseguito; richiede <code>--live</code> e il permesso del proprietario.` }, [
+      F("live_smoke.py", { L: "test", api: 1, s: "Controllo live: 3 esecuzioni di <code>wikidata_search</code>.", d: `Stampa stato, numero di richieste, tempo e forma dei gruppi, per confermare le query composte e gli id delle classi.` }),
+    ]),
   ]),
 
   D("youtube", {
@@ -1453,6 +1482,12 @@ const TREE = D("NetflixScout", {}, [
       dep: ["turn.py", "presenters/calls_view.py"],
       x: ["pydantic"],
     }),
+    F("wikidata_view.py", {
+      L: "out", s: "Vista condivisa dello step <code>wikidata_calls</code>: etichette it/en/de, opera con link, relazioni per gruppo, licenza, alternative.",
+      d: `<code>wikidata_calls_view(step, language)</code> → <code>WikidataCallsView</code>: fonte Wikidata con la licenza CC0, chiamate, stato, opera con il link alla pagina, gruppi di relazioni (ogni opera col suo link), cosa non è stato letto, alternative con anno, regia e ID. Offre solo link a <code>www.wikidata.org</code> e <code>creativecommons.org</code>; nessun import del pacchetto del tool.`,
+      dep: ["turn.py", "presenters/calls_view.py"],
+      x: ["pydantic"],
+    }),
     F("omdb_view.py", {
       L: "out", s: "Vista condivisa dello step <code>omdb_calls</code>: etichette it/en/de, punteggi, alternative.",
       d: `<code>omdb_calls_view(step, language)</code> → <code>OmdbCallsView</code>: fonte OMDb, chiamata mascherata, stato, ogni punteggio (IMDb, Metascore, Rotten Tomatoes) con la scala e ciò che misura, «non disponibile» per i valori mancanti, le alternative di un titolo ambiguo. Legge solo <code>step.data</code> e toglie i caratteri di controllo dalla copia mostrata.`,
@@ -1557,6 +1592,14 @@ const TREE = D("NetflixScout", {}, [
         F("blocks.py", { L: "out", s: "<code>print_tvmaze_calls(view)</code>.", d: `Stampa la vista nel formato del terminale.`, dep: ["presenters/tvmaze_view.py", "presenters/terminal/box.py"] }),
         F("renderer.py", { L: "out", s: "<code>render_tvmaze_calls(step, language)</code>.", d: `Costruisce la vista con <code>tvmaze_calls_view</code> e la passa a <code>blocks.print_tvmaze_calls</code>.`, dep: ["presenters/tvmaze_view.py", "presenters/terminal/tvmaze/blocks.py", "turn.py"] }),
       ]),
+      D("wikidata", {
+        L: "out", s: "Output da terminale del tool Wikidata: box 🕸️ WIKIDATA.",
+        d: `Stampa la vista condivisa <code>wikidata_view</code> (la stessa che serializza il web): fonte con licenza, ogni chiamata, opera con link, relazioni, alternative e licenza.`,
+      }, [
+        F("__init__.py", { L: "out", s: "Re-esporta <code>render_wikidata_calls</code>.", d: `<code>render_wikidata_calls</code> è registrato in <code>STEP_RENDERERS</code>.`, dep: ["presenters/terminal/wikidata/renderer.py"] }),
+        F("blocks.py", { L: "out", s: "<code>print_wikidata_calls(view)</code>.", d: `Stampa la vista nel formato del terminale.`, dep: ["presenters/wikidata_view.py", "presenters/terminal/box.py"] }),
+        F("renderer.py", { L: "out", s: "<code>render_wikidata_calls(step, language)</code>.", d: `Costruisce la vista con <code>wikidata_calls_view</code> e la passa a <code>blocks.print_wikidata_calls</code>.`, dep: ["presenters/wikidata_view.py", "presenters/terminal/wikidata/blocks.py", "turn.py"] }),
+      ]),
       D("youtube", {
         L: "out", s: "Output da terminale del tool YouTube: box ▶️ YOUTUBE.",
         d: `Stampa la vista condivisa <code>youtube_view</code> (la stessa che serializza il web): fonte YouTube, chiamate mascherate, query e scarti per motivo di ogni categoria, una riga breve “Non cercato: …” con le sole categorie (senza motivo), pausa di quota, poi per ogni categoria i video confermati e, sotto “Da verificare”, quelli incerti nell'ordine ricevuto, con note e suggerimenti (anno, titolo originale). Etichette it/en; interviste al regista e al cast distinte. Non importa mai il package <code>youtube</code>.`,
@@ -1639,6 +1682,13 @@ const TREE = D("NetflixScout", {}, [
       }, [
         F("__init__.py", { L: "out", s: "Re-esporta <code>serialize_tvmaze_calls_step</code>.", d: `API del sotto-canale.`, dep: ["presenters/web/tvmaze/serializer.py"] }),
         F("serializer.py", { L: "out", s: "<code>serialize_tvmaze_calls_step(step, language)</code> → <code>{kind, ...TvmazeCallsView}</code>.", d: `Stesso contenuto del terminale, da <code>tvmaze_view</code>.`, dep: ["presenters/tvmaze_view.py", "turn.py"] }),
+      ]),
+      D("wikidata", {
+        L: "out", s: "Serializzazione JSON dello step <code>wikidata_calls</code>.",
+        d: `Registrata in <code>STEP_SERIALIZERS</code> di <code>payload.py</code>. Il frontend deve nominare Wikidata come fonte (<code>source</code>, con la licenza), linkare l'opera (<code>work.url</code>), le opere collegate (<code>groups[].items[].url</code>) e la licenza (<code>license.url</code>) e mostrare ogni chiamata.`,
+      }, [
+        F("__init__.py", { L: "out", s: "Re-esporta <code>serialize_wikidata_calls_step</code>.", d: `API del sotto-canale.`, dep: ["presenters/web/wikidata/serializer.py"] }),
+        F("serializer.py", { L: "out", s: "<code>serialize_wikidata_calls_step(step, language)</code> → <code>{kind, ...WikidataCallsView}</code>.", d: `Stesso contenuto del terminale, da <code>wikidata_view</code>.`, dep: ["presenters/wikidata_view.py", "turn.py"] }),
       ]),
       D("youtube", {
         L: "out", s: "Serializzazione JSON dello step <code>youtube_calls</code>.",
@@ -1814,6 +1864,12 @@ const TREE = D("NetflixScout", {}, [
     F("test_tvmaze_app.py", { L: "test", s: "Registrazione, regola 1e, <code>content_type=series</code>, regola finale e ripiego verso TMDb.", d: `Controlla i testi dei prompt e il cablaggio, non la scelta del planner reale: la regola 1 rimanda alla 1e, la preferenza non obbliga a usare TVmaze, un solo passo verso TMDb.` }),
     F("test_tvmaze_routing_eval.py", { L: "test", s: "Casi di routing TVmaze e confini con TMDb, e controllo degli argomenti pianificati.", d: `Solo la parte offline (nessun LLM): <code>check_tvmaze</code> valida gli argomenti come <code>TvmazeToolInput</code>; gli episodi senza <code>season</code> non passano. Il planner reale si misura solo con <code>--live --tool tvmaze_search</code>, con permesso.` }),
     F("test_tvmaze_presenters.py", { L: "test", s: "Vista condivisa, terminale e web dello step <code>tvmaze_calls</code> e turno completo.", d: `Lingue it/en/de, link di attribuzione solo agli host attesi, nessun import del pacchetto del tool.` }),
+    F("test_wikidata_pure.py", { L: "test", s: "Richieste, normalizzazione e identificazione del tool Wikidata.", d: `Solo id validati nel SPARQL, righe unite, filtri su non uscite e tipi irrilevanti, omonimi, anno e regista che restringono, dato mancante non è corrispondenza.` }),
+    F("test_wikidata_http.py", { L: "test", s: "HTTP Wikidata: memo, pausa dopo un 429, budget, allowlist degli endpoint, unico punto di I/O.", d: `Nessun retry; errori senza URL né SPARQL; l'URL registrato è quello inviato.` }),
+    F("test_wikidata_tool.py", { L: "test", s: "Tool Wikidata: contratto, resolve, relations, franchise, budget del turno, errori.", d: `Transport finto in <code>wikidata_support.py</code>; il modello non vede id né SPARQL; <code>follow_up</code> e smoke harness inerte senza <code>--live</code>.` }),
+    F("test_wikidata_app.py", { L: "test", s: "Registrazione, regola 1f, regola finale, preferenze e ripiego.", d: `Controlla i testi dei prompt, non cosa sceglie il planner reale.` }),
+    F("test_wikidata_routing_eval.py", { L: "test", s: "Casi di routing Wikidata e confine con TMDb, e controllo degli argomenti pianificati.", d: `Solo la parte offline: nessuna chiamata LLM.` }),
+    F("test_wikidata_presenters.py", { L: "test", s: "Vista condivisa, terminale e web dello step <code>wikidata_calls</code>.", d: `Lingue it/en/de, link solo https sull'host giusto, caratteri di controllo.` }),
     F("test_omdb_tool.py", { L: "test", s: "Tool OMDb: identificazione, punteggi, errori, budget e assenza di cache tra i turni.", d: `ID diretto (una richiesta), titolo (ricerca poi record), titolo ambiguo o non verificato, <code>N/A</code>, errori HTTP/API/timeout, chiave mai nell'output, memo solo nello stesso turno.` }),
     F("test_omdb_app.py", { L: "test", s: "Registrazione, regola 1d (con l'eccezione dei candidati «ottime recensioni»), preferenza «recensioni» e turno completo con client finti.", d: `Controlla i testi dei prompt e il cablaggio, non la scelta del planner reale. Include le regressioni della verifica live: formato <code>display</code>, nessun vincitore tra scale, budget di 10 richieste per cinque titoli.` }),
     F("test_answer_provenance_rules.py", { L: "test", s: "Il testo per l'utente non nomina fonti o provider.", d: `Legge i prompt di risposta: nessuna istruzione chiede «voto TMDb», «su YouTube», «MovieLens non distingue»…; regola generale con divieto anche come aggettivo e nomi di punteggio ammessi solo come nome; regola OMDb (pubblico e critica distinti, <code>display</code>, nessun vincitore tra scale); il risultato OMDb nel prompt non porta il nome del servizio. Mostra le istruzioni, non ciò che il modello scrive (osservato dal vivo).` }),
