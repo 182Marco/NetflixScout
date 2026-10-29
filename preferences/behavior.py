@@ -114,9 +114,11 @@ CONTENT_PLANNER: Final[dict[str, str]] = {
         "usa le operazioni per film (movie_details, discover_movies, search con kind movie)."
     ),
     "series": (
-        "Tipo di contenuto preferito: serie TV. Se la richiesta non dice film o serie, per "
-        "tmdb_search usa le operazioni per serie (tv_details, discover_tv, search con kind tv) e "
-        "non scegliere rag_search, che copre solo film, né movie_db_search per cercare serie."
+        "Tipo di contenuto preferito: serie TV. Se la richiesta non dice film o serie, trattala come "
+        "una richiesta su serie: per tmdb_search usa le operazioni per serie (tv_details, discover_tv, "
+        "search con kind tv), non scegliere rag_search, che copre solo film, né movie_db_search per "
+        "cercare serie. I dati strutturati di una serie identificata seguono la regola 1e; la "
+        "preferenza non obbliga a usare tvmaze_search per ogni domanda sulle serie."
     ),
 }
 
@@ -162,6 +164,12 @@ SOURCE_TOOLS: Final[dict[str, str]] = {
     # first for `user ratings`. No review text (TMDb `reviews` has user reviews), no spoilers (the plot
     # field is never read), films and series.
     "omdb_search": "reviews",
+    # TVmaze carries structured data of series (status, network, dates, seasons, episodes, cast): the
+    # closest of the four preferences is `official information`, but the data is edited by a community,
+    # not issued by the producers: to be reconsidered on real records (open question, AGENTS.md). No
+    # reviews, ratings or interviews (its rating field is not read), no episode summaries (spoilers),
+    # series only, so overlap is with tmdb_search on series details, where the routing rule 1e decides.
+    "tvmaze_search": "official information",
 }
 
 SOURCES_PLANNER: Final[dict[str, str]] = {

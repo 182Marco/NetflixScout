@@ -29,6 +29,8 @@ from tool.rag.FromQueryEmbeddingToRes.vectorstore import apri_collection
 from tool.tmdb.config import load_tmdb_config
 from tool.omdb.config import load_omdb_config
 from tool.omdb.tool import OmdbTool
+from tool.tvmaze.config import load_tvmaze_config
+from tool.tvmaze.tool import TvmazeTool
 from tool.tmdb.enrich import TmdbRagEnricher
 from tool.tmdb.film_record import read_film, read_film_record
 from tool.tmdb.operations.resolve import ALTERNATIVE_TITLE_MATCH
@@ -86,8 +88,8 @@ CONFIG = {
             "1) tmdb_search è il punto di partenza per ogni richiesta informativa su un film o una "
             "serie identificati da un titolo o da riferimenti sufficienti a individuarli: domande "
             "generiche come 'parlami di Arrival' o 'dimmi qualcosa su Dune', di cosa parla, chi ha "
-            "diretto, chi recita nel cast, troupe, durata, data di uscita, dettagli, dove vederlo in "
-            "streaming, trailer (link ufficiali TMDb), immagini, recensioni, stagioni ed episodi, "
+            "diretto, chi recita nel cast (di un film), troupe, durata, data di uscita, dettagli, dove vederlo in "
+            "streaming, trailer (link ufficiali TMDb), immagini, recensioni, "
             "persone e filmografie, saghe, case di produzione, trending, novità e ricerche con "
             "filtri. I film di un attore o di un regista e i giudizi della critica (film accolti "
             "bene o male, i meglio o peggio valutati di una persona) sono una ricerca con filtri "
@@ -101,7 +103,10 @@ CONFIG = {
             "appartiene a quale segmento, né i confronti con l'opera da cui un film deriva, né la "
             "trama dettagliata, né l'elenco e l'ordine di uscita di una trilogia o serie di film che "
             "non è una raccolta TMDb: per queste parti vale la regola 1c anche se il film è "
-            "identificato per titolo. "
+            "identificato per titolo. Per una serie identificata, stagioni, episodi, date di messa in onda, "
+            "prossimo episodio, cast e fatti di stato e rete seguono la regola 1e; tutto il resto delle "
+            "serie (descrizione, creatori, streaming, trailer, recensioni, raccomandazioni, elenchi) resta a "
+            "tmdb_search. "
             "1b) youtube_search è il punto di partenza per i video su un film identificato: "
             "interviste al regista (director_interview) o al cast (cast_interview), making-of, dietro "
             "le quinte, backstage e featurette, commenti o spiegazioni degli autori. Per i trailer "
@@ -182,6 +187,24 @@ CONFIG = {
             "omdb_search per ciascuno dei primi cinque candidati (title e year presi dai risultati di "
             "TMDb, mai inventati; more_steps true fino all'ultimo) così la qualità critica è verificata "
             "e non dedotta dal voto del pubblico. "
+            "1e) tvmaze_search dà i dati strutturati di UNA serie TV (non di un film) identificata da un "
+            "titolo. Scegli tvmaze_search come primo tool per: stagioni (quante sono, episodi per stagione, "
+            "date), elenco e numerazione degli episodi di una stagione o un singolo episodio con la sua data "
+            "di messa in onda, prossimo episodio, cast e personaggi, e fatti come in onda o conclusa, "
+            "rete o canale, data di inizio o di fine, durata degli episodi, lingua e generi. Non sceglierlo "
+            "per: descrizione o trama in italiano ('parlami di X'), creatori, dove vederla in streaming, "
+            "trailer e video, recensioni, raccomandazioni e 'serie simili a X', elenchi, classifiche e "
+            "ricerche con filtri (restano a tmdb_search, regola 1), punteggi (1d e 2), storia e produzione "
+            "approfondite (1c), film. Se la richiesta mescola dati strutturati e questi altri temi, in parts "
+            "metti tvmaze_search per i dati strutturati e tmdb_search per il resto. Una fonte chiesta "
+            "esplicitamente dall'utente vince sempre. Il tipo di contenuto preferito «serie» fa trattare "
+            "come serie un titolo ambiguo tra film e serie, ma non obbliga a usare tvmaze_search: decide "
+            "l'intento della domanda. Per tvmaze_search compila arguments con title e facets (info, cast, "
+            "seasons, episodes con season, next) e year solo se la richiesta o la conversazione lo danno. "
+            "Se tvmaze_search non trova la serie o non è disponibile (il tool lo segnala) fai UN solo passo "
+            "successivo con tmdb_search (tv_details, tv_season o tv_episode) e mai un secondo tentativo con "
+            "tvmaze_search; se il tool segnala che il titolo è ambiguo non cercare altrove: la scelta è "
+            "dell'utente. "
             "2) movie_db_search è il punto di partenza per voti, valutazioni, classifiche, numero di "
             "voti, confronti basati sui punteggi, film per genere e anno ordinati per voto e tag "
             "degli utenti di MovieLens. MovieLens contiene solo voti e tag degli utenti: nessun "
@@ -358,6 +381,18 @@ CONFIG = {
                 "'original_title', di' in una frase che indicare il titolo originale può aiutare, "
                 "senza proporne uno. Non mescolare link TMDb e YouTube."
             ),
+            "tvmaze_search": (
+                "Se il tool usato è tvmaze_search, riporta stagioni, episodi, date, durata, stato, rete e "
+                "cast esattamente come stanno nei metadata, senza nominare la provenienza dei dati e senza "
+                "aggiungere episodi, date o personaggi che non vi compaiono. Le date sono quelle di messa "
+                "in onda originale. Un dato assente (per esempio nessun prossimo episodio elencato o una "
+                "data mancante) si dichiara non disponibile e non si stima. Se compare unavailable, di' "
+                "quali dati non è stato possibile leggere. Se i risultati contengono anche altri dati sulla "
+                "stessa serie e per stagioni, episodi, date o cast i valori differiscono, riporta quelli di "
+                "questo tool e di' in una frase che le fonti non coincidono, senza medie né conversioni. Se "
+                "il titolo è ambiguo elenca le alternative (nome, anno, canale) e chiedi quale intende. Non "
+                "hai le trame dei singoli episodi: non inventarle."
+            ),
             "omdb_search": (
                 "Se il tool usato è omdb_search, riporta solo i punteggi presenti nei metadata, uno per "
                 "fonte, dicendo che cosa misurano (voto del pubblico o punteggio della critica) senza nominare mai "
@@ -411,7 +446,7 @@ CONFIG = {
         "memory_window_size": 12,
         # Last history messages shown to the domain classifier, so follow-ups are not blocked.
         "classifier_context_messages": 2,
-        "allowed_tools": ["rag_search", "movie_db_search", "tmdb_search", "youtube_search", "wikipedia_search", "omdb_search"],
+        "allowed_tools": ["rag_search", "movie_db_search", "tmdb_search", "youtube_search", "wikipedia_search", "omdb_search", "tvmaze_search"],
         "required_tools": [],
         "tool_confidence_threshold": 0.6,
         "fallback_tool": "rag_search",
@@ -552,6 +587,12 @@ CONFIG = {
     "omdb": {
         "max_calls_per_turn": 10,
     },
+    # Only this: timeout, User-Agent and the other constants are internal to tool/tvmaze/. Identifying a series
+    # costs 1 request; the card with cast or next episode, the seasons and the episodes one each (4 at most per run).
+    # TVmaze documents at least 20 calls every 10 seconds per IP address; no key.
+    "tvmaze": {
+        "max_calls_per_turn": 6,
+    },
     # `context_chars_per_turn` protects the final prompt, it does not cap what can be fetched:
     # an article is downloaded whole and handed out section by section (tool/wikipedia/sections.py).
     "wikipedia": {
@@ -687,6 +728,7 @@ def build_app(overrides: dict[str, Any] | None = None) -> dict[str, Any]:
     tools.append(YoutubeTool(config=load_youtube_config(runtime_config["you_tube"])))
     tools.append(WikipediaTool(config=load_wikipedia_config(runtime_config["wikipedia"])))
     tools.append(OmdbTool(config=load_omdb_config(runtime_config["omdb"])))
+    tools.append(TvmazeTool(config=load_tvmaze_config(runtime_config["tvmaze"])))
     enrichment = runtime_config["orchestrator"].get("rag_enrichment") or {}
     enrichers = {}
     if enrichment.get("enabled"):
