@@ -201,6 +201,7 @@ const T = "tool/tmdb/";
 const W = "tool/wikipedia/";
 const Y = "tool/youtube/";
 const O = "tool/omdb/";
+const TV = "tool/tvmaze/";
 
 const LAYERS = {
   entry:  { label: "Entry point",            color: "#b48cff" },
@@ -216,6 +217,7 @@ const LAYERS = {
   youtube: { label: "Tool YouTube",          color: "#ffcb6b" },
   wikipedia: { label: "Tool Wikipedia",        color: "#89ddff" },
   omdb:   { label: "Tool OMDb",              color: "#ffa07a" },
+  tvmaze: { label: "Tool TVmaze",            color: "#d7a8ff" },
   web:    { label: "Server web / liste",     color: "#e06c75" },
 };
 
@@ -418,7 +420,7 @@ const TREE = D("NetflixScout", {}, [
   D("tool", {
     L: "cfg",
     s: "Tutti i tool in-process dell'orchestratore, un pacchetto per ciascuno.",
-    d: `Qui sta il codice dei tool: <code>rag</code>, <code>movie_db</code>, <code>tmdb</code>, <code>wikipedia</code>, <code>youtube</code>, <code>omdb</code>. Un tool nuovo si aggiunge come <code>tool/&lt;nome&gt;/</code>. Dentro <code>tool/</code> gli import sono relativi (un tool importa solo sé stesso, mai un altro tool, i presenter o i canali; unico modulo del nucleo ammesso: <code>turn</code>) e li collega solo <code>app.py</code>. Restano fuori, per scelta: <code>movie_db/</code> (il database), <code>dbVettoriale/</code>, <code>presenters/</code>, <code>web_api/</code>, <code>web_lists/</code> e <code>tests/</code>.`,
+    d: `Qui sta il codice dei tool: <code>rag</code>, <code>movie_db</code>, <code>tmdb</code>, <code>wikipedia</code>, <code>youtube</code>, <code>omdb</code>, <code>tvmaze</code>. Un tool nuovo si aggiunge come <code>tool/&lt;nome&gt;/</code>. Dentro <code>tool/</code> gli import sono relativi (un tool importa solo sé stesso, mai un altro tool, i presenter o i canali; unico modulo del nucleo ammesso: <code>turn</code>) e li collega solo <code>app.py</code>. Restano fuori, per scelta: <code>movie_db/</code> (il database), <code>dbVettoriale/</code>, <code>presenters/</code>, <code>web_api/</code>, <code>web_lists/</code> e <code>tests/</code>.`,
     n: ["<code>tests/test_tool_package.py</code> verifica il layout e le regole sugli import."],
   }, [
     F("__init__.py", { L: "cfg", s: "Docstring dell'elenco dei tool.", d: `Nessun codice.` }),
@@ -897,6 +899,30 @@ const TREE = D("NetflixScout", {}, [
     }, [
       F("live_smoke.py", { L: "test", api: 1, s: `Controllo live: forma delle risposte OMDb (6 richieste).`, d: `Stampa solo la forma (campi, fonti, testi d'errore dell'API), mai la chiave né l'URL. Eseguito il 2026-10-28.`, cmd: `python -m tool.omdb.harness.live_smoke --live` }),
     ]),
+  ]),
+
+  D("tvmaze", {
+    L: "tvmaze",
+    s: "Tool <code>tvmaze_search</code>: dati strutturati di UNA serie TV identificata (stato, rete, date, cast, stagioni, episodi, prossimo episodio).",
+    d: `Settimo tool dell'orchestratore, <b>in-process</b>: nessuna chiave, nessun MCP, nessuna dipendenza nuova, nessun import da <code>tmdb/</code>. Il planner compila <code>title</code> (con <code>year</code> solo se noto) e le <code>facets</code> (<code>info</code>, <code>cast</code>, <code>seasons</code>, <code>episodes</code> con <code>season</code>, <code>next</code>). Si sceglie con la regola 1e solo per stagioni, episodi, numerazione, date, prossimo episodio, cast e fatti di stato e rete; descrizioni, streaming, trailer, raccomandazioni e film restano a TMDb. Se la serie non si trova o TVmaze non risponde, il risultato offre un solo passo verso <code>tmdb_search</code> (<code>follow_up</code>). Nessuna cache tra i turni, nulla su disco.`,
+    n: [
+      "<code>CONFIG[\"tvmaze\"]</code> ha solo <code>max_calls_per_turn</code> (6), contate sul <code>turn_id</code>. TVmaze documenta almeno 20 chiamate ogni 10 secondi per IP; dopo un 429 una pausa in memoria, nessun retry.",
+      "Dati CC BY-SA: l'interfaccia mostra la fonte, il link alla pagina della serie e la licenza. Le questioni di ShareAlike sul testo generato sono ancora aperte (vedi <code>AGENTS.md</code>).",
+      "Non verificato dal vivo: nessuno smoke test, routing eval o E2E con servizi reali è stato eseguito.",
+    ],
+  }, [
+    F("__init__.py", { L: "tvmaze", s: "Docstring del package.", d: `Nessun codice.` }),
+    F("tool.py", { L: "tvmaze", s: "<code>TvmazeTool</code>: valida l'input, identifica la serie, legge scheda, stagioni ed episodi.", d: `<code>run</code> restituisce <code>outcome</code> (<code>ok</code>; <code>empty</code> per <code>not_found</code>, <code>unverified</code>, <code>ambiguous</code>; <code>error</code>), <code>metadata.tvmaze</code> (senza URL né nome del servizio) e la trace. Una sezione che fallisce finisce in <code>unavailable</code> senza far perdere le altre; il <code>follow_up</code> verso TMDb si offre per serie non trovata o non verificata e per errori di limite, rete o risposta.`, dep: [TV + "http.py", TV + "identify.py", TV + "normalize.py", TV + "queries.py", TV + "session.py", "turn.py"] }),
+    F("config.py", { L: "tvmaze", s: "<code>TvmazeConfig</code>: un solo campo, nessun default.", d: `<code>max_calls_per_turn</code> (1–10); <code>extra="forbid"</code>.`, x: ["pydantic"] }),
+    F("settings.py", { L: "tvmaze", s: "Costanti interne, User-Agent e licenza.", d: `URL base costante, timeout 8 s, dimensione massima della risposta, righe consegnate, pausa dopo un 429, nome e URL della licenza CC BY-SA 4.0.` }),
+    F("errors.py", { L: "tvmaze", s: "Errori TVmaze con codici sicuri.", d: `<code>rate_limited</code>, <code>turn_limit</code>, <code>timeout</code>, <code>network_error</code>, <code>http_error</code>, <code>response_too_large</code>.` }),
+    F("http.py", { L: "tvmaze", s: "<b>Unico</b> punto di I/O verso TVmaze: memo → pausa 429 → budget → registrazione → invio.", d: `Allowlist dei percorsi, 404 come risposta, nessun retry. L'URL registrato è quello inviato.`, dep: [TV + "errors.py", TV + "queries.py", TV + "session.py", TV + "settings.py", "turn.py"] }),
+    F("session.py", { L: "tvmaze", s: "Sessione del turno (budget, memo, chiamate) e pausa dopo un 429.", d: `<code>HttpSession</code>, <code>TurnSessions</code> (una per <code>turn_id</code>, scartata dopo 16 turni) e <code>RateLimitPause</code> condivisa dal processo.` }),
+    F("models.py", { L: "tvmaze", s: "<code>TvmazeToolInput</code>.", d: `<code>title</code>, <code>year</code>, <code>facets</code>, <code>season</code>, <code>episode</code>; <code>episodes</code> richiede <code>season</code>.`, x: ["pydantic"] }),
+    F("queries.py", { L: "tvmaze", s: "Percorsi e parametri come costanti.", d: `Funzioni pure; il titolo dell'utente compare solo come valore di <code>q</code>.` }),
+    F("identify.py", { L: "tvmaze", s: "Quale serie identifica una ricerca per titolo.", d: `Titolo uguale (l'articolo conta) ed eventuale anno della prima messa in onda; più serie → <code>ambiguous</code>, solo titoli simili → <code>unverified</code>.` }),
+    F("normalize.py", { L: "tvmaze", s: "JSON TVmaze → dati ridotti.", d: `HTML della sinossi tolto, riassunti degli episodi mai letti, righe e cast limitati.` }),
+    F("trace.py", { L: "tvmaze", s: "Step <code>tvmaze_calls</code>.", d: `Chiamate, stato, serie con link, licenza e alternative. Fuori da <code>metadata</code>.`, dep: ["turn.py"] }),
   ]),
 
   D("youtube", {
@@ -1420,6 +1446,12 @@ const TREE = D("NetflixScout", {}, [
       dep: ["turn.py"],
       x: ["pydantic"],
     }),
+    F("tvmaze_view.py", {
+      L: "out", s: "Vista condivisa dello step <code>tvmaze_calls</code>: etichette it/en/de, serie con link, licenza, alternative.",
+      d: `<code>tvmaze_calls_view(step, language)</code> → <code>TvmazeCallsView</code>: fonte TVmaze con la licenza, chiamate, stato, serie con il link alla pagina, cosa è stato letto e il link alla licenza CC BY-SA 4.0. Offre solo link a <code>www.tvmaze.com</code> e <code>creativecommons.org</code>. Legge solo <code>step.data</code>.`,
+      dep: ["turn.py", "presenters/calls_view.py"],
+      x: ["pydantic"],
+    }),
     F("omdb_view.py", {
       L: "out", s: "Vista condivisa dello step <code>omdb_calls</code>: etichette it/en/de, punteggi, alternative.",
       d: `<code>omdb_calls_view(step, language)</code> → <code>OmdbCallsView</code>: fonte OMDb, chiamata mascherata, stato, ogni punteggio (IMDb, Metascore, Rotten Tomatoes) con la scala e ciò che misura, «non disponibile» per i valori mancanti, le alternative di un titolo ambiguo. Legge solo <code>step.data</code> e toglie i caratteri di controllo dalla copia mostrata.`,
@@ -1516,6 +1548,14 @@ const TREE = D("NetflixScout", {}, [
         F("blocks.py", { L: "out", s: "<code>print_omdb_calls(view)</code>.", d: `Stampa la vista nel formato del terminale.`, dep: ["presenters/omdb_view.py", "presenters/terminal/box.py"] }),
         F("renderer.py", { L: "out", s: "<code>render_omdb_calls(step, language)</code>.", d: `Costruisce la vista con <code>omdb_calls_view</code> e la passa a <code>blocks.print_omdb_calls</code>.`, dep: ["presenters/omdb_view.py", "presenters/terminal/omdb/blocks.py", "turn.py"] }),
       ]),
+      D("tvmaze", {
+        L: "out", s: "Output da terminale del tool TVmaze: box 📺 TVMAZE.",
+        d: `Stampa la vista condivisa <code>tvmaze_view</code> (la stessa che serializza il web): fonte con licenza, ogni chiamata, serie con link alla pagina, cosa è stato letto, alternative e licenza.`,
+      }, [
+        F("__init__.py", { L: "out", s: "Re-esporta <code>render_tvmaze_calls</code>.", d: `<code>render_tvmaze_calls</code> è registrato in <code>STEP_RENDERERS</code>.`, dep: ["presenters/terminal/tvmaze/renderer.py"] }),
+        F("blocks.py", { L: "out", s: "<code>print_tvmaze_calls(view)</code>.", d: `Stampa la vista nel formato del terminale.`, dep: ["presenters/tvmaze_view.py", "presenters/terminal/box.py"] }),
+        F("renderer.py", { L: "out", s: "<code>render_tvmaze_calls(step, language)</code>.", d: `Costruisce la vista con <code>tvmaze_calls_view</code> e la passa a <code>blocks.print_tvmaze_calls</code>.`, dep: ["presenters/tvmaze_view.py", "presenters/terminal/tvmaze/blocks.py", "turn.py"] }),
+      ]),
       D("youtube", {
         L: "out", s: "Output da terminale del tool YouTube: box ▶️ YOUTUBE.",
         d: `Stampa la vista condivisa <code>youtube_view</code> (la stessa che serializza il web): fonte YouTube, chiamate mascherate, query e scarti per motivo di ogni categoria, una riga breve “Non cercato: …” con le sole categorie (senza motivo), pausa di quota, poi per ogni categoria i video confermati e, sotto “Da verificare”, quelli incerti nell'ordine ricevuto, con note e suggerimenti (anno, titolo originale). Etichette it/en; interviste al regista e al cast distinte. Non importa mai il package <code>youtube</code>.`,
@@ -1591,6 +1631,13 @@ const TREE = D("NetflixScout", {}, [
       }, [
         F("__init__.py", { L: "out", s: "Re-esporta <code>serialize_omdb_calls_step</code>.", d: `API del sotto-canale.`, dep: ["presenters/web/omdb/serializer.py"] }),
         F("serializer.py", { L: "out", s: "<code>serialize_omdb_calls_step(step, language)</code> → <code>{kind, ...OmdbCallsView}</code>.", d: `Stesso contenuto del terminale, da <code>omdb_view</code>.`, dep: ["presenters/omdb_view.py", "turn.py"] }),
+      ]),
+      D("tvmaze", {
+        L: "out", s: "Serializzazione JSON dello step <code>tvmaze_calls</code>.",
+        d: `Registrata in <code>STEP_SERIALIZERS</code> di <code>payload.py</code>. Il frontend deve nominare TVmaze come fonte (<code>source</code>, con la licenza), linkare la pagina della serie (<code>show.url</code>) e la licenza (<code>license.url</code>) e mostrare ogni chiamata.`,
+      }, [
+        F("__init__.py", { L: "out", s: "Re-esporta <code>serialize_tvmaze_calls_step</code>.", d: `API del sotto-canale.`, dep: ["presenters/web/tvmaze/serializer.py"] }),
+        F("serializer.py", { L: "out", s: "<code>serialize_tvmaze_calls_step(step, language)</code> → <code>{kind, ...TvmazeCallsView}</code>.", d: `Stesso contenuto del terminale, da <code>tvmaze_view</code>.`, dep: ["presenters/tvmaze_view.py", "turn.py"] }),
       ]),
       D("youtube", {
         L: "out", s: "Serializzazione JSON dello step <code>youtube_calls</code>.",
@@ -1760,6 +1807,11 @@ const TREE = D("NetflixScout", {}, [
     F("test_tmdb_app.py", { L: "test", s: "Integrazione offline in <code>app.py</code>.", d: `Registrazione del tool e override di <code>CONFIG["tmdb"]</code>; credenziali non lette alla build; step <code>tmdb_calls</code> nel <code>TurnResult</code> con la lingua del turno; il planner vede il catalogo; arguments non validi producono comunque una risposta senza HTTP; il runtime non importa <code>tool/tmdb/harness</code>; le istruzioni di routing assegnano cast e regia solo a TMDb e lasciano al RAG trama, temi, generi, interpretazione e raccomandazioni.`, dep: ["app.py", T + "tool.py", "orchestrator.py"], x: ["pytest"] }),
     F("test_tmdb_auth.py", { L: "test", s: "Credenziali, allowlist del base URL e mascheramento.", d: `Chiave mancante → errore di config; base URL diverso da <code>api.themoviedb.org/3</code> rifiutato; v3 nel parametro, v4 nell'header; URL mostrati mascherati e senza parametri; il segreto non compare in errori di rete, trace o metadata.`, dep: [T + "auth.py", T + "calls.py", T + "http.py"], x: ["pytest"] }),
     F("test_http_call_trace.py", { L: "test", s: "Le chiamate mostrate sono le richieste davvero inviate, per tutti i tool con HTTP.", d: `<code>mask_url</code> (nomi di credenziali, user:password, segreto noto anche percent-encoded, il resto intatto), presenter che mascherano ancora, TMDb/YouTube/Wikipedia/OMDb: ogni richiesta del transport ha una voce con lo stesso URL a meno della chiave, nel payload web e nel terminale; eccezioni del transport con la chiave non trapelano.` }),
+    F("test_tvmaze_tool.py", { L: "test", s: "Tool TVmaze: contratto del risultato, <code>follow_up</code>, sezioni che falliscono, budget del turno.", d: `Transport finto in <code>tvmaze_support.py</code>. Verifica metadata senza URL, trace con licenza, una chiamata per la scheda, nessun riassunto di episodio.` }),
+    F("test_tvmaze_http.py", { L: "test", s: "HTTP TVmaze: memo, pausa dopo un 429, budget, allowlist dei percorsi, unico punto di I/O.", d: `Nessun retry; errori senza URL né catene di eccezioni.` }),
+    F("test_tvmaze_pure.py", { L: "test", s: "Config, input, query, identificazione e normalizzazione del tool TVmaze.", d: `Funzioni pure: titolo con articolo, omonimi per anno, HTML della sinossi, link solo a tvmaze.com.` }),
+    F("test_tvmaze_app.py", { L: "test", s: "Registrazione, regola 1e, <code>content_type=series</code>, regola finale e ripiego verso TMDb.", d: `Controlla i testi dei prompt e il cablaggio, non la scelta del planner reale: la regola 1 rimanda alla 1e, la preferenza non obbliga a usare TVmaze, un solo passo verso TMDb.` }),
+    F("test_tvmaze_presenters.py", { L: "test", s: "Vista condivisa, terminale e web dello step <code>tvmaze_calls</code> e turno completo.", d: `Lingue it/en/de, link di attribuzione solo agli host attesi, nessun import del pacchetto del tool.` }),
     F("test_omdb_tool.py", { L: "test", s: "Tool OMDb: identificazione, punteggi, errori, budget e assenza di cache tra i turni.", d: `ID diretto (una richiesta), titolo (ricerca poi record), titolo ambiguo o non verificato, <code>N/A</code>, errori HTTP/API/timeout, chiave mai nell'output, memo solo nello stesso turno.` }),
     F("test_omdb_app.py", { L: "test", s: "Registrazione, regola 1d (con l'eccezione dei candidati «ottime recensioni»), preferenza «recensioni» e turno completo con client finti.", d: `Controlla i testi dei prompt e il cablaggio, non la scelta del planner reale. Include le regressioni della verifica live: formato <code>display</code>, nessun vincitore tra scale, budget di 10 richieste per cinque titoli.` }),
     F("test_answer_provenance_rules.py", { L: "test", s: "Il testo per l'utente non nomina fonti o provider.", d: `Legge i prompt di risposta: nessuna istruzione chiede «voto TMDb», «su YouTube», «MovieLens non distingue»…; regola generale con divieto anche come aggettivo e nomi di punteggio ammessi solo come nome; regola OMDb (pubblico e critica distinti, <code>display</code>, nessun vincitore tra scale); il risultato OMDb nel prompt non porta il nome del servizio. Mostra le istruzioni, non ciò che il modello scrive (osservato dal vivo).` }),

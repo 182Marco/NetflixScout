@@ -62,14 +62,20 @@ source .venv/bin/activate && uvicorn web_api.main:app --host 127.0.0.1 --port 80
 │       ├── http.py         # the only HTTP module: turn memo → turn budget → send
 │       ├── identify.py     # which work a title search identifies (never by title alone when in doubt)
 │       └── ratings.py      # scores: available / not_available (N/A) / unparsed
+│   └── tvmaze/             # TVmaze tool (tvmaze_search): structured data of one TV series, in-process, no key, no MCP
+│       ├── tool.py         # TvmazeTool: validate → identify the series → read card / seasons / episodes → data + follow_up
+│       ├── http.py         # the only HTTP module: turn memo → rate-limit pause → turn budget → send
+│       ├── session.py      # per-turn budget and memo, process-wide pause after an HTTP 429
+│       ├── identify.py     # which series a title search identifies (never by title alone when in doubt)
+│       └── normalize.py    # TVmaze JSON → the small dicts the model and the presenters read
 ├── presenters/         # the only output layer: present(turn, channel)
 │   ├── channel.py      # OutputChannel (terminal | web)
 │   ├── story_view.py   # the turn story: a few plain sentences (what, where, how it went), it/en
-│   ├── rag_view.py db_view.py api_view.py youtube_view.py wikipedia_view.py omdb_view.py   # channel-neutral views of the tool steps
+│   ├── rag_view.py db_view.py api_view.py youtube_view.py wikipedia_view.py omdb_view.py tvmaze_view.py   # channel-neutral views of the tool steps
 │   ├── terminal/       # box.py, session.py, blocks.py, renderer.py (TerminalObserver, STEP_RENDERERS)
-│   │   └── rag/ db/ api/ youtube/ wikipedia/ omdb/   # blocks.py + renderer.py per tool
+│   │   └── rag/ db/ api/ youtube/ wikipedia/ omdb/ tvmaze/   # blocks.py + renderer.py per tool
 │   └── web/            # observer.py (WebObserver, live events), payload.py (to_payload, STEP_SERIALIZERS)
-│       └── rag/ db/ api/ youtube/ wikipedia/ omdb/   # serializer.py per tool, same shared view as the terminal
+│       └── rag/ db/ api/ youtube/ wikipedia/ omdb/ tvmaze/   # serializer.py per tool, same shared view as the terminal
 ├── web_api/            # HTTP/SSE server (FastAPI): conversations, streamed answer, web_lists; see contracts/
 ├── web_lists/          # web channel only: the lists of films/videos returned with the final answer
 ├── app.py              # CONFIG, build_app, handle_query (no printing) and the terminal chat
@@ -193,7 +199,7 @@ When the collection is available, `app.py` starts an interactive terminal chat.
 Conversation flow:
 
 1. Type a query in terminal.
-2. The domain classifier blocks off-topic and jailbreak requests; otherwise the orchestrator (`orchestrator.py`) rewrites the query as standalone, picks a tool (`rag_search`, `movie_db_search`, `tmdb_search`, `youtube_search`, `wikipedia_search`, `omdb_search`) and may chain more tools in the same turn.
+2. The domain classifier blocks off-topic and jailbreak requests; otherwise the orchestrator (`orchestrator.py`) rewrites the query as standalone, picks a tool (`rag_search`, `movie_db_search`, `tmdb_search`, `youtube_search`, `wikipedia_search`, `omdb_search`, `tvmaze_search`) and may chain more tools in the same turn.
 3. Each step is narrated while it happens, then the final answer is streamed (one LLM call, written only from the tool results).
 4. Conversation history is updated and reused in the next turns.
 5. Type `exit` or `quit` to close.
@@ -464,6 +470,41 @@ setting a critics question goes to OMDb before TMDb. It is never called on every
 - **Checks**: `tests/test_omdb_*.py tests/test_http_call_trace.py tests/test_answer_provenance_rules.py` run offline. `python -m tool.omdb.harness.live_smoke --live` sends 6 real
   requests and prints only the shape of the answers (run on 2026-10-28). The live routing eval does not
   include OMDb cases yet.
+
+## TVmaze Tool (`tvmaze_search`)
+
+A seventh orchestrator tool reads the structured data TVmaze holds for one identified **TV series**:
+status (running or ended), network or web channel, premiere and end dates, runtime, language, genres, a
+short summary, the cast with character names, the seasons, the episodes of one season with numbering and
+air dates, and the upcoming episode. No key, standard library `urllib`, no new dependency, no MCP.
+
+- **Routing** (rule 1e, the only place that says it; rule 1 only points to it): TVmaze for seasons, episodes,
+  numbering, air dates, next episode, cast and the plain facts of a series (running or ended, network, dates,
+  genres). TMDb keeps general descriptions in Italian, creators, streaming, trailers, reviews, recommendations
+  and lists; Wikipedia keeps history and production; films are never routed here. A source named by the
+  user wins. The **Content type: series** setting treats an ambiguous title as the series and excludes the RAG
+  and MovieLens for finding series, but does not force TVmaze: the intent of the question decides.
+- **Missing data and fallback**: a series TVmaze does not know (it holds mostly original or English titles),
+  a rate limit, a timeout or a network error make the tool offer ONE next step to `tmdb_search`; the planner
+  never asks TVmaze twice. A section that fails (say the seasons) does not lose the rest. When both sources are
+  in a turn and disagree on seasons, episodes, dates or cast the answer reports TVmaze and says they differ.
+- **Limits**: `CONFIG["tvmaze"]["max_calls_per_turn"]` (6): identifying a series costs 1 request, the card with
+  cast or next episode, the seasons and the episodes one each. TVmaze documents at least 20 calls every 10
+  seconds per IP address. After an HTTP 429 nothing is sent for a few seconds (`Retry-After` if present, 1-60 s,
+  otherwise 5 s) and there are no retries. Nothing is kept between turns or on disk (no cache): a turn
+  only avoids repeating the same request within itself. Episode summaries are never read (spoilers).
+- **Text**: the answer never names a source (the interface shows it) and does not invent episodes, dates or characters.
+- **Step**: `tvmaze_calls` (shared view `presenters/tvmaze_view.py`): source and licence, every request sent
+  (method and full URL), the series with the link to its TVmaze page, what was read, alternatives.
+- **Licence and attribution**: TVmaze states that its data is licensed CC BY-SA and that the attribution
+  can be satisfied by linking back to TVmaze. The interface shows TVmaze as the source with the link to the series page
+  and to the CC BY-SA 4.0 licence. **Still open, not settled by this project**: whether a text generated by the model from this data is an
+  adaptation covered by ShareAlike; whether the link in the interface, outside the text of the answer, is enough
+  (the answer text never names sources); the effect of sending the data to an external model; the licence
+  of images (not used) and of summaries; the exact wording of the TVmaze terms of use, which were not read in full. To be checked
+  with the owner before any public or commercial use.
+- **Checks**: `tests/test_tvmaze_*.py tests/test_http_call_trace.py` run offline. The live smoke test, the live
+  routing eval and an end-to-end run with real services have **not** been run: they need an explicit authorization.
 
 ## Wikipedia Tool (`wikipedia_search`)
 
