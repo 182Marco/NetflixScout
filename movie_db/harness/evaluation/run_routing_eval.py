@@ -26,6 +26,8 @@ from pydantic import ValidationError
 from orchestrator import CLARIFICATION
 from tool.tmdb.models.requests import TmdbRequest, TmdbToolInput, describe_validation_errors
 from turn import TOOL_PARAM_TURN_LANGUAGE
+from tool.tvmaze.models import TvmazeToolInput
+from tool.tvmaze.models import describe_validation_errors as describe_tvmaze_errors
 from tool.wikipedia.models import WikipediaToolInput
 from tool.wikipedia.models import describe_validation_errors as describe_wikipedia_errors
 from tool.youtube.models import YoutubeToolInput
@@ -36,6 +38,7 @@ from .routing_cases import (
     RagExpectation,
     RequestExpectation,
     RoutingCase,
+    TvmazeExpectation,
     VideoExpectation,
     WikipediaExpectation,
 )
@@ -100,6 +103,8 @@ class RoutingResult:
             return check_any_video(self.case.expected_video, self.arguments, self.standalone_query)
         if self.case.expected_wikipedia is not None:
             return check_any_wikipedia(self.case.expected_wikipedia, self.arguments, self.standalone_query)
+        if self.case.expected_tvmaze is not None:
+            return check_any_tvmaze(self.case.expected_tvmaze, self.arguments, self.standalone_query)
         if self.case.expected_rag is not None:
             return check_rag(self.case.expected_rag, self.arguments)
         return None
@@ -248,6 +253,44 @@ def check_any_wikipedia(
     return None if any(problem is None for problem in problems) else problems[0]
 
 
+def _tvmaze_problem(expected: TvmazeExpectation, request: TvmazeToolInput) -> str | None:
+    if expected.title not in request.title.casefold():
+        return f"title {request.title!r} does not contain {expected.title!r}"
+    missing = [facet for facet in expected.facets if facet not in request.facets]
+    if missing:
+        return f"missing facets {missing}"
+    unexpected = [facet for facet in request.facets if facet not in expected.facets + expected.extra_facets]
+    if unexpected:
+        return f"facets not requested {unexpected}"
+    if request.year is not None and not any(
+        fragment in str(request.year) for field_name, fragment in expected.allowed if field_name == "year"
+    ):
+        return "year not given in the conversation"
+    return None
+
+
+def check_tvmaze(expected: TvmazeExpectation, arguments: Any, standalone_query: str) -> str | None:
+    """Validate planned arguments as `TvmazeTool.run` would, without running the tool."""
+    if not isinstance(arguments, dict):
+        return "arguments is not an object"
+    try:
+        request = TvmazeToolInput.model_validate(_planned_payload(arguments, standalone_query))
+    except ValidationError as exc:
+        return f"invalid arguments: {describe_tvmaze_errors(exc)}"
+    return _tvmaze_problem(expected, request)
+
+
+def check_any_tvmaze(
+    expected: TvmazeExpectation | tuple[TvmazeExpectation, ...],
+    arguments: Any,
+    standalone_query: str,
+) -> str | None:
+    """None when any of the acceptable expectations matches; otherwise the first problem."""
+    options = expected if isinstance(expected, tuple) else (expected,)
+    problems = [check_tvmaze(option, arguments, standalone_query) for option in options]
+    return None if any(problem is None for problem in problems) else problems[0]
+
+
 def check_rag(expected: RagExpectation, arguments: Any) -> str | None:
     """Check the `k_finale` and `search_mode` the planner set, as `RagTool.run` would read it."""
     if not isinstance(arguments, dict):
@@ -369,6 +412,7 @@ def main(argv: list[str] | None = None) -> None:
             result.case.expected_request is not None
             or result.case.expected_video is not None
             or result.case.expected_wikipedia is not None
+            or result.case.expected_tvmaze is not None
             or result.case.expected_rag is not None
         )
         if expects_arguments and result.tool == result.case.expected_tool:

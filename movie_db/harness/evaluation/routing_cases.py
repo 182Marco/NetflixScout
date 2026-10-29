@@ -13,6 +13,7 @@ RAG = "rag_search"
 TMDB = "tmdb_search"
 YOUTUBE = "youtube_search"
 WIKIPEDIA = "wikipedia_search"
+TVMAZE = "tvmaze_search"
 # No tool: the planner asks the user for the missing title (orchestrator.CLARIFICATION).
 CLARIFY = "clarification"
 
@@ -67,6 +68,22 @@ class WikipediaExpectation:
 
 
 @dataclass(frozen=True)
+class TvmazeExpectation:
+    """Planned `tvmaze_search` arguments that answer the question.
+
+    The arguments must validate as `TvmazeToolInput`, `title` must contain the lowercase fragment and
+    the planned facets must include every one of `facets`, plus at most those of `extra_facets`.
+    `year` must stay empty unless `allowed` lists it: then the planned value must contain one of the
+    fragments given for that field (copied from the request or the conversation, never invented).
+    """
+
+    title: str
+    facets: tuple[str, ...]
+    extra_facets: tuple[str, ...] = ()
+    allowed: tuple[tuple[str, str], ...] = ()
+
+
+@dataclass(frozen=True)
 class RagExpectation:
     """The `k_finale` and `search_mode` the planner should set for a `rag_search` call.
 
@@ -91,6 +108,8 @@ class RoutingCase:
     expected_video: VideoExpectation | tuple[VideoExpectation, ...] | None = None
     # Wikipedia cases only: the planned arguments; a tuple lists acceptable alternatives.
     expected_wikipedia: WikipediaExpectation | tuple[WikipediaExpectation, ...] | None = None
+    # TVmaze cases only: the planned arguments; a tuple lists acceptable alternatives.
+    expected_tvmaze: TvmazeExpectation | tuple[TvmazeExpectation, ...] | None = None
     # RAG cases only: the retrieval parameters in the planned arguments.
     expected_rag: RagExpectation | None = None
     # Other tools accepted as the FIRST step (the case is still judged on `expected_tool`'s arguments only
@@ -196,10 +215,11 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
         TMDB,
         expected_request=RequestExpectation("movie_details", fields=(("title", "past lives"),), facets=("videos",)),
     ),
+    # Seasons of an identified series are structured data: TVmaze (rule 1e), not TMDb (it was a TMDb case before 1e).
     RoutingCase(
         "Quante stagioni ha Breaking Bad?",
-        TMDB,
-        expected_request=RequestExpectation("tv_details", fields=(("title", "breaking bad"),)),
+        TVMAZE,
+        expected_tvmaze=TvmazeExpectation("breaking bad", facets=("seasons",), extra_facets=("info",)),
     ),
     RoutingCase(
         "E dove lo posso vedere in streaming?",
@@ -503,5 +523,49 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
             RequestExpectation("person_details", fields=(("name", "park chan-wook"),)),
             RequestExpectation("discover_movies"),
         ),
+    ),
+    # TVmaze (rule 1e): structured data of one identified series.
+    RoutingCase(
+        "Quanti episodi ha la stagione 2 di Severance e quando sono usciti?",
+        TVMAZE,
+        expected_tvmaze=TvmazeExpectation("severance", facets=("episodes",), extra_facets=("seasons", "info")),
+    ),
+    RoutingCase(
+        "Chi recita in Killing Eve e quali personaggi interpretano?",
+        TVMAZE,
+        expected_tvmaze=TvmazeExpectation("killing eve", facets=("cast",), extra_facets=("info",)),
+    ),
+    RoutingCase(
+        "Quando esce il prossimo episodio di The Bear?",
+        TVMAZE,
+        expected_tvmaze=TvmazeExpectation("the bear", facets=("next",), extra_facets=("info",)),
+    ),
+    # Mixed: the cast is structured series data, where to watch it is streaming (TMDb).
+    RoutingCase(
+        "Chi c'è nel cast di Dark e dove posso vederla in streaming?",
+        TVMAZE,
+        alternative_first_tools=(TMDB,),
+        also_uses=(TVMAZE, TMDB),
+        expected_tvmaze=TvmazeExpectation("dark", facets=("cast",), extra_facets=("info",)),
+        expected_alternative_request=RequestExpectation("tv_details", fields=(("title", "dark"),), facets=("watch_providers",)),
+    ),
+    # Boundaries: the series is named but the request is not structured data: TMDb keeps it (rule 1).
+    RoutingCase(
+        "Consigliami serie simili a Dark",
+        TMDB,
+        expected_request=(
+            RequestExpectation("tv_details", fields=(("title", "dark"),), facets=("similar",)),
+            RequestExpectation("tv_details", fields=(("title", "dark"),), facets=("recommendations",)),
+        ),
+    ),
+    RoutingCase(
+        "Dove posso vedere The Bear in Italia?",
+        TMDB,
+        expected_request=RequestExpectation("tv_details", fields=(("title", "the bear"),), facets=("watch_providers",)),
+    ),
+    RoutingCase(
+        "Mostrami il trailer della serie Severance",
+        TMDB,
+        expected_request=RequestExpectation("tv_details", fields=(("title", "severance"),), facets=("videos",)),
     ),
 )
