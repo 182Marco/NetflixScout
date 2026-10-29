@@ -79,6 +79,20 @@ def test_the_documented_tvmaze_step_is_what_the_serializer_produces_with_its_att
     assert "CC BY-SA 4.0" in documented["source"]
 
 
+def test_the_documented_wikidata_step_is_what_the_serializer_produces_with_its_links() -> None:
+    from presenters.web.payload import serialize_step
+    from wikidata_support import doc_step
+
+    documented = {kind: json.loads(body) for kind, body in STEP_EXAMPLE.findall(DOC)}["wikidata_calls"]
+
+    assert documented == json.loads(json.dumps(serialize_step(doc_step(), "it")))
+    assert len(documented["calls"]) == 2 and all(set(call) == {"method", "url"} for call in documented["calls"])
+    assert documented["work"]["url"].startswith("https://www.wikidata.org/wiki/")
+    assert all(item["url"].startswith("https://www.wikidata.org/wiki/") for group in documented["groups"] for item in group["items"])
+    assert documented["license"] == {"name": "CC0 1.0", "url": "https://creativecommons.org/publicdomain/zero/1.0/"}
+    assert "CC0 1.0" in documented["source"]
+
+
 def test_every_documented_step_example_keeps_credentials_masked() -> None:
     for _, body in STEP_EXAMPLE.findall(DOC) + EXAMPLE.findall(DOC):
         for url in re.findall(r'"url":"([^"]+)"', body):

@@ -80,6 +80,7 @@ TOOLS = {
         "wikipedia_search": ("su Wikipedia", "Wikipedia"),
         "omdb_search": ("su OMDb", "OMDb"),
         "tvmaze_search": ("su TVmaze", "TVmaze"),
+        "wikidata_search": ("su Wikidata", "Wikidata"),
     },
     "en": {
         "rag_search": ("among the movie plots", "Plots"),
@@ -89,6 +90,7 @@ TOOLS = {
         "wikipedia_search": ("on Wikipedia", "Wikipedia"),
         "omdb_search": ("on OMDb", "OMDb"),
         "tvmaze_search": ("on TVmaze", "TVmaze"),
+        "wikidata_search": ("on Wikidata", "Wikidata"),
     },
     "de": {
         "rag_search": ("in den Filmhandlungen", "Handlungen"),
@@ -98,6 +100,7 @@ TOOLS = {
         "wikipedia_search": ("auf Wikipedia", "Wikipedia"),
         "omdb_search": ("auf OMDb", "OMDb"),
         "tvmaze_search": ("auf TVmaze", "TVmaze"),
+        "wikidata_search": ("auf Wikidata", "Wikidata"),
     },
 }
 

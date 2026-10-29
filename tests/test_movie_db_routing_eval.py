@@ -124,11 +124,11 @@ def test_cases_cover_every_tool_and_follow_ups() -> None:
     assert tools.count(YOUTUBE) == 7
     assert any(case.history and case.expected_tool == TMDB for case in ROUTING_CASES)
     assert any(case.history and case.expected_tool == YOUTUBE for case in ROUTING_CASES)
-    assert len(ROUTING_CASES) == 67  # 60 before the TVmaze cases (4 for it, 3 boundaries that stay on TMDb)
+    assert len(ROUTING_CASES) == 72  # 67 before the Wikidata cases (4 for it, 1 boundary that stays on TMDb); 60 before the TVmaze cases (4 for it, 3 boundaries that stay on TMDb)
 
 
 def test_every_tmdb_case_has_a_valid_request_expectation() -> None:
-    assert len(TMDB_CASES) == 26  # 24 before the TVmaze cases (-1 moved to TVmaze, +3 boundaries); 18 before the Wikipedia cases (filmography boundary and 3 controls); the plot follow-up moved to Wikipedia
+    assert len(TMDB_CASES) == 27  # 26 before the Wikidata boundary; 24 before the TVmaze cases (-1 moved to TVmaze, +3 boundaries); 18 before the Wikipedia cases (filmography boundary and 3 controls); the plot follow-up moved to Wikipedia
     for case in TMDB_CASES:
         assert case.expected_request is not None
         options = case.expected_request if isinstance(case.expected_request, tuple) else (case.expected_request,)

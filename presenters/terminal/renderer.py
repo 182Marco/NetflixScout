@@ -2,7 +2,7 @@
 
 Glue only. The turn story (what is searched, where, how it went) comes from the shared
 `presenters/story_view.py`; each tool step is delegated to the renderer in its own folder
-(`rag/`, `db/`, `api/`, `youtube/`, `wikipedia/`, `omdb/`, `tvmaze/`) via `STEP_RENDERERS`.
+(`rag/`, `db/`, `api/`, `youtube/`, `wikipedia/`, `omdb/`, `tvmaze/`, `wikidata/`) via `STEP_RENDERERS`.
 """
 from __future__ import annotations
 
@@ -17,6 +17,7 @@ from turn import (
     STEP_WIKIPEDIA_CALLS,
     STEP_OMDB_CALLS,
     STEP_TVMAZE_CALLS,
+    STEP_WIKIDATA_CALLS,
     STEP_YOUTUBE_CALLS,
     StoryLine,
     TraceStep,
@@ -39,6 +40,7 @@ from .rag import render_rerank, render_retrieval
 from .wikipedia import render_wikipedia_calls
 from .omdb import render_omdb_calls
 from .tvmaze import render_tvmaze_calls
+from .wikidata import render_wikidata_calls
 from .youtube import render_youtube_calls
 
 # A renderer gets the step and the turn language (ISO code) for its labels.
@@ -54,6 +56,7 @@ STEP_RENDERERS: dict[str, StepRenderer] = {
     STEP_YOUTUBE_CALLS: render_youtube_calls,
     STEP_OMDB_CALLS: render_omdb_calls,
     STEP_TVMAZE_CALLS: render_tvmaze_calls,
+    STEP_WIKIDATA_CALLS: render_wikidata_calls,
     STEP_WIKIPEDIA_CALLS: render_wikipedia_calls,
 }
 

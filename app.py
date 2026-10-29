@@ -31,6 +31,8 @@ from tool.omdb.config import load_omdb_config
 from tool.omdb.tool import OmdbTool
 from tool.tvmaze.config import load_tvmaze_config
 from tool.tvmaze.tool import TvmazeTool
+from tool.wikidata.config import load_wikidata_config
+from tool.wikidata.tool import WikidataTool
 from tool.tmdb.enrich import TmdbRagEnricher
 from tool.tmdb.film_record import read_film, read_film_record
 from tool.tmdb.operations.resolve import ALTERNATIVE_TITLE_MATCH
@@ -205,6 +207,29 @@ CONFIG = {
             "successivo con tmdb_search (tv_details, tv_season o tv_episode) e mai un secondo tentativo con "
             "tvmaze_search; se il tool segnala che il titolo è ambiguo non cercare altrove: la scelta è "
             "dell'utente. "
+            "1f) wikidata_search dà relazioni strutturate tra opere per UN film o UNA serie identificati: le "
+            "opere da cui è tratto (fonte letteraria o film d'origine), le opere basate su di esso (remake, "
+            "adattamenti, opere ispirate), l'opera precedente e quella successiva nella sua serie, le altre opere "
+            "del suo franchise (operation relations); e distingue opere con lo stesso titolo con anno, regista e ID "
+            "IMDb e TMDb (operation resolve). Scegli wikidata_search come primo tool per: da quale libro, fumetto "
+            "o film è tratto X, quali remake o adattamenti ha X, se X è un remake, cosa viene prima o dopo X nella "
+            "sua serie, a quale franchise appartiene X e quali altre opere ne fanno parte. Usa operation resolve solo "
+            "quando la richiesta chiede di identificare o distinguere opere con lo stesso titolo, o quando un passo "
+            "precedente non ha potuto identificare il titolo perché ambiguo e servono anno, regista o ID: non "
+            "chiamarlo come passo preliminare di ogni ricerca. Non sceglierlo per: cast, trama, premi, punteggi, "
+            "streaming, trailer, raccomandazioni, filmografie di una persona, elenchi e classifiche, né per l'elenco "
+            "completo e ordinato di una trilogia o di una saga (restano a tmdb_search, regola 1, e alla regola 1c), "
+            "né per spiegare in prosa storia, produzione o differenze di un adattamento (1c). Se la richiesta "
+            "mescola relazioni e altri temi, in parts metti wikidata_search per le relazioni e l'altro tool per il "
+            "resto. Una fonte chiesta esplicitamente dall'utente vince sempre. Per wikidata_search compila arguments "
+            "con operation, title (il titolo originale o inglese se lo conosci con certezza o lo ha dato TMDb o la "
+            "conversazione, altrimenti le parole dell'utente) e language (en, salvo titolo in un'altra lingua); year, "
+            "director e type solo se compaiono nella richiesta, nella conversazione o in un passo già fatto di "
+            "questo turno; imdb_id o tmdb_id (questo con type) solo se compaiono lì, mai scritti a memoria. Le "
+            "relazioni sono quelle registrate: un elenco vuoto non prova che non ne esistano. Se il tool segnala "
+            "che il titolo è ambiguo non cercare altrove: la scelta è dell'utente. Se non trova l'opera o non è "
+            "disponibile fai UN solo passo successivo con tmdb_search o wikipedia_search e mai un secondo tentativo "
+            "con wikidata_search. "
             "2) movie_db_search è il punto di partenza per voti, valutazioni, classifiche, numero di "
             "voti, confronti basati sui punteggi, film per genere e anno ordinati per voto e tag "
             "degli utenti di MovieLens. MovieLens contiene solo voti e tag degli utenti: nessun "
@@ -393,6 +418,23 @@ CONFIG = {
                 "il titolo è ambiguo elenca le alternative (nome, anno, canale) e chiedi quale intende. Non "
                 "hai le trame dei singoli episodi: non inventarle."
             ),
+            "wikidata_search": (
+                "Se il tool usato è wikidata_search, riporta titoli, anni, registi e relazioni esattamente come "
+                "stanno nei metadata, senza nominare la provenienza dei dati, senza codici tecnici (identificativi interni "
+                "o ID di altri siti) a meno che l'utente li chieda e senza aggiungere opere o relazioni che non vi "
+                "compaiono. Le relazioni sono solo quelle registrate: non presentare mai l'elenco come completo "
+                "(di' «tra quelle registrate» o simili) e non dedurre dall'assenza di una relazione che non esista. "
+                "Le opere in based_on_this risultano basate su o ispirate all'opera: non chiamarle tutte remake, "
+                "usa remake o adattamento solo se i dati lo dicono, altrimenti di' che risultano basate o ispirate. "
+                "previous_in_series e next_in_series dicono l'ordine in una serie, non se un'opera è un sequel, un "
+                "prequel o un reboot: non usare questi termini se i dati non lo dicono. Per le opere che non sono "
+                "film o serie (libri, fumetti, videogiochi) indica il tipo di opera. Le opere non ancora uscite sono "
+                "già escluse. Se compare unavailable o franchise_list_partial, di' che una parte del franchise non è "
+                "stata letta o che l'elenco è parziale. Se il titolo è ambiguo elenca le alternative (titolo, anno, "
+                "regista) e chiedi quale intende, dicendo quante alternative non hai elencato se omitted_candidates è maggiore di zero e che potrebbero esserci altre opere con lo stesso titolo se incomplete è vero; se status è unverified o not_found dillo senza proporre titoli tuoi. "
+                "Se i risultati contengono anche altri dati sulle stesse relazioni e differiscono, riporta quelli di "
+                "questo tool e di' in una frase che le fonti non coincidono."
+            ),
             "omdb_search": (
                 "Se il tool usato è omdb_search, riporta solo i punteggi presenti nei metadata, uno per "
                 "fonte, dicendo che cosa misurano (voto del pubblico o punteggio della critica) senza nominare mai "
@@ -446,7 +488,7 @@ CONFIG = {
         "memory_window_size": 12,
         # Last history messages shown to the domain classifier, so follow-ups are not blocked.
         "classifier_context_messages": 2,
-        "allowed_tools": ["rag_search", "movie_db_search", "tmdb_search", "youtube_search", "wikipedia_search", "omdb_search", "tvmaze_search"],
+        "allowed_tools": ["rag_search", "movie_db_search", "tmdb_search", "youtube_search", "wikipedia_search", "omdb_search", "tvmaze_search", "wikidata_search"],
         "required_tools": [],
         "tool_confidence_threshold": 0.6,
         "fallback_tool": "rag_search",
@@ -593,6 +635,12 @@ CONFIG = {
     "tvmaze": {
         "max_calls_per_turn": 6,
     },
+    # Only this: timeout, User-Agent and the other constants are internal to tool/wikidata/. A title costs 1 request to
+    # identify (every film and series with that exact label; 3 if it falls back to the text search; an IMDb or TMDb
+    # id 1), the relations of the work 1 and the members of its franchise 1: 5 at most per run. No key.
+    "wikidata": {
+        "max_calls_per_turn": 8,
+    },
     # `context_chars_per_turn` protects the final prompt, it does not cap what can be fetched:
     # an article is downloaded whole and handed out section by section (tool/wikipedia/sections.py).
     "wikipedia": {
@@ -729,6 +777,7 @@ def build_app(overrides: dict[str, Any] | None = None) -> dict[str, Any]:
     tools.append(WikipediaTool(config=load_wikipedia_config(runtime_config["wikipedia"])))
     tools.append(OmdbTool(config=load_omdb_config(runtime_config["omdb"])))
     tools.append(TvmazeTool(config=load_tvmaze_config(runtime_config["tvmaze"])))
+    tools.append(WikidataTool(config=load_wikidata_config(runtime_config["wikidata"])))
     enrichment = runtime_config["orchestrator"].get("rag_enrichment") or {}
     enrichers = {}
     if enrichment.get("enabled"):

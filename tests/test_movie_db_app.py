@@ -29,7 +29,7 @@ def test_build_app_registers_the_tool_when_enabled(monkeypatch) -> None:
     enabled = app_module.build_app()["orchestrator"]
     disabled = app_module.build_app({"movie_db": {"enabled": False}})["orchestrator"]
 
-    others = ["tmdb_search", "youtube_search", "wikipedia_search", "omdb_search", "tvmaze_search"]
+    others = ["tmdb_search", "youtube_search", "wikipedia_search", "omdb_search", "tvmaze_search", "wikidata_search"]
     assert set(enabled.tools) == {"rag_search", MOVIE_DB_TOOL_NAME, *others}
     assert isinstance(enabled.tools[MOVIE_DB_TOOL_NAME], MovieDbTool)
     assert set(disabled.tools) == {"rag_search", *others}

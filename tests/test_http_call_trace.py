@@ -26,6 +26,7 @@ from turn import (
     STEP_OMDB_CALLS,
     STEP_TMDB_CALLS,
     STEP_TVMAZE_CALLS,
+    STEP_WIKIDATA_CALLS,
     STEP_WIKIPEDIA_CALLS,
     STEP_YOUTUBE_CALLS,
     TraceStep,
@@ -73,7 +74,7 @@ def test_http_call_records_method_and_the_masked_full_url() -> None:
 # --- the presenters mask once more, so a tool that forgot cannot leak -----------------------------------------
 
 
-@pytest.mark.parametrize("kind", [STEP_TMDB_CALLS, STEP_YOUTUBE_CALLS, STEP_WIKIPEDIA_CALLS, STEP_OMDB_CALLS, STEP_TVMAZE_CALLS])
+@pytest.mark.parametrize("kind", [STEP_TMDB_CALLS, STEP_YOUTUBE_CALLS, STEP_WIKIPEDIA_CALLS, STEP_OMDB_CALLS, STEP_TVMAZE_CALLS, STEP_WIKIDATA_CALLS])
 def test_a_step_with_an_unmasked_url_still_shows_no_key(kind, capsys) -> None:
     leaky = [
         {"method": "GET", "url": "https://h.test/p?x=1&apikey=LEAK1&key=LEAK2&api_key=LEAK3"},
@@ -139,6 +140,15 @@ def _tvmaze() -> tuple[dict[str, Any], list[str], str]:
     return result, [call[3] for call in transport.calls], ""
 
 
+def _wikidata() -> tuple[dict[str, Any], list[str], str]:
+    import wikidata_support
+
+    tool, transport = wikidata_support.make_tool(wikidata_support.routes_for())
+    result = tool.run(query="q", params={"operation": "relations", "title": "Sample Film", "year": 1982})
+    # No key: nothing to mask, the URL shown is the URL sent (the SPARQL text included).
+    return result, [call[3] for call in transport.calls], ""
+
+
 @pytest.mark.parametrize(
     ("build", "kind", "expected_calls"),
     [
@@ -147,6 +157,7 @@ def _tvmaze() -> tuple[dict[str, Any], list[str], str]:
         (_wikipedia, STEP_WIKIPEDIA_CALLS, 2),
         (_omdb, STEP_OMDB_CALLS, 2),
         (_tvmaze, STEP_TVMAZE_CALLS, 3),
+        (_wikidata, STEP_WIKIDATA_CALLS, 3),
     ],
 )
 def test_every_request_sent_is_shown_with_its_full_url_and_only_the_key_masked(build, kind, expected_calls, capsys) -> None:

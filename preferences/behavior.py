@@ -170,6 +170,13 @@ SOURCE_TOOLS: Final[dict[str, str]] = {
     # reviews, ratings or interviews (its rating field is not read), no episode summaries (spoilers),
     # series only, so overlap is with tmdb_search on series details, where the routing rule 1e decides.
     "tvmaze_search": "official information",
+    # Wikidata carries declared relations between works (based on, derived works, order in a series,
+    # franchise) and the identity of a work (year, director, ids): structured encyclopedic data edited
+    # by a community, so `official information` is the closest of the four, like wikipedia_search, with
+    # which it overlaps on adaptations and remakes (prose there, structure here; rule 1f decides, rule 1c
+    # keeps the prose). It carries no reviews, ratings or interviews, no plot (so no spoilers; the
+    # relations name other works, never how a story ends), films and series. No preference adds a call to it.
+    "wikidata_search": "official information",
 }
 
 SOURCES_PLANNER: Final[dict[str, str]] = {

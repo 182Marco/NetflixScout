@@ -1,4 +1,4 @@
-"""Evaluate DB/RAG/TMDb/YouTube/Wikipedia routing with the real classifier and planner (costs API credits).
+"""Evaluate DB/RAG/TMDb/YouTube/Wikipedia/Wikidata routing with the real classifier and planner (costs API credits).
 
 Per case: one classifier call (`gpt-4o-mini`) and one planning call; tools never run.
 The planner client is wrapped to record its raw output, so a silent fallback to
@@ -28,6 +28,8 @@ from tool.tmdb.models.requests import TmdbRequest, TmdbToolInput, describe_valid
 from turn import TOOL_PARAM_TURN_LANGUAGE
 from tool.tvmaze.models import TvmazeToolInput
 from tool.tvmaze.models import describe_validation_errors as describe_tvmaze_errors
+from tool.wikidata.models import WikidataToolInput
+from tool.wikidata.models import describe_validation_errors as describe_wikidata_errors
 from tool.wikipedia.models import WikipediaToolInput
 from tool.wikipedia.models import describe_validation_errors as describe_wikipedia_errors
 from tool.youtube.models import YoutubeToolInput
@@ -40,6 +42,7 @@ from .routing_cases import (
     RoutingCase,
     TvmazeExpectation,
     VideoExpectation,
+    WikidataExpectation,
     WikipediaExpectation,
 )
 
@@ -105,6 +108,8 @@ class RoutingResult:
             return check_any_wikipedia(self.case.expected_wikipedia, self.arguments, self.standalone_query)
         if self.case.expected_tvmaze is not None:
             return check_any_tvmaze(self.case.expected_tvmaze, self.arguments, self.standalone_query)
+        if self.case.expected_wikidata is not None:
+            return check_any_wikidata(self.case.expected_wikidata, self.arguments, self.standalone_query)
         if self.case.expected_rag is not None:
             return check_rag(self.case.expected_rag, self.arguments)
         return None
@@ -291,6 +296,46 @@ def check_any_tvmaze(
     return None if any(problem is None for problem in problems) else problems[0]
 
 
+# Optional `wikidata_search` fields that must come from the request, the conversation or an earlier step.
+_WIKIDATA_GIVEN_FIELDS = ("year", "director", "type", "imdb_id", "tmdb_id")
+
+
+def _wikidata_problem(expected: WikidataExpectation, request: WikidataToolInput) -> str | None:
+    if request.operation != expected.operation:
+        return f"operation {request.operation!r} is not {expected.operation!r}"
+    if request.title is None or expected.title not in request.title.casefold():
+        return f"title {request.title!r} does not contain {expected.title!r}"
+    for name in _WIKIDATA_GIVEN_FIELDS:
+        value = getattr(request, name)
+        if value is not None and not any(
+            fragment in str(value).casefold() for field_name, fragment in expected.allowed if field_name == name
+        ):
+            return f"{name} not given in the conversation"
+    return None
+
+
+def check_wikidata(expected: WikidataExpectation, arguments: Any, standalone_query: str) -> str | None:
+    """Validate planned arguments as `WikidataTool.run` would, without running the tool."""
+    if not isinstance(arguments, dict):
+        return "arguments is not an object"
+    try:
+        request = WikidataToolInput.model_validate(_planned_payload(arguments, standalone_query))
+    except ValidationError as exc:
+        return f"invalid arguments: {describe_wikidata_errors(exc)}"
+    return _wikidata_problem(expected, request)
+
+
+def check_any_wikidata(
+    expected: WikidataExpectation | tuple[WikidataExpectation, ...],
+    arguments: Any,
+    standalone_query: str,
+) -> str | None:
+    """None when any of the acceptable expectations matches; otherwise the first problem."""
+    options = expected if isinstance(expected, tuple) else (expected,)
+    problems = [check_wikidata(option, arguments, standalone_query) for option in options]
+    return None if any(problem is None for problem in problems) else problems[0]
+
+
 def check_rag(expected: RagExpectation, arguments: Any) -> str | None:
     """Check the `k_finale` and `search_mode` the planner set, as `RagTool.run` would read it."""
     if not isinstance(arguments, dict):
@@ -413,6 +458,7 @@ def main(argv: list[str] | None = None) -> None:
             or result.case.expected_video is not None
             or result.case.expected_wikipedia is not None
             or result.case.expected_tvmaze is not None
+            or result.case.expected_wikidata is not None
             or result.case.expected_rag is not None
         )
         if expects_arguments and result.tool == result.case.expected_tool:

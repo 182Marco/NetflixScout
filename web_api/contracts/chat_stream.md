@@ -132,7 +132,7 @@ Ogni `status` è accompagnato da una `story` di livello `progress`.
 
 ### `step`
 Il risultato di un tool, già serializzato per il web; `kind` è `retrieval`, `rerank`, `db_query`, `tmdb_calls`,
-`youtube_calls`, `wikipedia_calls`, `omdb_calls` o `tvmaze_calls`; gli altri campi dipendono dal tipo (sono quelli di
+`youtube_calls`, `wikipedia_calls`, `omdb_calls`, `tvmaze_calls` o `wikidata_calls`; gli altri campi dipendono dal tipo (sono quelli di
 `presenters/web/<tool>/serializer.py`). Un turno può avere **più passi dello stesso tool** (per esempio due
 `wikipedia_calls`: prima l'introduzione, poi altre sezioni della pagina): ognuno è un evento `step` a sé.
 Un `kind` sconosciuto va mostrato in modo generico o ignorato.
@@ -141,7 +141,7 @@ Un `kind` sconosciuto va mostrato in modo generico o ignorato.
 ```
 
 #### Le chiamate HTTP dei tool (`calls`)
-Gli step dei tool che fanno richieste HTTP (`tmdb_calls`, `youtube_calls`, `wikipedia_calls`, `omdb_calls`, `tvmaze_calls`) hanno tutti
+Gli step dei tool che fanno richieste HTTP (`tmdb_calls`, `youtube_calls`, `wikipedia_calls`, `omdb_calls`, `tvmaze_calls`, `wikidata_calls`) hanno tutti
 `calls`: una voce per **ogni** richiesta realmente inviata in quel passo, nell'ordine in cui è avvenuta, `{"method","url"}`
 (TMDb aggiunge `label`). `url` è l'URL completo (path e tutti i parametri) esattamente come inviato; il backend sostituisce
 con `***` solo il **valore** delle credenziali (`apikey=***`, `api_key=***`, `key=***`, anche user:password nell'URL): il
@@ -158,6 +158,15 @@ scheda della serie con cast e prossimo episodio; oltre a `calls` ci sono `source
 `status`, `show` (`url` della pagina TVmaze), `read`, `license` (`url` della licenza) e `candidates`:
 ```json step=tvmaze_calls
 {"kind":"tvmaze_calls","title":"TVMAZE","source":"Fonte: TVmaze, dati riformulati dall'assistente, licenza CC BY-SA 4.0","labels":{"title":"TVMAZE","source":"Fonte: TVmaze, dati riformulati dall'assistente, licenza {license}","called":"Chiamato","no_calls":"Nessuna chiamata a TVmaze in questo turno.","page":"Pagina della serie","license":"Licenza","read":"Letto","info":"scheda","cast":"cast","seasons":"stagioni","episodes":"episodi","next":"prossimo episodio","candidates":"Serie con titolo simile","ok":"Serie trovata","ambiguous":"Più serie corrispondono: nessun dato assegnato","unverified":"Titolo non verificato: nessun dato assegnato","not_found":"Serie non trovata","error":"Errore"},"calls":[{"method":"GET","url":"https://api.tvmaze.com/search/shows?q=Sample+Show"},{"method":"GET","url":"https://api.tvmaze.com/shows/1?embed%5B%5D=cast&embed%5B%5D=nextepisode"}],"status":"ok","status_label":"Serie trovata","reason":null,"show":{"name":"Sample Show (2016)","url":"https://www.tvmaze.com/shows/1/sample-show","summary":"Running, Sample Net"},"read":["scheda","cast","prossimo episodio"],"license":{"name":"CC BY-SA 4.0","url":"https://creativecommons.org/licenses/by-sa/4.0/"},"candidates":[]}
+```
+
+`wikidata_calls` (nessuna chiave) con la ricerca del titolo e la lettura delle relazioni dell'opera identificata; ogni
+richiesta SPARQL ha il testo della query dentro l'URL, esattamente come inviata (è lunga: il frontend la mostra intera,
+va a capo e non la accorcia né la riscrive). Oltre a `calls` ci sono `source` (con il nome della licenza), `status`,
+`work` (`url` della pagina Wikidata), `groups` (relazioni con il link di ogni opera), `candidates`, `partial` (e `partial_label`), `unavailable` e
+`license` (`url` della licenza):
+```json step=wikidata_calls
+{"kind":"wikidata_calls","title":"WIKIDATA","source":"Fonte: Wikidata, dati riformulati dall'assistente, licenza CC0 1.0","labels":{"title":"WIKIDATA","source":"Fonte: Wikidata, dati riformulati dall'assistente, licenza {license}","called":"Chiamato","no_calls":"Nessuna chiamata a Wikidata in questo turno.","license":"Licenza","page":"Pagina","work":"Opera","director":"regia","candidates":"Opere con titolo simile","ok":"Opera identificata","no_relations":"Opera identificata: nessuna relazione registrata","ambiguous":"Più opere corrispondono: nessun dato assegnato","unverified":"Titolo non verificato: nessun dato assegnato","not_found":"Opera non trovata","error":"Errore","unavailable":"Non letto","source_group":"Basata su","derived":"Opere basate su questa","previous":"Precedente nella serie","next":"Successiva nella serie","franchise":"Franchise o serie","more":"altre non mostrate","partial":"Elenco parziale: possono esistere altre opere con questo titolo"},"calls":[{"method":"GET","url":"https://www.wikidata.org/w/api.php?action=wbsearchentities&search=Sample+Film&language=en&type=item&limit=10&format=json"},{"method":"GET","url":"https://query.wikidata.org/sparql?query=SELECT+%3Fo+WHERE+%7B+...+%7D&format=json"}],"status":"ok","status_label":"Opera identificata","reason":null,"operation":"relations","work":{"name":"Sample Film (1982)","url":"https://www.wikidata.org/wiki/Q9000001","summary":"film, IMDb tt9000001, TMDb 9001"},"groups":[{"label":"Basata su","items":[{"text":"Sample Novel (1968, opera letteraria)","url":"https://www.wikidata.org/wiki/Q9000010"}]},{"label":"Opere basate su questa","items":[{"text":"Sample Remake (2017, film)","url":"https://www.wikidata.org/wiki/Q9000011"}]}],"candidates":[],"partial":false,"partial_label":null,"unavailable":[],"license":{"name":"CC0 1.0","url":"https://creativecommons.org/publicdomain/zero/1.0/"}}
 ```
 
 Lo step `wikipedia_calls` porta le fonti del testo di Wikipedia: `pages[]` (`title`, `language`, `url` pubblico di
@@ -253,6 +262,18 @@ rinviato. Il messaggio è generico (nessun dettaglio interno).
   TVmaze, per esempio `invalid_request`): `source` resta comunque da mostrare. Il frontend `marco-m-netflix`
   (`render.js`: `tvmazeLines`, `tvmazeLinks`) mostra queste righe, la fonte e i due link in https; non servono
   altri campi né un trattamento diverso per stato.
+  Per le relazioni tra opere (step `wikidata_calls`) mostrare la riga `source` (Wikidata come fonte, licenza e
+  riformulazione), il nome dell'opera con il link alla pagina Wikidata (`work.url`), i `groups` (ciascuno con
+  `label` e le opere in `items`, ognuna con `text` e, se presente, `url` verso Wikidata) e la licenza (`license.name` con
+  il link `license.url`); nessuno di questi link va costruito dal frontend. `status` è uno tra `ok`, `no_relations`
+  (opera identificata, nessuna relazione registrata: non prova che non esistano), `ambiguous` (più opere con quel
+  titolo), `unverified`, `not_found` ed `error`; con `ambiguous` o `unverified` mostrare `candidates` (`text` con anno,
+  tipo, regia e ID IMDb e TMDb) e nessun dato dell'opera. `work` è `null` finché l'opera non è identificata; `summary`
+  riporta il tipo e gli ID IMDb e TMDb. `unavailable` elenca ciò che non è stato letto (per esempio il franchise per il
+  limite di chiamate); `groups` ha fino a quattro gruppi di relazioni (basata su, opere basate su questa, precedente e
+  successiva nella serie) più un gruppo per franchise, con una voce finale «altre non mostrate» quando l'elenco è tagliato. Anche `candidates` ha, quando ne ha omesse, una voce finale «+N altre non mostrate»; `partial` è `true` (con `partial_label` già tradotto, da mostrare) quando le alternative non sono tutte, perché alcune non sono elencate o perché la ricerca era tagliata al limite: serve a distinguere un elenco completo da uno parziale.
+  Le relazioni sono quelle registrate su Wikidata: un elenco può essere incompleto. Il frontend `marco-m-netflix`
+  (`render.js`: `wikidataLines`, `wikidataLinks`) mostra le righe, la fonte e i link in https.
 - Concatenare i `answer_delta` senza riscriverli; applicare `replace` se non è `null`; mostrare `lists` dopo `answer_end`.
 - Ignorare gli eventi e i campi sconosciuti (il contratto può aggiungerne) e le righe di commento `:`.
 - Un solo messaggio alla volta per conversazione.

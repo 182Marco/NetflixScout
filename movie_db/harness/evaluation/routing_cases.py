@@ -14,6 +14,7 @@ TMDB = "tmdb_search"
 YOUTUBE = "youtube_search"
 WIKIPEDIA = "wikipedia_search"
 TVMAZE = "tvmaze_search"
+WIKIDATA = "wikidata_search"
 # No tool: the planner asks the user for the missing title (orchestrator.CLARIFICATION).
 CLARIFY = "clarification"
 
@@ -84,6 +85,21 @@ class TvmazeExpectation:
 
 
 @dataclass(frozen=True)
+class WikidataExpectation:
+    """Planned `wikidata_search` arguments that answer the question.
+
+    The arguments must validate as `WikidataToolInput`, `operation` must be the one expected and `title` must
+    contain the lowercase fragment. `year`, `director`, `type`, `imdb_id` and `tmdb_id` must stay empty unless
+    `allowed` lists the field: then the planned value must contain one of the fragments given for it (copied
+    from the request or the conversation, never invented).
+    """
+
+    title: str
+    operation: str
+    allowed: tuple[tuple[str, str], ...] = ()
+
+
+@dataclass(frozen=True)
 class RagExpectation:
     """The `k_finale` and `search_mode` the planner should set for a `rag_search` call.
 
@@ -110,6 +126,8 @@ class RoutingCase:
     expected_wikipedia: WikipediaExpectation | tuple[WikipediaExpectation, ...] | None = None
     # TVmaze cases only: the planned arguments; a tuple lists acceptable alternatives.
     expected_tvmaze: TvmazeExpectation | tuple[TvmazeExpectation, ...] | None = None
+    # Wikidata cases only: the planned arguments; a tuple lists acceptable alternatives.
+    expected_wikidata: WikidataExpectation | tuple[WikidataExpectation, ...] | None = None
     # RAG cases only: the retrieval parameters in the planned arguments.
     expected_rag: RagExpectation | None = None
     # Other tools accepted as the FIRST step (the case is still judged on `expected_tool`'s arguments only
@@ -567,5 +585,32 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
         "Mostrami il trailer della serie Severance",
         TMDB,
         expected_request=RequestExpectation("tv_details", fields=(("title", "severance"),), facets=("videos",)),
+    ),
+    # Wikidata (rule 1f): declared relations between works, and homonyms told apart.
+    RoutingCase(
+        "Da quale libro è tratto Blade Runner?",
+        WIKIDATA,
+        expected_wikidata=WikidataExpectation("blade runner", "relations"),
+    ),
+    RoutingCase(
+        "Quali remake ha The Departed?",
+        WIKIDATA,
+        expected_wikidata=WikidataExpectation("the departed", "relations"),
+    ),
+    RoutingCase(
+        "Cosa viene dopo La cosa di John Carpenter del 1982 nella sua serie e a quale franchise appartiene?",
+        WIKIDATA,
+        expected_wikidata=WikidataExpectation("thing", "relations", allowed=(("year", "1982"),)),
+    ),
+    RoutingCase(
+        "Esistono più film che si chiamano Crash? Come li distinguo?",
+        WIKIDATA,
+        expected_wikidata=WikidataExpectation("crash", "resolve"),
+    ),
+    # Boundary: the film is named but the request is not about relations between works: TMDb keeps it (rule 1).
+    RoutingCase(
+        "Quanto dura Blade Runner 2049 e chi l'ha diretto?",
+        TMDB,
+        expected_request=RequestExpectation("movie_details", fields=(("title", "blade runner 2049"),)),
     ),
 )
