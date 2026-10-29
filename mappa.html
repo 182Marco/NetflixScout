@@ -908,7 +908,8 @@ const TREE = D("NetflixScout", {}, [
     n: [
       "<code>CONFIG[\"tvmaze\"]</code> ha solo <code>max_calls_per_turn</code> (6), contate sul <code>turn_id</code>. TVmaze documenta almeno 20 chiamate ogni 10 secondi per IP; dopo un 429 una pausa in memoria, nessun retry.",
       "Dati CC BY-SA: l'interfaccia mostra la fonte, il link alla pagina della serie e la licenza. Le questioni di ShareAlike sul testo generato sono ancora aperte (vedi <code>AGENTS.md</code>).",
-      "Non verificato dal vivo: nessuno smoke test, routing eval o E2E con servizi reali è stato eseguito.",
+      "Verificato dal vivo il 2026-10-29 (smoke test di 5 richieste e 16 domande reali): 12 domande su dati di serie a TVmaze, 4 di confine a TMDb; 13 risposte corrette, 2 parziali, 1 errata. Non eseguiti: <code>run_routing_eval --live</code>, E2E nel browser, confronto diretto con TMDb (il vantaggio su TMDb non è dimostrato).",
+      "Limiti osservati, non risolti: titoli omonimi (<code>Friends</code> chiede all'utente), qualificatori come <code>(US)</code> non trovati (ripiego su TMDb con un passo in più), speciali non contati nelle stagioni (<code>Sherlock</code> 12 invece di 13), titoli degli episodi nella lingua originale (<code>Dark</code> in tedesco).",
     ],
   }, [
     F("__init__.py", { L: "tvmaze", s: "Docstring del package.", d: `Nessun codice.` }),

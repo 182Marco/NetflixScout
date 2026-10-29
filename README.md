@@ -503,8 +503,16 @@ air dates, and the upcoming episode. No key, standard library `urllib`, no new d
   (the answer text never names sources); the effect of sending the data to an external model; the licence
   of images (not used) and of summaries; the exact wording of the TVmaze terms of use, which were not read in full. To be checked
   with the owner before any public or commercial use.
-- **Checks**: `tests/test_tvmaze_*.py tests/test_http_call_trace.py` run offline. The live smoke test, the live
-  routing eval and an end-to-end run with real services have **not** been run: they need an explicit authorization.
+- **Checks**: `tests/test_tvmaze_*.py tests/test_http_call_trace.py` run offline. On 2026-10-29, with the owner's
+  authorization, a live smoke test of the tool (5 requests) and 16 real questions through the whole flow were run: the 12
+  questions on seasons, episodes, dates, cast, network and next episode went to TVmaze, the 4 boundary ones (plot, streaming,
+  similar series, trailer) to TMDb; 13 answers were correct, 2 partial, 1 wrong. TVmaze was not compared with TMDb on
+  the same questions, so its advantage over TMDb is not proven. `run_routing_eval --live` and an end-to-end run in the
+  browser have **not** been run: they need an explicit authorization.
+- **Known limits (observed live, not fixed)**: two series with the same title (“Friends”) give a question back to the user
+  instead of an answer; a title with a qualifier (“The Office (US)”) is not found on TVmaze, so the turn falls back to TMDb
+  with one more planning step; specials are not counted in the seasons (“Sherlock” shows 12 episodes, 13 with the special);
+  episode titles come in TVmaze's original language (“Dark” in German) and the answer does not say so.
 
 ## Wikipedia Tool (`wikipedia_search`)
 
