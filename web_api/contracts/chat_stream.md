@@ -241,6 +241,18 @@ rinviato. Il messaggio è generico (nessun dettaglio interno).
   con il link alla pagina TVmaze (`show.url`), la licenza (`license.name` con il link `license.url`) e `read`; nessuno
   di questi link va costruito dal frontend. Con `status` `ambiguous` o `unverified` mostrare `candidates` e nessun
   dato della serie. Se la serie non è su TVmaze (`not_found`) la risposta può comunque arrivare da un altro passo.
+  Campi di `tvmaze_calls`: `status` è uno tra `ok`, `ambiguous` (più serie con quel titolo), `unverified` (solo titoli
+  simili), `not_found` ed `error`; `status_label` è il testo già tradotto. `reason` è `null` con `ok`, altrimenti
+  il motivo già tradotto (per esempio troppe richieste, tempo scaduto, serie non trovata). `show` è `null` finché la
+  serie non è identificata (quindi con `ambiguous`, `unverified`, `not_found`, `error`); altrimenti ha `name`
+  (con l'anno), `summary` (stato e rete, come li dà TVmaze, non tradotti) e `url`, che è `null` se la pagina non
+  è su `www.tvmaze.com`. `read` elenca cosa è stato letto (scheda, cast, stagioni, episodi, prossimo episodio) e
+  resta vuoto senza una serie identificata. `candidates` contiene le alternative (`text`: nome, anno e canale) solo
+  con `ambiguous` o `unverified`. `license` (`name` e `url`) è `null` se il link alla licenza non è su `creativecommons.org`: in quel
+  caso il frontend non deve costruirlo. `calls` può essere vuoto (turno senza richieste a
+  TVmaze, per esempio `invalid_request`): `source` resta comunque da mostrare. Il frontend `marco-m-netflix`
+  (`render.js`: `tvmazeLines`, `tvmazeLinks`) mostra queste righe, la fonte e i due link in https; non servono
+  altri campi né un trattamento diverso per stato.
 - Concatenare i `answer_delta` senza riscriverli; applicare `replace` se non è `null`; mostrare `lists` dopo `answer_end`.
 - Ignorare gli eventi e i campi sconosciuti (il contratto può aggiungerne) e le righe di commento `:`.
 - Un solo messaggio alla volta per conversazione.
