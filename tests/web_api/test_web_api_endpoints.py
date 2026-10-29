@@ -230,7 +230,7 @@ def test_every_http_call_of_every_tool_reaches_the_client_in_order_with_the_key_
 
     from turn import mask_url
 
-    builders = {"tmdb_calls": calls._tmdb, "youtube_calls": calls._youtube, "wikipedia_calls": calls._wikipedia, "omdb_calls": calls._omdb}
+    builders = {"tmdb_calls": calls._tmdb, "youtube_calls": calls._youtube, "wikipedia_calls": calls._wikipedia, "omdb_calls": calls._omdb, "tvmaze_calls": calls._tvmaze}
     for kind, build in builders.items():
         steps, sent, secret = _steps_of(build)
         with make_client(FakeOrchestrator(steps=steps)) as client:

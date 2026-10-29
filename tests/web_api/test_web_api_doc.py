@@ -66,6 +66,19 @@ def test_the_documented_omdb_step_is_what_the_serializer_produces_and_its_calls_
     assert all(call["url"].startswith("https://") and "apikey=***" in call["url"] for call in documented["calls"])
 
 
+def test_the_documented_tvmaze_step_is_what_the_serializer_produces_with_its_attribution_links() -> None:
+    from presenters.web.payload import serialize_step
+    from tvmaze_support import doc_step
+
+    documented = {kind: json.loads(body) for kind, body in STEP_EXAMPLE.findall(DOC)}["tvmaze_calls"]
+
+    assert documented == json.loads(json.dumps(serialize_step(doc_step(), "it")))
+    assert len(documented["calls"]) == 2 and all(set(call) == {"method", "url"} for call in documented["calls"])
+    assert documented["show"]["url"].startswith("https://www.tvmaze.com/")
+    assert documented["license"] == {"name": "CC BY-SA 4.0", "url": "https://creativecommons.org/licenses/by-sa/4.0/"}
+    assert "CC BY-SA 4.0" in documented["source"]
+
+
 def test_every_documented_step_example_keeps_credentials_masked() -> None:
     for _, body in STEP_EXAMPLE.findall(DOC) + EXAMPLE.findall(DOC):
         for url in re.findall(r'"url":"([^"]+)"', body):

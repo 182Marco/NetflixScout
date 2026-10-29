@@ -122,3 +122,27 @@ def routes_for(show_data: dict[str, Any] | None = None, **extra: Any) -> dict[st
     }
     base.update(extra)
     return base
+
+
+def doc_step():
+    """The `tvmaze_calls` step whose web form is the example in `web_api/contracts/chat_stream.md`:
+    a title search whose series card (cast, next episode) is read with a second request."""
+    from tool.tvmaze.trace import build_tvmaze_trace
+    from turn import TraceStep
+
+    (step,) = build_tvmaze_trace(
+        [
+            {"method": "GET", "url": "https://api.tvmaze.com/search/shows?q=Sample+Show"},
+            {"method": "GET", "url": "https://api.tvmaze.com/shows/1?embed%5B%5D=cast&embed%5B%5D=nextepisode"},
+        ],
+        status="ok",
+        show={
+            "name": "Sample Show",
+            "url": "https://www.tvmaze.com/shows/1/sample-show",
+            "status": "Running",
+            "premiered": "2016-07-15",
+            "network": "Sample Net",
+        },
+        facets=["info", "cast", "next"],
+    )
+    return TraceStep(**step)

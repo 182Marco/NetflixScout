@@ -1,6 +1,6 @@
 """The HTTP calls of a tool step, as every channel shows them: method and the full URL.
 
-One place for all tools (`tmdb_calls`, `youtube_calls`, `wikipedia_calls`, `omdb_calls`): each tool
+One place for all tools (`tmdb_calls`, `youtube_calls`, `wikipedia_calls`, `omdb_calls`, `tvmaze_calls`): each tool
 records `{"method", "url"}` (`turn.http_call`) where it builds the URL it sends, and the views turn
 that into `CallView`s. The URL is the one actually called, query included; only the value of a
 credential is `***`. `mask_url` runs here once more (it is idempotent) so that a step built by a tool

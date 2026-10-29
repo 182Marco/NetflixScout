@@ -132,7 +132,7 @@ Ogni `status` è accompagnato da una `story` di livello `progress`.
 
 ### `step`
 Il risultato di un tool, già serializzato per il web; `kind` è `retrieval`, `rerank`, `db_query`, `tmdb_calls`,
-`youtube_calls`, `wikipedia_calls` o `omdb_calls`; gli altri campi dipendono dal tipo (sono quelli di
+`youtube_calls`, `wikipedia_calls`, `omdb_calls` o `tvmaze_calls`; gli altri campi dipendono dal tipo (sono quelli di
 `presenters/web/<tool>/serializer.py`). Un turno può avere **più passi dello stesso tool** (per esempio due
 `wikipedia_calls`: prima l'introduzione, poi altre sezioni della pagina): ognuno è un evento `step` a sé.
 Un `kind` sconosciuto va mostrato in modo generico o ignorato.
@@ -141,7 +141,7 @@ Un `kind` sconosciuto va mostrato in modo generico o ignorato.
 ```
 
 #### Le chiamate HTTP dei tool (`calls`)
-Gli step dei tool che fanno richieste HTTP (`tmdb_calls`, `youtube_calls`, `wikipedia_calls`, `omdb_calls`) hanno tutti
+Gli step dei tool che fanno richieste HTTP (`tmdb_calls`, `youtube_calls`, `wikipedia_calls`, `omdb_calls`, `tvmaze_calls`) hanno tutti
 `calls`: una voce per **ogni** richiesta realmente inviata in quel passo, nell'ordine in cui è avvenuta, `{"method","url"}`
 (TMDb aggiunge `label`). `url` è l'URL completo (path e tutti i parametri) esattamente come inviato; il backend sostituisce
 con `***` solo il **valore** delle credenziali (`apikey=***`, `api_key=***`, `key=***`, anche user:password nell'URL): il
@@ -152,6 +152,12 @@ con una ricerca per titolo e la lettura del record per IMDb ID (oltre a `calls` 
 `candidates`, vedi «Cosa il frontend deve rispettare»):
 ```json step=omdb_calls
 {"kind":"omdb_calls","title":"OMDB","source":"Fonte: OMDb API (uso non commerciale; non affiliata a IMDb)","labels":{"title":"OMDB","source":"Fonte: OMDb API (uso non commerciale; non affiliata a IMDb)","called":"Chiamato","no_calls":"Nessuna chiamata a OMDb in questo turno.","imdb":"IMDb","metascore":"Metascore","rotten_tomatoes":"Rotten Tomatoes","audience":"pubblico","critics":"critica","not_available":"non disponibile","unparsed":"valore non leggibile","votes":"voti","candidates":"Opere con titolo simile","ok":"Punteggi trovati","empty":"Nessun punteggio disponibile per questo titolo","ambiguous":"Più opere corrispondono: nessun punteggio assegnato","unverified":"Titolo non verificato: nessun punteggio assegnato","not_found":"Titolo non trovato","error":"Errore"},"calls":[{"method":"GET","url":"https://www.omdbapi.com/?s=Sample+Movie&r=json&type=movie&apikey=***"},{"method":"GET","url":"https://www.omdbapi.com/?i=tt1000001&r=json&apikey=***"}],"status":"ok","status_label":"Punteggi trovati","reason":null,"work":"Sample Movie (2016)","imdb_id":"tt1000001","ratings":[{"source_label":"IMDb","kind_label":"pubblico","value":"7.9/10","available":true,"votes":"720.000 voti"},{"source_label":"Metascore","kind_label":"critica","value":"81/100","available":true,"votes":null},{"source_label":"Rotten Tomatoes","kind_label":"critica","value":"non disponibile","available":false,"votes":null}],"candidates":[]}
+```
+`tvmaze_calls` (nessuna chiave: gli URL non hanno nulla da mascherare) con la ricerca per titolo e la lettura della
+scheda della serie con cast e prossimo episodio; oltre a `calls` ci sono `source` (con il nome della licenza),
+`status`, `show` (`url` della pagina TVmaze), `read`, `license` (`url` della licenza) e `candidates`:
+```json step=tvmaze_calls
+{"kind":"tvmaze_calls","title":"TVMAZE","source":"Fonte: TVmaze, dati riformulati dall'assistente, licenza CC BY-SA 4.0","labels":{"title":"TVMAZE","source":"Fonte: TVmaze, dati riformulati dall'assistente, licenza {license}","called":"Chiamato","no_calls":"Nessuna chiamata a TVmaze in questo turno.","page":"Pagina della serie","license":"Licenza","read":"Letto","info":"scheda","cast":"cast","seasons":"stagioni","episodes":"episodi","next":"prossimo episodio","candidates":"Serie con titolo simile","ok":"Serie trovata","ambiguous":"Più serie corrispondono: nessun dato assegnato","unverified":"Titolo non verificato: nessun dato assegnato","not_found":"Serie non trovata","error":"Errore"},"calls":[{"method":"GET","url":"https://api.tvmaze.com/search/shows?q=Sample+Show"},{"method":"GET","url":"https://api.tvmaze.com/shows/1?embed%5B%5D=cast&embed%5B%5D=nextepisode"}],"status":"ok","status_label":"Serie trovata","reason":null,"show":{"name":"Sample Show (2016)","url":"https://www.tvmaze.com/shows/1/sample-show","summary":"Running, Sample Net"},"read":["scheda","cast","prossimo episodio"],"license":{"name":"CC BY-SA 4.0","url":"https://creativecommons.org/licenses/by-sa/4.0/"},"candidates":[]}
 ```
 
 Lo step `wikipedia_calls` porta le fonti del testo di Wikipedia: `pages[]` (`title`, `language`, `url` pubblico di
@@ -230,7 +236,11 @@ rinviato. Il messaggio è generico (nessun dettaglio interno).
   nuova scheda (`target="_blank" rel="noopener noreferrer"`). Per i punteggi OMDb (step `omdb_calls`) mostrare la riga
   `source` e, per ogni elemento di `ratings`, il valore con `kind_label` (pubblico o critica) oppure il testo di
   `value` quando non è disponibile (`available` false): mai un punteggio assente sostituito da un altro. Con
-  `status` `ambiguous` o `unverified` mostrare `candidates` e nessun punteggio.
+  `status` `ambiguous` o `unverified` mostrare `candidates` e nessun punteggio. Per i dati delle serie TVmaze
+  (step `tvmaze_calls`) mostrare la riga `source` (TVmaze come fonte, licenza e riformulazione), il nome della serie
+  con il link alla pagina TVmaze (`show.url`), la licenza (`license.name` con il link `license.url`) e `read`; nessuno
+  di questi link va costruito dal frontend. Con `status` `ambiguous` o `unverified` mostrare `candidates` e nessun
+  dato della serie. Se la serie non è su TVmaze (`not_found`) la risposta può comunque arrivare da un altro passo.
 - Concatenare i `answer_delta` senza riscriverli; applicare `replace` se non è `null`; mostrare `lists` dopo `answer_end`.
 - Ignorare gli eventi e i campi sconosciuti (il contratto può aggiungerne) e le righe di commento `:`.
 - Un solo messaggio alla volta per conversazione.

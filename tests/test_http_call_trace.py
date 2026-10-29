@@ -21,7 +21,18 @@ from presenters import OutputChannel, present
 from presenters.calls_view import call_views
 from presenters.terminal.renderer import STEP_RENDERERS
 from presenters.web.payload import STEP_SERIALIZERS
-from turn import MASK, STEP_OMDB_CALLS, STEP_TMDB_CALLS, STEP_WIKIPEDIA_CALLS, STEP_YOUTUBE_CALLS, TraceStep, TurnResult, http_call, mask_url
+from turn import (
+    MASK,
+    STEP_OMDB_CALLS,
+    STEP_TMDB_CALLS,
+    STEP_TVMAZE_CALLS,
+    STEP_WIKIPEDIA_CALLS,
+    STEP_YOUTUBE_CALLS,
+    TraceStep,
+    TurnResult,
+    http_call,
+    mask_url,
+)
 
 
 # --- mask_url: only credentials, whatever their name or place ---------------------------------------------
@@ -62,7 +73,7 @@ def test_http_call_records_method_and_the_masked_full_url() -> None:
 # --- the presenters mask once more, so a tool that forgot cannot leak -----------------------------------------
 
 
-@pytest.mark.parametrize("kind", [STEP_TMDB_CALLS, STEP_YOUTUBE_CALLS, STEP_WIKIPEDIA_CALLS, STEP_OMDB_CALLS])
+@pytest.mark.parametrize("kind", [STEP_TMDB_CALLS, STEP_YOUTUBE_CALLS, STEP_WIKIPEDIA_CALLS, STEP_OMDB_CALLS, STEP_TVMAZE_CALLS])
 def test_a_step_with_an_unmasked_url_still_shows_no_key(kind, capsys) -> None:
     leaky = [
         {"method": "GET", "url": "https://h.test/p?x=1&apikey=LEAK1&key=LEAK2&api_key=LEAK3"},
@@ -119,9 +130,24 @@ def _omdb() -> tuple[dict[str, Any], list[str], str]:
     return result, [call[2] for call in transport.calls], omdb_support.SECRET
 
 
+def _tvmaze() -> tuple[dict[str, Any], list[str], str]:
+    import tvmaze_support
+
+    tool, transport = tvmaze_support.make_tool(tvmaze_support.routes_for())
+    result = tool.run(query="q", params={"title": "Sample Show", "facets": ["cast", "next", "seasons"]})
+    # No key: nothing to mask, the URL shown is the URL sent.
+    return result, [call[3] for call in transport.calls], ""
+
+
 @pytest.mark.parametrize(
     ("build", "kind", "expected_calls"),
-    [(_tmdb, STEP_TMDB_CALLS, 2), (_youtube, STEP_YOUTUBE_CALLS, 2), (_wikipedia, STEP_WIKIPEDIA_CALLS, 2), (_omdb, STEP_OMDB_CALLS, 2)],
+    [
+        (_tmdb, STEP_TMDB_CALLS, 2),
+        (_youtube, STEP_YOUTUBE_CALLS, 2),
+        (_wikipedia, STEP_WIKIPEDIA_CALLS, 2),
+        (_omdb, STEP_OMDB_CALLS, 2),
+        (_tvmaze, STEP_TVMAZE_CALLS, 3),
+    ],
 )
 def test_every_request_sent_is_shown_with_its_full_url_and_only_the_key_masked(build, kind, expected_calls, capsys) -> None:
     result, sent, secret = build()
