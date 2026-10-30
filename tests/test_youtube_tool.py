@@ -108,11 +108,15 @@ def test_happy_path_one_search_and_one_videos_lookup() -> None:
 def test_titles_channels_and_urls_are_the_api_values() -> None:
     tool, _ = make_tool(making_of_routes())
 
-    hit = kinds(run_tool(tool))["making_of"]["hits"][0]
+    result = run_tool(tool)
+    hit = kinds(result)["making_of"]["hits"][0]
 
     assert hit["title"] == "Dune: Part Two – “Making of” & more"
     assert hit["channel"] == "Warner Bros. Italia"
-    assert hit["url"] == f"https://www.youtube.com/watch?v={ID1}"
+    # The prompt (metadata) carries no URL; the interface gets it from the trace.
+    assert "url" not in hit and hit["video_id"] == ID1
+    urls = [v["url"] for step in result["trace"] for v in step["data"].get("videos", [])]
+    assert urls[0] == f"https://www.youtube.com/watch?v={ID1}"
     assert hit["published_at"] == "2024-02-20T10:00:00Z" and hit["duration_seconds"] == 300
     assert "title_from_search" not in hit["notes"]
 

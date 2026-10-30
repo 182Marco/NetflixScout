@@ -393,7 +393,8 @@ CONFIG = {
                 "video, divisi per categoria con questi nomi: interviste al regista "
                 "(director_interview), interviste al cast (cast_interview), making-of, dietro le "
                 "quinte, commenti degli autori, trailer. Per ogni video riporta titolo e canale "
-                "esattamente come ricevuti, la data e il link. In ogni categoria elenca prima i "
+                "esattamente come ricevuti e la data, in una breve frase discorsiva che dice che intervista o "
+                "video è e con chi, senza scrivere mai URL, link o id: li mostra l'interfaccia. In ogni categoria elenca prima i "
                 "video con verification 'confirmed' e poi, sotto 'Da verificare', quelli con "
                 "verification 'to_verify', ciascun gruppo nello stesso ordine ricevuto, dicendo in "
                 "poche parole cosa non è confermato (la categoria o il film); non presentare mai "
@@ -404,7 +405,7 @@ CONFIG = {
                 "motivo. Dichiara le categorie senza risultati e gli errori di quota. Se hints "
                 "contiene 'specify_year', suggerisci di indicare l'anno del film; se contiene "
                 "'original_title', di' in una frase che indicare il titolo originale può aiutare, "
-                "senza proporne uno. Non mescolare link TMDb e YouTube."
+                "senza proporne uno."
             ),
             "tvmaze_search": (
                 "Se il tool usato è tvmaze_search, riporta stagioni, episodi, date, durata, stato, rete e "

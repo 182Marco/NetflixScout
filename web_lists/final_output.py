@@ -20,7 +20,7 @@ INSTRUCTIONS = (
     "confrontarli o ricordarli di passaggio. Usa solo risorse presenti nei risultati dei tool "
     "di questo turno e leggi gli id da lì: per TMDb dal riferimento 'TMDb movie/NNN' o "
     "'TMDb tv/NNN' (media_type movie o tv, id numerico), da tmdb_url (…/movie/NNN, …/tv/NNN); "
-    "per YouTube (source youtube) il video_id è il valore di v= nell'URL. Non inventare id. "
+    "per YouTube (source youtube) il video_id è il campo `video_id` del video. Non inventare id. `answer` non contiene mai URL o link. "
     "`quote` è una frase o riga che copi ESATTAMENTE da `answer` e che contiene il titolo della "
     "risorsa mentre la presenta. `reason` è una frase breve (massimo 140 caratteri) nella "
     "lingua della risposta. `list_id` è uno slug minuscolo stabile (lettere, numeri, trattini); "

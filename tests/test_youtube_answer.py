@@ -50,7 +50,8 @@ def test_turn_limit_wording_hints_and_conciseness() -> None:
     assert "'specify_year', suggerisci di indicare l'anno del film" in text
     assert "'original_title'" in text and "senza proporne uno" in text
     # The length of the answer belongs to the user's settings (`preferences/`), not to this rule.
-    assert "Non mescolare link TMDb e YouTube" in text and "Rispondi in modo conciso" not in text
+    assert "senza scrivere mai URL, link o id" in text and "e il link" not in text
+    assert "Rispondi in modo conciso" not in text
 
 
 def test_the_shared_final_rules_do_not_carry_the_youtube_rules() -> None:
@@ -83,3 +84,6 @@ def test_the_final_answer_receives_labels_and_hints_in_metadata() -> None:
     hits = metadata["youtube"]["kinds"][0]["hits"]
     assert [hit["verification"] for hit in hits] == ["to_verify", "to_verify"]
     assert metadata["youtube"]["hints"] == ["specify_year", "original_title"]
+    # No link reaches the prompt (the model cannot repeat it); the trace keeps it for the interface.
+    assert "youtube.com" not in payload and all("url" not in hit and hit["video_id"] for hit in hits)
+    assert [video["url"] for step in result["trace"] for video in step["data"].get("videos", [])]

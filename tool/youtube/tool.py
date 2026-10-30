@@ -380,7 +380,7 @@ class YoutubeTool:
         metadata: dict[str, Any] = {
             "status": overall_status(run.outcomes),
             "source": "YouTube",
-            "kinds": [outcome.model_dump(mode="json") for outcome in run.outcomes],
+            "kinds": [outcome.model_dump(mode="json", exclude={"hits": {"__all__": {"url"}}}) for outcome in run.outcomes],
             "not_searched": [o.kind.value for o in run.outcomes if o.status == "not_searched"],
             "hints": hints,
         }
@@ -397,7 +397,7 @@ class YoutubeTool:
         return {
             "query": request.query,
             "outcome": outcome,
-            # Everything is in metadata (all of it reaches the prompt, URLs included).
+            # Everything is in metadata (all of it reaches the prompt): no URLs, the answer never carries links (they travel in the trace and `lists`, by `video_id`).
             "chunks": [],
             "metadata": {"youtube": metadata},
             # Outside "metadata": the orchestrator puts metadata in the LLM prompt.
