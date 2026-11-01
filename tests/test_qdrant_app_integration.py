@@ -188,7 +188,7 @@ def test_a_whole_turn_over_http_and_sse_uses_the_qdrant_index(tmp_path, monkeypa
 
     assert response.status_code == 200 and names(events)[0] == "turn_start" and names(events)[-1] == "done"
     steps = [data for _, name, data in events if name == "step"]
-    assert [s["kind"] for s in steps] == ["retrieval", "rerank"]
+    assert [s["kind"] for s in steps] == ["retrieval", "rerank", "selection"]
     assert "Film Alpha" in streamed_text(events)  # the closest point of the Qdrant index
     end = next(data for _, name, data in events if name == "answer_end")
     assert end["tool"] == "rag_search" and not end["blocked"]

@@ -34,6 +34,7 @@ STEPS = [
     TraceStep(kind="tool_outcome", title="x", data={"tool": "rag_search", "status": "ok", "reason": None, "elapsed_ms": 1500}),
     TraceStep(kind="retrieval", title="x", data={"embedded_text": "robots", "signals": {"genres": ["Sci-Fi"]}, "chunks": [CHUNK]}),
     TraceStep(kind="rerank", title="x", data={"chunks": [CHUNK]}),
+    TraceStep(kind="selection", title="x", data={"chunks": [CHUNK]}),
     TraceStep(kind="tool_selection", title="x", data={"tool": "movie_db_search", "purpose": "voti"}),
     TraceStep(kind="tool_outcome", title="x", data={"tool": "movie_db_search", "status": "error", "reason": "unsupported_request", "elapsed_ms": 100}),
     TraceStep(kind="db_query", title="Database", data={"queries": [{"sql": "SELECT ? ", "params": [1]}]}),
@@ -89,7 +90,7 @@ def test_the_web_payload_has_no_terminal_decoration(language) -> None:
 def test_every_step_has_its_web_form_with_the_data_the_terminal_shows() -> None:
     steps = {step["kind"]: step for step in to_payload(_turn())["steps"]}
 
-    assert set(steps) == {"retrieval", "rerank", "db_query", "tmdb_calls", "youtube_calls"}
+    assert set(steps) == {"retrieval", "rerank", "selection", "db_query", "tmdb_calls", "youtube_calls"}
     assert steps["retrieval"]["embedded_text"] == "robots" and steps["retrieval"]["chunks"][0]["title"] == "Matrix"
     assert steps["rerank"]["chunks"][0]["year"] == "1999"
     assert steps["db_query"]["queries"][0]["display_sql"] == "SELECT 1 "

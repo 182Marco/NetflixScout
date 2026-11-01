@@ -330,9 +330,14 @@ def _retrieve(query: str, config: dict, signals: QuerySignals | None = None, ref
 
 
 def _rerank(
-    query: str, chunks: list[dict], config: dict, signals: QuerySignals | None = None, request: str | None = None
+    query: str, chunks: list[dict], config: dict, signals: QuerySignals | None = None, request: str | None = None,
+    trace: dict | None = None,
 ) -> list[dict]:
+    """Rerank `chunks` and keep `k_finale`. If `trace` is given it receives `engine` (who ranked: `llm_request`,
+    `cohere`, `llm`, or `cohere_fallback` when the LLM for "not like Y" failed) and `ranked` (the whole pool)."""
     ranked = None
+    engine = None
+    avoid_failed = False
     if config["rerank"].get("avoid_llm") and signals is not None and signals.avoid_query and request:
         try:  # "like X, not like Y": an LLM that knows the films; any failure falls back to the cross-encoder
             # A plot whose film has no title in the metadata cannot be named, recommended or judged by the model.
@@ -341,8 +346,10 @@ def _rerank(
                 request, query, signals.avoid_query,
                 titled if len(titled) >= config["retrieval"]["k_finale"] else chunks,
                 model=config["rerank"].get("llm_model"))
+            engine = "llm_request"
         except Exception:
             ranked = None
+            avoid_failed = True
     if ranked is not None:
         pass
     elif config["rerank"]["backend"] == RerankBackend.cohere:
@@ -351,13 +358,18 @@ def _rerank(
             chunks,
             model=config["rerank"]["cohere_model"],
         )
+        engine = "cohere_fallback" if avoid_failed else "cohere"
     else:
         ranked = rerank_llm(
             query,
             chunks,
             model=config["rerank"]["llm_model"],
         )
+        engine = "llm"
 
     if signals is not None:
         ranked = demote_contradicted(signals, ranked)
+    if trace is not None:
+        trace["engine"] = engine
+        trace["ranked"] = list(ranked)
     return ranked[: config["retrieval"]["k_finale"]]

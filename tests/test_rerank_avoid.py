@@ -117,3 +117,15 @@ def test_untitled_plots_do_not_take_part_in_the_llm_rerank(monkeypatch):
     # too few titled plots to fill k_finale: nothing is thrown away
     retrieval._rerank("q", [chunks[0], CHUNKS[0]], cfg(), signals=QuerySignals(avoid_query="a"), request="r")
     assert seen["titles"] == [None, "Film 0"]
+
+
+def test_rerank_trace_says_who_ranked_and_keeps_the_whole_pool(monkeypatch):
+    monkeypatch.setattr(retrieval, "rerank_cohere", lambda q, chunks, model: [{**c, "score": 1.0 - i / 10} for i, c in enumerate(chunks)])
+    trace: dict = {}
+    out = retrieval._rerank("q", CHUNKS, cfg(), signals=QuerySignals(), request="r", trace=trace)
+    assert len(out) == 2 and trace["engine"] == "cohere" and len(trace["ranked"]) == len(CHUNKS)
+
+    monkeypatch.setattr(retrieval, "rerank_llm_request", lambda *a, **k: (_ for _ in ()).throw(TimeoutError("down")))
+    trace = {}
+    retrieval._rerank("q", CHUNKS, cfg(), signals=QuerySignals(avoid_query="x"), request="r", trace=trace)
+    assert trace["engine"] == "cohere_fallback"

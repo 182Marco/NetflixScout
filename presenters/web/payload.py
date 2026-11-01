@@ -43,6 +43,7 @@ from turn import (
     STEP_DB_QUERY,
     STEP_RERANK,
     STEP_RETRIEVAL,
+    STEP_SELECTION,
     STEP_TMDB_CALLS,
     STEP_WIKIPEDIA_CALLS,
     STEP_OMDB_CALLS,
@@ -69,6 +70,7 @@ Serializer = Callable[[TraceStep, str | None], dict[str, Any]]
 STEP_SERIALIZERS: dict[str, Serializer] = {
     STEP_RETRIEVAL: serialize_rag_step,
     STEP_RERANK: serialize_rag_step,
+    STEP_SELECTION: serialize_rag_step,
     STEP_DB_QUERY: serialize_db_query_step,
     STEP_TMDB_CALLS: serialize_tmdb_calls_step,
     STEP_YOUTUBE_CALLS: serialize_youtube_calls_step,

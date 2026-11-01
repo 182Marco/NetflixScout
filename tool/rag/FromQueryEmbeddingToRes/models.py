@@ -66,6 +66,10 @@ class RagResult(BaseModel):
     answer: str | None = None
     chunks: list[RagChunk]
     candidates: list[RagChunk] = Field(default_factory=list)
+    # The whole pool in the reranker's order (before the cut to `k_finale`) and who ranked it
+    # (`cohere`, `llm`, `llm_request`, `cohere_fallback`).
+    reranked: list[RagChunk] = Field(default_factory=list)
+    rerank_engine: str | None = None
     input_tokens: int | None = None
     output_tokens: int | None = None
     signals: QuerySignals | None = None

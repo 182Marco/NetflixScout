@@ -131,7 +131,7 @@ Ogni `status` è accompagnato da una `story` di livello `progress`.
 ```
 
 ### `step`
-Il risultato di un tool, già serializzato per il web; `kind` è `retrieval`, `rerank`, `db_query`, `tmdb_calls`,
+Il risultato di un tool, già serializzato per il web; `kind` è `retrieval` (K largo: ogni chunk ha `score` = similarity 0–1), `rerank` (l’intero pool riordinato; `engine` dice chi lo ha ordinato: `cohere`, `llm`, `llm_request` o `cohere_fallback`; ogni chunk ha `score` del reranker, `similarity` e `rank_before`), `selection` (K stretto: i film scelti, con `similarity`), `db_query`, `tmdb_calls`,
 `youtube_calls`, `wikipedia_calls`, `omdb_calls`, `tvmaze_calls` o `wikidata_calls`; gli altri campi dipendono dal tipo (sono quelli di
 `presenters/web/<tool>/serializer.py`). Un turno può avere **più passi dello stesso tool** (per esempio due
 `wikipedia_calls`: prima l'introduzione, poi altre sezioni della pagina): ognuno è un evento `step` a sé.

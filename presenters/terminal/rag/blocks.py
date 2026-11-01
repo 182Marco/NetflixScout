@@ -19,6 +19,8 @@ def print_chunks(view: RagStepView, emoji: str, language: str = "it") -> None:
         print("  " + "─" * 64)
         print(f"  🆔 ID       : {chunk.id}")
         print(f"  📊 SCORE    : {chunk.score:.4f}" if chunk.score is not None else "  📊 SCORE    : N/A")
+        if chunk.similarity is not None and chunk.similarity != chunk.score:
+            print(f"  📐 SIMILAR. : {chunk.similarity:.4f}")
         print(f"  📁 SOURCE   : {chunk.source}")
         if chunk.movie_id:
             print(f"  🎬 MOVIE ID : {chunk.movie_id}")
@@ -33,11 +35,17 @@ def print_chunks(view: RagStepView, emoji: str, language: str = "it") -> None:
         print(f'  📝 {texts(language)["plot"]:<8}: "{chunk.preview}"')
 
 
-def print_retrieval_compact(view: RagStepView, emoji: str) -> None:
+def print_retrieval_compact(view: RagStepView, emoji: str, scores: str = "similarity") -> None:
+    """One line per film; `similarity` (K largo) or `rerank` (reranker score, with the similarity beside it)."""
     print_box(emoji, view.title)
 
     for chunk in view.chunks:
-        print(f"  {chunk.title or 'N/A'} ({chunk.year or 'N/A'})")
+        line = f"  {chunk.title or 'N/A'} ({chunk.year or 'N/A'})"
+        if scores == "similarity" and chunk.similarity is not None:
+            line += f" [{chunk.similarity:.3f}]"
+        elif scores == "rerank" and chunk.score is not None:
+            line += f" [{chunk.score:.3f}]" + (f" (sim. {chunk.similarity:.3f})" if chunk.similarity is not None else "")
+        print(line)
 
 
 def print_retrieval_query(embedded_text: str | None, genres: list[str], language: str = "it") -> None:

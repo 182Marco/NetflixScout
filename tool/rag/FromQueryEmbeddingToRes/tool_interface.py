@@ -54,6 +54,14 @@ class RagTool:
         )
 
         chunks = [chunk.model_dump(mode="json") for chunk in result.chunks]
+        # After the rerank `score` is the reranker's; the retrieval similarity (0-1) and the place in the wide K are kept apart.
+        similarity = {c.id: (rank, c.score) for rank, c in enumerate(result.candidates, start=1)}
+
+        def with_similarity(chunk: dict) -> dict:
+            rank, score = similarity.get(chunk.get("id"), (None, None))
+            return {**chunk, "similarity": score, "rank_before": rank}
+
+        reranked = [with_similarity(c.model_dump(mode="json")) for c in (result.reranked or result.chunks)]
 
         return {
             "query": result.query,
@@ -97,10 +105,18 @@ class RagTool:
                     "kind": "rerank",
                     "title": "Reranking",
                     "data": {
-                        "backend": result.rerank_backend.value,
+                        # Who really ranked the pool (`cohere`, `llm`, `llm_request`, `cohere_fallback`).
+                        "backend": result.rerank_engine or result.rerank_backend.value,
                         "rerank_query": result.rerank_query,
+                        "chunks": reranked,
+                    },
+                },
+                {
+                    "kind": "selection",
+                    "title": "K stretto",
+                    "data": {
                         "constraints": result.constraints,
-                        "chunks": chunks,
+                        "chunks": [with_similarity(c) for c in chunks],
                     },
                 },
             ],

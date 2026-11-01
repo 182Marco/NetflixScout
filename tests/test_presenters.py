@@ -31,9 +31,10 @@ def test_rag_tool_returns_trace_outside_metadata(monkeypatch) -> None:
 
     result = RagTool(config={}).run(query="film con robot", params={}, conversation_history=[])
 
-    assert [step["kind"] for step in result["trace"]] == ["retrieval", "rerank"]
+    assert [step["kind"] for step in result["trace"]] == ["retrieval", "rerank", "selection"]
     assert len(result["trace"][0]["data"]["chunks"]) == 2
-    assert result["trace"][1]["data"]["chunks"] == result["chunks"]
+    assert [c["id"] for c in result["trace"][2]["data"]["chunks"]] == [c["id"] for c in result["chunks"]]
+    assert result["trace"][1]["data"]["backend"] == "cohere" and result["trace"][2]["title"] == "K stretto"
     assert "trace" not in result["metadata"]
     assert result["trace"][0]["data"]["embedded_text"] == "Movies about robots"
     assert result["trace"][0]["data"]["signals"]["genres"] == ["Science Fiction"]
@@ -132,7 +133,8 @@ def _sample_turn() -> TurnResult:
                     "chunks": chunks,
                 },
             ),
-            TraceStep(kind="rerank", title="Reranking", data={"chunks": chunks[:1]}),
+            TraceStep(kind="rerank", title="Reranking", data={"backend": "cohere", "chunks": chunks}),
+            TraceStep(kind="selection", title="K stretto", data={"chunks": chunks[:1]}),
             TraceStep(kind="future_tool_step", title="Passo nuovo", data={"esito": "ok"}),
         ],
     )
@@ -150,10 +152,10 @@ def test_terminal_channel_prints_full_procedure(capsys) -> None:
     assert "Testo usato per l'embedding: Movies about robots" in out
     assert "Generi richiesti: Science Fiction" in out
     assert "K LARGO — 2 CHUNK RECUPERATI" in out
-    assert "RERANKING — 1 CHUNK SELEZIONATI" in out
+    assert "RERANK (COHERE) — 2 CHUNK RIORDINATI" in out and "K STRETTO — 1 CHUNK SELEZIONATI" in out
     assert "PASSO NUOVO" in out
     assert "Guarda Matrix." in out
-    assert out.index("K LARGO") < out.index("RERANKING") < out.index("Guarda Matrix.")
+    assert out.index("K LARGO") < out.index("RERANK (") < out.index("Guarda Matrix.")
 
 
 def test_web_channel_returns_the_payload_without_printing(capsys) -> None:
@@ -161,7 +163,7 @@ def test_web_channel_returns_the_payload_without_printing(capsys) -> None:
 
     assert capsys.readouterr().out == ""
     assert payload["answer"] == "Guarda Matrix." and payload["tool"] == "rag_search"
-    assert [step["kind"] for step in payload["steps"]] == ["retrieval", "rerank", "future_tool_step"]
+    assert [step["kind"] for step in payload["steps"]] == ["retrieval", "rerank", "selection", "future_tool_step"]
 
 
 def test_handle_query_gives_recent_history_to_the_classifier(monkeypatch) -> None:

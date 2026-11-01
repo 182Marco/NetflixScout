@@ -13,6 +13,7 @@ from turn import (
     STEP_DB_QUERY,
     STEP_RERANK,
     STEP_RETRIEVAL,
+    STEP_SELECTION,
     STEP_TMDB_CALLS,
     STEP_WIKIPEDIA_CALLS,
     STEP_OMDB_CALLS,
@@ -36,7 +37,7 @@ from .blocks import (
     print_story_line,
 )
 from .db import render_db_query
-from .rag import render_rerank, render_retrieval
+from .rag import render_rerank, render_retrieval, render_selection
 from .wikipedia import render_wikipedia_calls
 from .omdb import render_omdb_calls
 from .tvmaze import render_tvmaze_calls
@@ -51,6 +52,7 @@ StepRenderer = Callable[[TraceStep, str], None]
 STEP_RENDERERS: dict[str, StepRenderer] = {
     STEP_RETRIEVAL: render_retrieval,
     STEP_RERANK: render_rerank,
+    STEP_SELECTION: render_selection,
     STEP_DB_QUERY: render_db_query,
     STEP_TMDB_CALLS: render_tmdb_calls,
     STEP_YOUTUBE_CALLS: render_youtube_calls,
