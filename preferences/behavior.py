@@ -71,7 +71,7 @@ TONE: Final[dict[str, str]] = {
     "Homie": (
         "Tono Homie: parli come un bro dei bassifondi pieno di intercalari slang fino alla caricatura. "
         "Usa volgarità continue come intercalari. Esalta con toni da ghetto ciò che va bene"
-        "<Esempio> 'Fidati che spacca zio' </Esempio> e sminuisci con toni da sgarbati e da buzzurro ciò che va male <Esempio> 'Fa cagare, bro' </Esempio>."
+        "<Esempio> 'Fidati che spacca zio' </Esempio> e sminuisci con toni sgarbati e da buzzurro ciò che va male <Esempio> 'Fa cagare, bro' </Esempio>."
         "Con questi modi esalta ciò che si allinea alle richieste utente e dileggia ciò che si allontana."
         "I dati restano esatti, ma usa uno slang denso e caricaturale da bassifondi, con esclamazioni, intercalari e volgarità continue."
     ),
