@@ -93,9 +93,16 @@ Il **dataset pulito è pronto e verificato** [V] (`build_clean verify` → «VER
 **Punto esatto da cui ripartire (quando ci sono crediti)**: (1) `python -m tool.RAGWikipediaSeries.build_clean verify` deve dire VERIFY OK; (2) chiedere il consenso al proprietario sul costo (≈ 4,77 $); (3) scrivere il modulo di embedding con shard riprendibili partendo da `data/s6/units.jsonl.gz` (non esiste ancora: [P]); (4) poi indicizzazione in una collezione nuova.
 
 ## 9. Stato Git
-Alla ripresa della sessione di chiusura nulla era committato per questi progetti (HEAD `28889cc`). Commit creati nella sessione di chiusura: vedi la tabella in fondo a questa sezione (aggiornata dopo i commit). Il `.gitignore` radice ha una sezione «RAGWikipedia* pipelines» (cache `eval/cache/`, `eval/results/*retrieval.jsonl`, cache di pytest/mypy/ruff, `*.part`).
+Prima della sessione di chiusura nulla era committato per questi progetti (HEAD `28889cc`). Commit creati nella sessione di chiusura (autorizzati dal proprietario): Il `.gitignore` radice ha una sezione «RAGWikipedia* pipelines» (cache `eval/cache/`, `eval/results/*retrieval.jsonl`, cache di pytest/mypy/ruff, `*.part`).
 
-COMMIT_TABLE
+| Commit | Contenuto |
+|---|---|
+| `bf06cbc` | `tool/RAGWikipediaFilm/` (progetto dati film, 170 file) + sezione «RAGWikipedia* pipelines» di `.gitignore` |
+| `df6a862` | integrazione app del film index e precedenza delle impostazioni (lavoro preesistente, committato a parte): `film_index/`, `preferences/policy.py`, `app.py`, `orchestrator.py`, `turn.py`, enrichment TMDb per IMDb id, relativi test |
+| `58b2862` | `tool/RAGWikipediaSeries/` (codice, test, config, `reports/`, `review/overrides.json`, questo file) |
+| `33284a6` | `AGENTS.md`, `README.md`, `mappa.html` |
+| (ultimo) | questo file con la tabella dei commit |
+Dopo questi commit `git status` deve essere pulito; i dati restano in `data/` (ignorato).
 
 ## 10. Comandi esatti (dalla radice, con `source .venv/bin/activate`)
 Verifica (offline, gratuita):
