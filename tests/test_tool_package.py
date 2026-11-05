@@ -49,7 +49,8 @@ def test_only_app_and_the_routing_eval_import_the_tools() -> None:
         "movie_db/harness/evaluation/run_routing_eval.py",
         "movie_db/harness/evaluation/run_rag_params_eval.py",
         # offline analysis scripts of the Qdrant work, never imported at runtime
-        "cinema_db/harness/baseline/run_baseline.py",  # offline phase-0 baseline of the cinema DB plan (fake transports)
+        "cinema_db/harness/baseline/run_baseline.py",
+        "cinema_db/harness/build/verify.py",  # offline verification of the built cinema database: opens it through tool/cinema_db's guard  # offline phase-0 baseline of the cinema DB plan (fake transports)
         "docs/qdrant_migration/phase5/ab.py",
         "docs/qdrant_migration/catalog/calibration/calibrate.py",  # offline, paid steps gated by an env variable
     }

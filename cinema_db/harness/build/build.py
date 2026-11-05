@@ -588,9 +588,13 @@ class Builder:
         self.add_name(wid, title, "primary", "it", cat, r["record_id"], primary=True)
         if r.get("title_original"):
             self.add_name(wid, r["title_original"], "original", None, cat, r["record_id"])
+        # The page identifies the episode only when it is the episode's own page; a table row or a section of a season page points at
+        # the LIST/season page that all its siblings share (it would be attached to whichever row came first).
         page = wikipedia_title(r.get("wikipedia_url"))
-        if page:
+        if page and r.get("source") == "episode_page":
             self.add_external(wid, "wikipedia_it", page, cat, r["record_id"])
+        elif page:
+            self.count("episode_page_url_not_attached_shared_list_page")
         ids = r.get("ids") or {}
         if ids.get("qid"):
             self.add_external(wid, "wikidata", ids["qid"], cat, r["record_id"])

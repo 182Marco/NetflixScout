@@ -147,12 +147,12 @@ def make_inputs(tmp: Path) -> Inputs:
     ])
     write_jsonl(s5 / "episodes.jsonl", [
         {"record_id": "wp-300", "series_id": "wp-100", "season_id": "wp-100#season1", "season_number": 1, "episode_number": 1, "title": "Pilota", "title_it": None, "title_original": "Pilot",
-         "air_dates": ["15 luglio 2016"], "ids": {"imdb_id": "tt9200001", "qid": None}, "wikipedia_url": "https://it.wikipedia.org/wiki/Pilota_(Serie_di_prova)"},
+         "air_dates": ["15 luglio 2016"], "source": "episode_page", "ids": {"imdb_id": "tt9200001", "qid": None}, "wikipedia_url": "https://it.wikipedia.org/wiki/Pilota_(Serie_di_prova)"},
         {"record_id": "wp-301", "series_id": "wp-999", "season_id": None, "season_number": 1, "episode_number": 1, "title": "Orfano", "air_dates": []},
     ])
     write_jsonl(s5 / "episodes_meta.jsonl", [
-        {"record_id": "wp-100#r0", "series_id": "wp-100", "season_id": None, "season_number": 1, "episode_number": 1, "title": "Pilota (riga)", "air_dates": ["15 luglio 2016"]},
-        {"record_id": "wp-100#r1", "series_id": "wp-100", "season_id": None, "season_number": 2, "episode_number": 1, "title": "Ritorno", "air_dates": ["data sconosciuta"]},
+        {"record_id": "wp-100#r0", "series_id": "wp-100", "season_id": None, "season_number": 1, "episode_number": 1, "title": "Pilota (riga)", "air_dates": ["15 luglio 2016"], "source": "table_row", "wikipedia_url": "https://it.wikipedia.org/wiki/Episodi_di_Serie_di_prova"},
+        {"record_id": "wp-100#r1", "series_id": "wp-100", "season_id": None, "season_number": 2, "episode_number": 1, "title": "Ritorno", "air_dates": ["data sconosciuta"], "source": "table_row", "wikipedia_url": "https://it.wikipedia.org/wiki/Episodi_di_Serie_di_prova"},
         {"record_id": "wp-100#r2", "series_id": "wp-100", "season_id": None, "season_number": None, "episode_number": None, "title": "Speciale", "air_dates": ["dicembre 2017"]},
     ])
     write_jsonl(s5 / "tv_movies.jsonl", [

@@ -141,6 +141,9 @@ def test_seasons_and_episodes_hang_from_their_parents_with_numbers_and_dates(bui
     assert ("Speciale", None, None, "2017-12", "Serie di prova") in eps  # no number: hangs from the series
     assert not [e for e in eps if e[0] == "Pilota (riga)"]  # the table row of an episode that has its own page is not repeated
     assert built["report"]["skipped"]["episode_without_imported_series"] == 1
+    # a list page shared by table rows is NOT attached to any single episode; an episode's own page is
+    assert q(built, "SELECT count(*) FROM v_external_id e JOIN v_work w ON w.work_id = e.entity_id WHERE w.kind = 'episode' AND e.scheme = 'wikipedia_it'") == [(1,)]
+    assert built["report"]["counts"]["episode_page_url_not_attached_shared_list_page"] == 1  # the duplicate row is dropped before its page matters
     assert q(built, "SELECT value FROM v_external_id WHERE scheme = 'imdb_title' AND entity_id = (SELECT work_id FROM v_work WHERE title = 'Pilota')") == [("tt9200001",)]
     assert q(built, "SELECT name FROM v_name WHERE name_kind = 'original' AND entity_id = (SELECT work_id FROM v_work WHERE title = 'Pilota')") == [("Pilot",)]
 
