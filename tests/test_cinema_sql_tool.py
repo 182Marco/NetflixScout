@@ -201,3 +201,21 @@ def test_the_tool_package_has_no_network_llm_or_credential_code():
             names = [a.name for a in node.names] if isinstance(node, ast.Import) else [node.module or ""] if isinstance(node, ast.ImportFrom) and node.level == 0 else []
             assert not any(n.split(".")[0] in forbidden for n in names), (path.name, names)
         assert "os.environ" not in path.read_text(encoding="utf-8"), path.name
+
+
+def test_the_tool_is_meant_for_the_official_information_setting_and_carries_no_ratings_or_reviews(tool):
+    from tool.cinema_db.tool import SOURCE_CATEGORY
+
+    root = Path(__file__).resolve().parents[1]
+    fields = json.loads((root / "preferences" / "fields.json").read_text(encoding="utf-8"))
+    sources = next(f for f in fields["fields"] if f["id"] == "preferred_sources")
+    values = {o["value"] for o in sources["options"]}
+    assert SOURCE_CATEGORY == "official information" and SOURCE_CATEGORY in values and {"reviews", "user ratings"} <= values
+    behavior = (root / "preferences" / "behavior.py").read_text(encoding="utf-8")
+    assert "cinema_sql" not in behavior, "the tool is not wired into the settings yet"  # registering it is the next phase, with its own conflict test
+    forbidden = ("rating", "score", "review", "vote", "plot", "overview", "synopsis")
+    for arguments in ({"operation": "work_card", "title": "Film di prova"}, {"operation": "cast", "title": "Film di prova"}, {"operation": "awards", "title": "Film di prova"},
+                      {"operation": "series", "title": "Serie di prova"}, {"operation": "relations", "title": "Film di prova"}, {"operation": "find_person", "person": "Ann Regista"}):
+        text = json.dumps(call(tool, **arguments)[1]).casefold()
+        keys = {k for k in __import__("re").findall(r'"([a-z_]+)":', text)}
+        assert not [k for k in keys if any(word in k for word in forbidden)], (arguments, keys)

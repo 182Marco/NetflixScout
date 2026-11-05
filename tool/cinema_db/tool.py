@@ -38,6 +38,12 @@ CINEMA_SQL_TOOL_NAME = "cinema_sql"
 OK_STATUS = "ok"
 ROOT = Path(__file__).resolve().parents[2]
 
+# The user setting this tool will serve ("Preferred sources"), to register in `preferences/behavior.py:SOURCE_TOOLS["cinema_sql"]` WHEN the tool is wired (not
+# done: the settings are unchanged). Verified on the real data: structured encyclopedic facts (credits, relations, companies, awards, series structure) from
+# Wikipedia and Wikidata, like `wikipedia_search` and `tmdb_search`. It carries NO audience rating (that is `user ratings`) and NO critic score or review
+# (that is `reviews`: awards are industry recognitions, not reviews), no interview, no plot (so no spoilers) and covers films and series.
+SOURCE_CATEGORY = "official information"
+
 # Where a local gap can be looked at once, online (the planner decides; the tool only suggests).
 FALLBACKS = {
     "find_work": "tmdb_search", "work_card": "tmdb_search", "cast": "tmdb_search", "crew": "tmdb_search", "find_person": "tmdb_search",
