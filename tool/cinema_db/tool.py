@@ -90,7 +90,16 @@ def planner_schema() -> dict[str, Any]:
                 prop.update(options[0])
         props[name] = prop
     schema["properties"] = props
-    return schema
+    return _without_titles(schema)
+
+
+def _without_titles(node: Any) -> Any:
+    """Drop the `title` ANNOTATIONS (a string) at every depth; a property that is itself called `title` (a dict) stays."""
+    if isinstance(node, dict):
+        return {k: _without_titles(v) for k, v in node.items() if not (k == "title" and isinstance(v, str))}
+    if isinstance(node, list):
+        return [_without_titles(v) for v in node]
+    return node
 
 
 def _note_list(codes: list[str]) -> list[dict[str, str]]:
