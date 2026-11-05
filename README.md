@@ -217,14 +217,22 @@ Automatic compaction:
 2. If it reaches `CONFIG["orchestrator"]["memory_window_size"]` messages (12), history is compacted and replaced (not appended).
 3. A short user-friendly notice is printed in terminal.
 
-## Retrieval Notes
+## Retrieval Notes (the film index)
 
-1. An LLM parser turns the user query into English `QuerySignals`: `semantic_query`, `genres`, `excluded_genres`, and positive/negative signals plus hard exclusions. `rag_search` runs on the standalone query; the planner's `arguments.query` is only a hint for the parser.
-2. The embedding is computed on `semantic_query` (falling back to the original query), never on a bag of keywords: the corpus is English plot summaries.
-3. Chunks whose metadata `genres` match the requested genres get `retrieval.genre_boost` on a pool of `retrieval.fetch_k` candidates, before cutting to `k_largo`.
-4. The reranker sees `Title (year)` and `Genres` before the plot, and is queried with `semantic_query` (falling back to the query) plus a "Must match:" list of the requested genres and positive signals (decade, country, setting) the sentence left out.
-5. `excluded_genres` ("without science fiction") drop chunks by their `genres` metadata; `hard_exclusions` only filter titles. `pipeline.run_rag` gives each constraint a status per film (full report in the `rerank` trace step; the prompt gets one readable line per film and constraint in `metadata.constraints_summary`): `verified` (genres/year metadata), `probable` (key terms in the plot), `not_verifiable` (endings, tone, missing terms) or `contradicted`; plot constraints such as "no tragic ending" are never presented as verified.
-6. The terminal shows the text used for the embedding and the requested genres above the K LARGO list.
+The RAG searches `wikipedia_films_it_v3`: 41,138 films with the plot of Italian Wikipedia up to November 2026 (less complete after 2019), one point per film (`text-embedding-3-large`, 1,536 dimensions, cosine), in the Qdrant server. It is the only retriever (`CONFIG["rag"]["backend"] = "wikipedia"`): one dense search over one collection, no RRF, no fusion, no fallback to another index. Code: `tool/rag/FromQueryEmbeddingToRes/film_index/`; measurements: `tool/RAGWikipediaFilm/EVAL_REPORT.md`.
+
+1. **Parser** (`film_index/parser.py`, one LLM call): the whole request, positive and negative parts together, becomes `Signals`: the wanted description (Italian and English), cited films (to be like), films and franchises to exclude, narrative traits to avoid written positively, genres, formats, year range, countries, directors, actors, rare plot words, and whether the request contradicts itself.
+2. **Search** (`film_index/search.py`): positive filters (year, country, director, actor, rare plot words) run inside Qdrant; the query vector is the centroid of the wanted description and the cited films; the pool of 300 loses the cited films, the franchises (by id and by name), the avoided genres (never a genre that is also wanted or that labels more than 8% of the catalogue) and the avoided formats; the traits to avoid are penalised: `cos(r, wanted) - 0.5 * max cos(r, trait)`.
+3. **Reorder** (`film_index/service.py`): the best 40 are reordered by an LLM that knows the films and reads up to 1,500 characters of each plot (`gpt-5.6-sol` without reasoning, about 3 s; if it fails the penalty order stays).
+4. A film cited as a model that is not in the catalogue is described to the embedder with a short summary written by the parser; nothing is ever written to Qdrant.
+5. Rollback: `RAG_BACKEND=legacy` (or `build_runtime_config(LEGACY_RAG_OVERRIDES)`) switches the whole application back to the CMU/2012 pipeline (`netflix_scout`, English parser, BM25/RRF, Cohere); the two never run together.
+
+## Data projects behind the RAGs (offline, not imported by the app)
+
+Two independent projects prepare Wikipedia-based data; neither is imported by the application at runtime.
+
+- `tool/RAGWikipediaFilm/` builds, verifies and evaluates the film collection `wikipedia_films_it_v3`, which the film index (`film_index/`) reads. Verify offline: `python -m tool.RAGWikipediaFilm.audit.build_v3 verify` and `python -m tool.RAGWikipediaFilm.indexing.v3 check` (read-only).
+- `tool/RAGWikipediaSeries/` prepares a hierarchical dataset of TV series, seasons and episodes (plus TV films as an autonomous `tv_movie` type) from the Italian Wikipedia dump `itwiki-20261101` and Wikidata. **Status: dataset built and verified; there are no embeddings, no Qdrant collection, no retriever and no agent integration yet.** TV films never belong to a series (no season or episode relations); manga/anime franchise pages are kept but flagged `default_search_eligible = false`, so a future default anime search skips them. Re-check the data with `python -m tool.RAGWikipediaSeries.build_clean verify` (byte-for-byte rebuild) and `python -m tool.RAGWikipediaSeries.check_catalog`; tests: `python -m pytest tool/RAGWikipediaSeries/tests -q`. Full state, decisions, hashes, costs and next steps: `tool/RAGWikipediaSeries/PROGRESS.md`.
 
 ## Public Runtime API
 
@@ -236,19 +244,11 @@ Automatic compaction:
 
 `run_rag` lives in `tool/rag/FromQueryEmbeddingToRes/pipeline.py` and returns only evidence (retrieve + rerank, no generation); the final answer is always written by the orchestrator.
 
-`search_mode` is strictly validated to:
-
-1. `semantic`
-2. `hybrid`
-3. `bm25`
-
-The chosen mode is propagated to the runtime retrieval components (`rag` / `hybrid`) and does not rely on fake APIs.
-
-In the chat, the orchestrator's planner sets two retrieval settings per turn: `k_finale`, the number of films the user asked for (clamped to `rag.retrieval.limits.k_finale`; null keeps the configured default), and `search_mode`, `hybrid` only when the request hinges on concrete words that must appear in the plot (a character name, a place, a rare term); `bm25` alone is not offered to the planner. In hybrid mode the keyword side searches with the English `semantic_query`. The other retrieval settings stay fixed in `CONFIG`.
+In the chat, the orchestrator's planner sets one retrieval setting per turn: `k_finale`, the number of films the user asked for (clamped to `rag.retrieval.limits.k_finale`; null keeps the configured default). The legacy backend also accepts `search_mode` (`semantic`, `hybrid`).
 
 ## RAG Tool (`rag_search`)
 
-`RagTool` (`tool/rag/FromQueryEmbeddingToRes/tool_interface.py`) follows the `Tool` Protocol of `orchestrator.py`; its input schema is generated from the Pydantic model `RagToolInput.model_json_schema()` (query and `k_finale`). `build_app` registers it together with the other tools and `CONFIG["orchestrator"]["allowed_tools"]` lists the names the planner may choose, so new tools are added without refactoring the runtime core.
+`RagTool` (`tool/rag/FromQueryEmbeddingToRes/tool_interface.py`) follows the `Tool` Protocol of `orchestrator.py`; its input schema is generated from the Pydantic model `FilmIndexToolInput` (the film index: the whole request in `query`, plus `k_finale`) or `RagToolInput` (legacy backend). `build_app` registers it together with the other tools and `CONFIG["orchestrator"]["allowed_tools"]` lists the names the planner may choose, so new tools are added without refactoring the runtime core.
 
 ## MovieLens DB Tool (`movie_db_search`)
 
@@ -342,17 +342,11 @@ operation to a fixed endpoint and uses `append_to_response` (max 20) for facets.
 
 Routing priority: any request for information on a film or series identified by its title goes to
 `tmdb_search` ("tell me about Arrival", "who directed…", streaming, cast); ratings and rankings go
-to `movie_db_search`; recommendations and plot/theme/mood searches go to `rag_search`, also when a
-title is only a reference ("films like X"). When a specific film is meant but neither the question
+to `movie_db_search`; recommendations and plot/theme/mood searches go to `rag_search`, also with titles, people, years or countries ("films like X", "thrillers by Fincher", "films with Tom Hanks from the 90s"); the film index replaced the 2012 corpus whose limits had kept those requests out of the RAG. When a specific film is meant but neither the question
 nor the history identifies it ("who was in that Sorrentino film…"), the planner asks a clarifying
 question instead: no tool and no TMDb call run in that turn.
 
-After `rag_search`, `tool/tmdb/enrich.py` completes the movies the RAG selected (the final reranked
-chunks, at most `CONFIG["orchestrator"]["rag_enrichment"]["max_candidates"]`, in RAG order) with
-TMDb title, year, director, cast and overview. Metadata is attached only when the title equals the
-TMDb title or original title (never by containment: "The Sinner" is not "The Sinners") and a known
-year is confirmed within ±1, with a single such match; otherwise the candidate is marked
-`unverified`/`not_found`/`skipped` and nothing is attributed. `tmdb_search` applies the same rule
+After `rag_search`, `tool/tmdb/enrich.py` (IMDb mode, `rag_enrichment.mode = "imdb"`) completes only the films the RAG RETURNED (at most `max_candidates`, 5): one `/find` by IMDb id each, for the poster and the TMDb id; never a search by title, never the candidate pool, nothing written. Title, year, director, cast, duration, country and plot already come from the index. With the legacy backend (`mode = "title"`) the old title-based completion applies: metadata is attached only when the title equals the TMDb title or original title (never by containment: "The Sinner" is not "The Sinners") and a known year is confirmed within ±1, with a single such match. `tmdb_search` applies a similar rule
 to movies and series: without an exact title it accepts a result only if TMDb lists the
 requested title among the translated or alternative titles of that same work (year ±1; e.g.
 "Survival Island" → "Three", 2005), otherwise it returns `unverified_match` with the closest
@@ -489,8 +483,8 @@ air dates, and the upcoming episode. No key, standard library `urllib`, no new d
   numbering, air dates, next episode, cast and the plain facts of a series (running or ended, network, dates,
   genres). TMDb keeps general descriptions in Italian, creators, streaming, trailers, reviews, recommendations
   and lists; Wikipedia keeps history and production; films are never routed here. A source named by the
-  user wins. The **Content type: series** setting treats an ambiguous title as the series and excludes the RAG
-  and MovieLens for finding series, but does not force TVmaze: the intent of the question decides.
+  user wins. The **Content type: series** setting treats an ambiguous title as the series and the system forbids the RAG
+  and MovieLens for finding series (a deterministic guard, `preferences/policy.py`), but does not force TVmaze: the intent of the question decides.
 - **Missing data and fallback**: a series TVmaze does not know (it holds mostly original or English titles),
   a rate limit, a timeout or a network error make the tool offer ONE next step to `tmdb_search`; the planner
   never asks TVmaze twice. A section that fails (say the seasons) does not lose the rest. When both sources are
@@ -659,3 +653,7 @@ alternatives comparison, films and series, official information; checked with 10
 and the instructions behind each choice stay private
 (`preferences/behavior.py`). The terminal always behaves as before. Contract for the frontend:
 `web_api/contracts/settings.md`.
+
+## User settings prevail over the request (2026-11-05)
+
+Every setting of the web channel (spoilers, length, tone, approach, content type, preferred sources), **defaults included**, wins over an explicit request that contradicts it. The planner declares the conflict (`conflicts`) in the same call that picks the tool; the answer opens with a fixed sentence in the user's language (it/en/de, any other language reads English) that says there is a conflict and which setting prevails, then serves the part of the request that is compatible and never executes the other. `content_type` is also enforced on the tools: with *series* the RAG and MovieLens cannot be used to find series and the film operations of TMDb are removed; with *film* TVmaze and the TV operations are removed (`preferences/policy.py`, `SettingsPolicy.check_step`). For preferred sources a conflict is only an explicit request for a different source. The terminal has no settings and is unchanged.

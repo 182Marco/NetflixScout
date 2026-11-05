@@ -661,6 +661,13 @@ const TREE = D("NetflixScout", {}, [
         dep: [Q + "vectorstore.py"],
       }),
 
+      D("film_index", {
+        L: "rt", s: "Il retriever dei film (backend predefinito, `rag.backend = \"wikipedia\"`): un solo indice denso, nessuna fusione.",
+        d: `Cerca in <code>wikipedia_films_it_v3</code> (41.138 film, trama di Wikipedia in italiano). <code>parser.py</code> (una chiamata LLM: richiesta positiva e negativa → <code>Signals</code>), <code>index.py</code> (accesso in sola lettura a Qdrant, risoluzione dei titoli, filtri positivi), <code>search.py</code> (film citati, franchise, generi e formati esclusi, penalità sui tratti da evitare, riordino LLM del top), <code>service.py</code> (OpenAI: embedding, parser, riordino), <code>adapter.py</code> (<code>run_film_index</code> → <code>RagResult</code>). Mai scritture su Qdrant. Il backend <code>legacy</code> (CMU 2012, <code>netflix_scout</code>) resta solo per il rollback.`,
+        dep: [Q + "pipeline.py", Q + "models.py", "tool/RAGWikipediaFilm/EVAL_REPORT.md"],
+        x: ["qdrant-client", "openai"],
+      }),
+
       D("query_classifier", {
         L: "orch",
         s: "Il guardrail attuale: la domanda riguarda il cinema? È in italiano?",
@@ -953,6 +960,27 @@ const TREE = D("NetflixScout", {}, [
     D("harness", { L: "test", s: "Controllo live facoltativo, mai importato a runtime.", d: `Tre esecuzioni reali del tool (circa 9 richieste). Mai eseguito; richiede <code>--live</code> e il permesso del proprietario.` }, [
       F("live_smoke.py", { L: "test", api: 1, s: "Controllo live: 3 esecuzioni di <code>wikidata_search</code>.", d: `Stampa stato, numero di richieste, tempo e forma dei gruppi, per confermare le query composte e gli id delle classi.` }),
     ]),
+  ]),
+
+  D("RAGWikipediaFilm", {
+    L: "off",
+    s: "Progetto DATI dei film (offline): costruisce, verifica e valuta <code>wikipedia_films_it_v3</code>. Non è importato dall'applicazione.",
+    d: `Dump itwiki + Wikidata → catalogo pulito (<code>audit/build_v3</code>) → vettori già verificati → collezione Qdrant <code>wikipedia_films_it_v3</code> (<code>indexing/v3.py</code>). Contiene anche il retriever sperimentale congelato (<code>retrieval/</code>) e la valutazione (<code>eval/</code>). A runtime l'app usa solo <code>tool/rag/FromQueryEmbeddingToRes/film_index/</code>, che legge la collezione in sola lettura. Punto di ripresa: <code>PROGRESS.md</code>.`,
+    dep: ["tool/rag/FromQueryEmbeddingToRes/film_index/adapter.py"],
+    x: ["qdrant-client", "openai", "mwparserfromhell"],
+    n: ["Verifica offline: <code>python -m tool.RAGWikipediaFilm.audit.build_v3 verify</code> e <code>python -m tool.RAGWikipediaFilm.indexing.v3 check</code> (sola lettura)."],
+  }),
+
+  D("RAGWikipediaSeries", {
+    L: "off",
+    s: "Progetto DATI delle serie TV (offline): dataset pulito e verificato. NESSUN embedding, collezione Qdrant, retriever o integrazione nell'agente.",
+    d: `Indipendente da <code>RAGWikipediaFilm</code> (nessun import tra i due; condividono solo il file del dump per percorso). Pipeline completata e verificata: dump itwiki (harvest) → S1 estrazione → S2 Wikidata → S3 relazioni → S4 audit → S5 catalogo pulito (<code>data/s5</code>: serie, stagioni, episodi, film TV autonomi) → S6 unità di embedding con costo stimato (stato <code>pending</code>). Le decisioni di revisione stanno in <code>review/overrides.json</code> (versionato); <code>data/</code> è ignorato da git. <b>Non esistono</b> (futuri, non implementati): embedding, collezione <code>wikipedia_series_it_v1</code>, retriever, tool dell'agente. Punto di ripresa: <code>PROGRESS.md</code>.`,
+    x: ["mwparserfromhell", "tiktoken", "pydantic"],
+    n: ["Verifica offline: <code>python -m tool.RAGWikipediaSeries.build_clean verify</code> (ricostruzione byte per byte).", "I film TV sono una categoria autonoma (<code>tv_movie</code>); le serie miste manga/anime hanno <code>default_search_eligible = false</code>."],
+  }, [
+    F("PROGRESS.md", { L: "cfg", s: "Documento di ripresa tra le sessioni: stato, dataset, decisioni, comandi, passi successivi.", d: `Distingue ciò che è verificato da ciò che è solo progettato o stimato.` }),
+    F("build_clean.py", { L: "off", s: "S5: costruisce <code>data/s5</code> e lo verifica byte per byte (<code>verify</code>).", d: `Applica gli override reversibili di <code>review/overrides.json</code>.` }),
+    F("embedding_units.py", { L: "off", s: "S6: compone le unità di testo, conta i token (tiktoken) e stima il costo. Non chiama nessuna API.", d: `Scrive <code>data/s6/units.jsonl.gz</code> e <code>embedding_manifest.json</code> con stato <code>pending</code>.` }),
   ]),
 
   D("youtube", {
