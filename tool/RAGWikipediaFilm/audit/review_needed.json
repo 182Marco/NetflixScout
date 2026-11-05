@@ -1,0 +1,1035 @@
+{
+ "version": 1,
+ "meaning": "records the audit could not classify with confidence",
+ "count": 71,
+ "records": [
+  {
+   "film_id": "Q697479",
+   "wikipedia_page_id": 330741,
+   "title": "Marmalade Boy",
+   "year": 1995,
+   "verdict": "doubtful",
+   "subtype": "manga",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q21198342 (manga), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1050609",
+   "wikipedia_page_id": 522489,
+   "title": "ÉX-Driver",
+   "year": null,
+   "verdict": "doubtful",
+   "subtype": "ova",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q113687694 (ova): animation/stage work, film status unclear"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q787081",
+   "wikipedia_page_id": 832994,
+   "title": "Cortili del cuore",
+   "year": 1996,
+   "verdict": "doubtful",
+   "subtype": "manga",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q21198342 (manga), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3900098",
+   "wikipedia_page_id": 1015007,
+   "title": "Perry Mason: Il bacio che uccide",
+   "year": 1993,
+   "verdict": "doubtful",
+   "subtype": "tv_film",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q506240 (tv_film) but category-only page with no director, no IMDb and no film suffix"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1754057",
+   "wikipedia_page_id": 1160131,
+   "title": "L'uovo dell'angelo",
+   "year": 1985,
+   "verdict": "doubtful",
+   "subtype": "anime",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q220898 (anime): animation/stage work, film status unclear"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q714078",
+   "wikipedia_page_id": 1248438,
+   "title": "Hana yori dango",
+   "year": 1997,
+   "verdict": "doubtful",
+   "subtype": "manga",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q21198342 (manga), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q666569",
+   "wikipedia_page_id": 1356015,
+   "title": "Digimon Savers",
+   "year": 2006,
+   "verdict": "doubtful",
+   "subtype": "anime_series",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q63952888 (anime_series), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q696278",
+   "wikipedia_page_id": 1389101,
+   "title": "Lovely Complex",
+   "year": 2006,
+   "verdict": "doubtful",
+   "subtype": "manga",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q21198342 (manga), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q696346",
+   "wikipedia_page_id": 1402817,
+   "title": "Digimon Tamers",
+   "year": 2001,
+   "verdict": "doubtful",
+   "subtype": "anime_series",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q63952888 (anime_series), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3900118",
+   "wikipedia_page_id": 1406233,
+   "title": "Perry Mason: Un fotogramma dal cielo",
+   "year": 1988,
+   "verdict": "doubtful",
+   "subtype": "tv_film",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q506240 (tv_film) but category-only page with no director, no IMDb and no film suffix"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3900104",
+   "wikipedia_page_id": 1414638,
+   "title": "Perry Mason: La donna del lago",
+   "year": 1988,
+   "verdict": "doubtful",
+   "subtype": "tv_film",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q506240 (tv_film) but category-only page with no director, no IMDb and no film suffix"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3900097",
+   "wikipedia_page_id": 1431249,
+   "title": "Perry Mason: Furto d'autore",
+   "year": 1990,
+   "verdict": "doubtful",
+   "subtype": "tv_film",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q506240 (tv_film) but category-only page with no director, no IMDb and no film suffix"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3900103",
+   "wikipedia_page_id": 1433414,
+   "title": "Perry Mason: La bara di vetro",
+   "year": 1991,
+   "verdict": "doubtful",
+   "subtype": "tv_film",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q506240 (tv_film) but category-only page with no director, no IMDb and no film suffix"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3900101",
+   "wikipedia_page_id": 1444656,
+   "title": "Perry Mason: L'arte di morire",
+   "year": 1992,
+   "verdict": "doubtful",
+   "subtype": "tv_film",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q506240 (tv_film) but category-only page with no director, no IMDb and no film suffix"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3900108",
+   "wikipedia_page_id": 1446260,
+   "title": "Perry Mason: Morte di un dongiovanni",
+   "year": 1992,
+   "verdict": "doubtful",
+   "subtype": "tv_film",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q506240 (tv_film) but category-only page with no director, no IMDb and no film suffix"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3900102",
+   "wikipedia_page_id": 1448778,
+   "title": "Perry Mason: L'ospite d'onore",
+   "year": 1993,
+   "verdict": "doubtful",
+   "subtype": "tv_film",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q506240 (tv_film) but category-only page with no director, no IMDb and no film suffix"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3900117",
+   "wikipedia_page_id": 1457885,
+   "title": "Perry Mason: Serata con il morto",
+   "year": 1994,
+   "verdict": "doubtful",
+   "subtype": "tv_film",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q506240 (tv_film) but category-only page with no director, no IMDb and no film suffix"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3900093",
+   "wikipedia_page_id": 1460002,
+   "title": "Perry Mason: dietro la facciata",
+   "year": 1994,
+   "verdict": "doubtful",
+   "subtype": "tv_film",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q506240 (tv_film) but category-only page with no director, no IMDb and no film suffix"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q738678",
+   "wikipedia_page_id": 1575084,
+   "title": "Lupin III - Green vs Red",
+   "year": 2008,
+   "verdict": "doubtful",
+   "subtype": "anime",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q220898 (anime): animation/stage work, film status unclear"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q711139",
+   "wikipedia_page_id": 1639318,
+   "title": "Baldios - Il guerriero dello spazio",
+   "year": 1981,
+   "verdict": "doubtful",
+   "subtype": "anime_series",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q63952888 (anime_series), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2271087",
+   "wikipedia_page_id": 1662688,
+   "title": "Mobile Suit Gundam 0083: Stardust Memory",
+   "year": 1992,
+   "verdict": "doubtful",
+   "subtype": "ova",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q113687694 (ova): animation/stage work, film status unclear"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q4001916",
+   "wikipedia_page_id": 1715884,
+   "title": "UFO Robot Goldrake contro il Grande Mazinga",
+   "year": 1976,
+   "verdict": "doubtful",
+   "subtype": "manga",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q21198342 (manga), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3681225",
+   "wikipedia_page_id": 1783797,
+   "title": "Clover (Toriko Chiya)",
+   "year": 1997,
+   "verdict": "doubtful",
+   "subtype": "manga",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q21198342 (manga), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q715731",
+   "wikipedia_page_id": 1813421,
+   "title": "Digimon Adventure 02",
+   "year": 2000,
+   "verdict": "doubtful",
+   "subtype": "anime_series",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q63952888 (anime_series), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2253667",
+   "wikipedia_page_id": 1850595,
+   "title": "L'audacia degli X-Men",
+   "year": null,
+   "verdict": "doubtful",
+   "subtype": "unknown",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "category-only page with no film-class P31"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2384898",
+   "wikipedia_page_id": 1873779,
+   "title": "Macross Plus",
+   "year": null,
+   "verdict": "doubtful",
+   "subtype": "ova",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q113687694 (ova): animation/stage work, film status unclear"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1507176",
+   "wikipedia_page_id": 1874135,
+   "title": "Ultimi raggi di luna",
+   "year": 2004,
+   "verdict": "doubtful",
+   "subtype": "manga",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q21198342 (manga), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1607114",
+   "wikipedia_page_id": 2083842,
+   "title": "Adventures of Captain Marvel",
+   "year": 1941,
+   "verdict": "doubtful",
+   "subtype": "tv_series",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q5398426 (tv_series), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q688651",
+   "wikipedia_page_id": 2241963,
+   "title": "Armitage III",
+   "year": null,
+   "verdict": "doubtful",
+   "subtype": "ova",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q113687694 (ova): animation/stage work, film status unclear"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3786944",
+   "wikipedia_page_id": 2347627,
+   "title": "Hotel Hibiscus",
+   "year": 1986,
+   "verdict": "doubtful",
+   "subtype": "manga",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q21198342 (manga), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q584204",
+   "wikipedia_page_id": 2913259,
+   "title": "Lei e il gatto",
+   "year": 1999,
+   "verdict": "doubtful",
+   "subtype": "anime",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q220898 (anime): animation/stage work, film status unclear"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q303425",
+   "wikipedia_page_id": 3544925,
+   "title": "SuperDoll Rika-chan",
+   "year": 1999,
+   "verdict": "doubtful",
+   "subtype": "anime_series",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q63952888 (anime_series), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3814534",
+   "wikipedia_page_id": 3549181,
+   "title": "Ken il guerriero - La leggenda",
+   "year": 2006,
+   "verdict": "doubtful",
+   "subtype": "anime",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q220898 (anime): animation/stage work, film status unclear"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3823845",
+   "wikipedia_page_id": 3690211,
+   "title": "La recta provincia",
+   "year": 2007,
+   "verdict": "doubtful",
+   "subtype": "miniseries",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q1259759 (miniseries), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2095040",
+   "wikipedia_page_id": 3737833,
+   "title": "Hiyokoi",
+   "year": 2010,
+   "verdict": "doubtful",
+   "subtype": "manga",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q21198342 (manga), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q4023286",
+   "wikipedia_page_id": 3983181,
+   "title": "Yuuki",
+   "year": 2006,
+   "verdict": "doubtful",
+   "subtype": "tv_programme",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q15416 (tv_programme), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3800512",
+   "wikipedia_page_id": 4019739,
+   "title": "Interno giorno",
+   "year": 2011,
+   "verdict": "doubtful",
+   "subtype": "tv_programme",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q15416 (tv_programme), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3844599",
+   "wikipedia_page_id": 4081019,
+   "title": "Mani Pulite - Il duello",
+   "year": 1997,
+   "verdict": "doubtful",
+   "subtype": "feature",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q11424 (feature) but category-only page with no director, no IMDb and no film suffix"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3514707",
+   "wikipedia_page_id": 4104845,
+   "title": "Code Geass: Akito the Exiled",
+   "year": 2012,
+   "verdict": "doubtful",
+   "subtype": "ova",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q113687694 (ova): animation/stage work, film status unclear"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3715268",
+   "wikipedia_page_id": 4233325,
+   "title": "Dreams of the Rarebit Fiend",
+   "year": 1921,
+   "verdict": "doubtful",
+   "subtype": "anthology",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q56884562 (anthology): animation/stage work, film status unclear"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q495472",
+   "wikipedia_page_id": 4395962,
+   "title": "Kara no kyōkai",
+   "year": null,
+   "verdict": "doubtful",
+   "subtype": "anime_film_series",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q104213567 (anime_film_series): animation/stage work, film status unclear"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2335710",
+   "wikipedia_page_id": 4435379,
+   "title": "Maetel Legend - Sinfonia d'inverno",
+   "year": null,
+   "verdict": "doubtful",
+   "subtype": "ova",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q113687694 (ova): animation/stage work, film status unclear"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q15461836",
+   "wikipedia_page_id": 4769638,
+   "title": "Lupin III - La principessa della brezza: La città nascosta nel cielo",
+   "year": 2013,
+   "verdict": "doubtful",
+   "subtype": "tv_film",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q506240 (tv_film) but category-only page with no director, no IMDb and no film suffix"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q7903650",
+   "wikipedia_page_id": 4851244,
+   "title": "Generation War",
+   "year": 2013,
+   "verdict": "doubtful",
+   "subtype": "miniseries",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q1259759 (miniseries), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q626502",
+   "wikipedia_page_id": 4987200,
+   "title": "Dive!!",
+   "year": 2008,
+   "verdict": "doubtful",
+   "subtype": "novel_series",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q1667921 (novel_series), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q17479103",
+   "wikipedia_page_id": 5026267,
+   "title": "Un padre inatteso",
+   "year": 1998,
+   "verdict": "doubtful",
+   "subtype": "tv_film",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q506240 (tv_film) but category-only page with no director, no IMDb and no film suffix"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q21272604",
+   "wikipedia_page_id": 5210595,
+   "title": "Love Like Aliens",
+   "year": null,
+   "verdict": "doubtful",
+   "subtype": "anime",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1047299 (anime): animation/stage work, film status unclear"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q486793",
+   "wikipedia_page_id": 5267448,
+   "title": "Bungaku shōjo",
+   "year": null,
+   "verdict": "doubtful",
+   "subtype": "anime_film_series",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q104213567 (anime_film_series): animation/stage work, film status unclear"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q15732099",
+   "wikipedia_page_id": 5470125,
+   "title": "Ajin - Demi Human",
+   "year": 2015,
+   "verdict": "doubtful",
+   "subtype": "manga",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q21198342 (manga), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q18788443",
+   "wikipedia_page_id": 5498316,
+   "title": "Orange (manga)",
+   "year": 2016,
+   "verdict": "doubtful",
+   "subtype": "manga",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q21198342 (manga), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q11273667",
+   "wikipedia_page_id": 5604300,
+   "title": "Non mi farò coinvolgere",
+   "year": 2014,
+   "verdict": "doubtful",
+   "subtype": "manga",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q21198342 (manga), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q7365970",
+   "wikipedia_page_id": 5793189,
+   "title": "Ronnie Rocket",
+   "year": null,
+   "verdict": "doubtful",
+   "subtype": "unreleased",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q11424 (feature)",
+    "category-only page with imdb/director",
+    "manual review: never-produced film project"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q23566257",
+   "wikipedia_page_id": 6217582,
+   "title": "Ostaggi delle SS sulle Alpi",
+   "year": 2015,
+   "verdict": "doubtful",
+   "subtype": "miniseries",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q1259759 (miniseries), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q29387067",
+   "wikipedia_page_id": 6347325,
+   "title": "Indagine sui sentimenti",
+   "year": 1984,
+   "verdict": "doubtful",
+   "subtype": "feature",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q11424 (feature) but category-only page with no director, no IMDb and no film suffix"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q9026236",
+   "wikipedia_page_id": 6347579,
+   "title": "L DK",
+   "year": 2014,
+   "verdict": "doubtful",
+   "subtype": "manga",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q21198342 (manga), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q4802375",
+   "wikipedia_page_id": 6357576,
+   "title": "Aruvu rezuru: kikaijikake no yōseitachi",
+   "year": 2013,
+   "verdict": "doubtful",
+   "subtype": "anime_film_series",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q104213567 (anime_film_series): animation/stage work, film status unclear"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q17213181",
+   "wikipedia_page_id": 6397969,
+   "title": "Kyō no Kira-kun",
+   "year": 2017,
+   "verdict": "doubtful",
+   "subtype": "manga",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q21198342 (manga), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q30898964",
+   "wikipedia_page_id": 6422501,
+   "title": "Bella, pazza e impossibile",
+   "year": 2014,
+   "verdict": "doubtful",
+   "subtype": "feature",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q11424 (feature) but category-only page with no director, no IMDb and no film suffix"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q56189573",
+   "wikipedia_page_id": 7584786,
+   "title": "Nata Femmena",
+   "year": 2018,
+   "verdict": "doubtful",
+   "subtype": "feature",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q11424 (feature) but category-only page with no director, no IMDb and no film suffix"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q7033459",
+   "wikipedia_page_id": 7666574,
+   "title": "Night Skies",
+   "year": null,
+   "verdict": "doubtful",
+   "subtype": "unreleased",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q18011171 (unreleased)",
+    "category-only page with imdb/director",
+    "manual review: unmade sequel project"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q17584895",
+   "wikipedia_page_id": 9387572,
+   "title": "P&ME - Policeman and Me",
+   "year": 2012,
+   "verdict": "doubtful",
+   "subtype": "manga",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q21198342 (manga), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q112065180",
+   "wikipedia_page_id": 9397348,
+   "title": "Esterno notte (film)",
+   "year": 2022,
+   "verdict": "doubtful",
+   "subtype": "miniseries",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q1259759 (miniseries), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q7775852",
+   "wikipedia_page_id": 9502120,
+   "title": "The Works (film)",
+   "year": null,
+   "verdict": "doubtful",
+   "subtype": "unreleased",
+   "confidence": "manual",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q18011171 (unreleased)",
+    "manual review: unfinished/unreleased film"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q42365235",
+   "wikipedia_page_id": 9664613,
+   "title": "Tsurune",
+   "year": 2016,
+   "verdict": "doubtful",
+   "subtype": "anime_film_series",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q104213567 (anime_film_series): animation/stage work, film status unclear"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q109512255",
+   "wikipedia_page_id": 9856266,
+   "title": "Il mio matrimonio felice",
+   "year": 2019,
+   "verdict": "doubtful",
+   "subtype": "anime_film_series",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q104213567 (anime_film_series): animation/stage work, film status unclear"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q107801214",
+   "wikipedia_page_id": 10178068,
+   "title": "Look Back",
+   "year": 2021,
+   "verdict": "doubtful",
+   "subtype": "unknown",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "category-only page, no usable P31, title/genre look like a topic or an animation"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q131783164",
+   "wikipedia_page_id": 10358596,
+   "title": "Giovannino Guareschi - Non muoio neanche se mi ammazzano",
+   "year": 2026,
+   "verdict": "doubtful",
+   "subtype": "feature",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q11424 (feature) but category-only page with no director, no IMDb and no film suffix"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q136761970",
+   "wikipedia_page_id": 10667898,
+   "title": "Meitantei Conan - Black History - Kuro-zukume no soshiki to no taiketsu no rekishi",
+   "year": 2007,
+   "verdict": "doubtful",
+   "subtype": "tv_special",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q104775758 (tv_special) but category-only page with no director, no IMDb and no film suffix"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q136763182",
+   "wikipedia_page_id": 10668146,
+   "title": "Meitantei Conan - Gin'yoku no Time Travel",
+   "year": 2004,
+   "verdict": "doubtful",
+   "subtype": "tv_special",
+   "confidence": "low",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q104775758 (tv_special) but category-only page with no director, no IMDb and no film suffix"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q126086643",
+   "wikipedia_page_id": 10714310,
+   "title": "100 metri - Hyakuemu",
+   "year": 2025,
+   "verdict": "doubtful",
+   "subtype": "manga",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q21198342 (manga), no film class",
+    "has a {{Film}} infobox but Wikidata describes a series: item/page mismatch"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q134885840",
+   "wikipedia_page_id": 10725510,
+   "title": "Lupin the IIIrd - Zenigata e i due Lupin",
+   "year": 2025,
+   "verdict": "doubtful",
+   "subtype": "anime",
+   "confidence": "low",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q1047299 (anime): animation/stage work, film status unclear"
+   ],
+   "manual": false
+  }
+ ]
+}

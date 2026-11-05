@@ -1,0 +1,140 @@
+{
+ "version": 1,
+ "categories": {
+  "P": "filtri su persone, anno e paese (batteria supplementare, lacuna della batteria originale)"
+ },
+ "cases": [
+  {
+   "id": 101,
+   "category": "P",
+   "question": "Consigliami thriller diretti da David Fincher",
+   "must_keep": "thriller diretto da David Fincher",
+   "must_avoid": "film non diretti da Fincher",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 102,
+   "category": "P",
+   "question": "Voglio film con Tom Hanks degli anni Novanta che parlano di amicizia",
+   "must_keep": "film con Tom Hanks, anni 1990-1999, tema amicizia",
+   "must_avoid": "film senza Tom Hanks o fuori dagli anni Novanta",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 103,
+   "category": "P",
+   "question": "Cerco film italiani degli anni Settanta sulla mafia",
+   "must_keep": "film italiano, anni 1970-1979, mafia",
+   "must_avoid": "film non italiani o fuori dal decennio",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 104,
+   "category": "P",
+   "question": "Consigliami commedie con Bill Murray",
+   "must_keep": "commedia con Bill Murray nel cast",
+   "must_avoid": "film senza Bill Murray",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 105,
+   "category": "P",
+   "question": "Voglio film di fantascienza usciti dopo il 2015, senza supereroi",
+   "must_keep": "fantascienza, uscito dal 2016 in poi",
+   "must_avoid": "supereroi; film del 2015 o precedenti",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 106,
+   "category": "P",
+   "question": "Cerco drammi giapponesi degli anni Cinquanta",
+   "must_keep": "dramma giapponese, anni 1950-1959",
+   "must_avoid": "film non giapponesi o fuori dal decennio",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 107,
+   "category": "P",
+   "question": "Film di Hayao Miyazaki che parlano di infanzia",
+   "must_keep": "film diretto da Hayao Miyazaki sul tema dell'infanzia",
+   "must_avoid": "film non diretti da Miyazaki",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 108,
+   "category": "P",
+   "question": "Voglio film di guerra francesi",
+   "must_keep": "film di guerra di produzione francese",
+   "must_avoid": "film non francesi",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 109,
+   "category": "P",
+   "question": "Consigliami horror con Jamie Lee Curtis, ma non della saga di Halloween",
+   "must_keep": "horror con Jamie Lee Curtis",
+   "must_avoid": "film senza Jamie Lee Curtis; saga di Halloween",
+   "exclude_titles": [
+    "Halloween"
+   ],
+   "avoid_franchise": [
+    "Halloween"
+   ]
+  },
+  {
+   "id": 110,
+   "category": "P",
+   "question": "Film con Meryl Streep usciti dal 2005 in poi, ma niente musical",
+   "must_keep": "film con Meryl Streep, dal 2005 in poi",
+   "must_avoid": "musical; film precedenti al 2005; senza Meryl Streep",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 111,
+   "category": "P",
+   "question": "Thriller psicologici usciti nel 2023",
+   "must_keep": "thriller psicologico del 2023",
+   "must_avoid": "film di altri anni",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 112,
+   "category": "P",
+   "question": "Film di Christopher Nolan simili a Inception, ma escludi Inception",
+   "must_keep": "film diretto da Christopher Nolan, simile a Inception",
+   "must_avoid": "Inception; film non diretti da Nolan",
+   "exclude_titles": [
+    "Inception"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 113,
+   "category": "P",
+   "question": "Western con Clint Eastwood diretti da lui stesso",
+   "must_keep": "western, Clint Eastwood attore e regista",
+   "must_avoid": "film senza Eastwood come regista e attore",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 114,
+   "category": "P",
+   "question": "Commedie italiane degli anni Duemila con Checco Zalone",
+   "must_keep": "commedia italiana, anni 2000-2009, con Checco Zalone",
+   "must_avoid": "film senza Checco Zalone o fuori dal decennio",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  }
+ ]
+}

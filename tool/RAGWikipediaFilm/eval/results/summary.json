@@ -1,0 +1,2849 @@
+{
+ "retrieval": {
+  "NEW-S0": {
+   "lists": 56,
+   "films": 280,
+   "violation": 0.4714285714285714,
+   "pertinent": 0.7142857142857143,
+   "valid": 0.3535714285714286,
+   "genre_kept": 0.9107142857142857,
+   "empty_lists": 0,
+   "lists_with_violation": 40,
+   "title_or_franchise_violations": 86,
+   "trait_violations": 46,
+   "seconds_mean": 0.61,
+   "by_category": {
+    "A": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.62,
+     "pertinent": 0.7,
+     "valid": 0.26,
+     "genre_kept": 0.92,
+     "empty_lists": 0,
+     "lists_with_violation": 10,
+     "title_or_franchise_violations": 13,
+     "trait_violations": 18
+    },
+    "B": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.86,
+     "pertinent": 0.76,
+     "valid": 0.06,
+     "genre_kept": 0.94,
+     "empty_lists": 0,
+     "lists_with_violation": 10,
+     "title_or_franchise_violations": 43,
+     "trait_violations": 0
+    },
+    "C": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.275,
+     "pertinent": 0.7,
+     "valid": 0.6,
+     "genre_kept": 0.8,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 11
+    },
+    "D": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.7333333333333333,
+     "pertinent": 0.9,
+     "valid": 0.2,
+     "genre_kept": 1.0,
+     "empty_lists": 0,
+     "lists_with_violation": 6,
+     "title_or_franchise_violations": 12,
+     "trait_violations": 10
+    },
+    "E": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.6,
+     "pertinent": 0.9,
+     "valid": 0.36666666666666664,
+     "genre_kept": 0.9666666666666667,
+     "empty_lists": 0,
+     "lists_with_violation": 6,
+     "title_or_franchise_violations": 18,
+     "trait_violations": 0
+    },
+    "F": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.175,
+     "pertinent": 0.575,
+     "valid": 0.5,
+     "genre_kept": 0.775,
+     "empty_lists": 0,
+     "lists_with_violation": 3,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 7
+    },
+    "G": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.0,
+     "pertinent": 0.55,
+     "valid": 0.55,
+     "genre_kept": 1.0,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "H": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.6,
+     "pertinent": 0.4666666666666667,
+     "valid": 0.2,
+     "genre_kept": 0.7666666666666667,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 3,
+     "trait_violations": 15
+    }
+   },
+   "nl_exclusions": {
+    "lists": 32,
+    "films": 160,
+    "violation": 0.44375,
+    "pertinent": 0.70625,
+    "valid": 0.39375,
+    "genre_kept": 0.86875,
+    "empty_lists": 0,
+    "lists_with_violation": 24,
+    "title_or_franchise_violations": 25,
+    "trait_violations": 46
+   },
+   "title_exclusions": {
+    "lists": 16,
+    "films": 80,
+    "violation": 0.7625,
+    "pertinent": 0.8125,
+    "valid": 0.175,
+    "genre_kept": 0.95,
+    "empty_lists": 0,
+    "lists_with_violation": 16,
+    "title_or_franchise_violations": 61,
+    "trait_violations": 0
+   },
+   "reference_coverage": {
+    "refs": 41,
+    "in_index": 41,
+    "share": 1.0
+   },
+   "valid_s0_films_dropped": {
+    "dropped": 0,
+    "of": 99
+   }
+  },
+  "NEW-S1": {
+   "lists": 56,
+   "films": 280,
+   "violation": 0.4,
+   "pertinent": 0.6892857142857143,
+   "valid": 0.3892857142857143,
+   "genre_kept": 0.8928571428571429,
+   "empty_lists": 0,
+   "lists_with_violation": 35,
+   "title_or_franchise_violations": 57,
+   "trait_violations": 55,
+   "seconds_mean": 0.46,
+   "by_category": {
+    "A": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.48,
+     "pertinent": 0.64,
+     "valid": 0.34,
+     "genre_kept": 0.86,
+     "empty_lists": 0,
+     "lists_with_violation": 9,
+     "title_or_franchise_violations": 3,
+     "trait_violations": 21
+    },
+    "B": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.76,
+     "pertinent": 0.74,
+     "valid": 0.12,
+     "genre_kept": 0.92,
+     "empty_lists": 0,
+     "lists_with_violation": 10,
+     "title_or_franchise_violations": 38,
+     "trait_violations": 0
+    },
+    "C": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.275,
+     "pertinent": 0.7,
+     "valid": 0.6,
+     "genre_kept": 0.8,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 11
+    },
+    "D": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.5333333333333333,
+     "pertinent": 0.7666666666666667,
+     "valid": 0.26666666666666666,
+     "genre_kept": 1.0,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 16
+    },
+    "E": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.5333333333333333,
+     "pertinent": 0.9333333333333333,
+     "valid": 0.4,
+     "genre_kept": 0.9333333333333333,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 16,
+     "trait_violations": 0
+    },
+    "F": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.175,
+     "pertinent": 0.575,
+     "valid": 0.5,
+     "genre_kept": 0.775,
+     "empty_lists": 0,
+     "lists_with_violation": 3,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 7
+    },
+    "G": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.0,
+     "pertinent": 0.55,
+     "valid": 0.55,
+     "genre_kept": 1.0,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "H": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.5666666666666667,
+     "pertinent": 0.43333333333333335,
+     "valid": 0.2,
+     "genre_kept": 0.8,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 2,
+     "trait_violations": 15
+    }
+   },
+   "nl_exclusions": {
+    "lists": 32,
+    "films": 160,
+    "violation": 0.3625,
+    "pertinent": 0.6625,
+    "valid": 0.43125,
+    "genre_kept": 0.85,
+    "empty_lists": 0,
+    "lists_with_violation": 21,
+    "title_or_franchise_violations": 3,
+    "trait_violations": 55
+   },
+   "title_exclusions": {
+    "lists": 16,
+    "films": 80,
+    "violation": 0.675,
+    "pertinent": 0.8125,
+    "valid": 0.225,
+    "genre_kept": 0.925,
+    "empty_lists": 0,
+    "lists_with_violation": 14,
+    "title_or_franchise_violations": 54,
+    "trait_violations": 0
+   },
+   "reference_coverage": {
+    "refs": 41,
+    "in_index": 41,
+    "share": 1.0
+   },
+   "valid_s0_films_dropped": {
+    "dropped": 2,
+    "of": 99
+   }
+  },
+  "NEW-S2n": {
+   "lists": 56,
+   "films": 280,
+   "violation": 0.2571428571428571,
+   "pertinent": 0.6678571428571428,
+   "valid": 0.5,
+   "genre_kept": 0.875,
+   "empty_lists": 0,
+   "lists_with_violation": 29,
+   "title_or_franchise_violations": 17,
+   "trait_violations": 55,
+   "seconds_mean": 0.34,
+   "by_category": {
+    "A": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.48,
+     "pertinent": 0.64,
+     "valid": 0.34,
+     "genre_kept": 0.86,
+     "empty_lists": 0,
+     "lists_with_violation": 9,
+     "title_or_franchise_violations": 3,
+     "trait_violations": 21
+    },
+    "B": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.18,
+     "pertinent": 0.66,
+     "valid": 0.56,
+     "genre_kept": 0.86,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 9,
+     "trait_violations": 0
+    },
+    "C": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.275,
+     "pertinent": 0.7,
+     "valid": 0.6,
+     "genre_kept": 0.8,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 11
+    },
+    "D": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.5333333333333333,
+     "pertinent": 0.7666666666666667,
+     "valid": 0.26666666666666666,
+     "genre_kept": 1.0,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 16
+    },
+    "E": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.16666666666666666,
+     "pertinent": 0.8666666666666667,
+     "valid": 0.7,
+     "genre_kept": 0.8666666666666667,
+     "empty_lists": 0,
+     "lists_with_violation": 3,
+     "title_or_franchise_violations": 5,
+     "trait_violations": 0
+    },
+    "F": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.175,
+     "pertinent": 0.575,
+     "valid": 0.5,
+     "genre_kept": 0.775,
+     "empty_lists": 0,
+     "lists_with_violation": 3,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 7
+    },
+    "G": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.0,
+     "pertinent": 0.55,
+     "valid": 0.55,
+     "genre_kept": 1.0,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "H": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.5666666666666667,
+     "pertinent": 0.43333333333333335,
+     "valid": 0.2,
+     "genre_kept": 0.8,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 2,
+     "trait_violations": 15
+    }
+   },
+   "nl_exclusions": {
+    "lists": 32,
+    "films": 160,
+    "violation": 0.3625,
+    "pertinent": 0.6625,
+    "valid": 0.43125,
+    "genre_kept": 0.85,
+    "empty_lists": 0,
+    "lists_with_violation": 21,
+    "title_or_franchise_violations": 3,
+    "trait_violations": 55
+   },
+   "title_exclusions": {
+    "lists": 16,
+    "films": 80,
+    "violation": 0.175,
+    "pertinent": 0.7375,
+    "valid": 0.6125,
+    "genre_kept": 0.8625,
+    "empty_lists": 0,
+    "lists_with_violation": 8,
+    "title_or_franchise_violations": 14,
+    "trait_violations": 0
+   },
+   "reference_coverage": {
+    "refs": 41,
+    "in_index": 41,
+    "share": 1.0
+   },
+   "valid_s0_films_dropped": {
+    "dropped": 2,
+    "of": 99
+   }
+  },
+  "NEW-S2f": {
+   "lists": 56,
+   "films": 280,
+   "violation": 0.23214285714285715,
+   "pertinent": 0.6464285714285715,
+   "valid": 0.5107142857142857,
+   "genre_kept": 0.8678571428571429,
+   "empty_lists": 0,
+   "lists_with_violation": 25,
+   "title_or_franchise_violations": 7,
+   "trait_violations": 58,
+   "seconds_mean": 0.57,
+   "by_category": {
+    "A": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.48,
+     "pertinent": 0.62,
+     "valid": 0.34,
+     "genre_kept": 0.86,
+     "empty_lists": 0,
+     "lists_with_violation": 9,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 24
+    },
+    "B": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.14,
+     "pertinent": 0.64,
+     "valid": 0.6,
+     "genre_kept": 0.84,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 7,
+     "trait_violations": 0
+    },
+    "C": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.275,
+     "pertinent": 0.7,
+     "valid": 0.6,
+     "genre_kept": 0.8,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 11
+    },
+    "D": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.5333333333333333,
+     "pertinent": 0.7666666666666667,
+     "valid": 0.26666666666666666,
+     "genre_kept": 1.0,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 16
+    },
+    "E": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.0,
+     "pertinent": 0.7333333333333333,
+     "valid": 0.7333333333333333,
+     "genre_kept": 0.8333333333333334,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "F": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.175,
+     "pertinent": 0.575,
+     "valid": 0.5,
+     "genre_kept": 0.775,
+     "empty_lists": 0,
+     "lists_with_violation": 3,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 7
+    },
+    "G": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.0,
+     "pertinent": 0.55,
+     "valid": 0.55,
+     "genre_kept": 1.0,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "H": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.5666666666666667,
+     "pertinent": 0.5,
+     "valid": 0.2,
+     "genre_kept": 0.8,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 1,
+     "trait_violations": 16
+    }
+   },
+   "nl_exclusions": {
+    "lists": 32,
+    "films": 160,
+    "violation": 0.3625,
+    "pertinent": 0.65625,
+    "valid": 0.43125,
+    "genre_kept": 0.85,
+    "empty_lists": 0,
+    "lists_with_violation": 21,
+    "title_or_franchise_violations": 0,
+    "trait_violations": 58
+   },
+   "title_exclusions": {
+    "lists": 16,
+    "films": 80,
+    "violation": 0.0875,
+    "pertinent": 0.675,
+    "valid": 0.65,
+    "genre_kept": 0.8375,
+    "empty_lists": 0,
+    "lists_with_violation": 4,
+    "title_or_franchise_violations": 7,
+    "trait_violations": 0
+   },
+   "reference_coverage": {
+    "refs": 41,
+    "in_index": 41,
+    "share": 1.0
+   },
+   "valid_s0_films_dropped": {
+    "dropped": 5,
+    "of": 99
+   }
+  },
+  "NEW-S3": {
+   "lists": 56,
+   "films": 280,
+   "violation": 0.37142857142857144,
+   "pertinent": 0.7,
+   "valid": 0.4035714285714286,
+   "genre_kept": 0.875,
+   "empty_lists": 0,
+   "lists_with_violation": 37,
+   "title_or_franchise_violations": 84,
+   "trait_violations": 20,
+   "seconds_mean": 0.34,
+   "by_category": {
+    "A": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.42,
+     "pertinent": 0.68,
+     "valid": 0.38,
+     "genre_kept": 0.82,
+     "empty_lists": 0,
+     "lists_with_violation": 10,
+     "title_or_franchise_violations": 12,
+     "trait_violations": 9
+    },
+    "B": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.86,
+     "pertinent": 0.76,
+     "valid": 0.06,
+     "genre_kept": 0.94,
+     "empty_lists": 0,
+     "lists_with_violation": 10,
+     "title_or_franchise_violations": 43,
+     "trait_violations": 0
+    },
+    "C": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.175,
+     "pertinent": 0.725,
+     "valid": 0.675,
+     "genre_kept": 0.825,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 7
+    },
+    "D": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.4666666666666667,
+     "pertinent": 0.7666666666666667,
+     "valid": 0.3,
+     "genre_kept": 0.9333333333333333,
+     "empty_lists": 0,
+     "lists_with_violation": 6,
+     "title_or_franchise_violations": 12,
+     "trait_violations": 2
+    },
+    "E": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.5666666666666667,
+     "pertinent": 0.9,
+     "valid": 0.36666666666666664,
+     "genre_kept": 0.9666666666666667,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 17,
+     "trait_violations": 0
+    },
+    "F": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.05,
+     "pertinent": 0.575,
+     "valid": 0.55,
+     "genre_kept": 0.675,
+     "empty_lists": 0,
+     "lists_with_violation": 2,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 2
+    },
+    "G": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.0,
+     "pertinent": 0.55,
+     "valid": 0.55,
+     "genre_kept": 1.0,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "H": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.43333333333333335,
+     "pertinent": 0.43333333333333335,
+     "valid": 0.23333333333333334,
+     "genre_kept": 0.6,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 3,
+     "trait_violations": 10
+    }
+   },
+   "nl_exclusions": {
+    "lists": 32,
+    "films": 160,
+    "violation": 0.275,
+    "pertinent": 0.68125,
+    "valid": 0.48125,
+    "genre_kept": 0.80625,
+    "empty_lists": 0,
+    "lists_with_violation": 22,
+    "title_or_franchise_violations": 24,
+    "trait_violations": 20
+   },
+   "title_exclusions": {
+    "lists": 16,
+    "films": 80,
+    "violation": 0.75,
+    "pertinent": 0.8125,
+    "valid": 0.175,
+    "genre_kept": 0.95,
+    "empty_lists": 0,
+    "lists_with_violation": 15,
+    "title_or_franchise_violations": 60,
+    "trait_violations": 0
+   },
+   "reference_coverage": {
+    "refs": 41,
+    "in_index": 41,
+    "share": 1.0
+   },
+   "valid_s0_films_dropped": {
+    "dropped": 18,
+    "of": 99
+   }
+  },
+  "NEW-S3b": {
+   "lists": 56,
+   "films": 280,
+   "violation": 0.375,
+   "pertinent": 0.7035714285714286,
+   "valid": 0.3964285714285714,
+   "genre_kept": 0.875,
+   "empty_lists": 0,
+   "lists_with_violation": 37,
+   "title_or_franchise_violations": 84,
+   "trait_violations": 21,
+   "seconds_mean": 0.35,
+   "by_category": {
+    "A": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.42,
+     "pertinent": 0.66,
+     "valid": 0.36,
+     "genre_kept": 0.8,
+     "empty_lists": 0,
+     "lists_with_violation": 10,
+     "title_or_franchise_violations": 12,
+     "trait_violations": 9
+    },
+    "B": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.86,
+     "pertinent": 0.76,
+     "valid": 0.06,
+     "genre_kept": 0.94,
+     "empty_lists": 0,
+     "lists_with_violation": 10,
+     "title_or_franchise_violations": 43,
+     "trait_violations": 0
+    },
+    "C": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.15,
+     "pertinent": 0.75,
+     "valid": 0.675,
+     "genre_kept": 0.825,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 6
+    },
+    "D": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.5,
+     "pertinent": 0.8,
+     "valid": 0.3,
+     "genre_kept": 0.9666666666666667,
+     "empty_lists": 0,
+     "lists_with_violation": 6,
+     "title_or_franchise_violations": 12,
+     "trait_violations": 3
+    },
+    "E": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.5666666666666667,
+     "pertinent": 0.9,
+     "valid": 0.36666666666666664,
+     "genre_kept": 0.9666666666666667,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 17,
+     "trait_violations": 0
+    },
+    "F": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.075,
+     "pertinent": 0.575,
+     "valid": 0.525,
+     "genre_kept": 0.675,
+     "empty_lists": 0,
+     "lists_with_violation": 2,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 3
+    },
+    "G": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.0,
+     "pertinent": 0.55,
+     "valid": 0.55,
+     "genre_kept": 1.0,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "H": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.43333333333333335,
+     "pertinent": 0.43333333333333335,
+     "valid": 0.23333333333333334,
+     "genre_kept": 0.6,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 3,
+     "trait_violations": 10
+    }
+   },
+   "nl_exclusions": {
+    "lists": 32,
+    "films": 160,
+    "violation": 0.28125,
+    "pertinent": 0.6875,
+    "valid": 0.46875,
+    "genre_kept": 0.80625,
+    "empty_lists": 0,
+    "lists_with_violation": 22,
+    "title_or_franchise_violations": 24,
+    "trait_violations": 21
+   },
+   "title_exclusions": {
+    "lists": 16,
+    "films": 80,
+    "violation": 0.75,
+    "pertinent": 0.8125,
+    "valid": 0.175,
+    "genre_kept": 0.95,
+    "empty_lists": 0,
+    "lists_with_violation": 15,
+    "title_or_franchise_violations": 60,
+    "trait_violations": 0
+   },
+   "reference_coverage": {
+    "refs": 41,
+    "in_index": 41,
+    "share": 1.0
+   },
+   "valid_s0_films_dropped": {
+    "dropped": 16,
+    "of": 99
+   }
+  },
+  "NEW-S4": {
+   "lists": 56,
+   "films": 280,
+   "violation": 0.4714285714285714,
+   "pertinent": 0.7142857142857143,
+   "valid": 0.3535714285714286,
+   "genre_kept": 0.9107142857142857,
+   "empty_lists": 0,
+   "lists_with_violation": 40,
+   "title_or_franchise_violations": 86,
+   "trait_violations": 46,
+   "seconds_mean": 0.35,
+   "by_category": {
+    "A": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.62,
+     "pertinent": 0.7,
+     "valid": 0.26,
+     "genre_kept": 0.92,
+     "empty_lists": 0,
+     "lists_with_violation": 10,
+     "title_or_franchise_violations": 13,
+     "trait_violations": 18
+    },
+    "B": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.86,
+     "pertinent": 0.76,
+     "valid": 0.06,
+     "genre_kept": 0.94,
+     "empty_lists": 0,
+     "lists_with_violation": 10,
+     "title_or_franchise_violations": 43,
+     "trait_violations": 0
+    },
+    "C": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.275,
+     "pertinent": 0.7,
+     "valid": 0.6,
+     "genre_kept": 0.8,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 11
+    },
+    "D": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.7333333333333333,
+     "pertinent": 0.9,
+     "valid": 0.2,
+     "genre_kept": 1.0,
+     "empty_lists": 0,
+     "lists_with_violation": 6,
+     "title_or_franchise_violations": 12,
+     "trait_violations": 10
+    },
+    "E": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.6,
+     "pertinent": 0.9,
+     "valid": 0.36666666666666664,
+     "genre_kept": 0.9666666666666667,
+     "empty_lists": 0,
+     "lists_with_violation": 6,
+     "title_or_franchise_violations": 18,
+     "trait_violations": 0
+    },
+    "F": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.175,
+     "pertinent": 0.575,
+     "valid": 0.5,
+     "genre_kept": 0.775,
+     "empty_lists": 0,
+     "lists_with_violation": 3,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 7
+    },
+    "G": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.0,
+     "pertinent": 0.55,
+     "valid": 0.55,
+     "genre_kept": 1.0,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "H": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.6,
+     "pertinent": 0.43333333333333335,
+     "valid": 0.2,
+     "genre_kept": 0.7333333333333333,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 1,
+     "trait_violations": 17
+    }
+   },
+   "nl_exclusions": {
+    "lists": 32,
+    "films": 160,
+    "violation": 0.44375,
+    "pertinent": 0.70625,
+    "valid": 0.39375,
+    "genre_kept": 0.86875,
+    "empty_lists": 0,
+    "lists_with_violation": 24,
+    "title_or_franchise_violations": 25,
+    "trait_violations": 46
+   },
+   "title_exclusions": {
+    "lists": 16,
+    "films": 80,
+    "violation": 0.7625,
+    "pertinent": 0.8125,
+    "valid": 0.175,
+    "genre_kept": 0.95,
+    "empty_lists": 0,
+    "lists_with_violation": 16,
+    "title_or_franchise_violations": 61,
+    "trait_violations": 0
+   },
+   "reference_coverage": {
+    "refs": 41,
+    "in_index": 41,
+    "share": 1.0
+   },
+   "valid_s0_films_dropped": {
+    "dropped": 0,
+    "of": 99
+   }
+  },
+  "NEW-S5": {
+   "lists": 56,
+   "films": 280,
+   "violation": 0.10357142857142858,
+   "pertinent": 0.625,
+   "valid": 0.5785714285714286,
+   "genre_kept": 0.8285714285714286,
+   "empty_lists": 0,
+   "lists_with_violation": 18,
+   "title_or_franchise_violations": 3,
+   "trait_violations": 26,
+   "seconds_mean": 0.36,
+   "by_category": {
+    "A": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.24,
+     "pertinent": 0.6,
+     "valid": 0.46,
+     "genre_kept": 0.76,
+     "empty_lists": 0,
+     "lists_with_violation": 7,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 12
+    },
+    "B": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.08,
+     "pertinent": 0.66,
+     "valid": 0.66,
+     "genre_kept": 0.86,
+     "empty_lists": 0,
+     "lists_with_violation": 2,
+     "title_or_franchise_violations": 3,
+     "trait_violations": 1
+    },
+    "C": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.175,
+     "pertinent": 0.725,
+     "valid": 0.675,
+     "genre_kept": 0.825,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 7
+    },
+    "D": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.13333333333333333,
+     "pertinent": 0.5666666666666667,
+     "valid": 0.4666666666666667,
+     "genre_kept": 0.8666666666666667,
+     "empty_lists": 0,
+     "lists_with_violation": 3,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 4
+    },
+    "E": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.0,
+     "pertinent": 0.7,
+     "valid": 0.7,
+     "genre_kept": 0.8333333333333334,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "F": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.05,
+     "pertinent": 0.575,
+     "valid": 0.55,
+     "genre_kept": 0.675,
+     "empty_lists": 0,
+     "lists_with_violation": 2,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 2
+    },
+    "G": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.0,
+     "pertinent": 0.55,
+     "valid": 0.55,
+     "genre_kept": 1.0,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "H": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.4,
+     "pertinent": 0.4,
+     "valid": 0.23333333333333334,
+     "genre_kept": 0.6,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 12
+    }
+   },
+   "nl_exclusions": {
+    "lists": 32,
+    "films": 160,
+    "violation": 0.15625,
+    "pertinent": 0.61875,
+    "valid": 0.5375,
+    "genre_kept": 0.775,
+    "empty_lists": 0,
+    "lists_with_violation": 16,
+    "title_or_franchise_violations": 0,
+    "trait_violations": 25
+   },
+   "title_exclusions": {
+    "lists": 16,
+    "films": 80,
+    "violation": 0.05,
+    "pertinent": 0.675,
+    "valid": 0.675,
+    "genre_kept": 0.85,
+    "empty_lists": 0,
+    "lists_with_violation": 2,
+    "title_or_franchise_violations": 3,
+    "trait_violations": 1
+   },
+   "reference_coverage": {
+    "refs": 41,
+    "in_index": 41,
+    "share": 1.0
+   },
+   "valid_s0_films_dropped": {
+    "dropped": 21,
+    "of": 99
+   }
+  },
+  "NEW-S6": {
+   "lists": 56,
+   "films": 280,
+   "violation": 0.03571428571428571,
+   "pertinent": 0.8178571428571428,
+   "valid": 0.7964285714285714,
+   "genre_kept": 0.9035714285714286,
+   "empty_lists": 0,
+   "lists_with_violation": 8,
+   "title_or_franchise_violations": 0,
+   "trait_violations": 10,
+   "seconds_mean": 9.75,
+   "by_category": {
+    "A": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.1,
+     "pertinent": 0.7,
+     "valid": 0.66,
+     "genre_kept": 0.8,
+     "empty_lists": 0,
+     "lists_with_violation": 3,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 5
+    },
+    "B": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.0,
+     "pertinent": 0.96,
+     "valid": 0.96,
+     "genre_kept": 0.96,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "C": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.075,
+     "pertinent": 0.775,
+     "valid": 0.725,
+     "genre_kept": 0.8,
+     "empty_lists": 0,
+     "lists_with_violation": 3,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 3
+    },
+    "D": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.06666666666666667,
+     "pertinent": 0.7333333333333333,
+     "valid": 0.6666666666666666,
+     "genre_kept": 0.8666666666666667,
+     "empty_lists": 0,
+     "lists_with_violation": 2,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 2
+    },
+    "E": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.0,
+     "pertinent": 0.9666666666666667,
+     "valid": 0.9666666666666667,
+     "genre_kept": 1.0,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "F": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.0,
+     "pertinent": 0.825,
+     "valid": 0.825,
+     "genre_kept": 0.925,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "G": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.0,
+     "pertinent": 0.775,
+     "valid": 0.775,
+     "genre_kept": 1.0,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "H": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.2,
+     "pertinent": 0.4666666666666667,
+     "valid": 0.36666666666666664,
+     "genre_kept": 0.6333333333333333,
+     "empty_lists": 0,
+     "lists_with_violation": 3,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 6
+    }
+   },
+   "nl_exclusions": {
+    "lists": 32,
+    "films": 160,
+    "violation": 0.0625,
+    "pertinent": 0.75625,
+    "valid": 0.71875,
+    "genre_kept": 0.84375,
+    "empty_lists": 0,
+    "lists_with_violation": 8,
+    "title_or_franchise_violations": 0,
+    "trait_violations": 10
+   },
+   "title_exclusions": {
+    "lists": 16,
+    "films": 80,
+    "violation": 0.0,
+    "pertinent": 0.9625,
+    "valid": 0.9625,
+    "genre_kept": 0.975,
+    "empty_lists": 0,
+    "lists_with_violation": 0,
+    "title_or_franchise_violations": 0,
+    "trait_violations": 0
+   },
+   "reference_coverage": {
+    "refs": 41,
+    "in_index": 41,
+    "share": 1.0
+   },
+   "valid_s0_films_dropped": {
+    "dropped": 57,
+    "of": 99
+   }
+  },
+  "OLD-S0": {
+   "lists": 56,
+   "films": 279,
+   "violation": 0.3727598566308244,
+   "pertinent": 0.5268817204301075,
+   "valid": 0.2939068100358423,
+   "genre_kept": 0.8315412186379928,
+   "empty_lists": 0,
+   "lists_with_violation": 40,
+   "title_or_franchise_violations": 58,
+   "trait_violations": 46,
+   "seconds_mean": 0.57,
+   "by_category": {
+    "A": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.4,
+     "pertinent": 0.52,
+     "valid": 0.32,
+     "genre_kept": 0.76,
+     "empty_lists": 0,
+     "lists_with_violation": 10,
+     "title_or_franchise_violations": 5,
+     "trait_violations": 15
+    },
+    "B": {
+     "lists": 10,
+     "films": 49,
+     "violation": 0.673469387755102,
+     "pertinent": 0.7755102040816326,
+     "valid": 0.2653061224489796,
+     "genre_kept": 0.9591836734693877,
+     "empty_lists": 0,
+     "lists_with_violation": 9,
+     "title_or_franchise_violations": 33,
+     "trait_violations": 0
+    },
+    "C": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.25,
+     "pertinent": 0.5,
+     "valid": 0.45,
+     "genre_kept": 0.725,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 10
+    },
+    "D": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.5,
+     "pertinent": 0.4666666666666667,
+     "valid": 0.13333333333333333,
+     "genre_kept": 0.9,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 4,
+     "trait_violations": 11
+    },
+    "E": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.5333333333333333,
+     "pertinent": 0.9,
+     "valid": 0.36666666666666664,
+     "genre_kept": 0.9333333333333333,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 16,
+     "trait_violations": 0
+    },
+    "F": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.25,
+     "pertinent": 0.3,
+     "valid": 0.25,
+     "genre_kept": 0.625,
+     "empty_lists": 0,
+     "lists_with_violation": 6,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 10
+    },
+    "G": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.0,
+     "pertinent": 0.25,
+     "valid": 0.25,
+     "genre_kept": 0.95,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "H": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.43333333333333335,
+     "pertinent": 0.43333333333333335,
+     "valid": 0.26666666666666666,
+     "genre_kept": 0.8333333333333334,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 4,
+     "trait_violations": 9
+    }
+   },
+   "nl_exclusions": {
+    "lists": 32,
+    "films": 160,
+    "violation": 0.34375,
+    "pertinent": 0.45,
+    "valid": 0.3,
+    "genre_kept": 0.74375,
+    "empty_lists": 0,
+    "lists_with_violation": 26,
+    "title_or_franchise_violations": 9,
+    "trait_violations": 46
+   },
+   "title_exclusions": {
+    "lists": 16,
+    "films": 79,
+    "violation": 0.620253164556962,
+    "pertinent": 0.8227848101265823,
+    "valid": 0.3037974683544304,
+    "genre_kept": 0.9493670886075949,
+    "empty_lists": 0,
+    "lists_with_violation": 14,
+    "title_or_franchise_violations": 49,
+    "trait_violations": 0
+   },
+   "reference_coverage": {
+    "refs": 41,
+    "in_index": 25,
+    "share": 0.61
+   },
+   "valid_s0_films_dropped": {
+    "dropped": 0,
+    "of": 82
+   }
+  },
+  "OLD-S1": {
+   "lists": 56,
+   "films": 279,
+   "violation": 0.34050179211469533,
+   "pertinent": 0.5089605734767025,
+   "valid": 0.31899641577060933,
+   "genre_kept": 0.8243727598566308,
+   "empty_lists": 0,
+   "lists_with_violation": 37,
+   "title_or_franchise_violations": 43,
+   "trait_violations": 52,
+   "seconds_mean": 0.38,
+   "by_category": {
+    "A": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.36,
+     "pertinent": 0.48,
+     "valid": 0.34,
+     "genre_kept": 0.72,
+     "empty_lists": 0,
+     "lists_with_violation": 9,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 18
+    },
+    "B": {
+     "lists": 10,
+     "films": 49,
+     "violation": 0.5714285714285714,
+     "pertinent": 0.7755102040816326,
+     "valid": 0.3673469387755102,
+     "genre_kept": 0.9591836734693877,
+     "empty_lists": 0,
+     "lists_with_violation": 9,
+     "title_or_franchise_violations": 28,
+     "trait_violations": 0
+    },
+    "C": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.25,
+     "pertinent": 0.5,
+     "valid": 0.45,
+     "genre_kept": 0.725,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 10
+    },
+    "D": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.5,
+     "pertinent": 0.43333333333333335,
+     "valid": 0.16666666666666666,
+     "genre_kept": 0.9333333333333333,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 1,
+     "trait_violations": 14
+    },
+    "E": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.4666666666666667,
+     "pertinent": 0.8333333333333334,
+     "valid": 0.36666666666666664,
+     "genre_kept": 0.9,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 14,
+     "trait_violations": 0
+    },
+    "F": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.25,
+     "pertinent": 0.3,
+     "valid": 0.25,
+     "genre_kept": 0.625,
+     "empty_lists": 0,
+     "lists_with_violation": 6,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 10
+    },
+    "G": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.0,
+     "pertinent": 0.25,
+     "valid": 0.25,
+     "genre_kept": 0.95,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "H": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.43333333333333335,
+     "pertinent": 0.4,
+     "valid": 0.26666666666666666,
+     "genre_kept": 0.8333333333333334,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 3,
+     "trait_violations": 10
+    }
+   },
+   "nl_exclusions": {
+    "lists": 32,
+    "films": 160,
+    "violation": 0.33125,
+    "pertinent": 0.43125,
+    "valid": 0.3125,
+    "genre_kept": 0.7375,
+    "empty_lists": 0,
+    "lists_with_violation": 24,
+    "title_or_franchise_violations": 1,
+    "trait_violations": 52
+   },
+   "title_exclusions": {
+    "lists": 16,
+    "films": 79,
+    "violation": 0.5316455696202531,
+    "pertinent": 0.7974683544303798,
+    "valid": 0.3670886075949367,
+    "genre_kept": 0.9367088607594937,
+    "empty_lists": 0,
+    "lists_with_violation": 13,
+    "title_or_franchise_violations": 42,
+    "trait_violations": 0
+   },
+   "reference_coverage": {
+    "refs": 41,
+    "in_index": 25,
+    "share": 0.61
+   },
+   "valid_s0_films_dropped": {
+    "dropped": 2,
+    "of": 82
+   }
+  },
+  "OLD-S2n": {
+   "lists": 56,
+   "films": 279,
+   "violation": 0.25089605734767023,
+   "pertinent": 0.4946236559139785,
+   "valid": 0.3835125448028674,
+   "genre_kept": 0.8028673835125448,
+   "empty_lists": 0,
+   "lists_with_violation": 32,
+   "title_or_franchise_violations": 17,
+   "trait_violations": 53,
+   "seconds_mean": 0.3,
+   "by_category": {
+    "A": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.36,
+     "pertinent": 0.48,
+     "valid": 0.34,
+     "genre_kept": 0.72,
+     "empty_lists": 0,
+     "lists_with_violation": 9,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 18
+    },
+    "B": {
+     "lists": 10,
+     "films": 49,
+     "violation": 0.30612244897959184,
+     "pertinent": 0.7959183673469388,
+     "valid": 0.5918367346938775,
+     "genre_kept": 0.8775510204081632,
+     "empty_lists": 0,
+     "lists_with_violation": 6,
+     "title_or_franchise_violations": 14,
+     "trait_violations": 1
+    },
+    "C": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.25,
+     "pertinent": 0.5,
+     "valid": 0.45,
+     "genre_kept": 0.725,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 10
+    },
+    "D": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.5,
+     "pertinent": 0.43333333333333335,
+     "valid": 0.16666666666666666,
+     "genre_kept": 0.9333333333333333,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 1,
+     "trait_violations": 14
+    },
+    "E": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.06666666666666667,
+     "pertinent": 0.6666666666666666,
+     "valid": 0.6,
+     "genre_kept": 0.8333333333333334,
+     "empty_lists": 0,
+     "lists_with_violation": 2,
+     "title_or_franchise_violations": 2,
+     "trait_violations": 0
+    },
+    "F": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.25,
+     "pertinent": 0.3,
+     "valid": 0.25,
+     "genre_kept": 0.625,
+     "empty_lists": 0,
+     "lists_with_violation": 6,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 10
+    },
+    "G": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.0,
+     "pertinent": 0.25,
+     "valid": 0.25,
+     "genre_kept": 0.95,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "H": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.43333333333333335,
+     "pertinent": 0.4,
+     "valid": 0.26666666666666666,
+     "genre_kept": 0.8333333333333334,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 3,
+     "trait_violations": 10
+    }
+   },
+   "nl_exclusions": {
+    "lists": 32,
+    "films": 160,
+    "violation": 0.33125,
+    "pertinent": 0.43125,
+    "valid": 0.3125,
+    "genre_kept": 0.7375,
+    "empty_lists": 0,
+    "lists_with_violation": 24,
+    "title_or_franchise_violations": 1,
+    "trait_violations": 52
+   },
+   "title_exclusions": {
+    "lists": 16,
+    "films": 79,
+    "violation": 0.21518987341772153,
+    "pertinent": 0.7468354430379747,
+    "valid": 0.5949367088607594,
+    "genre_kept": 0.8607594936708861,
+    "empty_lists": 0,
+    "lists_with_violation": 8,
+    "title_or_franchise_violations": 16,
+    "trait_violations": 1
+   },
+   "reference_coverage": {
+    "refs": 41,
+    "in_index": 25,
+    "share": 0.61
+   },
+   "valid_s0_films_dropped": {
+    "dropped": 2,
+    "of": 82
+   }
+  },
+  "OLD-S3": {
+   "lists": 56,
+   "films": 279,
+   "violation": 0.2903225806451613,
+   "pertinent": 0.46953405017921146,
+   "valid": 0.2831541218637993,
+   "genre_kept": 0.7311827956989247,
+   "empty_lists": 0,
+   "lists_with_violation": 32,
+   "title_or_franchise_violations": 56,
+   "trait_violations": 25,
+   "seconds_mean": 0.3,
+   "by_category": {
+    "A": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.24,
+     "pertinent": 0.42,
+     "valid": 0.32,
+     "genre_kept": 0.62,
+     "empty_lists": 0,
+     "lists_with_violation": 7,
+     "title_or_franchise_violations": 5,
+     "trait_violations": 7
+    },
+    "B": {
+     "lists": 10,
+     "films": 49,
+     "violation": 0.673469387755102,
+     "pertinent": 0.7755102040816326,
+     "valid": 0.2653061224489796,
+     "genre_kept": 0.9591836734693877,
+     "empty_lists": 0,
+     "lists_with_violation": 9,
+     "title_or_franchise_violations": 33,
+     "trait_violations": 0
+    },
+    "C": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.15,
+     "pertinent": 0.475,
+     "valid": 0.45,
+     "genre_kept": 0.65,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 6
+    },
+    "D": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.3,
+     "pertinent": 0.26666666666666666,
+     "valid": 0.06666666666666667,
+     "genre_kept": 0.5333333333333333,
+     "empty_lists": 0,
+     "lists_with_violation": 3,
+     "title_or_franchise_violations": 3,
+     "trait_violations": 6
+    },
+    "E": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.5,
+     "pertinent": 0.8666666666666667,
+     "valid": 0.36666666666666664,
+     "genre_kept": 0.9333333333333333,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 15,
+     "trait_violations": 0
+    },
+    "F": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.15,
+     "pertinent": 0.225,
+     "valid": 0.225,
+     "genre_kept": 0.45,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 6
+    },
+    "G": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.0,
+     "pertinent": 0.25,
+     "valid": 0.25,
+     "genre_kept": 0.95,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "H": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.3,
+     "pertinent": 0.4666666666666667,
+     "valid": 0.3333333333333333,
+     "genre_kept": 0.7333333333333333,
+     "empty_lists": 0,
+     "lists_with_violation": 3,
+     "title_or_franchise_violations": 3,
+     "trait_violations": 6
+    }
+   },
+   "nl_exclusions": {
+    "lists": 32,
+    "films": 160,
+    "violation": 0.20625,
+    "pertinent": 0.35625,
+    "valid": 0.28125,
+    "genre_kept": 0.56875,
+    "empty_lists": 0,
+    "lists_with_violation": 19,
+    "title_or_franchise_violations": 8,
+    "trait_violations": 25
+   },
+   "title_exclusions": {
+    "lists": 16,
+    "films": 79,
+    "violation": 0.6075949367088608,
+    "pertinent": 0.810126582278481,
+    "valid": 0.3037974683544304,
+    "genre_kept": 0.9493670886075949,
+    "empty_lists": 0,
+    "lists_with_violation": 13,
+    "title_or_franchise_violations": 48,
+    "trait_violations": 0
+   },
+   "reference_coverage": {
+    "refs": 41,
+    "in_index": 25,
+    "share": 0.61
+   },
+   "valid_s0_films_dropped": {
+    "dropped": 26,
+    "of": 82
+   }
+  },
+  "OLD-S3b": {
+   "lists": 56,
+   "films": 279,
+   "violation": 0.2867383512544803,
+   "pertinent": 0.46953405017921146,
+   "valid": 0.2831541218637993,
+   "genre_kept": 0.7275985663082437,
+   "empty_lists": 0,
+   "lists_with_violation": 31,
+   "title_or_franchise_violations": 56,
+   "trait_violations": 24,
+   "seconds_mean": 0.31,
+   "by_category": {
+    "A": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.24,
+     "pertinent": 0.42,
+     "valid": 0.32,
+     "genre_kept": 0.62,
+     "empty_lists": 0,
+     "lists_with_violation": 7,
+     "title_or_franchise_violations": 5,
+     "trait_violations": 7
+    },
+    "B": {
+     "lists": 10,
+     "films": 49,
+     "violation": 0.673469387755102,
+     "pertinent": 0.7755102040816326,
+     "valid": 0.2653061224489796,
+     "genre_kept": 0.9591836734693877,
+     "empty_lists": 0,
+     "lists_with_violation": 9,
+     "title_or_franchise_violations": 33,
+     "trait_violations": 0
+    },
+    "C": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.125,
+     "pertinent": 0.475,
+     "valid": 0.45,
+     "genre_kept": 0.625,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 5
+    },
+    "D": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.3,
+     "pertinent": 0.26666666666666666,
+     "valid": 0.06666666666666667,
+     "genre_kept": 0.5333333333333333,
+     "empty_lists": 0,
+     "lists_with_violation": 3,
+     "title_or_franchise_violations": 3,
+     "trait_violations": 6
+    },
+    "E": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.5,
+     "pertinent": 0.8666666666666667,
+     "valid": 0.36666666666666664,
+     "genre_kept": 0.9333333333333333,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 15,
+     "trait_violations": 0
+    },
+    "F": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.15,
+     "pertinent": 0.225,
+     "valid": 0.225,
+     "genre_kept": 0.45,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 6
+    },
+    "G": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.0,
+     "pertinent": 0.25,
+     "valid": 0.25,
+     "genre_kept": 0.95,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "H": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.3,
+     "pertinent": 0.4666666666666667,
+     "valid": 0.3333333333333333,
+     "genre_kept": 0.7333333333333333,
+     "empty_lists": 0,
+     "lists_with_violation": 3,
+     "title_or_franchise_violations": 3,
+     "trait_violations": 6
+    }
+   },
+   "nl_exclusions": {
+    "lists": 32,
+    "films": 160,
+    "violation": 0.2,
+    "pertinent": 0.35625,
+    "valid": 0.28125,
+    "genre_kept": 0.5625,
+    "empty_lists": 0,
+    "lists_with_violation": 18,
+    "title_or_franchise_violations": 8,
+    "trait_violations": 24
+   },
+   "title_exclusions": {
+    "lists": 16,
+    "films": 79,
+    "violation": 0.6075949367088608,
+    "pertinent": 0.810126582278481,
+    "valid": 0.3037974683544304,
+    "genre_kept": 0.9493670886075949,
+    "empty_lists": 0,
+    "lists_with_violation": 13,
+    "title_or_franchise_violations": 48,
+    "trait_violations": 0
+   },
+   "reference_coverage": {
+    "refs": 41,
+    "in_index": 25,
+    "share": 0.61
+   },
+   "valid_s0_films_dropped": {
+    "dropped": 26,
+    "of": 82
+   }
+  },
+  "OLD-S4": {
+   "lists": 56,
+   "films": 279,
+   "violation": 0.36917562724014336,
+   "pertinent": 0.5268817204301075,
+   "valid": 0.2974910394265233,
+   "genre_kept": 0.8315412186379928,
+   "empty_lists": 0,
+   "lists_with_violation": 39,
+   "title_or_franchise_violations": 58,
+   "trait_violations": 45,
+   "seconds_mean": 0.31,
+   "by_category": {
+    "A": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.4,
+     "pertinent": 0.52,
+     "valid": 0.32,
+     "genre_kept": 0.76,
+     "empty_lists": 0,
+     "lists_with_violation": 10,
+     "title_or_franchise_violations": 5,
+     "trait_violations": 15
+    },
+    "B": {
+     "lists": 10,
+     "films": 49,
+     "violation": 0.673469387755102,
+     "pertinent": 0.7755102040816326,
+     "valid": 0.2653061224489796,
+     "genre_kept": 0.9591836734693877,
+     "empty_lists": 0,
+     "lists_with_violation": 9,
+     "title_or_franchise_violations": 33,
+     "trait_violations": 0
+    },
+    "C": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.25,
+     "pertinent": 0.5,
+     "valid": 0.45,
+     "genre_kept": 0.725,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 10
+    },
+    "D": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.5,
+     "pertinent": 0.4666666666666667,
+     "valid": 0.13333333333333333,
+     "genre_kept": 0.9,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 4,
+     "trait_violations": 11
+    },
+    "E": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.5333333333333333,
+     "pertinent": 0.9,
+     "valid": 0.36666666666666664,
+     "genre_kept": 0.9333333333333333,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 16,
+     "trait_violations": 0
+    },
+    "F": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.225,
+     "pertinent": 0.3,
+     "valid": 0.275,
+     "genre_kept": 0.625,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 9
+    },
+    "G": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.0,
+     "pertinent": 0.25,
+     "valid": 0.25,
+     "genre_kept": 0.95,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "H": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.4,
+     "pertinent": 0.36666666666666664,
+     "valid": 0.26666666666666666,
+     "genre_kept": 0.7333333333333333,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 12
+    }
+   },
+   "nl_exclusions": {
+    "lists": 32,
+    "films": 160,
+    "violation": 0.3375,
+    "pertinent": 0.45,
+    "valid": 0.30625,
+    "genre_kept": 0.74375,
+    "empty_lists": 0,
+    "lists_with_violation": 25,
+    "title_or_franchise_violations": 9,
+    "trait_violations": 45
+   },
+   "title_exclusions": {
+    "lists": 16,
+    "films": 79,
+    "violation": 0.620253164556962,
+    "pertinent": 0.8227848101265823,
+    "valid": 0.3037974683544304,
+    "genre_kept": 0.9493670886075949,
+    "empty_lists": 0,
+    "lists_with_violation": 14,
+    "title_or_franchise_violations": 49,
+    "trait_violations": 0
+   },
+   "reference_coverage": {
+    "refs": 41,
+    "in_index": 25,
+    "share": 0.61
+   },
+   "valid_s0_films_dropped": {
+    "dropped": 0,
+    "of": 82
+   }
+  },
+  "OLD-S5": {
+   "lists": 56,
+   "films": 279,
+   "violation": 0.15770609318996415,
+   "pertinent": 0.43727598566308246,
+   "valid": 0.3763440860215054,
+   "genre_kept": 0.7025089605734767,
+   "empty_lists": 0,
+   "lists_with_violation": 24,
+   "title_or_franchise_violations": 17,
+   "trait_violations": 27,
+   "seconds_mean": 0.32,
+   "by_category": {
+    "A": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.16,
+     "pertinent": 0.38,
+     "valid": 0.36,
+     "genre_kept": 0.58,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 8
+    },
+    "B": {
+     "lists": 10,
+     "films": 49,
+     "violation": 0.30612244897959184,
+     "pertinent": 0.7959183673469388,
+     "valid": 0.5918367346938775,
+     "genre_kept": 0.8775510204081632,
+     "empty_lists": 0,
+     "lists_with_violation": 6,
+     "title_or_franchise_violations": 14,
+     "trait_violations": 1
+    },
+    "C": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.15,
+     "pertinent": 0.475,
+     "valid": 0.45,
+     "genre_kept": 0.65,
+     "empty_lists": 0,
+     "lists_with_violation": 5,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 6
+    },
+    "D": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.23333333333333334,
+     "pertinent": 0.23333333333333334,
+     "valid": 0.13333333333333333,
+     "genre_kept": 0.5666666666666667,
+     "empty_lists": 0,
+     "lists_with_violation": 3,
+     "title_or_franchise_violations": 1,
+     "trait_violations": 6
+    },
+    "E": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.06666666666666667,
+     "pertinent": 0.6333333333333333,
+     "valid": 0.5666666666666667,
+     "genre_kept": 0.8333333333333334,
+     "empty_lists": 0,
+     "lists_with_violation": 2,
+     "title_or_franchise_violations": 2,
+     "trait_violations": 0
+    },
+    "F": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.15,
+     "pertinent": 0.225,
+     "valid": 0.225,
+     "genre_kept": 0.45,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 6
+    },
+    "G": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.0,
+     "pertinent": 0.25,
+     "valid": 0.25,
+     "genre_kept": 0.95,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "H": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.23333333333333334,
+     "pertinent": 0.4666666666666667,
+     "valid": 0.4,
+     "genre_kept": 0.7,
+     "empty_lists": 0,
+     "lists_with_violation": 3,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 7
+    }
+   },
+   "nl_exclusions": {
+    "lists": 32,
+    "films": 160,
+    "violation": 0.16875,
+    "pertinent": 0.3375,
+    "valid": 0.30625,
+    "genre_kept": 0.5625,
+    "empty_lists": 0,
+    "lists_with_violation": 16,
+    "title_or_franchise_violations": 1,
+    "trait_violations": 26
+   },
+   "title_exclusions": {
+    "lists": 16,
+    "films": 79,
+    "violation": 0.21518987341772153,
+    "pertinent": 0.7341772151898734,
+    "valid": 0.5822784810126582,
+    "genre_kept": 0.8607594936708861,
+    "empty_lists": 0,
+    "lists_with_violation": 8,
+    "title_or_franchise_violations": 16,
+    "trait_violations": 1
+   },
+   "reference_coverage": {
+    "refs": 41,
+    "in_index": 25,
+    "share": 0.61
+   },
+   "valid_s0_films_dropped": {
+    "dropped": 26,
+    "of": 82
+   }
+  },
+  "OLD-S6": {
+   "lists": 56,
+   "films": 280,
+   "violation": 0.04285714285714286,
+   "pertinent": 0.725,
+   "valid": 0.7035714285714286,
+   "genre_kept": 0.8857142857142857,
+   "empty_lists": 0,
+   "lists_with_violation": 8,
+   "title_or_franchise_violations": 1,
+   "trait_violations": 11,
+   "seconds_mean": 9.23,
+   "by_category": {
+    "A": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.08,
+     "pertinent": 0.56,
+     "valid": 0.56,
+     "genre_kept": 0.7,
+     "empty_lists": 0,
+     "lists_with_violation": 2,
+     "title_or_franchise_violations": 1,
+     "trait_violations": 3
+    },
+    "B": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.0,
+     "pertinent": 0.98,
+     "valid": 0.98,
+     "genre_kept": 0.98,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "C": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.15,
+     "pertinent": 0.75,
+     "valid": 0.625,
+     "genre_kept": 0.825,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 6
+    },
+    "D": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.0,
+     "pertinent": 0.5333333333333333,
+     "valid": 0.5333333333333333,
+     "genre_kept": 0.8333333333333334,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "E": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.0,
+     "pertinent": 1.0,
+     "valid": 1.0,
+     "genre_kept": 1.0,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "F": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.05,
+     "pertinent": 0.825,
+     "valid": 0.8,
+     "genre_kept": 0.925,
+     "empty_lists": 0,
+     "lists_with_violation": 2,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 2
+    },
+    "G": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.0,
+     "pertinent": 0.425,
+     "valid": 0.425,
+     "genre_kept": 0.975,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "H": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.0,
+     "pertinent": 0.7,
+     "valid": 0.7,
+     "genre_kept": 0.9,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    }
+   },
+   "nl_exclusions": {
+    "lists": 32,
+    "films": 160,
+    "violation": 0.075,
+    "pertinent": 0.66875,
+    "valid": 0.63125,
+    "genre_kept": 0.8125,
+    "empty_lists": 0,
+    "lists_with_violation": 8,
+    "title_or_franchise_violations": 1,
+    "trait_violations": 11
+   },
+   "title_exclusions": {
+    "lists": 16,
+    "films": 80,
+    "violation": 0.0,
+    "pertinent": 0.9875,
+    "valid": 0.9875,
+    "genre_kept": 0.9875,
+    "empty_lists": 0,
+    "lists_with_violation": 0,
+    "title_or_franchise_violations": 0,
+    "trait_violations": 0
+   },
+   "reference_coverage": {
+    "refs": 41,
+    "in_index": 25,
+    "share": 0.61
+   },
+   "valid_s0_films_dropped": {
+    "dropped": 42,
+    "of": 82
+   }
+  },
+  "OLD-NATIVE": {
+   "lists": 56,
+   "films": 280,
+   "violation": 0.1,
+   "pertinent": 0.7071428571428572,
+   "valid": 0.6607142857142857,
+   "genre_kept": 0.9357142857142857,
+   "empty_lists": 0,
+   "lists_with_violation": 16,
+   "title_or_franchise_violations": 5,
+   "trait_violations": 23,
+   "seconds_mean": 11.84,
+   "by_category": {
+    "A": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.2,
+     "pertinent": 0.64,
+     "valid": 0.58,
+     "genre_kept": 0.82,
+     "empty_lists": 0,
+     "lists_with_violation": 6,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 10
+    },
+    "B": {
+     "lists": 10,
+     "films": 50,
+     "violation": 0.04,
+     "pertinent": 0.78,
+     "valid": 0.74,
+     "genre_kept": 0.9,
+     "empty_lists": 0,
+     "lists_with_violation": 1,
+     "title_or_franchise_violations": 2,
+     "trait_violations": 0
+    },
+    "C": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.2,
+     "pertinent": 0.825,
+     "valid": 0.75,
+     "genre_kept": 0.975,
+     "empty_lists": 0,
+     "lists_with_violation": 4,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 8
+    },
+    "D": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.06666666666666667,
+     "pertinent": 0.8333333333333334,
+     "valid": 0.7666666666666667,
+     "genre_kept": 0.9666666666666667,
+     "empty_lists": 0,
+     "lists_with_violation": 2,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 2
+    },
+    "E": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.1,
+     "pertinent": 0.8666666666666667,
+     "valid": 0.7666666666666667,
+     "genre_kept": 1.0,
+     "empty_lists": 0,
+     "lists_with_violation": 1,
+     "title_or_franchise_violations": 3,
+     "trait_violations": 0
+    },
+    "F": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.075,
+     "pertinent": 0.8,
+     "valid": 0.8,
+     "genre_kept": 0.975,
+     "empty_lists": 0,
+     "lists_with_violation": 2,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 3
+    },
+    "G": {
+     "lists": 8,
+     "films": 40,
+     "violation": 0.0,
+     "pertinent": 0.275,
+     "valid": 0.275,
+     "genre_kept": 0.975,
+     "empty_lists": 0,
+     "lists_with_violation": 0,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 0
+    },
+    "H": {
+     "lists": 6,
+     "films": 30,
+     "violation": 0.1,
+     "pertinent": 0.5,
+     "valid": 0.4666666666666667,
+     "genre_kept": 0.9,
+     "empty_lists": 0,
+     "lists_with_violation": 2,
+     "title_or_franchise_violations": 0,
+     "trait_violations": 3
+    }
+   },
+   "nl_exclusions": {
+    "lists": 32,
+    "films": 160,
+    "violation": 0.14375,
+    "pertinent": 0.7625,
+    "valid": 0.7125,
+    "genre_kept": 0.925,
+    "empty_lists": 0,
+    "lists_with_violation": 14,
+    "title_or_franchise_violations": 0,
+    "trait_violations": 23
+   },
+   "title_exclusions": {
+    "lists": 16,
+    "films": 80,
+    "violation": 0.0625,
+    "pertinent": 0.8125,
+    "valid": 0.75,
+    "genre_kept": 0.9375,
+    "empty_lists": 0,
+    "lists_with_violation": 2,
+    "title_or_franchise_violations": 5,
+    "trait_violations": 0
+   },
+   "reference_coverage": null,
+   "valid_s0_films_dropped": {
+    "dropped": 82,
+    "of": 82
+   }
+  }
+ },
+ "answers": {
+  "NEW-S0": {
+   "answers": 56,
+   "recommended_films": 95,
+   "recommended_violations": 7,
+   "answers_with_a_violation": 5
+  },
+  "NEW-S5": {
+   "answers": 56,
+   "recommended_films": 171,
+   "recommended_violations": 6,
+   "answers_with_a_violation": 5
+  },
+  "NEW-S6": {
+   "answers": 56,
+   "recommended_films": 221,
+   "recommended_violations": 6,
+   "answers_with_a_violation": 5
+  },
+  "OLD-NATIVE": {
+   "answers": 56,
+   "recommended_films": 204,
+   "recommended_violations": 9,
+   "answers_with_a_violation": 6
+  },
+  "OLD-S0": {
+   "answers": 56,
+   "recommended_films": 95,
+   "recommended_violations": 6,
+   "answers_with_a_violation": 5
+  },
+  "OLD-S5": {
+   "answers": 56,
+   "recommended_films": 133,
+   "recommended_violations": 5,
+   "answers_with_a_violation": 4
+  },
+  "OLD-S6": {
+   "answers": 56,
+   "recommended_films": 217,
+   "recommended_violations": 6,
+   "answers_with_a_violation": 4
+  }
+ },
+ "pairwise": {
+  "NEW-S0 vs OLD-S0": {
+   "first": "NEW-S0",
+   "second": "OLD-S0",
+   "first_wins": 38,
+   "second_wins": 19,
+   "ties": 5,
+   "sign_test_p": 0.0163,
+   "by_category": {
+    "A": {
+     "second": 3,
+     "first": 6,
+     "tie": 1
+    },
+    "B": {
+     "first": 2,
+     "second": 6,
+     "tie": 2
+    },
+    "C": {
+     "first": 6,
+     "second": 1,
+     "tie": 1
+    },
+    "D": {
+     "first": 3,
+     "second": 3
+    },
+    "E": {
+     "first": 4,
+     "second": 2
+    },
+    "F": {
+     "first": 5,
+     "tie": 1,
+     "second": 2
+    },
+    "G": {
+     "first": 7,
+     "second": 1
+    },
+    "H": {
+     "second": 1,
+     "first": 5
+    }
+   },
+   "mean_scores": {
+    "NEW-S0.respects_exclusions": 4.73,
+    "NEW-S0.pertinence": 3.52,
+    "NEW-S0.honesty": 3.61,
+    "NEW-S0.usefulness": 3.24,
+    "OLD-S0.respects_exclusions": 4.61,
+    "OLD-S0.pertinence": 3.23,
+    "OLD-S0.honesty": 3.55,
+    "OLD-S0.usefulness": 3
+   }
+  },
+  "NEW-S5 vs OLD-S5": {
+   "first": "NEW-S5",
+   "second": "OLD-S5",
+   "first_wins": 43,
+   "second_wins": 18,
+   "ties": 1,
+   "sign_test_p": 0.0019,
+   "by_category": {
+    "A": {
+     "first": 7,
+     "second": 3
+    },
+    "B": {
+     "first": 8,
+     "second": 2
+    },
+    "C": {
+     "first": 4,
+     "second": 4
+    },
+    "D": {
+     "first": 6
+    },
+    "E": {
+     "first": 4,
+     "second": 2
+    },
+    "F": {
+     "first": 6,
+     "second": 2
+    },
+    "G": {
+     "first": 4,
+     "second": 4
+    },
+    "H": {
+     "first": 4,
+     "tie": 1,
+     "second": 1
+    }
+   },
+   "mean_scores": {
+    "NEW-S5.respects_exclusions": 4.85,
+    "NEW-S5.pertinence": 3.9,
+    "NEW-S5.honesty": 4.02,
+    "NEW-S5.usefulness": 3.79,
+    "OLD-S5.respects_exclusions": 4.66,
+    "OLD-S5.pertinence": 3.23,
+    "OLD-S5.honesty": 3.69,
+    "OLD-S5.usefulness": 2.95
+   }
+  },
+  "NEW-S6 vs OLD-S6": {
+   "first": "NEW-S6",
+   "second": "OLD-S6",
+   "first_wins": 48,
+   "second_wins": 13,
+   "ties": 1,
+   "sign_test_p": 0.0,
+   "by_category": {
+    "A": {
+     "first": 6,
+     "second": 4
+    },
+    "B": {
+     "first": 9,
+     "second": 1
+    },
+    "C": {
+     "first": 6,
+     "second": 2
+    },
+    "D": {
+     "first": 5,
+     "second": 1
+    },
+    "E": {
+     "first": 4,
+     "second": 2
+    },
+    "F": {
+     "first": 8
+    },
+    "G": {
+     "first": 8
+    },
+    "H": {
+     "second": 3,
+     "tie": 1,
+     "first": 2
+    }
+   },
+   "mean_scores": {
+    "NEW-S6.respects_exclusions": 4.71,
+    "NEW-S6.pertinence": 4.44,
+    "NEW-S6.honesty": 4.06,
+    "NEW-S6.usefulness": 4.23,
+    "OLD-S6.respects_exclusions": 4.68,
+    "OLD-S6.pertinence": 3.47,
+    "OLD-S6.honesty": 3.66,
+    "OLD-S6.usefulness": 3.34
+   }
+  },
+  "NEW-S6 vs OLD-NATIVE": {
+   "first": "NEW-S6",
+   "second": "OLD-NATIVE",
+   "first_wins": 51,
+   "second_wins": 10,
+   "ties": 1,
+   "sign_test_p": 0.0,
+   "by_category": {
+    "A": {
+     "first": 9,
+     "second": 1
+    },
+    "B": {
+     "first": 9,
+     "second": 1
+    },
+    "C": {
+     "second": 1,
+     "first": 6,
+     "tie": 1
+    },
+    "D": {
+     "first": 5,
+     "second": 1
+    },
+    "E": {
+     "first": 5,
+     "second": 1
+    },
+    "F": {
+     "second": 2,
+     "first": 6
+    },
+    "G": {
+     "first": 8
+    },
+    "H": {
+     "second": 3,
+     "first": 3
+    }
+   },
+   "mean_scores": {
+    "NEW-S6.respects_exclusions": 4.71,
+    "NEW-S6.pertinence": 4.42,
+    "NEW-S6.honesty": 4.08,
+    "NEW-S6.usefulness": 4.23,
+    "OLD-NATIVE.respects_exclusions": 4.47,
+    "OLD-NATIVE.pertinence": 3.44,
+    "OLD-NATIVE.honesty": 3.4,
+    "OLD-NATIVE.usefulness": 3.1
+   }
+  }
+ }
+}

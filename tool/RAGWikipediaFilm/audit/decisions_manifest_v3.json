@@ -1,0 +1,3473 @@
+{
+ "version": 1,
+ "records_decided": 377,
+ "decisions": {
+  "exclude": 283,
+  "include_unverified": 65,
+  "include_verified": 29
+ },
+ "exclusions_total": 283,
+ "from_259_kept_excluded": 251,
+ "reinstated_from_259": {
+  "verified": 4,
+  "unverified": 4
+ },
+ "overlaps_checked": {
+  "259&27": 0,
+  "259&46": 0,
+  "27&46": 0,
+  "71&46": 0,
+  "27_not_in_71": 0,
+  "259&71": 0,
+  "lobo_elsewhere": 0
+ },
+ "records": [
+  {
+   "film_id": "Q1033328",
+   "title": "A un passo da te - Ao haru ride",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1050609",
+   "title": "ÉX-Driver",
+   "decision": "include_unverified",
+   "reason": "OVA a episodi: nessuna durata né infobox; IMDb e regista presenti",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q105087026",
+   "title": "Sakamoto Days",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1051324",
+   "title": "USS Enterprise (NCC-1701-E)",
+   "decision": "exclude",
+   "reason": "topic/fictional_object: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q14637321 (fictional_object)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q105562947",
+   "title": "Zombie 100 - Cento cose da fare prima di non-morire",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q105973217",
+   "title": "Màkari",
+   "decision": "exclude",
+   "reason": "series/tv_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q5398426 (tv_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1069002",
+   "title": "Higashi no Eden",
+   "decision": "exclude",
+   "reason": "series/anime_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q63952888 (anime_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q106912386",
+   "title": "102 Boulevard Haussmann",
+   "decision": "include_verified",
+   "reason": "film TV francese: film televisivo",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q107801214",
+   "title": "Look Back",
+   "decision": "include_unverified",
+   "reason": "manga one-shot (2021) e film d'animazione (2024) nella stessa pagina: la trama vale per entrambi; l'anno è quello del manga",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q109512255",
+   "title": "Il mio matrimonio felice",
+   "decision": "exclude",
+   "reason": "romanzo/manga/anime (la trama è del romanzo): pagina di franchise letterario",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q1108316",
+   "title": "Mardock Scramble",
+   "decision": "exclude",
+   "reason": "series/novel_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1667921 (novel_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q111271377",
+   "title": "Shin Japan Heroes Universe",
+   "decision": "exclude",
+   "reason": "topic/media_franchise: included only for a 'Film ...' category (no {{Film}} infobox); category-only page with no film-class P31, no IMDb",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q111420354",
+   "title": "Errore fatale (film 1992)",
+   "decision": "include_unverified",
+   "reason": "film TV italiano sull'AIDS (200 min): durata da miniserie, titolo «film»",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q111519702",
+   "title": "I crimini di Jimmy Savile",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q112065180",
+   "title": "Esterno notte (film)",
+   "decision": "include_unverified",
+   "reason": "serie di Bellocchio uscita in sala come due film (330 min) e in TV come miniserie in 6 puntate: è la tua regola sulle miniserie a decidere; l'infobox è del film",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q112078206",
+   "title": "Analog horror",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q116374620 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q11273667",
+   "title": "Non mi farò coinvolgere",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (manga): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q11311160",
+   "title": "Sweet Poolside",
+   "decision": "include_verified",
+   "reason": "film del 2004 (103 min): infobox film con regista",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q1131225",
+   "title": "It (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1131733",
+   "title": "Tōkyō daigaku monogatari",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q11320614",
+   "title": "Death Parade",
+   "decision": "exclude",
+   "reason": "series/anime_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q63952888 (anime_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q11321983",
+   "title": "Trinity Seven - L'accademia delle sette streghe",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q113580693",
+   "title": "Romantic Killer",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1141823",
+   "title": "Tales of Vesperia",
+   "decision": "exclude",
+   "reason": "other_work/video_game: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q7889 (video_game)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1141832",
+   "title": "La clessidra - Ricordi d'amore",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q11419997",
+   "title": "Bugie d'aprile",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1145690",
+   "title": "Saw (serie di film)",
+   "decision": "exclude",
+   "reason": "topic/film_series_page: included only for a 'Film ...' category (no {{Film}} infobox); page about a series of films, not one film",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q11514891",
+   "title": "Kurai tokoro de machiawase",
+   "decision": "include_verified",
+   "reason": "reinserito dall'elenco delle 259 (decisione approvata): film giapponese del 2006 (130 min, regista, infobox film): stessa causa",
+   "sources": [
+    "fase4:259",
+    "fase6:riesame-259"
+   ]
+  },
+  {
+   "film_id": "Q11555685",
+   "title": "Chūmon no ōi ryōriten",
+   "decision": "exclude",
+   "reason": "other_work/literary_work: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q7725634 (literary_work)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q115563567",
+   "title": "È solo acqua e vento",
+   "decision": "include_verified",
+   "reason": "documentario: documentario unico",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q115667865",
+   "title": "Episodi di Pistol",
+   "decision": "exclude",
+   "reason": "topic/list_article: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q3464665 (list_article)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q11588621",
+   "title": "As the Gods Will",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q116122",
+   "title": "Hayate no gotoku!",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q117047275",
+   "title": "Unprisoned",
+   "decision": "exclude",
+   "reason": "series/tv_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q5398426 (tv_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q118524072",
+   "title": "Cortometraggi LEGO Marvel",
+   "decision": "exclude",
+   "reason": "topic/list_article: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q117467246 (list_article)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1193198",
+   "title": "USS Enterprise (NCC-1701-A)",
+   "decision": "exclude",
+   "reason": "topic/fictional_object: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q53710030 (fictional_object)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1200011",
+   "title": "Ju-on (serie di film)",
+   "decision": "exclude",
+   "reason": "topic/film_series_page: included only for a 'Film ...' category (no {{Film}} infobox); page about a series of films, not one film",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q120242123",
+   "title": "Angelica femmina ribelle",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1211352",
+   "title": "Mosè (miniserie televisiva 1995)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1212932",
+   "title": "Atti degli apostoli (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/title_marks_series: included only for a 'Film ...' category (no {{Film}} infobox); title suffix marks a series: (miniserie televisiva)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1213627",
+   "title": "L'Isola delle Trenta Bare",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1219739",
+   "title": "Il mondo perduto (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/title_marks_series: included only for a 'Film ...' category (no {{Film}} infobox); title suffix marks a series: (miniserie televisiva)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q124421712",
+   "title": "Honeko Akabane's Bodyguards",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1247168",
+   "title": "Radici (miniserie televisiva 1977)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q126009173",
+   "title": "Marconi - L'uomo che ha connesso il mondo",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q126086643",
+   "title": "100 metri - Hyakuemu",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (manga): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q130604699",
+   "title": "Mike (miniserie televisiva 2024)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1314114",
+   "title": "Brave Story",
+   "decision": "exclude",
+   "reason": "other_work/literary_work: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q7725634 (literary_work)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q131783164",
+   "title": "Giovannino Guareschi - Non muoio neanche se mi ammazzano",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (feature): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q1318521",
+   "title": "Alice in Heartland",
+   "decision": "exclude",
+   "reason": "other_work/video_game: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q7889 (video_game)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1318537",
+   "title": "Uta no Prince-sama",
+   "decision": "exclude",
+   "reason": "other_work/video_game: infobox {{Film}} present; P31=Q7889 (video_game)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1319952",
+   "title": "Nine (manga)",
+   "decision": "exclude",
+   "reason": "series/title_marks_series: included only for a 'Film ...' category (no {{Film}} infobox); title suffix marks a series: (manga)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1321751",
+   "title": "Siamo in 11!",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q196600 (media_franchise)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1339165",
+   "title": "Hyouka",
+   "decision": "exclude",
+   "reason": "other_work/literary_work: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q7725634 (literary_work)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1339864",
+   "title": "Film sullo sport",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q201658 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q13435381",
+   "title": "Carlo e Diana - Una storia d'amore",
+   "decision": "include_verified",
+   "reason": "film TV (1982): singolo film TV",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q134885840",
+   "title": "Lupin the IIIrd - Zenigata e i due Lupin",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (anime): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q1355719",
+   "title": "Miyuki",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1360690",
+   "title": "Kuragehime",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q13613970",
+   "title": "Creatura (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/title_marks_series: included only for a 'Film ...' category (no {{Film}} infobox); title suffix marks a series: (miniserie televisiva)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q136761970",
+   "title": "Meitantei Conan - Black History - Kuro-zukume no soshiki to no taiketsu no rekishi",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (tv_special): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q136763182",
+   "title": "Meitantei Conan - Gin'yoku no Time Travel",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (tv_special): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q1374301",
+   "title": "Guru Guru - Il girotondo della magia",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1390591",
+   "title": "Human Trafficking - Le schiave del sesso",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q140068549",
+   "title": "Michael Jackson: il verdetto",
+   "decision": "exclude",
+   "reason": "series/tv_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q5398426 (tv_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1402335",
+   "title": "Due come noi!!",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1403113",
+   "title": "La vita di Leonardo da Vinci",
+   "decision": "exclude",
+   "reason": "series/tv_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q5398426 (tv_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q140393354",
+   "title": "Lobo Paramilitary - Sangue a Natale",
+   "decision": "exclude",
+   "reason": "Lobo Paramilitary Christmas Special: è un fumetto (falso positivo del campionamento, fase 5)",
+   "sources": [
+    "fase5:campione"
+   ]
+  },
+  {
+   "film_id": "Q141437984",
+   "title": "Cortometraggi di Ari Aster",
+   "decision": "exclude",
+   "reason": "topic/list_article: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q13406463 (list_article)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1471094",
+   "title": "King of Thorn",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1505050",
+   "title": "Video Girl Ai",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q196600 (media_franchise)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q15069844",
+   "title": "Altri tempi (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1507176",
+   "title": "Ultimi raggi di luna",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (manga): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q15461836",
+   "title": "Lupin III - La principessa della brezza: La città nascosta nel cielo",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (tv_film): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q1570553",
+   "title": "Switch Girl!!",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q15726991",
+   "title": "Dragon Head",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q15732099",
+   "title": "Ajin - Demi Human",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (manga): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q157443",
+   "title": "Film commedia",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q201658 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1580513",
+   "title": "Say \"I love you\"",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1607114",
+   "title": "Adventures of Captain Marvel",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (tv_series): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q1613225",
+   "title": "Anne of Green Gables: A New Beginning",
+   "decision": "include_verified",
+   "reason": "film TV (2008) di 144 minuti: un solo film",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q164883",
+   "title": "Initial D",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q16619430",
+   "title": "Cellini - Una vita scellerata",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1672088",
+   "title": "Mosè (miniserie televisiva 1974)",
+   "decision": "exclude",
+   "reason": "series/title_marks_series: included only for a 'Film ...' category (no {{Film}} infobox); title suffix marks a series: (miniserie televisiva)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q17213181",
+   "title": "Kyō no Kira-kun",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (manga): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q17218347",
+   "title": "Pandora in the Crimson Shell: Ghost Urn",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q17230217",
+   "title": "Erased",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1740789",
+   "title": "Poliziesco all'italiana",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q201658 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q17479060",
+   "title": "Miss Marple nei Caraibi (film)",
+   "decision": "include_verified",
+   "reason": "film TV (92 min): un solo film",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q17479103",
+   "title": "Un padre inatteso",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (tv_film): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q1750559",
+   "title": "Le 12 sedie",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1754057",
+   "title": "L'uovo dell'angelo",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (anime): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q17584895",
+   "title": "P&ME - Policeman and Me",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (manga): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q17636530",
+   "title": "Mister Ignis - L'operaio che fondò un impero",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1775616",
+   "title": "Il vento dell'Amnesia",
+   "decision": "include_unverified",
+   "reason": "reinserito dall'elenco delle 259 (decisione approvata): Il vento dell'Amnesia: anime (OVA) con infobox film; l'anno è quello del romanzo",
+   "sources": [
+    "fase4:259",
+    "fase6:riesame-259"
+   ]
+  },
+  {
+   "film_id": "Q1779032",
+   "title": "The Tommyknockers - Le creature del buio",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q182469",
+   "title": "Chihayafuru - Il gioco di Chihaya",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q18357843",
+   "title": "Sound! Euphonium",
+   "decision": "exclude",
+   "reason": "series/novel_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1667921 (novel_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q18464203",
+   "title": "Tredici (serie televisiva)",
+   "decision": "exclude",
+   "reason": "series/tv_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q5398426 (tv_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q18579178",
+   "title": "Kabaneri of the Iron Fortress",
+   "decision": "exclude",
+   "reason": "series/anime_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q63952888 (anime_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1863185",
+   "title": "Film basati sulla Bibbia",
+   "decision": "exclude",
+   "reason": "topic/list_article: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q13406463 (list_article)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q18700981",
+   "title": "Kakegurui",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q18788443",
+   "title": "Orange (manga)",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (manga): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q188473",
+   "title": "Film d'azione",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q201658 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q193705",
+   "title": "Lo schiaccianoci",
+   "decision": "exclude",
+   "reason": "other_work/stage_work: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q58483088 (stage_work): animation/stage work, film status unclear",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1960006",
+   "title": "Kyō, koi o hajimemasu",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q1964231",
+   "title": "Oblomov (film)",
+   "decision": "include_verified",
+   "reason": "film di Michalkov: film per il cinema",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q19781419",
+   "title": "Golden Kamui",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q20002651",
+   "title": "Film a trucchi",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q201658 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q20006003",
+   "title": "Episodi e film de Il mistero delle lettere perdute",
+   "decision": "exclude",
+   "reason": "topic/film_series_page: included only for a 'Film ...' category (no {{Film}} infobox); page about a series of films, not one film",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q200092",
+   "title": "Cinema dell'orrore",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q108329096 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q20010191",
+   "title": "Max e Hélène",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q20044088",
+   "title": "Kurosaki-kun no iinari ni nante naranai",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q2016740",
+   "title": "Casanova (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q202387",
+   "title": "Disturbo da stress post-traumatico",
+   "decision": "exclude",
+   "reason": "topic/medical_condition: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q112193867 (medical_condition)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q2067724",
+   "title": "Sukeban deka",
+   "decision": "include_unverified",
+   "reason": "serie o film live-action Sukeban Deka: nessun dato di regia né durata",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q2077494",
+   "title": "Wild 7",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q196600 (media_franchise)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q2077536",
+   "title": "Crusher Joe",
+   "decision": "include_verified",
+   "reason": "film d'animazione del 1983 (132 min): infobox film con regista",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q2091643",
+   "title": "Amore di perdizione",
+   "decision": "include_verified",
+   "reason": "film di Manoel de Oliveira (262 min): distribuito al cinema, esiste una versione in 6 puntate",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q2095040",
+   "title": "Hiyokoi",
+   "decision": "exclude",
+   "reason": "serie anime breve (22 min): regista e produttore solo di serie; nessun IMDb",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q2095183",
+   "title": "Fingersmith",
+   "decision": "exclude",
+   "reason": "miniserie BBC in 3 puntate: nessuna durata",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q21015465",
+   "title": "Tsumi no yohaku",
+   "decision": "include_verified",
+   "reason": "reinserito dall'elenco delle 259 (decisione approvata): film giapponese del 2012 (122 min, regista, IMDb, infobox film): Wikidata lo dà come opera letteraria",
+   "sources": [
+    "fase4:259",
+    "fase6:riesame-259"
+   ]
+  },
+  {
+   "film_id": "Q21019487",
+   "title": "Blue Giant",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q21030082",
+   "title": "Dinosauri Killer",
+   "decision": "exclude",
+   "reason": "series/tv_programme: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q15416 (tv_programme), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q21190508",
+   "title": "Brancaccio (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q21235532",
+   "title": "Annika: Crime Reporter",
+   "decision": "exclude",
+   "reason": "series/tv_series: included only for a 'Film ...' category (no {{Film}} infobox); category-only page with no film-class P31, no IMDb",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q21272604",
+   "title": "Love Like Aliens",
+   "decision": "include_unverified",
+   "reason": "anime, tipo non determinabile: nessun dato (regista, durata, IMDb)",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q22341701",
+   "title": "Mr. Osomatsu",
+   "decision": "exclude",
+   "reason": "series/anime_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q63952888 (anime_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q2253667",
+   "title": "L'audacia degli X-Men",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (unknown): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q2263018",
+   "title": "Fantaghirò (miniserie televisiva)",
+   "decision": "include_unverified",
+   "reason": "reinserito dall'elenco delle 259 (decisione approvata): Fantaghirò (1991): il titolo dice «miniserie», ma i sequel Fantaghirò 2, 4 e 5 sono tenuti tra i film TV: incoerenza da sciogliere",
+   "sources": [
+    "fase4:259",
+    "fase6:riesame-259"
+   ]
+  },
+  {
+   "film_id": "Q226730",
+   "title": "Cinema muto",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1001378 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q2271087",
+   "title": "Mobile Suit Gundam 0083: Stardust Memory",
+   "decision": "include_unverified",
+   "reason": "OVA di 13 episodi (esiste anche il film montato): serve la tua regola sugli OVA: la pagina è l'OVA, l'infobox il film",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q228396",
+   "title": "Atomic Train - Disastro ad alta velocità",
+   "decision": "exclude",
+   "reason": "miniserie NBC in due parti: 164 minuti in due serate",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q229390",
+   "title": "Cinema tridimensionale",
+   "decision": "exclude",
+   "reason": "topic/film_technique: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q110900120 (film_technique)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q22986649",
+   "title": "Riphagen",
+   "decision": "include_verified",
+   "reason": "film olandese del 2016 (130 min): esiste anche una versione serie",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q2318999",
+   "title": "Nino, il mio amico ninja",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q2322509",
+   "title": "Anna dai capelli rossi - Il sequel",
+   "decision": "include_unverified",
+   "reason": "film TV canadese in due parti (230 min): la pagina lo chiama «film», ma è andato in onda in due serate",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q2335710",
+   "title": "Maetel Legend - Sinfonia d'inverno",
+   "decision": "include_unverified",
+   "reason": "OVA speciale (verosimilmente un solo episodio): 6.359 caratteri di trama, IMDb presente, nessuna durata",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q23566257",
+   "title": "Ostaggi delle SS sulle Alpi",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (miniseries): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q2364709",
+   "title": "Alice Comedies",
+   "decision": "exclude",
+   "reason": "topic/film_series_page: included only for a 'Film ...' category (no {{Film}} infobox); page about a series of films, not one film",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q23681193",
+   "title": "Aikatsu Stars!",
+   "decision": "exclude",
+   "reason": "series/anime_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q7889 (video_game)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q2384898",
+   "title": "Macross Plus",
+   "decision": "include_unverified",
+   "reason": "OVA di 4 episodi (esiste una versione film): nessun infobox; IMDb presente",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q2405490",
+   "title": "Arion (manga)",
+   "decision": "exclude",
+   "reason": "series/title_marks_series: included only for a 'Film ...' category (no {{Film}} infobox); title suffix marks a series: (manga)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q2421745",
+   "title": "Aftershock - Terremoto a New York",
+   "decision": "include_verified",
+   "reason": "film TV (la pagina lo dice) con una sola «Trama»: incluso per decisione del proprietario del 2026-11-04",
+   "sources": [
+    "fase6:46-ibridi",
+    "owner:2026-11-04"
+   ]
+  },
+  {
+   "film_id": "Q2438487",
+   "title": "Rokudenashi Blues",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q14946528 (feature)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q2450626",
+   "title": "L'isola misteriosa (film 2005)",
+   "decision": "include_verified",
+   "reason": "film TV (172 min): singolo film Hallmark",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q2453911",
+   "title": "La leggenda di Arslan",
+   "decision": "exclude",
+   "reason": "series/novel_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1667921 (novel_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q248392",
+   "title": "Il processo di Norimberga",
+   "decision": "exclude",
+   "reason": "miniserie in due parti (TNT): 180 minuti trasmessi in due serate",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q248596",
+   "title": "Die Deutsche Wochenschau",
+   "decision": "exclude",
+   "reason": "topic/film_series_page: included only for a 'Film ...' category (no {{Film}} infobox); page about a series of films, not one film",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q24862454",
+   "title": "Non mi stuzzicare, Takagi!",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q24867647",
+   "title": "Kaguya-sama: Love is War",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q24868017",
+   "title": "Anonymous Noise",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q24933428",
+   "title": "Nella città vampira. Drammi gotici",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q25110269",
+   "title": "Film in tecnica mista",
+   "decision": "exclude",
+   "reason": "topic/film_technique: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q110900120 (film_technique)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q2531535",
+   "title": "Una ragazza alla moda",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q2532722",
+   "title": "Barbie (serie di film)",
+   "decision": "exclude",
+   "reason": "topic/list_article: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q13406463 (list_article)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q25408835",
+   "title": "Qualunque cosa succeda (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q2542211",
+   "title": "Demon City Shinjuku, la città dei mostri",
+   "decision": "include_verified",
+   "reason": "OVA di lungometraggio di Kawajiri: singola opera di circa 80 minuti",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q2571729",
+   "title": "Sabu e Ichi - Memorie di due detective dell'epoca Edo",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q2575263",
+   "title": "Il diario di Anna Frank (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q2608646",
+   "title": "Phantom Blood",
+   "decision": "include_verified",
+   "reason": "film del 2007 (91 min): infobox film con regista",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q2630928",
+   "title": "Dragon Ball Z Gaiden: Saiyajin zetsumetsu keikaku",
+   "decision": "exclude",
+   "reason": "other_work/video_game: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q7889 (video_game)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q2668005",
+   "title": "Verso la Terra...",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q2699416",
+   "title": "Fujimi-nichōme kōkyō gakudan",
+   "decision": "include_verified",
+   "reason": "film live-action (83 min): infobox film con regista",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q2720194",
+   "title": "Alexander - Cronache di guerra di Alessandro il Grande",
+   "decision": "exclude",
+   "reason": "series/anime_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q63952888 (anime_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q2757796",
+   "title": "Nisekoi - False Love",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q27922181",
+   "title": "Animali fantastici (serie di film)",
+   "decision": "exclude",
+   "reason": "topic/film_series_page: included only for a 'Film ...' category (no {{Film}} infobox); page about a series of films, not one film",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q28531731",
+   "title": "Senza confini (miniserie televisiva 2001)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q28776835",
+   "title": "C'era una volta Studio Uno",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q29387067",
+   "title": "Indagine sui sentimenti",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (feature): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q2986126",
+   "title": "Come Yukong spostò le montagne",
+   "decision": "include_unverified",
+   "reason": "ciclo documentaristico di Joris Ivens in 12 parti (763 min): la pagina italiana lo tratta come film",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q2991565",
+   "title": "Commedia sexy all'italiana",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q201658 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q2997402",
+   "title": "Il capo dei capi",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3007570",
+   "title": "Cuore (miniserie televisiva 1984)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3007925",
+   "title": "Cutie Honey Flash",
+   "decision": "exclude",
+   "reason": "series/anime_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q63952888 (anime_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3030553",
+   "title": "Disperatamente Giulia (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/title_marks_series: included only for a 'Film ...' category (no {{Film}} infobox); title suffix marks a series: (miniserie televisiva)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q303425",
+   "title": "SuperDoll Rika-chan",
+   "decision": "exclude",
+   "reason": "serie anime (l'infobox descrive il film del 1999): trama della serie TV, 30 min = episodio",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q3055315",
+   "title": "Conversazioni private",
+   "decision": "include_verified",
+   "reason": "film di Liv Ullmann (200 min, 5 parti): infobox film; nella versione italiana tagliato",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q30898964",
+   "title": "Bella, pazza e impossibile",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (feature): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q3148556",
+   "title": "Il viaggio di G. Mastorna, detto Fernet",
+   "decision": "exclude",
+   "reason": "other_work/comic: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1004 (comic)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q315616",
+   "title": "Giulio Cesare (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/title_marks_series: included only for a 'Film ...' category (no {{Film}} infobox); title suffix marks a series: (miniserie televisiva)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q319123",
+   "title": "L'isola del tesoro (miniserie televisiva 1987)",
+   "decision": "exclude",
+   "reason": "series/tv_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q5398426 (tv_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q319221",
+   "title": "Film d'avventura",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q201658 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3192387",
+   "title": "Kamen Teacher",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3197182",
+   "title": "Kinopravda",
+   "decision": "exclude",
+   "reason": "series/newsreel_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q11424 (feature)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q320032",
+   "title": "Il segreto del Sahara (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3210659",
+   "title": "Verdi (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3249691",
+   "title": "Heimat (film)",
+   "decision": "exclude",
+   "reason": "serie TV in 11 parti (Heimat): 924 minuti",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q328124",
+   "title": "Il destino di un principe",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3361835",
+   "title": "Pan-Européenne",
+   "decision": "exclude",
+   "reason": "topic/organisation: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q43229 (organisation)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3407535",
+   "title": "Prophecy (manga)",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3505872",
+   "title": "Gli amori di Suzanna Andler",
+   "decision": "include_verified",
+   "reason": "reinserito dall'elenco delle 259 (decisione approvata): film di Benoît Jacquot del 2021 (91 min, infobox film): stessa causa",
+   "sources": [
+    "fase4:259",
+    "fase6:riesame-259"
+   ]
+  },
+  {
+   "film_id": "Q3514707",
+   "title": "Code Geass: Akito the Exiled",
+   "decision": "exclude",
+   "reason": "OVA di 5 episodi: l'infobox dà «60 min (episodio) / 300 min (totale)»",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q3519342",
+   "title": "Fort Bravo - Texas Hollywood",
+   "decision": "exclude",
+   "reason": "topic/film_location: included only for a 'Film ...' category (no {{Film}} infobox); category-only page with no film-class P31, no IMDb",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3597888",
+   "title": "Tre donne (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "topic/film_series_page: included only for a 'Film ...' category (no {{Film}} infobox); page about a series of films, not one film",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3600965",
+   "title": "Rappresentazione dell'HIV/AIDS nel cinema e nella televisione",
+   "decision": "exclude",
+   "reason": "topic/film_topic: included only for a 'Film ...' category (no {{Film}} infobox); category-only page with no film-class P31, no IMDb",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3609266",
+   "title": "Aldo Moro - Il presidente",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3613521",
+   "title": "Ama il tuo nemico",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3640833",
+   "title": "Blaise Pascal (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/title_marks_series: included only for a 'Film ...' category (no {{Film}} infobox); title suffix marks a series: (miniserie televisiva)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3644393",
+   "title": "Breve gloria di mister Miffin",
+   "decision": "exclude",
+   "reason": "series/tv_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q5398426 (tv_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3664173",
+   "title": "Cefalonia (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3677141",
+   "title": "Cinepanettone",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q201658 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3677194",
+   "title": "Cinema di propaganda fascista",
+   "decision": "exclude",
+   "reason": "topic/film_topic: included only for a 'Film ...' category (no {{Film}} infobox); category-only page, no usable P31, title/genre look like a topic or an animation",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3679576",
+   "title": "Classe di ferro",
+   "decision": "exclude",
+   "reason": "series/tv_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q5398426 (tv_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3681225",
+   "title": "Clover (Toriko Chiya)",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (manga): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q3684210",
+   "title": "Come un delfino",
+   "decision": "exclude",
+   "reason": "series/tv_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q5398426 (tv_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3695858",
+   "title": "Così fan tutte (manga)",
+   "decision": "exclude",
+   "reason": "topic/film_series_page: included only for a 'Film ...' category (no {{Film}} infobox); page about a series of films, not one film",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3699447",
+   "title": "Cuore (miniserie televisiva 2001)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3703153",
+   "title": "David Copperfield (miniserie televisiva 1965)",
+   "decision": "exclude",
+   "reason": "series/tv_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q5398426 (tv_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3704455",
+   "title": "Decamerotico",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); category-only page with no film-class P31, no IMDb",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3713931",
+   "title": "Donna d'onore (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/title_marks_series: included only for a 'Film ...' category (no {{Film}} infobox); title suffix marks a series: (miniserie televisiva)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3715268",
+   "title": "Dreams of the Rarebit Fiend",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (anthology): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q374389",
+   "title": "Venus Wars",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3745400",
+   "title": "Film comico",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q201658 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3750839",
+   "title": "Francesco d'Assisi (miniserie televisiva 1966)",
+   "decision": "exclude",
+   "reason": "series/title_marks_series: included only for a 'Film ...' category (no {{Film}} infobox); title suffix marks a series: (miniserie televisiva)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3764572",
+   "title": "Gino Bartali - L'intramontabile",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3767190",
+   "title": "Giovanni Falcone - L'uomo che sfidò Cosa Nostra",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3771059",
+   "title": "Giuseppe Moscati - L'amore che guarisce",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q98701476 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3786774",
+   "title": "HoriMiya",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3786944",
+   "title": "Hotel Hibiscus",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (manga): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q3790374",
+   "title": "I Nicotera",
+   "decision": "exclude",
+   "reason": "sceneggiato in più puntate: la trama dice «Lo sceneggiato narra…»",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q3790859",
+   "title": "I giochi del diavolo",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3790916",
+   "title": "I guardiani del cielo",
+   "decision": "exclude",
+   "reason": "miniserie RAI in due parti: nessuna durata",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q3791186",
+   "title": "I promessi sposi (miniserie televisiva 1989)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3793051",
+   "title": "Il balordo (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3793334",
+   "title": "Il caso Enzo Tortora - Dove eravamo rimasti?",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3793448",
+   "title": "Il cielo non cade mai",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3795531",
+   "title": "Il ricatto (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3800512",
+   "title": "Interno giorno",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (tv_programme): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q3814534",
+   "title": "Ken il guerriero - La leggenda",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (anime): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q3818383",
+   "title": "L'amaro caso della baronessa di Carini",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3818920",
+   "title": "L'avvocato delle donne",
+   "decision": "exclude",
+   "reason": "series/tv_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q5398426 (tv_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3819459",
+   "title": "L'isola dei segreti - Korè",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3821217",
+   "title": "La Storia (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/title_marks_series: included only for a 'Film ...' category (no {{Film}} infobox); title suffix marks a series: (miniserie televisiva)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3821771",
+   "title": "La cittadella (miniserie televisiva 1964)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3822115",
+   "title": "La donna del treno",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3823845",
+   "title": "La recta provincia",
+   "decision": "exclude",
+   "reason": "miniserie TV cilena di Raúl Ruiz: uscita come serie TV; trama di 610 caratteri",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q3844599",
+   "title": "Mani Pulite - Il duello",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (feature): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q3855269",
+   "title": "Mesih",
+   "decision": "include_verified",
+   "reason": "film iraniano (100 min): infobox film",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q3855981",
+   "title": "Mia madre (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3859712",
+   "title": "Moana (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/title_marks_series: included only for a 'Film ...' category (no {{Film}} infobox); title suffix marks a series: (miniserie televisiva)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3870500",
+   "title": "Naso di cane",
+   "decision": "exclude",
+   "reason": "sceneggiato TV italiano (Squitieri): sceneggiato in più puntate secondo Wikidata; nessuna durata",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q3878869",
+   "title": "Notti e nebbie",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3887079",
+   "title": "Otello o la deficienza della donna",
+   "decision": "exclude",
+   "reason": "other_work/literary_work: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q7725634 (literary_work)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3888794",
+   "title": "Padre Pio - Tra cielo e terra",
+   "decision": "exclude",
+   "reason": "miniserie RAI in due parti: nessuna durata",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q3893193",
+   "title": "Pane e libertà",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3900093",
+   "title": "Perry Mason: dietro la facciata",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (tv_film): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q3900097",
+   "title": "Perry Mason: Furto d'autore",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (tv_film): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q3900098",
+   "title": "Perry Mason: Il bacio che uccide",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (tv_film): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q3900101",
+   "title": "Perry Mason: L'arte di morire",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (tv_film): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q3900102",
+   "title": "Perry Mason: L'ospite d'onore",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (tv_film): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q3900103",
+   "title": "Perry Mason: La bara di vetro",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (tv_film): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q3900104",
+   "title": "Perry Mason: La donna del lago",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (tv_film): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q3900108",
+   "title": "Perry Mason: Morte di un dongiovanni",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (tv_film): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q3900117",
+   "title": "Perry Mason: Serata con il morto",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (tv_film): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q3900118",
+   "title": "Perry Mason: Un fotogramma dal cielo",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (tv_film): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q39043",
+   "title": "Uchu kyodai - Fratelli nello spazio",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3905306",
+   "title": "Pinocchio (Carmelo Bene)",
+   "decision": "exclude",
+   "reason": "other_work/literary_work: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q7725634 (literary_work)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3924709",
+   "title": "Provincia segreta",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3927677",
+   "title": "Quer pasticciaccio brutto de via Merulana (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3927739",
+   "title": "Questa è la mia terra",
+   "decision": "exclude",
+   "reason": "series/tv_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q5398426 (tv_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q3931217",
+   "title": "Rebecca (film 1979)",
+   "decision": "exclude",
+   "reason": "miniserie BBC in 4 puntate: 55 minuti = episodio",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q3937683",
+   "title": "Ritratto di donna velata",
+   "decision": "include_unverified",
+   "reason": "sceneggiato RAI (1975): nessun dato di durata; non è chiaro se in più puntate",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q398146",
+   "title": "Let the Sunshine In - Hiatari ryōkō!",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q4001916",
+   "title": "UFO Robot Goldrake contro il Grande Mazinga",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (manga): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q4003223",
+   "title": "Ultimo (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q4003228",
+   "title": "Ultimo - La sfida",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q4003670",
+   "title": "Un anno di scuola (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/title_marks_series: included only for a 'Film ...' category (no {{Film}} infobox); title suffix marks a series: (miniserie televisiva)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q4003927",
+   "title": "Un milione di miliardi",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q4023286",
+   "title": "Yuuki",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (tv_programme): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q4049046",
+   "title": "Un marzo da leoni",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q405497",
+   "title": "Air (serie)",
+   "decision": "exclude",
+   "reason": "other_work/video_game: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q7889 (video_game)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q42365235",
+   "title": "Tsurune",
+   "decision": "exclude",
+   "reason": "serie anime (l'infobox descrive il film del 2022, 102 min): la sinossi inizia con «La serie parla…»",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q43401515",
+   "title": "Jesus Christ Superstar Live in Concert",
+   "decision": "include_verified",
+   "reason": "reinserito dall'elenco delle 259 (decisione approvata): Jesus Christ Superstar Live in Concert: la pagina lo chiama «film TV» (come «Grinch Musical Live!», che è tenuto)",
+   "sources": [
+    "fase4:259",
+    "fase6:riesame-259"
+   ]
+  },
+  {
+   "film_id": "Q4347",
+   "title": "Gen di Hiroshima",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q453971",
+   "title": "Heidi (serie televisiva 1978)",
+   "decision": "exclude",
+   "reason": "series/tv_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q5398426 (tv_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q455784",
+   "title": "Giuseppe (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/title_marks_series: included only for a 'Film ...' category (no {{Film}} infobox); title suffix marks a series: (miniserie televisiva)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q459290",
+   "title": "Film indipendente",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q201658 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q46995368",
+   "title": "LEGO Jurassic World: L'evasione di Indominus Rex",
+   "decision": "include_verified",
+   "reason": "speciale TV animato di 22 minuti: un solo speciale",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q470572",
+   "title": "Gesù di Nazareth (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q4729904",
+   "title": "All You Need Is Kill",
+   "decision": "exclude",
+   "reason": "other_work/literary_work: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q7725634 (literary_work)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q4754259",
+   "title": "Andersonville (film)",
+   "decision": "include_verified",
+   "reason": "film TV TNT (167 min): infobox film presente",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q4802375",
+   "title": "Aruvu rezuru: kikaijikake no yōseitachi",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (anime_film_series): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q481467",
+   "title": "Il mondo sul filo",
+   "decision": "include_unverified",
+   "reason": "film TV di Fassbinder in due parti: considerato un film d'autore; 212 minuti in due puntate",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q482482",
+   "title": "K-On!",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q483943",
+   "title": "Ano hana",
+   "decision": "exclude",
+   "reason": "series/anime_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q63952888 (anime_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q486793",
+   "title": "Bungaku shōjo",
+   "decision": "include_unverified",
+   "reason": "saga/franchise anime (film del 2010 e serie): 432 caratteri di trama, nessun dato",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q48810722",
+   "title": "Giorno segreto",
+   "decision": "exclude",
+   "reason": "other_work/literary_work: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q7725634 (literary_work)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q494804",
+   "title": "Hanasaku iroha",
+   "decision": "exclude",
+   "reason": "series/anime_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q63952888 (anime_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q495472",
+   "title": "Kara no kyōkai",
+   "decision": "exclude",
+   "reason": "pagina sulla saga di 7 film: è una pagina di serie di film, trattata come argomento come le altre 9",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q504716",
+   "title": "Cristoforo Colombo (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/title_marks_series: included only for a 'Film ...' category (no {{Film}} infobox); title suffix marks a series: (miniserie televisiva)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q5228936",
+   "title": "Unge Andersen",
+   "decision": "include_verified",
+   "reason": "film TV danese (120 min): infobox film",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q52715512",
+   "title": "Orzowei, il figlio della savana (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q535518",
+   "title": "Nazisploitation",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q201658 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q5359283",
+   "title": "Tomie: Another Face",
+   "decision": "include_verified",
+   "reason": "film in tre episodi (72 min): film compilation, non una serie",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q538952",
+   "title": "Attila, l'unno",
+   "decision": "exclude",
+   "reason": "miniserie USA Network in due parti: 177 minuti in due serate",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q5507059",
+   "title": "Un mare di guai (film 1995)",
+   "decision": "include_verified",
+   "reason": "film TV (Bob Clark): un solo film",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q56189573",
+   "title": "Nata Femmena",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (feature): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q565293",
+   "title": "La storia di Anne Frank",
+   "decision": "exclude",
+   "reason": "miniserie ABC in due parti: 189 minuti in due serate",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q567884",
+   "title": "Another",
+   "decision": "include_unverified",
+   "reason": "reinserito dall'elenco delle 259 (decisione approvata): Another: infobox film con regista ma l'anno 2009 è del romanzo; il film live-action è del 2012",
+   "sources": [
+    "fase4:259",
+    "fase6:riesame-259"
+   ]
+  },
+  {
+   "film_id": "Q583768",
+   "title": "Women in prison",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q201658 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q584204",
+   "title": "Lei e il gatto",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (anime): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q599558",
+   "title": "Film erotico",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q201658 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q606892",
+   "title": "A come Andromeda (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/tv_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q5398426 (tv_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q60985374",
+   "title": "Under Ninja",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q614121",
+   "title": "Planetarian: chiisana hoshi no yume",
+   "decision": "exclude",
+   "reason": "other_work/video_game: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q7889 (video_game)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q619500",
+   "title": "Touch (manga)",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q626502",
+   "title": "Dive!!",
+   "decision": "include_verified",
+   "reason": "film live-action del 2008 (regia e 13 attori nell'infobox): Wikidata lo dà come serie di romanzi, la pagina è del film",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q629917",
+   "title": "Jidai-geki",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q15961987 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q630496",
+   "title": "Abramo (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q63522304",
+   "title": "Uomo lupo nella cinematografia",
+   "decision": "exclude",
+   "reason": "topic/film_topic: included only for a 'Film ...' category (no {{Film}} infobox); category-only page with no film-class P31, no IMDb",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q63523671",
+   "title": "Cinema in Abruzzo",
+   "decision": "exclude",
+   "reason": "topic/film_topic: included only for a 'Film ...' category (no {{Film}} infobox); category-only page, no usable P31, title/genre look like a topic or an animation",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q63981675",
+   "title": "Tokyo Revengers",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q644001",
+   "title": "Desideria e l'anello del drago",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q98701476 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q645928",
+   "title": "Film biografico",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q201658 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q65068326",
+   "title": "Keep Your Hands Off Eizouken!",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q660237",
+   "title": "Alice nel Paese delle Meraviglie (film 1999)",
+   "decision": "include_unverified",
+   "reason": "film TV NBC in due parti (150 min): evento in due serate",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q662261",
+   "title": "Karol - Un papa rimasto uomo",
+   "decision": "include_unverified",
+   "reason": "film TV in due parti (155 min): lo stesso caso di «Karol – Un uomo diventato papa» (180 min), che oggi resta tra i film",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q666569",
+   "title": "Digimon Savers",
+   "decision": "exclude",
+   "reason": "serie anime (l'infobox descrive il film «The Movie», 20 min): trama della serie TV Digimon Savers",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q688651",
+   "title": "Armitage III",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (ova): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q689114",
+   "title": "Digimon Adventure",
+   "decision": "exclude",
+   "reason": "series/anime_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q63952888 (anime_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q696278",
+   "title": "Lovely Complex",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (manga): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q696302",
+   "title": "Black Butler",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q696346",
+   "title": "Digimon Tamers",
+   "decision": "exclude",
+   "reason": "serie anime (l'infobox descrive il film del 2001, 50 min): trama della serie TV Digimon Tamers",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q697203",
+   "title": "L'Odissea (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/title_marks_series: included only for a 'Film ...' category (no {{Film}} infobox); title suffix marks a series: (miniserie televisiva)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q697479",
+   "title": "Marmalade Boy",
+   "decision": "exclude",
+   "reason": "serie anime (l'infobox descrive il corto del 1995, 26 min): la trama è quella della serie TV; il corto «Quello stesso giorno a casa di Yū» esiste ma non è descritto dalla pagina",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q702858",
+   "title": "Olocausto (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q7033459",
+   "title": "Night Skies",
+   "decision": "exclude",
+   "reason": "seguito mai realizzato: descrive un progetto, non un'opera",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q7046197",
+   "title": "Nobunaga Concerto",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q711139",
+   "title": "Baldios - Il guerriero dello spazio",
+   "decision": "exclude",
+   "reason": "serie anime (l'infobox descrive «Baldios – The Movie»): la trama cita puntate e serie",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q714078",
+   "title": "Hana yori dango",
+   "decision": "exclude",
+   "reason": "serie anime (l'infobox descrive il film del 1997, 30 min): 3.774 caratteri di trama della serie TV Toei",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q715731",
+   "title": "Digimon Adventure 02",
+   "decision": "exclude",
+   "reason": "serie anime (l'infobox descrive il film del 2000, 65 min): trama della serie TV Digimon Adventure 02",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q7258905",
+   "title": "Emel'jan Pugačёv",
+   "decision": "include_verified",
+   "reason": "film sovietico: film per il cinema",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q729857",
+   "title": "Aikatsu!",
+   "decision": "exclude",
+   "reason": "series/anime_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q196600 (media_franchise)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q733823",
+   "title": "Fascist Legacy",
+   "decision": "include_unverified",
+   "reason": "documentario BBC in due puntate: documentario televisivo; manca la durata",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q7365970",
+   "title": "Ronnie Rocket",
+   "decision": "exclude",
+   "reason": "film mai realizzato (Lynch): descrive un progetto, non un'opera visibile",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q737271",
+   "title": "Higurashi no naku koro ni",
+   "decision": "exclude",
+   "reason": "series/visual_novel_anime: included only for a 'Film ...' category (no {{Film}} infobox); category-only page, no usable P31, title/genre look like a topic or an animation",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q738678",
+   "title": "Lupin III - Green vs Red",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (anime): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q772473",
+   "title": "Cremaster (serie di film)",
+   "decision": "exclude",
+   "reason": "topic/media_franchise: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q2617970 (media_franchise)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q7754155",
+   "title": "La lunga notte (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/title_marks_series: included only for a 'Film ...' category (no {{Film}} infobox); title suffix marks a series: (miniserie televisiva)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q7775852",
+   "title": "The Works (film)",
+   "decision": "exclude",
+   "reason": "film d'animazione incompiuto (1984, non uscito): non esiste un'opera fruibile; è una voce storica",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q787081",
+   "title": "Cortili del cuore",
+   "decision": "exclude",
+   "reason": "serie anime (l'infobox descrive il film del 1996): trama di serie TV; nessuna durata",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q7900306",
+   "title": "Urda (serie animata)",
+   "decision": "exclude",
+   "reason": "series/title_marks_series: included only for a 'Film ...' category (no {{Film}} infobox); title suffix marks a series: (serie animata)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q7903650",
+   "title": "Generation War",
+   "decision": "exclude",
+   "reason": "miniserie tedesca in 3 puntate: l'infobox dà «135 min (episodio)»",
+   "sources": [
+    "fase4:71",
+    "fase6:27-dubbi"
+   ]
+  },
+  {
+   "film_id": "Q812788",
+   "title": "Be-Bop High School",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q8274 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q818968",
+   "title": "Il giovane Hitler",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q834003",
+   "title": "USS Enterprise (NCC-1701)",
+   "decision": "exclude",
+   "reason": "topic/fictional_object: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q53710030 (fictional_object)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q845684",
+   "title": "USS Enterprise (NCC-1701-D)",
+   "decision": "exclude",
+   "reason": "topic/fictional_object: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q53710030 (fictional_object)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q846544",
+   "title": "Film catastrofico",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q201658 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q849666",
+   "title": "Brickfilm",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q201658 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q85808226",
+   "title": "La regina degli scacchi (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q86736171",
+   "title": "Kowloon Generic Romance",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q868683",
+   "title": "Bourne (serie di film)",
+   "decision": "exclude",
+   "reason": "topic/film_series_page: included only for a 'Film ...' category (no {{Film}} infobox); page about a series of films, not one film",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q88317035",
+   "title": "Il disertore (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q901217",
+   "title": "Scene da un matrimonio",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q9026236",
+   "title": "L DK",
+   "decision": "include_unverified",
+   "reason": "dubbio non riesaminato singolarmente (manga): resta incluso, non verificato",
+   "sources": [
+    "fase4:71"
+   ]
+  },
+  {
+   "film_id": "Q902821",
+   "title": "Bravo Two Zero (film)",
+   "decision": "include_verified",
+   "reason": "film TV BBC (114 min): un solo film",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q909149",
+   "title": "Le notti di Salem (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q909586",
+   "title": "Splatter",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q201658 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q921440",
+   "title": "Seitokai yakuindomo",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q925693",
+   "title": "Break Blade",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q9262969",
+   "title": "Uccelli di rovo",
+   "decision": "exclude",
+   "reason": "miniserie in 4 puntate (Uccelli di rovo): è l'esempio tipico",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q931047",
+   "title": "Happy Hooligan",
+   "decision": "exclude",
+   "reason": "topic/comic_character: included only for a 'Film ...' category (no {{Film}} infobox); category-only page with no film-class P31, no IMDb",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q938028",
+   "title": "Little Dorrit (miniserie televisiva)",
+   "decision": "exclude",
+   "reason": "series/miniseries: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q1259759 (miniseries), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q945140",
+   "title": "Budda (manga)",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q945730",
+   "title": "Kiseiju - L'ospite indesiderato",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q95072",
+   "title": "RahXephon",
+   "decision": "exclude",
+   "reason": "series/anime_series: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q63952888 (anime_series), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q95152",
+   "title": "Silent Möbius",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q959790",
+   "title": "Cinema giallo",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q201658 (film_genre)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q970153",
+   "title": "Attore bambino",
+   "decision": "exclude",
+   "reason": "topic/occupation: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q12737077 (occupation)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q97310775",
+   "title": "Oshi no ko - My Star",
+   "decision": "exclude",
+   "reason": "series/manga: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q21198342 (manga), no film class",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "Q97369824",
+   "title": "The Connection (spettacolo teatrale)",
+   "decision": "include_unverified",
+   "reason": "reinserito dall'elenco delle 259 (decisione approvata): The Connection: la pagina è intitolata allo spettacolo teatrale, ma l'infobox è il film di Shirley Clarke (1961)",
+   "sources": [
+    "fase4:259",
+    "fase6:riesame-259"
+   ]
+  },
+  {
+   "film_id": "Q980413",
+   "title": "Pat, la ragazza del baseball",
+   "decision": "exclude",
+   "reason": "serie anime TV: nessun infobox, nessuna durata",
+   "sources": [
+    "fase6:46-ibridi"
+   ]
+  },
+  {
+   "film_id": "Q996028",
+   "title": "Fantaghirò (franchise)",
+   "decision": "exclude",
+   "reason": "topic/media_franchise: included only for a 'Film ...' category (no {{Film}} infobox); P31=Q2617970 (media_franchise)",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "wp-10878734",
+   "title": "Cinema protogiallo",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); category-only page, no usable P31, title/genre look like a topic or an animation",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "wp-10888720",
+   "title": "Cine-settimana",
+   "decision": "exclude",
+   "reason": "series/newsreel_series: included only for a 'Film ...' category (no {{Film}} infobox); category-only page with no film-class P31, no IMDb",
+   "sources": [
+    "fase4:259"
+   ]
+  },
+  {
+   "film_id": "wp-10918582",
+   "title": "Krimi (cinema)",
+   "decision": "exclude",
+   "reason": "topic/film_genre: included only for a 'Film ...' category (no {{Film}} infobox); category-only page with no film-class P31, no IMDb",
+   "sources": [
+    "fase4:259"
+   ]
+  }
+ ],
+ "records_sha256": "37935ecd715c08127c3ea8dae987c38251a06ccdf78f893bc1691da49c940e6c",
+ "included_by_owner_2026_11_04": [
+  "Q2421745"
+ ],
+ "excluded_not_verified": [
+  {
+   "film_id": "Q565293",
+   "reason": "La storia di Anne Frank: lead «miniserie» ma anche «un film controverso»"
+  },
+  {
+   "film_id": "Q228396",
+   "reason": "Atomic Train - Disastro ad alta velocità: lead «miniserie», una sola «Trama», categorie di film"
+  },
+  {
+   "film_id": "Q538952",
+   "reason": "Attila, l'unno: lead «miniserie», una sola «Trama», categorie di film"
+  }
+ ]
+}

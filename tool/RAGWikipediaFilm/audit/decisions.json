@@ -1,0 +1,758 @@
+{
+ "version": 1,
+ "meaning": "open decisions after PHASE5; PROPOSALS, none applied",
+ "doubtful_revised": [
+  {
+   "film_id": "Q697479",
+   "title": "Marmalade Boy",
+   "year": 1995,
+   "decision": "escludere",
+   "confidence": "media",
+   "nature": "serie anime (l'infobox descrive il corto del 1995, 26 min)",
+   "reason": "la trama è quella della serie TV; il corto «Quello stesso giorno a casa di Yū» esiste ma non è descritto dalla pagina",
+   "consequence": "si perde il corto come film; la serie non compare tra i film"
+  },
+  {
+   "film_id": "Q1050609",
+   "title": "ÉX-Driver",
+   "year": null,
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "nature": "OVA a episodi",
+   "reason": "nessuna durata né infobox; IMDb e regista presenti",
+   "consequence": "se incluso compare come film un OVA a più episodi; se escluso nessuna perdita certa"
+  },
+  {
+   "film_id": "Q787081",
+   "title": "Cortili del cuore",
+   "year": 1996,
+   "decision": "escludere",
+   "confidence": "media",
+   "nature": "serie anime (l'infobox descrive il film del 1996)",
+   "reason": "trama di serie TV; nessuna durata",
+   "consequence": "si perde il film Gokinjo Monogatari come voce autonoma"
+  },
+  {
+   "film_id": "Q714078",
+   "title": "Hana yori dango",
+   "year": 1997,
+   "decision": "escludere",
+   "confidence": "media",
+   "nature": "serie anime (l'infobox descrive il film del 1997, 30 min)",
+   "reason": "3.774 caratteri di trama della serie TV Toei",
+   "consequence": "si perde il film come voce autonoma"
+  },
+  {
+   "film_id": "Q666569",
+   "title": "Digimon Savers",
+   "year": 2006,
+   "decision": "escludere",
+   "confidence": "alta",
+   "nature": "serie anime (l'infobox descrive il film «The Movie», 20 min)",
+   "reason": "trama della serie TV Digimon Savers",
+   "consequence": "si perde il film come voce autonoma"
+  },
+  {
+   "film_id": "Q696346",
+   "title": "Digimon Tamers",
+   "year": 2001,
+   "decision": "escludere",
+   "confidence": "media",
+   "nature": "serie anime (l'infobox descrive il film del 2001, 50 min)",
+   "reason": "trama della serie TV Digimon Tamers",
+   "consequence": "si perde il film come voce autonoma"
+  },
+  {
+   "film_id": "Q711139",
+   "title": "Baldios - Il guerriero dello spazio",
+   "year": 1981,
+   "decision": "escludere",
+   "confidence": "media",
+   "nature": "serie anime (l'infobox descrive «Baldios – The Movie»)",
+   "reason": "la trama cita puntate e serie",
+   "consequence": "si perde il film come voce autonoma"
+  },
+  {
+   "film_id": "Q2271087",
+   "title": "Mobile Suit Gundam 0083: Stardust Memory",
+   "year": 1992,
+   "decision": "sospeso",
+   "confidence": "media",
+   "nature": "OVA di 13 episodi (esiste anche il film montato)",
+   "reason": "serve la tua regola sugli OVA: la pagina è l'OVA, l'infobox il film",
+   "consequence": "incluso: una serie OVA appare come film; escluso: manca un'opera del franchise"
+  },
+  {
+   "film_id": "Q715731",
+   "title": "Digimon Adventure 02",
+   "year": 2000,
+   "decision": "escludere",
+   "confidence": "alta",
+   "nature": "serie anime (l'infobox descrive il film del 2000, 65 min)",
+   "reason": "trama della serie TV Digimon Adventure 02",
+   "consequence": "si perde il film come voce autonoma"
+  },
+  {
+   "film_id": "Q2384898",
+   "title": "Macross Plus",
+   "year": null,
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "nature": "OVA di 4 episodi (esiste una versione film)",
+   "reason": "nessun infobox; IMDb presente",
+   "consequence": "come sopra"
+  },
+  {
+   "film_id": "Q303425",
+   "title": "SuperDoll Rika-chan",
+   "year": 1999,
+   "decision": "escludere",
+   "confidence": "alta",
+   "nature": "serie anime (l'infobox descrive il film del 1999)",
+   "reason": "trama della serie TV, 30 min = episodio",
+   "consequence": "si perde il film come voce autonoma"
+  },
+  {
+   "film_id": "Q3823845",
+   "title": "La recta provincia",
+   "year": 2007,
+   "decision": "escludere",
+   "confidence": "media",
+   "nature": "miniserie TV cilena di Raúl Ruiz",
+   "reason": "uscita come serie TV; trama di 610 caratteri",
+   "consequence": "un'opera d'autore di Ruiz non compare"
+  },
+  {
+   "film_id": "Q2095040",
+   "title": "Hiyokoi",
+   "year": 2010,
+   "decision": "escludere",
+   "confidence": "media",
+   "nature": "serie anime breve (22 min)",
+   "reason": "regista e produttore solo di serie; nessun IMDb",
+   "consequence": "nessuna perdita certa"
+  },
+  {
+   "film_id": "Q3514707",
+   "title": "Code Geass: Akito the Exiled",
+   "year": 2012,
+   "decision": "escludere",
+   "confidence": "media",
+   "nature": "OVA di 5 episodi",
+   "reason": "l'infobox dà «60 min (episodio) / 300 min (totale)»",
+   "consequence": "nessuna; la raccolta in film non è descritta dalla pagina"
+  },
+  {
+   "film_id": "Q495472",
+   "title": "Kara no kyōkai",
+   "year": null,
+   "decision": "escludere",
+   "confidence": "bassa",
+   "nature": "pagina sulla saga di 7 film",
+   "reason": "è una pagina di serie di film, trattata come argomento come le altre 9",
+   "consequence": "i singoli film non sono voci; coerente con «Saw (serie di film)»"
+  },
+  {
+   "film_id": "Q2335710",
+   "title": "Maetel Legend - Sinfonia d'inverno",
+   "year": null,
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "nature": "OVA speciale (verosimilmente un solo episodio)",
+   "reason": "6.359 caratteri di trama, IMDb presente, nessuna durata",
+   "consequence": "se incluso è probabilmente corretto"
+  },
+  {
+   "film_id": "Q7903650",
+   "title": "Generation War",
+   "year": 2013,
+   "decision": "escludere",
+   "confidence": "alta",
+   "nature": "miniserie tedesca in 3 puntate",
+   "reason": "l'infobox dà «135 min (episodio)»",
+   "consequence": "nessuna"
+  },
+  {
+   "film_id": "Q626502",
+   "title": "Dive!!",
+   "year": 2008,
+   "decision": "includere",
+   "confidence": "media",
+   "nature": "film live-action del 2008 (regia e 13 attori nell'infobox)",
+   "reason": "Wikidata lo dà come serie di romanzi, la pagina è del film",
+   "consequence": "nessuna"
+  },
+  {
+   "film_id": "Q21272604",
+   "title": "Love Like Aliens",
+   "year": null,
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "nature": "anime, tipo non determinabile",
+   "reason": "nessun dato (regista, durata, IMDb)",
+   "consequence": "voce senza dati: bassa utilità comunque"
+  },
+  {
+   "film_id": "Q486793",
+   "title": "Bungaku shōjo",
+   "year": null,
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "nature": "saga/franchise anime (film del 2010 e serie)",
+   "reason": "432 caratteri di trama, nessun dato",
+   "consequence": "se escluso si perde al più un film d'animazione"
+  },
+  {
+   "film_id": "Q7365970",
+   "title": "Ronnie Rocket",
+   "year": null,
+   "decision": "escludere",
+   "confidence": "alta",
+   "nature": "film mai realizzato (Lynch)",
+   "reason": "descrive un progetto, non un'opera visibile",
+   "consequence": "la ricerca non potrà più proporre un film che non esiste"
+  },
+  {
+   "film_id": "Q7033459",
+   "title": "Night Skies",
+   "year": null,
+   "decision": "escludere",
+   "confidence": "alta",
+   "nature": "seguito mai realizzato",
+   "reason": "descrive un progetto, non un'opera",
+   "consequence": "come sopra"
+  },
+  {
+   "film_id": "Q112065180",
+   "title": "Esterno notte (film)",
+   "year": 2022,
+   "decision": "sospeso",
+   "confidence": "media",
+   "nature": "serie di Bellocchio uscita in sala come due film (330 min) e in TV come miniserie in 6 puntate",
+   "reason": "è la tua regola sulle miniserie a decidere; l'infobox è del film",
+   "consequence": "incluso: opera d'autore presente, ma è una miniserie; escluso: assente"
+  },
+  {
+   "film_id": "Q7775852",
+   "title": "The Works (film)",
+   "year": null,
+   "decision": "escludere",
+   "confidence": "media",
+   "nature": "film d'animazione incompiuto (1984, non uscito)",
+   "reason": "non esiste un'opera fruibile; è una voce storica",
+   "consequence": "nessuna per l'utente"
+  },
+  {
+   "film_id": "Q42365235",
+   "title": "Tsurune",
+   "year": 2016,
+   "decision": "escludere",
+   "confidence": "media",
+   "nature": "serie anime (l'infobox descrive il film del 2022, 102 min)",
+   "reason": "la sinossi inizia con «La serie parla…»",
+   "consequence": "si perde il film come voce autonoma"
+  },
+  {
+   "film_id": "Q109512255",
+   "title": "Il mio matrimonio felice",
+   "year": 2019,
+   "decision": "escludere",
+   "confidence": "bassa",
+   "nature": "romanzo/manga/anime (la trama è del romanzo)",
+   "reason": "pagina di franchise letterario",
+   "consequence": "il film live-action del 2023 non compare"
+  },
+  {
+   "film_id": "Q107801214",
+   "title": "Look Back",
+   "year": 2021,
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "nature": "manga one-shot (2021) e film d'animazione (2024) nella stessa pagina",
+   "reason": "la trama vale per entrambi; l'anno è quello del manga",
+   "consequence": "incluso: il film esiste; ma l'anno è sbagliato"
+  }
+ ],
+ "hybrids": [
+  {
+   "film_id": "Q3937683",
+   "title": "Ritratto di donna velata",
+   "year": 1975,
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "nature": "sceneggiato RAI (1975)",
+   "reason": "nessun dato di durata; non è chiaro se in più puntate"
+  },
+  {
+   "film_id": "Q3931217",
+   "title": "Rebecca (film 1979)",
+   "year": 1979,
+   "decision": "escludere",
+   "confidence": "media",
+   "nature": "miniserie BBC in 4 puntate",
+   "reason": "55 minuti = episodio"
+  },
+  {
+   "film_id": "Q2322509",
+   "title": "Anna dai capelli rossi - Il sequel",
+   "year": 1987,
+   "decision": "sospeso",
+   "confidence": "media",
+   "nature": "film TV canadese in due parti (230 min)",
+   "reason": "la pagina lo chiama «film», ma è andato in onda in due serate"
+  },
+  {
+   "film_id": "Q3870500",
+   "title": "Naso di cane",
+   "year": 1986,
+   "decision": "escludere",
+   "confidence": "bassa",
+   "nature": "sceneggiato TV italiano (Squitieri)",
+   "reason": "sceneggiato in più puntate secondo Wikidata; nessuna durata"
+  },
+  {
+   "film_id": "Q1613225",
+   "title": "Anne of Green Gables: A New Beginning",
+   "year": 2008,
+   "decision": "includere",
+   "confidence": "media",
+   "nature": "film TV (2008) di 144 minuti",
+   "reason": "un solo film"
+  },
+  {
+   "film_id": "Q9262969",
+   "title": "Uccelli di rovo",
+   "year": 1983,
+   "decision": "escludere",
+   "confidence": "alta",
+   "nature": "miniserie in 4 puntate (Uccelli di rovo)",
+   "reason": "è l'esempio tipico"
+  },
+  {
+   "film_id": "Q248392",
+   "title": "Il processo di Norimberga",
+   "year": 2000,
+   "decision": "escludere",
+   "confidence": "media",
+   "nature": "miniserie in due parti (TNT)",
+   "reason": "180 minuti trasmessi in due serate"
+  },
+  {
+   "film_id": "Q662261",
+   "title": "Karol - Un papa rimasto uomo",
+   "year": 2006,
+   "decision": "sospeso",
+   "confidence": "media",
+   "nature": "film TV in due parti (155 min)",
+   "reason": "lo stesso caso di «Karol – Un uomo diventato papa» (180 min), che oggi resta tra i film"
+  },
+  {
+   "film_id": "Q3888794",
+   "title": "Padre Pio - Tra cielo e terra",
+   "year": 2000,
+   "decision": "escludere",
+   "confidence": "media",
+   "nature": "miniserie RAI in due parti",
+   "reason": "nessuna durata"
+  },
+  {
+   "film_id": "Q660237",
+   "title": "Alice nel Paese delle Meraviglie (film 1999)",
+   "year": 1999,
+   "decision": "sospeso",
+   "confidence": "media",
+   "nature": "film TV NBC in due parti (150 min)",
+   "reason": "evento in due serate"
+  },
+  {
+   "film_id": "Q481467",
+   "title": "Il mondo sul filo",
+   "year": 1973,
+   "decision": "sospeso",
+   "confidence": "media",
+   "nature": "film TV di Fassbinder in due parti",
+   "reason": "considerato un film d'autore; 212 minuti in due puntate"
+  },
+  {
+   "film_id": "Q2450626",
+   "title": "L'isola misteriosa (film 2005)",
+   "year": 2005,
+   "decision": "includere",
+   "confidence": "media",
+   "nature": "film TV (172 min)",
+   "reason": "singolo film Hallmark"
+  },
+  {
+   "film_id": "Q3790374",
+   "title": "I Nicotera",
+   "year": 1972,
+   "decision": "escludere",
+   "confidence": "alta",
+   "nature": "sceneggiato in più puntate",
+   "reason": "la trama dice «Lo sceneggiato narra…»"
+  },
+  {
+   "film_id": "Q565293",
+   "title": "La storia di Anne Frank",
+   "year": 2001,
+   "decision": "escludere",
+   "confidence": "media",
+   "nature": "miniserie ABC in due parti",
+   "reason": "189 minuti in due serate"
+  },
+  {
+   "film_id": "Q228396",
+   "title": "Atomic Train - Disastro ad alta velocità",
+   "year": 1999,
+   "decision": "escludere",
+   "confidence": "media",
+   "nature": "miniserie NBC in due parti",
+   "reason": "164 minuti in due serate"
+  },
+  {
+   "film_id": "Q2095183",
+   "title": "Fingersmith",
+   "year": 2005,
+   "decision": "escludere",
+   "confidence": "alta",
+   "nature": "miniserie BBC in 3 puntate",
+   "reason": "nessuna durata"
+  },
+  {
+   "film_id": "Q902821",
+   "title": "Bravo Two Zero (film)",
+   "year": 1999,
+   "decision": "includere",
+   "confidence": "media",
+   "nature": "film TV BBC (114 min)",
+   "reason": "un solo film"
+  },
+  {
+   "film_id": "Q538952",
+   "title": "Attila, l'unno",
+   "year": 2001,
+   "decision": "escludere",
+   "confidence": "media",
+   "nature": "miniserie USA Network in due parti",
+   "reason": "177 minuti in due serate"
+  },
+  {
+   "film_id": "Q2421745",
+   "title": "Aftershock - Terremoto a New York",
+   "year": 1999,
+   "decision": "escludere",
+   "confidence": "media",
+   "nature": "miniserie NBC in due parti",
+   "reason": "170 minuti in due serate"
+  },
+  {
+   "film_id": "Q4754259",
+   "title": "Andersonville (film)",
+   "year": 1996,
+   "decision": "includere",
+   "confidence": "media",
+   "nature": "film TV TNT (167 min)",
+   "reason": "infobox film presente"
+  },
+  {
+   "film_id": "Q3249691",
+   "title": "Heimat (film)",
+   "year": 1984,
+   "decision": "escludere",
+   "confidence": "alta",
+   "nature": "serie TV in 11 parti (Heimat)",
+   "reason": "924 minuti"
+  },
+  {
+   "film_id": "Q733823",
+   "title": "Fascist Legacy",
+   "year": 1989,
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "nature": "documentario BBC in due puntate",
+   "reason": "documentario televisivo; manca la durata"
+  },
+  {
+   "film_id": "Q2091643",
+   "title": "Amore di perdizione",
+   "year": 1978,
+   "decision": "includere",
+   "confidence": "alta",
+   "nature": "film di Manoel de Oliveira (262 min)",
+   "reason": "distribuito al cinema, esiste una versione in 6 puntate"
+  },
+  {
+   "film_id": "Q1964231",
+   "title": "Oblomov (film)",
+   "year": 1980,
+   "decision": "includere",
+   "confidence": "alta",
+   "nature": "film di Michalkov",
+   "reason": "film per il cinema"
+  },
+  {
+   "film_id": "Q2986126",
+   "title": "Come Yukong spostò le montagne",
+   "year": 1976,
+   "decision": "sospeso",
+   "confidence": "media",
+   "nature": "ciclo documentaristico di Joris Ivens in 12 parti (763 min)",
+   "reason": "la pagina italiana lo tratta come film"
+  },
+  {
+   "film_id": "Q46995368",
+   "title": "LEGO Jurassic World: L'evasione di Indominus Rex",
+   "year": 2016,
+   "decision": "includere",
+   "confidence": "media",
+   "nature": "speciale TV animato di 22 minuti",
+   "reason": "un solo speciale"
+  },
+  {
+   "film_id": "Q22986649",
+   "title": "Riphagen",
+   "year": 2016,
+   "decision": "includere",
+   "confidence": "media",
+   "nature": "film olandese del 2016 (130 min)",
+   "reason": "esiste anche una versione serie"
+  },
+  {
+   "film_id": "Q7258905",
+   "title": "Emel'jan Pugačёv",
+   "year": 1979,
+   "decision": "includere",
+   "confidence": "alta",
+   "nature": "film sovietico",
+   "reason": "film per il cinema"
+  },
+  {
+   "film_id": "Q111420354",
+   "title": "Errore fatale (film 1992)",
+   "year": null,
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "nature": "film TV italiano sull'AIDS (200 min)",
+   "reason": "durata da miniserie, titolo «film»"
+  },
+  {
+   "film_id": "Q2608646",
+   "title": "Phantom Blood",
+   "year": 2007,
+   "decision": "includere",
+   "confidence": "media",
+   "nature": "film del 2007 (91 min)",
+   "reason": "infobox film con regista"
+  },
+  {
+   "film_id": "Q2542211",
+   "title": "Demon City Shinjuku, la città dei mostri",
+   "year": null,
+   "decision": "includere",
+   "confidence": "media",
+   "nature": "OVA di lungometraggio di Kawajiri",
+   "reason": "singola opera di circa 80 minuti"
+  },
+  {
+   "film_id": "Q980413",
+   "title": "Pat, la ragazza del baseball",
+   "year": 1977,
+   "decision": "escludere",
+   "confidence": "media",
+   "nature": "serie anime TV",
+   "reason": "nessun infobox, nessuna durata"
+  },
+  {
+   "film_id": "Q2699416",
+   "title": "Fujimi-nichōme kōkyō gakudan",
+   "year": 2012,
+   "decision": "includere",
+   "confidence": "media",
+   "nature": "film live-action (83 min)",
+   "reason": "infobox film con regista"
+  },
+  {
+   "film_id": "Q2077536",
+   "title": "Crusher Joe",
+   "year": 1983,
+   "decision": "includere",
+   "confidence": "media",
+   "nature": "film d'animazione del 1983 (132 min)",
+   "reason": "infobox film con regista"
+  },
+  {
+   "film_id": "Q2067724",
+   "title": "Sukeban deka",
+   "year": 1987,
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "nature": "serie o film live-action Sukeban Deka",
+   "reason": "nessun dato di regia né durata"
+  },
+  {
+   "film_id": "Q11311160",
+   "title": "Sweet Poolside",
+   "year": 2004,
+   "decision": "includere",
+   "confidence": "media",
+   "nature": "film del 2004 (103 min)",
+   "reason": "infobox film con regista"
+  },
+  {
+   "film_id": "Q3055315",
+   "title": "Conversazioni private",
+   "year": 1996,
+   "decision": "includere",
+   "confidence": "media",
+   "nature": "film di Liv Ullmann (200 min, 5 parti)",
+   "reason": "infobox film; nella versione italiana tagliato"
+  },
+  {
+   "film_id": "Q3790916",
+   "title": "I guardiani del cielo",
+   "year": 2004,
+   "decision": "escludere",
+   "confidence": "media",
+   "nature": "miniserie RAI in due parti",
+   "reason": "nessuna durata"
+  },
+  {
+   "film_id": "Q5359283",
+   "title": "Tomie: Another Face",
+   "year": 1999,
+   "decision": "includere",
+   "confidence": "media",
+   "nature": "film in tre episodi (72 min)",
+   "reason": "film compilation, non una serie"
+  },
+  {
+   "film_id": "Q3855269",
+   "title": "Mesih",
+   "year": 2007,
+   "decision": "includere",
+   "confidence": "bassa",
+   "nature": "film iraniano (100 min)",
+   "reason": "infobox film"
+  },
+  {
+   "film_id": "Q13435381",
+   "title": "Carlo e Diana - Una storia d'amore",
+   "year": 1982,
+   "decision": "includere",
+   "confidence": "media",
+   "nature": "film TV (1982)",
+   "reason": "singolo film TV"
+  },
+  {
+   "film_id": "Q17479060",
+   "title": "Miss Marple nei Caraibi (film)",
+   "year": 1983,
+   "decision": "includere",
+   "confidence": "alta",
+   "nature": "film TV (92 min)",
+   "reason": "un solo film"
+  },
+  {
+   "film_id": "Q5507059",
+   "title": "Un mare di guai (film 1995)",
+   "year": null,
+   "decision": "includere",
+   "confidence": "media",
+   "nature": "film TV (Bob Clark)",
+   "reason": "un solo film"
+  },
+  {
+   "film_id": "Q115563567",
+   "title": "È solo acqua e vento",
+   "year": null,
+   "decision": "includere",
+   "confidence": "media",
+   "nature": "documentario",
+   "reason": "documentario unico"
+  },
+  {
+   "film_id": "Q5228936",
+   "title": "Unge Andersen",
+   "year": 2005,
+   "decision": "includere",
+   "confidence": "media",
+   "nature": "film TV danese (120 min)",
+   "reason": "infobox film"
+  },
+  {
+   "film_id": "Q106912386",
+   "title": "102 Boulevard Haussmann",
+   "year": null,
+   "decision": "includere",
+   "confidence": "media",
+   "nature": "film TV francese",
+   "reason": "film televisivo"
+  }
+ ],
+ "reinstate_from_exclusions": [
+  {
+   "film_id": "Q21015465",
+   "title": "Tsumi no yohaku",
+   "year": 2012,
+   "decision": "includere",
+   "confidence": "alta",
+   "reason": "film giapponese del 2012 (122 min, regista, IMDb, infobox film): Wikidata lo dà come opera letteraria"
+  },
+  {
+   "film_id": "Q11514891",
+   "title": "Kurai tokoro de machiawase",
+   "year": 2006,
+   "decision": "includere",
+   "confidence": "alta",
+   "reason": "film giapponese del 2006 (130 min, regista, infobox film): stessa causa"
+  },
+  {
+   "film_id": "Q3505872",
+   "title": "Gli amori di Suzanna Andler",
+   "year": 2021,
+   "decision": "includere",
+   "confidence": "alta",
+   "reason": "film di Benoît Jacquot del 2021 (91 min, infobox film): stessa causa"
+  },
+  {
+   "film_id": "Q567884",
+   "title": "Another",
+   "year": 2009,
+   "decision": "sospeso",
+   "confidence": "media",
+   "reason": "Another: infobox film con regista ma l'anno 2009 è del romanzo; il film live-action è del 2012"
+  },
+  {
+   "film_id": "Q1775616",
+   "title": "Il vento dell'Amnesia",
+   "year": 1983,
+   "decision": "sospeso",
+   "confidence": "media",
+   "reason": "Il vento dell'Amnesia: anime (OVA) con infobox film; l'anno è quello del romanzo"
+  },
+  {
+   "film_id": "Q97369824",
+   "title": "The Connection (spettacolo teatrale)",
+   "year": 1961,
+   "decision": "sospeso",
+   "confidence": "media",
+   "reason": "The Connection: la pagina è intitolata allo spettacolo teatrale, ma l'infobox è il film di Shirley Clarke (1961)"
+  },
+  {
+   "film_id": "Q43401515",
+   "title": "Jesus Christ Superstar Live in Concert",
+   "year": 2018,
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "Jesus Christ Superstar Live in Concert: la pagina lo chiama «film TV» (come «Grinch Musical Live!», che è tenuto)"
+  },
+  {
+   "film_id": "Q2263018",
+   "title": "Fantaghirò (miniserie televisiva)",
+   "year": 1991,
+   "decision": "sospeso",
+   "confidence": "media",
+   "reason": "Fantaghirò (1991): il titolo dice «miniserie», ma i sequel Fantaghirò 2, 4 e 5 sono tenuti tra i film TV: incoerenza da sciogliere"
+  }
+ ]
+}

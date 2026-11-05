@@ -1,0 +1,674 @@
+{
+ "version": 1,
+ "categories": {
+  "A": "genere da mantenere, elemento specifico da escludere",
+  "B": "stesso genere, diverso dal riferimento (titoli e franchise)",
+  "C": "preferenze negative multiple",
+  "D": "positive e negative con più riferimenti",
+  "E": "le esclusioni non distruggono la pertinenza",
+  "F": "genere mantenuto, sottogeneri evitati",
+  "G": "ricerca semantica e lessicale",
+  "H": "robustezza e richieste contraddittorie"
+ },
+ "cases": [
+  {
+   "id": 1,
+   "category": "A",
+   "question": "Consigliami horror psicologici come Hereditary, ma senza possessioni demoniache o elementi soprannaturali",
+   "must_keep": "horror psicologico; tono come Hereditary",
+   "must_avoid": "possessioni demoniache; soprannaturale (anche non correlato a Hereditary)",
+   "exclude_titles": [
+    "Hereditary"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 2,
+   "category": "A",
+   "question": "Voglio un film di fantascienza filosofica come Interstellar, ma senza viaggi nel tempo",
+   "must_keep": "fantascienza filosofica",
+   "must_avoid": "viaggi nel tempo",
+   "exclude_titles": [
+    "Interstellar"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 3,
+   "category": "A",
+   "question": "Cerco thriller investigativi come Zodiac, ma senza serial killer",
+   "must_keep": "thriller investigativo",
+   "must_avoid": "serial killer",
+   "exclude_titles": [
+    "Zodiac"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 4,
+   "category": "A",
+   "question": "Voglio un film di guerra realistico come Salvate il soldato Ryan, ma senza concentrarmi sulle battaglie",
+   "must_keep": "film di guerra realistico",
+   "must_avoid": "battaglie come fulcro",
+   "exclude_titles": [
+    "Salvate il soldato Ryan"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 5,
+   "category": "A",
+   "question": "Consigliami commedie nere come Fargo, ma senza umorismo grottesco",
+   "must_keep": "commedia nera",
+   "must_avoid": "umorismo grottesco",
+   "exclude_titles": [
+    "Fargo"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 6,
+   "category": "A",
+   "question": "Voglio fantascienza distopica come Blade Runner 2049, ma senza intelligenze artificiali",
+   "must_keep": "fantascienza distopica",
+   "must_avoid": "intelligenze artificiali (replicanti inclusi se centrali)",
+   "exclude_titles": [
+    "Blade Runner 2049"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 7,
+   "category": "A",
+   "question": "Cerco horror claustrofobici come The Descent, ma senza mostri",
+   "must_keep": "horror claustrofobico",
+   "must_avoid": "mostri/creature",
+   "exclude_titles": [
+    "The Descent"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 8,
+   "category": "A",
+   "question": "Voglio drammi psicologici come Black Swan, ma senza allucinazioni",
+   "must_keep": "dramma psicologico",
+   "must_avoid": "allucinazioni",
+   "exclude_titles": [
+    "Black Swan"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 9,
+   "category": "A",
+   "question": "Consigliami film di sopravvivenza come The Revenant, ma senza ambientazioni innevate",
+   "must_keep": "film di sopravvivenza",
+   "must_avoid": "ambientazioni innevate",
+   "exclude_titles": [
+    "The Revenant"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 10,
+   "category": "A",
+   "question": "Voglio thriller politici come The Constant Gardener, ma senza storie di spionaggio",
+   "must_keep": "thriller politico",
+   "must_avoid": "spionaggio",
+   "exclude_titles": [
+    "The Constant Gardener"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 11,
+   "category": "B",
+   "question": "Voglio altri film horror nello stile di Alien, ma non voglio altri film della saga di Alien",
+   "must_keep": "horror in stile Alien",
+   "must_avoid": "film della saga",
+   "exclude_titles": [
+    "Alien"
+   ],
+   "avoid_franchise": [
+    "Alien"
+   ]
+  },
+  {
+   "id": 12,
+   "category": "B",
+   "question": "Consigliami fantascienza come Matrix, ma escludi tutti i film di Matrix",
+   "must_keep": "fantascienza come Matrix",
+   "must_avoid": "film di Matrix",
+   "exclude_titles": [
+    "Matrix"
+   ],
+   "avoid_franchise": [
+    "Matrix"
+   ]
+  },
+  {
+   "id": 13,
+   "category": "B",
+   "question": "Voglio thriller come Il silenzio degli innocenti, ma niente altri film di Hannibal Lecter",
+   "must_keep": "thriller come Il silenzio degli innocenti",
+   "must_avoid": "film di Hannibal Lecter",
+   "exclude_titles": [
+    "Il silenzio degli innocenti"
+   ],
+   "avoid_franchise": [
+    "Hannibal Lecter"
+   ]
+  },
+  {
+   "id": 14,
+   "category": "B",
+   "question": "Cerco commedie come Una notte da leoni, ma non voglio sequel o film della stessa saga",
+   "must_keep": "commedia come Una notte da leoni",
+   "must_avoid": "sequel e saga",
+   "exclude_titles": [
+    "Una notte da leoni"
+   ],
+   "avoid_franchise": [
+    "Una notte da leoni"
+   ]
+  },
+  {
+   "id": 15,
+   "category": "B",
+   "question": "Consigliami film di supereroi come The Dark Knight, ma niente Batman",
+   "must_keep": "film di supereroi",
+   "must_avoid": "Batman",
+   "exclude_titles": [
+    "The Dark Knight"
+   ],
+   "avoid_franchise": [
+    "Batman"
+   ]
+  },
+  {
+   "id": 16,
+   "category": "B",
+   "question": "Voglio film fantasy come Il Signore degli Anelli, ma non voglio altri film della Terra di Mezzo",
+   "must_keep": "fantasy epico",
+   "must_avoid": "Terra di Mezzo (Hobbit incluso)",
+   "exclude_titles": [
+    "Il Signore degli Anelli"
+   ],
+   "avoid_franchise": [
+    "Terra di Mezzo"
+   ]
+  },
+  {
+   "id": 17,
+   "category": "B",
+   "question": "Cerco avventure archeologiche come Indiana Jones, ma senza altri film di Indiana Jones",
+   "must_keep": "avventura archeologica",
+   "must_avoid": "film di Indiana Jones",
+   "exclude_titles": [
+    "Indiana Jones"
+   ],
+   "avoid_franchise": [
+    "Indiana Jones"
+   ]
+  },
+  {
+   "id": 18,
+   "category": "B",
+   "question": "Voglio film di fantascienza come Terminator, ma escludi tutta la saga",
+   "must_keep": "fantascienza come Terminator",
+   "must_avoid": "saga Terminator",
+   "exclude_titles": [
+    "Terminator"
+   ],
+   "avoid_franchise": [
+    "Terminator"
+   ]
+  },
+  {
+   "id": 19,
+   "category": "B",
+   "question": "Consigliami film horror come Scream, ma senza altri capitoli della saga",
+   "must_keep": "horror slasher/meta come Scream",
+   "must_avoid": "capitoli di Scream",
+   "exclude_titles": [
+    "Scream"
+   ],
+   "avoid_franchise": [
+    "Scream"
+   ]
+  },
+  {
+   "id": 20,
+   "category": "B",
+   "question": "Voglio film d'azione come John Wick, ma non voglio altri film di John Wick",
+   "must_keep": "azione come John Wick",
+   "must_avoid": "film di John Wick",
+   "exclude_titles": [
+    "John Wick"
+   ],
+   "avoid_franchise": [
+    "John Wick"
+   ]
+  },
+  {
+   "id": 21,
+   "category": "C",
+   "question": "Voglio un thriller psicologico, ma niente violenza esplicita, torture o serial killer",
+   "must_keep": "thriller psicologico",
+   "must_avoid": "violenza esplicita; torture; serial killer",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 22,
+   "category": "C",
+   "question": "Cerco fantascienza intelligente, ma senza alieni, guerre spaziali o supereroi",
+   "must_keep": "fantascienza intelligente",
+   "must_avoid": "alieni; guerre spaziali; supereroi",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 23,
+   "category": "C",
+   "question": "Consigliami horror atmosferici, ma senza jump scare, possessioni o torture",
+   "must_keep": "horror atmosferico",
+   "must_avoid": "jump scare; possessioni; torture",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 24,
+   "category": "C",
+   "question": "Voglio drammi intensi, ma senza malattie terminali o lutti familiari",
+   "must_keep": "dramma intenso",
+   "must_avoid": "malattie terminali; lutti familiari",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 25,
+   "category": "C",
+   "question": "Cerco film di guerra, ma senza propaganda, eroismi patriottici o finali celebrativi",
+   "must_keep": "film di guerra",
+   "must_avoid": "propaganda; eroismo patriottico; finali celebrativi",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 26,
+   "category": "C",
+   "question": "Voglio commedie romantiche, ma senza triangoli amorosi e tradimenti",
+   "must_keep": "commedia romantica",
+   "must_avoid": "triangoli amorosi; tradimenti",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 27,
+   "category": "C",
+   "question": "Consigliami thriller realistici, senza elementi soprannaturali o fantascientifici",
+   "must_keep": "thriller realistico",
+   "must_avoid": "soprannaturale; fantascienza",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 28,
+   "category": "C",
+   "question": "Voglio film d'avventura senza animali maltrattati, morte di animali o scene di caccia",
+   "must_keep": "film d'avventura",
+   "must_avoid": "maltrattamento e morte di animali; caccia",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 29,
+   "category": "D",
+   "question": "Mi sono piaciuti Arrival e Contact: voglio fantascienza contemplativa e basata su idee scientifiche, ma niente invasioni aliene",
+   "must_keep": "fantascienza contemplativa, idee scientifiche",
+   "must_avoid": "invasioni aliene",
+   "exclude_titles": [
+    "Arrival",
+    "Contact"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 30,
+   "category": "D",
+   "question": "Mi sono piaciuti Prisoners e Zodiac: voglio thriller investigativi cupi e realistici, ma senza serial killer",
+   "must_keep": "thriller investigativo cupo e realistico",
+   "must_avoid": "serial killer",
+   "exclude_titles": [
+    "Prisoners",
+    "Zodiac"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 31,
+   "category": "D",
+   "question": "Mi sono piaciuti The Witch e Midsommar: voglio horror folkloristici e atmosferici, ma senza culti religiosi",
+   "must_keep": "horror folkloristico atmosferico",
+   "must_avoid": "culti religiosi",
+   "exclude_titles": [
+    "The Witch",
+    "Midsommar"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 32,
+   "category": "D",
+   "question": "Mi sono piaciuti Whiplash e Black Swan: voglio drammi psicologici sulla ricerca della perfezione, ma senza ambientazioni musicali o artistiche",
+   "must_keep": "dramma psicologico sulla perfezione",
+   "must_avoid": "ambientazioni musicali o artistiche",
+   "exclude_titles": [
+    "Whiplash",
+    "Black Swan"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 33,
+   "category": "D",
+   "question": "Mi sono piaciuti Mad Max: Fury Road e Children of Men: voglio distopie con forte tensione e sopravvivenza, ma senza inseguimenti automobilistici",
+   "must_keep": "distopia, tensione, sopravvivenza",
+   "must_avoid": "inseguimenti automobilistici",
+   "exclude_titles": [
+    "Mad Max: Fury Road",
+    "Children of Men"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 34,
+   "category": "D",
+   "question": "Mi sono piaciuti Ex Machina e Her: voglio fantascienza intima sull'identità e la coscienza, ma senza robot umanoidi",
+   "must_keep": "fantascienza intima su identità e coscienza",
+   "must_avoid": "robot umanoidi",
+   "exclude_titles": [
+    "Ex Machina",
+    "Her"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 35,
+   "category": "E",
+   "question": "Consigliami film simili a Interstellar, ma escludi Interstellar",
+   "must_keep": "simili a Interstellar (pertinenza intatta)",
+   "must_avoid": "il solo titolo escluso",
+   "exclude_titles": [
+    "Interstellar"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 36,
+   "category": "E",
+   "question": "Consigliami film simili a Predator, ma escludi Predator 2",
+   "must_keep": "simili a Predator",
+   "must_avoid": "Predator 2",
+   "exclude_titles": [
+    "Predator 2"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 37,
+   "category": "E",
+   "question": "Voglio film simili a Il Padrino, ma non voglio Il Padrino Parte II e Parte III",
+   "must_keep": "simili a Il Padrino",
+   "must_avoid": "Il Padrino Parte II e III",
+   "exclude_titles": [
+    "Il Padrino Parte II",
+    "Il Padrino Parte III"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 38,
+   "category": "E",
+   "question": "Consigliami film simili a Toy Story, ma non voglio altri film di Toy Story",
+   "must_keep": "simili a Toy Story",
+   "must_avoid": "film di Toy Story",
+   "exclude_titles": [
+    "Toy Story"
+   ],
+   "avoid_franchise": [
+    "Toy Story"
+   ]
+  },
+  {
+   "id": 39,
+   "category": "E",
+   "question": "Voglio film simili a Rocky, ma escludi tutti i film della saga",
+   "must_keep": "simili a Rocky",
+   "must_avoid": "saga Rocky (Creed incluso se dichiarato spin-off)",
+   "exclude_titles": [
+    "Rocky"
+   ],
+   "avoid_franchise": [
+    "Rocky"
+   ]
+  },
+  {
+   "id": 40,
+   "category": "E",
+   "question": "Consigliami film simili a Shrek, ma escludi tutti i sequel",
+   "must_keep": "simili a Shrek",
+   "must_avoid": "sequel di Shrek",
+   "exclude_titles": [
+    "Shrek"
+   ],
+   "avoid_franchise": [
+    "Shrek"
+   ]
+  },
+  {
+   "id": 41,
+   "category": "F",
+   "question": "Voglio horror soprannaturali, ma non horror splatter",
+   "must_keep": "horror soprannaturale",
+   "must_avoid": "splatter",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 42,
+   "category": "F",
+   "question": "Voglio horror psicologici, ma non horror soprannaturali",
+   "must_keep": "horror psicologico",
+   "must_avoid": "soprannaturale",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 43,
+   "category": "F",
+   "question": "Voglio fantascienza hard, ma non space opera",
+   "must_keep": "fantascienza hard",
+   "must_avoid": "space opera",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 44,
+   "category": "F",
+   "question": "Voglio thriller psicologici, ma non thriller polizieschi",
+   "must_keep": "thriller psicologico",
+   "must_avoid": "thriller poliziesco",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 45,
+   "category": "F",
+   "question": "Voglio film di guerra introspettivi, ma non film d'azione militari",
+   "must_keep": "guerra introspettiva",
+   "must_avoid": "azione militare",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 46,
+   "category": "F",
+   "question": "Voglio fantasy dark, ma non fantasy medievale",
+   "must_keep": "fantasy dark",
+   "must_avoid": "ambientazione medievale",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 47,
+   "category": "F",
+   "question": "Voglio commedie surreali, ma non commedie romantiche",
+   "must_keep": "commedia surreale",
+   "must_avoid": "commedia romantica",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 48,
+   "category": "F",
+   "question": "Voglio film post-apocalittici, ma non zombie movie",
+   "must_keep": "post-apocalittico",
+   "must_avoid": "zombie",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 49,
+   "category": "G",
+   "question": "Un film in cui una persona si ritrova bloccata nello spazio e deve sopravvivere",
+   "must_keep": "sopravvivenza nello spazio, protagonista isolato",
+   "must_avoid": "",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 50,
+   "category": "G",
+   "question": "Un film in cui un uomo scopre che la propria vita è una realtà costruita artificialmente",
+   "must_keep": "realtà artificiale scoperta dal protagonista",
+   "must_avoid": "",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 51,
+   "category": "G",
+   "question": "Un film in cui una famiglia si trasferisce in una casa isolata e inizia a sperimentare eventi inquietanti",
+   "must_keep": "famiglia, casa isolata, eventi inquietanti",
+   "must_avoid": "",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 52,
+   "category": "G",
+   "question": "Un film in cui un gruppo di persone deve sopravvivere in un ambiente ostile senza possibilità di comunicare con il mondo esterno",
+   "must_keep": "gruppo, ambiente ostile, isolamento",
+   "must_avoid": "",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 53,
+   "category": "G",
+   "question": "Un film con un protagonista che perde progressivamente il contatto con la realtà",
+   "must_keep": "perdita progressiva della realtà",
+   "must_avoid": "",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 54,
+   "category": "G",
+   "question": "Un film in cui il protagonista scopre di essere stato manipolato per tutta la vita",
+   "must_keep": "manipolazione scoperta dal protagonista",
+   "must_avoid": "",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 55,
+   "category": "G",
+   "question": "Un film ambientato in una città sommersa dalla criminalità, con forte critica sociale",
+   "must_keep": "città criminale, critica sociale",
+   "must_avoid": "",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 56,
+   "category": "G",
+   "question": "Un film in cui il protagonista deve scegliere tra salvare una persona cara e salvare molte altre persone",
+   "must_keep": "dilemma: persona cara contro molte persone",
+   "must_avoid": "",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 57,
+   "category": "H",
+   "question": "Voglio horror, ma non voglio niente che faccia paura",
+   "must_keep": "contraddizione: chiedere chiarimento o horror lieve dichiarato",
+   "must_avoid": "paura intensa; invenzioni",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 58,
+   "category": "H",
+   "question": "Consigliami un film simile a Hereditary, ma che non abbia assolutamente nulla in comune con Hereditary",
+   "must_keep": "contraddizione: dichiararla, offrire la parte coerente",
+   "must_avoid": "",
+   "exclude_titles": [
+    "Hereditary"
+   ],
+   "avoid_franchise": []
+  },
+  {
+   "id": 59,
+   "category": "H",
+   "question": "Voglio fantascienza senza tecnologia",
+   "must_keep": "contraddizione parziale: dichiararla",
+   "must_avoid": "tecnologia centrale",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 60,
+   "category": "H",
+   "question": "Voglio un film di guerra senza guerra, ma con le conseguenze psicologiche della guerra",
+   "must_keep": "parte coerente: dopoguerra e trauma",
+   "must_avoid": "combattimento in scena",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 61,
+   "category": "H",
+   "question": "Voglio un thriller lento e contemplativo, ma con tantissima azione",
+   "must_keep": "contraddizione: dichiararla, chiedere priorità",
+   "must_avoid": "",
+   "exclude_titles": [],
+   "avoid_franchise": []
+  },
+  {
+   "id": 62,
+   "category": "H",
+   "question": "Consigliami qualcosa di molto simile a Alien, ma che non sia horror, fantascienza o ambientato nello spazio",
+   "must_keep": "contraddizione forte: dichiararla, parte coerente (tensione, isolamento)",
+   "must_avoid": "horror; fantascienza; spazio",
+   "exclude_titles": [
+    "Alien"
+   ],
+   "avoid_franchise": []
+  }
+ ]
+}

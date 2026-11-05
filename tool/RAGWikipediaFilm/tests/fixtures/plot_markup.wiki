@@ -1,0 +1,14 @@
+== Trama ==
+Nel [[1945]], il giovane [[Mario Rossi (personaggio)|Mario]] (interpretato da un attore sconosciuto) arriva a [[Roma]]<ref name="a">{{Cita libro|autore=X|titolo=Y}}</ref>.{{Senza fonte}} Incontra Anna, che lo ospita nella sua casa {{nowrap|di campagna}}.<!-- commento nascosto -->
+
+[[File:Casa.jpg|thumb|Una casa con [[didascalia]] annidata]]
+{| class="wikitable"
+|-
+| cella || non narrativa
+|}
+Più tardi scopre che il padre ''non è'' morto ('''come si credeva''') e parte verso [[Napoli|la città partenopea]].
+{{Quote|testo di una citazione da scartare}}
+=== Finale ===
+Alla fine ritorna a casa&nbsp;sua , dove lo aspetta Anna ().
+== Produzione ==
+Riprese a Cinecittà.

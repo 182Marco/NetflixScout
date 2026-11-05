@@ -1,0 +1,152 @@
+{
+ "version": 1,
+ "meaning": "evidence from the local dump (Wikipedia categories, lead, headings) for the 7 TV works excluded as two-part miniseries; NOTHING applied",
+ "criterion": "one film shown over two evenings = include; a miniseries with distinct episodes = exclude; if not determinable, report without changing",
+ "records": [
+  {
+   "film_id": "Q248392",
+   "title": "Il processo di Norimberga",
+   "categories": [
+    "Film sul processo di Norimberga",
+    "Miniserie televisive sulla seconda guerra mondiale"
+   ],
+   "headings": [
+    "Trama",
+    "Prima puntata",
+    "Seconda puntata",
+    "Puntate",
+    "Produzione",
+    "Inesattezze storiche",
+    "Riconoscimenti",
+    "Note",
+    "Altri progetti",
+    "Collegamenti esterni"
+   ],
+   "infobox_name": "FictionTV",
+   "lead": " Il processo di Norimberga (Nuremberg) è una miniserie televisiva, tratta dal libro Nuremberg: Infamy on Trial scritto da Joseph E. Persico nel 1994 che narra lo svolgimento del processo di Norimberga. Negli Stati Uniti d'America|Stati Uniti è stata trasmessa il 16 e 17 luglio 2000 sulla rete TNT (r",
+   "determination": "escludere (confermato)",
+   "confidence": "alta",
+   "reason": "Il lead dice «miniserie televisiva», la pagina ha le sezioni «Prima puntata» e «Seconda puntata», categoria «Miniserie televisive sulla seconda guerra mondiale»: puntate distinte"
+  },
+  {
+   "film_id": "Q3888794",
+   "title": "Padre Pio - Tra cielo e terra",
+   "categories": [
+    "Padre Pio da Pietrelcina",
+    "Film con composizioni originali di Ennio Morricone"
+   ],
+   "headings": [
+    "La fiction della Rai",
+    "Trama",
+    "Primo episodio",
+    "Secondo episodio",
+    "Note",
+    "Collegamenti esterni"
+   ],
+   "infobox_name": "F",
+   "lead": " Padre Pio - Tra cielo e terra è una miniserie televisiva Italia|italiana del 2000 che narra la vita di Padre Pio da Pietrelcina, diretta da Giulio Base. ",
+   "determination": "escludere (confermato)",
+   "confidence": "alta",
+   "reason": "Il lead dice «miniserie televisiva»; la pagina ha le sezioni «Primo episodio» e «Secondo episodio»: episodi distinti"
+  },
+  {
+   "film_id": "Q3790916",
+   "title": "I guardiani del cielo",
+   "categories": [
+    "Miniserie televisive basate su opere letterarie",
+    "Film con composizioni originali di Ennio Morricone"
+   ],
+   "headings": [
+    "Trama",
+    "Voci correlate",
+    "Collegamenti esterni"
+   ],
+   "infobox_name": "FictionTV",
+   "lead": " I guardiani del cielo è una miniserie televisiva in due puntate del 1999, diretta da Alberto Negrin e tra gli altri interpretato da Ben Cross e Peter Weller. La sceneggiatura è stata scritta da George Eastman (attore)|George Eastman, da Negrin e Luigi Montefiori, ed è basata sul romanzo La torre de",
+   "determination": "escludere (confermato)",
+   "confidence": "media",
+   "reason": "Il lead dice «miniserie televisiva in due puntate»; categoria «Miniserie televisive basate su opere letterarie»; infobox FictionTV"
+  },
+  {
+   "film_id": "Q2421745",
+   "title": "Aftershock - Terremoto a New York",
+   "categories": [
+    "Film catastrofici",
+    "Film ambientati a New York",
+    "Film girati a Vancouver"
+   ],
+   "headings": [
+    "Trama",
+    "Collegamenti esterni"
+   ],
+   "infobox_name": "S",
+   "lead": " Catastrofe a New York (Aftershock – Earthquake in New York) è un film TV del 1999 diretto da Mikael Salomon, tratto dal libro di Chuck Scarborough. ",
+   "determination": "INCLUDERE (correzione proposta, non applicata)",
+   "confidence": "media",
+   "reason": "Il lead dice «è un film TV del 1999»; una sola sezione «Trama», nessuna sezione per puntata; categorie di film. Un unico film trasmesso in due serate secondo il criterio"
+  },
+  {
+   "film_id": "Q565293",
+   "title": "La storia di Anne Frank",
+   "categories": [
+    "Film sull'Olocausto",
+    "Anna Frank nella cultura di massa"
+   ],
+   "headings": [
+    "Trama",
+    "Il film in VHS e DVD",
+    "I commenti",
+    "Bibliografia",
+    "Voci correlate",
+    "Collegamenti esterni"
+   ],
+   "infobox_name": "FictionTV",
+   "lead": " La storia di Anne Frank (Anne Frank: The Whole Story) è una miniserie televisiva tratta dal libro Anne Frank: The Biography di Melissa Müller, trasmessa dalla TV americana ABC (Stati Uniti d'America)|ABC il 20 e 21 maggio 2001. Si tratta di un film controverso perché in linea con l'affermazione fat",
+   "determination": "non determinabile: lasciato escluso",
+   "confidence": "—",
+   "reason": "Il lead dice «miniserie televisiva… trasmessa il 20 e 21 maggio 2001» ma la stessa pagina scrive «Si tratta di un film controverso»; una sola «Trama»; categorie di film. Due serate, nessuna sezione per puntata"
+  },
+  {
+   "film_id": "Q228396",
+   "title": "Atomic Train - Disastro ad alta velocità",
+   "categories": [
+    "Film su armi e guerre nucleari",
+    "Film ambientati sui treni"
+   ],
+   "headings": [
+    "Trama",
+    "Premi",
+    "Distribuzione",
+    "Messa in onda",
+    "Collegamenti esterni"
+   ],
+   "infobox_name": "FictionTV",
+   "lead": " Atomic Train - Disastro ad alta velocità (Atomic Train) è una miniserie televisiva del 1999, diretto da David Jackson (regista)|David Jackson e Dick Lowry. ",
+   "determination": "non determinabile: lasciato escluso",
+   "confidence": "—",
+   "reason": "Il lead dice «miniserie televisiva del 1999»; una sola «Trama» e «Messa in onda»; solo categorie di film"
+  },
+  {
+   "film_id": "Q538952",
+   "title": "Attila, l'unno",
+   "categories": [
+    "Film ambientati nell'antica Roma",
+    "Film peplum",
+    "Valentiniano III"
+   ],
+   "headings": [
+    "Trama",
+    "Produzione",
+    "Distribuzione",
+    "Accoglienza",
+    "Note",
+    "Collegamenti esterni"
+   ],
+   "infobox_name": "F",
+   "lead": " Attila, l'unno (Attila) è una miniserie televisiva del 2001, diretta da Dick Lowry. Il ruolo principale di Attila è affidato a Gerard Butler. ",
+   "determination": "non determinabile: lasciato escluso",
+   "confidence": "—",
+   "reason": "Il lead dice «miniserie televisiva del 2001»; una sola «Trama»; categorie di film (peplum)"
+  }
+ ]
+}

@@ -1,0 +1,107 @@
+{{Film
+|titolo = Il padrino
+|titolo alfabetico = padrino, Il
+|immagine = Don Vito Corleone.jpg
+|didascalia = [[Michael Corleone]] ([[Al Pacino]]) e [[Don Vito Corleone]] ([[Marlon Brando]]) in una scena del film
+|titolo originale = The Godfather
+|lingua originale = [[Lingua inglese|inglese]], [[Lingua italiana|italiano]], [[Lingua siciliana|siciliano]]
+|paese = [[Stati Uniti d'America]]
+|anno uscita = 1972
+|durata = {{Lista|175 min <small>(versione cinematografica)</small>|177 min <small>(versione restaurata)</small>}}
+|genere = Gangster
+|genere 2 = Drammatico
+|regista = [[Francis Ford Coppola]]
+|soggetto = dal romanzo ''[[Il padrino (romanzo)|Il padrino]]'' di [[Mario Puzo]]
+|sceneggiatore = Mario Puzo, Francis Ford Coppola
+|produttore = [[Albert S. Ruddy]]
+|casa produzione = [[Paramount Pictures]], Alfran Productions
+|casa distribuzione italiana = [[Cinema International Corporation]]
+|attori =
+* [[Marlon Brando]]: Don Vito Corleone
+* [[Al Pacino]]: Michael
+* [[James Caan]]: Sonny
+* [[Richard S. Castellano]]: Clemenza
+* [[Robert Duvall]]: Tom Hagen
+* [[Sterling Hayden]]: Cap. McCluskey
+* [[John Marley]]: Jack Woltz
+* [[Richard Conte]]: Barrese (Barzini)
+* [[Al Lettieri]]: Sollozzo
+* [[Diane Keaton]]: Kay Adams
+* [[Abe Vigoda]]: Tessio
+* [[Talia Shire]]: Connie
+* [[Gianni Russo]]: Carlo
+* [[John Cazale]]: Fredo
+* [[Rudy Bond]]: Cuneo
+* [[Al Martino]]: Johnny Fontane
+* [[Morgana King]]: Mama Corleone
+* [[Lenny Montana]]: Luca Brasi
+* [[John Martino]]: Paulie Gatto
+* [[Salvatore Corsitto]]: Bonasera
+* [[Richard Bright]]: Neri
+|doppiatori italiani = '''Doppiaggio originale (1972)'''
+* [[Giuseppe Rinaldi]]: Don Vito Corleone
+* [[Ferruccio Amendola]]: Michael
+* [[Pino Colizzi]]: Sonny
+* [[Ennio Balbo]]: Clemenza
+* [[Cesare Barbetti]]: Tom Hagen
+* [[Gino Donato]]: Cap. McCluskey
+* [[Sergio Graziani]]: Jack Woltz
+* [[Arturo Dominici]]: Sollozzo; Bonasera
+* [[Vittoria Febbi]]: Kay Adams
+* [[Elio Zamuto]]: Tessio
+* [[Rita Savagnone]]: Connie
+* [[Michele Gammino]]: Carlo
+* [[Riccardo Cucciolla]]: Fredo
+* [[Guido Celano]]: Luca Brasi
+* [[Gigi Reder]]: Paulie Gatto
+'''Ridoppiaggio (2007)'''
+* [[Stefano De Sando]]: Don Vito Corleone
+* [[Massimo Rossi (doppiatore)|Massimo Rossi]]: Michael
+* [[Roberto Pedicini]]: Sonny
+* [[Giorgio Lopez]]: Clemenza
+* [[Angelo Maggi]]: Tom Hagen
+* [[Luciano De Ambrosis]]: Cap. McCluskey
+* [[Dario Penne]]: Jack Woltz
+* [[Sergio Di Stefano]]: Barrese
+* [[Saverio Indrio]]: Sollozzo
+* [[Roberta Pellini]]: Kay Adams
+* [[Elio Zamuto]]: Tessio
+* [[Franca D'Amato]]: Connie
+* [[Christian Iansante]]: Carlo
+* [[Oliviero Dinelli]]: Fredo
+* [[Teo Bellia]]: Johnny Fontane
+* [[Mario Bombardieri]]: Luca Brasi
+* [[Tony Sansone]]: Paulie Gatto
+|fotografo = [[Gordon Willis]]
+|montatore = [[William Reynolds]], [[Peter Zinner]]
+|effetti speciali = [[Sass Bedig]], [[Joe Lombardi]], [[A.D. Flowers]]
+|musicista = [[Nino Rota]]
+|scenografo = [[Dean Tavoularis]], [[Warren Clymer]], [[Philip Smith (arredatore)|Philip Smith]]
+|costumista = [[Anna Hill Johnstone]]
+|truccatore = [[Phil Rhodes]], [[Dick Smith]]
+|logo = The Godfather.png
+}}
+
+'''''Il padrino''''' (''The Godfather'') è un film del 1972 diretto da [[Francis Ford Coppola]].<ref>Nota di prova.</ref>
+
+== Trama ==
+[[New York]], 1945. [[Don Vito Corleone|Vito Corleone]], un immigrato proveniente dalla [[Sicilia]], è il padrino della [[Personaggi de Il padrino|famiglia Corleone]]. È diventato, dopo anni dediti principalmente all'organizzazione del gioco d'azzardo illegale e a [[racket]] sindacali, il più potente tra i cinque capi-[[Cosa nostra statunitense|mafia]] italo-americani della città. La sua organizzazione gestisce un enorme giro di affari illegali e coinvolge l'iracondo primogenito [[Personaggi de Il padrino#Santino "Sonny" Corleone|Santino]], detto ''Sonny'', [[Personaggi de Il padrino#Federico "Fredo" Corleone|Fredo]], secondogenito ingenuo e poco intelligente, e il figliastro [[Tom Hagen]], brillante avvocato divenuto "consigliere", cioè braccio destro del capo. Il suo potere non si basa solo sulla violenza, ma anche e soprattutto sull'"amicizia". Don Vito elargisce "amicizia" a chi gli chiede favori e in cambio pretende devozione e riconoscenza assoluta: in questo modo ha creato, negli anni, una rete di conoscenze e protezioni nel mondo cosiddetto "legale".
+
+Durante il fastoso matrimonio "alla siciliana" della figlia [[Personaggi de Il padrino#Constanzia "Connie" Corleone|Connie]], Don Vito riceve la visita del figlioccio [[Personaggi de Il padrino|Johnny Fontane]], un cantante e attore di successo, che però si trova in grave crisi economica a causa del declino della sua voce; inoltre un regista di Hollywood di nome [[Personaggi de Il padrino|Jack Woltz]], non vuole dargli da interpretare un ruolo di un film. Don Vito, dopo aver spronato e rimproverato con brusche maniere il figlioccio in lacrime, lo rincuora dicendogli che parlerà con Woltz e in seguito lo congeda.  Alcuni giorni dopo la festa Don Vito incontra Virgil Sollozzo, un pericoloso criminale dedito al [[traffico di droga]] chiamato "Il Turco", affiliato al [[Personaggi de Il padrino#Tattaglia|clan Tattaglia]], una delle [[Cinque famiglie|cinque famiglie newyorkesi]], che gli chiede protezione e l'appoggio finanziario di un milione di dollari per impiantare un [[Traffico di droga|traffico di stupefacenti]] di vasta portata. Il boss rifiuta il proprio appoggio al nascente affare della droga, nonostante il parere favorevole di Santino e di Tom. Scoppia così tra le famiglie una terribile e sanguinaria guerra fatta di reciproci attentati ai principali capi e rappresentanti. Tuttavia Don Vito, rimasto perplesso dalla figura di Sollozzo, chiede al suo scagnozzo fidato [[Personaggi de Il padrino|Luca Brasi]] di investigare su di lui, facendogli credere di non trovarsi bene con la famiglia Corleone e di allearsi con la famiglia Tattaglia. I due si incontrano in un bar a Midtown con la presenza di Bruno Tattaglia, e durante la stipula dell'accordo, Sollozzo che aveva capito già che si trattava di un tranello, pianta un coltello alla mano di Luca mentre dietro c'è un uomo che intanto lo strangola e lo uccide. 
+
+Per vendicarsi della tentata infiltrazione della famiglia Corleone, Sollozzo cerca di ammazzare Don Vito, che mentre si trova con Fredo a fare compere, subisce un'imboscata, dove due uomini gli sparano cinque colpi di pistola. Venuto a conoscenza dell'attentato, [[Michael Corleone]], decorato della [[seconda guerra mondiale]], si reca subito in ospedale a trovare il padre, dove capisce che persino lì don Vito è in pericolo, in quanto l'edificio non è controllato da guardie e dunque qualche membro dei Tattaglia potrebbe infiltrarsi e assassinarlo. Michael, dopo aver messo al sicuro il padre ed essere uscito dall'ospedale, affronta il capitano di polizia [[Personaggi de Il padrino|McClusckey]], un ufficiale corrotto al soldo di Sollozzo, che gli tira un pugno in faccia, rompendogli la mascella e facendolo svenire. In seguito si scopre che in famiglia c'è un traditore: [[Personaggi de Il padrino|Paulie Gatto]], e verrà chiesto a Clemenza di eliminarlo. Successivamente Tom Hagen parte per Hollywood per cercare di convincere il produttore cinematografico Jack Woltz ad affidare la parte a Johnny Fontane, tuttavia riceve ancora una risposta negativa da parte di Woltz; i Corleone tagliano la testa del suo cavallo preferito e gliela mettono nel letto. Woltz si accorge la mattina seguente del gesto vedendo tutto il letto sporco di sangue e di fronte all'orrore della testa mozzata grida terrificato.
+
+Nel frattempo Michael, che è l'unico dei quattro figli di Don Vito a non essere stato ancora coinvolto negli affari criminali della famiglia, dopo essere stato aggredito dal capitano all'ospedale, convince il fratello Santino, che ha preso momentaneamente il comando, a farlo incontrare a una cena con Sollozzo per ucciderlo, tendendogli un tranello. Michael affronta così il trafficante di droga e McCluskey, che gli fa da scorta, uccidendoli in un ristorante di [[Midtown Manhattan|Midtown]]. Per evitare di essere arrestato o ucciso, il giovane lascia gli Stati Uniti e si rifugia in Sicilia; qui incontra e si innamora di [[Personaggi de Il padrino#Apollonia Vitelli-Corleone|Apollonia]], giovane siciliana che sposa.
+
+A dare però ancora problemi alla famiglia è [[Personaggi de Il padrino|Carlo Rizzi]], marito di Connie Corleone, che continua a picchiare e a tradire la moglie. Santino, vedendo un giorno un livido sull'occhio della sorella, le chiede spiegazioni e Connie confessa che è stato Carlo a procurarle quel livido. Santino accecato dalla rabbia raggiunge il cognato e lo picchia selvaggiamente, lasciandolo privo di sensi a terra davanti a tutto il vicinato. L'episodio di violenza domestica si ripete, Santino inferocito si reca subito da Connie, ma nel mentre cade in un'imboscata a un casello di passaggio, in cui rimane brutalmente assassinato. Appena ripresosi, Don Vito riassume il comando e, colpito profondamente dalla morte del figlio, decide di porre fine alla faida convocando un incontro tra i capi delle principali famiglie mafiose per contrattare una tregua. Durante l'incontro i boss decidono di permettere lo spaccio di droga, con alcune regole che tutti dovranno rispettare; inoltre Don Vito, confidando agli altri capifamiglia che Michael sta rientrando a New York dalla Sicilia, pretende che a quest'ultimo non vengano inflitti attentati o problemi vari e che gli venga permesso di tornare a casa in piena tranquillità, pena una nuova guerra dovesse succedere qualcosa. Ma per concludere l'incontro, Don Vito tiene a sottolineare che non sarà di certo lui a rompere la pace stipulata.
+
+Dopo essere scampato a un attentato in cui muore tragicamente la giovane sposa Apollonia, Michael rientra in America, prende il posto del fratello Santino nella famiglia e in breve tempo il padre gli passa il comando, ritirandosi a vita privata e continuando a consigliare il figlio da dietro le quinte. Nello stesso periodo Michael sposa [[Personaggi de Il padrino#Katherine "Kay" Adams|Kay Adams]], sua vecchia fidanzata e compagna di college; da lei ha poi un primogenito, [[Personaggi de Il padrino#Anthony Vito Corleone|Anthony]].  Nel 1955, don Vito, mentre si trova con il nipotino nel giardino di casa ha un malore e muore. Michael quindi riceve una proposta dai capi delle altre famiglie mafiose per stipulare un nuovo accordo di pace. Grazie ai vecchi consigli paterni, però, egli intuisce che i boss in realtà operano per esautorare la famiglia Corleone dal suo ruolo di primo piano e che durante l'incontro lo uccideranno. Il primo che fa eliminare è il [[Personaggi de Il padrino#Salvatore Tessio|caporegime Tessio]], che alleatosi con i Barrese, avrebbe fatto uccidere Michael. In seguito, durante il battesimo del figlio della sorella Connie, Michael fa assassinare uno a uno anche i capi delle altre famiglie mafiose e il suo rivale a Las Vegas nella gestione di casinò [[Personaggi de Il padrino#Moe Greene|Moe Greene]].
+
+Infine fa uccidere il cognato Carlo, che anni prima aveva tradito Santino facendolo cadere nell'imboscata delle altre famiglie mafiose e che per ordine di Michael viene strangolato dal caporegime [[Personaggi de Il padrino#Peter "Fat Pete" Clemenza|Peter Clemenza]], [[Padrino e madrina|padrino di battesimo]] e precettore mafioso di Santino.
+
+Usciti dalla guerra di mafia rafforzati e avendo riacquistato il potere a New York, i Corleone completano i preparativi per trasferirsi nel [[Nevada]], a [[Las Vegas]] e a [[Reno (Nevada)|Reno]], dove il gioco d'azzardo, tradizionale attività familiare, si sta espandendo in forma apparentemente legale. Informata da Connie, la quale, sconvolta, ha fatto irruzione nello studio accusando Michael della morte del marito, Kay gli chiede se quanto ha gridato la cognata è vero; Michael mente, negando che quanto detto da Connie sia vero, non prima però di intimare alla moglie di non fargli mai più domande sui suoi affari. La donna tuttavia intuisce la verità quando vede Michael ricevere nello studio del padre i deferenti omaggi dovuti al suo nuovo status di padrino.
+
+== Produzione ==
+Testo di produzione, non narrativo.
+
+[[Categoria:Film diretti da Francis Ford Coppola]]

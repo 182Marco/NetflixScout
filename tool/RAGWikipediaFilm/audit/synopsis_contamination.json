@@ -1,0 +1,232 @@
+{
+ "version": 1,
+ "meaning": "plot section captured together with sibling sections; 'fixed_chars' is the cleaned size of a correct cut",
+ "count": 25,
+ "records": [
+  {
+   "film_id": "Q267721",
+   "wikipedia_page_id": 225901,
+   "title": "Grease (Brillantina)",
+   "chars_now": 11526,
+   "fixed_chars": 5453,
+   "first_sibling": "Produzione",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q752541",
+   "wikipedia_page_id": 231714,
+   "title": "Final Fantasy (film)",
+   "chars_now": 9946,
+   "fixed_chars": 3165,
+   "first_sibling": "Produzione",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q158047",
+   "wikipedia_page_id": 239591,
+   "title": "L'angelo azzurro (film 1930)",
+   "chars_now": 4419,
+   "fixed_chars": 2311,
+   "first_sibling": "Differenze con il romanzo",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q36479",
+   "wikipedia_page_id": 281023,
+   "title": "Il re leone",
+   "chars_now": 41768,
+   "fixed_chars": 8067,
+   "first_sibling": "Personaggi",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q886645",
+   "wikipedia_page_id": 286186,
+   "title": "Sei donne per l'assassino",
+   "chars_now": 6954,
+   "fixed_chars": 4265,
+   "first_sibling": "Produzione",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q330982",
+   "wikipedia_page_id": 325706,
+   "title": "...e tu vivrai nel terrore! - L'aldilà",
+   "chars_now": 22299,
+   "fixed_chars": 6553,
+   "first_sibling": "Produzione",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q1355901",
+   "wikipedia_page_id": 480563,
+   "title": "Exodus (film)",
+   "chars_now": 12875,
+   "fixed_chars": 7117,
+   "first_sibling": "Differenze dalla realtà storica",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q387638",
+   "wikipedia_page_id": 482339,
+   "title": "Rocky IV",
+   "chars_now": 7752,
+   "fixed_chars": 3388,
+   "first_sibling": "Produzione",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q186864",
+   "wikipedia_page_id": 558072,
+   "title": "I tredici spettri",
+   "chars_now": 10155,
+   "fixed_chars": 4655,
+   "first_sibling": "Gli spettri",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q54274",
+   "wikipedia_page_id": 594478,
+   "title": "Pirati dei Caraibi - Ai confini del mondo",
+   "chars_now": 7882,
+   "fixed_chars": 6268,
+   "first_sibling": "Personaggi",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q1427849",
+   "wikipedia_page_id": 652589,
+   "title": "Music Box - Prova d'accusa",
+   "chars_now": 5484,
+   "fixed_chars": 4411,
+   "first_sibling": "Produzione",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q493755",
+   "wikipedia_page_id": 1388168,
+   "title": "Il principe cerca moglie",
+   "chars_now": 7095,
+   "fixed_chars": 4008,
+   "first_sibling": "Produzione",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q1168667",
+   "wikipedia_page_id": 1571950,
+   "title": "Teodora (film 1954)",
+   "chars_now": 2769,
+   "fixed_chars": 754,
+   "first_sibling": "Produzione",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q3283420",
+   "wikipedia_page_id": 1599598,
+   "title": "L'anatra all'arancia",
+   "chars_now": 2424,
+   "fixed_chars": 2118,
+   "first_sibling": "Produzione",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q1852671",
+   "wikipedia_page_id": 1736086,
+   "title": "Carnival of Souls (film 1962)",
+   "chars_now": 7822,
+   "fixed_chars": 4850,
+   "first_sibling": "Produzione",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q572165",
+   "wikipedia_page_id": 1921917,
+   "title": "Quinto potere",
+   "chars_now": 32657,
+   "fixed_chars": 2277,
+   "first_sibling": "Produzione",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q1142707",
+   "wikipedia_page_id": 1927922,
+   "title": "Trader Horn",
+   "chars_now": 3076,
+   "fixed_chars": 1986,
+   "first_sibling": "Produzione",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q948467",
+   "wikipedia_page_id": 3812028,
+   "title": "Scene di caccia in bassa Baviera",
+   "chars_now": 4054,
+   "fixed_chars": 1667,
+   "first_sibling": "Produzione",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q2932282",
+   "wikipedia_page_id": 3891055,
+   "title": "Rumba (film 1937)",
+   "chars_now": 1536,
+   "fixed_chars": 520,
+   "first_sibling": "Produzione",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q38226",
+   "wikipedia_page_id": 4275174,
+   "title": "Quartetto Basileus",
+   "chars_now": 2546,
+   "fixed_chars": 1600,
+   "first_sibling": "Produzione",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q19788177",
+   "wikipedia_page_id": 5393529,
+   "title": "Canzone appassionata",
+   "chars_now": 2397,
+   "fixed_chars": 1327,
+   "first_sibling": "Produzione",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q19824623",
+   "wikipedia_page_id": 6671105,
+   "title": "Deathgasm",
+   "chars_now": 7431,
+   "fixed_chars": 6863,
+   "first_sibling": "Accoglienza",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q15709914",
+   "wikipedia_page_id": 6706503,
+   "title": "Barbie e il cavallo leggendario",
+   "chars_now": 4937,
+   "fixed_chars": 4814,
+   "first_sibling": "Colonna sonora",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q3203072",
+   "wikipedia_page_id": 9334362,
+   "title": "I figli della strada",
+   "chars_now": 1989,
+   "fixed_chars": 1424,
+   "first_sibling": "Produzione",
+   "would_be_rejected": false
+  },
+  {
+   "film_id": "Q3821447",
+   "wikipedia_page_id": 9543013,
+   "title": "Nero-Fumo e i sette nani neri",
+   "chars_now": 8959,
+   "fixed_chars": 2472,
+   "first_sibling": "Trama",
+   "would_be_rejected": false
+  }
+ ]
+}

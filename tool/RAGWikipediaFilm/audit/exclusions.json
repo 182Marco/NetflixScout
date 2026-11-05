@@ -1,0 +1,3666 @@
+{
+ "version": 1,
+ "basis": "Phase 4 audit: Wikidata P31 + infobox/category evidence + manual reading (see AUDIT_REPORT.md)",
+ "meaning": "records proposed to leave out of the catalogue used by the chatbot; the source dataset and the collection are NOT modified",
+ "count": 259,
+ "records": [
+  {
+   "film_id": "Q909586",
+   "wikipedia_page_id": 75738,
+   "title": "Splatter",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q201658 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q226730",
+   "wikipedia_page_id": 93246,
+   "title": "Cinema muto",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1001378 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2991565",
+   "wikipedia_page_id": 109709,
+   "title": "Commedia sexy all'italiana",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q201658 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q459290",
+   "wikipedia_page_id": 112530,
+   "title": "Film indipendente",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q201658 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1740789",
+   "wikipedia_page_id": 124717,
+   "title": "Poliziesco all'italiana",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q201658 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1505050",
+   "wikipedia_page_id": 241562,
+   "title": "Video Girl Ai",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q196600 (media_franchise)",
+    "manual review: manga/anime franchise page"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q200092",
+   "wikipedia_page_id": 262812,
+   "title": "Cinema dell'orrore",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q108329096 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q901217",
+   "wikipedia_page_id": 281621,
+   "title": "Scene da un matrimonio",
+   "year": 1973,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q95072",
+   "wikipedia_page_id": 304853,
+   "title": "RahXephon",
+   "year": null,
+   "verdict": "series",
+   "subtype": "anime_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q63952888 (anime_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q606892",
+   "wikipedia_page_id": 331792,
+   "title": "A come Andromeda (miniserie televisiva)",
+   "year": null,
+   "verdict": "series",
+   "subtype": "tv_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q5398426 (tv_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3764572",
+   "wikipedia_page_id": 364346,
+   "title": "Gino Bartali - L'intramontabile",
+   "year": 2006,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q834003",
+   "wikipedia_page_id": 436448,
+   "title": "USS Enterprise (NCC-1701)",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "fictional_object",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q53710030 (fictional_object)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q845684",
+   "wikipedia_page_id": 500699,
+   "title": "USS Enterprise (NCC-1701-D)",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "fictional_object",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q53710030 (fictional_object)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1193198",
+   "wikipedia_page_id": 509317,
+   "title": "USS Enterprise (NCC-1701-A)",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "fictional_object",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q53710030 (fictional_object)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q202387",
+   "wikipedia_page_id": 534994,
+   "title": "Disturbo da stress post-traumatico",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "medical_condition",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q112193867 (medical_condition)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q164883",
+   "wikipedia_page_id": 544713,
+   "title": "Initial D",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1051324",
+   "wikipedia_page_id": 546503,
+   "title": "USS Enterprise (NCC-1701-E)",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "fictional_object",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q14637321 (fictional_object)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1131225",
+   "wikipedia_page_id": 573791,
+   "title": "It (miniserie televisiva)",
+   "year": 1990,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3600965",
+   "wikipedia_page_id": 596624,
+   "title": "Rappresentazione dell'HIV/AIDS nel cinema e nella televisione",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_topic",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "category-only page with no film-class P31, no IMDb",
+    "manual review: article on how a subject is represented in cinema"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q3679576",
+   "wikipedia_page_id": 649597,
+   "title": "Classe di ferro",
+   "year": null,
+   "verdict": "series",
+   "subtype": "tv_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q5398426 (tv_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q629917",
+   "wikipedia_page_id": 666097,
+   "title": "Jidai-geki",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q15961987 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2263018",
+   "wikipedia_page_id": 774158,
+   "title": "Fantaghirò (miniserie televisiva)",
+   "year": 1991,
+   "verdict": "series",
+   "subtype": "title_marks_series",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "title suffix marks a series: (miniserie televisiva)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2630928",
+   "wikipedia_page_id": 776709,
+   "title": "Dragon Ball Z Gaiden: Saiyajin zetsumetsu keikaku",
+   "year": 1993,
+   "verdict": "other_work",
+   "subtype": "video_game",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q7889 (video_game)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3793448",
+   "wikipedia_page_id": 800188,
+   "title": "Il cielo non cade mai",
+   "year": 1992,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3818383",
+   "wikipedia_page_id": 870659,
+   "title": "L'amaro caso della baronessa di Carini",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3007570",
+   "wikipedia_page_id": 1042748,
+   "title": "Cuore (miniserie televisiva 1984)",
+   "year": 1984,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q470572",
+   "wikipedia_page_id": 1086698,
+   "title": "Gesù di Nazareth (miniserie televisiva)",
+   "year": 1977,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1131733",
+   "wikipedia_page_id": 1097935,
+   "title": "Tōkyō daigaku monogatari",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3677141",
+   "wikipedia_page_id": 1101455,
+   "title": "Cinepanettone",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q201658 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q4003223",
+   "wikipedia_page_id": 1107417,
+   "title": "Ultimo (miniserie televisiva)",
+   "year": 1998,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3927739",
+   "wikipedia_page_id": 1134333,
+   "title": "Questa è la mia terra",
+   "year": null,
+   "verdict": "series",
+   "subtype": "tv_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q5398426 (tv_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q535518",
+   "wikipedia_page_id": 1141329,
+   "title": "Nazisploitation",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q201658 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q619500",
+   "wikipedia_page_id": 1146212,
+   "title": "Touch (manga)",
+   "year": 1981,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q583768",
+   "wikipedia_page_id": 1153842,
+   "title": "Women in prison",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q201658 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q996028",
+   "wikipedia_page_id": 1186903,
+   "title": "Fantaghirò (franchise)",
+   "year": 1991,
+   "verdict": "topic",
+   "subtype": "media_franchise",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q2617970 (media_franchise)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q645928",
+   "wikipedia_page_id": 1226325,
+   "title": "Film biografico",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q201658 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q909149",
+   "wikipedia_page_id": 1233148,
+   "title": "Le notti di Salem (miniserie televisiva)",
+   "year": 1979,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q229390",
+   "wikipedia_page_id": 1271119,
+   "title": "Cinema tridimensionale",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_technique",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q110900120 (film_technique)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2531535",
+   "wikipedia_page_id": 1308548,
+   "title": "Una ragazza alla moda",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1219739",
+   "wikipedia_page_id": 1335867,
+   "title": "Il mondo perduto (miniserie televisiva)",
+   "year": 2001,
+   "verdict": "series",
+   "subtype": "title_marks_series",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "title suffix marks a series: (miniserie televisiva)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3771059",
+   "wikipedia_page_id": 1358097,
+   "title": "Giuseppe Moscati - L'amore che guarisce",
+   "year": 2007,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q98701476 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3704455",
+   "wikipedia_page_id": 1359019,
+   "title": "Decamerotico",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "category-only page with no film-class P31, no IMDb",
+    "manual review: article on a film genre ('le origini del genere cinematografico')"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q405497",
+   "wikipedia_page_id": 1411921,
+   "title": "Air (serie)",
+   "year": 2000,
+   "verdict": "other_work",
+   "subtype": "video_game",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q7889 (video_game)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q193705",
+   "wikipedia_page_id": 1443020,
+   "title": "Lo schiaccianoci",
+   "year": null,
+   "verdict": "other_work",
+   "subtype": "stage_work",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q58483088 (stage_work): animation/stage work, film status unclear",
+    "manual review: ballet: the synopsis is the libretto"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q3791186",
+   "wikipedia_page_id": 1444118,
+   "title": "I promessi sposi (miniserie televisiva 1989)",
+   "year": 1989,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3821771",
+   "wikipedia_page_id": 1446163,
+   "title": "La cittadella (miniserie televisiva 1964)",
+   "year": 1964,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2997402",
+   "wikipedia_page_id": 1464247,
+   "title": "Il capo dei capi",
+   "year": 2007,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1247168",
+   "wikipedia_page_id": 1467107,
+   "title": "Radici (miniserie televisiva 1977)",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q95152",
+   "wikipedia_page_id": 1546330,
+   "title": "Silent Möbius",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q319123",
+   "wikipedia_page_id": 1549114,
+   "title": "L'isola del tesoro (miniserie televisiva 1987)",
+   "year": null,
+   "verdict": "series",
+   "subtype": "tv_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q5398426 (tv_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q188473",
+   "wikipedia_page_id": 1552030,
+   "title": "Film d'azione",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q201658 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3821217",
+   "wikipedia_page_id": 1562126,
+   "title": "La Storia (miniserie televisiva)",
+   "year": 1986,
+   "verdict": "series",
+   "subtype": "title_marks_series",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "title suffix marks a series: (miniserie televisiva)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3750839",
+   "wikipedia_page_id": 1572561,
+   "title": "Francesco d'Assisi (miniserie televisiva 1966)",
+   "year": 1966,
+   "verdict": "series",
+   "subtype": "title_marks_series",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "title suffix marks a series: (miniserie televisiva)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q116122",
+   "wikipedia_page_id": 1577777,
+   "title": "Hayate no gotoku!",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1402335",
+   "wikipedia_page_id": 1590600,
+   "title": "Due come noi!!",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q849666",
+   "wikipedia_page_id": 1592498,
+   "title": "Brickfilm",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q201658 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3148556",
+   "wikipedia_page_id": 1601074,
+   "title": "Il viaggio di G. Mastorna, detto Fernet",
+   "year": null,
+   "verdict": "other_work",
+   "subtype": "comic",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1004 (comic)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2720194",
+   "wikipedia_page_id": 1628307,
+   "title": "Alexander - Cronache di guerra di Alessandro il Grande",
+   "year": null,
+   "verdict": "series",
+   "subtype": "anime_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q63952888 (anime_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q315616",
+   "wikipedia_page_id": 1657132,
+   "title": "Giulio Cesare (miniserie televisiva)",
+   "year": 2002,
+   "verdict": "series",
+   "subtype": "title_marks_series",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "title suffix marks a series: (miniserie televisiva)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1403113",
+   "wikipedia_page_id": 1688042,
+   "title": "La vita di Leonardo da Vinci",
+   "year": null,
+   "verdict": "series",
+   "subtype": "tv_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q5398426 (tv_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1213627",
+   "wikipedia_page_id": 1695445,
+   "title": "L'Isola delle Trenta Bare",
+   "year": 1979,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1145690",
+   "wikipedia_page_id": 1711847,
+   "title": "Saw (serie di film)",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_series_page",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "page about a series of films, not one film",
+    "P31=Q24856 (film series)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1211352",
+   "wikipedia_page_id": 1745935,
+   "title": "Mosè (miniserie televisiva 1995)",
+   "year": 1995,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q455784",
+   "wikipedia_page_id": 1745940,
+   "title": "Giuseppe (miniserie televisiva)",
+   "year": 1995,
+   "verdict": "series",
+   "subtype": "title_marks_series",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "title suffix marks a series: (miniserie televisiva)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q630496",
+   "wikipedia_page_id": 1750251,
+   "title": "Abramo (miniserie televisiva)",
+   "year": 1993,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3609266",
+   "wikipedia_page_id": 1756183,
+   "title": "Aldo Moro - Il presidente",
+   "year": 2008,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q846544",
+   "wikipedia_page_id": 1795345,
+   "title": "Film catastrofico",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q201658 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q157443",
+   "wikipedia_page_id": 1804981,
+   "title": "Film commedia",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q201658 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1374301",
+   "wikipedia_page_id": 1839850,
+   "title": "Guru Guru - Il girotondo della magia",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3905306",
+   "wikipedia_page_id": 1898189,
+   "title": "Pinocchio (Carmelo Bene)",
+   "year": null,
+   "verdict": "other_work",
+   "subtype": "literary_work",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q7725634 (literary_work)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3822115",
+   "wikipedia_page_id": 1938921,
+   "title": "La donna del treno",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q959790",
+   "wikipedia_page_id": 1971463,
+   "title": "Cinema giallo",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q201658 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q697203",
+   "wikipedia_page_id": 1993908,
+   "title": "L'Odissea (miniserie televisiva)",
+   "year": 1997,
+   "verdict": "series",
+   "subtype": "title_marks_series",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "title suffix marks a series: (miniserie televisiva)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q319221",
+   "wikipedia_page_id": 2059504,
+   "title": "Film d'avventura",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q201658 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q689114",
+   "wikipedia_page_id": 2061674,
+   "title": "Digimon Adventure",
+   "year": null,
+   "verdict": "series",
+   "subtype": "anime_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q63952888 (anime_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3767190",
+   "wikipedia_page_id": 2179409,
+   "title": "Giovanni Falcone - L'uomo che sfidò Cosa Nostra",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2575263",
+   "wikipedia_page_id": 2228149,
+   "title": "Il diario di Anna Frank (miniserie televisiva)",
+   "year": 2009,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3695858",
+   "wikipedia_page_id": 2234121,
+   "title": "Così fan tutte (manga)",
+   "year": 1985,
+   "verdict": "topic",
+   "subtype": "film_series_page",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "page about a series of films, not one film",
+    "P31=Q24856 (film series)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2318999",
+   "wikipedia_page_id": 2246271,
+   "title": "Nino, il mio amico ninja",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3887079",
+   "wikipedia_page_id": 2267568,
+   "title": "Otello o la deficienza della donna",
+   "year": null,
+   "verdict": "other_work",
+   "subtype": "literary_work",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q7725634 (literary_work)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3677194",
+   "wikipedia_page_id": 2269625,
+   "title": "Cinema di propaganda fascista",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_topic",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "category-only page, no usable P31, title/genre look like a topic or an animation",
+    "manual review: article on a period/trend of cinema"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q3893193",
+   "wikipedia_page_id": 2277728,
+   "title": "Pane e libertà",
+   "year": 2009,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3745400",
+   "wikipedia_page_id": 2319639,
+   "title": "Film comico",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q201658 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q4003228",
+   "wikipedia_page_id": 2329164,
+   "title": "Ultimo - La sfida",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q737271",
+   "wikipedia_page_id": 2334455,
+   "title": "Higurashi no naku koro ni",
+   "year": null,
+   "verdict": "series",
+   "subtype": "visual_novel_anime",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "category-only page, no usable P31, title/genre look like a topic or an animation",
+    "manual review: visual novel / anime series"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q1069002",
+   "wikipedia_page_id": 2346049,
+   "title": "Higashi no Eden",
+   "year": null,
+   "verdict": "series",
+   "subtype": "anime_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q63952888 (anime_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q398146",
+   "wikipedia_page_id": 2356260,
+   "title": "Let the Sunshine In - Hiatari ryōkō!",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3819459",
+   "wikipedia_page_id": 2367275,
+   "title": "L'isola dei segreti - Korè",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1141823",
+   "wikipedia_page_id": 2370929,
+   "title": "Tales of Vesperia",
+   "year": 2008,
+   "verdict": "other_work",
+   "subtype": "video_game",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q7889 (video_game)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2364709",
+   "wikipedia_page_id": 2396984,
+   "title": "Alice Comedies",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_series_page",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "page about a series of films, not one film",
+    "P31=Q24856 (film series)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q868683",
+   "wikipedia_page_id": 2403501,
+   "title": "Bourne (serie di film)",
+   "year": 2002,
+   "verdict": "topic",
+   "subtype": "film_series_page",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "page about a series of films, not one film",
+    "P31=Q24856 (film series)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q702858",
+   "wikipedia_page_id": 2406502,
+   "title": "Olocausto (miniserie televisiva)",
+   "year": 1978,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1314114",
+   "wikipedia_page_id": 2414038,
+   "title": "Brave Story",
+   "year": 2003,
+   "verdict": "other_work",
+   "subtype": "literary_work",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q7725634 (literary_work)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3859712",
+   "wikipedia_page_id": 2415115,
+   "title": "Moana (miniserie televisiva)",
+   "year": 2009,
+   "verdict": "series",
+   "subtype": "title_marks_series",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "title suffix marks a series: (miniserie televisiva)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3878869",
+   "wikipedia_page_id": 2451925,
+   "title": "Notti e nebbie",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1779032",
+   "wikipedia_page_id": 2457614,
+   "title": "The Tommyknockers - Le creature del buio",
+   "year": 1993,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1355719",
+   "wikipedia_page_id": 2464814,
+   "title": "Miyuki",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q482482",
+   "wikipedia_page_id": 2493850,
+   "title": "K-On!",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1390591",
+   "wikipedia_page_id": 2546357,
+   "title": "Human Trafficking - Le schiave del sesso",
+   "year": 2005,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3361835",
+   "wikipedia_page_id": 2557020,
+   "title": "Pan-Européenne",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "organisation",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q43229 (organisation)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q696302",
+   "wikipedia_page_id": 2637953,
+   "title": "Black Butler",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q644001",
+   "wikipedia_page_id": 2723885,
+   "title": "Desideria e l'anello del drago",
+   "year": 1994,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q98701476 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q374389",
+   "wikipedia_page_id": 2732912,
+   "title": "Venus Wars",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2405490",
+   "wikipedia_page_id": 2754668,
+   "title": "Arion (manga)",
+   "year": 1979,
+   "verdict": "series",
+   "subtype": "title_marks_series",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "title suffix marks a series: (manga)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1471094",
+   "wikipedia_page_id": 2766035,
+   "title": "King of Thorn",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1750559",
+   "wikipedia_page_id": 2773920,
+   "title": "Le 12 sedie",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q4003670",
+   "wikipedia_page_id": 2776165,
+   "title": "Un anno di scuola (miniserie televisiva)",
+   "year": 1977,
+   "verdict": "series",
+   "subtype": "title_marks_series",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "title suffix marks a series: (miniserie televisiva)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q970153",
+   "wikipedia_page_id": 2796752,
+   "title": "Attore bambino",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "occupation",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q12737077 (occupation)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3793051",
+   "wikipedia_page_id": 2803516,
+   "title": "Il balordo (miniserie televisiva)",
+   "year": 1978,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3030553",
+   "wikipedia_page_id": 2843208,
+   "title": "Disperatamente Giulia (miniserie televisiva)",
+   "year": 1989,
+   "verdict": "series",
+   "subtype": "title_marks_series",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "title suffix marks a series: (miniserie televisiva)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q599558",
+   "wikipedia_page_id": 2891723,
+   "title": "Film erotico",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q201658 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q320032",
+   "wikipedia_page_id": 2898424,
+   "title": "Il segreto del Sahara (miniserie televisiva)",
+   "year": 1988,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3713931",
+   "wikipedia_page_id": 2901393,
+   "title": "Donna d'onore (miniserie televisiva)",
+   "year": 1990,
+   "verdict": "series",
+   "subtype": "title_marks_series",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "title suffix marks a series: (miniserie televisiva)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3664173",
+   "wikipedia_page_id": 2909454,
+   "title": "Cefalonia (miniserie televisiva)",
+   "year": 2005,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q328124",
+   "wikipedia_page_id": 2925430,
+   "title": "Il destino di un principe",
+   "year": 2006,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1200011",
+   "wikipedia_page_id": 2943674,
+   "title": "Ju-on (serie di film)",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_series_page",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "page about a series of films, not one film",
+    "P31=Q24856 (film series)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1570553",
+   "wikipedia_page_id": 2975315,
+   "title": "Switch Girl!!",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q4003927",
+   "wikipedia_page_id": 2980380,
+   "title": "Un milione di miliardi",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3703153",
+   "wikipedia_page_id": 2982674,
+   "title": "David Copperfield (miniserie televisiva 1965)",
+   "year": 1965,
+   "verdict": "series",
+   "subtype": "tv_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q5398426 (tv_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q818968",
+   "wikipedia_page_id": 3088492,
+   "title": "Il giovane Hitler",
+   "year": 2003,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3613521",
+   "wikipedia_page_id": 3098751,
+   "title": "Ama il tuo nemico",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1775616",
+   "wikipedia_page_id": 3133635,
+   "title": "Il vento dell'Amnesia",
+   "year": 1983,
+   "verdict": "other_work",
+   "subtype": "literary_work",
+   "confidence": "medium",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q7725634 (literary_work)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2438487",
+   "wikipedia_page_id": 3142752,
+   "title": "Rokudenashi Blues",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q14946528 (feature)",
+    "category-only page with imdb/director",
+    "manual review: synopsis presents the premise of the manga/anime series"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q3818920",
+   "wikipedia_page_id": 3152896,
+   "title": "L'avvocato delle donne",
+   "year": null,
+   "verdict": "series",
+   "subtype": "tv_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q5398426 (tv_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2532722",
+   "wikipedia_page_id": 3199788,
+   "title": "Barbie (serie di film)",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "list_article",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q13406463 (list_article)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3210659",
+   "wikipedia_page_id": 3211992,
+   "title": "Verdi (miniserie televisiva)",
+   "year": 1982,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3699447",
+   "wikipedia_page_id": 3217456,
+   "title": "Cuore (miniserie televisiva 2001)",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3855981",
+   "wikipedia_page_id": 3217772,
+   "title": "Mia madre (miniserie televisiva)",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q504716",
+   "wikipedia_page_id": 3283410,
+   "title": "Cristoforo Colombo (miniserie televisiva)",
+   "year": 1985,
+   "verdict": "series",
+   "subtype": "title_marks_series",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "title suffix marks a series: (miniserie televisiva)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2453911",
+   "wikipedia_page_id": 3287925,
+   "title": "La leggenda di Arslan",
+   "year": null,
+   "verdict": "series",
+   "subtype": "novel_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1667921 (novel_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3924709",
+   "wikipedia_page_id": 3321557,
+   "title": "Provincia segreta",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q614121",
+   "wikipedia_page_id": 3343941,
+   "title": "Planetarian: chiisana hoshi no yume",
+   "year": 2004,
+   "verdict": "other_work",
+   "subtype": "video_game",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q7889 (video_game)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3684210",
+   "wikipedia_page_id": 3367231,
+   "title": "Come un delfino",
+   "year": null,
+   "verdict": "series",
+   "subtype": "tv_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q5398426 (tv_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q248596",
+   "wikipedia_page_id": 3479902,
+   "title": "Die Deutsche Wochenschau",
+   "year": 1940,
+   "verdict": "topic",
+   "subtype": "film_series_page",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "page about a series of films, not one film",
+    "P31=Q24856 (film series)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1360690",
+   "wikipedia_page_id": 3481813,
+   "title": "Kuragehime",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q39043",
+   "wikipedia_page_id": 3590687,
+   "title": "Uchu kyodai - Fratelli nello spazio",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2016740",
+   "wikipedia_page_id": 3644921,
+   "title": "Casanova (miniserie televisiva)",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3795531",
+   "wikipedia_page_id": 3655635,
+   "title": "Il ricatto (miniserie televisiva)",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1212932",
+   "wikipedia_page_id": 3656387,
+   "title": "Atti degli apostoli (miniserie televisiva)",
+   "year": 1969,
+   "verdict": "series",
+   "subtype": "title_marks_series",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "title suffix marks a series: (miniserie televisiva)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q483943",
+   "wikipedia_page_id": 3687735,
+   "title": "Ano hana",
+   "year": null,
+   "verdict": "series",
+   "subtype": "anime_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q63952888 (anime_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q945140",
+   "wikipedia_page_id": 3813052,
+   "title": "Budda (manga)",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3007925",
+   "wikipedia_page_id": 3937638,
+   "title": "Cutie Honey Flash",
+   "year": null,
+   "verdict": "series",
+   "subtype": "anime_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q63952888 (anime_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q567884",
+   "wikipedia_page_id": 3950815,
+   "title": "Another",
+   "year": 2009,
+   "verdict": "other_work",
+   "subtype": "literary_work",
+   "confidence": "medium",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q7725634 (literary_work)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q921440",
+   "wikipedia_page_id": 3957520,
+   "title": "Seitokai yakuindomo",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1339165",
+   "wikipedia_page_id": 4013789,
+   "title": "Hyouka",
+   "year": 2001,
+   "verdict": "other_work",
+   "subtype": "literary_work",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q7725634 (literary_work)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3790859",
+   "wikipedia_page_id": 4082360,
+   "title": "I giochi del diavolo",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q812788",
+   "wikipedia_page_id": 4084438,
+   "title": "Be-Bop High School",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q8274 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q4347",
+   "wikipedia_page_id": 4113833,
+   "title": "Gen di Hiroshima",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2077494",
+   "wikipedia_page_id": 4113880,
+   "title": "Wild 7",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q196600 (media_franchise)",
+    "manual review: manga/anime franchise page"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q3927677",
+   "wikipedia_page_id": 4115839,
+   "title": "Quer pasticciaccio brutto de via Merulana (miniserie televisiva)",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2757796",
+   "wikipedia_page_id": 4129916,
+   "title": "Nisekoi - False Love",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q729857",
+   "wikipedia_page_id": 4149794,
+   "title": "Aikatsu!",
+   "year": null,
+   "verdict": "series",
+   "subtype": "anime_series",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q196600 (media_franchise)",
+    "manual review: anime franchise page"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q3192387",
+   "wikipedia_page_id": 4162354,
+   "title": "Kamen Teacher",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1321751",
+   "wikipedia_page_id": 4180406,
+   "title": "Siamo in 11!",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q196600 (media_franchise)",
+    "manual review: manga/anime franchise page"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q3786774",
+   "wikipedia_page_id": 4192040,
+   "title": "HoriMiya",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3793334",
+   "wikipedia_page_id": 4216764,
+   "title": "Il caso Enzo Tortora - Dove eravamo rimasti?",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1580513",
+   "wikipedia_page_id": 4220433,
+   "title": "Say \"I love you\"",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3640833",
+   "wikipedia_page_id": 4261285,
+   "title": "Blaise Pascal (miniserie televisiva)",
+   "year": 1972,
+   "verdict": "series",
+   "subtype": "title_marks_series",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "title suffix marks a series: (miniserie televisiva)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q931047",
+   "wikipedia_page_id": 4287984,
+   "title": "Happy Hooligan",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "comic_character",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "category-only page with no film-class P31, no IMDb",
+    "manual review: page about a comic-strip character"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q3644393",
+   "wikipedia_page_id": 4346860,
+   "title": "Breve gloria di mister Miffin",
+   "year": null,
+   "verdict": "series",
+   "subtype": "tv_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q5398426 (tv_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q182469",
+   "wikipedia_page_id": 4387631,
+   "title": "Chihayafuru - Il gioco di Chihaya",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q13613970",
+   "wikipedia_page_id": 4596489,
+   "title": "Creatura (miniserie televisiva)",
+   "year": 1998,
+   "verdict": "series",
+   "subtype": "title_marks_series",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "title suffix marks a series: (miniserie televisiva)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3597888",
+   "wikipedia_page_id": 4624978,
+   "title": "Tre donne (miniserie televisiva)",
+   "year": 1971,
+   "verdict": "topic",
+   "subtype": "film_series_page",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "page about a series of films, not one film",
+    "P31=Q24856 (film series)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1318537",
+   "wikipedia_page_id": 4670052,
+   "title": "Uta no Prince-sama",
+   "year": 2010,
+   "verdict": "other_work",
+   "subtype": "video_game",
+   "confidence": "medium",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q7889 (video_game)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q4049046",
+   "wikipedia_page_id": 4674928,
+   "title": "Un marzo da leoni",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q15069844",
+   "wikipedia_page_id": 4711592,
+   "title": "Altri tempi (miniserie televisiva)",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q4729904",
+   "wikipedia_page_id": 4790351,
+   "title": "All You Need Is Kill",
+   "year": 2004,
+   "verdict": "other_work",
+   "subtype": "literary_work",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q7725634 (literary_work)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2668005",
+   "wikipedia_page_id": 4795497,
+   "title": "Verso la Terra...",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q16619430",
+   "wikipedia_page_id": 4837503,
+   "title": "Cellini - Una vita scellerata",
+   "year": 1990,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1863185",
+   "wikipedia_page_id": 4888342,
+   "title": "Film basati sulla Bibbia",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "list_article",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q13406463 (list_article)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q925693",
+   "wikipedia_page_id": 4930489,
+   "title": "Break Blade",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q17636530",
+   "wikipedia_page_id": 4969787,
+   "title": "Mister Ignis - L'operaio che fondò un impero",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1141832",
+   "wikipedia_page_id": 4977565,
+   "title": "La clessidra - Ricordi d'amore",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q15726991",
+   "wikipedia_page_id": 4981878,
+   "title": "Dragon Head",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1319952",
+   "wikipedia_page_id": 4999950,
+   "title": "Nine (manga)",
+   "year": 1983,
+   "verdict": "series",
+   "subtype": "title_marks_series",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "title suffix marks a series: (manga)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1033328",
+   "wikipedia_page_id": 5039389,
+   "title": "A un passo da te - Ao haru ride",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1672088",
+   "wikipedia_page_id": 5067301,
+   "title": "Mosè (miniserie televisiva 1974)",
+   "year": 1974,
+   "verdict": "series",
+   "subtype": "title_marks_series",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "title suffix marks a series: (miniserie televisiva)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q11321983",
+   "wikipedia_page_id": 5097084,
+   "title": "Trinity Seven - L'accademia delle sette streghe",
+   "year": 2010,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q11419997",
+   "wikipedia_page_id": 5112115,
+   "title": "Bugie d'aprile",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q945730",
+   "wikipedia_page_id": 5134912,
+   "title": "Kiseiju - L'ospite indesiderato",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q494804",
+   "wikipedia_page_id": 5138661,
+   "title": "Hanasaku iroha",
+   "year": null,
+   "verdict": "series",
+   "subtype": "anime_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q63952888 (anime_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q11555685",
+   "wikipedia_page_id": 5141264,
+   "title": "Chūmon no ōi ryōriten",
+   "year": 1924,
+   "verdict": "other_work",
+   "subtype": "literary_work",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q7725634 (literary_work)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1318521",
+   "wikipedia_page_id": 5196294,
+   "title": "Alice in Heartland",
+   "year": 2007,
+   "verdict": "other_work",
+   "subtype": "video_game",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q7889 (video_game)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q7900306",
+   "wikipedia_page_id": 5201218,
+   "title": "Urda (serie animata)",
+   "year": null,
+   "verdict": "series",
+   "subtype": "title_marks_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "title suffix marks a series: (serie animata)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q11588621",
+   "wikipedia_page_id": 5223680,
+   "title": "As the Gods Will",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q18579178",
+   "wikipedia_page_id": 5226791,
+   "title": "Kabaneri of the Iron Fortress",
+   "year": null,
+   "verdict": "series",
+   "subtype": "anime_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q63952888 (anime_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q20006003",
+   "wikipedia_page_id": 5259863,
+   "title": "Episodi e film de Il mistero delle lettere perdute",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_series_page",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "page about a series of films, not one film",
+    "P31=Q24856 (film series)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q7046197",
+   "wikipedia_page_id": 5263167,
+   "title": "Nobunaga Concerto",
+   "year": 2009,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q18357843",
+   "wikipedia_page_id": 5265982,
+   "title": "Sound! Euphonium",
+   "year": null,
+   "verdict": "series",
+   "subtype": "novel_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1667921 (novel_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q11320614",
+   "wikipedia_page_id": 5286884,
+   "title": "Death Parade",
+   "year": null,
+   "verdict": "series",
+   "subtype": "anime_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q63952888 (anime_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q20010191",
+   "wikipedia_page_id": 5455907,
+   "title": "Max e Hélène",
+   "year": 2015,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q21235532",
+   "wikipedia_page_id": 5463996,
+   "title": "Annika: Crime Reporter",
+   "year": null,
+   "verdict": "series",
+   "subtype": "tv_series",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "category-only page with no film-class P31, no IMDb",
+    "manual review: describes the investigations of a TV series' protagonist"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q17230217",
+   "wikipedia_page_id": 5490989,
+   "title": "Erased",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q21190508",
+   "wikipedia_page_id": 5560765,
+   "title": "Brancaccio (miniserie televisiva)",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q21030082",
+   "wikipedia_page_id": 5607496,
+   "title": "Dinosauri Killer",
+   "year": null,
+   "verdict": "series",
+   "subtype": "tv_programme",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q15416 (tv_programme), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q25408835",
+   "wikipedia_page_id": 5696398,
+   "title": "Qualunque cosa succeda (miniserie televisiva)",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q24933428",
+   "wikipedia_page_id": 5722308,
+   "title": "Nella città vampira. Drammi gotici",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q17218347",
+   "wikipedia_page_id": 5757194,
+   "title": "Pandora in the Crimson Shell: Ghost Urn",
+   "year": 2015,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q2571729",
+   "wikipedia_page_id": 5766808,
+   "title": "Sabu e Ichi - Memorie di due detective dell'epoca Edo",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q19781419",
+   "wikipedia_page_id": 6104899,
+   "title": "Golden Kamui",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q23681193",
+   "wikipedia_page_id": 6120618,
+   "title": "Aikatsu Stars!",
+   "year": null,
+   "verdict": "series",
+   "subtype": "anime_series",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q7889 (video_game)",
+    "manual review: anime series (Wikidata labels it a video game)"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q24868017",
+   "wikipedia_page_id": 6196539,
+   "title": "Anonymous Noise",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q28531731",
+   "wikipedia_page_id": 6239154,
+   "title": "Senza confini (miniserie televisiva 2001)",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3519342",
+   "wikipedia_page_id": 6251818,
+   "title": "Fort Bravo - Texas Hollywood",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_location",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "category-only page with no film-class P31, no IMDb",
+    "manual review: describes a film set/location"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q1960006",
+   "wikipedia_page_id": 6262630,
+   "title": "Kyō, koi o hajimemasu",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q28776835",
+   "wikipedia_page_id": 6268965,
+   "title": "C'era una volta Studio Uno",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q18464203",
+   "wikipedia_page_id": 6291339,
+   "title": "Tredici (serie televisiva)",
+   "year": null,
+   "verdict": "series",
+   "subtype": "tv_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q5398426 (tv_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q18700981",
+   "wikipedia_page_id": 6319621,
+   "title": "Kakegurui",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q24862454",
+   "wikipedia_page_id": 6449858,
+   "title": "Non mi stuzzicare, Takagi!",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q24867647",
+   "wikipedia_page_id": 6518886,
+   "title": "Kaguya-sama: Love is War",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q772473",
+   "wikipedia_page_id": 6608734,
+   "title": "Cremaster (serie di film)",
+   "year": 1994,
+   "verdict": "topic",
+   "subtype": "media_franchise",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q2617970 (media_franchise)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q48810722",
+   "wikipedia_page_id": 6724679,
+   "title": "Giorno segreto",
+   "year": 1976,
+   "verdict": "other_work",
+   "subtype": "literary_work",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q7725634 (literary_work)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q52715512",
+   "wikipedia_page_id": 7135056,
+   "title": "Orzowei, il figlio della savana (miniserie televisiva)",
+   "year": 1977,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q20044088",
+   "wikipedia_page_id": 7507266,
+   "title": "Kurosaki-kun no iinari ni nante naranai",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q63522304",
+   "wikipedia_page_id": 7806541,
+   "title": "Uomo lupo nella cinematografia",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_topic",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "category-only page with no film-class P31, no IMDb",
+    "manual review: article on a character type across films"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q27922181",
+   "wikipedia_page_id": 7837331,
+   "title": "Animali fantastici (serie di film)",
+   "year": 2016,
+   "verdict": "topic",
+   "subtype": "film_series_page",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "page about a series of films, not one film",
+    "P31=Q24856 (film series)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q63523671",
+   "wikipedia_page_id": 7859243,
+   "title": "Cinema in Abruzzo",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_topic",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "category-only page, no usable P31, title/genre look like a topic or an animation",
+    "manual review: article on the cinema of a region"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q22341701",
+   "wikipedia_page_id": 8266730,
+   "title": "Mr. Osomatsu",
+   "year": null,
+   "verdict": "series",
+   "subtype": "anime_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q63952888 (anime_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q43401515",
+   "wikipedia_page_id": 8279327,
+   "title": "Jesus Christ Superstar Live in Concert",
+   "year": 2018,
+   "verdict": "series",
+   "subtype": "tv_programme",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q15416 (tv_programme), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q97369824",
+   "wikipedia_page_id": 8356668,
+   "title": "The Connection (spettacolo teatrale)",
+   "year": 1961,
+   "verdict": "other_work",
+   "subtype": "literary_work",
+   "confidence": "medium",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q7725634 (literary_work)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q65068326",
+   "wikipedia_page_id": 8382676,
+   "title": "Keep Your Hands Off Eizouken!",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q938028",
+   "wikipedia_page_id": 8426761,
+   "title": "Little Dorrit (miniserie televisiva)",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q21015465",
+   "wikipedia_page_id": 8600351,
+   "title": "Tsumi no yohaku",
+   "year": 2012,
+   "verdict": "other_work",
+   "subtype": "literary_work",
+   "confidence": "medium",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q7725634 (literary_work)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q11514891",
+   "wikipedia_page_id": 8616355,
+   "title": "Kurai tokoro de machiawase",
+   "year": 2006,
+   "verdict": "other_work",
+   "subtype": "literary_work",
+   "confidence": "medium",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q7725634 (literary_work)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q20002651",
+   "wikipedia_page_id": 8635295,
+   "title": "Film a trucchi",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q201658 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q85808226",
+   "wikipedia_page_id": 8689286,
+   "title": "La regina degli scacchi (miniserie televisiva)",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q63981675",
+   "wikipedia_page_id": 8830316,
+   "title": "Tokyo Revengers",
+   "year": 2017,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q105973217",
+   "wikipedia_page_id": 8863187,
+   "title": "Màkari",
+   "year": null,
+   "verdict": "series",
+   "subtype": "tv_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q5398426 (tv_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q453971",
+   "wikipedia_page_id": 9208089,
+   "title": "Heidi (serie televisiva 1978)",
+   "year": null,
+   "verdict": "series",
+   "subtype": "tv_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q5398426 (tv_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q105087026",
+   "wikipedia_page_id": 9249228,
+   "title": "Sakamoto Days",
+   "year": 2021,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q88317035",
+   "wikipedia_page_id": 9280381,
+   "title": "Il disertore (miniserie televisiva)",
+   "year": 2020,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q111519702",
+   "wikipedia_page_id": 9362053,
+   "title": "I crimini di Jimmy Savile",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q118524072",
+   "wikipedia_page_id": 9385522,
+   "title": "Cortometraggi LEGO Marvel",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "list_article",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q117467246 (list_article)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q21019487",
+   "wikipedia_page_id": 9445604,
+   "title": "Blue Giant",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q97310775",
+   "wikipedia_page_id": 9481752,
+   "title": "Oshi no ko - My Star",
+   "year": 2020,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3407535",
+   "wikipedia_page_id": 9517881,
+   "title": "Prophecy (manga)",
+   "year": 2011,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q115667865",
+   "wikipedia_page_id": 9517888,
+   "title": "Episodi di Pistol",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "list_article",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q3464665 (list_article)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q86736171",
+   "wikipedia_page_id": 9597931,
+   "title": "Kowloon Generic Romance",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q111271377",
+   "wikipedia_page_id": 9622353,
+   "title": "Shin Japan Heroes Universe",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "media_franchise",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "category-only page with no film-class P31, no IMDb",
+    "manual review: announced collaboration project / franchise"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q112078206",
+   "wikipedia_page_id": 9651371,
+   "title": "Analog horror",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q116374620 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q117047275",
+   "wikipedia_page_id": 9731872,
+   "title": "Unprisoned",
+   "year": null,
+   "verdict": "series",
+   "subtype": "tv_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q5398426 (tv_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1108316",
+   "wikipedia_page_id": 9746114,
+   "title": "Mardock Scramble",
+   "year": null,
+   "verdict": "series",
+   "subtype": "novel_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1667921 (novel_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q120242123",
+   "wikipedia_page_id": 9817901,
+   "title": "Angelica femmina ribelle",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3505872",
+   "wikipedia_page_id": 9861697,
+   "title": "Gli amori di Suzanna Andler",
+   "year": 2021,
+   "verdict": "other_work",
+   "subtype": "literary_work",
+   "confidence": "medium",
+   "reasons": [
+    "infobox {{Film}} present",
+    "P31=Q7725634 (literary_work)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q105562947",
+   "wikipedia_page_id": 9902187,
+   "title": "Zombie 100 - Cento cose da fare prima di non-morire",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q25110269",
+   "wikipedia_page_id": 10104848,
+   "title": "Film in tecnica mista",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_technique",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q110900120 (film_technique)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q126009173",
+   "wikipedia_page_id": 10123027,
+   "title": "Marconi - L'uomo che ha connesso il mondo",
+   "year": null,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q130604699",
+   "wikipedia_page_id": 10263682,
+   "title": "Mike (miniserie televisiva 2024)",
+   "year": 2024,
+   "verdict": "series",
+   "subtype": "miniseries",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q1259759 (miniseries), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q60985374",
+   "wikipedia_page_id": 10406691,
+   "title": "Under Ninja",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q124421712",
+   "wikipedia_page_id": 10478572,
+   "title": "Honeko Akabane's Bodyguards",
+   "year": null,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q1339864",
+   "wikipedia_page_id": 10602299,
+   "title": "Film sullo sport",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q201658 (film_genre)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q3197182",
+   "wikipedia_page_id": 10873938,
+   "title": "Kinopravda",
+   "year": null,
+   "verdict": "series",
+   "subtype": "newsreel_series",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q11424 (feature)",
+    "category-only page with imdb/director",
+    "manual review: Vertov's newsreel series and the concept behind it"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "wp-10878734",
+   "wikipedia_page_id": 10878734,
+   "title": "Cinema protogiallo",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "category-only page, no usable P31, title/genre look like a topic or an animation",
+    "manual review: article on the origins of a genre"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "wp-10888720",
+   "wikipedia_page_id": 10888720,
+   "title": "Cine-settimana",
+   "year": null,
+   "verdict": "series",
+   "subtype": "newsreel_series",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "category-only page with no film-class P31, no IMDb",
+    "manual review: Soviet newsreel series"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "wp-10918582",
+   "wikipedia_page_id": 10918582,
+   "title": "Krimi (cinema)",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "film_genre",
+   "confidence": "manual",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "category-only page with no film-class P31, no IMDb",
+    "manual review: article on a genre term"
+   ],
+   "manual": true
+  },
+  {
+   "film_id": "Q7754155",
+   "wikipedia_page_id": 10940638,
+   "title": "La lunga notte (miniserie televisiva)",
+   "year": 1983,
+   "verdict": "series",
+   "subtype": "title_marks_series",
+   "confidence": "medium",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "title suffix marks a series: (miniserie televisiva)"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q113580693",
+   "wikipedia_page_id": 11054305,
+   "title": "Romantic Killer",
+   "year": 2019,
+   "verdict": "series",
+   "subtype": "manga",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q21198342 (manga), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q140068549",
+   "wikipedia_page_id": 11066795,
+   "title": "Michael Jackson: il verdetto",
+   "year": null,
+   "verdict": "series",
+   "subtype": "tv_series",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q5398426 (tv_series), no film class"
+   ],
+   "manual": false
+  },
+  {
+   "film_id": "Q141437984",
+   "wikipedia_page_id": 11198351,
+   "title": "Cortometraggi di Ari Aster",
+   "year": null,
+   "verdict": "topic",
+   "subtype": "list_article",
+   "confidence": "high",
+   "reasons": [
+    "included only for a 'Film ...' category (no {{Film}} infobox)",
+    "P31=Q13406463 (list_article)"
+   ],
+   "manual": false
+  }
+ ]
+}

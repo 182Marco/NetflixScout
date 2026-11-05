@@ -1,0 +1,83 @@
+{
+ "version": 1,
+ "seed": 20261104,
+ "strata": {
+  "tv_film": {
+   "population": 735,
+   "sample": 60,
+   "certain_false_positives": {
+    "Q9262969": "miniserie in 4 puntate (Uccelli di rovo)"
+   },
+   "borderline": {
+    "Q61184609": "intervista TV di 25 minuti, non un film"
+   },
+   "rate": 1.7,
+   "ci95_pct": [
+    0.3,
+    8.9
+   ],
+   "estimated_false_positives": 12,
+   "estimated_range": [
+    2,
+    65
+   ]
+  },
+  "feature": {
+   "population": 301,
+   "sample": 40,
+   "certain_false_positives": {},
+   "borderline": {
+    "Q3794237": "Il giovane Mussolini: probabile miniserie TV in due parti",
+    "Q86662229": "Vette di libertà: forse film TV, nessun dato di regia"
+   },
+   "rate": 0.0,
+   "ci95_pct": [
+    0.0,
+    8.8
+   ],
+   "estimated_false_positives": 0,
+   "estimated_range": [
+    0,
+    26
+   ]
+  },
+  "animated": {
+   "population": 180,
+   "sample": 30,
+   "certain_false_positives": {},
+   "borderline": {},
+   "rate": 0.0,
+   "ci95_pct": [
+    0.0,
+    11.4
+   ],
+   "estimated_false_positives": 0,
+   "estimated_range": [
+    0,
+    20
+   ]
+  },
+  "other": {
+   "population": 103,
+   "sample": 103,
+   "certain_false_positives": {
+    "Q140393354": "Lobo Paramilitary Christmas Special: è un fumetto"
+   },
+   "borderline": {
+    "Q138800393": "2 Girls 1 Cup: video virale di 1 minuto, non un film",
+    "Q1473406": "Rabbits: serie web di Lynch montata in un'opera",
+    "Q139898922": "Grachi Sweet 16: puntata speciale di una serie TV"
+   },
+   "rate": 1.0,
+   "ci95_pct": [
+    1.0,
+    1.0
+   ],
+   "estimated_false_positives": 1,
+   "estimated_range": [
+    1,
+    1
+   ]
+  }
+ }
+}

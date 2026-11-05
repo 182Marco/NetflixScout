@@ -1,0 +1,336 @@
+{
+ "version": 1,
+ "meaning": "film-verdict records whose Wikidata P31 also carries a series/miniseries/manga class: candidate hybrid works, NOT excluded",
+ "groups": {
+  "A_miniserie+film_TV": [
+   {
+    "film_id": "Q3937683",
+    "title": "Ritratto di donna velata",
+    "year": 1975,
+    "duration": null,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q3931217",
+    "title": "Rebecca (film 1979)",
+    "year": 1979,
+    "duration": 55,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q2322509",
+    "title": "Anna dai capelli rossi - Il sequel",
+    "year": 1987,
+    "duration": 230,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q3870500",
+    "title": "Naso di cane",
+    "year": 1986,
+    "duration": null,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q1613225",
+    "title": "Anne of Green Gables: A New Beginning",
+    "year": 2008,
+    "duration": 144,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q9262969",
+    "title": "Uccelli di rovo",
+    "year": 1983,
+    "duration": null,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q248392",
+    "title": "Il processo di Norimberga",
+    "year": 2000,
+    "duration": 180,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q662261",
+    "title": "Karol - Un papa rimasto uomo",
+    "year": 2006,
+    "duration": 155,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q3888794",
+    "title": "Padre Pio - Tra cielo e terra",
+    "year": 2000,
+    "duration": null,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q660237",
+    "title": "Alice nel Paese delle Meraviglie (film 1999)",
+    "year": 1999,
+    "duration": 150,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q481467",
+    "title": "Il mondo sul filo",
+    "year": 1973,
+    "duration": null,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q2450626",
+    "title": "L'isola misteriosa (film 2005)",
+    "year": 2005,
+    "duration": 172,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q3790374",
+    "title": "I Nicotera",
+    "year": 1972,
+    "duration": null,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q565293",
+    "title": "La storia di Anne Frank",
+    "year": 2001,
+    "duration": 189,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q228396",
+    "title": "Atomic Train - Disastro ad alta velocità",
+    "year": 1999,
+    "duration": 164,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q2095183",
+    "title": "Fingersmith",
+    "year": 2005,
+    "duration": null,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q902821",
+    "title": "Bravo Two Zero (film)",
+    "year": 1999,
+    "duration": 114,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q538952",
+    "title": "Attila, l'unno",
+    "year": 2001,
+    "duration": 177,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q2421745",
+    "title": "Aftershock - Terremoto a New York",
+    "year": 1999,
+    "duration": 170,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q4754259",
+    "title": "Andersonville (film)",
+    "year": 1996,
+    "duration": 167,
+    "confidence": "high"
+   }
+  ],
+  "B_miniserie+altro_film": [
+   {
+    "film_id": "Q3249691",
+    "title": "Heimat (film)",
+    "year": 1984,
+    "duration": 924,
+    "confidence": "high"
+   },
+   {
+    "film_id": "Q733823",
+    "title": "Fascist Legacy",
+    "year": 1989,
+    "duration": null,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q2091643",
+    "title": "Amore di perdizione",
+    "year": 1978,
+    "duration": 262,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q1964231",
+    "title": "Oblomov (film)",
+    "year": 1980,
+    "duration": 140,
+    "confidence": "high"
+   },
+   {
+    "film_id": "Q2986126",
+    "title": "Come Yukong spostò le montagne",
+    "year": 1976,
+    "duration": 763,
+    "confidence": "high"
+   },
+   {
+    "film_id": "Q46995368",
+    "title": "LEGO Jurassic World: L'evasione di Indominus Rex",
+    "year": 2016,
+    "duration": 24,
+    "confidence": "high"
+   },
+   {
+    "film_id": "Q22986649",
+    "title": "Riphagen",
+    "year": 2016,
+    "duration": 130,
+    "confidence": "high"
+   },
+   {
+    "film_id": "Q7258905",
+    "title": "Emel'jan Pugačёv",
+    "year": 1979,
+    "duration": 147,
+    "confidence": "high"
+   },
+   {
+    "film_id": "Q111420354",
+    "title": "Errore fatale (film 1992)",
+    "year": null,
+    "duration": 200,
+    "confidence": "manual"
+   }
+  ],
+  "C_manga/anime_classes": [
+   {
+    "film_id": "Q2608646",
+    "title": "Phantom Blood",
+    "year": 2007,
+    "duration": 91,
+    "confidence": "high"
+   },
+   {
+    "film_id": "Q2542211",
+    "title": "Demon City Shinjuku, la città dei mostri",
+    "year": null,
+    "duration": null,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q980413",
+    "title": "Pat, la ragazza del baseball",
+    "year": 1977,
+    "duration": null,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q2699416",
+    "title": "Fujimi-nichōme kōkyō gakudan",
+    "year": 2012,
+    "duration": 83,
+    "confidence": "high"
+   },
+   {
+    "film_id": "Q2077536",
+    "title": "Crusher Joe",
+    "year": 1983,
+    "duration": 132,
+    "confidence": "high"
+   },
+   {
+    "film_id": "Q2067724",
+    "title": "Sukeban deka",
+    "year": 1987,
+    "duration": null,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q11311160",
+    "title": "Sweet Poolside",
+    "year": 2004,
+    "duration": 103,
+    "confidence": "high"
+   }
+  ],
+  "D_tv_series_class": [
+   {
+    "film_id": "Q3055315",
+    "title": "Conversazioni private",
+    "year": 1996,
+    "duration": 200,
+    "confidence": "high"
+   },
+   {
+    "film_id": "Q3790916",
+    "title": "I guardiani del cielo",
+    "year": 2004,
+    "duration": null,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q5359283",
+    "title": "Tomie: Another Face",
+    "year": 1999,
+    "duration": 72,
+    "confidence": "high"
+   },
+   {
+    "film_id": "Q3855269",
+    "title": "Mesih",
+    "year": 2007,
+    "duration": 100,
+    "confidence": "high"
+   },
+   {
+    "film_id": "Q13435381",
+    "title": "Carlo e Diana - Una storia d'amore",
+    "year": 1982,
+    "duration": null,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q17479060",
+    "title": "Miss Marple nei Caraibi (film)",
+    "year": 1983,
+    "duration": 92,
+    "confidence": "medium"
+   },
+   {
+    "film_id": "Q5507059",
+    "title": "Un mare di guai (film 1995)",
+    "year": null,
+    "duration": null,
+    "confidence": "manual"
+   },
+   {
+    "film_id": "Q115563567",
+    "title": "È solo acqua e vento",
+    "year": null,
+    "duration": null,
+    "confidence": "manual"
+   },
+   {
+    "film_id": "Q5228936",
+    "title": "Unge Andersen",
+    "year": 2005,
+    "duration": 120,
+    "confidence": "high"
+   },
+   {
+    "film_id": "Q106912386",
+    "title": "102 Boulevard Haussmann",
+    "year": null,
+    "duration": null,
+    "confidence": "manual"
+   }
+  ]
+ }
+}

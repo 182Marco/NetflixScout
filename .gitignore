@@ -90,3 +90,16 @@ movie_db/data/*
 
 # Local binaries (the Qdrant server is placed here, see scripts/start_qdrant.sh)
 /bin/
+
+# =========================
+# RAGWikipedia* pipelines (tool/RAGWikipediaFilm, tool/RAGWikipediaSeries)
+# data/ (dumps, snapshots, scans, harvests, units) is already ignored by the global `data/` rule above.
+# Versioned on purpose: code, config, tests, manifests, audit decisions, reports (*.md) and the
+# small summary files. Ignored: caches that are rebuilt on demand and bulky per-query dumps.
+# =========================
+tool/RAGWikipedia*/eval/cache/
+tool/RAGWikipedia*/eval/results/*retrieval.jsonl
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.part

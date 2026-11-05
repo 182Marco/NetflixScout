@@ -1,0 +1,1505 @@
+{
+ "shared_imdb_id": {
+  "tt0078788": [
+   {
+    "film_id": "Q182692",
+    "title": "Apocalypse Now",
+    "year": 1979
+   },
+   {
+    "film_id": "Q3620669",
+    "title": "Apocalypse Now Redux",
+    "year": 2001
+   }
+  ],
+  "tt0483403": [
+   {
+    "film_id": "Q106601048",
+    "title": "Dreams Realized",
+    "year": 1915
+   },
+   {
+    "film_id": "Q106765702",
+    "title": "In the Vale of Sorrow",
+    "year": 1915
+   }
+  ]
+ },
+ "same_title_and_year": [
+  [
+   {
+    "film_id": "Q4025310",
+    "title": "È primavera...",
+    "year": 1950
+   },
+   {
+    "film_id": "Q29440037",
+    "title": "È primavera",
+    "year": 1950
+   }
+  ]
+ ],
+ "identical_synopsis_groups": {
+  "groups": 10,
+  "films": 66,
+  "examples": [
+   [
+    {
+     "film_id": "Q3472423",
+     "title": "Senza famiglia (film 1934)",
+     "year": 1934
+    },
+    {
+     "film_id": "Q65128234",
+     "title": "Senza famiglia (film 1913)",
+     "year": 1913
+    },
+    {
+     "film_id": "Q56849271",
+     "title": "Senza famiglia (film 1925)",
+     "year": 1925
+    },
+    {
+     "film_id": "Q3472419",
+     "title": "Senza famiglia (film 1958)",
+     "year": 1958
+    }
+   ],
+   [
+    {
+     "film_id": "Q1251157",
+     "title": "La spada e la rosa",
+     "year": 1953
+    },
+    {
+     "film_id": "Q4019347",
+     "title": "When Knighthood Was in Flower (film 1908)",
+     "year": 1908
+    },
+    {
+     "film_id": "Q581317",
+     "title": "Armi ed amori",
+     "year": 1922
+    }
+   ],
+   [
+    {
+     "film_id": "Q1751143",
+     "title": "Ramona (film 1910)",
+     "year": 1910
+    },
+    {
+     "film_id": "Q1751556",
+     "title": "Ramona (film 1928)",
+     "year": 1928
+    },
+    {
+     "film_id": "Q3929915",
+     "title": "Ramona (film 1916)",
+     "year": 1916
+    },
+    {
+     "film_id": "Q3418551",
+     "title": "Ramona (film 1936)",
+     "year": 1936
+    }
+   ],
+   [
+    {
+     "film_id": "Q3988283",
+     "title": "The Merchant of Venice (film 1914)",
+     "year": 1914
+    },
+    {
+     "film_id": "Q7751039",
+     "title": "The Merchant of Venice (film 1916)",
+     "year": 1916
+    },
+    {
+     "film_id": "Q60839324",
+     "title": "The Merchant of Venice (film 1947)",
+     "year": 1947
+    },
+    {
+     "film_id": "Q60839326",
+     "title": "The Merchant of Venice (film 1955)",
+     "year": 1955
+    },
+    {
+     "film_id": "Q60839334",
+     "title": "The Merchant of Venice (film 1972)",
+     "year": 1972
+    },
+    {
+     "film_id": "Q6051141",
+     "title": "Il mercante di Venezia (film 1973)",
+     "year": 1973
+    },
+    {
+     "film_id": "Q60839443",
+     "title": "The Merchant of Venice (film 1996)",
+     "year": 1996
+    },
+    {
+     "film_id": "Q60854353",
+     "title": "Venetsian kauppias",
+     "year": 1968
+    },
+    {
+     "film_id": "Q60854355",
+     "title": "El mercader de Venecia (film 1967)",
+     "year": 1967
+    },
+    {
+     "film_id": "Q60854356",
+     "title": "El mercader de Venecia (film 1981)",
+     "year": 1981
+    },
+    {
+     "film_id": "Q60854357",
+     "title": "Der Kaufmann von Venedig (film 1968)",
+     "year": 1968
+    },
+    {
+     "film_id": "Q60854359",
+     "title": "Der Kaufmann von Venedig (film 1990)",
+     "year": 1990
+    },
+    {
+     "film_id": "Q60854360",
+     "title": "Der Kaufmann von Venedig (film 2004)",
+     "year": 2004
+    }
+   ],
+   [
+    {
+     "film_id": "Q3224554",
+     "title": "The Millionaire (film 1931)",
+     "year": 1931
+    },
+    {
+     "film_id": "Q3989102",
+     "title": "Capricci di miliardario",
+     "year": 1922
+    }
+   ],
+   [
+    {
+     "film_id": "Q3549210",
+     "title": "Uncle Tom's Cabin (film 1910 O'Neil)",
+     "year": 1910
+    },
+    {
+     "film_id": "Q3549212",
+     "title": "Uncle Tom's Cabin (film 1913 Olcott)",
+     "year": 1913
+    },
+    {
+     "film_id": "Q60840575",
+     "title": "Uncle Tom's Cabin (film 1903 Lubin)",
+     "year": 1903
+    },
+    {
+     "film_id": "Q60840578",
+     "title": "Uncle Tom's Cabin (film 1903 Porter)",
+     "year": 1903
+    },
+    {
+     "film_id": "Q3549214",
+     "title": "Uncle Tom's Cabin (film 1913 Turner)",
+     "year": 1913
+    },
+    {
+     "film_id": "Q3549217",
+     "title": "Uncle Tom's Cabin (film 1914)",
+     "year": 1914
+    }
+   ],
+   [
+    {
+     "film_id": "Q181221",
+     "title": "A Christmas Carol (film 1910)",
+     "year": 1910
+    },
+    {
+     "film_id": "Q427251",
+     "title": "The Christmas Carol",
+     "year": 1949
+    },
+    {
+     "film_id": "Q181242",
+     "title": "A Christmas Carol (film 1908)",
+     "year": 1908
+    },
+    {
+     "film_id": "Q7439291",
+     "title": "Scrooge (film 1913)",
+     "year": 1913
+    },
+    {
+     "film_id": "Q151977",
+     "title": "Scrooge (film 1935)",
+     "year": 1935
+    },
+    {
+     "film_id": "Q60839909",
+     "title": "Scrooge (film 1923)",
+     "year": 1923
+    },
+    {
+     "film_id": "Q59444800",
+     "title": "A Christmas Carol (film 1914)",
+     "year": 1914
+    },
+    {
+     "film_id": "Q60839935",
+     "title": "Scrooge (film 1928)",
+     "year": 1928
+    },
+    {
+     "film_id": "Q181248",
+     "title": "A Christmas Carol (film 1938)",
+     "year": 1938
+    },
+    {
+     "film_id": "Q60854458",
+     "title": "A Christmas Carol (film 1947)",
+     "year": 1947
+    },
+    {
+     "film_id": "Q60854456",
+     "title": "A Christmas Carol (film 1952)",
+     "year": 1952
+    },
+    {
+     "film_id": "Q4655897",
+     "title": "A Christmas Carol (film 1954)",
+     "year": 1954
+    },
+    {
+     "film_id": "Q60839949",
+     "title": "A Christmas Carol (film 1959)",
+     "year": 1959
+    },
+    {
+     "film_id": "Q60854466",
+     "title": "Mr. Scrooge",
+     "year": 1964
+    },
+    {
+     "film_id": "Q19976303",
+     "title": "A Christmas Carol (film 1977)",
+     "year": 1977
+    },
+    {
+     "film_id": "Q60854472",
+     "title": "Il sogno dell'usuraio",
+     "year": 1910
+    },
+    {
+     "film_id": "Q60840124",
+     "title": "Scrooge (film 1922)",
+     "year": 1922
+    },
+    {
+     "film_id": "Q60854476",
+     "title": "Leyenda de Navidad (film 1947)",
+     "year": 1947
+    },
+    {
+     "film_id": "Q60854483",
+     "title": "A Christmas Carol (film 1943)",
+     "year": 1943
+    },
+    {
+     "film_id": "Q60854484",
+     "title": "A Christmas Carol (film 1944)",
+     "year": 1944
+    },
+    {
+     "film_id": "Q60854485",
+     "title": "A Christmas Carol (film 1945)",
+     "year": 1945
+    },
+    {
+     "film_id": "Q51591042",
+     "title": "A Christmas Carol (film 1948)",
+     "year": 1948
+    },
+    {
+     "film_id": "Q51622947",
+     "title": "A Christmas Carol (film 1951)",
+     "year": 1951
+    },
+    {
+     "film_id": "Q60854490",
+     "title": "A Christmas Carol (film 1953)",
+     "year": 1953
+    }
+   ],
+   [
+    {
+     "film_id": "Q3707067",
+     "title": "La signora del mondo (3º episodio)",
+     "year": 1919
+    },
+    {
+     "film_id": "Q1213389",
+     "title": "La signora del mondo",
+     "year": 1919
+    },
+    {
+     "film_id": "Q3707068",
+     "title": "Il re Makomba",
+     "year": 1919
+    },
+    {
+     "film_id": "Q3707070",
+     "title": "La miliardaria (film 1920)",
+     "year": 1920
+    },
+    {
+     "film_id": "Q3707063",
+     "title": "La benefattrice dell'umanità",
+     "year": 1920
+    },
+    {
+     "film_id": "Q3707071",
+     "title": "La vendetta di Maud",
+     "year": 1920
+    }
+   ],
+   [
+    {
+     "film_id": "Q11251283",
+     "title": "Non disturbare il can che dorme (film 1957)",
+     "year": 1957
+    },
+    {
+     "film_id": "Q4043226",
+     "title": "Non disturbare il can che dorme (film 1949)",
+     "year": 1950
+    }
+   ],
+   [
+    {
+     "film_id": "Q23899947",
+     "title": "Dokuritsu shonen gasshoudan",
+     "year": 2000
+    },
+    {
+     "film_id": "Q43303192",
+     "title": "Boy's Choir",
+     "year": 2000
+    }
+   ]
+  ]
+ },
+ "title_year_differs_from_year": [
+  {
+   "film_id": "Q3820880",
+   "title": "La Gioconda (film 1912)",
+   "year": 1910,
+   "title_year": 1912
+  },
+  {
+   "film_id": "Q3823663",
+   "title": "La presidentessa (film 1952)",
+   "year": 1950,
+   "title_year": 1952
+  },
+  {
+   "film_id": "Q2444226",
+   "title": "Tornado (film 2003)",
+   "year": 2005,
+   "title_year": 2003
+  },
+  {
+   "film_id": "Q3418851",
+   "title": "Il fare politica - Cronaca della Toscana rossa (1982-2004)",
+   "year": 2005,
+   "title_year": 1982
+  },
+  {
+   "film_id": "Q431725",
+   "title": "Tokyo Tower (film 2005)",
+   "year": 2001,
+   "title_year": 2005
+  },
+  {
+   "film_id": "Q3992547",
+   "title": "Tom and Jerry (serie di cortometraggi anni 1920)",
+   "year": 1923,
+   "title_year": 1920
+  },
+  {
+   "film_id": "Q3986052",
+   "title": "The Boomerang (film 1913 Ince)",
+   "year": 1916,
+   "title_year": 1913
+  },
+  {
+   "film_id": "Q474141",
+   "title": "L'adolescente (film 1999)",
+   "year": 1975,
+   "title_year": 1999
+  },
+  {
+   "film_id": "Q20026760",
+   "title": "The Far Country (film 1916)",
+   "year": 1914,
+   "title_year": 1916
+  },
+  {
+   "film_id": "Q5270146",
+   "title": "Il diavolo (film 1972)",
+   "year": 1988,
+   "title_year": 1972
+  },
+  {
+   "film_id": "Q28229499",
+   "title": "Una questione privata (film 1991)",
+   "year": 1993,
+   "title_year": 1991
+  },
+  {
+   "film_id": "Q48673900",
+   "title": "Paradise Alley (film 1962)",
+   "year": 1958,
+   "title_year": 1962
+  },
+  {
+   "film_id": "Q4912006",
+   "title": "La miliardaria (film 1922)",
+   "year": 1920,
+   "title_year": 1922
+  },
+  {
+   "film_id": "Q116947392",
+   "title": "Do Not Disturb (film 2023)",
+   "year": 1923,
+   "title_year": 2023
+  },
+  {
+   "film_id": "Q5267342",
+   "title": "Il diavolo in corpo (film 1986)",
+   "year": 1989,
+   "title_year": 1986
+  }
+ ],
+ "year_missing_but_in_title": [
+  {
+   "film_id": "Q1247168",
+   "title": "Radici (miniserie televisiva 1977)",
+   "year": null,
+   "title_year": 1977
+  },
+  {
+   "film_id": "Q319123",
+   "title": "L'isola del tesoro (miniserie televisiva 1987)",
+   "year": null,
+   "title_year": 1987
+  },
+  {
+   "film_id": "Q3699447",
+   "title": "Cuore (miniserie televisiva 2001)",
+   "year": null,
+   "title_year": 2001
+  },
+  {
+   "film_id": "Q28531731",
+   "title": "Senza confini (miniserie televisiva 2001)",
+   "year": null,
+   "title_year": 2001
+  },
+  {
+   "film_id": "Q5507059",
+   "title": "Un mare di guai (film 1995)",
+   "year": null,
+   "title_year": 1995
+  },
+  {
+   "film_id": "Q110474651",
+   "title": "Turandot (film 1974)",
+   "year": null,
+   "title_year": 1974
+  },
+  {
+   "film_id": "Q108777645",
+   "title": "Ruby (film 2021)",
+   "year": null,
+   "title_year": 2021
+  },
+  {
+   "film_id": "Q453971",
+   "title": "Heidi (serie televisiva 1978)",
+   "year": null,
+   "title_year": 1978
+  },
+  {
+   "film_id": "Q111420354",
+   "title": "Errore fatale (film 1992)",
+   "year": null,
+   "title_year": 1992
+  },
+  {
+   "film_id": "Q17216151",
+   "title": "Piccole donne (film 1980)",
+   "year": null,
+   "title_year": 1980
+  },
+  {
+   "film_id": "Q123909922",
+   "title": "Napoli milionaria! (film 2023)",
+   "year": null,
+   "title_year": 2023
+  },
+  {
+   "film_id": "Q124285710",
+   "title": "Un americano alla corte di re Artù (film 1970)",
+   "year": null,
+   "title_year": 1970
+  },
+  {
+   "film_id": "Q124285707",
+   "title": "La leggenda di Robin Hood (film 1971)",
+   "year": null,
+   "title_year": 1971
+  },
+  {
+   "film_id": "Q124285705",
+   "title": "L'isola del tesoro (film 1971)",
+   "year": null,
+   "title_year": 1971
+  },
+  {
+   "film_id": "Q124309787",
+   "title": "Robinson Crusoe (film 1972)",
+   "year": null,
+   "title_year": 1972
+  },
+  {
+   "film_id": "Q124309786",
+   "title": "Il principe e il povero (film 1972)",
+   "year": null,
+   "title_year": 1972
+  },
+  {
+   "film_id": "Q124473504",
+   "title": "L'isola misteriosa (film 1975)",
+   "year": null,
+   "title_year": 1975
+  },
+  {
+   "film_id": "Q124964101",
+   "title": "Ivanhoe (film 1975)",
+   "year": null,
+   "title_year": 1975
+  },
+  {
+   "film_id": "Q137771325",
+   "title": "La tela del ragno (film 1980)",
+   "year": null,
+   "title_year": 1980
+  },
+  {
+   "film_id": "wp-10994120",
+   "title": "Dalla Terra alla Luna (film 1979)",
+   "year": null,
+   "title_year": 1979
+  }
+ ],
+ "infobox_year_far_from_wikidata_year": [
+  {
+   "film_id": "Q140393354",
+   "title": "Lobo Paramilitary - Sangue a Natale",
+   "year": 1992,
+   "infobox_year": 2002
+  },
+  {
+   "film_id": "Q3960424",
+   "title": "Signorina Effe",
+   "year": 2001,
+   "infobox_year": 2007
+  },
+  {
+   "film_id": "Q3927047",
+   "title": "Quante volte... quella notte",
+   "year": 1976,
+   "infobox_year": 1972
+  },
+  {
+   "film_id": "Q3681225",
+   "title": "Clover (Toriko Chiya)",
+   "year": 1997,
+   "infobox_year": 2014
+  },
+  {
+   "film_id": "Q3793346",
+   "title": "Il caso dell'infedele Klara",
+   "year": 2002,
+   "infobox_year": 2009
+  },
+  {
+   "film_id": "Q3786944",
+   "title": "Hotel Hibiscus",
+   "year": 1986,
+   "infobox_year": 2002
+  },
+  {
+   "film_id": "Q1306481",
+   "title": "Una gita in campagna",
+   "year": 1946,
+   "infobox_year": 1936
+  },
+  {
+   "film_id": "Q3848139",
+   "title": "Marinai senza stelle",
+   "year": 1943,
+   "infobox_year": 1949
+  },
+  {
+   "film_id": "Q4006663",
+   "title": "Ustica - Una spina nel cuore",
+   "year": 2001,
+   "infobox_year": 2009
+  },
+  {
+   "film_id": "Q3625601",
+   "title": "Assi alla ribalta",
+   "year": 1954,
+   "infobox_year": 1959
+  },
+  {
+   "film_id": "Q1775616",
+   "title": "Il vento dell'Amnesia",
+   "year": 1983,
+   "infobox_year": 1990
+  },
+  {
+   "film_id": "Q1661939",
+   "title": "Ehrengard",
+   "year": 1986,
+   "infobox_year": 1982
+  },
+  {
+   "film_id": "Q3822701",
+   "title": "La guerra sul fronte Est",
+   "year": 1981,
+   "infobox_year": 1970
+  },
+  {
+   "film_id": "Q1198219",
+   "title": "Destino cieco",
+   "year": 1987,
+   "infobox_year": 1981
+  },
+  {
+   "film_id": "Q2476568",
+   "title": "La notte degli spettri",
+   "year": 1984,
+   "infobox_year": 1959
+  },
+  {
+   "film_id": "Q3901975",
+   "title": "Piano... forte",
+   "year": 1934,
+   "infobox_year": 1947
+  },
+  {
+   "film_id": "Q978131",
+   "title": "Un eroe per il terrore",
+   "year": 1988,
+   "infobox_year": 1998
+  },
+  {
+   "film_id": "Q431725",
+   "title": "Tokyo Tower (film 2005)",
+   "year": 2001,
+   "infobox_year": 2005
+  },
+  {
+   "film_id": "Q3898494",
+   "title": "Peccati d'estate",
+   "year": 1956,
+   "infobox_year": 1962
+  },
+  {
+   "film_id": "Q2368301",
+   "title": "Lucifer Rising",
+   "year": 1972,
+   "infobox_year": 1980
+  },
+  {
+   "film_id": "Q3714724",
+   "title": "Dove vai senza mutandine?",
+   "year": 1975,
+   "infobox_year": 1970
+  },
+  {
+   "film_id": "Q2091781",
+   "title": "Conversazione privata",
+   "year": 1982,
+   "infobox_year": 2015
+  },
+  {
+   "film_id": "Q1318537",
+   "title": "Uta no Prince-sama",
+   "year": 2010,
+   "infobox_year": 2019
+  },
+  {
+   "film_id": "Q474141",
+   "title": "L'adolescente (film 1999)",
+   "year": 1975,
+   "infobox_year": 1999
+  },
+  {
+   "film_id": "Q3561887",
+   "title": "Vladimir et Rosa",
+   "year": 1977,
+   "infobox_year": 1970
+  },
+  {
+   "film_id": "Q6458502",
+   "title": "One American Movie",
+   "year": 1968,
+   "infobox_year": 1972
+  },
+  {
+   "film_id": "Q15689261",
+   "title": "The Little House",
+   "year": 2010,
+   "infobox_year": 2014
+  },
+  {
+   "film_id": "Q11311160",
+   "title": "Sweet Poolside",
+   "year": 2004,
+   "infobox_year": 2014
+  },
+  {
+   "film_id": "Q18560308",
+   "title": "Amore e libertà - Masaniello",
+   "year": 2001,
+   "infobox_year": 2006
+  },
+  {
+   "film_id": "Q20279137",
+   "title": "Dolce di latte",
+   "year": 2008,
+   "infobox_year": 2014
+  },
+  {
+   "film_id": "Q934970",
+   "title": "Le Roi et l'Oiseau",
+   "year": 1980,
+   "infobox_year": 1952
+  },
+  {
+   "film_id": "Q4967450",
+   "title": "Bright Lights (film 1925)",
+   "year": 1925,
+   "infobox_year": 1916
+  },
+  {
+   "film_id": "Q3224980",
+   "title": "Il naufrago del Pacifico",
+   "year": 1951,
+   "infobox_year": 1962
+  },
+  {
+   "film_id": "Q23899971",
+   "title": "Se sarà luce sarà bellissimo",
+   "year": 2004,
+   "infobox_year": 2008
+  },
+  {
+   "film_id": "Q5270146",
+   "title": "Il diavolo (film 1972)",
+   "year": 1988,
+   "infobox_year": 1972
+  },
+  {
+   "film_id": "Q18708995",
+   "title": "Lime Kiln Club Field Day",
+   "year": 1913,
+   "infobox_year": 2014
+  },
+  {
+   "film_id": "Q810881",
+   "title": "Bat Pussy",
+   "year": 1996,
+   "infobox_year": 1973
+  },
+  {
+   "film_id": "Q12125127",
+   "title": "Contrabbando a Shanghai",
+   "year": 1941,
+   "infobox_year": 1947
+  },
+  {
+   "film_id": "Q18709090",
+   "title": "The Call of the Cumberlands",
+   "year": 1916,
+   "infobox_year": 1923
+  },
+  {
+   "film_id": "Q3536311",
+   "title": "The Tracker",
+   "year": 2010,
+   "infobox_year": 2002
+  },
+  {
+   "film_id": "Q7763686",
+   "title": "The Shark is Still Working",
+   "year": 2012,
+   "infobox_year": 2007
+  },
+  {
+   "film_id": "Q13499767",
+   "title": "Taddeo l'esploratore e il segreto di re Mida",
+   "year": 2012,
+   "infobox_year": 2017
+  },
+  {
+   "film_id": "Q3203506",
+   "title": "L'Hirondelle et la Mésange",
+   "year": 1920,
+   "infobox_year": 1924
+  },
+  {
+   "film_id": "Q4922595",
+   "title": "Blackbirds (film 1915)",
+   "year": 1915,
+   "infobox_year": 1920
+  },
+  {
+   "film_id": "Q48673900",
+   "title": "Paradise Alley (film 1962)",
+   "year": 1958,
+   "infobox_year": 1962
+  },
+  {
+   "film_id": "Q80359520",
+   "title": "Dorme",
+   "year": 2000,
+   "infobox_year": 1995
+  },
+  {
+   "film_id": "Q80109549",
+   "title": "Bad Black",
+   "year": 2010,
+   "infobox_year": 2016
+  },
+  {
+   "film_id": "Q99350477",
+   "title": "Generazioni d'amore - Le quattro Americhe di Fernanda Pivano",
+   "year": 2001,
+   "infobox_year": 2020
+  },
+  {
+   "film_id": "Q3196464",
+   "title": "Kierion",
+   "year": 1974,
+   "infobox_year": 1968
+  },
+  {
+   "film_id": "Q96374956",
+   "title": "Choked: Money Talks",
+   "year": 2020,
+   "infobox_year": 2009
+  },
+  {
+   "film_id": "Q520007",
+   "title": "Présentation ou Charlotte et son steak",
+   "year": 1951,
+   "infobox_year": 1961
+  },
+  {
+   "film_id": "Q107675028",
+   "title": "La scelta di Anne - L'Événement",
+   "year": 2002,
+   "infobox_year": 2021
+  },
+  {
+   "film_id": "Q60853756",
+   "title": "Selfie di famiglia",
+   "year": 2026,
+   "infobox_year": 2019
+  },
+  {
+   "film_id": "Q108908479",
+   "title": "Mio fratello, mia sorella",
+   "year": 1992,
+   "infobox_year": 2021
+  },
+  {
+   "film_id": "Q5557257",
+   "title": "Ghost in the Noonday Sun",
+   "year": 1973,
+   "infobox_year": 1985
+  },
+  {
+   "film_id": "Q17584895",
+   "title": "P&ME - Policeman and Me",
+   "year": 2012,
+   "infobox_year": 2017
+  },
+  {
+   "film_id": "Q42365235",
+   "title": "Tsurune",
+   "year": 2016,
+   "infobox_year": 2022
+  },
+  {
+   "film_id": "Q7160200",
+   "title": "An Exercise in Discipline: Peel",
+   "year": 1982,
+   "infobox_year": 1986
+  },
+  {
+   "film_id": "Q7733394",
+   "title": "The Fantasticks",
+   "year": 1995,
+   "infobox_year": 2000
+  },
+  {
+   "film_id": "Q116947392",
+   "title": "Do Not Disturb (film 2023)",
+   "year": 1923,
+   "infobox_year": 2023
+  },
+  {
+   "film_id": "Q123136789",
+   "title": "Amazonas, o maior rio do mundo",
+   "year": 1918,
+   "infobox_year": 1922
+  },
+  {
+   "film_id": "Q133885811",
+   "title": "Dangerous Animals",
+   "year": 2005,
+   "infobox_year": 2025
+  }
+ ],
+ "infobox_director_unrelated_to_wikidata_director": {
+  "count": 234,
+  "examples": [
+   {
+    "film_id": "Q464326",
+    "title": "Guerriero americano 5",
+    "year": 1993,
+    "infobox_director": "bobby jean leonard",
+    "wikidata_director": [
+     "Bob Bralver"
+    ]
+   },
+   {
+    "film_id": "Q2590524",
+    "title": "Mabel e Charlot venditori ambulanti",
+    "year": 1914,
+    "infobox_director": "mack sennett",
+    "wikidata_director": [
+     "Mabel Normand",
+     "Charlie Chaplin"
+    ]
+   },
+   {
+    "film_id": "Q2346217",
+    "title": "Charlot cerca marito",
+    "year": 1914,
+    "infobox_director": "mack sennett",
+    "wikidata_director": [
+     "Charlie Chaplin"
+    ]
+   },
+   {
+    "film_id": "Q2447133",
+    "title": "Mabel si marita",
+    "year": 1914,
+    "infobox_director": "mack sennett",
+    "wikidata_director": [
+     "Charlie Chaplin"
+    ]
+   },
+   {
+    "film_id": "Q1812066",
+    "title": "Charlot e la partita di boxe",
+    "year": 1914,
+    "infobox_director": "mack sennett",
+    "wikidata_director": [
+     "Charles Avery"
+    ]
+   },
+   {
+    "film_id": "Q603857",
+    "title": "11 settembre 2001 (film)",
+    "year": 2002,
+    "infobox_director": "vari",
+    "wikidata_director": [
+     "Samira Makhmalbaf",
+     "Claude Lelouch"
+    ]
+   },
+   {
+    "film_id": "Q3605104",
+    "title": "Addio giovinezza! (film 1913)",
+    "year": 1913,
+    "infobox_director": "sandro camasio",
+    "wikidata_director": [
+     "Nino Oxilia"
+    ]
+   },
+   {
+    "film_id": "Q2250632",
+    "title": "La vita è bella (film 1979)",
+    "year": 1979,
+    "infobox_director": "grigori chukhraj",
+    "wikidata_director": [
+     "Grigorij Čuchraj"
+    ]
+   },
+   {
+    "film_id": "Q3828511",
+    "title": "Le avventure di Pinocchio (film 1947)",
+    "year": 1947,
+    "infobox_director": "giannetto guardone",
+    "wikidata_director": [
+     "Giuseppe Zacconi"
+    ]
+   },
+   {
+    "film_id": "Q3899271",
+    "title": "Pentimento (film 1952)",
+    "year": 1952,
+    "infobox_director": "enzo di gianni",
+    "wikidata_director": [
+     "Mario Costa"
+    ]
+   },
+   {
+    "film_id": "Q3657868",
+    "title": "Capriccio veneziano",
+    "year": 2002,
+    "infobox_director": "vincent dawn",
+    "wikidata_director": [
+     "Bruno Mattei"
+    ]
+   },
+   {
+    "film_id": "Q712618",
+    "title": "Dragon Ball - Il film",
+    "year": 1991,
+    "infobox_director": "joe chan  leung chung",
+    "wikidata_director": [
+     "Chun-Liang Chen"
+    ]
+   },
+   {
+    "film_id": "Q1918038",
+    "title": "Ma mère",
+    "year": 2004,
+    "infobox_director": "martina dottori",
+    "wikidata_director": [
+     "Christophe Honoré"
+    ]
+   },
+   {
+    "film_id": "Q901145",
+    "title": "Interstella 5555",
+    "year": 2003,
+    "infobox_director": "kazuhisa takenochi",
+    "wikidata_director": [
+     "Leiji Matsumoto"
+    ]
+   },
+   {
+    "film_id": "Q818710",
+    "title": "Zorba il greco",
+    "year": 1964,
+    "infobox_director": "michael cacoyannis",
+    "wikidata_director": [
+     "Michális Kakogiánnis"
+    ]
+   },
+   {
+    "film_id": "Q572563",
+    "title": "36ª camera dello Shaolin",
+    "year": 1978,
+    "infobox_director": "liu chia liang",
+    "wikidata_director": [
+     "Lau Kar Leung"
+    ]
+   },
+   {
+    "film_id": "Q3650754",
+    "title": "Caligola - La storia mai raccontata",
+    "year": 1982,
+    "infobox_director": "david hills",
+    "wikidata_director": [
+     "Joe D'Amato"
+    ]
+   },
+   {
+    "film_id": "Q3232502",
+    "title": "I distruttori del tempio Shaolin",
+    "year": 1977,
+    "infobox_director": "chia liang liu",
+    "wikidata_director": [
+     "Lau Kar Leung"
+    ]
+   },
+   {
+    "film_id": "Q1261372",
+    "title": "Drunken Master 2",
+    "year": 1994,
+    "infobox_director": "chia liang liu liu chialiang  jackie cha",
+    "wikidata_director": [
+     "Lau Kar Leung"
+    ]
+   },
+   {
+    "film_id": "Q3795419",
+    "title": "Il ragazzo dal kimono d'oro",
+    "year": 1987,
+    "infobox_director": "larry ludman",
+    "wikidata_director": [
+     "Fabrizio De Angelis"
+    ]
+   },
+   {
+    "film_id": "Q3882112",
+    "title": "Ombre (film 1980)",
+    "year": 1980,
+    "infobox_director": "giorgio cavedon",
+    "wikidata_director": [
+     "Mario Caiano"
+    ]
+   },
+   {
+    "film_id": "Q309459",
+    "title": "Paradise Now (film)",
+    "year": 2005,
+    "infobox_director": "hany abu assad",
+    "wikidata_director": [
+     "Hānī ʾAbū ʾAsʿad"
+    ]
+   },
+   {
+    "film_id": "Q911013",
+    "title": "Prima della pioggia",
+    "year": 1994,
+    "infobox_director": "milco mancevski",
+    "wikidata_director": [
+     "Milcho Manchevski"
+    ]
+   },
+   {
+    "film_id": "Q615812",
+    "title": "Topolino gaucho",
+    "year": 1928,
+    "infobox_director": "ub iwerks",
+    "wikidata_director": [
+     "Walt Disney"
+    ]
+   },
+   {
+    "film_id": "Q2266404",
+    "title": "Karate Kiba",
+    "year": 1973,
+    "infobox_director": "simon nuchtern",
+    "wikidata_director": [
+     "Ryūichi Takamori"
+    ]
+   }
+  ]
+ },
+ "wp_fallback_id_no_wikidata_item": [
+  {
+   "film_id": "wp-1132041",
+   "title": "Holly e Benji: La grande sfida mondiale: Jr World Cup!",
+   "year": 1986
+  },
+  {
+   "film_id": "wp-3184109",
+   "title": "Superman-Batman - Nemici pubblici",
+   "year": null
+  },
+  {
+   "film_id": "wp-10571322",
+   "title": "Rivali in amore",
+   "year": 1935
+  },
+  {
+   "film_id": "wp-10591275",
+   "title": "Santa Lucia Luntana (film 1931)",
+   "year": 1931
+  },
+  {
+   "film_id": "wp-10848843",
+   "title": "Viananda",
+   "year": 2023
+  },
+  {
+   "film_id": "wp-10878734",
+   "title": "Cinema protogiallo",
+   "year": null
+  },
+  {
+   "film_id": "wp-10888720",
+   "title": "Cine-settimana",
+   "year": null
+  },
+  {
+   "film_id": "wp-10892086",
+   "title": "Lo sguardo nascosto",
+   "year": 2004
+  },
+  {
+   "film_id": "wp-10918582",
+   "title": "Krimi (cinema)",
+   "year": null
+  },
+  {
+   "film_id": "wp-10924819",
+   "title": "La botta grossa",
+   "year": 2017
+  },
+  {
+   "film_id": "wp-10957970",
+   "title": "Angelus Tenebrarum",
+   "year": 2026
+  },
+  {
+   "film_id": "wp-10982606",
+   "title": "Ritorno al tratturo",
+   "year": 2026
+  },
+  {
+   "film_id": "wp-10994120",
+   "title": "Dalla Terra alla Luna (film 1979)",
+   "year": null
+  },
+  {
+   "film_id": "wp-11020204",
+   "title": "Fourteen - Un anno dopo",
+   "year": 2003
+  },
+  {
+   "film_id": "wp-11045614",
+   "title": "Mimì, tutti ne parlano, io l'ho conosciuta",
+   "year": 2023
+  },
+  {
+   "film_id": "wp-11081712",
+   "title": "La valanga azzurra",
+   "year": 2024
+  },
+  {
+   "film_id": "wp-11084739",
+   "title": "Francesco Barilli - Il cinema e la follia",
+   "year": 2026
+  },
+  {
+   "film_id": "wp-11086890",
+   "title": "I paladini di Francia ovvero il tradimento di Gano di Maganza",
+   "year": 1960
+  },
+  {
+   "film_id": "wp-11087773",
+   "title": "Versa (film)",
+   "year": 2026
+  },
+  {
+   "film_id": "wp-11155624",
+   "title": "Le stanze di Verdi",
+   "year": 2025
+  },
+  {
+   "film_id": "wp-11202824",
+   "title": "I nisidiani",
+   "year": 2026
+  },
+  {
+   "film_id": "wp-11222152",
+   "title": "Il gioco del silenzio",
+   "year": 2026
+  },
+  {
+   "film_id": "wp-11226127",
+   "title": "Ciurè",
+   "year": 2022
+  },
+  {
+   "film_id": "wp-11250189",
+   "title": "The State of Us",
+   "year": 2026
+  },
+  {
+   "film_id": "wp-11251503",
+   "title": "Quello che resta di noi",
+   "year": 2026
+  },
+  {
+   "film_id": "wp-11255803",
+   "title": "Il rumore delle cose nuove",
+   "year": 2026
+  }
+ ],
+ "duration": {
+  "missing": 3624,
+  "under_5_min": 118,
+  "over_400_min": [
+   {
+    "film_id": "Q3249691",
+    "title": "Heimat (film)",
+    "year": 1984,
+    "minutes": 924
+   },
+   {
+    "film_id": "Q845176",
+    "title": "Guerra e pace (film 1966)",
+    "year": 1965,
+    "minutes": 432
+   },
+   {
+    "film_id": "Q3791186",
+    "title": "I promessi sposi (miniserie televisiva 1989)",
+    "year": 1989,
+    "minutes": 450
+   },
+   {
+    "film_id": "Q1720765",
+    "title": "Shoah (film)",
+    "year": 1985,
+    "minutes": 540
+   },
+   {
+    "film_id": "Q702858",
+    "title": "Olocausto (miniserie televisiva)",
+    "year": 1978,
+    "minutes": 475
+   },
+   {
+    "film_id": "Q2234803",
+    "title": "Le avventure di Paolina",
+    "year": 1914,
+    "minutes": 444
+   },
+   {
+    "film_id": "Q3821006",
+    "title": "Le nuove avventure di Judex",
+    "year": 1917,
+    "minutes": 420
+   },
+   {
+    "film_id": "Q3576744",
+    "title": "Il distretto di Tiexi",
+    "year": 2003,
+    "minutes": 551
+   },
+   {
+    "film_id": "Q3282266",
+    "title": "The Million Dollar Mystery",
+    "year": 1914,
+    "minutes": 511
+   },
+   {
+    "film_id": "Q53481",
+    "title": "Satantango",
+    "year": 1994,
+    "minutes": 450
+   },
+   {
+    "film_id": "Q16252413",
+    "title": "Il romanzo di un gentleman boxeur",
+    "year": 1922,
+    "minutes": 500
+   },
+   {
+    "film_id": "Q3210659",
+    "title": "Verdi (miniserie televisiva)",
+    "year": 1982,
+    "minutes": 630
+   },
+   {
+    "film_id": "Q3702411",
+    "title": "Dante nella vita e nei tempi suoi",
+    "year": 1922,
+    "minutes": 645
+   },
+   {
+    "film_id": "Q3704327",
+    "title": "Death in the Land of Encantos",
+    "year": 2007,
+    "minutes": 540
+   },
+   {
+    "film_id": "Q2085076",
+    "title": "Le Soulier de satin",
+    "year": 1985,
+    "minutes": 415
+   },
+   {
+    "film_id": "Q22074978",
+    "title": "Hele sa hiwagang hapis",
+    "year": 2016,
+    "minutes": 482
+   },
+   {
+    "film_id": "Q2986126",
+    "title": "Come Yukong spostò le montagne",
+    "year": 1976,
+    "minutes": 763
+   }
+  ]
+ },
+ "year_range": {
+  "year_2026_or_later": 188,
+  "before_1895": [
+   {
+    "film_id": "Q1128535",
+    "title": "Fred Ott's Sneeze",
+    "year": 1894
+   },
+   {
+    "film_id": "Q1854297",
+    "title": "Monkeyshines",
+    "year": 1889
+   },
+   {
+    "film_id": "Q2000314",
+    "title": "Un bon bock",
+    "year": 1892
+   },
+   {
+    "film_id": "Q979022",
+    "title": "Pauvre Pierrot",
+    "year": 1892
+   },
+   {
+    "film_id": "Q2443258",
+    "title": "Un rêve au coin du feu",
+    "year": 1894
+   },
+   {
+    "film_id": "Q2535572",
+    "title": "Autour d'une cabine",
+    "year": 1894
+   },
+   {
+    "film_id": "Q20992221",
+    "title": "Passage de Vénus",
+    "year": 1874
+   }
+  ]
+ },
+ "plot_heading_storia": {
+  "infobox": 29,
+  "category-only": 51
+ },
+ "director_missing": 665,
+ "cast_missing": 4029,
+ "imdb_missing": 492
+}

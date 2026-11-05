@@ -1,0 +1,199 @@
+{
+ "version": 1,
+ "meaning": "built by audit/reconcile.py from the approved decisions; read by audit/build_clean.py",
+ "reinstate": [
+  "Q11514891",
+  "Q1775616",
+  "Q21015465",
+  "Q2263018",
+  "Q3505872",
+  "Q43401515",
+  "Q567884",
+  "Q97369824"
+ ],
+ "extra_exclude": [
+  {
+   "film_id": "Q109512255",
+   "subtype": "approved",
+   "reason": "romanzo/manga/anime (la trama è del romanzo): pagina di franchise letterario"
+  },
+  {
+   "film_id": "Q140393354",
+   "subtype": "approved",
+   "reason": "Lobo Paramilitary Christmas Special: è un fumetto (falso positivo del campionamento, fase 5)"
+  },
+  {
+   "film_id": "Q2095040",
+   "subtype": "approved",
+   "reason": "serie anime breve (22 min): regista e produttore solo di serie; nessun IMDb"
+  },
+  {
+   "film_id": "Q2095183",
+   "subtype": "approved",
+   "reason": "miniserie BBC in 3 puntate: nessuna durata"
+  },
+  {
+   "film_id": "Q228396",
+   "subtype": "approved",
+   "reason": "miniserie NBC in due parti: 164 minuti in due serate"
+  },
+  {
+   "film_id": "Q2421745",
+   "subtype": "approved",
+   "reason": "miniserie NBC in due parti: 170 minuti in due serate"
+  },
+  {
+   "film_id": "Q248392",
+   "subtype": "approved",
+   "reason": "miniserie in due parti (TNT): 180 minuti trasmessi in due serate"
+  },
+  {
+   "film_id": "Q303425",
+   "subtype": "approved",
+   "reason": "serie anime (l'infobox descrive il film del 1999): trama della serie TV, 30 min = episodio"
+  },
+  {
+   "film_id": "Q3249691",
+   "subtype": "approved",
+   "reason": "serie TV in 11 parti (Heimat): 924 minuti"
+  },
+  {
+   "film_id": "Q3514707",
+   "subtype": "approved",
+   "reason": "OVA di 5 episodi: l'infobox dà «60 min (episodio) / 300 min (totale)»"
+  },
+  {
+   "film_id": "Q3790374",
+   "subtype": "approved",
+   "reason": "sceneggiato in più puntate: la trama dice «Lo sceneggiato narra…»"
+  },
+  {
+   "film_id": "Q3790916",
+   "subtype": "approved",
+   "reason": "miniserie RAI in due parti: nessuna durata"
+  },
+  {
+   "film_id": "Q3823845",
+   "subtype": "approved",
+   "reason": "miniserie TV cilena di Raúl Ruiz: uscita come serie TV; trama di 610 caratteri"
+  },
+  {
+   "film_id": "Q3870500",
+   "subtype": "approved",
+   "reason": "sceneggiato TV italiano (Squitieri): sceneggiato in più puntate secondo Wikidata; nessuna durata"
+  },
+  {
+   "film_id": "Q3888794",
+   "subtype": "approved",
+   "reason": "miniserie RAI in due parti: nessuna durata"
+  },
+  {
+   "film_id": "Q3931217",
+   "subtype": "approved",
+   "reason": "miniserie BBC in 4 puntate: 55 minuti = episodio"
+  },
+  {
+   "film_id": "Q42365235",
+   "subtype": "approved",
+   "reason": "serie anime (l'infobox descrive il film del 2022, 102 min): la sinossi inizia con «La serie parla…»"
+  },
+  {
+   "film_id": "Q495472",
+   "subtype": "approved",
+   "reason": "pagina sulla saga di 7 film: è una pagina di serie di film, trattata come argomento come le altre 9"
+  },
+  {
+   "film_id": "Q538952",
+   "subtype": "approved",
+   "reason": "miniserie USA Network in due parti: 177 minuti in due serate"
+  },
+  {
+   "film_id": "Q565293",
+   "subtype": "approved",
+   "reason": "miniserie ABC in due parti: 189 minuti in due serate"
+  },
+  {
+   "film_id": "Q666569",
+   "subtype": "approved",
+   "reason": "serie anime (l'infobox descrive il film «The Movie», 20 min): trama della serie TV Digimon Savers"
+  },
+  {
+   "film_id": "Q696346",
+   "subtype": "approved",
+   "reason": "serie anime (l'infobox descrive il film del 2001, 50 min): trama della serie TV Digimon Tamers"
+  },
+  {
+   "film_id": "Q697479",
+   "subtype": "approved",
+   "reason": "serie anime (l'infobox descrive il corto del 1995, 26 min): la trama è quella della serie TV; il corto «Quello stesso giorno a casa di Yū» esiste ma non è descritto dalla pagina"
+  },
+  {
+   "film_id": "Q7033459",
+   "subtype": "approved",
+   "reason": "seguito mai realizzato: descrive un progetto, non un'opera"
+  },
+  {
+   "film_id": "Q711139",
+   "subtype": "approved",
+   "reason": "serie anime (l'infobox descrive «Baldios – The Movie»): la trama cita puntate e serie"
+  },
+  {
+   "film_id": "Q714078",
+   "subtype": "approved",
+   "reason": "serie anime (l'infobox descrive il film del 1997, 30 min): 3.774 caratteri di trama della serie TV Toei"
+  },
+  {
+   "film_id": "Q715731",
+   "subtype": "approved",
+   "reason": "serie anime (l'infobox descrive il film del 2000, 65 min): trama della serie TV Digimon Adventure 02"
+  },
+  {
+   "film_id": "Q7365970",
+   "subtype": "approved",
+   "reason": "film mai realizzato (Lynch): descrive un progetto, non un'opera visibile"
+  },
+  {
+   "film_id": "Q7775852",
+   "subtype": "approved",
+   "reason": "film d'animazione incompiuto (1984, non uscito): non esiste un'opera fruibile; è una voce storica"
+  },
+  {
+   "film_id": "Q787081",
+   "subtype": "approved",
+   "reason": "serie anime (l'infobox descrive il film del 1996): trama di serie TV; nessuna durata"
+  },
+  {
+   "film_id": "Q7903650",
+   "subtype": "approved",
+   "reason": "miniserie tedesca in 3 puntate: l'infobox dà «135 min (episodio)»"
+  },
+  {
+   "film_id": "Q9262969",
+   "subtype": "approved",
+   "reason": "miniserie in 4 puntate (Uccelli di rovo): è l'esempio tipico"
+  },
+  {
+   "film_id": "Q980413",
+   "subtype": "approved",
+   "reason": "serie anime TV: nessun infobox, nessuna durata"
+  }
+ ],
+ "extra_unverified": [
+  "Q111420354",
+  "Q1775616",
+  "Q2067724",
+  "Q2263018",
+  "Q2322509",
+  "Q2986126",
+  "Q3937683",
+  "Q481467",
+  "Q567884",
+  "Q660237",
+  "Q662261",
+  "Q733823",
+  "Q97369824"
+ ],
+ "mark_verified": [
+  "Q626502"
+ ]
+}

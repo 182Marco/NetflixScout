@@ -1,0 +1,76 @@
+{"id": 1, "category": "A", "question": "Consigliami horror psicologici come Hereditary, ma senza possessioni demoniache o elementi soprannaturali", "issues": []}
+{"id": 2, "category": "A", "question": "Voglio un film di fantascienza filosofica come Interstellar, ma senza viaggi nel tempo", "issues": []}
+{"id": 3, "category": "A", "question": "Cerco thriller investigativi come Zodiac, ma senza serial killer", "issues": []}
+{"id": 4, "category": "A", "question": "Voglio un film di guerra realistico come Salvate il soldato Ryan, ma senza concentrarmi sulle battaglie", "issues": []}
+{"id": 5, "category": "A", "question": "Consigliami commedie nere come Fargo, ma senza umorismo grottesco", "issues": []}
+{"id": 6, "category": "A", "question": "Voglio fantascienza distopica come Blade Runner 2049, ma senza intelligenze artificiali", "issues": []}
+{"id": 7, "category": "A", "question": "Cerco horror claustrofobici come The Descent, ma senza mostri", "issues": []}
+{"id": 8, "category": "A", "question": "Voglio drammi psicologici come Black Swan, ma senza allucinazioni", "issues": []}
+{"id": 9, "category": "A", "question": "Consigliami film di sopravvivenza come The Revenant, ma senza ambientazioni innevate", "issues": []}
+{"id": 10, "category": "A", "question": "Voglio thriller politici come The Constant Gardener, ma senza storie di spionaggio", "issues": []}
+{"id": 11, "category": "B", "question": "Voglio altri film horror nello stile di Alien, ma non voglio altri film della saga di Alien", "issues": []}
+{"id": 12, "category": "B", "question": "Consigliami fantascienza come Matrix, ma escludi tutti i film di Matrix", "issues": []}
+{"id": 13, "category": "B", "question": "Voglio thriller come Il silenzio degli innocenti, ma niente altri film di Hannibal Lecter", "issues": []}
+{"id": 14, "category": "B", "question": "Cerco commedie come Una notte da leoni, ma non voglio sequel o film della stessa saga", "issues": ["franchise non estratto: Una notte da leoni"]}
+{"id": 15, "category": "B", "question": "Consigliami film di supereroi come The Dark Knight, ma niente Batman", "issues": []}
+{"id": 16, "category": "B", "question": "Voglio film fantasy come Il Signore degli Anelli, ma non voglio altri film della Terra di Mezzo", "issues": ["franchise non estratto: Terra di Mezzo"]}
+{"id": 17, "category": "B", "question": "Cerco avventure archeologiche come Indiana Jones, ma senza altri film di Indiana Jones", "issues": ["titolo da escludere non estratto: Indiana Jones"]}
+{"id": 18, "category": "B", "question": "Voglio film di fantascienza come Terminator, ma escludi tutta la saga", "issues": []}
+{"id": 19, "category": "B", "question": "Consigliami film horror come Scream, ma senza altri capitoli della saga", "issues": []}
+{"id": 20, "category": "B", "question": "Voglio film d'azione come John Wick, ma non voglio altri film di John Wick", "issues": []}
+{"id": 21, "category": "C", "question": "Voglio un thriller psicologico, ma niente violenza esplicita, torture o serial killer", "issues": []}
+{"id": 22, "category": "C", "question": "Cerco fantascienza intelligente, ma senza alieni, guerre spaziali o supereroi", "issues": []}
+{"id": 23, "category": "C", "question": "Consigliami horror atmosferici, ma senza jump scare, possessioni o torture", "issues": []}
+{"id": 24, "category": "C", "question": "Voglio drammi intensi, ma senza malattie terminali o lutti familiari", "issues": []}
+{"id": 25, "category": "C", "question": "Cerco film di guerra, ma senza propaganda, eroismi patriottici o finali celebrativi", "issues": []}
+{"id": 26, "category": "C", "question": "Voglio commedie romantiche, ma senza triangoli amorosi e tradimenti", "issues": []}
+{"id": 27, "category": "C", "question": "Consigliami thriller realistici, senza elementi soprannaturali o fantascientifici", "issues": []}
+{"id": 28, "category": "C", "question": "Voglio film d'avventura senza animali maltrattati, morte di animali o scene di caccia", "issues": []}
+{"id": 29, "category": "D", "question": "Mi sono piaciuti Arrival e Contact: voglio fantascienza contemplativa e basata su idee scientifiche, ma niente invasioni aliene", "issues": []}
+{"id": 30, "category": "D", "question": "Mi sono piaciuti Prisoners e Zodiac: voglio thriller investigativi cupi e realistici, ma senza serial killer", "issues": []}
+{"id": 31, "category": "D", "question": "Mi sono piaciuti The Witch e Midsommar: voglio horror folkloristici e atmosferici, ma senza culti religiosi", "issues": []}
+{"id": 32, "category": "D", "question": "Mi sono piaciuti Whiplash e Black Swan: voglio drammi psicologici sulla ricerca della perfezione, ma senza ambientazioni musicali o artistiche", "issues": []}
+{"id": 33, "category": "D", "question": "Mi sono piaciuti Mad Max: Fury Road e Children of Men: voglio distopie con forte tensione e sopravvivenza, ma senza inseguimenti automobilistici", "issues": []}
+{"id": 34, "category": "D", "question": "Mi sono piaciuti Ex Machina e Her: voglio fantascienza intima sull'identità e la coscienza, ma senza robot umanoidi", "issues": []}
+{"id": 35, "category": "E", "question": "Consigliami film simili a Interstellar, ma escludi Interstellar", "issues": []}
+{"id": 36, "category": "E", "question": "Consigliami film simili a Predator, ma escludi Predator 2", "issues": []}
+{"id": 37, "category": "E", "question": "Voglio film simili a Il Padrino, ma non voglio Il Padrino Parte II e Parte III", "issues": []}
+{"id": 38, "category": "E", "question": "Consigliami film simili a Toy Story, ma non voglio altri film di Toy Story", "issues": []}
+{"id": 39, "category": "E", "question": "Voglio film simili a Rocky, ma escludi tutti i film della saga", "issues": []}
+{"id": 40, "category": "E", "question": "Consigliami film simili a Shrek, ma escludi tutti i sequel", "issues": []}
+{"id": 41, "category": "F", "question": "Voglio horror soprannaturali, ma non horror splatter", "issues": []}
+{"id": 42, "category": "F", "question": "Voglio horror psicologici, ma non horror soprannaturali", "issues": []}
+{"id": 43, "category": "F", "question": "Voglio fantascienza hard, ma non space opera", "issues": []}
+{"id": 44, "category": "F", "question": "Voglio thriller psicologici, ma non thriller polizieschi", "issues": []}
+{"id": 45, "category": "F", "question": "Voglio film di guerra introspettivi, ma non film d'azione militari", "issues": []}
+{"id": 46, "category": "F", "question": "Voglio fantasy dark, ma non fantasy medievale", "issues": []}
+{"id": 47, "category": "F", "question": "Voglio commedie surreali, ma non commedie romantiche", "issues": []}
+{"id": 48, "category": "F", "question": "Voglio film post-apocalittici, ma non zombie movie", "issues": []}
+{"id": 49, "category": "G", "question": "Un film in cui una persona si ritrova bloccata nello spazio e deve sopravvivere", "issues": []}
+{"id": 50, "category": "G", "question": "Un film in cui un uomo scopre che la propria vita è una realtà costruita artificialmente", "issues": []}
+{"id": 51, "category": "G", "question": "Un film in cui una famiglia si trasferisce in una casa isolata e inizia a sperimentare eventi inquietanti", "issues": []}
+{"id": 52, "category": "G", "question": "Un film in cui un gruppo di persone deve sopravvivere in un ambiente ostile senza possibilità di comunicare con il mondo esterno", "issues": []}
+{"id": 53, "category": "G", "question": "Un film con un protagonista che perde progressivamente il contatto con la realtà", "issues": []}
+{"id": 54, "category": "G", "question": "Un film in cui il protagonista scopre di essere stato manipolato per tutta la vita", "issues": []}
+{"id": 55, "category": "G", "question": "Un film ambientato in una città sommersa dalla criminalità, con forte critica sociale", "issues": []}
+{"id": 56, "category": "G", "question": "Un film in cui il protagonista deve scegliere tra salvare una persona cara e salvare molte altre persone", "issues": []}
+{"id": 57, "category": "H", "question": "Voglio horror, ma non voglio niente che faccia paura", "issues": []}
+{"id": 58, "category": "H", "question": "Consigliami un film simile a Hereditary, ma che non abbia assolutamente nulla in comune con Hereditary", "issues": []}
+{"id": 59, "category": "H", "question": "Voglio fantascienza senza tecnologia", "issues": []}
+{"id": 60, "category": "H", "question": "Voglio un film di guerra senza guerra, ma con le conseguenze psicologiche della guerra", "issues": ["contraddizione non rilevata"]}
+{"id": 61, "category": "H", "question": "Voglio un thriller lento e contemplativo, ma con tantissima azione", "issues": []}
+{"id": 62, "category": "H", "question": "Consigliami qualcosa di molto simile a Alien, ma che non sia horror, fantascienza o ambientato nello spazio", "issues": ["contraddizione non rilevata"]}
+{"id": 101, "category": "P", "question": "Consigliami thriller diretti da David Fincher", "issues": []}
+{"id": 102, "category": "P", "question": "Voglio film con Tom Hanks degli anni Novanta che parlano di amicizia", "issues": []}
+{"id": 103, "category": "P", "question": "Cerco film italiani degli anni Settanta sulla mafia", "issues": []}
+{"id": 104, "category": "P", "question": "Consigliami commedie con Bill Murray", "issues": []}
+{"id": 105, "category": "P", "question": "Voglio film di fantascienza usciti dopo il 2015, senza supereroi", "issues": []}
+{"id": 106, "category": "P", "question": "Cerco drammi giapponesi degli anni Cinquanta", "issues": []}
+{"id": 107, "category": "P", "question": "Film di Hayao Miyazaki che parlano di infanzia", "issues": []}
+{"id": 108, "category": "P", "question": "Voglio film di guerra francesi", "issues": []}
+{"id": 109, "category": "P", "question": "Consigliami horror con Jamie Lee Curtis, ma non della saga di Halloween", "issues": ["titolo da escludere non estratto: Halloween"]}
+{"id": 110, "category": "P", "question": "Film con Meryl Streep usciti dal 2005 in poi, ma niente musical", "issues": []}
+{"id": 111, "category": "P", "question": "Thriller psicologici usciti nel 2023", "issues": []}
+{"id": 112, "category": "P", "question": "Film di Christopher Nolan simili a Inception, ma escludi Inception", "issues": []}
+{"id": 113, "category": "P", "question": "Western con Clint Eastwood diretti da lui stesso", "issues": []}
+{"id": 114, "category": "P", "question": "Commedie italiane degli anni Duemila con Checco Zalone", "issues": []}

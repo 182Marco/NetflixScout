@@ -1,0 +1,60 @@
+# Versioned configuration of the pipeline. Its SHA-256 goes into the build manifest:
+# changing any value means a different build. Paths are relative to tool/RAGWikipediaFilm/.
+
+dump:
+  # ALWAYS a dated dump, never "latest": the date identifies the input of the build.
+  date: "20261101"
+  base_url: "https://dumps.wikimedia.org/itwiki"
+  filename_template: "itwiki-{date}-pages-articles.xml.bz2"
+  sha1sums_template: "itwiki-{date}-sha1sums.txt"
+  raw_dir: "data/raw"
+  timeout_seconds: 60
+  chunk_bytes: 1048576
+  max_retries: 5
+  retry_backoff_seconds: 5
+
+extract:
+  processed_dir: "data/processed"
+  min_plot_chars: 400
+  min_plot_words: 60
+  checkpoint_every_pages: 20000
+  plot_headings: [trama, plot, sinossi, soggetto, riassunto, storia, argomento, la trama, trama del film]
+  # Infobox template names (lowercase) that identify a single film.
+  film_templates: [film]
+  # Template names that identify a disambiguation page.
+  disambiguation_templates: [disambigua, disambiguazione, "disambigua nome", "disambigua cognome"]
+  # Titles starting with these (lowercase) are lists / filmographies, never single films.
+  excluded_title_prefixes: ["filmografia", "lista di", "elenco di", "film del", "film di", "premi", "cronologia"]
+
+wikidata:
+  api_url: "https://www.wikidata.org/w/api.php"
+  # Labels are fetched in bulk from the Query Service: 1000 entities per request instead of 50
+  # (measured: ~7 s per 1000 labels against ~3 s per 50 with wbgetentities).
+  sparql_url: "https://query.wikidata.org/sparql"
+  site: "itwiki"
+  # Required by the Wikimedia User-Agent policy for online runs: a contact URL or e-mail of whoever
+  # runs the pipeline (kept empty in the repository on purpose; set it in a local override).
+  contact: ""
+  user_agent_name: "RAGWikipediaPipeline/1.0"
+  batch_size: 50
+  min_interval_seconds: 1.0
+  timeout_seconds: 30
+  sparql_timeout_seconds: 70
+  label_batch_size: 1000
+  max_retries: 5
+  retry_backoff_seconds: 5
+  maxlag: 5
+  languages: [it, en]
+  # offline = never use the network, every response must be in the snapshot.
+  # online  = use the snapshot when it has the response, otherwise fetch and append to it.
+  mode: "offline"
+  # Acquisition identifier. A new id = a new acquisition (may differ from older ones).
+  snapshot_id: "itwiki-20261101-a"
+  snapshot_root: "data/cache/wikidata"
+  max_actors: 20
+
+output:
+  films_file: "films.jsonl"
+  candidates_file: "candidates.jsonl"
+  rejected_file: "rejected.jsonl"
+  manifest_dir: "manifests"

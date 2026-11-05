@@ -1,0 +1,50 @@
+{
+  "built_at": "2026-11-03T22:25:25Z",
+  "config_sha256": "a8c2402600a51e73af382292406ed01ba6f3b2a851c536284e8e356089f9e1b6",
+  "dump": {
+    "date": "20261101",
+    "filename": "itwiki-20261101-pages-articles.xml.bz2",
+    "url": "https://dumps.wikimedia.org/itwiki/20261101/itwiki-20261101-pages-articles.xml.bz2"
+  },
+  "extract": {
+    "disambiguation": 561,
+    "list_or_filmography": 36,
+    "no_plot_section": 3,
+    "not_a_film": 15308,
+    "not_article": 1091,
+    "ok": 108,
+    "plot_too_short": 8,
+    "redirect": 2253
+  },
+  "git_commit": "28889cc08c8797e38bc9769e93e0659aa11011d1",
+  "git_dirty": true,
+  "outputs": {
+    "candidates.jsonl": {
+      "bytes": 657228,
+      "records": 108,
+      "sha256": "38287e0e0846781e063199b6a107dbff8978530c12da21bf09860ead199ed476"
+    },
+    "films.jsonl": {
+      "bytes": 191999,
+      "records": 40,
+      "sha256": "c5c266ece72def9c6338f3bff183e214232123b335fdb8adddce8fdb1fac7e20"
+    }
+  },
+  "schema_version": 1,
+  "tools": {
+    "packages": {
+      "PyYAML": "6.0.3",
+      "mwparserfromhell": "0.7.2",
+      "pydantic": "2.13.5"
+    },
+    "platform": "macOS-12.7.6-x86_64-i386-64bit",
+    "python": "3.11.16"
+  },
+  "wikidata_snapshot": {
+    "content_sha256": "b52fb2bfd9e029cfc412341ca7a3dd4ab01a76f25244a1aa7a181c6f176846d3",
+    "id": "sample-20261101",
+    "present": true,
+    "requests": 16,
+    "uncompressed_bytes": 3468166
+  }
+}

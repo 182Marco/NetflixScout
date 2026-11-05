@@ -1,0 +1,645 @@
+{
+ "version": 1,
+ "meaning": "recommended decision for each of the 71 doubtful records; none applied",
+ "records": [
+  {
+   "film_id": "Q697479",
+   "title": "Marmalade Boy",
+   "year": 1995,
+   "category": "serie anime",
+   "decision": "escludere",
+   "confidence": "media",
+   "reason": "26 minuti = durata di un episodio; la pagina descrive la serie TV, l'infobox Film è un errore di pagina"
+  },
+  {
+   "film_id": "Q1050609",
+   "title": "ÉX-Driver",
+   "year": null,
+   "category": "OVA",
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "reason": "OVA a più episodi; da valutare se la pagina tratta la serie o un lungometraggio"
+  },
+  {
+   "film_id": "Q787081",
+   "title": "Cortili del cuore",
+   "year": 1996,
+   "category": "serie anime",
+   "decision": "escludere",
+   "confidence": "bassa",
+   "reason": "trama del personaggio di una serie TV (nome italiano della serie), nessuna durata, nessun codice IMDb"
+  },
+  {
+   "film_id": "Q3900098",
+   "title": "Perry Mason: Il bacio che uccide",
+   "year": 1993,
+   "category": "film TV",
+   "decision": "includere",
+   "confidence": "alta",
+   "reason": "film TV della serie di Perry Mason; mancano solo regista e IMDb nella pagina"
+  },
+  {
+   "film_id": "Q1754057",
+   "title": "L'uovo dell'angelo",
+   "year": 1985,
+   "category": "film anime (OVA)",
+   "decision": "includere",
+   "confidence": "alta",
+   "reason": "71 minuti, opera unica di Oshii: lungometraggio d'animazione uscito direttamente in home video"
+  },
+  {
+   "film_id": "Q714078",
+   "title": "Hana yori dango",
+   "year": 1997,
+   "category": "anime breve",
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "reason": "30 minuti; non è chiaro se la pagina parli del mediometraggio del 1996 o della serie"
+  },
+  {
+   "film_id": "Q666569",
+   "title": "Digimon Savers",
+   "year": 2006,
+   "category": "serie anime",
+   "decision": "escludere",
+   "confidence": "alta",
+   "reason": "serie TV Digimon, 20 minuti = episodio"
+  },
+  {
+   "film_id": "Q696278",
+   "title": "Lovely Complex",
+   "year": 2006,
+   "category": "lungometraggio da manga",
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "99 minuti, regista presente: il film live-action; il manga è solo la fonte"
+  },
+  {
+   "film_id": "Q696346",
+   "title": "Digimon Tamers",
+   "year": 2001,
+   "category": "serie anime",
+   "decision": "escludere",
+   "confidence": "media",
+   "reason": "pagina della serie TV (anche se esiste un film omonimo con altro titolo)"
+  },
+  {
+   "film_id": "Q3900118",
+   "title": "Perry Mason: Un fotogramma dal cielo",
+   "year": 1988,
+   "category": "film TV",
+   "decision": "includere",
+   "confidence": "alta",
+   "reason": "film TV di Perry Mason"
+  },
+  {
+   "film_id": "Q3900104",
+   "title": "Perry Mason: La donna del lago",
+   "year": 1988,
+   "category": "film TV",
+   "decision": "includere",
+   "confidence": "alta",
+   "reason": "film TV di Perry Mason"
+  },
+  {
+   "film_id": "Q3900097",
+   "title": "Perry Mason: Furto d'autore",
+   "year": 1990,
+   "category": "film TV",
+   "decision": "includere",
+   "confidence": "alta",
+   "reason": "film TV di Perry Mason"
+  },
+  {
+   "film_id": "Q3900103",
+   "title": "Perry Mason: La bara di vetro",
+   "year": 1991,
+   "category": "film TV",
+   "decision": "includere",
+   "confidence": "alta",
+   "reason": "film TV di Perry Mason"
+  },
+  {
+   "film_id": "Q3900101",
+   "title": "Perry Mason: L'arte di morire",
+   "year": 1992,
+   "category": "film TV",
+   "decision": "includere",
+   "confidence": "alta",
+   "reason": "film TV di Perry Mason"
+  },
+  {
+   "film_id": "Q3900108",
+   "title": "Perry Mason: Morte di un dongiovanni",
+   "year": 1992,
+   "category": "film TV",
+   "decision": "includere",
+   "confidence": "alta",
+   "reason": "film TV di Perry Mason"
+  },
+  {
+   "film_id": "Q3900102",
+   "title": "Perry Mason: L'ospite d'onore",
+   "year": 1993,
+   "category": "film TV",
+   "decision": "includere",
+   "confidence": "alta",
+   "reason": "film TV di Perry Mason"
+  },
+  {
+   "film_id": "Q3900117",
+   "title": "Perry Mason: Serata con il morto",
+   "year": 1994,
+   "category": "film TV",
+   "decision": "includere",
+   "confidence": "alta",
+   "reason": "film TV di Perry Mason"
+  },
+  {
+   "film_id": "Q3900093",
+   "title": "Perry Mason: dietro la facciata",
+   "year": 1994,
+   "category": "film TV",
+   "decision": "includere",
+   "confidence": "alta",
+   "reason": "film TV di Perry Mason"
+  },
+  {
+   "film_id": "Q738678",
+   "title": "Lupin III - Green vs Red",
+   "year": 2008,
+   "category": "speciale TV anime",
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "80 minuti, speciale televisivo di lunghezza di un film"
+  },
+  {
+   "film_id": "Q711139",
+   "title": "Baldios - Il guerriero dello spazio",
+   "year": 1981,
+   "category": "serie anime",
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "reason": "titolo italiano della serie; esiste anche un film del 1981; la trama copre la serie (cita puntate)"
+  },
+  {
+   "film_id": "Q2271087",
+   "title": "Mobile Suit Gundam 0083: Stardust Memory",
+   "year": 1992,
+   "category": "OVA",
+   "decision": "sospeso",
+   "confidence": "media",
+   "reason": "serie OVA di 13 episodi; la durata 120 minuti è della versione montata"
+  },
+  {
+   "film_id": "Q4001916",
+   "title": "UFO Robot Goldrake contro il Grande Mazinga",
+   "year": 1976,
+   "category": "film breve anime",
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "27 minuti, cortometraggio uscito al cinema (Toei Manga Matsuri)"
+  },
+  {
+   "film_id": "Q3681225",
+   "title": "Clover (Toriko Chiya)",
+   "year": 1997,
+   "category": "lungometraggio da manga",
+   "decision": "includere",
+   "confidence": "bassa",
+   "reason": "120 minuti e regista: sembra il film tratto dal manga"
+  },
+  {
+   "film_id": "Q715731",
+   "title": "Digimon Adventure 02",
+   "year": 2000,
+   "category": "serie anime",
+   "decision": "escludere",
+   "confidence": "alta",
+   "reason": "serie TV Digimon Adventure 02"
+  },
+  {
+   "film_id": "Q2253667",
+   "title": "L'audacia degli X-Men",
+   "year": null,
+   "category": "speciale TV anime",
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "episodio pilota animato di X-Men (IMDb presente); è un film TV ma la pagina non ha anno"
+  },
+  {
+   "film_id": "Q2384898",
+   "title": "Macross Plus",
+   "year": null,
+   "category": "OVA",
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "reason": "OVA di 4 episodi ricomposto in film; la pagina non distingue"
+  },
+  {
+   "film_id": "Q1507176",
+   "title": "Ultimi raggi di luna",
+   "year": 2004,
+   "category": "lungometraggio da manga",
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "112 minuti, regista presente: film live-action"
+  },
+  {
+   "film_id": "Q1607114",
+   "title": "Adventures of Captain Marvel",
+   "year": 1941,
+   "category": "serial cinematografico",
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "serial del 1941 in 12 capitoli, distribuito al cinema; coerente con gli altri 7 serial già tenuti"
+  },
+  {
+   "film_id": "Q688651",
+   "title": "Armitage III",
+   "year": null,
+   "category": "OVA",
+   "decision": "includere",
+   "confidence": "bassa",
+   "reason": "140 minuti, regista e IMDb: versione lungometraggio dell'OVA"
+  },
+  {
+   "film_id": "Q3786944",
+   "title": "Hotel Hibiscus",
+   "year": 1986,
+   "category": "lungometraggio da manga",
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "film di Nakae; l'anno 1986 è quello del manga (anno da correggere)"
+  },
+  {
+   "film_id": "Q584204",
+   "title": "Lei e il gatto",
+   "year": 1999,
+   "category": "cortometraggio anime",
+   "decision": "includere",
+   "confidence": "alta",
+   "reason": "corto di 5 minuti di Makoto Shinkai"
+  },
+  {
+   "film_id": "Q303425",
+   "title": "SuperDoll Rika-chan",
+   "year": 1999,
+   "category": "serie anime",
+   "decision": "escludere",
+   "confidence": "alta",
+   "reason": "serie TV, 30 minuti = episodio"
+  },
+  {
+   "film_id": "Q3814534",
+   "title": "Ken il guerriero - La leggenda",
+   "year": 2006,
+   "category": "film anime",
+   "decision": "includere",
+   "confidence": "bassa",
+   "reason": "la trama parla di un film; manca IMDb"
+  },
+  {
+   "film_id": "Q3823845",
+   "title": "La recta provincia",
+   "year": 2007,
+   "category": "miniserie TV",
+   "decision": "escludere",
+   "confidence": "media",
+   "reason": "miniserie televisiva (160 minuti in più parti), regola «niente miniserie»"
+  },
+  {
+   "film_id": "Q2095040",
+   "title": "Hiyokoi",
+   "year": 2010,
+   "category": "anime breve",
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "reason": "22 minuti, nessun dato sul regista; potrebbe essere un episodio o un corto"
+  },
+  {
+   "film_id": "Q4023286",
+   "title": "Yuuki",
+   "year": 2006,
+   "category": "film TV",
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "107 minuti, regista e IMDb presenti"
+  },
+  {
+   "film_id": "Q3800512",
+   "title": "Interno giorno",
+   "year": 2011,
+   "category": "film TV",
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "film televisivo di Tommaso Rossellini"
+  },
+  {
+   "film_id": "Q3844599",
+   "title": "Mani Pulite - Il duello",
+   "year": 1997,
+   "category": "film TV",
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "film TV sull'inchiesta Mani Pulite"
+  },
+  {
+   "film_id": "Q3514707",
+   "title": "Code Geass: Akito the Exiled",
+   "year": 2012,
+   "category": "OVA",
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "reason": "OVA di 5 episodi; la pagina parla di «prima e seconda serie»"
+  },
+  {
+   "film_id": "Q3715268",
+   "title": "Dreams of the Rarebit Fiend",
+   "year": 1921,
+   "category": "cortometraggio muto",
+   "decision": "includere",
+   "confidence": "alta",
+   "reason": "corto di Winsor McCay del 1921"
+  },
+  {
+   "film_id": "Q495472",
+   "title": "Kara no kyōkai",
+   "year": null,
+   "category": "serie di film (anime)",
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "reason": "pagina sulla saga di film; come le altre pagine di «serie di film» andrebbe esclusa"
+  },
+  {
+   "film_id": "Q2335710",
+   "title": "Maetel Legend - Sinfonia d'inverno",
+   "year": null,
+   "category": "OVA",
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "reason": "OVA speciale con IMDb ma senza durata"
+  },
+  {
+   "film_id": "Q15461836",
+   "title": "Lupin III - La principessa della brezza: La città nascosta nel cielo",
+   "year": 2013,
+   "category": "film TV anime",
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "speciale televisivo Lupin III di lunghezza film"
+  },
+  {
+   "film_id": "Q7903650",
+   "title": "Generation War",
+   "year": 2013,
+   "category": "miniserie TV",
+   "decision": "escludere",
+   "confidence": "media",
+   "reason": "miniserie tedesca in tre parti"
+  },
+  {
+   "film_id": "Q626502",
+   "title": "Dive!!",
+   "year": 2008,
+   "category": "lungometraggio da manga",
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "reason": "infobox film senza durata né regista; il film è del 2008"
+  },
+  {
+   "film_id": "Q17479103",
+   "title": "Un padre inatteso",
+   "year": 1998,
+   "category": "film TV",
+   "decision": "includere",
+   "confidence": "alta",
+   "reason": "film TV"
+  },
+  {
+   "film_id": "Q21272604",
+   "title": "Love Like Aliens",
+   "year": null,
+   "category": "anime",
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "reason": "non c'è nessun dato (regista, durata, IMDb)"
+  },
+  {
+   "film_id": "Q486793",
+   "title": "Bungaku shōjo",
+   "year": null,
+   "category": "serie di film (anime)",
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "reason": "pagina della saga, sinossi di 432 caratteri"
+  },
+  {
+   "film_id": "Q15732099",
+   "title": "Ajin - Demi Human",
+   "year": 2015,
+   "category": "lungometraggio da manga",
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "103 minuti: film (la pagina è intitolata al manga)"
+  },
+  {
+   "film_id": "Q18788443",
+   "title": "Orange (manga)",
+   "year": 2016,
+   "category": "lungometraggio da manga",
+   "decision": "includere",
+   "confidence": "bassa",
+   "reason": "infobox film con durata e regista"
+  },
+  {
+   "film_id": "Q11273667",
+   "title": "Non mi farò coinvolgere",
+   "year": 2014,
+   "category": "lungometraggio da manga",
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "84 minuti: film live-action"
+  },
+  {
+   "film_id": "Q7365970",
+   "title": "Ronnie Rocket",
+   "year": null,
+   "category": "progetto non realizzato",
+   "decision": "escludere",
+   "confidence": "alta",
+   "reason": "film mai prodotto: nessuna opera da raccomandare"
+  },
+  {
+   "film_id": "Q23566257",
+   "title": "Ostaggi delle SS sulle Alpi",
+   "year": 2015,
+   "category": "film TV",
+   "decision": "includere",
+   "confidence": "bassa",
+   "reason": "la pagina lo chiama «il film»; Wikidata lo dà come miniserie di 90 minuti"
+  },
+  {
+   "film_id": "Q29387067",
+   "title": "Indagine sui sentimenti",
+   "year": 1984,
+   "category": "film TV",
+   "decision": "includere",
+   "confidence": "bassa",
+   "reason": "trama narrativa, mancano regista e IMDb"
+  },
+  {
+   "film_id": "Q9026236",
+   "title": "L DK",
+   "year": 2014,
+   "category": "lungometraggio da manga",
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "film live-action del 2014"
+  },
+  {
+   "film_id": "Q4802375",
+   "title": "Aruvu rezuru: kikaijikake no yōseitachi",
+   "year": 2013,
+   "category": "film anime",
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "regista e IMDb presenti"
+  },
+  {
+   "film_id": "Q17213181",
+   "title": "Kyō no Kira-kun",
+   "year": 2017,
+   "category": "lungometraggio da manga",
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "109 minuti: film live-action"
+  },
+  {
+   "film_id": "Q30898964",
+   "title": "Bella, pazza e impossibile",
+   "year": 2014,
+   "category": "lungometraggio",
+   "decision": "includere",
+   "confidence": "bassa",
+   "reason": "categoria film, trama narrativa, mancano regista e IMDb"
+  },
+  {
+   "film_id": "Q56189573",
+   "title": "Nata Femmena",
+   "year": 2018,
+   "category": "documentario",
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "documentario di 53 minuti"
+  },
+  {
+   "film_id": "Q7033459",
+   "title": "Night Skies",
+   "year": null,
+   "category": "progetto non realizzato",
+   "decision": "escludere",
+   "confidence": "alta",
+   "reason": "seguito mai realizzato di Incontri ravvicinati del terzo tipo"
+  },
+  {
+   "film_id": "Q17584895",
+   "title": "P&ME - Policeman and Me",
+   "year": 2012,
+   "category": "lungometraggio da manga",
+   "decision": "includere",
+   "confidence": "bassa",
+   "reason": "regista presente; anno dell'infobox diverso da Wikidata"
+  },
+  {
+   "film_id": "Q112065180",
+   "title": "Esterno notte (film)",
+   "year": 2022,
+   "category": "miniserie / film in due parti",
+   "decision": "sospeso",
+   "confidence": "media",
+   "reason": "344 minuti, uscita in sala in due film e in TV come miniserie"
+  },
+  {
+   "film_id": "Q7775852",
+   "title": "The Works (film)",
+   "year": null,
+   "category": "film incompiuto",
+   "decision": "sospeso",
+   "confidence": "media",
+   "reason": "parte del film esiste ma non è mai uscito"
+  },
+  {
+   "film_id": "Q42365235",
+   "title": "Tsurune",
+   "year": 2016,
+   "category": "serie anime",
+   "decision": "escludere",
+   "confidence": "media",
+   "reason": "la sinossi inizia con «La serie parla…»: è la serie TV"
+  },
+  {
+   "film_id": "Q109512255",
+   "title": "Il mio matrimonio felice",
+   "year": 2019,
+   "category": "anime / romanzo",
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "reason": "pagina che copre romanzo, manga, anime e film; la trama è quella del romanzo"
+  },
+  {
+   "film_id": "Q107801214",
+   "title": "Look Back",
+   "year": 2021,
+   "category": "manga / film",
+   "decision": "sospeso",
+   "confidence": "bassa",
+   "reason": "il manga è del 2021, il film d'animazione del 2024; la pagina copre entrambi"
+  },
+  {
+   "film_id": "Q131783164",
+   "title": "Giovannino Guareschi - Non muoio neanche se mi ammazzano",
+   "year": 2026,
+   "category": "lungometraggio",
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "film del 2026"
+  },
+  {
+   "film_id": "Q136761970",
+   "title": "Meitantei Conan - Black History - Kuro-zukume no soshiki to no taiketsu no rekishi",
+   "year": 2007,
+   "category": "speciale TV anime",
+   "decision": "includere",
+   "confidence": "bassa",
+   "reason": "episodio speciale di Detective Conan, senza durata"
+  },
+  {
+   "film_id": "Q136763182",
+   "title": "Meitantei Conan - Gin'yoku no Time Travel",
+   "year": 2004,
+   "category": "speciale TV anime",
+   "decision": "includere",
+   "confidence": "bassa",
+   "reason": "episodio speciale di Detective Conan, senza durata"
+  },
+  {
+   "film_id": "Q126086643",
+   "title": "100 metri - Hyakuemu",
+   "year": 2025,
+   "category": "film anime",
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "106 minuti: film d'animazione"
+  },
+  {
+   "film_id": "Q134885840",
+   "title": "Lupin the IIIrd - Zenigata e i due Lupin",
+   "year": 2025,
+   "category": "film anime",
+   "decision": "includere",
+   "confidence": "media",
+   "reason": "film d'animazione di 53 minuti, regista e IMDb"
+  }
+ ]
+}
