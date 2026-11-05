@@ -1,0 +1,29 @@
+{
+ "units": {
+  "series": 16892,
+  "season": 10857,
+  "episode": 79219
+ },
+ "usable": {
+  "series": 12055,
+  "season": 10016,
+  "episode": 79219
+ },
+ "relations": {
+  "has_torna_a": 10802,
+  "torna_a_exact": 10146,
+  "title_resolves_uniquely": 9889,
+  "both_sources": 9786,
+  "sources_agree": 9729,
+  "season_with_parent": 10282,
+  "title_ambiguous": 356,
+  "torna_a_none": 623,
+  "title_none": 612,
+  "season_orphan": 575,
+  "torna_a_redirect": 33,
+  "sources_disagree": 57
+ },
+ "episodes_with_known_series": 75528,
+ "series_with_at_least_one_season_page": 2428,
+ "series_with_at_least_one_episode_text": 1400
+}

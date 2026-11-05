@@ -1,0 +1,118 @@
+{
+ "checks": {
+  "duplicate_child_ids": 0,
+  "examples_duplicates": {
+   "67166": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+   ],
+   "445282": [
+    1,
+    2,
+    3
+   ],
+   "2416173": [
+    4
+   ],
+   "2545391": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "6929811": [
+    1,
+    2
+   ]
+  },
+  "examples_gaps": {
+   "445940": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "1352860": [
+    2
+   ],
+   "4344752": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "5240991": [
+    1
+   ],
+   "6445511": [
+    8,
+    9,
+    10,
+    11
+   ]
+  },
+  "season_without_number": 33,
+  "self_parent": 0,
+  "series_with_duplicate_season_numbers": 6,
+  "series_with_gaps_in_season_numbers": 22,
+  "series_with_season_pages": 2567
+ },
+ "counts": {
+  "episode_list_inferred": 404,
+  "episode_list_orphan": 60,
+  "episode_list_reviewed": 3,
+  "episode_list_verified_wikidata": 1559,
+  "episode_list_verified_wikipedia": 1699,
+  "episode_numbered": 54209,
+  "episode_page_with_series": 91,
+  "episode_page_without_series": 15,
+  "episode_unnumbered": 24390,
+  "episode_with_series": 78263,
+  "episode_without_series": 336,
+  "logical_season_infobox_declared_count": 3778,
+  "logical_season_series_page_section": 398,
+  "season_inferred": 263,
+  "season_orphan": 28,
+  "season_reviewed": 2,
+  "season_verified_wikidata": 9889,
+  "season_verified_wikipedia": 675
+ },
+ "files": {
+  "episode_links": {
+   "records": 78705,
+   "sha256": "c5302daa0e9de130eef64625147c0087168df5f65dea4408f838734fcd0f36d6"
+  },
+  "logical_seasons": {
+   "records": 4176,
+   "sha256": "950258694d684d6a1d46c88c4d92d08cd45fbe3bc234f170355acc5a2bdb851d"
+  },
+  "relation_review": {
+   "records": 222,
+   "sha256": "a121cf31f80e26fc537d0d2a31c080fe1e9f726e49a8fac219a7f2bf53d74914"
+  },
+  "relations": {
+   "records": 14582,
+   "sha256": "88018f6a186c6d17ac0aef9acf60b56f8d2c6100979be8e438052746264781af"
+  }
+ },
+ "overrides_applied": 5
+}

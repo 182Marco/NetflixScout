@@ -1,0 +1,51 @@
+{
+ "by_type": {
+  "episode": {
+   "estimated_usd": 3.827,
+   "longest_tokens": 7800,
+   "text_kind:plot": 78705,
+   "tokens": 29438957,
+   "truncated": 1,
+   "units": 78705
+  },
+  "season": {
+   "estimated_usd": 0.16,
+   "longest_tokens": 986,
+   "text_kind:season_intro": 9971,
+   "tokens": 1230981,
+   "truncated": 0,
+   "units": 9971
+  },
+  "series": {
+   "estimated_usd": 0.681,
+   "longest_tokens": 7800,
+   "text_kind:lead": 2767,
+   "text_kind:plot": 8711,
+   "tokens": 5237377,
+   "truncated": 27,
+   "units": 11478
+  },
+  "tv_movie": {
+   "estimated_usd": 0.1,
+   "longest_tokens": 5895,
+   "text_kind:lead": 107,
+   "text_kind:plot": 1445,
+   "tokens": 769413,
+   "truncated": 0,
+   "units": 1552
+  }
+ },
+ "dimensions": 1536,
+ "embedding_model": "text-embedding-3-large",
+ "estimated_usd": 4.77,
+ "note": "No embedding was requested. Run an embedding job only with credits and after `build_clean verify`.",
+ "price_per_million_tokens_usd": 0.13,
+ "status": "pending",
+ "tokenizer": "tiktoken cl100k_base",
+ "tokens": 36676728,
+ "units": 101706,
+ "units_file": {
+  "bytes": 51226132,
+  "sha256": "de8dc508ba2ce3ae348b9691b15d4de22f0ae5a57ac727c3d838a16067ca8482"
+ }
+}

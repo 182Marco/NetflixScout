@@ -1,0 +1,161 @@
+{
+ "kinds": [
+  [
+   "fiction:serie tv",
+   7526
+  ],
+  [
+   "programma",
+   4694
+  ],
+  [
+   "fiction:film tv",
+   2697
+  ],
+  [
+   "fiction:miniserie tv",
+   1901
+  ],
+  [
+   "anim:manga/?",
+   1380
+  ],
+  [
+   "anim:anime/serie tv",
+   884
+  ],
+  [
+   "anim:cartone/serie tv",
+   867
+  ],
+  [
+   "fiction:serial tv",
+   678
+  ],
+  [
+   "anim:light novel/?",
+   346
+  ],
+  [
+   "anim:anime/oav",
+   153
+  ],
+  [
+   "fiction:webserie",
+   123
+  ],
+  [
+   "anim:anime/ona",
+   55
+  ],
+  [
+   "fiction:?",
+   17
+  ],
+  [
+   "anim:cartone/?",
+   16
+  ],
+  [
+   "anim:/?",
+   15
+  ],
+  [
+   "anim:cartone/webserie",
+   11
+  ],
+  [
+   "anim:anime/?",
+   11
+  ],
+  [
+   "anim:anime/film tv",
+   10
+  ],
+  [
+   "anim:manhwa/?",
+   9
+  ],
+  [
+   "anim:manhua/?",
+   6
+  ],
+  [
+   "anim:fumetto/?",
+   5
+  ],
+  [
+   "anim:anime/film",
+   5
+  ],
+  [
+   "anim:cartone/film tv",
+   3
+  ],
+  [
+   "anim:cartone/film direct-to-video",
+   1
+  ],
+  [
+   "anim:fumetto/miniserie",
+   1
+  ]
+ ],
+ "groups": {
+  "animated_series": {
+   "n": 1970,
+   "plot>=400chars&60words": 1256,
+   "plot>0": 1607,
+   "lead>=400chars": 1064,
+   "plot_or_lead>=400": 1592,
+   "none(<150)": 39,
+   "median_plot_chars_when_present": 771,
+   "p90_plot_chars": 2848,
+   "plot_over_32000chars(>~8k tokens)": 5
+  },
+  "fiction_series": {
+   "n": 10228,
+   "plot>=400chars&60words": 5407,
+   "plot>0": 8268,
+   "lead>=400chars": 3873,
+   "plot_or_lead>=400": 7213,
+   "none(<150)": 321,
+   "median_plot_chars_when_present": 569.5,
+   "p90_plot_chars": 2123,
+   "plot_over_32000chars(>~8k tokens)": 14
+  },
+  "other_kind": {
+   "n": 1825,
+   "plot>=400chars&60words": 1390,
+   "plot>0": 1574,
+   "lead>=400chars": 1090,
+   "plot_or_lead>=400": 1581,
+   "none(<150)": 8,
+   "median_plot_chars_when_present": 863.0,
+   "p90_plot_chars": 2722,
+   "plot_over_32000chars(>~8k tokens)": 1
+  },
+  "programma": {
+   "n": 4694,
+   "plot>=400chars&60words": 1773,
+   "plot>0": 2199,
+   "lead>=400chars": 1976,
+   "plot_or_lead>=400": 3250,
+   "none(<150)": 186,
+   "median_plot_chars_when_present": 902,
+   "p90_plot_chars": 2006,
+   "plot_over_32000chars(>~8k tokens)": 0
+  },
+  "fiction_tv_film": {
+   "n": 2697,
+   "plot>=400chars&60words": 1494,
+   "plot>0": 2223,
+   "lead>=400chars": 414,
+   "plot_or_lead>=400": 1620,
+   "none(<150)": 213,
+   "median_plot_chars_when_present": 633,
+   "p90_plot_chars": 3069,
+   "plot_over_32000chars(>~8k tokens)": 0
+  }
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "season_pages": 10857,
+ "with_table_rows": 10721,
+ "episodes_listed_total": 200519,
+ "pages_with_any_plot_section": 5254,
+ "pages_where_most_episodes_have_plot": 4280,
+ "episodes_with_plot_sections_total": 79078,
+ "median_rows": 16,
+ "median_prose_chars_when_plot": 12425.5,
+ "rows_distribution": {
+  "15": 880,
+  "20": 2549,
+  "0": 198,
+  "5": 1655,
+  "10": 3304,
+  "25": 1055,
+  "30": 1080
+ }
+}

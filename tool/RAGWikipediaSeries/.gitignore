@@ -1,0 +1,4 @@
+# Generated data and caches: never versioned
+data/
+__pycache__/
+.pytest_cache/

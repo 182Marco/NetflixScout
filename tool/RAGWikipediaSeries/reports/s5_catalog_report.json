@@ -1,0 +1,76 @@
+{
+ "counts": {
+  "episodes": 78705,
+  "episodes_meta": 147249,
+  "excluded": 9684,
+  "seasons": 15032,
+  "series": 15697,
+  "tv_movies": 2578,
+  "uncertain": 303
+ },
+ "episodes": {
+  "metadata_only_rows": 147249,
+  "numbered": 54235,
+  "with_season": 64364,
+  "with_series": 78354,
+  "with_text": 78705
+ },
+ "excluded_by_reason": {
+  "manga_or_other_animation": 3940,
+  "no_series_signal": 1634,
+  "non_narrative_tv_movie": 102,
+  "override_exclude": 48,
+  "programme_not_episodic": 3960
+ },
+ "seasons": {
+  "by_kind_parent": {
+   "logical/with_series": 4175,
+   "page/no_series": 28,
+   "page/with_series": 10829
+  },
+  "by_text_kind": {
+   "none": 4663,
+   "season_intro": 9971,
+   "series_section": 398
+  }
+ },
+ "series": {
+  "by_class_check": {
+   "agrees": 13217,
+   "no_wikidata_entity": 22,
+   "unknown": 292,
+   "wikidata_film": 248,
+   "wikidata_film+other": 5,
+   "wikidata_other": 1913
+  },
+  "by_subtype": {
+   "animated_series": 2062,
+   "anime": 3007,
+   "miniseries": 1901,
+   "programme": 400,
+   "serial": 678,
+   "tv_series": 7526,
+   "web_series": 123
+  },
+  "by_text_kind": {
+   "lead": 2767,
+   "none": 4219,
+   "plot": 8711
+  },
+  "duplicate_plot_text": 9,
+  "ids_unreliable": 2480,
+  "with_imdb": 12904,
+  "with_qid": 15675
+ },
+ "tv_movies": {
+  "by_text_kind": {
+   "lead": 107,
+   "none": 1026,
+   "plot": 1445
+  },
+  "n": 2578,
+  "with_imdb": 2470,
+  "with_tmdb": 2329,
+  "without_tmdb_kept": 249
+ }
+}

@@ -1,0 +1,101 @@
+{
+ "checks": {
+  "episode_provenance_present": {
+   "ok": true
+  },
+  "episodes_conserved": {
+   "detail": {
+    "s1": 78705,
+    "s5": 78705
+   },
+   "ok": true
+  },
+  "excluded_have_reason": {
+   "ok": true
+  },
+  "mixed_media_flag_consistent": {
+   "ok": true
+  },
+  "mixed_media_only_anime_types": {
+   "ok": true
+  },
+  "no_empty_text_marked_as_text": {
+   "ok": true
+  },
+  "no_id_in_two_buckets": {
+   "detail": [],
+   "ok": true
+  },
+  "non_mixed_eligible": {
+   "ok": true
+  },
+  "page_in_one_bucket": {
+   "detail": [],
+   "ok": true
+  },
+  "parent_ids_consistent": {
+   "ok": true
+  },
+  "reclassified_keep_original": {
+   "ok": true
+  },
+  "s1_pages_conserved": {
+   "detail": {
+    "s1": 28262,
+    "s5": 28262
+   },
+   "ok": true
+  },
+  "season_id_resolves": {
+   "detail": [],
+   "ok": true
+  },
+  "season_numbers_unique_per_series": {
+   "detail": "informational: duplicates are listed by build_relations (graph_report.json)",
+   "ok": true
+  },
+  "season_pages_conserved": {
+   "ok": true
+  },
+  "series_id_resolves": {
+   "detail": [],
+   "ok": true
+  },
+  "text_provenance_present": {
+   "detail": [],
+   "ok": true
+  },
+  "tv_movies_autonomous": {
+   "ok": true
+  },
+  "unique_ids:episodes": {
+   "ok": true
+  },
+  "unique_ids:episodes_meta": {
+   "ok": true
+  },
+  "unique_ids:seasons": {
+   "ok": true
+  },
+  "unique_ids:series": {
+   "ok": true
+  },
+  "unique_ids:tv_movies": {
+   "ok": true
+  },
+  "unique_ids:uncertain": {
+   "ok": true
+  }
+ },
+ "counts": {
+  "episodes": 78705,
+  "episodes_meta": 147249,
+  "excluded": 9684,
+  "seasons": 15032,
+  "series": 15697,
+  "tv_movies": 2578,
+  "uncertain": 303
+ },
+ "failed": [],
+ "mixed_media": 2032
+}

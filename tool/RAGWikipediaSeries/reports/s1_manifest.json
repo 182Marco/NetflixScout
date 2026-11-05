@@ -1,0 +1,70 @@
+{
+ "schema_version": 1,
+ "source": {
+  "harvest_sha256": "3309fc6c2258515501307f2ee1dfeca256f6e8c2a681ba5044706beacf2d103a",
+  "harvest_pages": {
+   "articles": 37717,
+   "templates": 85,
+   "missing_ids": 0
+  },
+  "harvest_animation": {
+   "kept": 5233,
+   "sha256": "72d08d199df2723686eb50d0d84496bfdac2a84f0b8eebf6fa6557f1ec22ebd4"
+  }
+ },
+ "thresholds": {
+  "plot_chars": 400,
+  "plot_words": 60,
+  "lead_chars": 400,
+  "episode_chars": 150
+ },
+ "files": {
+  "series": {
+   "records": 15699,
+   "bytes": 46975166,
+   "sha256": "1b38db5d2fcc34d119b820253748e91fbc770d0308adcda600a4169e43990f6b"
+  },
+  "seasons": {
+   "records": 10857,
+   "bytes": 43856890,
+   "sha256": "892a3ce5931e041bd5a7f96b5833f2bb877b9ccf4fe852ddc387d5366558e651"
+  },
+  "episodes": {
+   "records": 78705,
+   "bytes": 134068683,
+   "sha256": "44231de4598ba687e36d318fee1131f624c3897f4ffe08c319195de640ffdc81"
+  },
+  "episode_lists": {
+   "records": 3725,
+   "bytes": 14467758,
+   "sha256": "152c38d5abd6b62b339aeb96a8ec763c7a74ee72449fc26bc3b4f96ef1659323"
+  },
+  "tv_movies": {
+   "records": 2555,
+   "bytes": 6255529,
+   "sha256": "55ce894c0dcb1a6308fcd179373479bafa8d1d52b167b1a99e319dbe5d47353f"
+  },
+  "uncertain": {
+   "records": 372,
+   "bytes": 1044326,
+   "sha256": "c2cd47b25502623b87e369923d974927a1a33a5d7baad9889cd121fcaa328ba6"
+  },
+  "excluded": {
+   "records": 9636,
+   "bytes": 2560122,
+   "sha256": "4fdb214bd1fae19a8dd18c8cbc36a3ad45448f0d8bc2502cb87f9a438d52b39d"
+  }
+ },
+ "stats": {
+  "pages": 42950,
+  "animation_single": 3039,
+  "animation_mixed_media": 2030,
+  "programme_uncertain": 332,
+  "programme_excluded": 3960,
+  "tv_movie_candidates": 2697,
+  "programme_series": 402,
+  "episode_pages": 106
+ },
+ "seconds": 714.0,
+ "limit": null
+}

@@ -1,0 +1,135 @@
+{
+ "class_agreement": {
+  "series/agrees": 12859,
+  "series/agrees_mixed": 349,
+  "series/disagrees:film": 229,
+  "series/disagrees:film+other": 1,
+  "series/disagrees:film+unknown": 7,
+  "series/disagrees:other": 244,
+  "series/disagrees:other+unknown": 27,
+  "series/explained_mixed_media:film": 10,
+  "series/explained_mixed_media:film+other+unknown": 4,
+  "series/explained_mixed_media:film+unknown": 2,
+  "series/explained_mixed_media:other": 1569,
+  "series/explained_mixed_media:other+unknown": 84,
+  "series/no_usable_class": 292,
+  "series/no_wikidata_entity": 22,
+  "tv_movies/agrees": 2480,
+  "tv_movies/agrees_mixed": 39,
+  "tv_movies/disagrees:other": 1,
+  "tv_movies/disagrees:series": 17,
+  "tv_movies/no_usable_class": 13,
+  "tv_movies/no_wikidata_entity": 5,
+  "uncertain/families:film": 38,
+  "uncertain/families:film+other": 1,
+  "uncertain/families:film+series": 1,
+  "uncertain/families:film+unknown": 1,
+  "uncertain/families:other": 38,
+  "uncertain/families:other+series+unknown": 1,
+  "uncertain/families:series": 280,
+  "uncertain/families:series+unknown": 4,
+  "uncertain/no_usable_class": 7,
+  "uncertain/no_wikidata_entity": 1
+ },
+ "duplicates": {
+  "identical_plot_text": 5,
+  "same_base_title_series": 429,
+  "same_qid": 0
+ },
+ "mixed_media_check": {
+  "checked": 5069,
+  "confirmed": 5067,
+  "flag_false": 3039,
+  "flag_true": 2030,
+  "mismatch": 2,
+  "mismatch_page_ids": [
+   4264121,
+   4412534
+  ]
+ },
+ "mixed_media_series": 2030,
+ "relations": {
+  "by_status": {
+   "('episode_list', 'inferred')": 404,
+   "('episode_list', 'orphan')": 60,
+   "('episode_list', 'reviewed')": 3,
+   "('episode_list', 'verified_wikidata')": 1559,
+   "('episode_list', 'verified_wikipedia')": 1699,
+   "('season', 'inferred')": 263,
+   "('season', 'orphan')": 28,
+   "('season', 'reviewed')": 2,
+   "('season', 'verified_wikidata')": 9889,
+   "('season', 'verified_wikipedia')": 675
+  },
+  "parents_not_in_series": 0,
+  "seasons_under_uncertain_parent": 1
+ },
+ "review_queue": {
+  "class_disagreement": 526,
+  "identical_plot_text": 5,
+  "relation_inferred": 134,
+  "relation_orphan": 88,
+  "relation_reviewed": 2,
+  "relation_verified_wikidata": 423,
+  "relation_verified_wikipedia": 10
+ },
+ "sample_size": 191,
+ "text": {
+  "series_by_subtype": {
+   "animated_series": {
+    "lead": 546,
+    "n": 2062,
+    "none": 618,
+    "plot": 898
+   },
+   "anime": {
+    "lead": 302,
+    "n": 3007,
+    "none": 445,
+    "plot": 2260
+   },
+   "miniseries": {
+    "lead": 186,
+    "n": 1901,
+    "none": 599,
+    "plot": 1116
+   },
+   "programme": {
+    "lead": 127,
+    "n": 402,
+    "none": 127,
+    "plot": 148
+   },
+   "serial": {
+    "lead": 101,
+    "n": 678,
+    "none": 174,
+    "plot": 403
+   },
+   "tv_series": {
+    "lead": 1482,
+    "n": 7526,
+    "none": 2215,
+    "plot": 3829
+   },
+   "web_series": {
+    "lead": 23,
+    "n": 123,
+    "none": 41,
+    "plot": 59
+   }
+  },
+  "tv_movies": {
+   "lead": 104,
+   "n": 2555,
+   "none": 1007,
+   "plot": 1444
+  },
+  "uncertain": {
+   "lead": 127,
+   "n": 372,
+   "none": 109,
+   "plot": 136
+  }
+ }
+}

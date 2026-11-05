@@ -1,0 +1,61 @@
+{
+ "files": {
+  "episodes": {
+   "bytes": 154561981,
+   "records": 78705,
+   "sha256": "7322eb20a1534e6c2d05cecfc6770f335f28e4a012686f5950169752618a29d9"
+  },
+  "episodes_meta": {
+   "bytes": 64653444,
+   "records": 147249,
+   "sha256": "c9b80960c2b5636860b06f8b6b8daf07871f3f960e6b19ea030c9ae40ffff173"
+  },
+  "excluded": {
+   "bytes": 1564485,
+   "records": 9684,
+   "sha256": "020263d8265e8f70c54ae5b5e701539e30475f5afa3eb36abe5fdd654b12255a"
+  },
+  "seasons": {
+   "bytes": 13599891,
+   "records": 15032,
+   "sha256": "585fc678f3c1dcf053800350dd095445a3d9dfe59c9f28253e6de4d12b6564c2"
+  },
+  "series": {
+   "bytes": 41278551,
+   "records": 15697,
+   "sha256": "31ba067c4220e5169176f676faa6a1802bace46407779872662a0c1be19e0882"
+  },
+  "tv_movies": {
+   "bytes": 6897134,
+   "records": 2578,
+   "sha256": "dafb616b153be4c2209d33feda309e7ba2122c12fe64b7ac251813a95b214c97"
+  },
+  "uncertain": {
+   "bytes": 679906,
+   "records": 303,
+   "sha256": "f01ee8ea83ec0b037755fb8c82b7deff254cbd8fa200ac9f35e231e6f7bfebd0"
+  }
+ },
+ "overrides_sha256": "bed7583b15d2e362acc70b0707d1f211ec0c5c4ad5f27e872c5b368e32edb4e4",
+ "schema_version": 1,
+ "upstream_sha256": {
+  "s1": {
+   "episode_lists.jsonl": "152c38d5abd6b62b339aeb96a8ec763c7a74ee72449fc26bc3b4f96ef1659323",
+   "episodes.jsonl": "44231de4598ba687e36d318fee1131f624c3897f4ffe08c319195de640ffdc81",
+   "excluded.jsonl": "4fdb214bd1fae19a8dd18c8cbc36a3ad45448f0d8bc2502cb87f9a438d52b39d",
+   "seasons.jsonl": "892a3ce5931e041bd5a7f96b5833f2bb877b9ccf4fe852ddc387d5366558e651",
+   "series.jsonl": "1b38db5d2fcc34d119b820253748e91fbc770d0308adcda600a4169e43990f6b",
+   "tv_movies.jsonl": "55ce894c0dcb1a6308fcd179373479bafa8d1d52b167b1a99e319dbe5d47353f",
+   "uncertain.jsonl": "c2cd47b25502623b87e369923d974927a1a33a5d7baad9889cd121fcaa328ba6"
+  },
+  "s2": {
+   "wikidata_classes.json": "c0c83e2eaaef4380586bfb97af7cebaf61eec298501c524212ecd59d699069bd",
+   "wikidata_entities.jsonl": "fbdde381e2194b5acaebaebfadaa9413825fb273bb9b62433f15c783464a151c"
+  },
+  "s3": {
+   "episode_links.jsonl": "c5302daa0e9de130eef64625147c0087168df5f65dea4408f838734fcd0f36d6",
+   "logical_seasons.jsonl": "950258694d684d6a1d46c88c4d92d08cd45fbe3bc234f170355acc5a2bdb851d",
+   "relations.jsonl": "88018f6a186c6d17ac0aef9acf60b56f8d2c6100979be8e438052746264781af"
+  }
+ }
+}

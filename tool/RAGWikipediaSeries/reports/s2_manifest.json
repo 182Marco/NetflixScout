@@ -1,0 +1,34 @@
+{
+ "entities": 32412,
+ "missing": 902,
+ "skipped_titles_with_pipe": 0,
+ "matched_by_source": {
+  "series": 15677,
+  "uncertain": 371,
+  "tv_movies": 2550,
+  "episode_lists": 3513,
+  "episodes": 106,
+  "seasons": 10195
+ },
+ "missing_by_source": {
+  "series": 22,
+  "seasons": 662,
+  "episode_lists": 212,
+  "uncertain": 1,
+  "tv_movies": 5
+ },
+ "classes": 188,
+ "requests": {
+  "network": 671,
+  "snapshot_hits": 0
+ },
+ "snapshot_id": "itwiki-20261101-series-a",
+ "mode": "online",
+ "limit": null,
+ "files": {
+  "wikidata_entities.jsonl": "fbdde381e2194b5acaebaebfadaa9413825fb273bb9b62433f15c783464a151c",
+  "wikidata_missing.jsonl": "6b089c67ec7c27bcaefbb2c914ddaee3c133f313ec8d31d7ad010cfe442ff0ea",
+  "wikidata_classes.json": "c0c83e2eaaef4380586bfb97af7cebaf61eec298501c524212ecd59d699069bd"
+ },
+ "seconds": 1014.9
+}

@@ -1,0 +1,278 @@
+{
+ "candidates": 2697,
+ "classes": {
+  "tv_movie": 2555,
+  "non_narrative": 102,
+  "uncertain": 40
+ },
+ "tv_movie": {
+  "n": 2555,
+  "plot_ge_400_60": 1444,
+  "lead_ge_150": 1573,
+  "with_director": 2521,
+  "with_cast": 2535,
+  "with_year": 2555,
+  "rai_or_mediaset": 524,
+  "top_reasons": [
+   [
+    "director_and_cast",
+    2504
+   ],
+   [
+    "plot",
+    1444
+   ],
+   [
+    "narrative_category",
+    760
+   ]
+  ],
+  "top_genres": [
+   [
+    "drammatico",
+    1079
+   ],
+   [
+    "commedia",
+    547
+   ],
+   [
+    "thriller",
+    390
+   ],
+   [
+    "biografico",
+    216
+   ],
+   [
+    "azione",
+    211
+   ],
+   [
+    "fantascienza",
+    177
+   ],
+   [
+    "horror",
+    166
+   ],
+   [
+    "avventura",
+    158
+   ],
+   [
+    "poliziesco",
+    143
+   ],
+   [
+    "sentimentale",
+    128
+   ],
+   [
+    "giallo",
+    113
+   ],
+   [
+    "fantastico",
+    97
+   ],
+   [
+    "storico",
+    85
+   ],
+   [
+    "musicale",
+    71
+   ],
+   [
+    "romantico",
+    70
+   ]
+  ],
+  "plot_chars_median": 490
+ },
+ "non_narrative": {
+  "n": 102,
+  "plot_ge_400_60": 46,
+  "lead_ge_150": 78,
+  "with_director": 90,
+  "with_cast": 62,
+  "with_year": 102,
+  "rai_or_mediaset": 28,
+  "top_reasons": [
+   [
+    "genre",
+    91
+   ],
+   [
+    "category:film documentari italiani",
+    18
+   ],
+   [
+    "category:film documentari statunitensi",
+    14
+   ],
+   [
+    "category:film documentari biografici",
+    7
+   ],
+   [
+    "category:film documentari britannici",
+    4
+   ],
+   [
+    "category:film documentari canadesi",
+    3
+   ],
+   [
+    "category:film documentari sul cinema",
+    3
+   ],
+   [
+    "category:film documentari musicali",
+    3
+   ]
+  ],
+  "top_genres": [
+   [
+    "documentario",
+    85
+   ],
+   [
+    "biografico",
+    15
+   ],
+   [
+    "drammatico",
+    4
+   ],
+   [
+    "commedia",
+    4
+   ],
+   [
+    "comico",
+    3
+   ],
+   [
+    "musicale",
+    3
+   ],
+   [
+    "sport",
+    2
+   ],
+   [
+    "storico",
+    2
+   ],
+   [
+    "docufiction",
+    2
+   ],
+   [
+    "fantasy",
+    2
+   ],
+   [
+    "mockumentary",
+    1
+   ],
+   [
+    "guerra",
+    1
+   ],
+   [
+    "falso documentario",
+    1
+   ]
+  ],
+  "plot_chars_median": 335.0
+ },
+ "uncertain": {
+  "n": 40,
+  "plot_ge_400_60": 4,
+  "lead_ge_150": 29,
+  "with_director": 28,
+  "with_cast": 25,
+  "with_year": 40,
+  "rai_or_mediaset": 7,
+  "top_reasons": [
+   [
+    "insufficient_evidence",
+    25
+   ],
+   [
+    "docudrama_mixed_genre",
+    15
+   ]
+  ],
+  "top_genres": [
+   [
+    "documentario",
+    14
+   ],
+   [
+    "drammatico",
+    13
+   ],
+   [
+    "biografico",
+    11
+   ],
+   [
+    "commedia",
+    9
+   ],
+   [
+    "storico",
+    3
+   ],
+   [
+    "commedia a sketch",
+    2
+   ],
+   [
+    "thriller",
+    2
+   ],
+   [
+    "horror",
+    2
+   ],
+   [
+    "giallo",
+    2
+   ],
+   [
+    "poliziesco",
+    1
+   ],
+   [
+    "fantascienza",
+    1
+   ],
+   [
+    "commedia romantica",
+    1
+   ],
+   [
+    "fantasy",
+    1
+   ],
+   [
+    "natalizio",
+    1
+   ],
+   [
+    "drama",
+    1
+   ]
+  ],
+  "plot_chars_median": 64.0
+ },
+ "usable_text": {
+  "narrative_with_plot_or_lead": 2038,
+  "narrative_without_any_text": 514
+ }
+}

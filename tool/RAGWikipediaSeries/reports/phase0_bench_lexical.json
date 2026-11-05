@@ -1,0 +1,290 @@
+{
+ "corpus": {
+  "series": 12055,
+  "season": 10016,
+  "episode": 79219
+ },
+ "queries_per_level": 500,
+ "variants": {
+  "plain": {
+   "series|nameless|mixed": {
+    "n": 500,
+    "hit@1": 0.872,
+    "hit@5": 0.938,
+    "hit@10": 0.958,
+    "mrr": 0.9011801587301587,
+    "top10_level_share": {
+     "series": 0.5,
+     "episode": 0.372,
+     "season": 0.127
+    }
+   },
+   "series|nameless|filtered": {
+    "n": 500,
+    "hit@1": 0.906,
+    "hit@5": 0.958,
+    "hit@10": 0.98,
+    "mrr": 0.9309182539682537,
+    "top10_level_share": {
+     "series": 1.0
+    }
+   },
+   "series|named|mixed": {
+    "n": 500,
+    "hit@1": 0.912,
+    "hit@5": 0.96,
+    "hit@10": 0.974,
+    "mrr": 0.9341190476190476,
+    "top10_level_share": {
+     "series": 0.469,
+     "season": 0.219,
+     "episode": 0.311
+    }
+   },
+   "series|named|filtered": {
+    "n": 500,
+    "hit@1": 0.95,
+    "hit@5": 0.978,
+    "hit@10": 0.992,
+    "mrr": 0.9643523809523808,
+    "top10_level_share": {
+     "series": 1.0
+    }
+   },
+   "season|nameless|mixed": {
+    "n": 500,
+    "hit@1": 0.518,
+    "hit@5": 0.694,
+    "hit@10": 0.756,
+    "mrr": 0.5917063492063491,
+    "top10_level_share": {
+     "season": 0.985,
+     "episode": 0.006,
+     "series": 0.009
+    },
+    "parent_series_in_top10": 0.004796163069544364
+   },
+   "season|nameless|filtered": {
+    "n": 500,
+    "hit@1": 0.522,
+    "hit@5": 0.694,
+    "hit@10": 0.756,
+    "mrr": 0.5937063492063491,
+    "top10_level_share": {
+     "season": 1.0
+    }
+   },
+   "season|named|mixed": {
+    "n": 500,
+    "hit@1": 0.758,
+    "hit@5": 0.916,
+    "hit@10": 0.948,
+    "mrr": 0.822356349206349,
+    "top10_level_share": {
+     "season": 0.983,
+     "episode": 0.008,
+     "series": 0.009
+    },
+    "parent_series_in_top10": 0.045563549160671464
+   },
+   "season|named|filtered": {
+    "n": 500,
+    "hit@1": 0.758,
+    "hit@5": 0.916,
+    "hit@10": 0.948,
+    "mrr": 0.822356349206349,
+    "top10_level_share": {
+     "season": 1.0
+    }
+   },
+   "episode|nameless|mixed": {
+    "n": 500,
+    "hit@1": 0.894,
+    "hit@5": 0.974,
+    "hit@10": 0.982,
+    "mrr": 0.9280738095238094,
+    "top10_level_share": {
+     "episode": 0.86,
+     "series": 0.107,
+     "season": 0.033
+    },
+    "parent_series_in_top10": 0.01126126126126126,
+    "parent_season_in_top10": 0.0
+   },
+   "episode|nameless|filtered": {
+    "n": 500,
+    "hit@1": 0.904,
+    "hit@5": 0.976,
+    "hit@10": 0.988,
+    "mrr": 0.9347325396825396,
+    "top10_level_share": {
+     "episode": 1.0
+    }
+   },
+   "episode|named|mixed": {
+    "n": 500,
+    "hit@1": 0.722,
+    "hit@5": 0.856,
+    "hit@10": 0.924,
+    "mrr": 0.7802246031746027,
+    "top10_level_share": {
+     "episode": 0.517,
+     "season": 0.42,
+     "series": 0.063
+    },
+    "parent_series_in_top10": 0.13963963963963963,
+    "parent_season_in_top10": 0.5096774193548387
+   },
+   "episode|named|filtered": {
+    "n": 500,
+    "hit@1": 0.88,
+    "hit@5": 0.956,
+    "hit@10": 0.978,
+    "mrr": 0.9119325396825396,
+    "top10_level_share": {
+     "episode": 1.0
+    }
+   }
+  },
+  "context_prefix": {
+   "series|nameless|mixed": {
+    "n": 500,
+    "hit@1": 0.88,
+    "hit@5": 0.936,
+    "hit@10": 0.964,
+    "mrr": 0.9069126984126984,
+    "top10_level_share": {
+     "series": 0.477,
+     "episode": 0.359,
+     "season": 0.164
+    }
+   },
+   "series|nameless|filtered": {
+    "n": 500,
+    "hit@1": 0.924,
+    "hit@5": 0.962,
+    "hit@10": 0.984,
+    "mrr": 0.9423095238095238,
+    "top10_level_share": {
+     "series": 1.0
+    }
+   },
+   "series|named|mixed": {
+    "n": 500,
+    "hit@1": 0.948,
+    "hit@5": 0.974,
+    "hit@10": 0.986,
+    "mrr": 0.960052380952381,
+    "top10_level_share": {
+     "series": 0.44,
+     "season": 0.259,
+     "episode": 0.301
+    }
+   },
+   "series|named|filtered": {
+    "n": 500,
+    "hit@1": 0.98,
+    "hit@5": 0.994,
+    "hit@10": 0.998,
+    "mrr": 0.9853,
+    "top10_level_share": {
+     "series": 1.0
+    }
+   },
+   "season|nameless|mixed": {
+    "n": 500,
+    "hit@1": 0.488,
+    "hit@5": 0.638,
+    "hit@10": 0.696,
+    "mrr": 0.5520150793650791,
+    "top10_level_share": {
+     "season": 0.985,
+     "episode": 0.007,
+     "series": 0.008
+    },
+    "parent_series_in_top10": 0.007194244604316547
+   },
+   "season|nameless|filtered": {
+    "n": 500,
+    "hit@1": 0.49,
+    "hit@5": 0.638,
+    "hit@10": 0.696,
+    "mrr": 0.5530150793650791,
+    "top10_level_share": {
+     "season": 1.0
+    }
+   },
+   "season|named|mixed": {
+    "n": 500,
+    "hit@1": 0.792,
+    "hit@5": 0.932,
+    "hit@10": 0.968,
+    "mrr": 0.8535396825396825,
+    "top10_level_share": {
+     "season": 0.968,
+     "episode": 0.021,
+     "series": 0.011
+    },
+    "parent_series_in_top10": 0.09352517985611511
+   },
+   "season|named|filtered": {
+    "n": 500,
+    "hit@1": 0.792,
+    "hit@5": 0.932,
+    "hit@10": 0.968,
+    "mrr": 0.8535396825396825,
+    "top10_level_share": {
+     "season": 1.0
+    }
+   },
+   "episode|nameless|mixed": {
+    "n": 500,
+    "hit@1": 0.896,
+    "hit@5": 0.972,
+    "hit@10": 0.982,
+    "mrr": 0.9290126984126982,
+    "top10_level_share": {
+     "episode": 0.816,
+     "series": 0.1,
+     "season": 0.084
+    },
+    "parent_series_in_top10": 0.009009009009009009,
+    "parent_season_in_top10": 0.0
+   },
+   "episode|nameless|filtered": {
+    "n": 500,
+    "hit@1": 0.904,
+    "hit@5": 0.976,
+    "hit@10": 0.988,
+    "mrr": 0.9354936507936508,
+    "top10_level_share": {
+     "episode": 1.0
+    }
+   },
+   "episode|named|mixed": {
+    "n": 500,
+    "hit@1": 0.798,
+    "hit@5": 0.904,
+    "hit@10": 0.968,
+    "mrr": 0.8416761904761905,
+    "top10_level_share": {
+     "episode": 0.53,
+     "season": 0.429,
+     "series": 0.041
+    },
+    "parent_series_in_top10": 0.16441441441441443,
+    "parent_season_in_top10": 0.5978494623655914
+   },
+   "episode|named|filtered": {
+    "n": 500,
+    "hit@1": 0.942,
+    "hit@5": 0.982,
+    "hit@10": 0.99,
+    "mrr": 0.9594444444444444,
+    "top10_level_share": {
+     "episode": 1.0
+    }
+   }
+  }
+ }
+}

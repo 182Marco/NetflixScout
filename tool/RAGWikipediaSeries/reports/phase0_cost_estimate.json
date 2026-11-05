@@ -1,0 +1,31 @@
+{
+ "price_per_million_tokens_usd": 0.13,
+ "levels": {
+  "series": {
+   "units": 12055,
+   "chars": 18628951,
+   "chars_per_token": 3.49,
+   "tokens_estimated": 5340268,
+   "longest_in_sample_tokens": 5725
+  },
+  "season": {
+   "units": 10016,
+   "chars": 3474565,
+   "chars_per_token": 3.28,
+   "tokens_estimated": 1058179,
+   "longest_in_sample_tokens": 851
+  },
+  "episode": {
+   "units": 79219,
+   "chars": 94150706,
+   "chars_per_token": 3.46,
+   "tokens_estimated": 27172157,
+   "longest_in_sample_tokens": 2815
+  }
+ },
+ "total": {
+  "units": 101290,
+  "tokens_estimated": 33570605,
+  "usd_estimated": 4.36
+ }
+}

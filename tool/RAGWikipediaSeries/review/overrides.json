@@ -1,0 +1,2157 @@
+{
+ "_comment": "Reviewed decisions (S4). Remove an entry and rebuild S3/S5 to restore the automatic result. Written by the reviewer, never by audit_series.py.",
+ "exclude": {
+  "10078532": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:rotocalco"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "10445955": {
+   "reason": "radio programme: the Wikidata class of the page's entity is exclusively 'radio program' (the Programma infobox is also used for radio shows); not a TV work",
+   "reviewer": "claude (S4, class_disagreement review)",
+   "title": "I tre moschettieri (programma radiofonico)"
+  },
+  "1048116": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:varietà"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "1572676": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:comico"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "1818826": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:satira"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "1834830": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:comico"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "1850947": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:comico"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "1960577": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:talk"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "2327193": {
+   "reason": "radio programme: the Wikidata class of the page's entity is exclusively 'radio program' (the Programma infobox is also used for radio shows); not a TV work",
+   "reviewer": "claude (S4, class_disagreement review)",
+   "title": "La caccia (programma radiofonico)"
+  },
+  "246969": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:varietà, comico, satirico, rotocalco"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "2648382": {
+   "reason": "radio programme: the Wikidata class of the page's entity is exclusively 'radio program' (the Programma infobox is also used for radio shows); not a TV work",
+   "reviewer": "claude (S4, class_disagreement review)",
+   "title": "La Zanzara"
+  },
+  "277646": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:infotainment"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "2844643": {
+   "reason": "radio programme: the Wikidata class of the page's entity is exclusively 'radio program' (the Programma infobox is also used for radio shows); not a TV work",
+   "reviewer": "claude (S4, class_disagreement review)",
+   "title": "Flywheel, Shyster & Flywheel"
+  },
+  "3117843": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:comico"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "3126816": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:satirico"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "3126846": {
+   "reason": "radio programme: the Wikidata class of the page's entity is exclusively 'radio program' (the Programma infobox is also used for radio shows); not a TV work",
+   "reviewer": "claude (S4, class_disagreement review)",
+   "title": "Black Out (programma radiofonico)"
+  },
+  "3392193": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:contenitore"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "3404918": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:comico"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "3508959": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:varietà"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "3517310": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:rotocalco"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "3602280": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:comico"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "4041972": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:talk"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "4050396": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:infotainment"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "442611": {
+   "reason": "radio programme: the Wikidata class of the page's entity is exclusively 'radio program' (the Programma infobox is also used for radio shows); not a TV work",
+   "reviewer": "claude (S4, class_disagreement review)",
+   "title": "Il ruggito del coniglio"
+  },
+  "464583": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:rotocalco"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "4700419": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:comico"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "4782344": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:comico"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "5134515": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:talk"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "5148414": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:talk"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "5190567": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:varietà"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "5304503": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:comico"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "5627935": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:comico"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "6053824": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:infotainment"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "636790": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:satira"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "638407": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:comico"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "6430937": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:contenitore"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "643461": {
+   "reason": "radio programme: the Wikidata class of the page's entity is exclusively 'radio program' (the Programma infobox is also used for radio shows); not a TV work",
+   "reviewer": "claude (S4, class_disagreement review)",
+   "title": "Lo Zoo di 105"
+  },
+  "652660": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:comico"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "6748081": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:comico"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "684487": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:varietà"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "7516573": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:sportivo"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "7664485": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:per ragazzi"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "7693243": {
+   "reason": "radio programme: the Wikidata class of the page's entity is exclusively 'radio program' (the Programma infobox is also used for radio shows); not a TV work",
+   "reviewer": "claude (S4, class_disagreement review)",
+   "title": "A me mi piace (programma radiofonico)"
+  },
+  "8368243": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:satirico"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "8573686": {
+   "reason": "radio programme: the Wikidata class of the page's entity is exclusively 'radio program' (the Programma infobox is also used for radio shows); not a TV work",
+   "reviewer": "claude (S4, class_disagreement review)",
+   "title": "Supernova (programma radiofonico)"
+  },
+  "858417": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:rotocalco"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "radio program"
+    ]
+   },
+   "reason": "Wikidata class ['radio program'] is exclusively a radio programme; the Programma infobox is also used for radio shows",
+   "rule": "U2"
+  },
+  "8610953": {
+   "reason": "radio programme: the Wikidata class of the page's entity is exclusively 'radio program' (the Programma infobox is also used for radio shows); not a TV work",
+   "reviewer": "claude (S4, class_disagreement review)",
+   "title": "Radiosoftware"
+  },
+  "9836130": {
+   "reason": "radio programme: the Wikidata class of the page's entity is exclusively 'radio program' (the Programma infobox is also used for radio shows); not a TV work",
+   "reviewer": "claude (S4, class_disagreement review)",
+   "title": "Dangerously Yours (programma radiofonico)"
+  }
+ },
+ "flag": {
+  "10807051": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "1187147": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "1519081": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "1519368": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "1741399": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "1842787": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "1885851": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "2015284": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "2045369": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "2111434": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "2158070": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "2251076": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "2569394": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "2596819": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "2704174": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "2723885": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film broadcast in two parts"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film broadcast in two parts'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "2783437": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "2800738": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "3094106": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "3114587": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "3173869": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "3368727": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "3516661": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "3634976": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "381493": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "3909684": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "3932485": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "3989756": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "4081729": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "4086239": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "4264121": {
+   "flag": "mixed_media",
+   "original": {
+    "mixed_media": false
+   },
+   "reason": "independent regex count of the page's infoboxes finds a manga infobox next to the anime one; the wikitext parser missed the manga box (S1 flag was a false negative)",
+   "reviewer": "claude (S4b mixed-media verification)",
+   "rule": "M1",
+   "title": "Cobra (manga)"
+  },
+  "4281686": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "4412534": {
+   "flag": "mixed_media",
+   "original": {
+    "mixed_media": false
+   },
+   "reason": "independent regex count of the page's infoboxes finds a manga infobox next to the anime one; the wikitext parser missed the manga box (S1 flag was a false negative)",
+   "reviewer": "claude (S4b mixed-media verification)",
+   "rule": "M1",
+   "title": "Kyōkasho ni Nai!"
+  },
+  "4412870": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "4422875": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "4496": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "4530209": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "4966805": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "5046280": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "5099562": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film broadcast in two parts"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film broadcast in two parts'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "6071365": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "6190284": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "6487158": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "747308": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "7608131": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "7854501": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "844677": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "8611682": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  },
+  "9564148": {
+   "flag": "possible_tv_movie",
+   "original": {
+    "bucket": "series",
+    "class_check": "wikidata_film",
+    "subtype": "miniseries",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "kept as miniseries (infobox) but flagged: Wikidata class ['television film'] is a film, and the page has no season/episode pages, no declared episode count > 1 and its own title and text never call it a series, miniseries, episode or part",
+   "rule": "D1"
+  }
+ },
+ "reclassify": {
+  "11017827": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:per bambini"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "animated television series"
+    ]
+   },
+   "reason": "Wikidata class ['animated television series'] states a scripted / animated series, which settles the ambiguous genre ['per bambini']",
+   "rule": "U3",
+   "to": "series"
+  },
+  "11193067": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [
+       "documentario"
+      ],
+      "cast": true,
+      "director": true,
+      "genres": [
+       "documentario",
+       "commedia"
+      ],
+      "narrative_categories": 0,
+      "plot": true,
+      "writer": false
+     },
+     "reasons": [
+      "docudrama_mixed_genre"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "Wikidata class ['television film'] is a film and the page declares narrative genre(s) ['documentario', 'commedia']; the infobox already says film TV (docudrama mix accepted only because the class is 'television film')",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "1703816": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": true,
+      "director": false,
+      "genres": [
+       "drammatico",
+       "biografico"
+      ],
+      "narrative_categories": 0,
+      "plot": false,
+      "writer": false
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "Wikidata class ['television film'] is a film and the page declares narrative genre(s) ['drammatico', 'biografico']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "1727998": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": true,
+      "director": false,
+      "genres": [
+       "biografico",
+       "drammatico"
+      ],
+      "narrative_categories": 0,
+      "plot": false,
+      "writer": false
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "film"
+    ]
+   },
+   "reason": "Wikidata class ['film'] is a film and the page declares narrative genre(s) ['biografico', 'drammatico']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "2165631": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": true,
+      "director": false,
+      "genres": [
+       "poliziesco"
+      ],
+      "narrative_categories": 0,
+      "plot": false,
+      "writer": false
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "episode",
+     "film"
+    ]
+   },
+   "reason": "Wikidata class ['episode', 'film'] is a film and the page declares narrative genre(s) ['poliziesco']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "2654240": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:contenitore"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "animated television series"
+    ]
+   },
+   "reason": "Wikidata class ['animated television series'] states a scripted / animated series, which settles the ambiguous genre ['contenitore', 'per bambini']",
+   "rule": "U3",
+   "to": "series"
+  },
+  "2757651": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": false,
+      "director": true,
+      "genres": [
+       "fantascienza"
+      ],
+      "narrative_categories": 2,
+      "plot": false,
+      "writer": true
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "film"
+    ]
+   },
+   "reason": "Wikidata class ['film'] is a film and the page declares narrative genre(s) ['fantascienza']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "3298892": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": false,
+      "director": true,
+      "genres": [
+       "drammatico",
+       "thriller"
+      ],
+      "narrative_categories": 0,
+      "plot": false,
+      "writer": true
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "film"
+    ]
+   },
+   "reason": "Wikidata class ['film'] is a film and the page declares narrative genre(s) ['drammatico', 'thriller']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "3323830": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:per ragazzi"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "animated television series"
+    ]
+   },
+   "reason": "Wikidata class ['animated television series'] states a scripted / animated series, which settles the ambiguous genre ['per ragazzi']",
+   "rule": "U3",
+   "to": "series"
+  },
+  "3718486": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": false,
+      "director": true,
+      "genres": [
+       "commedia"
+      ],
+      "narrative_categories": 1,
+      "plot": false,
+      "writer": false
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "Wikidata class ['television film'] is a film and the page declares narrative genre(s) ['commedia']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "390179": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:satirico"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "miniseries"
+    ]
+   },
+   "reason": "Wikidata class ['miniseries'] states a scripted / animated series, which settles the ambiguous genre ['satirico', 'sportivo']",
+   "rule": "U3",
+   "to": "series"
+  },
+  "3956567": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": true,
+      "director": false,
+      "genres": [
+       "drammatico"
+      ],
+      "narrative_categories": 0,
+      "plot": false,
+      "writer": false
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "Wikidata class ['television film'] is a film and the page declares narrative genre(s) ['drammatico']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "4254702": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": false,
+      "director": true,
+      "genres": [
+       "horror",
+       "giallo",
+       "thriller"
+      ],
+      "narrative_categories": 3,
+      "plot": false,
+      "writer": true
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "Wikidata class ['television film'] is a film and the page declares narrative genre(s) ['horror', 'giallo']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "4848752": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": false,
+      "director": true,
+      "genres": [
+       "drammatico"
+      ],
+      "narrative_categories": 0,
+      "plot": false,
+      "writer": false
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "Wikidata class ['television film'] is a film and the page declares narrative genre(s) ['drammatico']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "5042175": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:per bambini"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "animated television series"
+    ]
+   },
+   "reason": "Wikidata class ['animated television series'] states a scripted / animated series, which settles the ambiguous genre ['per bambini']",
+   "rule": "U3",
+   "to": "series"
+  },
+  "5260663": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": false,
+      "director": true,
+      "genres": [
+       "commedia romantica",
+       "fantasy",
+       "natalizio"
+      ],
+      "narrative_categories": 0,
+      "plot": false,
+      "writer": true
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "Wikidata class ['television film'] is a film and the page declares narrative genre(s) ['commedia romantica', 'fantasy']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "544993": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:storico"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "film",
+     "miniseries"
+    ]
+   },
+   "reason": "Wikidata class ['film', 'miniseries'] states a scripted / animated series, which settles the ambiguous genre ['storico']",
+   "rule": "U3",
+   "to": "series"
+  },
+  "5537622": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": false,
+      "director": true,
+      "genres": [
+       "drama"
+      ],
+      "narrative_categories": 3,
+      "plot": false,
+      "writer": false
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "Wikidata class ['television film'] is a film and the page declares narrative genre(s) ['drama']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "5934141": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": false,
+      "director": true,
+      "genres": [
+       "drammatico"
+      ],
+      "narrative_categories": 1,
+      "plot": false,
+      "writer": true
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "Wikidata class ['television film'] is a film and the page declares narrative genre(s) ['drammatico']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "6427364": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": true,
+      "director": false,
+      "genres": [
+       "commedia",
+       "horror"
+      ],
+      "narrative_categories": 0,
+      "plot": false,
+      "writer": false
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "Wikidata class ['television film'] is a film and the page declares narrative genre(s) ['commedia', 'horror']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "6445436": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": false,
+      "director": false,
+      "genres": [
+       "commedia"
+      ],
+      "narrative_categories": 0,
+      "plot": false,
+      "writer": false
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "Wikidata class ['television film'] is a film and the page declares narrative genre(s) ['commedia']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "6720522": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": false,
+      "director": true,
+      "genres": [
+       "biografico",
+       "drammatico"
+      ],
+      "narrative_categories": 0,
+      "plot": false,
+      "writer": false
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "Wikidata class ['television film'] is a film and the page declares narrative genre(s) ['biografico', 'drammatico']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "7576433": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:documentario"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "miniseries",
+     "television program"
+    ]
+   },
+   "reason": "Wikidata class ['miniseries', 'television program'] states a scripted / animated series, which settles the ambiguous genre ['Documentario', 'storico']",
+   "rule": "U3",
+   "to": "series"
+  },
+  "7762196": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": true,
+      "director": false,
+      "genres": [
+       "drammatico"
+      ],
+      "narrative_categories": 0,
+      "plot": false,
+      "writer": false
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "Wikidata class ['television film'] is a film and the page declares narrative genre(s) ['drammatico']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "7787794": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": true,
+      "director": false,
+      "genres": [
+       "avventura",
+       "commedia"
+      ],
+      "narrative_categories": 0,
+      "plot": false,
+      "writer": false
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "film"
+    ]
+   },
+   "reason": "Wikidata class ['film'] is a film and the page declares narrative genre(s) ['avventura', 'commedia']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "8687862": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:comico"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "drama television series",
+     "podcast show",
+     "web series"
+    ]
+   },
+   "reason": "Wikidata class ['drama television series', 'podcast show', 'web series'] states a scripted / animated series, which settles the ambiguous genre ['Comico']",
+   "rule": "U3",
+   "to": "series"
+  },
+  "8824281": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": true,
+      "director": false,
+      "genres": [
+       "commedia",
+       "fantastico"
+      ],
+      "narrative_categories": 0,
+      "plot": false,
+      "writer": false
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "Wikidata class ['television film'] is a film and the page declares narrative genre(s) ['commedia', 'fantastico']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "8853661": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": false,
+      "director": false,
+      "genres": [
+       "drammatico"
+      ],
+      "narrative_categories": 0,
+      "plot": false,
+      "writer": false
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "Wikidata class ['television film'] is a film and the page declares narrative genre(s) ['drammatico']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "8876731": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": false,
+      "director": true,
+      "genres": [
+       "drammatico"
+      ],
+      "narrative_categories": 0,
+      "plot": false,
+      "writer": true
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "Wikidata class ['television film'] is a film and the page declares narrative genre(s) ['drammatico']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "9027728": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [
+       "documentario"
+      ],
+      "cast": true,
+      "director": true,
+      "genres": [
+       "documentario",
+       "drammatico"
+      ],
+      "narrative_categories": 0,
+      "plot": false,
+      "writer": true
+     },
+     "reasons": [
+      "docudrama_mixed_genre"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "television film"
+    ]
+   },
+   "reason": "Wikidata class ['television film'] is a film and the page declares narrative genre(s) ['documentario', 'drammatico']; the infobox already says film TV (docudrama mix accepted only because the class is 'television film')",
+   "rule": "U1",
+   "to": "tv_movie"
+  },
+  "9272901": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": null,
+    "programme_reason": [
+     "ambiguous_genre:per bambini"
+    ],
+    "subtype": "programme",
+    "wikidata_classes": [
+     "animated television series"
+    ]
+   },
+   "reason": "Wikidata class ['animated television series'] states a scripted / animated series, which settles the ambiguous genre ['per bambini']",
+   "rule": "U3",
+   "to": "series"
+  },
+  "9620163": {
+   "original": {
+    "bucket": "uncertain",
+    "classification": {
+     "class": "uncertain",
+     "evidence": {
+      "bad_categories": [],
+      "bad_genre": [],
+      "cast": false,
+      "director": true,
+      "genres": [
+       "drammatico",
+       "commedia"
+      ],
+      "narrative_categories": 0,
+      "plot": false,
+      "writer": true
+     },
+     "reasons": [
+      "insufficient_evidence"
+     ]
+    },
+    "programme_reason": null,
+    "subtype": "tv_movie",
+    "wikidata_classes": [
+     "film"
+    ]
+   },
+   "reason": "Wikidata class ['film'] is a film and the page declares narrative genre(s) ['drammatico', 'commedia']; the infobox already says film TV",
+   "rule": "U1",
+   "to": "tv_movie"
+  }
+ },
+ "relations": {
+  "1433651": {
+   "reason": "il titolo «Episodi de La squadra del cuore» e la voce serie coincidono; {{torna a}} punta al manga Hungry Heart",
+   "reviewer": "claude (S4 manual review of the 5 residual relation conflicts)",
+   "series_page_id": 3924320
+  },
+  "3010340": {
+   "reason": "lista episodi dell'anime; {{torna a}} punta alla pagina del manga («Yu degli spettri»)",
+   "reviewer": "claude (S4 manual review of the 5 residual relation conflicts)",
+   "series_page_id": 9954480
+  },
+  "4602565": {
+   "reason": "lista episodi dell'anime; {{torna a}} punta al titolo inglese del manga («Perfect Girl Evolution»)",
+   "reviewer": "claude (S4 manual review of the 5 residual relation conflicts)",
+   "series_page_id": 4596095
+  },
+  "8137638": {
+   "reason": "pagina su stagione trasmessa dalla CBC nel 2015: coincide con la serie 2015; il QID Wikidata punta alla serie 1996",
+   "reviewer": "claude (S4 manual review of the 5 residual relation conflicts)",
+   "series_page_id": 8137604
+  },
+  "8137644": {
+   "reason": "pagina su stagione CBC 2016: serie 2015 (seconda stagione); QID Wikidata errato (serie 1996)",
+   "reviewer": "claude (S4 manual review of the 5 residual relation conflicts)",
+   "series_page_id": 8137604
+  }
+ }
+}
