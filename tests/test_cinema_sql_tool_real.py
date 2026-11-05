@@ -179,6 +179,9 @@ def test_awards_of_a_work_separate_wins_from_nominations(tool, raw):
 def test_awards_of_a_person_and_by_award_name_and_year(tool):
     _, person = call(tool, operation="awards", person="Christopher Nolan", year_from=2010, year_to=2011)
     assert {r["work_title"] for r in person["results"]} == {"Inception"} and person["subject"]["person_id"] == NOLAN
+    assert "awards_person_scope" in [n["code"] for n in person["notes"]]  # prizes recorded only on the film (Oppenheimer's) are not attributed to Nolan
+    _, oppenheimer = call(tool, operation="awards", title="Oppenheimer", outcome="won")
+    assert oppenheimer["total"] >= 1 and not any(r["work_title"] == "Oppenheimer" for r in call(tool, operation="awards", person="Christopher Nolan", year_from=2024, year_to=2024)[1].get("results", []))
     _, named = call(tool, operation="awards", award="Oscar al miglior film", year_from=1973, year_to=1973, outcome="won")
     assert any(r["work_title"] == "Il padrino" and r["category"] == "Oscar al miglior film" for r in named["results"])
     assert named["results"][0]["category"] == "Oscar al miglior film"  # the exact category comes before longer names that contain it

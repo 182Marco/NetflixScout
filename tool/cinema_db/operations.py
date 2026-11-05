@@ -208,7 +208,7 @@ def awards(request: CinemaSqlInput, session: Session, limit: int) -> OpResult:
         exact = " ".join((request.award or "").casefold().split())
         rows = session.rows(*Q.awards_by_name(pattern, exact, request.outcome, request.year_from, request.year_to, request.order, limit))
         total = session.rows(*Q.awards_count(None, None, pattern, request.outcome, request.year_from, request.year_to))[0]["n"]
-    notes = ["awards"] + (["limit"] if total > len(rows) else [])
+    notes = ["awards"] + (["awards_person_scope"] if column == "person_id" else []) + (["limit"] if total > len(rows) else [])
     return _empty_or_ok(rows, "no_award_results_recorded", subject=subject, data={"results": rows}, total=total, shown=len(rows), truncated=total > len(rows), notes=notes, via=via)
 
 
