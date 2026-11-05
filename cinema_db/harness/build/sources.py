@@ -12,6 +12,7 @@ SERIES_SNAPSHOT = ROOT / "tool/RAGWikipediaSeries/data/cache/wikidata/itwiki-202
 FILM_CATALOG = ROOT / "tool/RAGWikipediaFilm/data/clean_v3/films.v3.jsonl"
 SERIES_DIR = ROOT / "tool/RAGWikipediaSeries/data/s5"
 DEFAULT_DB = ROOT / "cinema_db/data/cinema.sqlite3"
+PHASE4_SNAPSHOT = ROOT / "cinema_db/data/wikidata_phase4"
 
 
 def sha256_file(path: Path) -> str:
@@ -48,10 +49,11 @@ def manifest_hash(directory: Path) -> str:
     return sha256_file(manifest) if manifest.is_file() else ""
 
 
-def build_sources(film_index_sha: str, film_acquired: str, series_index_sha: str, series_acquired: str) -> list[SourceSpec]:
+def build_sources(film_index_sha: str, film_acquired: str, series_index_sha: str, series_acquired: str,
+                  phase4: tuple[str, str] | None = None) -> list[SourceSpec]:
     cc0 = ("CC0 1.0", "https://creativecommons.org/publicdomain/zero/1.0/")
     sa = ("CC BY-SA 4.0", "https://creativecommons.org/licenses/by-sa/4.0/")
-    return [
+    specs = [
         SourceSpec("wd_film", "wikidata-film-snapshot", "wikidata", "https://www.wikidata.org", *cc0, "open_public_domain", 0, None,
                    "Original API responses downloaded by the film project (tool/RAGWikipediaFilm), read from the local snapshot; Wikidata structured data is CC0.",
                    "itwiki-20261101-a", film_index_sha, film_acquired),
@@ -68,3 +70,10 @@ def build_sources(film_index_sha: str, film_acquired: str, series_index_sha: str
                    "Canonical genre vocabulary and mapping rules written for this project (cinema_db/harness/build/genres.py); the licence of this authored work is for the owner to decide.",
                    None, None, None),
     ]
+    if phase4:  # appended LAST so that a build without it keeps every source id (and the digest) it had
+        specs.append(SourceSpec(
+            "wd_p4", "wikidata-phase4-targeted", "wikidata", "https://www.wikidata.org", *cc0, "open_public_domain", 0, None,
+            "Targeted requests to the public Wikidata endpoints (labels and life dates of people, award, ceremony, country, language, currency and company items), "
+            "stored byte for byte in cinema_db/data/wikidata_phase4 and read from there; Wikidata structured data is CC0.",
+            "wikidata_phase4", phase4[0], phase4[1]))
+    return specs

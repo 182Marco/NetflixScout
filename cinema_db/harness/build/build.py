@@ -31,6 +31,7 @@ from cinema_db.harness.build import extract as X
 from cinema_db.harness.build import sources as S
 from cinema_db.harness.build.common import italian_date, normalize_name, wikipedia_title, year_ok
 from cinema_db.harness.build.genres import BY_CODE, VOCABULARY, map_label
+from cinema_db.harness.build.phase4 import Phase4
 from cinema_db.harness.build.snapshot import Snapshot
 from cinema_db.schema import SCHEMA_VERSION, check_fts, create_database, rebuild_fts
 
@@ -55,8 +56,10 @@ def jsonl(path: Path) -> Iterator[dict]:
 
 
 class Inputs:
-    def __init__(self, film_snapshot: Path = S.FILM_SNAPSHOT, series_snapshot: Path = S.SERIES_SNAPSHOT, film_catalog: Path = S.FILM_CATALOG, series_dir: Path = S.SERIES_DIR) -> None:
+    def __init__(self, film_snapshot: Path = S.FILM_SNAPSHOT, series_snapshot: Path = S.SERIES_SNAPSHOT, film_catalog: Path = S.FILM_CATALOG, series_dir: Path = S.SERIES_DIR,
+                 phase4: Path | None = None) -> None:
         self.film_snapshot, self.series_snapshot, self.film_catalog, self.series_dir = film_snapshot, series_snapshot, film_catalog, series_dir
+        self.phase4 = phase4  # the optional phase-4 Wikidata snapshot; None = a build from the original local sources only
 
 
 class Builder:
@@ -85,6 +88,11 @@ class Builder:
         self.name_seen: set[tuple[int, str, str, str]] = set()
         self.credit_seen: set[tuple[int, int, str, str]] = set()
         self.assertion_seen: set[tuple] = set()
+        self.p4: Phase4 | None = None
+        self.pending_awards: list[tuple[int, str, dict, int]] = []
+        self.company_qids: set[str] = set()  # items some work lists as production/distribution company or network (phase 4 only)
+        self.iso2_used: set[str] = set()
+        self.iso1_used: set[str] = set()
 
     # ---- small helpers ---------------------------------------------------------------------------------------------
     def note(self, kind: str, sample: Any = None, n: int = 1) -> None:
@@ -144,6 +152,14 @@ class Builder:
                 sql = ("INSERT INTO work_financial (work_id, kind, scope, country_id, amount, currency, reference_year, source_id, source_ref) VALUES (?,?,?,?,?,?,?,?,?)")
             elif table == "entity":
                 sql = "INSERT INTO entity VALUES (?,?)"
+            elif table == "award":
+                sql = "INSERT INTO award (award_id, country_id, source_id, source_ref) VALUES (?,?,?,?)"
+            elif table == "award_category":
+                sql = "INSERT INTO award_category (category_id, award_id, name, name_norm, scope, wikidata_id, source_id, source_ref) VALUES (?,?,?,?,?,?,?,?)"
+            elif table == "ceremony":
+                sql = "INSERT INTO ceremony (ceremony_id, award_id, year, edition, ceremony_date, wikidata_id, source_id, source_ref) VALUES (?,?,?,?,?,?,?,?)"
+            elif table == "award_result":
+                sql = "INSERT INTO award_result (result_id, ceremony_id, category_id, work_id, person_id, outcome, note, source_id, source_ref) VALUES (?,?,?,?,?,?,?,?,?)"
             else:
                 sql = f"INSERT INTO {table} VALUES ({','.join('?' * len(rows[0]))})"
             if table == "entity":
@@ -151,16 +167,33 @@ class Builder:
             self.c.executemany(sql, rows)
             rows.clear()
 
-    def name_of(self, qid: str) -> tuple[str, str | None] | None:
-        """(name, language) a Wikidata item can be shown with, from the snapshot labels first, then the catalogue."""
+    def name_of(self, qid: str) -> tuple[str, str | None, bool] | None:
+        """(name, language, from_phase4) a Wikidata item can be shown with: the original snapshot labels first, then the catalogue, and only
+        then the phase-4 labels (which never replace a name an older source gave)."""
         lab = self.labels.get(qid, {})
         if lab.get("it"):
-            return lab["it"], "it"
+            return lab["it"], "it", False
         if lab.get("en"):
-            return lab["en"], "en"
+            return lab["en"], "en", False
         if qid in self.catalog_names:
-            return self.catalog_names[qid], None
+            return self.catalog_names[qid], None, False
+        if self.p4:
+            found = self.p4.label_of(qid)
+            if found:
+                return found[0], (None if found[1] == "mul" else found[1]), True
         return None
+
+    def name_source(self, from_phase4: bool, default: int) -> int:
+        return self.src["wd_p4"] if from_phase4 else default
+
+    def labels_for(self, qid: str) -> dict[str, str]:
+        """it/en labels of an item: the original snapshot's, completed (never overridden) by phase 4."""
+        out = dict(self.labels.get(qid, {}))
+        if self.p4:
+            for lang in ("it", "en"):
+                if not out.get(lang) and self.p4.labels.get(qid, {}).get(lang):
+                    out[lang] = self.p4.labels[qid][lang]
+        return out
 
     def add_name(self, eid: int, name: str, kind: str, language: str | None, source: int, ref: str | None, primary: bool = False) -> bool:
         name = " ".join(str(name).split())
@@ -190,7 +223,8 @@ class Builder:
 
     # ---- phases -----------------------------------------------------------------------------------------------------
     def load_sources(self, film_snap: Snapshot, series_snap: Snapshot) -> None:
-        specs = S.build_sources(film_snap.index_sha256, film_snap.acquired_range[1], series_snap.index_sha256, series_snap.acquired_range[1])
+        specs = S.build_sources(film_snap.index_sha256, film_snap.acquired_range[1], series_snap.index_sha256, series_snap.acquired_range[1],
+                                (self.p4.index_sha256, self.p4.acquired_range[1]) if self.p4 else None)
         for i, spec in enumerate(specs, 1):
             self.c.execute("INSERT INTO source VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", spec.row(i))
             self.src[spec.key] = i
@@ -224,13 +258,21 @@ class Builder:
     def country(self, qid: str) -> int | None:
         if qid in self.country_by_qid:
             return self.country_by_qid[qid]
-        lab = self.labels.get(qid, {})
+        lab = self.labels_for(qid)
         if not (lab.get("it") or lab.get("en")):
             return None
         cid = len(self.country_by_qid) + 1
         self.country_by_qid[qid] = cid
+        iso2, source = None, self.src["wd_film"]
+        item = self.p4.items.get(qid) if self.p4 else None
+        if item and len(item["iso2"]) == 1 and item["iso2"][0] not in self.iso2_used:
+            iso2, source = item["iso2"][0], self.src["wd_p4"]  # the code comes from phase 4: so does the row's provenance
+            self.iso2_used.add(iso2)
+            self.count("country_iso2_from_phase4")
+        elif item and item["iso2"]:
+            self.note("country_iso2_ambiguous_or_repeated", {"qid": qid, "codes": item["iso2"]})
         self.c.execute("INSERT INTO country (country_id, iso2, label_en, label_it, wikidata_id, source_id) VALUES (?,?,?,?,?,?)",
-                       (cid, None, lab.get("en") or lab["it"], lab.get("it"), qid, self.src["wd_film"]))
+                       (cid, iso2, lab.get("en") or lab["it"], lab.get("it"), qid, source))
         for t in (lab.get("it"), lab.get("en")):
             if t:
                 self.country_by_norm.setdefault(normalize_name(t), cid)
@@ -239,26 +281,47 @@ class Builder:
     def language(self, qid: str) -> int | None:
         if qid in self.language_by_qid:
             return self.language_by_qid[qid]
-        lab = self.labels.get(qid, {})
+        lab = self.labels_for(qid)
         if not (lab.get("it") or lab.get("en")):
             return None
         lid = len(self.language_by_qid) + 1
         self.language_by_qid[qid] = lid
+        iso1 = iso3 = None
+        source = self.src["wd_film"]
+        item = self.p4.items.get(qid) if self.p4 else None
+        if item:
+            if len(item["iso639_1"]) == 1 and item["iso639_1"][0] not in self.iso1_used:
+                iso1 = item["iso639_1"][0]
+                self.iso1_used.add(iso1)
+            elif item["iso639_1"]:
+                self.note("language_iso639_1_ambiguous_or_repeated", {"qid": qid, "codes": item["iso639_1"]})
+            if len(item["iso639_3"]) == 1:
+                iso3 = item["iso639_3"][0]
+            if iso1 or iso3:
+                source = self.src["wd_p4"]
+                self.count("language_iso_from_phase4")
         self.c.execute("INSERT INTO language (language_id, iso639_1, iso639_3, label_en, label_it, wikidata_id, source_id) VALUES (?,?,?,?,?,?,?)",
-                       (lid, None, None, lab.get("en") or lab["it"], lab.get("it"), qid, self.src["wd_film"]))
+                       (lid, iso1, iso3, lab.get("en") or lab["it"], lab.get("it"), qid, source))
         return lid
 
     def person(self, qid: str, source: int) -> int | None:
         if qid in self.person_by_qid:
             return self.person_by_qid[qid]
+        if self.p4 and qid in self.company_qids:
+            return None  # an organisation that also appears as a "producer": it is a company here, never a second entity with the same Wikidata id
         named = self.name_of(qid)
         if not named:
             return None
         eid = self.entity("person")
         self.person_by_qid[qid] = eid
-        self.add("person", (eid, None, None, None, None, None, source, qid))
-        name, lang = named
-        self.add_name(eid, name, "primary", lang, source, qid, primary=True)
+        birth = death = (None, None)
+        if self.p4:
+            birth, death = self._life(eid, qid)
+        self.add("person", (eid, birth[0], int(birth[0][:4]) if birth[0] else None, death[0], int(death[0][:4]) if death[0] else None, None, source, qid))
+        name, lang, from_p4 = named
+        self.add_name(eid, name, "primary", lang, self.name_source(from_p4, source), qid, primary=True)
+        if from_p4:
+            self.count("persons_named_by_phase4")
         lab = self.labels.get(qid, {})
         if lab.get("en") and lab.get("it") and normalize_name(lab["en"]) != normalize_name(lab["it"]):
             self.add_name(eid, lab["en"], "translated", "en", source, qid)
@@ -266,13 +329,43 @@ class Builder:
         self.count("persons")
         return eid
 
-    def company(self, key: str, name: str, lang: str | None, source: int, qid: str | None) -> int:
+    def _life(self, eid: int, qid: str) -> tuple[tuple[str | None, str | None], tuple[str | None, str | None]]:
+        """Birth and death dates from phase 4, with their provenance. Ambiguous, inconsistent or out-of-range dates are reported, never guessed."""
+        assert self.p4 is not None
+        out = []
+        for field, (date, status) in (("birth", self.p4.life(qid)["birth"]), ("death", self.p4.life(qid)["death"])):
+            if status == "ambiguous":
+                self.note(f"person_{field}_date_ambiguous", qid)
+            if date and not 1000 <= int(date[:4]) <= 2100:
+                self.note(f"person_{field}_year_out_of_range", {"qid": qid, "date": date})
+                date = None
+            out.append((date, status))
+        if out[0][0] and out[1][0] and int(out[1][0][:4]) < int(out[0][0][:4]):
+            self.note("person_dates_inconsistent", {"qid": qid, "birth": out[0][0], "death": out[1][0]})
+            out = [(None, None), (None, None)]
+        for field, (date, _) in zip(("birth_date", "death_date"), out):
+            if date:
+                self.add("field_provenance", (eid, field, self.src["wd_p4"], qid, self.p4.acquired_range[1]))
+                self.count(f"person_{field}_from_phase4")
+        return (out[0][0], out[0][1]), (out[1][0], out[1][1])
+
+    def company(self, key: str, name: str, lang: str | None, source: int, qid: str | None, name_source: int | None = None) -> int:
         if key in self.company_by_key:
             return self.company_by_key[key]
         eid = self.entity("company")
         self.company_by_key[key] = eid
-        self.add("company", (eid, None, source, qid or key))
-        self.add_name(eid, name, "primary", lang, source, qid or key, primary=True)
+        country = None
+        item = self.p4.items.get(qid) if (self.p4 and qid) else None
+        if item:
+            countries = [self.country_by_qid[c] for c in (item["country"] + item["origin"]) if c in self.country_by_qid]
+            if len(set(countries)) == 1:
+                country = countries[0]
+                self.add("field_provenance", (eid, "country", self.src["wd_p4"], qid, self.p4.acquired_range[1]))
+                self.count("company_country_from_phase4")
+            elif countries:
+                self.note("company_country_ambiguous", qid)
+        self.add("company", (eid, country, source, qid or key))
+        self.add_name(eid, name, "primary", lang, name_source or source, qid or key, primary=True)
         if qid:
             self.add_external(eid, "wikidata", qid, source, qid)
         self.count("companies")
@@ -287,10 +380,17 @@ class Builder:
         eid = self.entity("franchise")
         self.franchise_by_qid[qid] = eid
         self.add("franchise", (eid, source, qid))
-        self.add_name(eid, named[0], "primary", named[1], source, qid, primary=True)
+        self.add_name(eid, named[0], "primary", named[1], self.name_source(named[2], source), qid, primary=True)
         self.add_external(eid, "wikidata", qid, source, qid)
         self.count("franchises")
         return eid
+
+    def currency_code(self, unit: str) -> str | None:
+        """ISO 4217 code of a currency item, only when phase 4 holds exactly one; amounts are NEVER converted."""
+        item = self.p4.items.get(unit) if self.p4 else None
+        if item and len(item["currency"]) == 1:
+            return item["currency"][0]
+        return None
 
     # ---- facts shared by films, series and TV films ---------------------------------------------------------------------
     def wikidata_facts(self, work_id: int, qid: str, s: dict[str, Any], source: int, *, catalog_characters: dict[str, str] | None = None, with_money: bool) -> None:
@@ -317,6 +417,9 @@ class Builder:
                 self.note("language_without_label", q)
         for role, rows in s["roles"].items():
             for row in rows:
+                if self.p4 and row["person"] in self.company_qids:
+                    self.note(f"credit_holder_is_an_organisation:{role}")
+                    continue
                 pid = self.person(row["person"], source)
                 if pid is None:
                     self.note(f"credit_unnamed_person:{role}")
@@ -335,7 +438,7 @@ class Builder:
                 if not named:
                     self.note("company_without_name", q)
                     continue
-                cid = self.company(q, named[0], named[1], source, q)
+                cid = self.company(q, named[0], named[1], source, q, self.name_source(named[2], source))
                 self.add("work_company", (work_id, cid, role, source, q))
         for kind, qs in s["franchises"].items():
             for q in qs:
@@ -359,7 +462,8 @@ class Builder:
         if with_money:
             seen_money: set[tuple] = set()
             for f in s["financial"]:
-                if f["unit"] != USD:
+                code = "USD" if f["unit"] == USD else self.currency_code(f["unit"])
+                if not code:
                     self.note(f"money_unit_not_imported:{f['unit']}", n=1)
                     continue
                 scope, country_id = "unspecified", None
@@ -371,14 +475,18 @@ class Builder:
                         country_id = self.country_by_qid.get(p)
                         scope = "country" if country_id else "unspecified"
                 year = year_ok(f["times"][0][:4]) if f["times"] else None
-                key = (f["kind"], scope, country_id, year)
+                key = (f["kind"], scope, country_id, year, code)
                 if key in seen_money:
                     self.note("money_duplicate_same_key", {"qid": qid, "kind": f["kind"], "amount": f["amount"]})
                     continue
                 seen_money.add(key)
-                self.add("work_financial", (work_id, f["kind"], scope, country_id, f["amount"], "USD", year, source, qid))
+                self.add("work_financial", (work_id, f["kind"], scope, country_id, f["amount"], code, year, source, qid))
+                if code != "USD":
+                    self.count("financial_rows_in_original_currency")
                 self.count(f"financial:{f['kind']}")
-        if s["awards"]:
+        if s["awards"] and self.p4:
+            self.pending_awards.extend((work_id, qid, a, source) for a in s["awards"])
+        elif s["awards"]:
             self.count("award_statements_not_imported", len(s["awards"]))
 
     # ---- films -----------------------------------------------------------------------------------------------------------
@@ -654,7 +762,7 @@ class Builder:
                 tid = self.entity("work")
                 self.work_by_qid[target] = tid
                 self.add("work", (tid, "other", None, None, None, None, None, None, None, None, None, wd, target))
-                self.add_name(tid, named[0], "primary", named[1], wd, target, primary=True)
+                self.add_name(tid, named[0], "primary", named[1], self.name_source(named[2], wd), target, primary=True)
                 self.add_external(tid, "wikidata", target, wd, target)
                 self.count("works:other_relation_target")
             if rel == "based_on":
@@ -672,6 +780,148 @@ class Builder:
             seen.add(row)
             self.add("work_relation", (row[0], row[1], row[2], wd, qid))
             self.count(f"relations:{row[2]}")
+        self.flush()
+
+    # ---- awards (phase 4 only: the award, category and ceremony items are not in the older snapshots) -------------------------
+    def awards(self) -> None:
+        """Award results from the film/series statements (P166 won, P1411 nominated) with the names, parents and dates of the award items.
+
+        A result needs a ceremony: the ceremony item (P805), else the year of the statement; with neither it is skipped and counted. The
+        parent award of a category is its first labelled P361; without one the category is its own award. A category is a person category
+        (`person_for_work`) when any of its statements names a nominee (P2453), otherwise a work category. No name or date is invented.
+        """
+        p4 = self.p4
+        if not p4 or not self.pending_awards:
+            return
+        src = self.src["wd_p4"]
+        acquired = p4.acquired_range[1]
+        scope_person = {a["award"] for _, _, a, _ in self.pending_awards if a["nominee"]}
+        award_by_q: dict[str, int] = {}
+        category_by_q: dict[str, int] = {}
+        category_by_name: dict[tuple[int, str], int] = {}
+        ceremony_by_q: dict[str, int] = {}
+        ceremony_by_year: dict[tuple[int, int], int] = {}
+        ceremony_by_edition: dict[tuple[int, int, str], int] = {}
+        ceremonies_of: dict[tuple[int, int], set[int]] = collections.defaultdict(set)
+        ids = {"category": 0, "ceremony": 0, "result": 0}
+
+        def award_entity(q: str) -> int | None:
+            if q in award_by_q:
+                return award_by_q[q]
+            named = p4.label_of(q)
+            if not named:
+                return None
+            item = p4.items.get(q, {})
+            eid = self.entity("award")
+            award_by_q[q] = eid
+            country = next((self.country_by_qid[c] for c in item.get("country", []) if c in self.country_by_qid), None)
+            self.add("award", (eid, country, src, q))
+            self.add_name(eid, named[0], "primary", None if named[1] == "mul" else named[1], src, q, primary=True)
+            self.add_external(eid, "wikidata", q, src, q)
+            self.count("awards")
+            return eid
+
+        def year_of(date: str | None) -> int | None:
+            return year_ok(date[:4]) if date else None
+
+        def ceremony_row(aid: int, year: int, edition: str | None, date: str | None, wikidata: str | None, ref: str) -> tuple[int, bool]:
+            """The ONE place that creates a ceremony: the database key is (award, year, edition), so the same key is the same ceremony."""
+            key = (aid, year, edition or "")
+            if key in ceremony_by_edition:
+                return ceremony_by_edition[key], False
+            ids["ceremony"] += 1
+            ceremony_by_edition[key] = ids["ceremony"]
+            self.add("ceremony", (ids["ceremony"], aid, year, edition, date, wikidata, src, ref))
+            return ids["ceremony"], True
+
+        # Pass 1: keep only the statements that can be placed completely (named category, a ceremony item or a year, at least one named nominee
+        # when nominees are given). Nothing is created for the others, so no award, category or ceremony exists without a result.
+        plan: list[tuple[int, str, dict, int, tuple[str, str] | None, int | None]] = []
+        for work_id, wqid, a, wsrc in self.pending_awards:
+            cq = a["award"]
+            if not p4.label_of(cq) or cq not in p4.items:
+                self.note("award_item_not_available", cq)
+                continue
+            if len(a["ceremony"]) > 1:
+                self.note("award_statement_with_several_ceremonies", {"work": wqid, "ceremonies": a["ceremony"]})
+                continue
+            statement_year = year_of(a["times"][0]) if a["times"] else None
+            item = p4.items.get(a["ceremony"][0]) if a["ceremony"] else None
+            item_year = year_of(item["dates"][0]) if item and item["dates"] else None
+            if a["ceremony"] and item is None:
+                self.note("ceremony_item_not_available", a["ceremony"][0])
+            if a["ceremony"] and item is not None and item_year is None:
+                self.note("ceremony_item_without_year", a["ceremony"][0])
+            if not (item_year or statement_year):
+                self.note("award_without_ceremony_or_year", {"work": wqid, "award": cq})
+                continue
+            if a["nominee"] and not any(self.name_of(n) for n in a["nominee"]):
+                self.note("award_nominee_without_name", a["nominee"][0])
+                continue
+            plan.append((work_id, wqid, a, wsrc, (a["ceremony"][0], "item") if item_year else None, item_year or statement_year))
+        # Pass 2: ceremonies of the items first (so a statement that only gives a year can find the one ceremony of that award and year)
+        resolved: list[tuple[int, str, dict, int, int, int, int | None, int]] = []
+        for work_id, wqid, a, wsrc, ceremony_ref, year in plan:
+            cq = a["award"]
+            named = p4.label_of(cq)
+            parents = [x for x in p4.items[cq]["part_of"] if x != cq and p4.label_of(x)]
+            if len(parents) > 1:
+                self.count("award_category_with_several_parents_first_used")
+            aid = (award_entity(parents[0]) if parents else None) or award_entity(cq)
+            if cq not in category_by_q:
+                norm = normalize_name(named[0])
+                existing = category_by_name.get((aid, norm))
+                if existing is not None:
+                    category_by_q[cq] = existing
+                    self.note("award_categories_with_the_same_name_in_one_award", {"qid": cq, "name": named[0]})
+                else:
+                    ids["category"] += 1
+                    category_by_q[cq] = category_by_name[(aid, norm)] = ids["category"]
+                    self.add("award_category", (ids["category"], aid, named[0], norm, "person_for_work" if cq in scope_person else "work", cq, src, cq))
+                    self.count("award_categories")
+            ceremony: int | None = None
+            if ceremony_ref:
+                zq = ceremony_ref[0]
+                if zq not in ceremony_by_q:
+                    label = p4.label_of(zq)
+                    edition = label[0] if label else None
+                    date = p4.items[zq]["dates"][0]
+                    new_id, created = ceremony_row(aid, year, edition, date, zq, zq)
+                    ceremony_by_q[zq] = new_id
+                    if created:
+                        ceremonies_of[(aid, year)].add(new_id)
+                        self.count("ceremonies_from_items")
+                    else:  # two items with the same award, year and label are one ceremony for this database (the unique key says so)
+                        self.note("ceremony_items_with_the_same_award_year_and_label", {"qid": zq, "edition": edition})
+                ceremony = ceremony_by_q[zq]
+            resolved.append((work_id, wqid, a, wsrc, aid, category_by_q[cq], ceremony, year))
+        emit: dict[tuple, list] = {}
+        for work_id, wqid, a, wsrc, aid, category, ceremony, year in resolved:
+            if ceremony is None:
+                known = ceremonies_of.get((aid, year), set())
+                if len(known) == 1:
+                    ceremony = next(iter(known))  # the one ceremony item of that award and year: the statement refers to it
+                    self.count("award_year_matched_to_a_ceremony_item")
+                else:
+                    ceremony, created = ceremony_row(aid, year, None, None, None, a["award"])
+                    if created:
+                        self.count("ceremonies_from_statement_year")
+            persons: list[int | None] = [pid for n in a["nominee"] if (pid := self.person(n, wsrc)) is not None] if a["nominee"] else [None]
+            for pid in persons:
+                key = (ceremony, category, work_id, pid)  # the database key does not include the outcome
+                if key not in emit:
+                    emit[key] = [a["outcome"], wsrc, wqid]
+                elif emit[key][0] == a["outcome"]:
+                    self.count("award_results_repeated")
+                elif a["outcome"] == "won":  # a win implies the nomination: keep the stronger statement, count the other
+                    emit[key] = ["won", wsrc, wqid]
+                    self.count("award_nominated_and_won_kept_won")
+                else:
+                    self.count("award_nominated_and_won_kept_won")
+        for (ceremony, category, work_id, pid), (outcome, wsrc, wqid) in emit.items():
+            ids["result"] += 1
+            self.add("award_result", (ids["result"], ceremony, category, work_id, pid, outcome, None, wsrc, wqid))
+            self.count(f"award_results:{outcome}")
         self.flush()
 
     _genre_pairs: set[tuple[int, int]]
@@ -721,6 +971,8 @@ def run_build(out: Path, inputs: Inputs | None = None, *, force: bool = False, l
     try:
         log("reading snapshots …")
         film_snap, series_snap = Snapshot(inputs.film_snapshot), Snapshot(inputs.series_snapshot)
+        if inputs.phase4 is not None:
+            b.p4 = Phase4(inputs.phase4)
         b.load_sources(film_snap, series_snap)
         b.load_genre_vocabulary()
         catalog = list(jsonl(inputs.film_catalog))
@@ -735,6 +987,10 @@ def run_build(out: Path, inputs: Inputs | None = None, *, force: bool = False, l
         needed = {(r.get("ids") or {}).get("qid") for r in series_rows + tv_rows if r.get("ids_reliable")} - {None}
         series_summaries = {q: X.summarize(q, e) for q, e in series_snap.entities() if q in needed}
         log(f"films: {len(catalog)}, snapshot entities: {len(film_summaries)}; series: {len(series_rows)}, tv movies: {len(tv_rows)}")
+        if b.p4:
+            for s in list(film_summaries.values()) + list(series_summaries.values()):
+                for qs in s["companies"].values():
+                    b.company_qids.update(qs)
         # countries and languages first, from every QID the imported works use, so releases and series text can resolve them
         for s in sorted(film_summaries.values(), key=lambda s: s["qid"]):
             for q in s["countries"]:
@@ -749,6 +1005,8 @@ def run_build(out: Path, inputs: Inputs | None = None, *, force: bool = False, l
         b.films(catalog, film_summaries)
         log("relations …")
         b.relations()
+        log("awards …")
+        b.awards()
         b.finish()
         log("fts index, checks …")
         rebuild_fts(conn)
@@ -766,6 +1024,9 @@ def run_build(out: Path, inputs: Inputs | None = None, *, force: bool = False, l
             "series_snapshot_index_sha256": series_snap.index_sha256, "film_catalog_sha256": S.sha256_file(inputs.film_catalog),
             "builder": "cinema_db.harness.build.build/1",
         }
+        if b.p4:
+            info["phase4_snapshot_index_sha256"] = b.p4.index_sha256
+            info["builder"] = "cinema_db.harness.build.build/2"
         for k, v in info.items():
             conn.execute("INSERT OR REPLACE INTO build_info VALUES (?,?)", (k, v))
         conn.commit()
@@ -789,8 +1050,10 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", type=Path, default=S.DEFAULT_DB)
     ap.add_argument("--force", action="store_true")
+    ap.add_argument("--no-phase4", action="store_true", help="build from the original local sources only (the phase-3 result)")
     args = ap.parse_args(argv)
-    run_build(args.out, force=args.force)
+    phase4 = None if args.no_phase4 or not (S.PHASE4_SNAPSHOT / "requests.jsonl").is_file() else S.PHASE4_SNAPSHOT
+    run_build(args.out, Inputs(phase4=phase4), force=args.force)
     return 0
 
 

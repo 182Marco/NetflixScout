@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from cinema_db.harness.build import sources as S
-from cinema_db.harness.build.build import content_digest, invariants, jsonl, run_build
+from cinema_db.harness.build.build import Inputs, content_digest, invariants, jsonl, run_build
 from cinema_db.harness.build.common import normalize_name
 from cinema_db.harness.build.snapshot import Snapshot
 from cinema_db.schema import check_fts
@@ -222,7 +222,8 @@ def verify(db: Path, *, reproduce: bool = False, log=print) -> dict[str, Any]:
     if reproduce:
         log("reproducing (a full second build) …")
         with tempfile.TemporaryDirectory() as tmp:
-            again = run_build(Path(tmp) / "again.sqlite3", log=lambda *_: None)
+            uses_phase4 = sqlite3.connect(f"file:{db}?mode=ro", uri=True).execute("SELECT count(*) FROM build_info WHERE key='phase4_snapshot_index_sha256'").fetchone()[0]
+            again = run_build(Path(tmp) / "again.sqlite3", Inputs(phase4=S.PHASE4_SNAPSHOT if uses_phase4 else None), log=lambda *_: None)
         report["reproducible"] = {"first": report["integrity"]["content_sha256_stored"], "second": again["content_sha256"], "identical": again["content_sha256"] == report["integrity"]["content_sha256_stored"], "second_build_seconds": again["seconds"]}
     return report
 
@@ -286,12 +287,14 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--db", type=Path, default=S.DEFAULT_DB)
     ap.add_argument("--reproduce", action="store_true")
+    ap.add_argument("--report-name", default="BUILD_REPORT", help="basename of the report written in docs/cinema_db (the phase-3 report keeps its name)")
     args = ap.parse_args(argv)
+    out_json, out_md = ROOT / "docs/cinema_db" / f"{args.report_name}.json", ROOT / "docs/cinema_db" / f"{args.report_name}.md"
     report = verify(args.db, reproduce=args.reproduce)
     survey = json.loads((ROOT / "docs/cinema_db/SURVEY.json").read_text(encoding="utf-8")) if (ROOT / "docs/cinema_db/SURVEY.json").is_file() else None
-    OUT_JSON.write_text(json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8")
-    OUT_MD.write_text(markdown(report, survey), encoding="utf-8")
-    print(f"wrote {OUT_JSON.relative_to(ROOT)} and {OUT_MD.relative_to(ROOT)}")
+    out_json.write_text(json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8")
+    out_md.write_text(markdown(report, survey), encoding="utf-8")
+    print(f"wrote {out_json.relative_to(ROOT)} and {out_md.relative_to(ROOT)}")
     return 0
 
 

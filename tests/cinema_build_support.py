@@ -86,7 +86,7 @@ def film(film_id: str, qid: str | None, title: str, year: int | None, **extra) -
     return base
 
 
-def make_inputs(tmp: Path) -> Inputs:
+def make_inputs(tmp: Path, *, awards_demo: bool = False) -> Inputs:
     unit_usd, unit_other = "Q4917", "Q9999"
     entities = [
         entity("Q9001", "Film di prova", "Sample Film", {
@@ -108,6 +108,12 @@ def make_inputs(tmp: Path) -> Inputs:
         entity("Q9004", "Film gemello", None, {"P345": [string("P345", "tt9000002")]}, itwiki="Film gemello"),  # same IMDb id as Q9001: a conflict
         entity("Q9005", None, "Only English", {"P136": [item("P136", "Q9204")]}, itwiki="Only English"),
     ]
+    if awards_demo:
+        entities[0]["claims"]["P162"] = [item("P162", "Q9502")]  # an organisation that is also a production company
+        when = {"snaktype": "value", "property": "P585", "datavalue": {"value": {"time": "+1983-01-01T00:00:00Z", "precision": 9}, "type": "time"}}
+        entities[0]["claims"]["P1411"] = [item("P1411", "Q9702", {"P805": [q_item("P805", "Q9710")], "P2453": [q_item("P2453", "Q9102"), q_item("P2453", "Q9104")]}),
+                                          item("P1411", "Q9704"), item("P1411", "Q9703", {"P805": [q_item("P805", "Q9711")]})]
+        entities[0]["claims"]["P166"] += [item("P166", "Q9703", {"P585": [when]}), item("P166", "Q9702", {"P805": [q_item("P805", "Q9710")], "P2453": [q_item("P2453", "Q9102")]})]
     labels = {
         "Q9101": {"it": "Ann Regista", "en": "Ann Director"}, "Q9102": {"it": "Bob Attore"}, "Q9201": {"it": "film drammatico", "en": "drama film"},
         "Q9202": {"it": "film strano"}, "Q9203": {"en": "psychological thriller"}, "Q9204": {"en": "romantic comedy film"},
@@ -166,3 +172,45 @@ def make_inputs(tmp: Path) -> Inputs:
 
 def input_files(inputs: Inputs) -> list[Path]:
     return sorted(p for root in (inputs.film_snapshot, inputs.series_snapshot, inputs.film_catalog, inputs.series_dir) for p in ([root] if root.is_file() else root.rglob("*")) if p.is_file())
+
+
+def sparql_row(qid: str, kind: str, value: str, aux: str, rank: str = "NormalRank") -> dict:
+    return {"p": {"type": "uri", "value": "http://www.wikidata.org/entity/" + qid}, "kind": {"type": "literal", "value": kind}, "value": {"type": "literal", "value": value},
+            "aux": {"type": "literal", "value": aux}, "rank": {"type": "uri", "value": "http://wikiba.se/ontology#" + rank}}
+
+
+def make_phase4(root: Path) -> Path:
+    """An INVENTED phase-4 snapshot in the real format (SPARQL person rows + wbgetentities items) that completes the miniature."""
+    (root / "bodies").mkdir(parents=True, exist_ok=True)
+    lines = []
+
+    def put(endpoint: str, params: dict, body: dict) -> None:
+        raw = json.dumps(body).encode()
+        sha = hashlib.sha256(raw).hexdigest()
+        (root / "bodies" / f"{sha}.json.gz").write_bytes(gzip.compress(raw))
+        lines.append(json.dumps({"acquired_at": "2026-02-02T00:00:00Z", "bytes": len(raw), "endpoint": endpoint, "key": sha[:16], "params": params, "sha256": sha, "status": 200}))
+
+    rows = [
+        sparql_row("Q9104", "label", "Dora Sceneggiatrice", "it"), sparql_row("Q9104", "label", "Dora Writer", "en"),
+        sparql_row("Q9104", "birth", "1950-03-04T00:00:00Z", "11"), sparql_row("Q9104", "death", "1999-01-01T00:00:00Z", "9"), sparql_row("Q9104", "death", "2001-05-05T00:00:00Z", "11"),
+        sparql_row("Q9105", "label", "Solo Multilingua", "mul"), sparql_row("Q9105", "birth", "1960-01-01T00:00:00Z", "9"), sparql_row("Q9105", "birth", "1900-01-01T00:00:00Z", "11", "DeprecatedRank"),
+        sparql_row("Q9106", "label", "Nata Dopo Morta", "en"), sparql_row("Q9106", "birth", "1990-01-01T00:00:00Z", "9"), sparql_row("Q9106", "death", "1980-01-01T00:00:00Z", "9"),
+        sparql_row("Q9102", "label", "Bob Altro Nome", "it"), sparql_row("Q9102", "birth", "1941-02-03T00:00:00Z", "11"),
+    ]
+    put("https://query.wikidata.org/sparql", {"endpoint": "sparql", "query": "x"}, {"results": {"bindings": rows}})
+    ents = {
+        "Q9998": entity("Q9998", "Romanzo senza nome offline", "Nameless Novel", {}),
+        "Q9501": entity("Q9501", "Casa Senza Nome", None, {"P17": [item("P17", "Q9301")]}),
+        "Q9999": entity("Q9999", None, "euro", {"P498": [string("P498", "EUR")]}),
+        "Q9301": entity("Q9301", "Italia", "Italy", {"P297": [string("P297", "IT")]}),
+        "Q9401": entity("Q9401", "italiano", "Italian", {"P218": [string("P218", "it")], "P220": [string("P220", "ita")]}),
+        "Q9700": entity("Q9700", "Premio di Prova", "Test Prize", {"P17": [item("P17", "Q9301")]}),
+        "Q9702": entity("Q9702", "Miglior regia", "Best Direction", {"P361": [item("P361", "Q9700")]}),
+        "Q9703": entity("Q9703", "Miglior film", "Best Picture", {"P361": [item("P361", "Q9700")]}),
+        "Q9704": entity("Q9704", "Premio orfano", None, {}),
+        "Q9711": entity("Q9711", "5ª cerimonia del Premio di Prova", None, {"P179": [item("P179", "Q9700")], "P585": [time("P585", "+1983-04-01T00:00:00Z", 11)]}),  # same award, year and label
+        "Q9710": entity("Q9710", "5ª cerimonia del Premio di Prova", None, {"P179": [item("P179", "Q9700")], "P585": [time("P585", "+1983-04-01T00:00:00Z", 11)]}),
+    }
+    put("https://www.wikidata.org/w/api.php", {"action": "wbgetentities", "props": "labels|claims"}, {"entities": ents})
+    (root / "requests.jsonl").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return root
