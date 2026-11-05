@@ -5,7 +5,7 @@ import ast
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ("rag", "tmdb", "youtube", "wikipedia", "movie_db", "omdb", "tvmaze", "wikidata")
+TOOLS = ("rag", "tmdb", "youtube", "wikipedia", "movie_db", "omdb", "tvmaze", "wikidata", "cinema_db")
 ENTRY = {"rag": "FromQueryEmbeddingToRes/tool_interface.py", "movie_db": "movie_db_tool.py"}
 # Legacy terminal loop of the RAG, kept as it was before the move (see AGENTS.md).
 LEGACY_PRESENTER_IMPORT = "tool/rag/FromQueryEmbeddingToRes/chat.py"
@@ -27,9 +27,10 @@ def test_every_tool_package_lives_in_the_tool_folder() -> None:
     for name in TOOLS:
         assert (ROOT / "tool" / name / "__init__.py").is_file(), name
         assert (ROOT / "tool" / name / ENTRY.get(name, "tool.py")).is_file(), name
-        if name != "movie_db":  # the root movie_db/ is the database side (data, schema, harness)
+        if name not in ("movie_db", "cinema_db"):  # the root movie_db/ and cinema_db/ are the database side (data, schema, harness)
             assert not (ROOT / name).exists(), f"{name}/ must not come back to the root"
     assert not (ROOT / "movie_db" / "tool").exists(), "the MovieLens tool lives in tool/movie_db/"
+    assert not (ROOT / "cinema_db" / "tool").exists(), "the cinema tool lives in tool/cinema_db/"
 
 
 def test_only_app_and_the_routing_eval_import_the_tools() -> None:
