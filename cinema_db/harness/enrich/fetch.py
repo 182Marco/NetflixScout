@@ -18,7 +18,7 @@ from cinema_db.harness.enrich import builders
 from cinema_db.harness.enrich.client import Client, CircuitOpen
 from cinema_db.harness.enrich.store import DEFAULT_ROOT, PhaseStore, request_key
 
-ORDER = ("awards", "award_parents", "currencies", "persons", "countries", "languages", "relation_targets", "franchises", "companies", "places")
+ORDER = ("awards", "award_parents", "currencies", "persons", "countries", "languages", "relation_targets", "franchises", "companies", "places", "dual_use")
 
 
 def load_plan(root: Path) -> dict:

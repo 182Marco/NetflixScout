@@ -16,7 +16,7 @@ from cinema_db.harness.build import sources as S
 from cinema_db.harness.build.build import USD, WORLDWIDE, jsonl
 from cinema_db.harness.build.snapshot import Snapshot
 
-CATEGORIES = ("persons", "awards", "currencies", "relation_targets", "companies", "franchises", "places", "countries", "languages")
+CATEGORIES = ("persons", "awards", "currencies", "relation_targets", "companies", "franchises", "places", "countries", "languages", "dual_use")
 
 
 def compute(film_snapshot: Path = S.FILM_SNAPSHOT, series_snapshot: Path = S.SERIES_SNAPSHOT, film_catalog: Path = S.FILM_CATALOG,
@@ -49,6 +49,7 @@ def compute(film_snapshot: Path = S.FILM_SNAPSHOT, series_snapshot: Path = S.SER
     persons_unnamed_by_role: dict[str, set[str]] = defaultdict(set)
     award_items, ceremonies, nominees, relation, units, places = set(), set(), set(), set(), set(), set()
     countries, languages = set(), set()
+    company_all: set[str] = set()
     for s in summaries:
         for role, rows in s["roles"].items():
             for row in rows:
@@ -71,6 +72,8 @@ def compute(film_snapshot: Path = S.FILM_SNAPSHOT, series_snapshot: Path = S.SER
             places.update(p for p in f["places"] if p != WORLDWIDE and not named(p))
         for d in s["dates"]:
             places.update(p for p in d["places"] if not named(p))
+        for qs in s["companies"].values():
+            company_all.update(qs)
         countries.update(s["countries"])
         languages.update(s["languages"])
     t["persons"].update(nominees)
@@ -80,6 +83,7 @@ def compute(film_snapshot: Path = S.FILM_SNAPSHOT, series_snapshot: Path = S.SER
     t["places"] = places
     t["countries"] = countries
     t["languages"] = languages
+    t["dual_use"] = t["persons"] & company_all  # items that are both a credit holder and a company: person or organisation? their class decides
     return {
         "sets": {k: sorted(v) for k, v in t.items()},
         "unnamed_persons_by_role": {k: len(v) for k, v in sorted(persons_unnamed_by_role.items())},

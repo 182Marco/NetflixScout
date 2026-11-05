@@ -51,6 +51,7 @@ KINDS: dict[str, tuple[str, str | None]] = {
     "persons": ("person", None),
     "awards": ("entities", "labels|claims"),
     "award_parents": ("entities", "labels|claims"),
+    "dual_use": ("entities", "labels|claims"),
     "currencies": ("entities", "labels|claims"),
     "countries": ("entities", "labels|claims"),
     "languages": ("entities", "labels|claims"),
