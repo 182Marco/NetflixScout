@@ -459,3 +459,12 @@ Dettaglio e numeri in `PHASE4_REPORT.md`. Decisioni di progetto, tutte con test:
 - **Organizzazione contro persona**: un QID accreditato e anche elencato come società è una organizzazione, salvo `P31 = Q5` (164 su 534 sono persone).
 - **Non fatto**: fusione dei 240 duplicati (ora 184 conflitti di QID), luoghi di nascita, IMDb. La fase 5 non è iniziata.
 
+## 21. Fase 5 completata: il tool `cinema_sql` (2026-11-06)
+Dettaglio, numeri e limiti in `PHASE5_REPORT.md` e `PHASE5_BENCHMARK.md`. Decisioni di progetto realizzate (tutte con test):
+- **Un solo tool, operazioni dedicate più SQL libero**: 12 operazioni con query costanti e parametri legati (il modello non scrive SQL, quindi nessuna chiamata LLM in più e meno errori) e l'operazione `sql` (D2) per il resto, sempre attraverso il motore sicuro della Fase 1, che non è stato modificato.
+- **Identificazione**: identificativo, poi nome normalizzato (titolo, originale, tradotto, alias), poi ricerca testuale solo come alternative; più corrispondenze o filtri non soddisfatti non diventano mai una risposta; nessuna fusione dei duplicati; un dato mancante non è una corrispondenza. Il riuso di un id elimina l'ambiguità, **non** risparmia query (4 contro 4), correggendo l'idea del §8.1 che l'id da solo convenisse.
+- **Onestà sui dati**: note stabili per ogni risultato, `follow_up` verso un solo tool online quando il risultato è vuoto o non verificato, istruzioni finali che vietano di dedurre l'inesistenza.
+- **Misura**: 39 domande, nessuna sbagliata rispetto a SQL indipendente, mediana 33 ms e 3 query; i piani sono scritti a mano, il planner non è stato eseguito. La baseline assumeva 49 richieste dopo, il conteggio verificato è 56 (B05 e B17: il database non distingue il remake) e 5 domande con un titolo omonimo costano un passo in più non previsto.
+- **Impostazione**: `SOURCE_CATEGORY = "official information"` dichiarata nel tool ma non registrata in `preferences/` (verificato con un test); il conflitto preferenza/richiesta si prova al collegamento (Fase 6).
+- **Non fatto**: integrazione in `app.py`, planner, regola di routing, presenter e serializzatore web, routing eval live; correzioni dei dati (episodi doppi, franchise che sono liste): proposte nel report, in attesa di decisione.
+

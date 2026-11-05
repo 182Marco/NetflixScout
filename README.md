@@ -620,10 +620,10 @@ policy: not written yet for this personal project.
 
 A local SQLite database of films, series, seasons, episodes, people, credits, genres, identifiers and more sits alongside MovieLens
 (untouched). The agent will query it through one read-only SQL tool restricted to approved views. Status: security core, schema and the
-first **offline build** and the **targeted Wikidata enrichment (phase 4)** are done; the tool is not registered yet (phase 5 awaits the owner's go-ahead).
+first **offline build**, the **targeted Wikidata enrichment (phase 4)** and the **`cinema_sql` tool (phase 5)** are done; the tool is built and tested but **not wired into the agent yet** (phase 6 awaits the owner's go-ahead).
 
 - Plan, decisions and status: `docs/cinema_db/PLAN.md`, `docs/cinema_db/PROGRESS.md`; baseline `BASELINE.md`; sources survey `SURVEY.md`;
-  verification of the phase-3 build `BUILD_REPORT.md`; the phase-4 results and numbers `PHASE4_REPORT.md` (and `PHASE4_BUILD_REPORT.md`).
+  verification of the phase-3 build `BUILD_REPORT.md`; the phase-4 results and numbers `PHASE4_REPORT.md` (and `PHASE4_BUILD_REPORT.md`); the tool, its benchmark and its limits `PHASE5_REPORT.md`, `PHASE5_BENCHMARK.md`.
 - **Open `docs/cinema_db/schema.html` in a browser** for the interactive schema (tables, columns, keys, indexes, checks, relations, public
   views); `schema.mmd` is the Mermaid ER diagram. Both are generated from the real SQLite schema (`python -m cinema_db.harness.schema.generate`,
   `--check` tells whether they are stale); tests fail if they drift.
@@ -639,9 +639,10 @@ first **offline build** and the **targeted Wikidata enrichment (phase 4)** are d
   exactly). Added: the names of 49,500 people (142,823 credits recovered), 27,751 award results with categories and ceremonies, life dates, money in
   its original currency (never converted), ISO codes, company and franchise names, 8,875 more "based on" relations.
   `python -m cinema_db.harness.enrich.compare BEFORE AFTER` gives the quantitative comparison.
+- **The `cinema_sql` tool (phase 5, not wired)**: `tool/cinema_db/tool.py` answers questions about films, series, people, credits, awards, relations, companies and series structure from the local file, in read-only mode through the safe SQL engine, with no network and no LLM. Thirteen operations (`find_work`, `find_person`, `work_card`, `filmography`, `cast`, `crew`, `collaborations`, `awards`, `series`, `companies`, `franchise`, `relations`, and `sql` for a free SELECT on the approved views); names are matched exactly after normalisation (titles, originals, aliases), ids are reused when known, homonyms come back as alternatives and never as an answer, and every result carries notes on what the local data cannot prove. Checked on the real database: 71 tests and a 39-question benchmark with independent SQL (none wrong, median 33 ms and 3 queries per question; hand-written plans, the planner was not run). Known data limits: incomplete catalogue, awards attached to a person only when the nominee is recorded, unreliable episode counts, a "franchise" that can be a list. Try it: `python -m cinema_db.harness.tool_eval.run_benchmark` and `PHASE5_REPORT.md` §7.
 - Security: one `SELECT` only, approved views and columns only, the rewritten text is what runs, SQLite opened read-only and immutable,
   deny-by-default authorizer, time/row/size limits; FTS5 title search through the `v_title_search` view (words and prefixes, not semantic).
-  Tests: `tests/test_cinema_sql_security.py`, `tests/test_cinema_views_security.py`, `tests/test_cinema_build.py`.
+  Tests: `tests/test_cinema_sql_security.py`, `tests/test_cinema_views_security.py`, `tests/test_cinema_build.py`, `tests/test_cinema_sql_tool.py`, `tests/test_cinema_sql_tool_real.py`, `tests/test_cinema_sql_benchmark.py`.
 
 ## Git Notes
 
