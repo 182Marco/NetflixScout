@@ -19,7 +19,7 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 # --- tables ---------------------------------------------------------------------------------------------------
 
@@ -73,11 +73,31 @@ TABLES: tuple[str, ...] = (
     # lookups filled from sources
     """CREATE TABLE genre (
         genre_id INTEGER PRIMARY KEY,
+        code TEXT NOT NULL UNIQUE CHECK (code GLOB '[a-z]*' AND code NOT GLOB '*[^a-z_]*'),
         label_en TEXT NOT NULL,
-        label_it TEXT,
+        label_it TEXT NOT NULL,
         parent_genre_id INTEGER REFERENCES genre(genre_id),
+        description TEXT,
+        source_id INTEGER NOT NULL REFERENCES source(source_id),
+        CHECK (parent_genre_id IS NULL OR parent_genre_id <> genre_id)
+    ) STRICT""",
+    """CREATE TABLE genre_label (
+        label_id INTEGER PRIMARY KEY,
         wikidata_id TEXT UNIQUE,
-        source_id INTEGER NOT NULL REFERENCES source(source_id)
+        label_it TEXT,
+        label_en TEXT,
+        label_norm TEXT NOT NULL CHECK (length(label_norm) > 0),
+        source_id INTEGER NOT NULL REFERENCES source(source_id),
+        source_ref TEXT,
+        CHECK (label_it IS NOT NULL OR label_en IS NOT NULL)
+    ) STRICT""",
+    """CREATE TABLE genre_label_map (
+        label_id INTEGER NOT NULL REFERENCES genre_label(label_id),
+        genre_id INTEGER NOT NULL REFERENCES genre(genre_id),
+        mapping TEXT NOT NULL CHECK (mapping IN ('exact','synonym','specific')),
+        rule TEXT NOT NULL,
+        source_id INTEGER NOT NULL REFERENCES source(source_id),
+        PRIMARY KEY (label_id, genre_id)
     ) STRICT""",
     """CREATE TABLE country (
         country_id INTEGER PRIMARY KEY,
@@ -172,6 +192,9 @@ TABLES: tuple[str, ...] = (
         source_ref TEXT,
         CHECK (is_primary = 0 OR kind = 'primary')
     ) STRICT""",
+    """CREATE VIRTUAL TABLE entity_name_fts USING fts5(
+        name, content='entity_name', content_rowid='name_id', tokenize='unicode61 remove_diacritics 2', prefix='2 3'
+    )""",
     """CREATE TABLE external_id (
         entity_id INTEGER NOT NULL REFERENCES entity(entity_id),
         scheme TEXT NOT NULL REFERENCES id_scheme(scheme),
@@ -193,10 +216,10 @@ TABLES: tuple[str, ...] = (
     # work facts
     """CREATE TABLE work_genre (
         work_id INTEGER NOT NULL REFERENCES work(work_id),
-        genre_id INTEGER NOT NULL REFERENCES genre(genre_id),
+        label_id INTEGER NOT NULL REFERENCES genre_label(label_id),
         source_id INTEGER NOT NULL REFERENCES source(source_id),
         source_ref TEXT,
-        PRIMARY KEY (work_id, genre_id)
+        PRIMARY KEY (work_id, label_id)
     ) STRICT""",
     """CREATE TABLE work_country (
         work_id INTEGER NOT NULL REFERENCES work(work_id),
@@ -323,7 +346,9 @@ INDEXES: tuple[str, ...] = (
     "CREATE INDEX credit_work ON credit(work_id, role)",
     "CREATE INDEX credit_role ON credit(role, person_id)",
     "CREATE UNIQUE INDEX credit_unique ON credit(work_id, person_id, role, COALESCE(character_name, ''))",
-    "CREATE INDEX work_genre_genre ON work_genre(genre_id, work_id)",
+    "CREATE INDEX work_genre_label ON work_genre(label_id, work_id)",
+    "CREATE INDEX genre_label_norm ON genre_label(label_norm)",
+    "CREATE INDEX genre_label_map_genre ON genre_label_map(genre_id, label_id)",
     "CREATE INDEX work_country_country ON work_country(country_id, role, work_id)",
     "CREATE INDEX work_language_language ON work_language(language_id, role, work_id)",
     "CREATE INDEX work_company_company ON work_company(company_id, work_id)",
@@ -468,10 +493,36 @@ VIEWS: tuple[tuple[str, str], ...] = (
     (
         "v_work_genre",
         """CREATE VIEW v_work_genre AS
-        SELECT g.work_id AS work_id, n.name AS work_title, w.release_year AS work_year, w.kind AS work_kind,
-               ge.genre_id AS genre_id, ge.label_en AS genre, ge.label_it AS genre_it
-        FROM work_genre g JOIN genre ge ON ge.genre_id = g.genre_id JOIN work w ON w.work_id = g.work_id
-        LEFT JOIN entity_name n ON n.entity_id = g.work_id AND n.is_primary = 1""",
+        SELECT DISTINCT wg.work_id AS work_id, n.name AS work_title, w.release_year AS work_year, w.kind AS work_kind,
+               g.genre_id AS genre_id, g.code AS genre_code, g.label_en AS genre, g.label_it AS genre_it
+        FROM work_genre wg JOIN genre_label_map m ON m.label_id = wg.label_id JOIN genre g ON g.genre_id = m.genre_id
+        JOIN work w ON w.work_id = wg.work_id LEFT JOIN entity_name n ON n.entity_id = wg.work_id AND n.is_primary = 1""",
+    ),
+    (
+        "v_work_genre_label",
+        """CREATE VIEW v_work_genre_label AS
+        SELECT wg.work_id AS work_id, n.name AS work_title, w.release_year AS work_year, gl.label_id AS label_id,
+               gl.label_it AS label_it, gl.label_en AS label_en, gl.wikidata_id AS wikidata_id, g.label_en AS genre,
+               m.mapping AS mapping, s.name AS source
+        FROM work_genre wg JOIN genre_label gl ON gl.label_id = wg.label_id JOIN work w ON w.work_id = wg.work_id
+        LEFT JOIN genre_label_map m ON m.label_id = gl.label_id LEFT JOIN genre g ON g.genre_id = m.genre_id
+        LEFT JOIN entity_name n ON n.entity_id = wg.work_id AND n.is_primary = 1 LEFT JOIN source s ON s.source_id = wg.source_id""",
+    ),
+    (
+        "v_genre_label",
+        """CREATE VIEW v_genre_label AS
+        SELECT gl.label_id AS label_id, gl.label_it AS label_it, gl.label_en AS label_en, gl.wikidata_id AS wikidata_id,
+               g.code AS genre_code, g.label_en AS genre, m.mapping AS mapping, m.rule AS rule
+        FROM genre_label gl LEFT JOIN genre_label_map m ON m.label_id = gl.label_id LEFT JOIN genre g ON g.genre_id = m.genre_id""",
+    ),
+    (
+        "v_title_search",
+        """CREATE VIEW v_title_search AS
+        SELECT n.entity_id AS entity_id, e.entity_type AS entity_type, n.name AS name, n.kind AS name_kind, n.language AS language,
+               n.is_primary AS is_primary, w.kind AS work_kind, w.release_year AS work_year,
+               entity_name_fts.rank AS rank, entity_name_fts.name AS search
+        FROM entity_name_fts JOIN entity_name n ON n.name_id = entity_name_fts.rowid JOIN entity e ON e.entity_id = n.entity_id
+        LEFT JOIN work w ON w.work_id = n.entity_id""",
     ),
     (
         "v_work_country",
@@ -554,7 +605,7 @@ VIEWS: tuple[tuple[str, str], ...] = (
         FROM work_financial f JOIN work w ON w.work_id = f.work_id LEFT JOIN country c ON c.country_id = f.country_id
         LEFT JOIN entity_name n ON n.entity_id = f.work_id AND n.is_primary = 1 LEFT JOIN source s ON s.source_id = f.source_id""",
     ),
-    ("v_genre", "CREATE VIEW v_genre AS SELECT genre_id AS genre_id, label_en AS genre, label_it AS genre_it, parent_genre_id AS parent_genre_id FROM genre"),
+    ("v_genre", "CREATE VIEW v_genre AS SELECT genre_id AS genre_id, code AS code, label_en AS genre, label_it AS genre_it, parent_genre_id AS parent_genre_id, description AS description FROM genre"),
     ("v_role_type", "CREATE VIEW v_role_type AS SELECT role AS role, department AS department, is_cast AS is_cast, label_en AS label_en, label_it AS label_it FROM role_type"),
     (
         "v_source",
@@ -567,6 +618,26 @@ VIEWS: tuple[tuple[str, str], ...] = (
 )
 
 PUBLIC_VIEWS: tuple[str, ...] = tuple(name for name, _ in VIEWS)
+
+
+def rebuild_fts(conn: sqlite3.Connection) -> None:
+    """Fill the external-content FTS5 index from entity_name. Call once after the names are loaded (no triggers keep it in sync:
+    the database is read-only at runtime and is rebuilt as a whole)."""
+    conn.execute("INSERT INTO entity_name_fts(entity_name_fts) VALUES ('rebuild')")
+
+
+def check_fts(conn: sqlite3.Connection) -> list[str]:
+    """Problems with the FTS5 index: it must be consistent and contain exactly one row per entity_name row."""
+    problems: list[str] = []
+    try:
+        conn.execute("INSERT INTO entity_name_fts(entity_name_fts, rank) VALUES ('integrity-check', 1)")
+    except sqlite3.DatabaseError as exc:
+        problems.append(f"fts5 integrity-check failed: {exc}")
+    names = conn.execute("SELECT count(*) FROM entity_name").fetchone()[0]
+    indexed = conn.execute("SELECT count(*) FROM entity_name_fts_docsize").fetchone()[0]
+    if names != indexed:
+        problems.append(f"fts5 index has {indexed} rows but entity_name has {names}: rebuild it")
+    return problems
 
 
 def create_database(path: str | Path, *, overwrite: bool = False) -> Path:

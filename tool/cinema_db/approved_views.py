@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from .policy import Policy, ViewSpec
 
-STRUCTURE_DIGEST = 'e754141b66125a51c5179327710763b090c4d51be2447efc74c65344c5cbf0c0'
+STRUCTURE_DIGEST = '219b87a427e740aa29cab27da6d0a5c68a4eca46491cffd9b79ac6e84af42231'
 
 VIEWS = (
     ViewSpec(
@@ -80,11 +80,27 @@ VIEWS = (
         'v_genre',
         (
             ('genre_id', 'INTEGER'),
+            ('code', 'TEXT'),
             ('genre', 'TEXT'),
             ('genre_it', 'TEXT'),
             ('parent_genre_id', 'INTEGER'),
+            ('description', 'TEXT'),
         ),
-        'The genres that exist in the database.',
+        'The canonical genres of the vocabulary.',
+    ),
+    ViewSpec(
+        'v_genre_label',
+        (
+            ('label_id', 'INTEGER'),
+            ('label_it', 'TEXT'),
+            ('label_en', 'TEXT'),
+            ('wikidata_id', 'TEXT'),
+            ('genre_code', 'TEXT'),
+            ('genre', 'TEXT'),
+            ('mapping', 'TEXT'),
+            ('rule', 'TEXT'),
+        ),
+        'The vocabulary of source genre labels and how each maps to the canonical genres.',
     ),
     ViewSpec(
         'v_name',
@@ -146,6 +162,22 @@ VIEWS = (
             ('retrieved_at', 'TEXT'),
         ),
         'Sources and the terms under which their data may be used.',
+    ),
+    ViewSpec(
+        'v_title_search',
+        (
+            ('entity_id', 'INTEGER'),
+            ('entity_type', 'TEXT'),
+            ('name', 'TEXT'),
+            ('name_kind', 'TEXT'),
+            ('language', 'TEXT'),
+            ('is_primary', 'INTEGER'),
+            ('work_kind', 'TEXT'),
+            ('work_year', 'INTEGER'),
+            ('rank', 'REAL'),
+            ('search', 'TEXT'),
+        ),
+        "Full-text search over every title, alias and name. Filter with WHERE search MATCH 'word*' and order by rank; join to v_work or v_person on entity_id. Not a semantic search: it matches words, not meaning.",
     ),
     ViewSpec(
         'v_work',
@@ -222,10 +254,27 @@ VIEWS = (
             ('work_year', 'INTEGER'),
             ('work_kind', 'TEXT'),
             ('genre_id', 'INTEGER'),
+            ('genre_code', 'TEXT'),
             ('genre', 'TEXT'),
             ('genre_it', 'TEXT'),
         ),
-        'Genres of works, one row per work and genre.',
+        'Canonical genres of works: one row per work and canonical genre, whatever source labels led to it.',
+    ),
+    ViewSpec(
+        'v_work_genre_label',
+        (
+            ('work_id', 'INTEGER'),
+            ('work_title', 'TEXT'),
+            ('work_year', 'INTEGER'),
+            ('label_id', 'INTEGER'),
+            ('label_it', 'TEXT'),
+            ('label_en', 'TEXT'),
+            ('wikidata_id', 'TEXT'),
+            ('genre', 'TEXT'),
+            ('mapping', 'TEXT'),
+            ('source', 'TEXT'),
+        ),
+        'The genre labels sources give each work, as written, with the canonical genre they map to (empty when unmapped).',
     ),
     ViewSpec(
         'v_work_language',
@@ -278,10 +327,13 @@ BASE_COLUMNS = {
     'country': frozenset({'country_id', 'iso2', 'label_en'}),
     'credit': frozenset({'billing_order', 'character_name', 'credit_id', 'credit_note', 'person_id', 'role', 'source_id', 'work_id'}),
     'entity': frozenset({'entity_id', 'entity_type'}),
-    'entity_name': frozenset({'entity_id', 'is_primary', 'kind', 'language', 'name', 'name_norm'}),
+    'entity_name': frozenset({'entity_id', 'is_primary', 'kind', 'language', 'name', 'name_id', 'name_norm'}),
+    'entity_name_fts': frozenset({'ROWID', 'name', 'rank'}),
     'external_id': frozenset({'entity_id', 'is_primary', 'scheme', 'value'}),
     'franchise': frozenset({'franchise_id'}),
-    'genre': frozenset({'genre_id', 'label_en', 'label_it', 'parent_genre_id'}),
+    'genre': frozenset({'code', 'description', 'genre_id', 'label_en', 'label_it', 'parent_genre_id'}),
+    'genre_label': frozenset({'label_en', 'label_id', 'label_it', 'wikidata_id'}),
+    'genre_label_map': frozenset({'genre_id', 'label_id', 'mapping', 'rule'}),
     'id_scheme': frozenset({'label', 'scheme'}),
     'language': frozenset({'iso639_1', 'label_en', 'language_id'}),
     'person': frozenset({'birth_country_id', 'birth_date', 'birth_year', 'death_date', 'death_year', 'person_id', 'source_id'}),
@@ -293,7 +345,7 @@ BASE_COLUMNS = {
     'work_country': frozenset({'country_id', 'role', 'work_id'}),
     'work_financial': frozenset({'amount', 'country_id', 'currency', 'kind', 'reference_year', 'scope', 'source_id', 'work_id'}),
     'work_franchise': frozenset({'basis', 'franchise_id', 'position', 'work_id'}),
-    'work_genre': frozenset({'genre_id', 'work_id'}),
+    'work_genre': frozenset({'label_id', 'source_id', 'work_id'}),
     'work_kind': frozenset({'kind', 'medium'}),
     'work_language': frozenset({'language_id', 'role', 'work_id'}),
     'work_relation': frozenset({'related_work_id', 'relation', 'source_id', 'work_id'}),
@@ -301,5 +353,13 @@ BASE_COLUMNS = {
 }
 
 LARGE_TABLES = frozenset({'award_result', 'credit', 'entity_name', 'external_id', 'work_country', 'work_genre', 'work_release'})
+# SQLite's own needs when a view reads the FTS5 virtual table (allowed to the authorizer only; never in model SQL).
+ENGINE_TABLES = frozenset({'entity_name_fts', 'entity_name_fts_config', 'entity_name_fts_data', 'entity_name_fts_docsize', 'entity_name_fts_idx'})
+ENGINE_COLUMNS = frozenset({'entity_name.name', 'entity_name.name_id'})
+ENGINE_FUNCTIONS = frozenset({'bm25', 'match'})
+ENGINE_PRAGMAS = frozenset({'data_version'})
 
-POLICY = Policy(views=VIEWS, base_columns=BASE_COLUMNS, large_tables=LARGE_TABLES)
+POLICY = Policy(
+    views=VIEWS, base_columns=BASE_COLUMNS, large_tables=LARGE_TABLES,
+    engine_tables=ENGINE_TABLES, engine_columns=ENGINE_COLUMNS, engine_functions=ENGINE_FUNCTIONS, engine_pragmas=ENGINE_PRAGMAS,
+)

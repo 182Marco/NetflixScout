@@ -5,7 +5,7 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
-from cinema_db.schema import create_database
+from cinema_db.schema import create_database, rebuild_fts
 
 
 def build_real(path: Path, *, seed: bool = True) -> Path:
@@ -36,7 +36,9 @@ def seed_rows(conn: sqlite3.Connection) -> None:
     )
     conn.execute("INSERT INTO country VALUES (1,'US','United States','Stati Uniti','Q30',1),(2,'IT','Italy','Italia','Q38',1)")
     conn.execute("INSERT INTO language VALUES (1,'en','eng','English','inglese','Q1860',1)")
-    conn.execute("INSERT INTO genre VALUES (1,'horror film','film horror',NULL,'Q200092',1),(2,'drama film','film drammatico',NULL,'Q130232',1)")
+    conn.execute("INSERT INTO genre VALUES (1,'horror','Horror','Horror',NULL,'Fear-driven films.',1),(2,'drama','Drama','Drammatico',NULL,'Serious narrative films.',1)")
+    conn.execute("INSERT INTO genre_label (label_id, wikidata_id, label_it, label_en, label_norm, source_id) VALUES (1,'Q200092','film horror','horror film','film horror',1),(2,'Q130232','film drammatico','drama film','film drammatico',1),(3,'Q9999','film strano',NULL,'film strano',1),(4,NULL,'horror',NULL,'horror',1)")
+    conn.execute("INSERT INTO genre_label_map VALUES (1,1,'exact','test',1),(2,2,'exact','test',1),(4,1,'synonym','test',1)")
     _entity(conn, 1, "work", "Sample One")
     _entity(conn, 2, "work", "Sample Remake")
     _entity(conn, 3, "work", "Sample Show")
@@ -71,7 +73,7 @@ def seed_rows(conn: sqlite3.Connection) -> None:
     conn.execute(c, (1, 11, "cast", "Hero", 1))
     conn.execute(c, (2, 10, "director", None, None))
     conn.execute(c, (6, 10, "author", None, None))
-    conn.execute("INSERT INTO work_genre VALUES (1,1,1,NULL),(1,2,1,NULL),(2,1,1,NULL)")
+    conn.execute("INSERT INTO work_genre VALUES (1,1,1,NULL),(1,4,1,NULL),(1,2,1,NULL),(1,3,1,NULL),(2,1,1,NULL)")  # work 1: horror twice (two labels), drama, one unmapped label
     conn.execute("INSERT INTO work_country VALUES (1,1,'origin',1,NULL),(2,1,'origin',1,NULL),(1,2,'production',1,NULL)")
     conn.execute("INSERT INTO work_language VALUES (1,1,'original',1,NULL)")
     conn.execute("INSERT INTO work_company VALUES (1,20,'production',1,NULL)")
@@ -82,3 +84,4 @@ def seed_rows(conn: sqlite3.Connection) -> None:
     conn.execute("INSERT INTO award_category (category_id, award_id, name, name_norm, scope, source_id) VALUES (1,40,'Best Picture','best picture','work',1),(2,40,'Best Director','best director','person_for_work',1)")
     conn.execute("INSERT INTO ceremony (ceremony_id, award_id, year, edition, source_id) VALUES (1,40,1983,'1st',1)")
     conn.execute("INSERT INTO award_result (ceremony_id, category_id, work_id, person_id, outcome, source_id) VALUES (1,1,1,NULL,'won',1),(1,2,1,10,'nominated',1)")
+    rebuild_fts(conn)

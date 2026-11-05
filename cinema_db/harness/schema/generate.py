@@ -61,7 +61,22 @@ def policy_module(info: dict[str, Any]) -> str:
     lines += ["", "BASE_COLUMNS = {"]
     for t in sorted(base):
         lines.append(f"    {t!r}: frozenset({{{', '.join(repr(c) for c in sorted(base[t]))}}}),")
-    lines += ["}", "", "LARGE_TABLES = frozenset({" + ", ".join(repr(t) for t in sorted(N.LARGE_TABLES)) + "})", "", "POLICY = Policy(views=VIEWS, base_columns=BASE_COLUMNS, large_tables=LARGE_TABLES)", ""]
+    engine_tables = sorted({n for vt in s["virtual_tables"] for n in [vt["name"], *vt["shadow_tables"]]})
+    lines += [
+        "}", "",
+        "LARGE_TABLES = frozenset({" + ", ".join(repr(t) for t in sorted(N.LARGE_TABLES)) + "})",
+        "# SQLite's own needs when a view reads the FTS5 virtual table (allowed to the authorizer only; never in model SQL).",
+        "ENGINE_TABLES = frozenset({" + ", ".join(repr(t) for t in engine_tables) + "})",
+        "ENGINE_COLUMNS = frozenset({" + ", ".join(repr(c) for c in sorted(f"{vt['content_table']}.{c}" for vt in s["virtual_tables"] if vt["content_table"] for c in vt["content_columns"])) + "})",
+        "ENGINE_FUNCTIONS = frozenset({" + ", ".join(repr(f) for f in sorted(s["engine"]["functions"])) + "})",
+        "ENGINE_PRAGMAS = frozenset({" + ", ".join(repr(f) for f in sorted(s["engine"]["pragmas"])) + "})",
+        "",
+        "POLICY = Policy(",
+        "    views=VIEWS, base_columns=BASE_COLUMNS, large_tables=LARGE_TABLES,",
+        "    engine_tables=ENGINE_TABLES, engine_columns=ENGINE_COLUMNS, engine_functions=ENGINE_FUNCTIONS, engine_pragmas=ENGINE_PRAGMAS,",
+        ")",
+        "",
+    ]
     return "\n".join(lines)
 
 

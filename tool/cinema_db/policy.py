@@ -29,6 +29,13 @@ class Policy:
     functions: frozenset[str] = DEFAULT_FUNCTIONS
     # Base tables on which a full SCAN is refused unless the query is bounded (see executor.check_plan).
     large_tables: frozenset[str] = frozenset()
+    # What SQLite's own engine needs when a view reads a virtual table (FTS5): its shadow tables, internal functions and the
+    # read-only `data_version` pragma. They are allowed to the authorizer only; the validator never accepts them in model SQL.
+    engine_tables: frozenset[str] = frozenset()
+    # "table.column" of an external-content FTS5 table's content table, readable from the top level (a full scan without MATCH).
+    engine_columns: frozenset[str] = frozenset()
+    engine_functions: frozenset[str] = frozenset()
+    engine_pragmas: frozenset[str] = frozenset()
     limits: QueryLimits = field(default_factory=QueryLimits)
 
     def view(self, name: str) -> ViewSpec | None:

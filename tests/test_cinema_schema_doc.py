@@ -120,7 +120,7 @@ def test_the_mermaid_diagram_matches_the_real_schema_exactly(info):
         want = []
         for c in t["columns"]:
             keys = [k for k, on in (("PK", c["pk"]), ("FK", c["fk"]), ("UK", c["unique"] and not c["pk"])) if on]
-            want.append((c["name"], c["type"], ", ".join(keys)))
+            want.append((c["name"], c["type"] or "ANY", ", ".join(keys)))
         assert tables[t["name"]] == want, t["name"]
     want_rels = [(r["parent"], "|o" if r["optional"] else "||", "o|" if r["cardinality"] == "one_to_one" else "o{", r["child"], ", ".join(r["child_columns"])) for r in s["relationships"]]
     assert rels == want_rels
@@ -154,5 +154,5 @@ def test_row_counts_and_sources_come_from_the_database_but_not_from_the_structur
 
 def test_views_and_columns_are_described_with_a_type(info):
     for v in info["structure"]["views"]:
-        assert v["doc"] and v["columns"] and all(c["type"] in {"integer", "text"} for c in v["columns"]), v["name"]
+        assert v["doc"] and v["columns"] and all(c["type"] in {"integer", "text", "real"} for c in v["columns"]), v["name"]
         assert v["reads"], f"{v['name']} reads no base table"

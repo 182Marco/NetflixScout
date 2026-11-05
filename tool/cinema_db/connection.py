@@ -25,7 +25,10 @@ def make_authorizer(policy: Policy) -> Callable[[int, str | None, str | None, st
     views = {v.name.casefold(): v.column_names for v in policy.views}
     views_cf = {name: {c.casefold() for c in cols} for name, cols in views.items()}
     base = {t.casefold(): {c.casefold() for c in cols} for t, cols in policy.base_columns.items()}
-    functions = frozenset(f.casefold() for f in policy.functions)
+    functions = frozenset(f.casefold() for f in policy.functions) | frozenset(f.casefold() for f in policy.engine_functions)
+    engine_tables = frozenset(t.casefold() for t in policy.engine_tables)
+    engine_pragmas = frozenset(p.casefold() for p in policy.engine_pragmas)
+    engine_columns = frozenset(c.casefold() for c in policy.engine_columns)
 
     def authorizer(action: int, arg1: str | None, arg2: str | None, db_name: str | None, source: str | None) -> int:
         if action == sqlite3.SQLITE_SELECT:
@@ -34,6 +37,8 @@ def make_authorizer(policy: Policy) -> Callable[[int, str | None, str | None, st
             table, column = (arg1 or "").casefold(), (arg2 or "").casefold()
             if db_name not in (None, "main"):
                 return sqlite3.SQLITE_DENY
+            if table in engine_tables:  # FTS5 index and its shadow tables: they hold only the text of entity_name
+                return sqlite3.SQLITE_OK
             if table in views_cf:
                 # `count(*)` reads no column (empty name); a named column must belong to the view.
                 return sqlite3.SQLITE_OK if column == "" or column in views_cf[table] else sqlite3.SQLITE_DENY
@@ -42,10 +47,15 @@ def make_authorizer(policy: Policy) -> Callable[[int, str | None, str | None, st
                     return sqlite3.SQLITE_OK
                 # A base column is readable only for a view and only if the view declares it. A top-level read
                 # (`source` None) of a base table, or a column the views do not use, is denied.
+                if source is None and f"{table}.{column}" in engine_columns:  # FTS5 content scan: public name text only
+                    return sqlite3.SQLITE_OK
                 return sqlite3.SQLITE_OK if source is not None and column in base[table] else sqlite3.SQLITE_DENY
             return sqlite3.SQLITE_DENY
         if action == sqlite3.SQLITE_FUNCTION:
             return sqlite3.SQLITE_OK if (arg2 or "").casefold() in functions else sqlite3.SQLITE_DENY
+        if action == sqlite3.SQLITE_PRAGMA:
+            # FTS5 asks for `data_version` itself; no other pragma, and none with an argument.
+            return sqlite3.SQLITE_OK if (arg1 or "").casefold() in engine_pragmas and not arg2 else sqlite3.SQLITE_DENY
         # SQLITE_RECURSIVE, INSERT/UPDATE/DELETE, CREATE_*/DROP_*/ALTER_TABLE, PRAGMA, ATTACH/DETACH, TRANSACTION,
         # SAVEPOINT, REINDEX, ANALYZE, CREATE_VTABLE/DROP_VTABLE and every future code.
         return sqlite3.SQLITE_DENY

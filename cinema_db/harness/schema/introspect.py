@@ -49,6 +49,21 @@ def _checks(sql: str) -> list[str]:
         i = k
 
 
+def _virtual_entry(name: str, sql: str, shadow: list[str]) -> dict[str, Any]:
+    """An external-content FTS5 table reads its content table directly when a query has no MATCH: those columns are part of it."""
+    import re
+
+    content = re.search(r"content\s*=\s*'([^']+)'", sql)
+    rowid = re.search(r"content_rowid\s*=\s*'([^']+)'", sql)
+    body = sql.split("(", 1)[1].rsplit(")", 1)[0]
+    columns = [c.strip().split()[0] for c in re.split(r",(?![^()]*\))", body) if c.strip() and "=" not in c.split()[0] and "=" not in c]
+    return {
+        "name": name, "module": sql.split("USING", 1)[1].split("(", 1)[0].strip(), "shadow_tables": shadow,
+        "content_table": content.group(1) if content else None,
+        "content_columns": sorted(set(([rowid.group(1)] if rowid else []) + (columns if content else []))),
+    }
+
+
 def _fk_auto_doc(ref_table: str, ref_col: str) -> str:
     return f"Reference to {ref_table}.{ref_col}."
 
@@ -57,7 +72,10 @@ def introspect(conn: sqlite3.Connection) -> dict[str, Any]:
     """Return {structure..., counts, sources}. `structure_digest` hashes only the structure (not counts or sources)."""
     cur = conn.cursor()
     master = {n: (t, s) for n, t, s in cur.execute("SELECT name, type, sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'")}
-    table_names = sorted(n for n, (t, _) in master.items() if t == "table")
+    virtual = {n: s_ for n, (t, s_) in master.items() if t == "table" and (s_ or "").upper().startswith("CREATE VIRTUAL TABLE")}
+    shadow = {n: sorted(m for m, (t, _) in master.items() if t == "table" and m.startswith(n + "_")) for n in virtual}
+    shadow_names = {m for ms in shadow.values() for m in ms}
+    table_names = sorted(n for n, (t, _) in master.items() if t == "table" and n not in shadow_names)
     view_names = [n for n in master if master[n][0] == "view"]
     tables: list[dict[str, Any]] = []
     for name in table_names:
@@ -110,7 +128,8 @@ def introspect(conn: sqlite3.Connection) -> dict[str, Any]:
         pk_links = [fk for fk in fks if set(fk["columns"]) <= set(pk) and fk["ref_table"] not in VOCAB_TABLES]
         junction = len(pk) >= 2 and len(pk_links) >= 2
         tables.append({
-            "name": name, "group": N.TABLE_GROUP.get(name), "doc": N.TABLES.get(name), "strict": bool(sql and " STRICT" in sql.upper().split(")")[-1]),
+            "name": name, "group": N.TABLE_GROUP.get(name), "doc": N.TABLES.get(name), "virtual": name in virtual,
+            "strict": bool(sql and " STRICT" in sql.upper().split(")")[-1]),
             "columns": columns, "primary_key": pk, "foreign_keys": fks, "unique": uniques, "indexes": indexes,
             "checks": _checks(sql or ""), "junction": junction, "sql": " ".join((sql or "").split()),
         })
@@ -166,7 +185,9 @@ def introspect(conn: sqlite3.Connection) -> dict[str, Any]:
         })
     structure = {
         "schema_version": int(cur.execute("SELECT value FROM build_info WHERE key='schema_version'").fetchone()[0]),
-        "groups": N.GROUPS, "group_order": list(N.GROUPS), "tables": tables, "relationships": rels, "many_to_many": m2m, "views": views,
+        "groups": N.GROUPS, "group_order": list(N.GROUPS), "tables": tables,
+        "virtual_tables": [_virtual_entry(n, virtual[n], shadow[n]) for n in sorted(virtual)],
+        "engine": {"functions": list(N.ENGINE_FUNCTIONS), "pragmas": list(N.ENGINE_PRAGMAS)}, "relationships": rels, "many_to_many": m2m, "views": views,
     }
     digest = hashlib.sha256(json.dumps(structure, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
     counts = {t["name"]: cur.execute(f'SELECT count(*) FROM "{t["name"]}"').fetchone()[0] for t in tables}

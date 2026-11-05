@@ -9,6 +9,8 @@ from pathlib import Path
 import pytest
 from cinema_schema_support import build_real
 
+from cinema_db.schema import rebuild_fts
+
 from tool.cinema_db.approved_views import POLICY
 from tool.cinema_db.connection import open_database
 from tool.cinema_db.errors import PolicyMismatch, SqlExecutionFailed, SqlPlanRejected, SqlRejected, SqlTimeout
@@ -38,7 +40,7 @@ def test_the_committed_policy_matches_the_real_database(db):
     open_database(db, POLICY).close()  # verify_policy: view columns, base columns, no triggers
     assert POLICY.view_names == {
         "v_work", "v_person", "v_name", "v_external_id", "v_credit", "v_work_genre", "v_work_country", "v_work_language",
-        "v_work_release", "v_work_company", "v_work_relation", "v_franchise", "v_award_result", "v_work_financial",
+        "v_work_release", "v_work_company", "v_work_genre_label", "v_genre_label", "v_title_search", "v_work_relation", "v_franchise", "v_award_result", "v_work_financial",
         "v_genre", "v_role_type", "v_source",
     }
 
@@ -69,8 +71,8 @@ QUESTIONS = [
     ("episodes of a season", "SELECT title, episode_number FROM v_work WHERE parent_work_id = 4 ORDER BY episode_number", [], [("Sample Episode", 1)]),
     ("find by an alias", "SELECT entity_id FROM v_name WHERE name_norm = ?", ["uno di prova"], [(1,)]),
     ("reverse id lookup", "SELECT entity_type, entity_id FROM v_external_id WHERE scheme = 'imdb_title' AND value = ?", ["tt9000002"], [("work", 2)]),
-    ("genre counts", "SELECT genre, count(*) AS n FROM v_work_genre GROUP BY genre ORDER BY n DESC, genre", [], [("horror film", 2), ("drama film", 1)]),
-    ("films by country and genre", "SELECT DISTINCT c.work_title FROM v_work_country c JOIN v_work_genre g ON g.work_id = c.work_id WHERE c.iso2 = 'US' AND c.role = 'origin' AND g.genre = 'horror film' ORDER BY 1", [], [("Sample One",), ("Sample Remake",)]),
+    ("genre counts", "SELECT genre, count(*) AS n FROM v_work_genre GROUP BY genre ORDER BY n DESC, genre", [], [("Horror", 2), ("Drama", 1)]),
+    ("films by country and genre", "SELECT DISTINCT c.work_title FROM v_work_country c JOIN v_work_genre g ON g.work_id = c.work_id WHERE c.iso2 = 'US' AND c.role = 'origin' AND g.genre = 'Horror' ORDER BY 1", [], [("Sample One",), ("Sample Remake",)]),
     ("a person's collaborators (CTE)", "WITH d AS (SELECT work_id FROM v_credit WHERE person_name = ? AND role = 'director') SELECT person_name FROM v_credit WHERE work_id IN (SELECT work_id FROM d) AND role = 'cast'", ["Ann Director"], [("Bob Actor",)]),
     ("the terms of a source", "SELECT name, license, usage_scope, attribution_required FROM v_source ORDER BY source_id", [], [("test-wikidata", "CC0", "open_public_domain", 0), ("test-wikipedia", "CC BY-SA 4.0", "open_share_alike", 1)]),
     ("where a credit comes from", "SELECT source, count(*) FROM v_credit GROUP BY source", [], [("test-wikidata", 4)]),
@@ -190,8 +192,11 @@ def big(tmp_path_factory):
     rnd = random.Random(7)
     credits = {(rnd.randint(1, 5000), rnd.randint(10001, 12000), rnd.choice(["director", "cast", "cast", "cast", "writer"])) for _ in range(60000)}
     c.executemany("INSERT INTO credit (work_id, person_id, role, source_id) VALUES (?,?,?,1)", sorted(credits))
-    c.execute("INSERT INTO genre VALUES (1,'g1',NULL,NULL,NULL,1),(2,'g2',NULL,NULL,NULL,1)")
+    c.execute("INSERT INTO genre VALUES (1,'ga','G1','G1',NULL,NULL,1),(2,'gb','G2','G2',NULL,NULL,1)")
+    c.execute("INSERT INTO genre_label (label_id, label_it, label_norm, source_id) VALUES (1,'g1','g1',1),(2,'g2','g2',1)")
+    c.execute("INSERT INTO genre_label_map VALUES (1,1,'exact','t',1),(2,2,'exact','t',1)")
     c.executemany("INSERT INTO work_genre VALUES (?,?,1,NULL)", [(i, 1 + i % 2) for i in range(1, 5001)])
+    rebuild_fts(c)
     c.execute("ANALYZE")
     c.commit()
     c.close()
@@ -257,3 +262,116 @@ def test_fuzzing_the_real_views_never_writes_and_never_leaks(db):
     finally:
         g.close()
     assert db.read_bytes() == before and accepted > 30
+
+
+# --- FTS5 title search through the public view -----------------------------------------------------------------------
+
+
+def titles(g, match, extra=""):
+    return [r[0] for r in run(g, f"SELECT DISTINCT entity_id FROM v_title_search WHERE search MATCH ? {extra}", [match]).rows]
+
+
+def test_full_text_search_finds_titles_aliases_prefixes_and_ignores_accents(g):
+    assert titles(g, "sample") == [1, 2, 3, 4, 5, 6] or set(titles(g, "sample")) >= {1, 2, 3}
+    assert set(titles(g, "remak*")) == {2}
+    assert titles(g, "prova") == [1]  # the Italian alias "Uno di prova"
+    assert titles(g, '"sample one"') == [1]
+    assert set(titles(g, "novel OR remake")) == {2, 6}
+    assert titles(g, "name:ann") == [10]
+    # relevance order and the work's kind and year ride along, so a title can be told from a homonym without a second query
+    rows = run(g, "SELECT name, work_kind, work_year FROM v_title_search WHERE search MATCH ? ORDER BY rank LIMIT 3", ["sample"]).rows
+    assert rows and all(len(r) == 3 for r in rows)
+
+
+def test_accents_and_case_do_not_matter_in_full_text_search(tmp_path):
+    path = build_real(tmp_path / "acc.sqlite3", seed=False)
+    c = sqlite3.connect(path)
+    c.execute("INSERT INTO source VALUES (1,'t','dataset',NULL,'t',NULL,'unverified',0,NULL,NULL,NULL,NULL,NULL)")
+    c.execute("INSERT INTO entity VALUES (1,'work')")
+    c.execute("INSERT INTO work (work_id, kind, source_id) VALUES (1,'film',1)")
+    c.execute("INSERT INTO entity_name (entity_id, name, name_norm, kind, is_primary, source_id) VALUES (1,'Così è la vita — L''été','così è la vita','primary',1,1)")
+    rebuild_fts(c)
+    c.commit()
+    c.close()
+    g = open_database(path, POLICY)
+    try:
+        for term in ("cosi", "COSÌ", "ete", "été", "vit*"):
+            assert titles(g, term) == [1], term
+    finally:
+        g.close()
+
+
+def test_exact_lookup_by_identifier_and_by_normalised_name_still_works(g):
+    assert run(g, "SELECT entity_id FROM v_external_id WHERE scheme = 'imdb_title' AND value = ?", ["tt9000001"]).rows == ((1,),)
+    assert run(g, "SELECT entity_id FROM v_name WHERE name_norm = ?", ["sample one"]).rows == ((1,),)
+
+
+@pytest.mark.parametrize(
+    ("sql", "code"),
+    [
+        ("SELECT * FROM entity_name_fts WHERE entity_name_fts MATCH 'x'", "table_not_allowed"),
+        ("SELECT * FROM entity_name_fts_data", "table_not_allowed"),
+        ("SELECT * FROM entity_name_fts_idx", "table_not_allowed"),
+        ("SELECT bm25(v_title_search) FROM v_title_search WHERE search MATCH 'x'", "function_not_allowed"),
+        ("SELECT highlight(v_title_search, 0, '<', '>') FROM v_title_search WHERE search MATCH 'x'", "function_not_allowed"),
+        ("SELECT snippet(v_title_search, 0, '<', '>', '.', 5) FROM v_title_search WHERE search MATCH 'x'", "function_not_allowed"),
+        ("INSERT INTO entity_name_fts(entity_name_fts) VALUES ('rebuild')", "statement_type"),
+        ("INSERT INTO entity_name_fts(entity_name_fts, rank) VALUES ('delete-all', 1)", "statement_type"),
+        ("SELECT rowid FROM v_title_search", "column_not_allowed"),
+        ("SELECT name_id FROM v_title_search", "column_not_allowed"),
+    ],
+)
+def test_the_fts_internals_are_not_reachable_from_model_sql(sql, code):
+    with pytest.raises(SqlRejected) as e:
+        validate(sql, [], POLICY)
+    assert e.value.code == code
+
+
+def test_fts_cannot_be_written_or_reconfigured_even_on_the_raw_connection(g, db):
+    before = db.read_bytes()
+    for stmt in ["INSERT INTO entity_name_fts(entity_name_fts) VALUES ('rebuild')", "INSERT INTO entity_name_fts(entity_name_fts, rank) VALUES ('rank', 'bm25(10.0)')",
+                 "DELETE FROM entity_name_fts", "DROP TABLE entity_name_fts", "INSERT INTO entity_name_fts_data VALUES (1, x'00')",
+                 "PRAGMA user_version = 7", "PRAGMA data_version = 1", "PRAGMA writable_schema = 1", "PRAGMA table_info(entity_name)"]:
+        with pytest.raises(sqlite3.DatabaseError):
+            g.conn.execute(stmt)
+    assert db.read_bytes() == before
+
+
+def test_the_only_pragma_the_engine_may_issue_is_data_version():
+    from tool.cinema_db.connection import make_authorizer
+
+    auth = make_authorizer(POLICY)
+    assert auth(sqlite3.SQLITE_PRAGMA, "data_version", None, None, None) == sqlite3.SQLITE_OK
+    for name, arg in [("data_version", "1"), ("user_version", None), ("writable_schema", "1"), ("journal_mode", None), ("table_info", "work")]:
+        assert auth(sqlite3.SQLITE_PRAGMA, name, arg, None, None) == sqlite3.SQLITE_DENY
+
+
+def test_a_bad_full_text_query_fails_cleanly_without_the_engine_text(g):
+    for bad in ('"unterminated', "AND OR", "name:", "NEAR(", "*"):
+        with pytest.raises(SqlExecutionFailed) as e:
+            run(g, "SELECT entity_id FROM v_title_search WHERE search MATCH ?", [bad])
+        assert "fts5" not in str(e.value).lower() and "syntax" not in str(e.value).lower()
+
+
+def test_a_stale_fts_index_is_detected(tmp_path):
+    from cinema_db.schema import check_fts
+
+    path = build_real(tmp_path / "stale.sqlite3")
+    c = sqlite3.connect(path)
+    assert check_fts(c) == []
+    c.execute("INSERT INTO entity_name (entity_id, name, name_norm, kind, source_id) VALUES (1,'Late alias','late alias','alias',1)")
+    assert any("rebuild" in p for p in check_fts(c))
+    rebuild_fts(c)
+    assert check_fts(c) == []
+    c.close()
+
+
+def test_full_text_search_on_a_large_database_is_fast(big):
+    g = open_database(big, POLICY)
+    try:
+        for match in ("film", "film 4*", "person 10*", '"film 1234"', "film OR person"):
+            started = time.monotonic()
+            result = execute(g, validate("SELECT entity_id, name FROM v_title_search WHERE search MATCH ? ORDER BY rank LIMIT 20", [match], POLICY))
+            assert result.rows and time.monotonic() - started < 1.0, match
+    finally:
+        g.close()

@@ -1,5 +1,5 @@
 %% Generated from the SQLite schema by cinema_db/harness/schema/generate.py: do not edit.
-%% schema_version=1 structure_digest=e754141b66125a51c5179327710763b090c4d51be2447efc74c65344c5cbf0c0
+%% schema_version=2 structure_digest=219b87a427e740aa29cab27da6d0a5c68a4eca46491cffd9b79ac6e84af42231
 erDiagram
     award {
         INTEGER award_id PK, FK "Key; equal to entity.entity_id."
@@ -74,7 +74,7 @@ erDiagram
         TEXT entity_type "work, person, company, franchise or award."
     }
     entity_name {
-        INTEGER name_id PK "Surrogate key."
+        INTEGER name_id PK "Surrogate key (also the rowid of entity_name_fts)."
         INTEGER entity_id FK "Reference to entity.entity_id."
         TEXT name "The name as written."
         TEXT name_norm "Lower-case, accent-free form used for matching."
@@ -83,6 +83,9 @@ erDiagram
         INTEGER is_primary "1 for the single name shown by default (exactly one per entity)."
         INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
         TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    entity_name_fts {
+        ANY name "Indexed name text (mirrors entity_name.name)."
     }
     external_id {
         INTEGER entity_id PK, FK "Reference to entity.entity_id."
@@ -107,10 +110,27 @@ erDiagram
     }
     genre {
         INTEGER genre_id PK "Surrogate key."
-        TEXT label_en "English label."
-        TEXT label_it "Italian label."
+        TEXT code UK "Stable lower-case code of the canonical genre (horror, comedy, science_fiction...)."
+        TEXT label_en "English label of the canonical genre."
+        TEXT label_it "Italian label of the canonical genre."
         INTEGER parent_genre_id FK "Reference to genre.genre_id."
-        TEXT wikidata_id UK "Wikidata item of the genre."
+        TEXT description "What the canonical genre covers."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+    }
+    genre_label {
+        INTEGER label_id PK "Surrogate key."
+        TEXT wikidata_id UK "Wikidata item the label comes from; empty for labels that are plain catalogue text."
+        TEXT label_it "Italian label as the source gives it."
+        TEXT label_en "English label as the source gives it."
+        TEXT label_norm "Lower-case, accent-free form of the label used by the mapping rules."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    genre_label_map {
+        INTEGER label_id PK, FK "Reference to genre_label.label_id."
+        INTEGER genre_id PK, FK "Reference to genre.genre_id."
+        TEXT mapping "exact (same concept), synonym (same concept, different wording) or specific (the source label is narrower than the canonical genre)."
+        TEXT rule "Identifier of the mapping rule that matched, for audit."
         INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
     }
     id_scheme {
@@ -219,7 +239,7 @@ erDiagram
     }
     work_genre {
         INTEGER work_id PK, FK "Reference to work.work_id."
-        INTEGER genre_id PK, FK "Reference to genre.genre_id."
+        INTEGER label_id PK, FK "Reference to genre_label.label_id."
         INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
         TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
     }
@@ -283,6 +303,10 @@ erDiagram
     source ||--o{ franchise : "source_id"
     genre |o--o{ genre : "parent_genre_id"
     source ||--o{ genre : "source_id"
+    source ||--o{ genre_label : "source_id"
+    genre ||--o{ genre_label_map : "genre_id"
+    genre_label ||--o{ genre_label_map : "label_id"
+    source ||--o{ genre_label_map : "source_id"
     source ||--o{ language : "source_id"
     country |o--o{ person : "birth_country_id"
     entity ||--o{ person : "person_id, entity_type"
@@ -303,7 +327,7 @@ erDiagram
     franchise ||--o{ work_franchise : "franchise_id"
     source ||--o{ work_franchise : "source_id"
     work ||--o{ work_franchise : "work_id"
-    genre ||--o{ work_genre : "genre_id"
+    genre_label ||--o{ work_genre : "label_id"
     source ||--o{ work_genre : "source_id"
     work ||--o{ work_genre : "work_id"
     language ||--o{ work_language : "language_id"

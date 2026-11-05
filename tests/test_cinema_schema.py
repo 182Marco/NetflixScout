@@ -30,8 +30,8 @@ def rows(c, sql, *p):
 
 def test_the_database_is_consistent_and_every_table_is_strict_with_a_primary_key(conn):
     assert rows(conn, "PRAGMA foreign_key_check") == [] and rows(conn, "PRAGMA integrity_check") == [("ok",)]
-    tables = [r[0] for r in rows(conn, "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")]
-    assert len(tables) == 30
+    tables = [r[0] for r in rows(conn, "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'entity_name_fts%'")]
+    assert len(tables) == 32  # plus the FTS5 virtual table and its five shadow tables
     for t in tables:
         assert "STRICT" in conn.execute("SELECT sql FROM sqlite_master WHERE name=?", (t,)).fetchone()[0].upper()
         assert any(r[5] for r in rows(conn, f"PRAGMA table_info({t})")), t
@@ -43,7 +43,7 @@ def test_there_is_no_json_in_the_schema(conn):
 
 
 def test_every_fact_table_names_its_source(conn):
-    for (t,) in rows(conn, "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"):
+    for (t,) in rows(conn, "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'entity_name_fts%'"):
         if t in DEFINITIONAL:
             continue
         cols = {r[1]: r for r in rows(conn, f"PRAGMA table_info({t})")}
@@ -52,7 +52,7 @@ def test_every_fact_table_names_its_source(conn):
 
 
 def test_every_foreign_key_that_joins_often_has_an_index(conn):
-    for (t,) in rows(conn, "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"):
+    for (t,) in rows(conn, "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'entity_name_fts%'"):
         pk = [r[1] for r in sorted(rows(conn, f"PRAGMA table_info({t})"), key=lambda r: r[5]) if r[5]]
         leading = {pk[0]} if pk else set()
         for idx in rows(conn, f"PRAGMA index_list({t})"):
@@ -164,7 +164,10 @@ def test_the_views_answer_real_cinema_questions(conn):
         ("Sample Awards", "Best Director", "nominated", "Ann Director"), ("Sample Awards", "Best Picture", "won", None)]
     assert rows(conn, "SELECT kind, amount, currency FROM v_work_financial WHERE work_id = 1 ORDER BY kind") == [("box_office", 20000000, "USD"), ("budget", 1500000, "USD")]
     assert rows(conn, "SELECT iso2, release_date FROM v_work_release WHERE work_id = 1 ORDER BY iso2") == [("IT", "1982-12-01"), ("US", "1982-06-25")]
-    assert [r[0] for r in rows(conn, "SELECT genre FROM v_work_genre WHERE work_id = 1 ORDER BY genre")] == ["drama film", "horror film"]
+    # two source labels (a Wikidata item and a plain text) map to ONE canonical genre; the unmapped label is still readable
+    assert [r[0] for r in rows(conn, "SELECT genre FROM v_work_genre WHERE work_id = 1 ORDER BY genre")] == ["Drama", "Horror"]
+    assert rows(conn, "SELECT label_it, genre, mapping FROM v_work_genre_label WHERE work_id = 1 ORDER BY label_id") == [
+        ("film horror", "Horror", "exact"), ("film drammatico", "Drama", "exact"), ("film strano", None, None), ("horror", "Horror", "synonym")]
     # alias lookup and reverse identifier lookup
     assert rows(conn, "SELECT entity_id FROM v_name WHERE name_norm = 'uno di prova'") == [(1,)]
     assert rows(conn, "SELECT entity_id, entity_type FROM v_external_id WHERE scheme = 'imdb_name' AND value = 'nm9000001'") == [(10, "person")]
@@ -187,3 +190,31 @@ def test_the_builder_refuses_to_overwrite(tmp_path: Path):
     target = create_database(tmp_path / "a.sqlite3")
     with pytest.raises(FileExistsError):
         create_database(target)
+
+
+def test_genres_keep_the_source_label_the_mapping_and_the_canonical_genre_apart(conn):
+    # the canonical genre is reached only through the label a source used; an unmapped label is still visible
+    assert rows(conn, "SELECT genre FROM v_work_genre WHERE work_id = 2") == [("Horror",)]
+    assert rows(conn, "SELECT count(*) FROM v_work_genre WHERE work_id = 1 AND genre = 'Horror'") == [(1,)]  # two labels, one row
+    assert rows(conn, "SELECT label_it, genre, mapping, rule FROM v_genre_label ORDER BY label_id") == [
+        ("film horror", "Horror", "exact", "test"), ("film drammatico", "Drama", "exact", "test"), ("film strano", None, None, None), ("horror", "Horror", "synonym", "test")]
+    assert rows(conn, "SELECT code FROM v_genre ORDER BY code") == [("drama",), ("horror",)]
+
+
+def test_genre_constraints(conn):
+    with pytest.raises(sqlite3.IntegrityError):
+        conn.execute("INSERT INTO genre (code, label_en, label_it, source_id) VALUES ('Horror Film','x','x',1)")  # code is lower-case letters and _
+    with pytest.raises(sqlite3.IntegrityError):
+        conn.execute("INSERT INTO genre (code, label_en, label_it, source_id) VALUES ('horror','x','x',1)")  # unique
+    with pytest.raises(sqlite3.IntegrityError):
+        conn.execute("INSERT INTO genre_label (label_norm, source_id) VALUES ('x',1)")  # a label needs text
+    with pytest.raises(sqlite3.IntegrityError):
+        conn.execute("INSERT INTO genre_label_map VALUES (3,1,'close','r',1)")  # mapping kinds are closed
+    with pytest.raises(sqlite3.IntegrityError):
+        conn.execute("INSERT INTO genre_label (wikidata_id, label_it, label_norm, source_id) VALUES ('Q200092','dup','dup',1)")  # one row per Wikidata item
+    conn.rollback()
+
+
+def test_the_fts_index_is_part_of_the_schema_and_is_not_kept_by_triggers(conn):
+    assert rows(conn, "SELECT count(*) FROM sqlite_master WHERE type = 'trigger'") == [(0,)]
+    assert rows(conn, "SELECT count(*) FROM entity_name_fts_docsize") == rows(conn, "SELECT count(*) FROM entity_name")
