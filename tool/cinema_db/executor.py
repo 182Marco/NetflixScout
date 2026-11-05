@@ -69,16 +69,18 @@ def _clip(value: Any, max_chars: int) -> Any:
 
 
 def _check_plan(conn: sqlite3.Connection, query: ValidatedQuery, policy: Policy) -> None:
-    """Refuse a full SCAN of a large base table when the result needs a sort or grouping (the whole table would be
-    read) . A bounded, ordered-by-index scan with LIMIT is fine. Plans use base-table names, never the views'."""
+    """Refuse a statement that scans a large base table in full TWICE or more (a join or a correlated subquery without
+    an index re-reads the table per outer row: quadratic work). One bounded or linear scan is fine; the deadline covers
+    the rest. Plans always use base-table names, never the views'."""
     try:
         plan = [str(r[3]) for r in conn.execute("EXPLAIN QUERY PLAN " + query.sql, query.params).fetchall()]
     except sqlite3.DatabaseError:
         raise SqlExecutionFailed("The database refused the query.") from None
-    heavy = any("TEMP B-TREE" in line or "USE TEMP" in line for line in plan)
+    large = {t.casefold() for t in policy.large_tables}
+    scans = 0
     for line in plan:
         parts = line.split()
-        if parts and parts[0] == "SCAN":
-            table = parts[1].casefold() if len(parts) > 1 else ""
-            if table in {t.casefold() for t in policy.large_tables} and heavy:
-                raise SqlPlanRejected("The query would scan a large table to sort or group it; add a selective filter.")
+        if len(parts) > 1 and parts[0] == "SCAN" and parts[1].casefold() in large:
+            scans += 1
+    if scans >= 2:
+        raise SqlPlanRejected("The query would scan a large table more than once; join on indexed columns or filter first.")

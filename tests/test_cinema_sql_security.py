@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import ast
+from dataclasses import replace
 import random
 import sqlite3
 from pathlib import Path
@@ -376,7 +377,7 @@ def test_rows_are_capped_and_flagged(db):
 
 
 def test_a_slow_query_times_out_and_the_connection_survives(db):
-    g = open_fixture(db, with_limits(POLICY, timeout_ms=30, max_nodes=900))
+    g = open_fixture(db, replace(POLICY, large_tables=frozenset(), limits=replace(POLICY.limits, timeout_ms=30, max_nodes=900)))
     try:
         slow = "SELECT count(*) FROM v_credit a JOIN v_credit b ON b.role = a.role JOIN v_credit c ON c.role = b.role"
         with pytest.raises(SqlTimeout):
@@ -397,13 +398,14 @@ def test_big_results_are_cut_by_size_and_cells_are_clipped(db):
         g.close()
 
 
-def test_a_scan_of_a_large_table_that_needs_a_sort_is_refused_but_a_selective_one_runs(guarded):
+def test_a_second_full_scan_of_a_large_table_is_refused_but_one_linear_scan_runs(guarded):
     with pytest.raises(SqlPlanRejected):
-        execute(guarded, validate("SELECT role, count(*) FROM v_credit GROUP BY role", [], guarded.policy))
-    with pytest.raises(SqlPlanRejected):
-        execute(guarded, validate("SELECT person_id FROM v_credit ORDER BY role", [], guarded.policy))
+        execute(guarded, validate("SELECT count(*) FROM v_credit a JOIN v_credit b ON length(b.role) = length(a.role)", [], guarded.policy))
+    # an equality join gets an automatic index from SQLite (n log n, not quadratic): allowed
+    assert execute(guarded, validate("SELECT count(*) FROM v_credit a JOIN v_credit b ON b.role = a.role", [], guarded.policy)).rows
+    assert execute(guarded, validate("SELECT role, count(*) FROM v_credit GROUP BY role", [], guarded.policy)).rows
+    assert execute(guarded, validate("SELECT person_id FROM v_credit ORDER BY role LIMIT 3", [], guarded.policy)).rows
     assert execute(guarded, validate("SELECT person_id FROM v_credit WHERE film_id = 1", [], guarded.policy)).rows
-    assert execute(guarded, validate("SELECT person_id FROM v_credit LIMIT 3", [], guarded.policy)).rows
 
 
 def test_a_runtime_error_is_reported_without_the_engine_text(guarded):
