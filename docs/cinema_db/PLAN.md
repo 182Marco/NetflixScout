@@ -70,7 +70,7 @@ Voti e punteggi correnti (TMDb, OMDb), streaming, trailer, locandine, cast compl
 
 ---------------------------------------------------------------------------------------------------
 
-## 3. Schema relazionale preliminare
+## 3. Schema relazionale preliminare (SUPERATO: vedi §16 e `cinema_db/schema.py`, la fonte di verità)
 
 Convenzioni: chiave primaria = **intero interno** (`*_id`), `qid` UNIQUE; ogni riga ha `source` e (dove ha senso) `source_revision`/`retrieved_at`. `PRAGMA foreign_keys=ON` in costruzione, `WITHOUT ROWID` solo dove utile.
 
@@ -364,3 +364,43 @@ Letti: `AGENTS.md`, `orchestrator.py` (ciclo seriale), `app.py` (CONFIG), `tool/
 | D7 | parallelismo rimandato; prima ottimizzare identificazione, passaggio degli ID e numero di chiamate | vedi la correzione di §8.1: l'ottimizzazione è soprattutto la sostituzione di interi tool |
 
 Fasi: 0 misura · 1 sicurezza SQL (solo fixture) · 2 schema e `schema.html`/`schema.mmd` · 3 prima build offline · 4 arricchimento Wikidata (e IMDb selettivo) · 5 tool e routing (spento di default). Ogni fase termina con un checkpoint e un commit a sé.
+
+---------------------------------------------------------------------------------------------------
+
+## 16. Fase 2: revisione dello schema e decisioni (2026-11-05)
+
+Lo schema reale è `cinema_db/schema.py`; la documentazione navigabile è `docs/cinema_db/schema.html` (e `schema.mmd`), generata dal file SQLite. Qui sono le decisioni e le correzioni rispetto allo schema preliminare di §3.
+
+### Problemi strutturali trovati nello schema preliminare e corretti ora
+| Lacuna di §3 | Correzione | Perché costava aggiungerla dopo |
+|---|---|---|
+| Titoli alternativi, omonimi e alias solo come colonne (`title_it`, `title_en`, `original_title`) | tabella `entity_name` (tipo, lingua, `is_primary` unico per entità) per opere, persone, aziende, franchise e premi | ogni ricerca per titolo e ogni vista dipenderebbero dalle colonne |
+| Serie, stagioni ed episodi come tabelle separate e anche come `work.kind` (duplicazione) | **un solo `work`** con `parent_work_id`, `season_number`, `episode_number`; vincoli CHECK (un episodio ha un padre, il numero di episodio solo agli episodi) | crediti, ID e relazioni avrebbero avuto due strade |
+| Identificativi come colonne (`imdb_id`, `tmdb_id`) | tabella `external_id` + `id_scheme` (IMDb, TMDb film/serie/persona, TVmaze, Wikidata, pagine Wikipedia it/en, EIDR…), `UNIQUE(scheme, value)` | ID multipli (TMDb film e serie si sovrappongono) e nuove fonti senza cambiare lo schema |
+| Provenienza solo per riga | `source_id`+`source_ref` su ogni riga di fatti **più** `field_provenance` (origine di UNA colonna quando diversa da quella della riga: serve ai buchi riempiti da IMDb, D5) | la decisione D5 non era realizzabile col solo livello di riga |
+| Opere d'origine non cinematografiche in una tabella a parte (`related_entity`) | romanzi, fumetti, videogiochi, opere teatrali sono `work` con `kind` e `medium` diversi (`work_kind`): le relazioni sono sempre `work → work` con FK vere; le viste di default non li confondono (`medium`) | «da quale libro è tratto», «chi è l'autore dell'opera d'origine» richiedono crediti e nomi anche per queste opere |
+| Premi: una sola tabella `award_result` con categoria testuale | `award` → `award_category` (con `scope`: opera, persona, persona per un'opera) → `ceremony` (anno, edizione) → `award_result` (esito `won`/`nominated`, opera e/o persona) | «chi è stato candidato come miglior regista per quale film» |
+| Nessuna data di uscita per paese | `work_release` (paese, data ISO parziale, tipo) | «quando è uscito in Italia» |
+| Incassi e budget in tabelle separate, con ambiguità di scala | `work_financial` unica (`kind`, `scope`, paese, importo, valuta ISO, anno di riferimento); nessuna conversione né inflazione | evita confronti scorretti tra valute e anni |
+| Relazioni con `related_qid` per opere fuori dal DB | solo `work_relation(work_id, related_work_id, relation)` con direzione canonica; `v_work_relation` mostra **entrambe** le direzioni con la formulazione di ciascuna | una sola query per «cosa è tratto da X» e «da cosa è tratto X» |
+| Ruoli come CHECK | `role_type` (vocabolario con reparto e `is_cast`) | nuovi ruoli senza modificare le tabelle |
+
+### Struttura risultante (misurata dal file SQLite)
+30 tabelle, 64 chiavi esterne reali, 17 viste pubbliche, 8 relazioni molti-a-molti (6 tabelle ponte più `credit` e `award_result` tra opere e persone), tutte le tabelle `STRICT`, nessuna colonna JSON, `PRAGMA foreign_key_check` vuoto. Supertipo `entity` (opere, persone, aziende, franchise, premi) con FK composta `(id, entity_type)` che impedisce a un'opera di appoggiarsi a una persona. Vocabolari di definizione (nessun dato sui film): 12 tipi di opera, 16 ruoli, 4 relazioni, 11 schemi di identificativo.
+
+### Cosa è volutamente rimandato (aggiungere dopo costa poco)
+Classifiche e liste (nuove tabelle, nessuna modifica), personaggi come entità (`credit.character_id` nullable), temi/parole chiave e luoghi di ripresa (nuove giunzioni), flag per adulti (colonna), ricerca full-text FTS5 (disponibile nel SQLite locale; si aggiunge sulle stesse tabelle, ma gli oggetti virtuali non passano dal validatore e richiedono una vista dedicata: decisione aperta). Lo schema è stato scritto perché ognuna di queste aggiunte sia **additiva**.
+
+### Viste pubbliche (le uniche leggibili da `cinema_sql`)
+`v_work`, `v_person`, `v_name`, `v_external_id`, `v_credit`, `v_work_genre`, `v_work_country`, `v_work_language`, `v_work_release`, `v_work_company`, `v_work_relation`, `v_franchise`, `v_award_result`, `v_work_financial`, `v_genre`, `v_role_type`, `v_source`. Ogni vista nomina la fonte (`source`) dove il dato è un fatto citabile. Colonne interne (`source_ref`, `snapshot_sha256`, `field_provenance`) non sono esposte. La policy (`tool/cinema_db/approved_views.py`) è **generata** dal file SQLite e verificata a ogni apertura.
+
+### Decisioni ancora aperte
+1. **FTS5** per i titoli: sì/no e con quale vista (finora la ricerca è `name_norm` con LIKE/uguaglianza, indicizzata).
+2. **Generi**: restano testo libero dalle fonti (`genre`); una normalizzazione in una tassonomia chiusa è una decisione di fase 3.
+3. **Date di uscita per paese**: Wikidata ha `P577` con qualificatore di luogo; la copertura reale si misura in fase 3.
+4. **IMDb (D5)**: il modello è pronto (`field_provenance`, `source.usage_scope`); l'uso resta subordinato alla lettura dei termini completi.
+5. `work.is_adult`, personaggi come entità, classifiche: rimandati (vedi sopra).
+6. **Nome del file del database**: `cinema_db/data/cinema.sqlite3` (cartella ignorata da git) e politica di sostituzione atomica per le release: da confermare in fase 3.
+
+### Limiti della verifica
+`schema.html` è stato aperto e controllato visivamente con Chrome headless (tabella selezionata, vista selezionata, gruppi, pannello dettaglio); non è stato provato su altri browser. `schema.mmd` è stato verificato dal parser dei test (stesse tabelle, colonne, chiavi e relazioni dello schema reale) ma **non** dalla libreria Mermaid: il controllo con la libreria da CDN è stato negato dal sistema di autorizzazione e non è stato aggirato. Le prestazioni su 60.000 crediti sintetici (da 4 a 132 ms) non sono quelle dei dati reali.

@@ -420,6 +420,26 @@ const TREE = D("NetflixScout", {}, [
     ]),
   ]),
 
+  D("cinema_db", {
+    L: "cinema",
+    s: "Lato <b>database</b> del DB cinematografico locale (schema, note, generatore della documentazione, baseline): non è codice di runtime.",
+    d: `Come <code>movie_db/</code> per MovieLens, ma separato: il file SQLite sarà <code>cinema_db/data/cinema.sqlite3</code> (ignorato da git). Qui vivono lo schema (30 tabelle STRICT, 64 FK, 17 viste pubbliche, vocabolari di definizione), le descrizioni e gli strumenti offline. Il tool a runtime è in <code>tool/cinema_db/</code>. Documentazione generata dal file reale: <code>docs/cinema_db/schema.html</code> (apribile con un doppio clic) e <code>schema.mmd</code>.`,
+    cmd: "python -m cinema_db.harness.schema.generate --check",
+  }, [
+    F("schema.py", { L: "cinema", s: "DDL di tabelle, indici e viste; vocabolari di definizione; <code>create_database</code>.", d: `Unica fonte della struttura. Supertipo <code>entity</code> con FK composta, <code>work</code> unico per film, serie, stagioni, episodi e opere d'origine, nomi e identificativi normalizzati, provenienza su ogni riga e <code>field_provenance</code> per colonna. Nessun dato inventato: solo tipi di opera, ruoli, relazioni e schemi di identificativo. <code>create_database</code> rifiuta di sovrascrivere un file esistente.` }),
+    F("schema_notes.py", { L: "cinema", s: "Descrizioni di tabelle, colonne e viste.", d: `Mai la struttura (quella si legge dal file): solo il testo. Il generatore fallisce se manca una descrizione o se ne esiste una per qualcosa che non c'è; le descrizioni delle viste alimenteranno il prompt del planner.`, dep: ["cinema_db/schema.py"] }),
+    D("harness", { L: "cinema", s: "Strumenti offline, mai importati a runtime.", d: `Baseline della fase 0 e generatore della documentazione dello schema.` }, [
+      D("schema", { L: "cinema", s: "Introspezione del file SQLite e generazione di schema.html, schema.mmd e della policy.", d: `Tutto parte dal file SQLite reale (PRAGMA, sqlite_master, authorizer di registrazione per le colonne base di ogni vista).`, cmd: "python -m cinema_db.harness.schema.generate" }, [
+        F("introspect.py", { L: "cinema", s: "Legge tabelle, colonne, chiavi, indici, check, viste e le colonne base che ognuna legge.", d: `Calcola relazioni (uno-a-molti, uno-a-uno, sottotipo, ponte), molti-a-molti e il digest della struttura; <code>check_notes</code> segnala descrizioni mancanti o superflue.`, dep: ["cinema_db/schema_notes.py"] }),
+        F("render.py", { L: "cinema", s: "Produce l'HTML autonomo (JSON incorporato + piccolo script) e il diagramma Mermaid.", d: `Nessuna libreria esterna. L'HTML incorpora l'intera struttura in un blocco JSON da cui la pagina si disegna; un test lo confronta con una nuova introspezione.` }),
+        F("generate.py", { L: "cinema", s: "Comando: scrive schema.html, schema.mmd e approved_views.py; <code>--check</code> verifica che non siano obsoleti.", d: `Con <code>--db FILE</code> mostra conteggi e fonti reali. Fallisce se le descrizioni non sono complete.`, dep: ["cinema_db/harness/schema/introspect.py", "cinema_db/harness/schema/render.py", "cinema_db/schema.py", "tool/cinema_db/approved_views.py"] }),
+      ]),
+      D("baseline", { L: "cinema", s: "Baseline della fase 0: richieste, passi del planner e latenze.", d: `Offline e gratuita; distingue misure effettive e stime.` }, [
+        F("run_baseline.py", { L: "cinema", s: "Esegue i tool reali con i transport finti dei test e applica i costi a 30 domande.", d: `Scrive <code>docs/cinema_db/BASELINE.md</code> e <code>baseline.json</code>.` }),
+      ]),
+    ]),
+  ]),
+
   D("tool", {
     L: "cfg",
     s: "Tutti i tool in-process dell'orchestratore, un pacchetto per ciascuno.",
@@ -965,7 +985,7 @@ const TREE = D("NetflixScout", {}, [
 
   D("cinema_db", {
     L: "cinema",
-    s: "Nucleo di sicurezza del futuro tool SQL <code>cinema_sql</code> (fase 1): solo validazione, connessione ed esecuzione, <b>non ancora registrato nell'agente</b>.",
+    s: "Nucleo di sicurezza del futuro tool SQL <code>cinema_sql</code> (fasi 1–2): validazione, connessione, esecuzione e policy delle viste approvate, <b>non ancora registrato nell'agente</b>.",
     d: `SQL scritto dal modello, ristretto a viste approvate. Ogni livello da solo impedisce le scritture: validazione sull'AST (<code>sqlglot</code>), connessione <code>mode=ro</code> + <code>immutable</code> + <code>query_only</code>, authorizer SQLite con negazione predefinita, limiti di tempo, righe, byte e piano. Il testo che gira è quello <i>rigenerato</i> dall'AST controllato, mai quello del modello. Piano e decisioni: <code>docs/cinema_db/PLAN.md</code>; stato: <code>docs/cinema_db/PROGRESS.md</code>. Non importato da <code>app.py</code> né dal core. Test: <code>tests/test_cinema_sql_security.py</code>.`,
     n: [
       "Per ora solo database fixture nei test (<code>tests/cinema_sql_support.py</code>); lo schema reale arriva nella fase 2 e i dati nella fase 3.",
@@ -977,8 +997,9 @@ const TREE = D("NetflixScout", {}, [
     F("policy.py", { L: "cinema", s: "<code>Policy</code> e <code>ViewSpec</code>: viste, colonne, colonne base dietro le viste, funzioni, limiti.", d: `Dati puri. Unica fonte per validatore, authorizer e (in seguito) prompt del planner; verificata sul DB reale all'apertura.`, dep: [C + "settings.py"] }),
     F("connection.py", { L: "cinema", s: "<code>open_database</code>, authorizer con negazione predefinita, <code>verify_policy</code>.", d: `Apre in sola lettura (<code>mode=ro</code>, <code>immutable=1</code>), imposta <code>query_only</code>, <code>trusted_schema=OFF</code>, i limiti di SQLite e disattiva le estensioni, poi controlla che la policy descriva esattamente il DB (viste, colonne, nessun trigger) prima di installare l'authorizer.`, dep: [C + "policy.py", C + "errors.py"] }),
     F("executor.py", { L: "cinema", s: "<code>execute()</code>: scadenza, tetto di righe e byte, controllo del piano.", d: `Esegue solo un <code>ValidatedQuery</code>, rifiuta la scansione di tabelle grandi che richiede ordinamento o raggruppamento, segnala i risultati tagliati e non espone mai il testo d'errore di SQLite.`, dep: [C + "connection.py", C + "validator.py", C + "errors.py"] }),
+    F("approved_views.py", { L: "cinema", s: "<b>Generato</b>: le 17 viste pubbliche con le loro colonne, le colonne base che leggono e le tabelle grandi.", d: `Scritto da <code>cinema_db/harness/schema/generate.py</code> leggendo il file SQLite (non si modifica a mano; un test fallisce se è obsoleto). <code>connection.verify_policy</code> lo confronta con il database a ogni apertura: una vista con una colonna in più, un trigger o una vista mancante fanno rifiutare il file. Porta anche il digest della struttura da cui è stato generato.`, dep: [C + "policy.py"] }),
     F("errors.py", { L: "cinema", s: "Errori tipizzati con codice stabile.", d: `Il messaggio nomina la regola violata, mai l'SQL del modello.` }),
-    F("settings.py", { L: "cinema", s: "<code>QueryLimits</code> e lista delle funzioni ammesse.", d: `Costanti: 50 righe, 2 s, 2.000 caratteri, 4 join, 3 livelli di subquery, 60.000 caratteri di risultato.` }),
+    F("settings.py", { L: "cinema", s: "<code>QueryLimits</code> e lista delle funzioni ammesse.", d: `Costanti: 50 righe, 2 s, 2.000 caratteri, 4 join, 3 livelli di subquery, 60.000 caratteri di risultato. Il piano rifiuta due o più scansioni complete di tabelle grandi nella stessa istruzione.` }),
   ]),
 
   D("RAGWikipediaFilm", {
@@ -1906,6 +1927,10 @@ const TREE = D("NetflixScout", {}, [
     F("test_tmdb_auth.py", { L: "test", s: "Credenziali, allowlist del base URL e mascheramento.", d: `Chiave mancante → errore di config; base URL diverso da <code>api.themoviedb.org/3</code> rifiutato; v3 nel parametro, v4 nell'header; URL mostrati mascherati e senza parametri; il segreto non compare in errori di rete, trace o metadata.`, dep: [T + "auth.py", T + "calls.py", T + "http.py"], x: ["pytest"] }),
     F("test_http_call_trace.py", { L: "test", s: "Le chiamate mostrate sono le richieste davvero inviate, per tutti i tool con HTTP.", d: `<code>mask_url</code> (nomi di credenziali, user:password, segreto noto anche percent-encoded, il resto intatto), presenter che mascherano ancora, TMDb/YouTube/Wikipedia/OMDb: ogni richiesta del transport ha una voce con lo stesso URL a meno della chiave, nel payload web e nel terminale; eccezioni del transport con la chiave non trapelano.` }),
     F("test_tvmaze_tool.py", { L: "test", s: "Tool TVmaze: contratto del risultato, <code>follow_up</code>, sezioni che falliscono, budget del turno.", d: `Transport finto in <code>tvmaze_support.py</code>. Verifica metadata senza URL, trace con licenza, una chiamata per la scheda, nessun riassunto di episodio.` }),
+    F("test_cinema_sql_security.py", { L: "test", s: "Nucleo di sicurezza SQL: validatore, authorizer, connessione, executor, fuzz (database fixture).", d: `Query vietate con codice stabile, parametri, LIMIT forzato, ogni livello da solo contro le scritture, ogni codice azione dell'authorizer negato salvo SELECT/READ/FUNCTION, timeout, tetti di righe e byte, doppia scansione di tabelle grandi, fuzz deterministico, nessun modulo di rete importato.` }),
+    F("test_cinema_schema.py", { L: "test", s: "Schema reale: integrità, STRICT, nessun JSON, fonte su ogni fatto, indici sulle FK, vincoli, sottotipi, unicità, viste su domande vere.", d: `Costruisce lo schema in una cartella temporanea con poche righe inventate solo per i test (<code>cinema_schema_support.py</code>).` }),
+    F("test_cinema_schema_doc.py", { L: "test", s: "La documentazione generata coincide con lo schema SQLite reale.", d: `Note complete e senza residui, file committati aggiornati, JSON dell'HTML = struttura reale, JS valido (node), Mermaid = tabelle, colonne, chiavi e relazioni, digest che cambia con lo schema, HTML autonomo.` }),
+    F("test_cinema_views_security.py", { L: "test", s: "Sicurezza SQL sulle viste reali: colonne nascoste, CTE, JOIN, DB manomesso, 60.000 crediti, fuzz.", d: `17 domande reali, 30 query vietate, authorizer da solo contro colonne interne e CTE che imitano una vista, scritture a ogni livello, piani e tempi su un database sintetico grande.` }),
     F("test_tvmaze_http.py", { L: "test", s: "HTTP TVmaze: memo, pausa dopo un 429, budget, allowlist dei percorsi, unico punto di I/O.", d: `Nessun retry; errori senza URL né catene di eccezioni.` }),
     F("test_tvmaze_pure.py", { L: "test", s: "Config, input, query, identificazione e normalizzazione del tool TVmaze.", d: `Funzioni pure: titolo con articolo, omonimi per anno, HTML della sinossi, link solo a tvmaze.com.` }),
     F("test_tvmaze_app.py", { L: "test", s: "Registrazione, regola 1e, <code>content_type=series</code>, regola finale e ripiego verso TMDb.", d: `Controlla i testi dei prompt e il cablaggio, non la scelta del planner reale: la regola 1 rimanda alla 1e, la preferenza non obbliga a usare TVmaze, un solo passo verso TMDb.` }),

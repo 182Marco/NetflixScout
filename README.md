@@ -616,6 +616,19 @@ video result.
 The YouTube API Services Developer Policies (III.A.2) also require the application's own privacy
 policy: not written yet for this personal project.
 
+## Local cinema database (in progress, not yet used by the agent)
+
+A new local SQLite database of films, series, seasons, episodes, people, credits, genres, franchises, awards, box office and
+external identifiers is being built alongside MovieLens (which is untouched). The agent will query it through one read-only SQL
+tool restricted to approved views. Status: the security core (`tool/cinema_db/`) and the schema are done; data arrives in later phases.
+
+- Plan, decisions and status: `docs/cinema_db/PLAN.md`, `docs/cinema_db/PROGRESS.md`; offline baseline: `docs/cinema_db/BASELINE.md`.
+- **Open `docs/cinema_db/schema.html` in a browser** for the interactive schema (tables, columns, types, keys, indexes, checks, relations,
+  public views); `docs/cinema_db/schema.mmd` is the Mermaid ER diagram. Both are generated from the real SQLite schema:
+  `python -m cinema_db.harness.schema.generate` (`--check` tells whether they are stale). Tests fail if they drift.
+- Security: one `SELECT` only, approved views and columns only, rewritten text runs (never the model's), SQLite opened read-only and
+  immutable, deny-by-default authorizer, time/row/size limits. Tests: `tests/test_cinema_sql_security.py`, `tests/test_cinema_views_security.py`.
+
 ## Git Notes
 
 `dataset/`, `dbVettoriale/` and `movie_db/data/` are local artifacts and are ignored by Git.
