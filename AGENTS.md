@@ -88,6 +88,9 @@ Ogni step (query riscritta, tool scelto, esito e secondi, trace del tool, fallba
 
 Nota: il README è in parte obsoleto (cita `run_rag`/`execute_tool` esposti da `app.py`). In caso di conflitto conta il codice.
 
+### Database cinematografico locale (`cinema_db`, in costruzione, NON ancora nell'agente)
+Piano, decisioni (D1–D7) e stato: `docs/cinema_db/PLAN.md` e `docs/cinema_db/PROGRESS.md` (punto di ripresa). Fasi 0 (baseline offline: `python -m cinema_db.harness.baseline.run_baseline`) e 1 (nucleo di sicurezza SQL read-only in `tool/cinema_db/`, test `tests/test_cinema_sql_security.py`, dipendenza `sqlglot==30.24.0`) fatte; il tool `cinema_sql` non è registrato in `app.py` né in `allowed_tools`. Separato da MovieLens (che non si tocca) e dai RAG. Il testo SQL eseguito è sempre quello rigenerato dall'AST controllato; le viste e le colonne approvate sono in `tool/cinema_db/policy.py`.
+
 ## 2. Comandi Utili
 
 ```bash

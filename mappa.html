@@ -220,6 +220,7 @@ const LAYERS = {
   omdb:   { label: "Tool OMDb",              color: "#ffa07a" },
   tvmaze: { label: "Tool TVmaze",            color: "#d7a8ff" },
   wikidata: { label: "Tool Wikidata",          color: "#a8e6cf" },
+  cinema: { label: "Tool SQL cinema",         color: "#9fd3ff" },
   web:    { label: "Server web / liste",     color: "#e06c75" },
 };
 
@@ -960,6 +961,24 @@ const TREE = D("NetflixScout", {}, [
     D("harness", { L: "test", s: "Controllo live facoltativo, mai importato a runtime.", d: `Tre esecuzioni reali del tool (circa 9 richieste). Mai eseguito; richiede <code>--live</code> e il permesso del proprietario.` }, [
       F("live_smoke.py", { L: "test", api: 1, s: "Controllo live: 3 esecuzioni di <code>wikidata_search</code>.", d: `Stampa stato, numero di richieste, tempo e forma dei gruppi, per confermare le query composte e gli id delle classi.` }),
     ]),
+  ]),
+
+  D("cinema_db", {
+    L: "cinema",
+    s: "Nucleo di sicurezza del futuro tool SQL <code>cinema_sql</code> (fase 1): solo validazione, connessione ed esecuzione, <b>non ancora registrato nell'agente</b>.",
+    d: `SQL scritto dal modello, ristretto a viste approvate. Ogni livello da solo impedisce le scritture: validazione sull'AST (<code>sqlglot</code>), connessione <code>mode=ro</code> + <code>immutable</code> + <code>query_only</code>, authorizer SQLite con negazione predefinita, limiti di tempo, righe, byte e piano. Il testo che gira è quello <i>rigenerato</i> dall'AST controllato, mai quello del modello. Piano e decisioni: <code>docs/cinema_db/PLAN.md</code>; stato: <code>docs/cinema_db/PROGRESS.md</code>. Non importato da <code>app.py</code> né dal core. Test: <code>tests/test_cinema_sql_security.py</code>.`,
+    n: [
+      "Per ora solo database fixture nei test (<code>tests/cinema_sql_support.py</code>); lo schema reale arriva nella fase 2 e i dati nella fase 3.",
+      "MovieLens non è raggiungibile da qui: <code>ATTACH</code> è vietato e il file è diverso. Misura di base (fase 0): <code>cinema_db/harness/baseline/run_baseline.py</code> → <code>docs/cinema_db/BASELINE.md</code>.",
+    ],
+  }, [
+    F("__init__.py", { L: "cinema", s: "Docstring del package e dei livelli di difesa.", d: `Nessun codice.` }),
+    F("validator.py", { L: "cinema", s: "<code>validate(sql, params, policy)</code>: una sola SELECT, whitelist di viste, colonne e funzioni, LIMIT forzato; restituisce il testo rigenerato.", d: `Funzione pura. Rifiuta DDL/DML, multi-statement (anche tra commenti), PRAGMA/ATTACH, funzioni non in lista, funzioni tabella, CTE ricorsive o con il nome di una tabella, join senza condizione che lega due tabelle, parametri non posizionali. Verifica che il testo rigenerato superi di nuovo gli stessi controlli.`, dep: [C + "policy.py", C + "errors.py", C + "settings.py"], x: ["sqlglot"] }),
+    F("policy.py", { L: "cinema", s: "<code>Policy</code> e <code>ViewSpec</code>: viste, colonne, colonne base dietro le viste, funzioni, limiti.", d: `Dati puri. Unica fonte per validatore, authorizer e (in seguito) prompt del planner; verificata sul DB reale all'apertura.`, dep: [C + "settings.py"] }),
+    F("connection.py", { L: "cinema", s: "<code>open_database</code>, authorizer con negazione predefinita, <code>verify_policy</code>.", d: `Apre in sola lettura (<code>mode=ro</code>, <code>immutable=1</code>), imposta <code>query_only</code>, <code>trusted_schema=OFF</code>, i limiti di SQLite e disattiva le estensioni, poi controlla che la policy descriva esattamente il DB (viste, colonne, nessun trigger) prima di installare l'authorizer.`, dep: [C + "policy.py", C + "errors.py"] }),
+    F("executor.py", { L: "cinema", s: "<code>execute()</code>: scadenza, tetto di righe e byte, controllo del piano.", d: `Esegue solo un <code>ValidatedQuery</code>, rifiuta la scansione di tabelle grandi che richiede ordinamento o raggruppamento, segnala i risultati tagliati e non espone mai il testo d'errore di SQLite.`, dep: [C + "connection.py", C + "validator.py", C + "errors.py"] }),
+    F("errors.py", { L: "cinema", s: "Errori tipizzati con codice stabile.", d: `Il messaggio nomina la regola violata, mai l'SQL del modello.` }),
+    F("settings.py", { L: "cinema", s: "<code>QueryLimits</code> e lista delle funzioni ammesse.", d: `Costanti: 50 righe, 2 s, 2.000 caratteri, 4 join, 3 livelli di subquery, 60.000 caratteri di risultato.` }),
   ]),
 
   D("RAGWikipediaFilm", {
