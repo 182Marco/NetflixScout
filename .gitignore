@@ -32,6 +32,8 @@ __pycache__/
 # Build artifacts
 # =========================
 build/
+# the cinema db builder is source code, not a build artefact
+!cinema_db/harness/build/
 dist/
 *.egg-info/
 
@@ -103,3 +105,6 @@ tool/RAGWikipedia*/eval/results/*retrieval.jsonl
 .mypy_cache/
 .ruff_cache/
 *.part
+
+# local cinema database and its build outputs (large, reproducible)
+cinema_db/data/
