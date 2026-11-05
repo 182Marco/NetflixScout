@@ -166,7 +166,7 @@ def test_names_are_normalised_like_the_build_and_search_text_cannot_inject_fts_s
 def test_queries_never_contain_the_text_the_model_wrote():
     evil = "x'; DROP TABLE work; --"
     for sql, params in (queries.works_by_name(normalize_name(evil), constants.SCREEN_KINDS, 12), queries.persons_by_name(normalize_name(evil), 12),
-                        queries.awards_by_name(f"%{evil}%", None, None, None, "asc", 10), queries.companies_by_name(normalize_name(evil), 5)):
+                        queries.awards_by_name(f"%{evil}%", evil, None, None, None, "asc", 10), queries.companies_by_name(normalize_name(evil), 5)):
         assert "DROP" not in sql and "'" not in sql.replace("'work'", "").replace("'person'", "").replace("'company'", "").replace("'film'", "").replace("'short'", "") \
             .replace("'tv_film'", "").replace("'series'", "").replace("'miniseries'", "") and params
     with pytest.raises(ValueError):
@@ -184,7 +184,7 @@ def test_every_query_the_tool_can_build_passes_the_validator():
         queries.persons_by_column("wikidata_id", "Q1"), queries.role_counts([1, 2]), queries.companies_by_name("x", 5), queries.franchises_by_name("x", 5),
         queries.filmography(1, "director", "film", 1990, 2000, "desc", 25), queries.filmography_count(1, None, None, None, None), queries.cast_of(1, 25), queries.cast_count(1),
         queries.crew_of(1, None, 25), queries.shared_works(1, 2, "director", "cast", "asc", 50), queries.top_collaborators(1, None, "cast", 10),
-        queries.awards_of("person_id", 1, "won", 1990, 2000, "asc", 25), queries.awards_by_name("%x%", None, None, None, "desc", 25), queries.awards_count(None, None, "%x%", None, None, None),
+        queries.awards_of("person_id", 1, "won", 1990, 2000, "asc", 25), queries.awards_by_name("%x%", "x", None, None, None, "desc", 25), queries.awards_count(None, None, "%x%", None, None, None),
         queries.seasons_of(1, 50), queries.episode_counts([1, 2]), queries.episodes_of(1, 2, 25), queries.companies_of(1, 25), queries.works_of_company(1, 25),
         queries.franchise_of(1), queries.franchise_members(1, 25), queries.relations_of(1, 25), queries.names_of(1), queries.credits_by_roles(1, ["writer"], 20),
         queries.genres_of(1), queries.countries_of(1), queries.languages_of(1), queries.money_of(1),

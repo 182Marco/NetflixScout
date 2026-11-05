@@ -172,11 +172,13 @@ def awards_of(column: str, value: int, outcome: str | None, year_from: int | Non
             [value, *params])
 
 
-def awards_by_name(pattern: str, outcome: str | None, year_from: int | None, year_to: int | None, order: str, limit: int) -> Query:
+def awards_by_name(pattern: str, exact: str, outcome: str | None, year_from: int | None, year_to: int | None, order: str, limit: int) -> Query:
+    """Results whose award or category contains `pattern`; within a year the category that IS `exact` comes first ('Oscar al miglior film' before
+    'Oscar al miglior film in lingua straniera'). Without it a plain LIMIT would cut the answer in favour of longer names."""
     extra, params = _award_filters(outcome, year_from, year_to)
     direction = "DESC" if order == "desc" else "ASC"
     return (f"SELECT {_AWARD_COLUMNS} FROM v_award_result WHERE (lower(award) LIKE ? OR lower(category) LIKE ?){extra} "
-            f"ORDER BY ceremony_year {direction}, category, work_title LIMIT {int(limit)}", [pattern, pattern, *params])
+            f"ORDER BY ceremony_year {direction}, lower(category) = ? DESC, category, work_title LIMIT {int(limit)}", [pattern, pattern, *params, exact])
 
 
 def awards_count(column: str | None, value: object, pattern: str | None, outcome: str | None, year_from: int | None, year_to: int | None) -> Query:

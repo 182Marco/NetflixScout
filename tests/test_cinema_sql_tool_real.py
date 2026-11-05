@@ -171,6 +171,7 @@ def test_awards_of_a_person_and_by_award_name_and_year(tool):
     assert {r["work_title"] for r in person["results"]} == {"Inception"} and person["subject"]["person_id"] == NOLAN
     _, named = call(tool, operation="awards", award="Oscar al miglior film", year_from=1973, year_to=1973, outcome="won")
     assert any(r["work_title"] == "Il padrino" and r["category"] == "Oscar al miglior film" for r in named["results"])
+    assert named["results"][0]["category"] == "Oscar al miglior film"  # the exact category comes before longer names that contain it
 
 
 # 8. series, seasons and episodes ---------------------------------------------------------------------------------------------------
