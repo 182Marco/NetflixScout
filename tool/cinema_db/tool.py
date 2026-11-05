@@ -185,7 +185,7 @@ class CinemaSqlTool:
             body.update(op.data)
         if op.total is not None:
             body["total"] = op.total
-        if op.status == OK_STATUS:
+        if op.status == OK_STATUS and (op.total is not None or op.shown or op.truncated):  # identification returns no list
             body["shown"] = op.shown
             body["truncated"] = op.truncated
         body["notes"] = _note_list(op.notes)

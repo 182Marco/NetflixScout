@@ -27,7 +27,7 @@ NOTES = {
     "series": "Seasons and episodes exist only where the catalogue has them: counts can be lower than the real ones; episode titles are in the language of the source page.",
     "episode_duplicates": "Episode counts are not reliable: `episodes` counts every row of the catalogue and `numbered_episodes` only those with a number. An episode known both from its own page and from a table row can appear twice (once without a number), while other episodes legitimately have no number. Do not state a season's episode count as certain; give the figures as recorded.",
     "companies": "Companies are those recorded as production, distribution or network; the list may be partial.",
-    "franchise": "Franchise membership is what Wikidata records: a film of a saga may be missing from it.",
+    "franchise": "'Part of the series' is what Wikidata records: besides sagas it can be a list, a ranking or a collection (for example a 'best films' list), and a film of a saga may be missing from it. Say 'recorded as part of', and do not call a list a saga.",
     "person": "Birth and death years exist only where Wikidata has an unambiguous date; a missing year is not imported, not unknown to the world.",
     "money": "Budget and box office are in the currency recorded, never converted.",
     "limit": "The list was cut at the limit shown; ask for a narrower year range or role to see the rest.",

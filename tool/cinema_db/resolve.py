@@ -57,12 +57,22 @@ def _dedupe(rows: list[dict[str, Any]], key: str) -> list[dict[str, Any]]:
     return list(seen.values())
 
 
+MAX_DIRECTORS = 4  # a series lists the directors of every episode: the identity keeps a few and says how many there are
+
+
+def _compact(d: dict[str, Any]) -> dict[str, Any]:
+    return {k: v for k, v in d.items() if v is not None and v != []}
+
+
 def work_identity(row: dict[str, Any], directors: list[str]) -> dict[str, Any]:
-    return {
+    out = {
         "work_id": row["work_id"], "kind": row["kind"], "title": row["title"], "original_title": row.get("original_title"), "year": row.get("year"),
-        "end_year": row.get("end_year"), "runtime_min": row.get("runtime_min"), "status": row.get("status"), "directors": directors,
+        "end_year": row.get("end_year"), "runtime_min": row.get("runtime_min"), "status": row.get("status"), "directors": directors[:MAX_DIRECTORS],
         "imdb_id": row.get("imdb_id"), "tmdb_id": row.get("tmdb_id"), "wikidata_id": row.get("wikidata_id"),
     }
+    if len(directors) > MAX_DIRECTORS:
+        out["directors_total"] = len(directors)
+    return _compact(out)
 
 
 def _directors(session: Session, work_ids: list[int]) -> dict[int, list[str]]:
@@ -149,7 +159,7 @@ def person_identity(row: dict[str, Any], roles: dict[str, int] | None = None) ->
            "birth_country": row.get("birth_country"), "wikidata_id": row.get("wikidata_id")}
     if roles is not None:
         out["credits_by_role"] = roles
-    return out
+    return _compact(out)
 
 
 def _roles(session: Session, ids: list[int]) -> dict[int, dict[str, int]]:
@@ -168,13 +178,15 @@ def _person_candidates(session: Session, rows: list[dict[str, Any]]) -> tuple[li
 
 
 def resolve_person(session: Session, *, name: str | None, person_id: int | None, wikidata_id: str | None, birth_year: int | None,
-                   needs_credits: bool = False) -> Resolution:
+                   needs_credits: bool = False, include_roles: bool = False) -> Resolution:
+    """`include_roles` adds the credit counts per role to the identity of a RESOLVED person (an extra query: only identification asks for it);
+    candidates always carry them, because they are what tells namesakes apart."""
     if person_id is not None or wikidata_id:
         rows = session.rows(*(Q.persons_by_column("person_id", person_id) if person_id is not None else Q.persons_by_column("wikidata_id", wikidata_id)))
         if not rows:
             return Resolution(NOT_FOUND, reason="id_unknown", via="id")
         row = rows[0]
-        return Resolution(RESOLVED, entity=person_identity(row, _roles(session, [row["person_id"]]).get(row["person_id"], {})), via="id")
+        return Resolution(RESOLVED, entity=person_identity(row, _roles(session, [row["person_id"]]).get(row["person_id"], {}) if include_roles else None), via="id")
     norm = normalize_name(name or "")
     if not norm:
         return Resolution(NOT_FOUND, reason="no_name")
@@ -191,7 +203,7 @@ def resolve_person(session: Session, *, name: str | None, person_id: int | None,
                 matching = with_credits
         if len(matching) == 1:
             row = matching[0]
-            return Resolution(RESOLVED, entity=person_identity(row, _roles(session, [row["person_id"]]).get(row["person_id"], {})), notes=notes)
+            return Resolution(RESOLVED, entity=person_identity(row, _roles(session, [row["person_id"]]).get(row["person_id"], {}) if include_roles else None), notes=notes)
         if len(matching) > 1:
             cands, omitted = _person_candidates(session, matching)
             return Resolution(AMBIGUOUS, candidates=cands, omitted=omitted)

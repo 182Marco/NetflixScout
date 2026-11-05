@@ -36,7 +36,7 @@ class OpResult:
 
 def _unresolved(res: Resolution, *, kind: str) -> OpResult:
     notes = ["unverified"] if res.status == UNVERIFIED else []
-    return OpResult(res.status, reason=res.reason, candidates=res.candidates, omitted=res.omitted, notes=notes, via=res.via, subject={"kind": kind})
+    return OpResult(res.status, reason=res.reason, candidates=res.candidates, omitted=res.omitted, notes=notes, via=res.via)
 
 
 def _group(rows: list[dict[str, Any]], key: str, fields: tuple[str, ...], collect: dict[str, str]) -> list[dict[str, Any]]:
@@ -64,29 +64,26 @@ def find_work(request: CinemaSqlInput, session: Session, limit: int) -> OpResult
 
 
 def find_person(request: CinemaSqlInput, session: Session, limit: int) -> OpResult:
-    res = resolve_person(session, name=request.person, person_id=request.person_id, wikidata_id=request.wikidata_id, birth_year=request.birth_year)
+    res = resolve_person(session, name=request.person, person_id=request.person_id, wikidata_id=request.wikidata_id, birth_year=request.birth_year, include_roles=True)
     if res.status != RESOLVED:
         return _unresolved(res, kind="person")
     return OpResult(OK, subject={"kind": "person", **res.entity}, via=res.via, notes=["person"])
 
 
 def work_card(request: CinemaSqlInput, session: Session, limit: int) -> OpResult:
+    """Facts of one work in 5 queries after the identification: crew, genres, countries, companies and money (names and franchise have their own operations)."""
     res = resolve_work(session, request)
     if res.status != RESOLVED:
         return _unresolved(res, kind="work")
     wid = res.entity["work_id"]
     credits = session.rows(*Q.credits_by_roles(wid, ["writer", "composer"], 20))
     money = session.rows(*Q.money_of(wid))
-    franchises = session.rows(*Q.franchise_of(wid))
     data = {
-        "other_names": [n["name"] for n in session.rows(*Q.names_of(wid)) if n["name"] != res.entity["title"]],
         "writers": [c["person_name"] for c in credits if c["role"] == "writer"],
         "composers": [c["person_name"] for c in credits if c["role"] == "composer"],
         "genres": [g["genre"] for g in session.rows(*Q.genres_of(wid))],
         "countries": [c["country"] for c in session.rows(*Q.countries_of(wid))],
-        "languages": [x["language"] for x in session.rows(*Q.languages_of(wid))],
         "companies": _group(session.rows(*Q.companies_of(wid, 12)), "role", ("role",), {"company": "companies"}),
-        "franchise": franchises[0]["franchise"] if franchises else None,
         "money": money,
     }
     notes = ["coverage"] + (["money"] if money else [])
