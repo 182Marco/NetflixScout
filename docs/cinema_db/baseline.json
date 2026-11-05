@@ -1,0 +1,845 @@
+{
+  "rows": [
+    {
+      "after": {
+        "external_steps": 0,
+        "http": 0,
+        "latency_s_est": 2.0,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "tmdb.person_then_discover"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 2,
+        "latency_s_est": 2.8,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "local.sql"
+      ],
+      "question": "Quali film ha diretto Denis Villeneuve?"
+    },
+    {
+      "after": {
+        "external_steps": 0,
+        "http": 0,
+        "latency_s_est": 2.0,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "tmdb.details_by_title"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 2,
+        "latency_s_est": 2.8,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "local.sql"
+      ],
+      "question": "Chi ha scritto la sceneggiatura di Blade Runner?"
+    },
+    {
+      "after": {
+        "external_steps": 0,
+        "http": 0,
+        "latency_s_est": 2.0,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "tmdb.person_then_discover"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 2,
+        "latency_s_est": 2.8,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "local.sql"
+      ],
+      "question": "Film con Cillian Murphy diretti da Christopher Nolan"
+    },
+    {
+      "after": {
+        "external_steps": 0,
+        "http": 0,
+        "latency_s_est": 2.0,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "wikidata.relations_by_title"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 3,
+        "latency_s_est": 9.5,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "local.sql"
+      ],
+      "question": "Da quale libro è tratto Blade Runner?"
+    },
+    {
+      "after": {
+        "external_steps": 0,
+        "http": 0,
+        "latency_s_est": 2.0,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "wikidata.relations_by_title"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 3,
+        "latency_s_est": 9.5,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "local.sql"
+      ],
+      "question": "Esiste un remake di The Thing?"
+    },
+    {
+      "after": {
+        "external_steps": 0,
+        "http": 0,
+        "latency_s_est": 2.0,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "wikidata.relations_by_title"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 3,
+        "latency_s_est": 9.5,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "local.sql"
+      ],
+      "question": "Quali film fanno parte della saga di Alien?"
+    },
+    {
+      "after": {
+        "external_steps": 0,
+        "http": 0,
+        "latency_s_est": 2.0,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "wikipedia.search_and_article"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 2,
+        "latency_s_est": 5.6,
+        "planner_calls": 2,
+        "steps": 1
+      },
+      "proposed": [
+        "local.sql"
+      ],
+      "question": "Quanti Oscar ha vinto Parasite?"
+    },
+    {
+      "after": {
+        "external_steps": 0,
+        "http": 0,
+        "latency_s_est": 2.0,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "wikipedia.search_and_article"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 2,
+        "latency_s_est": 5.6,
+        "planner_calls": 2,
+        "steps": 1
+      },
+      "proposed": [
+        "local.sql"
+      ],
+      "question": "Chi ha vinto l'Oscar come miglior film nel 1995?"
+    },
+    {
+      "after": {
+        "external_steps": 0,
+        "http": 0,
+        "latency_s_est": 2.0,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "wikidata.resolve_by_title"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 1,
+        "latency_s_est": 4.5,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "local.sql"
+      ],
+      "question": "Distingui i film intitolati Crash (anno, regista, ID)"
+    },
+    {
+      "after": {
+        "external_steps": 0,
+        "http": 0,
+        "latency_s_est": 2.0,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "tmdb.details_by_title"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 2,
+        "latency_s_est": 2.8,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "local.sql"
+      ],
+      "question": "Qual è l'ID IMDb di Parasite?"
+    },
+    {
+      "after": {
+        "external_steps": 0,
+        "http": 0,
+        "latency_s_est": 2.0,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "tmdb.person_then_discover"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 2,
+        "latency_s_est": 2.8,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "local.sql"
+      ],
+      "question": "Quanti film ha diretto Federico Fellini?"
+    },
+    {
+      "after": {
+        "external_steps": 0,
+        "http": 0,
+        "latency_s_est": 2.0,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "tmdb.details_by_title"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 2,
+        "latency_s_est": 2.8,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "local.sql"
+      ],
+      "question": "Chi ha composto la colonna sonora di Inception?"
+    },
+    {
+      "after": {
+        "external_steps": 5,
+        "http": 5,
+        "latency_s_est": 14.0,
+        "planner_calls": 6,
+        "steps": 6
+      },
+      "current": [
+        "tmdb.person_then_discover",
+        "omdb.by_title",
+        "omdb.by_title",
+        "omdb.by_title",
+        "omdb.by_title",
+        "omdb.by_title"
+      ],
+      "now": {
+        "external_steps": 6,
+        "http": 12,
+        "latency_s_est": 16.8,
+        "planner_calls": 6,
+        "steps": 6
+      },
+      "proposed": [
+        "local.sql",
+        "omdb.by_imdb_id",
+        "omdb.by_imdb_id",
+        "omdb.by_imdb_id",
+        "omdb.by_imdb_id",
+        "omdb.by_imdb_id"
+      ],
+      "question": "Punteggi della critica per i film di Villeneuve (preferenza reviews, 5 candidati)"
+    },
+    {
+      "after": {
+        "external_steps": 1,
+        "http": 1,
+        "latency_s_est": 4.4,
+        "planner_calls": 2,
+        "steps": 2
+      },
+      "current": [
+        "omdb.by_title"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 2,
+        "latency_s_est": 2.8,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "local.sql",
+        "omdb.by_imdb_id"
+      ],
+      "question": "Che Rotten Tomatoes ha Oppenheimer?"
+    },
+    {
+      "after": {
+        "external_steps": 1,
+        "http": 1,
+        "latency_s_est": 4.4,
+        "planner_calls": 2,
+        "steps": 2
+      },
+      "current": [
+        "tmdb.details_by_title",
+        "omdb.by_title"
+      ],
+      "now": {
+        "external_steps": 2,
+        "http": 4,
+        "latency_s_est": 5.6,
+        "planner_calls": 2,
+        "steps": 2
+      },
+      "proposed": [
+        "local.sql",
+        "omdb.by_imdb_id"
+      ],
+      "question": "Regista, cast e punteggi della critica di Oppenheimer"
+    },
+    {
+      "after": {
+        "external_steps": 1,
+        "http": 1,
+        "latency_s_est": 4.4,
+        "planner_calls": 2,
+        "steps": 2
+      },
+      "current": [
+        "wikidata.relations_by_title",
+        "omdb.by_title"
+      ],
+      "now": {
+        "external_steps": 2,
+        "http": 5,
+        "latency_s_est": 12.3,
+        "planner_calls": 2,
+        "steps": 2
+      },
+      "proposed": [
+        "local.sql",
+        "omdb.by_imdb_id"
+      ],
+      "question": "Da cosa è tratto Oppenheimer e che punteggi ha?"
+    },
+    {
+      "after": {
+        "external_steps": 1,
+        "http": 1,
+        "latency_s_est": 4.4,
+        "planner_calls": 2,
+        "steps": 2
+      },
+      "current": [
+        "wikidata.relations_by_title",
+        "omdb.by_title"
+      ],
+      "now": {
+        "external_steps": 2,
+        "http": 5,
+        "latency_s_est": 12.3,
+        "planner_calls": 2,
+        "steps": 2
+      },
+      "proposed": [
+        "local.sql",
+        "omdb.by_imdb_id"
+      ],
+      "question": "Remake di Solaris e relativo punteggio Metascore"
+    },
+    {
+      "after": {
+        "external_steps": 1,
+        "http": 2,
+        "latency_s_est": 5.6,
+        "planner_calls": 2,
+        "steps": 2
+      },
+      "current": [
+        "wikipedia.search_and_article",
+        "youtube.one_kind"
+      ],
+      "now": {
+        "external_steps": 2,
+        "http": 4,
+        "latency_s_est": 9.2,
+        "planner_calls": 3,
+        "steps": 2
+      },
+      "proposed": [
+        "local.sql",
+        "youtube.one_kind"
+      ],
+      "question": "Interviste a Villeneuve su Dune e suoi premi"
+    },
+    {
+      "after": {
+        "external_steps": 1,
+        "http": 2,
+        "latency_s_est": 2.8,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "tmdb.details_by_title"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 2,
+        "latency_s_est": 2.8,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "tmdb.details_by_title"
+      ],
+      "question": "Dove vedo Dune in streaming in Italia?"
+    },
+    {
+      "after": {
+        "external_steps": 1,
+        "http": 2,
+        "latency_s_est": 2.8,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "tmdb.details_by_title"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 2,
+        "latency_s_est": 2.8,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "tmdb.details_by_title"
+      ],
+      "question": "Mostrami il trailer di Aftersun"
+    },
+    {
+      "after": {
+        "external_steps": 1,
+        "http": 1,
+        "latency_s_est": 2.4,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "tmdb.trending_or_upcoming"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 1,
+        "latency_s_est": 2.4,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "tmdb.trending_or_upcoming"
+      ],
+      "question": "Quali film escono questo mese?"
+    },
+    {
+      "after": {
+        "external_steps": 0,
+        "http": 0,
+        "latency_s_est": 2.0,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "movielens.sql"
+      ],
+      "now": {
+        "external_steps": 0,
+        "http": 0,
+        "latency_s_est": 2.0,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "movielens.sql"
+      ],
+      "question": "Che voto medio ha Pulp Fiction?"
+    },
+    {
+      "after": {
+        "external_steps": 1,
+        "http": 10,
+        "latency_s_est": 2.0,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "movielens.sql_with_type_check"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 10,
+        "latency_s_est": 2.0,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "movielens.sql_with_type_check"
+      ],
+      "question": "Quali sono i 10 film più votati di sempre?"
+    },
+    {
+      "after": {
+        "external_steps": 1,
+        "http": 5,
+        "latency_s_est": 19.5,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "rag.enrich_5_films"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 5,
+        "latency_s_est": 19.5,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "rag.enrich_5_films"
+      ],
+      "question": "Consigliami un film malinconico ambientato in Giappone"
+    },
+    {
+      "after": {
+        "external_steps": 1,
+        "http": 5,
+        "latency_s_est": 19.5,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "rag.enrich_5_films"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 5,
+        "latency_s_est": 19.5,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "rag.enrich_5_films"
+      ],
+      "question": "Film come Arrival ma senza alieni"
+    },
+    {
+      "after": {
+        "external_steps": 1,
+        "http": 3,
+        "latency_s_est": 3.2,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "tvmaze.seasons_episodes"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 3,
+        "latency_s_est": 3.2,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "tvmaze.seasons_episodes"
+      ],
+      "question": "Quante stagioni ha Breaking Bad?"
+    },
+    {
+      "after": {
+        "external_steps": 1,
+        "http": 2,
+        "latency_s_est": 2.8,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "tvmaze.next_episode"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 2,
+        "latency_s_est": 2.8,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "tvmaze.next_episode"
+      ],
+      "question": "Quando esce il prossimo episodio di Severance?"
+    },
+    {
+      "after": {
+        "external_steps": 1,
+        "http": 2,
+        "latency_s_est": 5.6,
+        "planner_calls": 2,
+        "steps": 1
+      },
+      "current": [
+        "wikipedia.search_and_article"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 2,
+        "latency_s_est": 5.6,
+        "planner_calls": 2,
+        "steps": 1
+      },
+      "proposed": [
+        "wikipedia.search_and_article"
+      ],
+      "question": "Storia della Nouvelle Vague"
+    },
+    {
+      "after": {
+        "external_steps": 1,
+        "http": 2,
+        "latency_s_est": 3.6,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "current": [
+        "youtube.one_kind"
+      ],
+      "now": {
+        "external_steps": 1,
+        "http": 2,
+        "latency_s_est": 3.6,
+        "planner_calls": 1,
+        "steps": 1
+      },
+      "proposed": [
+        "youtube.one_kind"
+      ],
+      "question": "Interviste al regista di Parasite"
+    },
+    {
+      "after": {
+        "external_steps": 2,
+        "http": 4,
+        "latency_s_est": 5.6,
+        "planner_calls": 2,
+        "steps": 2
+      },
+      "current": [
+        "tvmaze.info",
+        "tvmaze.seasons_episodes"
+      ],
+      "now": {
+        "external_steps": 2,
+        "http": 4,
+        "latency_s_est": 5.6,
+        "planner_calls": 2,
+        "steps": 2
+      },
+      "proposed": [
+        "tvmaze.info",
+        "tvmaze.seasons_episodes"
+      ],
+      "question": "Cast e episodi della seconda stagione di Dark"
+    }
+  ],
+  "sql_latency": {
+    "available": true,
+    "queries": {
+      "by_title": {
+        "max_ms": 1.82,
+        "p50_ms": 0.02,
+        "runs": 20
+      },
+      "genre_stats": {
+        "max_ms": 100.05,
+        "p50_ms": 72.49,
+        "runs": 20
+      },
+      "top_rated_50": {
+        "max_ms": 5.06,
+        "p50_ms": 0.11,
+        "runs": 20
+      }
+    }
+  },
+  "summary": {
+    "external_steps": {
+      "after": 22,
+      "now": 39
+    },
+    "http": {
+      "after": 49,
+      "now": 96
+    },
+    "latency_s_est": {
+      "after": 133.0,
+      "now": 191.79999999999998
+    },
+    "planner_calls": {
+      "after": 42,
+      "now": 44
+    },
+    "questions": 30,
+    "questions_changed": 18
+  },
+  "units": {
+    "local.sql": {
+      "basis": "local, planned",
+      "requests": 0
+    },
+    "movielens.sql": {
+      "basis": "measured: local SQL",
+      "requests": 0
+    },
+    "movielens.sql_with_type_check": {
+      "basis": "estimated: up to 12 /find to drop series (work_type_checker budget)",
+      "requests": 10
+    },
+    "omdb.by_imdb_id": {
+      "basis": "measured",
+      "requests": 1
+    },
+    "omdb.by_title": {
+      "basis": "measured",
+      "requests": 2
+    },
+    "rag.enrich_5_films": {
+      "basis": "estimated: one /find per returned film (by_imdb_only, max_candidates 5)",
+      "requests": 5
+    },
+    "tmdb.collection": {
+      "basis": "estimated: movie_details + collection_details",
+      "requests": 2
+    },
+    "tmdb.details_by_imdb_id": {
+      "basis": "measured",
+      "requests": 2
+    },
+    "tmdb.details_by_title": {
+      "basis": "measured",
+      "requests": 2
+    },
+    "tmdb.details_by_tmdb_id": {
+      "basis": "measured",
+      "requests": 1
+    },
+    "tmdb.person_then_discover": {
+      "basis": "estimated: person search + discover (tool/tmdb/operations/discovery.py)",
+      "requests": 2
+    },
+    "tmdb.providers_or_trailer": {
+      "basis": "estimated: movie_details with append_to_response on an id already known",
+      "requests": 1
+    },
+    "tmdb.trending_or_upcoming": {
+      "basis": "estimated: one list endpoint",
+      "requests": 1
+    },
+    "tvmaze.info": {
+      "basis": "measured",
+      "requests": 1
+    },
+    "tvmaze.next_episode": {
+      "basis": "measured",
+      "requests": 2
+    },
+    "tvmaze.seasons_episodes": {
+      "basis": "measured",
+      "requests": 3
+    },
+    "wikidata.relations_by_imdb_id": {
+      "basis": "measured",
+      "requests": 3
+    },
+    "wikidata.relations_by_title": {
+      "basis": "measured",
+      "requests": 3
+    },
+    "wikidata.resolve_by_imdb_id": {
+      "basis": "measured",
+      "requests": 1
+    },
+    "wikidata.resolve_by_title": {
+      "basis": "measured",
+      "requests": 1
+    },
+    "wikipedia.search_and_article": {
+      "basis": "estimated: generator=search then the whole article (cache hit afterwards)",
+      "requests": 2
+    },
+    "youtube.one_kind": {
+      "basis": "estimated: one search.list + one videos.list",
+      "requests": 2
+    }
+  }
+}
