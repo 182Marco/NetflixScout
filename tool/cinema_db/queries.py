@@ -235,8 +235,6 @@ def external_ids_of(work_ids: Sequence[int]) -> Query:
     return (f"SELECT work_id, imdb_id, tmdb_id, kind FROM v_work WHERE work_id IN ({_marks(len(work_ids))}) LIMIT 50", list(work_ids))
 
 
-def names_of(work_id: int) -> Query:
-    return "SELECT name, name_kind, language FROM v_name WHERE entity_id = ? AND entity_type = 'work' ORDER BY is_primary DESC, name_kind, name LIMIT 12", [work_id]
 
 
 def credits_by_roles(work_id: int, roles: Sequence[str], limit: int) -> Query:
@@ -252,8 +250,6 @@ def countries_of(work_id: int) -> Query:
     return "SELECT DISTINCT country, iso2 FROM v_work_country WHERE work_id = ? AND role = 'origin' ORDER BY country LIMIT 12", [work_id]
 
 
-def languages_of(work_id: int) -> Query:
-    return "SELECT DISTINCT language FROM v_work_language WHERE work_id = ? ORDER BY language LIMIT 8", [work_id]
 
 
 def money_of(work_id: int) -> Query:
