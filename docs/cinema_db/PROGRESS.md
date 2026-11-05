@@ -1,7 +1,7 @@
 # Cinema DB — PROGRESS (punto di ripresa)
 
 Aprire una sessione nuova: leggere `AGENTS.md`, `docs/cinema_db/PLAN.md` (§15 per le decisioni) e questo file.
-Ultimo aggiornamento: 2026-11-05 (fase 3 completata, checkpoint). Legenda: **[V]** verificato con il comando indicato · **[S]** stima · **[P]** solo progettato.
+Ultimo aggiornamento: 2026-11-05 (fase 4 completata, fermo prima della fase 5). Legenda: **[V]** verificato con il comando indicato · **[S]** stima · **[P]** solo progettato.
 
 ## Stato
 | Fase | Stato |
@@ -10,7 +10,7 @@ Ultimo aggiornamento: 2026-11-05 (fase 3 completata, checkpoint). Legenda: **[V]
 | 1 Sicurezza SQL (solo fixture) | **fatta [V]** — 168 test del nucleo (`tests/test_cinema_sql_security.py`), suite richiesta verde |
 | 2 Schema + `schema.html`/`schema.mmd` | **fatta [V]**, schema v2 (generi normalizzati, FTS5): 32 tabelle STRICT più l'indice FTS5, 20 viste approvate |
 | 3 Prima build offline | **fatta [V]** — 333 MB, 293.447 opere, riproducibile, 0 differenze su 400 film (vedi sotto e `BUILD_REPORT.md`) |
-| 4 Arricchimento Wikidata (+ IMDb selettivo, D5) | da fare, dopo la verifica della fase 3 |
+| 4 Arricchimento Wikidata (IMDb escluso, D5) | **fatta [V]** — 1.129 richieste, 0 fallite; +142.823 crediti, +27.751 risultati di premio, date di vita 113.171 persone, importi in 37 valute, ISO su 179 paesi; rapporto `PHASE4_REPORT.md`, digest `b3b0de51…` |
 | 5 Tool `cinema_sql` e routing | da fare; **non registrato** in `app.py` né in `allowed_tools` |
 
 ## HANDOFF PER NUOVA CONVERSAZIONE (checkpoint del 2026-11-05, fine fase 3)
@@ -18,7 +18,7 @@ Ultimo aggiornamento: 2026-11-05 (fase 3 completata, checkpoint). Legenda: **[V]
 **Nota sul percorso**: questo è l'unico PROGRESS del progetto, `docs/cinema_db/PROGRESS.md` (non esiste `tool/cinema_db/PROGRESS.md`: non crearlo).
 
 ### 1. Dove siamo, in una riga
-Fasi 0–3 **fatte e verificate**; il database locale `cinema_db/data/cinema.sqlite3` esiste (333 MB, schema v2, 293.447 opere, riproducibile); il tool `cinema_sql` **non è registrato** nell'agente; la **fase 4 (richieste di rete a Wikidata) non è iniziata e richiede l'autorizzazione esplicita del proprietario**. Albero git pulito, branch `main`.
+Fasi 0–4 **fatte e verificate**; il database locale `cinema_db/data/cinema.sqlite3` (405 MB, schema v2 **invariato**, 301.860 opere, 141.645 persone, 675.327 crediti, 27.751 risultati di premio) è la build della fase 4, riproducibile; il tool `cinema_sql` **non è registrato** nell'agente (fase 5 da decidere con il proprietario). Le richieste di rete della fase 4 sono finite (snapshot `cinema_db/data/wikidata_phase4/`, 1.129 richieste); **nessuna ulteriore richiesta di rete senza nuova autorizzazione**. Il database della fase 3 (digest `d9d475d7…`) resta in `cinema_db/data/cinema.phase3.sqlite3` e si ricostruisce con `build --no-phase4`.
 
 ### 2. Da leggere, in quest'ordine
 1. `AGENTS.md` (regole del repository; la sezione «Database cinematografico locale» riassume lo stato; è lungo: leggere in particolare §1 e §4).
@@ -31,10 +31,11 @@ Fasi 0–3 **fatte e verificate**; il database locale `cinema_db/data/cinema.sql
 ```bash
 cd /Users/filippo.milzagmail.com/Desktop/NetflixScout && source .venv/bin/activate
 git status --short            # atteso: vuoto
-git log --oneline -3          # atteso in cima: «document the genre, fts5 and imdb decisions and the first offline build» (5f9c6b1), poi il checkpoint documentale
+git log --oneline -8          # in cima i commit della fase 4 (fetcher, build, confronto, documentazione)
 python -m cinema_db.harness.schema.generate --check        # atteso: exit 0 (schema.html, schema.mmd, approved_views.py aggiornati)
 python -m pytest tests/test_cinema_sql_security.py tests/test_cinema_schema.py tests/test_cinema_schema_doc.py tests/test_cinema_views_security.py tests/test_cinema_build.py -q   # atteso: 349 passed
-python -c "import sqlite3;d=sqlite3.connect('file:cinema_db/data/cinema.sqlite3?mode=ro',uri=True);print(dict(d.execute('select key,value from build_info')))"   # atteso: content_sha256 d9d475d78874901b7a0f5e00bb7d221f373341419bdc698c528f486cb0e9cb50, schema_version 2
+python -c "import sqlite3;d=sqlite3.connect('file:cinema_db/data/cinema.sqlite3?mode=ro',uri=True);print(dict(d.execute('select key,value from build_info')))"   # fase 4: content_sha256 che inizia con b3b0de51, schema_version 2, builder cinema_db.harness.build.build/2 (la fase 3, con --no-phase4, dà d9d475d78874901b…)
+python -m cinema_db.harness.enrich.fetch status          # atteso: ogni categoria done = requests (offline)
 ls -l movie_db/data/movielens32m.sqlite3                  # atteso: 1323962368 byte, 20 Ott 23:40 (MovieLens mai toccato)
 ```
 Suite completa richiesta da `AGENTS.md` §4 (elenco nel file): atteso **2.440 passed** (circa 45–90 s). Hash (primi 16 caratteri) degli input, già registrati in `source.snapshot_sha256` e in `build_info`: catalogo film `films.v3.jsonl` `d5a78e4d1e3327fb`; indice snapshot film `79d40ea98e8b068f`; indice snapshot serie `957d41179d293203`; `data/s5/manifest.json` `dd8ac9f7601c0659` (`shasum -a 256 <file>`).
@@ -52,19 +53,18 @@ Suite completa richiesta da `AGENTS.md` §4 (elenco nel file): atteso **2.440 pa
 D1 sqlglot 30.24.0 (MIT) · D2 SQL libero solo sulle viste approvate, con tutte le difese · D3 nessuna copia di MovieLens (resta separato) · D4 richieste mirate a Wikidata solo dopo la build offline verificata, con quantificazione prima · D5 IMDb **non importato** (le condizioni vietano di costruire un database con i suoi dati; il modello `field_provenance`/`source.usage_scope` è pronto se arrivasse un permesso scritto) · D6 `cinema_sql` ↔ `official information` · D7 niente parallelismo del planner. In più: FTS5 a contenuto esterno senza trigger con `v_title_search`; generi in tre livelli (etichetta originale → mappa → vocabolario canonico di 38); un fatto si importa solo se le fonti locali lo dicono E nominano a cosa si riferisce (mai nomi, codici o tipi inventati); il catalogo serie decide le opere televisive e quello film vi aggiunge; due QID Wikidata dello stesso film restano due opere; serie con `ids_reliable=false` non usano i fatti di Wikidata; la pagina di un elenco di episodi non identifica un episodio.
 
 ### 7. Decisioni ancora aperte (per il proprietario)
-1. **Autorizzazione alla fase 4** (richieste Wikidata) e **quale stringa di contatto** mettere nello User-Agent (le regole del progetto vietano di usare l'e-mail personale senza che il proprietario lo chieda: chiedere, non riusare quella di altri tool).
-2. Confermare l'esclusione di IMDb o procurare un permesso scritto.
+1. **Fase 5** (tool `cinema_sql`, routing): non iniziata, serve il via.
+2. Confermare l'esclusione di IMDb o procurare un permesso scritto (D5).
 3. Licenza del vocabolario dei generi (registrato `unverified`).
-4. Fusione dei 240 duplicati di Wikidata (stesso film in due QID): curatela manuale o regola.
-5. Distinguere il tipo di uscita per paese (oggi `unspecified`).
-6. Se esporre le 28 omonimie titolo+anno come candidate duplicate in una vista.
-7. Ricerca di titoli non latini (FTS5 `unicode61`): eventuale tokenizzatore `trigram`.
+4. Fusione dei duplicati di Wikidata (184 conflitti di QID rimasti; 240 film in due QID): curatela manuale o regola.
+5. Rappresentare i crediti `producer` verso organizzazioni (370 QID, oggi non importati come persone) come relazione con la società.
+6. Snapshot di aggiornamento della fase 4 (richiede autorizzazione) e se proseguire con date di vita o luoghi di nascita (`birth_country_id` è ancora vuoto).
+7. Se esporre le 28 omonimie titolo+anno come candidate duplicate; ricerca di titoli non latini (tokenizzatore `trigram`).
 
 ### 8. Prossime attività, in ordine di priorità
-1. **(Solo con l'autorizzazione)** Fase 4: scrivere prima un piano con l'elenco esatto delle richieste per tipo (la stima è in `SURVEY.md` §7: persone senza nome 983 richieste, premi e cerimonie 47, valute 1, bersagli di relazioni 121, società 86, franchise 17, luoghi 22, più paesi/lingue per i codici ISO ≈9; tutto con le date di vita ≈3.100). Progetto: nuovo snapshot **separato** (es. `cinema_db/data/wikidata_phase4/`, stesso formato `requests.jsonl` + `bodies/`, leggibile con `snapshot.Snapshot`), con manifest e **ripresa** (non rifare le richieste già salvate), `wbgetentities` a 50 id, `maxlag`, rispetto di 429/`Retry-After`, nessuna richiesta fuori dall'elenco. Ordine di valore: (a) nomi delle persone mancanti → importa i crediti oggi scartati (144.630); (b) premi e cerimonie → importa `award_*` da P166/P1411 (26.577 asserzioni; le persone candidate sono P2453); (c) codici ISO di paesi/lingue (P297/P218) e valute (P498) → sblocca `iso2` e gli importi non USD; (d) nomi di società e franchise e bersagli di relazioni; (e) date di vita e ID delle persone (opzionale). Poi estendere `build.py` perché legga lo snapshot della fase 4 **se presente** (stesso ordine deterministico), ricostruire, `verify --reproduce`, aggiornare `BUILD_REPORT`.
-2. Fase 5: tool `cinema_sql` (`tool/cinema_db/tool.py` con `planner_schema`, risposta finale, trace/presenter/serializer web come gli altri tool, `CONFIG["cinema_db"]`, registrazione in `build_app` e `allowed_tools` **spenta di default**, `SOURCE_TOOLS["cinema_sql"] = "official information"`, regola di routing senza rinumerare, test del conflitto con le preferenze, test offline di routing; `tests/test_tool_package.py` richiede di aggiungere `cinema_db` a `TOOLS` e l'eccezione per la cartella radice come per `movie_db`). Il database non è ancora usabile dall'agente: la regola 1f di Wikidata resta il ripiego.
-3. Curatela: duplicati di Wikidata, omonimie, vista delle candidate duplicate.
-4. Misurare in modo reale (con crediti, solo se autorizzato) il guadagno di richieste del routing; finora la baseline è una stima.
+1. **Fase 5** (solo con l'ok): tool `cinema_sql` (`tool/cinema_db/tool.py` con `planner_schema`, risposta finale, trace/presenter/serializer web come gli altri tool, `CONFIG["cinema_db"]`, registrazione in `build_app` e `allowed_tools` **spenta di default**, `SOURCE_TOOLS["cinema_sql"] = "official information"`, regola di routing senza rinumerare, test del conflitto con le preferenze, test offline di routing; `tests/test_tool_package.py` richiede `cinema_db` in `TOOLS` e l'eccezione per la cartella radice come per `movie_db`). Le viste v_* ora hanno premi, importi non USD, ISO e date di vita da interrogare; le descrizioni in `schema_notes.py` vanno riviste per i dati nuovi.
+2. Curatela: duplicati di Wikidata, omonimie, vista delle candidate duplicate.
+3. Misurare in modo reale (con crediti, solo se autorizzato) il guadagno di richieste del routing.
 
 ### 9. Vincoli e abitudini da non dimenticare
 - **Mai**: modificare MovieLens (`movie_db/`, `tool/movie_db/`), i RAG film e serie, gli altri tool o il planner; usare crediti OpenAI o embedding; importare dati IMDb; inventare dati nel database di prodotto; fare richieste di rete senza permesso; scrivere o modificare `.env`; eliminare dati originali o snapshot.
@@ -122,8 +122,15 @@ Non coperto/limiti noti: la correttezza *semantica* di una SELECT valida non è 
 - **Limiti**: i numeri di copertura riguardano il catalogo locale, non il cinema mondiale (copertura recente incompleta già nota); i dati delle serie sono quelli del catalogo s5 (episodi numerati solo per titolo esatto, titoli nella lingua della pagina); le date di uscita per paese non distinguono il tipo (`unspecified`); un'opera in due QID di Wikidata resta due opere (240 conflitti riportati, non fusi); i test usano dati inventati in cartelle temporanee, il database reale non contiene dati inventati.
 - **Test** (tutti offline): 168 (sicurezza SQL del nucleo) + 17 (schema) + 10 (documentazione generata) + 108 (sicurezza sulle viste reali, FTS5 inclusa) + 46 (build su miniatura: opere, ID, crediti, generi, unione, riproducibilità, input invariati, nessuna rete, build fallita senza residui). Suite completa richiesta: 2.440 test verdi.
 
-## Fabbisogno stimato della fase 4 (STIMA, nulla richiesto; SURVEY.md §7)
+## Fase 4 — arricchimento mirato da Wikidata [V] (rapporto completo e numeri: `PHASE4_REPORT.md`)
+- **Codice** (`cinema_db/harness/enrich/`): `targets.py` (quali QID servono, offline, dai soli dati locali), `builders.py` (richieste da frammenti costanti e id validati `Q…`), `client.py` (UNICO punto di rete: allowlist di due endpoint, User-Agent col repository e senza e-mail, una richiesta alla volta ≥1,2 s, `maxlag=5`, `Retry-After`, ritentativi limitati, interruttore dopo 4 fallimenti), `store.py` (archivio a sola aggiunta nel formato degli snapshot: `requests.jsonl` + `bodies/<sha256>.json.gz`, chiave per richiesta = ripresa senza ripetizioni, errori in `errors.jsonl`, mai come dati), `fetch.py` (`plan`, `status`, `run --category … [--limit N]`), `compare.py` (confronto prima/dopo di due database). Lettura nella build: `build/phase4.py`, opzionale (`Inputs(phase4=…)`, `build` la usa se la cartella esiste, `--no-phase4` la esclude: allora il digest è quello della fase 3).
+- **Richieste**: 1.129 (persone 712, premi 56+4, società 118, relazioni 174, franchise 21, luoghi 22, paesi 4, lingue 6, valute 1, elementi persona/società 11), 0 fallite, 20 ritentate; piano in `cinema_db/data/wikidata_phase4/plan.json`.
+- **Problemi trovati e corretti**: organizzazioni accreditate come produttori erano persone con lo stesso QID di una società (180 → 439 conflitti): regola organizzazione/persona con la classe P31 (164 di 534 sono davvero persone); categoria di premio senza risultati; chiave di unicità delle cerimonie.
+- **Non fatto, per scelta**: tipo di uscita per paese (Wikidata non lo dà: P437 sull'1,3 % delle date, nessun tipo), nessuna modifica allo schema; fusione dei duplicati di QID; luoghi festival/città come paesi.
+- **Dopo**: la fase 5 può iniziare solo con l'ok del proprietario; ogni ricostruzione deve passare `verify --reproduce --report-name PHASE4_BUILD_REPORT` (il `BUILD_REPORT.md` della fase 3 non si sovrascrive).
+
+## Fabbisogno stimato della fase 4 (STIMA, nulla richiesto; SURVEY.md §7) — fatto, vedi sopra
 Richieste a 50 id: persone senza nome 983; premi e cerimonie 47; valute 1; bersagli di relazioni 121; società 86; franchise 17; luoghi 22; paesi/lingue per i codici ISO (non nella stima di SURVEY, circa 9 per 426 voci); tutto, comprese le date di vita di ogni persona (2.824): **circa 3.100–3.130** richieste, circa un'ora a una richiesta al secondo. Minimo utile (nomi mancanti, premi, valute): 1.031. IMDb non fa parte del piano (vedi sopra).
 
 ## Prossimo passo
-Fase 4 **solo con la tua autorizzazione**: richieste Wikidata mirate (gratuite, `wbgetentities` a 50 id, User-Agent descrittivo, ritmo prudente, ripresa, snapshot e manifest separati) per i nomi mancanti, premi e cerimonie, valute e codici ISO, date di vita. Decisioni aperte: IMDb (consigliata l'esclusione), licenza del vocabolario dei generi, fusione dei duplicati di Wikidata, tipo di uscita per paese.
+Fermo prima della fase 5. Da decidere con il proprietario: avvio del tool `cinema_sql` (§8), fusione dei duplicati di Wikidata, crediti verso organizzazioni, esclusione di IMDb, licenza dei generi.

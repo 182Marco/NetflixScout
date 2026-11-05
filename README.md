@@ -620,10 +620,10 @@ policy: not written yet for this personal project.
 
 A local SQLite database of films, series, seasons, episodes, people, credits, genres, identifiers and more sits alongside MovieLens
 (untouched). The agent will query it through one read-only SQL tool restricted to approved views. Status: security core, schema and the
-first **offline build** are done; the tool is not registered yet and the targeted Wikidata enrichment (phase 4) awaits the owner's go-ahead.
+first **offline build** and the **targeted Wikidata enrichment (phase 4)** are done; the tool is not registered yet (phase 5 awaits the owner's go-ahead).
 
 - Plan, decisions and status: `docs/cinema_db/PLAN.md`, `docs/cinema_db/PROGRESS.md`; baseline `BASELINE.md`; sources survey `SURVEY.md`;
-  verification of the built file `BUILD_REPORT.md`.
+  verification of the phase-3 build `BUILD_REPORT.md`; the phase-4 results and numbers `PHASE4_REPORT.md` (and `PHASE4_BUILD_REPORT.md`).
 - **Open `docs/cinema_db/schema.html` in a browser** for the interactive schema (tables, columns, keys, indexes, checks, relations, public
   views); `schema.mmd` is the Mermaid ER diagram. Both are generated from the real SQLite schema (`python -m cinema_db.harness.schema.generate`,
   `--check` tells whether they are stale); tests fail if they drift.
@@ -633,6 +633,12 @@ first **offline build** are done; the tool is not registered yet and the targete
   sources, real queries through the guard). What the local sources do not name (people with only an id, awards, most companies, currency codes
   other than USD, ISO country codes) is left empty and listed in the report, never guessed. IMDb data is deliberately not used: its terms forbid
   building a database from it.
+- **Phase 4 (Wikidata, done)**: 1,129 targeted, free requests stored byte for byte in `cinema_db/data/wikidata_phase4/` (git-ignored) with
+  `python -m cinema_db.harness.enrich.fetch plan|status|run --category …` (one request at a time, resumable, never repeats a stored request; the
+  only network code is `cinema_db/harness/enrich/client.py`). `build` reads that snapshot when present (`--no-phase4` gives the phase-3 result
+  exactly). Added: the names of 49,500 people (142,823 credits recovered), 27,751 award results with categories and ceremonies, life dates, money in
+  its original currency (never converted), ISO codes, company and franchise names, 8,875 more "based on" relations.
+  `python -m cinema_db.harness.enrich.compare BEFORE AFTER` gives the quantitative comparison.
 - Security: one `SELECT` only, approved views and columns only, the rewritten text is what runs, SQLite opened read-only and immutable,
   deny-by-default authorizer, time/row/size limits; FTS5 title search through the `v_title_search` view (words and prefixes, not semantic).
   Tests: `tests/test_cinema_sql_security.py`, `tests/test_cinema_views_security.py`, `tests/test_cinema_build.py`.

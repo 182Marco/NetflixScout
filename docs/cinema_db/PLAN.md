@@ -449,3 +449,13 @@ Risultati, problemi trovati e corretti, lacune e fabbisogno della fase 4 sono in
 
 ## 19. Stato al checkpoint del 2026-11-05 e vincoli della fase 4
 Fasi 0–3 completate (vedi §15–18 e `PROGRESS.md`, che contiene l'handoff per riprendere). Vincoli di progetto per la fase 4, da rispettare: richieste solo con l'autorizzazione del proprietario e solo quelle dell'elenco concordato; stringa di contatto nello User-Agent decisa dal proprietario (non l'e-mail personale per default); snapshot nuovo e separato (`cinema_db/data/wikidata_phase4/`), nello stesso formato di quelli esistenti, con manifest e ripresa; la build deve leggerlo **se presente** restando deterministica e riproducibile (stesso digest in una seconda build); gli snapshot esistenti non si modificano; i dati importati dalla fase 4 hanno `source` propria (Wikidata CC0) con data e hash dello snapshot. Le decisioni aperte sono elencate in `PROGRESS.md` §7 dell'handoff.
+
+## 20. Fase 4 completata: arricchimento mirato da Wikidata (2026-11-05)
+Dettaglio e numeri in `PHASE4_REPORT.md`. Decisioni di progetto, tutte con test:
+- **Archivio separato e a sola aggiunta**: `cinema_db/data/wikidata_phase4/` nel formato degli snapshot esistenti; ogni richiesta ha una chiave (endpoint + parametri) e non si ripete mai; i fallimenti vanno in un file a parte e mai tra i dati. La build legge l'archivio **se c'è** (`--no-phase4` lo esclude e restituisce byte per byte il database della fase 3).
+- **Una sola riga di rete** (`enrich/client.py`), allowlist di due endpoint, richieste da frammenti costanti con id validati; il modello non scrive mai query. Persone via SPARQL (200 per richiesta, con precisione e rango delle date), il resto con `wbgetentities` (50).
+- **Nessuna sovrascrittura, nessun dato indovinato**: la fase 4 completa solo ciò che le fonti vecchie non avevano; date diverse sono «ambiguo» e non si importano; valute senza conversione; luoghi festival e città non sono paesi; i premi senza cerimonia né anno non si importano.
+- **Schema invariato** (v2): le tabelle di premi, cerimonie, categorie, `field_provenance` e le colonne ISO c'erano già. **Tipo di uscita per paese**: misurato, Wikidata non lo fornisce (P437 sull'1,3 % delle date, nessun tipo), quindi nessuna modifica e `unspecified` resta.
+- **Organizzazione contro persona**: un QID accreditato e anche elencato come società è una organizzazione, salvo `P31 = Q5` (164 su 534 sono persone).
+- **Non fatto**: fusione dei 240 duplicati (ora 184 conflitti di QID), luoghi di nascita, IMDb. La fase 5 non è iniziata.
+
