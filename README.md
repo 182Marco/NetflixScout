@@ -616,18 +616,26 @@ video result.
 The YouTube API Services Developer Policies (III.A.2) also require the application's own privacy
 policy: not written yet for this personal project.
 
-## Local cinema database (in progress, not yet used by the agent)
+## Local cinema database (built, not yet used by the agent)
 
-A new local SQLite database of films, series, seasons, episodes, people, credits, genres, franchises, awards, box office and
-external identifiers is being built alongside MovieLens (which is untouched). The agent will query it through one read-only SQL
-tool restricted to approved views. Status: the security core (`tool/cinema_db/`) and the schema are done; data arrives in later phases.
+A local SQLite database of films, series, seasons, episodes, people, credits, genres, identifiers and more sits alongside MovieLens
+(untouched). The agent will query it through one read-only SQL tool restricted to approved views. Status: security core, schema and the
+first **offline build** are done; the tool is not registered yet and the targeted Wikidata enrichment (phase 4) awaits the owner's go-ahead.
 
-- Plan, decisions and status: `docs/cinema_db/PLAN.md`, `docs/cinema_db/PROGRESS.md`; offline baseline: `docs/cinema_db/BASELINE.md`.
-- **Open `docs/cinema_db/schema.html` in a browser** for the interactive schema (tables, columns, types, keys, indexes, checks, relations,
-  public views); `docs/cinema_db/schema.mmd` is the Mermaid ER diagram. Both are generated from the real SQLite schema:
-  `python -m cinema_db.harness.schema.generate` (`--check` tells whether they are stale). Tests fail if they drift.
-- Security: one `SELECT` only, approved views and columns only, rewritten text runs (never the model's), SQLite opened read-only and
-  immutable, deny-by-default authorizer, time/row/size limits. Tests: `tests/test_cinema_sql_security.py`, `tests/test_cinema_views_security.py`.
+- Plan, decisions and status: `docs/cinema_db/PLAN.md`, `docs/cinema_db/PROGRESS.md`; baseline `BASELINE.md`; sources survey `SURVEY.md`;
+  verification of the built file `BUILD_REPORT.md`.
+- **Open `docs/cinema_db/schema.html` in a browser** for the interactive schema (tables, columns, keys, indexes, checks, relations, public
+  views); `schema.mmd` is the Mermaid ER diagram. Both are generated from the real SQLite schema (`python -m cinema_db.harness.schema.generate`,
+  `--check` tells whether they are stale); tests fail if they drift.
+- **Build** (offline, no network, no credits; reads only the Wikidata snapshots and catalogues of the film and series projects, never modifies them):
+  `python -m cinema_db.harness.build.build --force` writes `cinema_db/data/cinema.sqlite3` (≈330 MB, git-ignored, reproducible: a second build gives
+  the same content digest); `python -m cinema_db.harness.build.verify` checks it (integrity, coverage, a 400-film spot check recomputed from the
+  sources, real queries through the guard). What the local sources do not name (people with only an id, awards, most companies, currency codes
+  other than USD, ISO country codes) is left empty and listed in the report, never guessed. IMDb data is deliberately not used: its terms forbid
+  building a database from it.
+- Security: one `SELECT` only, approved views and columns only, the rewritten text is what runs, SQLite opened read-only and immutable,
+  deny-by-default authorizer, time/row/size limits; FTS5 title search through the `v_title_search` view (words and prefixes, not semantic).
+  Tests: `tests/test_cinema_sql_security.py`, `tests/test_cinema_views_security.py`, `tests/test_cinema_build.py`.
 
 ## Git Notes
 

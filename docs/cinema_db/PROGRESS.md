@@ -1,15 +1,15 @@
 # Cinema DB — PROGRESS (punto di ripresa)
 
 Aprire una sessione nuova: leggere `AGENTS.md`, `docs/cinema_db/PLAN.md` (§15 per le decisioni) e questo file.
-Ultimo aggiornamento: 2026-11-05 (fase 2 completata). Legenda: **[V]** verificato con il comando indicato · **[S]** stima · **[P]** solo progettato.
+Ultimo aggiornamento: 2026-11-05 (fase 3 completata, checkpoint). Legenda: **[V]** verificato con il comando indicato · **[S]** stima · **[P]** solo progettato.
 
 ## Stato
 | Fase | Stato |
 |---|---|
 | 0 Misura (baseline offline) | **fatta [V]** |
 | 1 Sicurezza SQL (solo fixture) | **fatta [V]** — 171 test del nucleo, suite richiesta verde |
-| 2 Schema + `schema.html`/`schema.mmd` | **fatta [V]** — schema reale, 17 viste approvate, generatore e test (vedi sotto) |
-| 3 Prima build offline | da fare |
+| 2 Schema + `schema.html`/`schema.mmd` | **fatta [V]**, schema v2 (generi normalizzati, FTS5): 32 tabelle STRICT più l'indice FTS5, 20 viste approvate |
+| 3 Prima build offline | **fatta [V]** — 333 MB, 293.447 opere, riproducibile, 0 differenze su 400 film (vedi sotto e `BUILD_REPORT.md`) |
 | 4 Arricchimento Wikidata (+ IMDb selettivo, D5) | da fare, dopo la verifica della fase 3 |
 | 5 Tool `cinema_sql` e routing | da fare; **non registrato** in `app.py` né in `allowed_tools` |
 
@@ -44,5 +44,25 @@ Non coperto/limiti noti: la correttezza *semantica* di una SELECT valida non è 
 - **Verifica visiva** dell'HTML con Chrome headless (stato iniziale, tabella `work` selezionata con le relazioni tracciate, vista `v_credit`): corretti l'ordine dei gruppi, l'elenco delle tabelle lette dalla vista e la larghezza del pannello. **Non verificato**: Mermaid con la sua libreria (controllo da CDN negato dall'autorizzazione), altri browser.
 - **Decisioni aperte**: PLAN §16 (FTS5, generi, date per paese, IMDb, nome/posizione del file DB).
 
+## Fase 2b — decisioni strutturali chiuse prima della build [V] (PLAN §17)
+- **FTS5**: disponibile (SQLite 3.53.4, `ENABLE_FTS5`); `entity_name_fts` a contenuto esterno senza trigger, vista pubblica `v_title_search` (`WHERE search MATCH 'padri*' ORDER BY rank`), ricerca esatta per ID e per nome normalizzato invariata, non sostituisce il RAG semantico. All'authorizer (solo a lui) si concedono le funzioni interne `match`/`bm25`, il pragma `data_version`, le tabelle d'ombra e le colonne del contenuto esterno; il modello non può nominarle (validatore) né scrivere l'indice (test a ogni livello).
+- **Generi**: `genre` (38 canonici), `genre_label` (etichette originali con fonte, mai riscritte), `genre_label_map` (exact/synonym/specific + regola), `work_genre` (opera → etichetta). Viste `v_work_genre`, `v_work_genre_label`, `v_genre_label`, `v_genre`. Copertura misurata sui dati reali: 92,1 % delle asserzioni mappate (114.162 su 123.995; 95,3 % nei soli film), le altre restano leggibili.
+- **IMDb (D5)**: la pagina ufficiale vieta di riutilizzare i dati «per creare qualsiasi tipo di database online o offline» salvo uso personale individuale: **nessuna riga IMDb importata**, decisione aperta per il proprietario (PLAN §17).
+
+## Fase 3 — prima build offline [V]
+- **Comandi**: `python -m cinema_db.harness.build.survey` (indagine), `python -m cinema_db.harness.build.build [--force]` (build, ~8–12 min, scrive `cinema_db/data/cinema.sqlite3`, ignorato da git), `python -m cinema_db.harness.build.verify [--reproduce]` (rapporto in `docs/cinema_db/BUILD_REPORT.md`). Solo fonti locali, nessuna rete, nessun credito, nessun embedding; gli input non vengono modificati (test).
+- **Risultato** (BUILD_REPORT): 333 MB; 293.447 opere (36.529 film, 3.427 corti, 2.817 film TV, 13.665 serie e miniserie, 14.176 stagioni, 222.557 episodi, 276 altre), 92.041 persone, 532.504 crediti, 739.048 nomi, 369.683 identificativi, 123.995 asserzioni di genere, 4.703 relazioni, 50.740 uscite per paese, 9.212 importi USD. Controlli: `foreign_key_check` 0, `integrity_check` ok, FTS5 coerente, un solo nome primario per entità, nessun trigger, policy delle viste accettata.
+- **Riproducibilità [V]**: una seconda build completa dà lo stesso digest del contenuto (`d9d475d7…`).
+- **Verifica indipendente [V]**: 400 film a caso (seme fisso) ricalcolati dal catalogo e dallo snapshot (titolo, anno, durata, IMDb, QID, registi, paesi): **0 differenze**.
+- **Copertura sui 40.227 film** (BUILD_REPORT §3): anno 99,9 %, durata 92,2 %, titolo originale 94,4 %, IMDb 99,3 %, TMDb 94,3 %, EIDR 87,1 %, regista 96,4 %, cast 81,9 %, generi 94,6 %, paesi 99,6 %, lingue 81,0 %, uscite per paese 34,9 %, incassi/budget USD 12,5 %; società **0,7 %**, franchise **0,2 %**, relazioni 6,6 % (mancano i nomi: fase 4).
+- **Problemi trovati dalla verifica e corretti**: (1) film e serie si sovrapponevano (miniserie classificate come film TV, film TV in entrambi i cataloghi): **911 opere unite** (il catalogo serie decide le opere televisive, quello film aggiunge ciò che sa; omonimie titolo+anno scese da 812 a 28, residuo = versioni diverse legittime); (2) la pagina di un elenco «Episodi di X» veniva attaccata a un episodio a caso: ora solo gli episodi con pagina propria (106) hanno `wikipedia_it`; (3) la ricerca per ID IMDb su `v_work` costava 296 ms (sottoquery per riga): ora join su un identificativo preferito unico, 5 ms; (4) «Stati Uniti d'America», «USA», «Gran Bretagna» non si risolvevano (alias espliciti); (5) conflitti di identificativi 16.457 → 240 (i restanti sono duplicati veri di Wikidata, riportati nel rapporto); (6) un genere fatto di sola punteggiatura bloccava la build.
+- **Cosa NON è stato importato e perché** (BUILD_REPORT §6): 144.630 crediti senza nome nei file locali (sceneggiatori, compositori, fotografi, montatori, produttori hanno quasi tutti solo il QID: nessun nome inventato), 96.508 asserzioni di società e 5.129 di franchise senza nome, 11.056 relazioni verso opere senza etichetta, 26.577 premi e candidature (nessuno dei 1.685 premi ha un nome offline), 962 importi in valute diverse da USD (codice ISO non verificabile offline), 6.394 date di uscita con un luogo che non è un paese noto, 2.032 pagine miste manga/anime (non ammesse di default). Paesi senza codice ISO (0 su 183) e persone senza date di vita: sono lacune dichiarate, non valori indovinati.
+- **Interrogazioni reali** attraverso validatore e authorizer (BUILD_REPORT §7): 16 domande tipo da 3 a 255 ms (registi con più film 254 ms, conteggio per decennio 206 ms, episodi di una stagione 246 ms). Due danno 0 righe per lacune di dati e non per errori: «tratto da» di un titolo (relazioni verso opere senza nome) e un franchise (solo 86 franchise con nome).
+- **Limiti**: i numeri di copertura riguardano il catalogo locale, non il cinema mondiale (copertura recente incompleta già nota); i dati delle serie sono quelli del catalogo s5 (episodi numerati solo per titolo esatto, titoli nella lingua della pagina); le date di uscita per paese non distinguono il tipo (`unspecified`); un'opera in due QID di Wikidata resta due opere (240 conflitti riportati, non fusi); i test usano dati inventati in cartelle temporanee, il database reale non contiene dati inventati.
+- **Test** (tutti offline): 168 (sicurezza SQL del nucleo) + 17 (schema) + 10 (documentazione generata) + 108 (sicurezza sulle viste reali, FTS5 inclusa) + 46 (build su miniatura: opere, ID, crediti, generi, unione, riproducibilità, input invariati, nessuna rete, build fallita senza residui). Suite completa richiesta: 2.440 test verdi.
+
+## Fabbisogno stimato della fase 4 (STIMA, nulla richiesto; SURVEY.md §7)
+Richieste a 50 id: persone senza nome 983; premi e cerimonie 47; valute 1; bersagli di relazioni 121; società 86; franchise 17; luoghi 22; paesi/lingue per i codici ISO (non nella stima di SURVEY, circa 9 per 426 voci); tutto, comprese le date di vita di ogni persona (2.824): **circa 3.100–3.130** richieste, circa un'ora a una richiesta al secondo. Minimo utile (nomi mancanti, premi, valute): 1.031. IMDb non fa parte del piano (vedi sopra).
+
 ## Prossimo passo
-Fase 3 (prima build offline) **solo dopo la tua conferma del checkpoint**: estrazione dagli snapshot Wikidata già locali, dal catalogo film v3, dal catalogo serie s5 e dal dump itwiki; nessuna rete. Prima, quantificare il numero di entità e le richieste della fase 4.
+Fase 4 **solo con la tua autorizzazione**: richieste Wikidata mirate (gratuite, `wbgetentities` a 50 id, User-Agent descrittivo, ritmo prudente, ripresa, snapshot e manifest separati) per i nomi mancanti, premi e cerimonie, valute e codici ISO, date di vita. Decisioni aperte: IMDb (consigliata l'esclusione), licenza del vocabolario dei generi, fusione dei duplicati di Wikidata, tipo di uscita per paese.
