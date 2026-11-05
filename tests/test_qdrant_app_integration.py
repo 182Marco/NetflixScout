@@ -55,7 +55,7 @@ def build_index(path: Path, *, model: str = "text-embedding-3-small", points: bo
 
 def env_for(path: Path, **extra: str) -> dict[str, str]:
     return {"VECTORSTORE_QDRANT_MODE": "embedded",
-            "VECTORSTORE_QDRANT_PATH": str(path), **extra}
+            "VECTORSTORE_QDRANT_PATH": str(path), "RAG_BACKEND": "legacy", **extra}
 
 
 @pytest.fixture(autouse=True)
@@ -157,7 +157,7 @@ class QdrantRagOrchestrator:
     def __init__(self, rag_tool: RagTool) -> None:
         self.rag_tool = rag_tool
 
-    def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None, final_output=None, answer_language=None):
+    def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None, final_output=None, answer_language=None, **_):
         result = self.rag_tool.run(query=query, params={}, conversation_history=conversation_history)
         decision = {"tool": "rag_search", "tools": ["rag_search"],
                     "calls": [{"tool": "rag_search", "arguments": {}, "result": result}],
@@ -177,7 +177,7 @@ def test_a_whole_turn_over_http_and_sse_uses_the_qdrant_index(tmp_path, monkeypa
                         lambda query, llm_model, hint=None, **kwargs: QuerySignals(semantic_query="a quiet drama"))
     monkeypatch.setattr(retrieval, "rerank_cohere",
                         lambda query, chunks, model, cohere_api_client=None: [{**c, "score": 1.0 - n / 10} for n, c in enumerate(chunks)])
-    config = app_module.build_runtime_config(app_module.vector_store_overrides(env_for(tmp_path / "q")))
+    config = app_module.build_runtime_config(app_module._deep_merge(app_module.LEGACY_RAG_OVERRIDES, app_module.vector_store_overrides(env_for(tmp_path / "q"))))
     config = app_module.build_runtime_config({"rag": config["rag"]})
     bot = {"config": config, "orchestrator": QdrantRagOrchestrator(RagTool(config=config["rag"]))}
 

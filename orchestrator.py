@@ -39,6 +39,8 @@ DEFAULT_FINAL_INSTRUCTIONS = (
 # Planner decision with no tool: the request cannot be answered without information only the
 # user has (e.g. "that Sorrentino movie" with no history). The planner's question is the answer.
 CLARIFICATION = "clarification"
+# Planner result: every part of the request contradicts a setting, so no tool runs (see `SettingsPolicy`).
+CONFLICT_ONLY = "conflict_only"
 
 # Ceiling of tool runs in one turn when `orchestrator.max_tool_calls_per_turn` is not set.
 DEFAULT_MAX_TOOL_CALLS = 10
@@ -96,6 +98,8 @@ class _Plan:
     parts: list[dict[str, str]] = field(default_factory=list)
     # Why the planner could not decide and a default tool was used (None: it decided).
     fallback: str | None = None
+    # Requests that contradict a user setting, as the planner declared them: [{"setting": ..., "requested": ...}].
+    conflicts: list[dict[str, str]] = field(default_factory=list)
 
 
 # Codes of `decision["planning"]["fallbacks"]`: moments the turn went on with less than planned.
@@ -110,6 +114,9 @@ STOP_MAX_EXECUTION_TIME = "max_execution_time"
 STOP_TOKEN_BUDGET = "token_budget"
 LIMIT_STOPS = (FALLBACK_MAX_CALLS, STOP_MAX_ITERATIONS, STOP_MAX_EXECUTION_TIME, STOP_TOKEN_BUDGET)
 FALLBACK_ANSWER = "answer_failed"
+FALLBACK_BLOCKED_BY_SETTING = "blocked_by_setting"
+FALLBACK_PARTLY_BLOCKED_BY_SETTING = "partly_blocked_by_setting"
+MAX_BLOCKED_STEPS = 2
 
 MAX_PARTS = 6
 
@@ -179,7 +186,7 @@ def _classify_next_step(payload: dict[str, Any]) -> tuple[str, str | None]:
 _PLANNER_KEYS = frozenset(
     {
         "standalone_query", "tool_name", "tool", "arguments", "confidence", "parts", "more_steps", "done",
-        "needs_clarification", "clarification_question",
+        "needs_clarification", "clarification_question", "conflicts",
     }
 )
 
@@ -238,6 +245,37 @@ class Tool(Protocol):
         conversation_history: list[dict[str, str]] | None = None,
     ) -> dict[str, Any]:
         ...
+
+
+@runtime_checkable
+class SettingsPolicy(Protocol):
+    """User settings that PREVAIL over an explicit request (see `preferences/policy.py`).
+
+    `check_step` is the deterministic guard: the arguments that may run (None = the whole step is forbidden, `setting` says which
+    setting forbids it). `conflict_sentence` is the fixed sentence that opens the answer when a request contradicts a setting.
+    """
+
+    def known_settings(self) -> Sequence[str]:
+        ...
+
+    def check_step(self, tool: str, arguments: dict[str, Any]) -> Any:
+        ...
+
+    def conflict_sentence(self, conflicts: list[dict[str, Any]], language: str | None, *, nothing_left: bool = False) -> str:
+        ...
+
+    def answer_note(self, conflicts: list[dict[str, Any]]) -> str:
+        ...
+
+
+def _parse_conflicts(payload: Any, known: Sequence[str]) -> list[dict[str, str]]:
+    """The planner's declared conflicts, restricted to known settings and short plain text. Pure."""
+    raw = payload.get("conflicts") if isinstance(payload, dict) else None
+    out: list[dict[str, str]] = []
+    for item in raw if isinstance(raw, list) else []:
+        if isinstance(item, dict) and item.get("setting") in known and item["setting"] not in {c["setting"] for c in out}:
+            out.append({"setting": item["setting"], "requested": str(item.get("requested") or "")[:120]})
+    return out
 
 
 @runtime_checkable
@@ -443,8 +481,12 @@ class LLMOrchestrator:
         on_delta: Callable[[str], None] | None = None,
         answer_preferences: str = "",
         answer_language: str | None = None,
+        answer_prefix: str = "",
     ) -> str:
         """The answer text, written by ONE streamed call; a failure is appended to `failures`.
+
+        `answer_prefix` (the fixed sentence that declares a conflict with a user setting) is shown first and is the start of the returned
+        answer; the model continues after it.
 
         `on_delta` gets the text as the model writes it (with `final_output`, the decoded text of
         the `answer` field of the JSON, never JSON). Every answer reaches it, also the fallback.
@@ -474,6 +516,9 @@ class LLMOrchestrator:
                 if on_delta:
                     on_delta(text)
 
+        lead = f"{answer_prefix.strip()}\n\n" if answer_prefix.strip() else ""
+        if lead:
+            show(lead)
         raw: list[str] = []
         stream: Any = None
         try:
@@ -503,12 +548,12 @@ class LLMOrchestrator:
                     answer, lists = _split_structured_output(text)
                     if lists_out is not None:
                         lists_out.extend(lists)
-                    return answer
+                    return lead + answer
                 if text:
-                    return text
+                    return lead + text
                 no_answer = _no_answer(answer_language)
                 show(no_answer)
-                return no_answer
+                return lead + no_answer
             except ValueError:
                 pass  # invalid JSON or no answer: the failure path below
 
@@ -519,7 +564,7 @@ class LLMOrchestrator:
             return already_shown  # the user saw it: that is the answer
         fallback = self._fallback_answer(results, answer_language)
         show(fallback)
-        return fallback
+        return lead + fallback
 
     @staticmethod
     def _fallback_answer(results: list[dict[str, Any]], language: str | None = None) -> str:
@@ -622,6 +667,7 @@ class LLMOrchestrator:
         limits: _Limits | None = None,
         planner_preferences: str = "",
         answer_language: str | None = None,
+        policy: SettingsPolicy | None = None,
     ) -> _Plan:
         """First planner decision of the turn (see `_plan_turn`), plus `more_steps`."""
         allowed = self._allowed_tool_names()
@@ -670,6 +716,10 @@ class LLMOrchestrator:
         if required:
             return _Plan(required[0], {}, standalone_query)
 
+        conflicts = _parse_conflicts(payload, policy.known_settings()) if policy else []
+        if conflicts and not (payload.get("tool_name") or payload.get("tool")):
+            return _Plan(CONFLICT_ONLY, {}, standalone_query, conflicts=conflicts)
+
         question = str(payload.get("clarification_question") or "").strip()
         if payload.get("needs_clarification") is True and question:
             return _Plan(CLARIFICATION, {"question": question}, standalone_query)
@@ -682,12 +732,13 @@ class LLMOrchestrator:
             parts = _parse_parts(payload, allowed)
             # A part for another tool means another step, whatever `more_steps` says.
             more_steps = payload.get("more_steps") is True or any(p["tool"] != tool_name for p in parts)
-            return _Plan(tool_name, arguments, standalone_query, more_steps, parts)
+            return _Plan(tool_name, arguments, standalone_query, more_steps, parts, conflicts=conflicts)
         return _Plan(
             self._fallback_tool_name(allowed),
             {},
             standalone_query,
             fallback=FALLBACK_UNKNOWN_TOOL if tool_name not in allowed else FALLBACK_LOW_CONFIDENCE,
+            conflicts=conflicts,
         )
 
     def _plan_turn(
@@ -824,6 +875,18 @@ class LLMOrchestrator:
         except Exception:
             pass
 
+    def _conflict_only(self, observer: TurnObserver, policy: SettingsPolicy | None, conflicts: list[dict[str, str]],
+                       standalone_query: str, language: str | None) -> dict[str, Any]:
+        """Nothing in the request is compatible with the settings: no tool, no model call; the answer is the fixed conflict sentence."""
+        sentence = policy.conflict_sentence(conflicts, language, nothing_left=True) if policy else ""
+        self._emit(observer, TraceStep(kind=STEP_TOOL_SELECTION, title="Tool scelto", data={"tool": None, "clarification": False, "settings_conflict": True}))
+        self._emit_delta(observer, sentence)
+        return {
+            "tool": None, "tools": [], "calls": [], "clarification": False, "standalone_query": standalone_query,
+            "result": {"query": standalone_query, "chunks": [], "metadata": {}, "trace": []},
+            "final_answer": sentence, "settings_conflicts": conflicts,
+        }
+
     @staticmethod
     def _planning(
         parts: list[dict[str, str]],
@@ -877,6 +940,7 @@ class LLMOrchestrator:
         final_output: Mapping[str, Any] | None = None,
         prompt_parts: Mapping[str, str] | None = None,
         answer_language: str | None = None,
+        settings_policy: SettingsPolicy | None = None,
     ) -> dict[str, Any]:
         """Run the tools the request needs, one after the other, then answer.
 
@@ -905,6 +969,10 @@ class LLMOrchestrator:
         rule to the planner (language of a clarification question) and to the final answer prompt
         (language of the answer), and picks the language of the fixed fallback texts. Without it
         both prompts are exactly as before.
+
+        `settings_policy` (web only, built from the user's settings) makes the settings PREVAIL over the request: a step the settings forbid
+        never runs (deterministic guard, `check_step`), and when the request contradicts a setting the answer opens with the fixed conflict
+        sentence, then serves the compatible part. Without it nothing changes.
         """
         planner_preferences = str((prompt_parts or {}).get("planner") or "")
         answer_preferences = str((prompt_parts or {}).get("answer") or "")
@@ -916,7 +984,9 @@ class LLMOrchestrator:
             limits=limits,
             planner_preferences=planner_preferences,
             answer_language=answer_language,
+            policy=settings_policy,
         )
+        conflicts: list[dict[str, str]] = list(plan.conflicts)
         standalone_query = plan.standalone_query
         self._emit(
             observer,
@@ -926,6 +996,8 @@ class LLMOrchestrator:
                 data={"original": query, "used": standalone_query, "rewritten": standalone_query != query},
             ),
         )
+        if plan.tool == CONFLICT_ONLY:
+            return self._conflict_only(observer, settings_policy, conflicts, standalone_query, answer_language)
         if plan.tool == CLARIFICATION:
             # No tool and no final-answer call: nothing was looked up, so nothing is shown.
             self._emit(
@@ -952,12 +1024,41 @@ class LLMOrchestrator:
         stop_reason = "complete"
         current: _Plan | None = plan
         planner_output: dict[str, Any] | None = None
+        blocked_steps = 0
         while current is not None:
             key = f"{current.tool}:{json.dumps(current.arguments, sort_keys=True, default=str)}"
             if key in seen:
                 stop_reason = "repeated_step"
                 break
             seen.add(key)
+            if settings_policy is not None:
+                verdict = settings_policy.check_step(current.tool, current.arguments)
+                if verdict.arguments is None:
+                    # The settings forbid this step: it never runs. Ask for a compatible one (once or twice), else answer with what exists.
+                    fallbacks.append(FALLBACK_BLOCKED_BY_SETTING)
+                    if verdict.setting and verdict.setting not in {c["setting"] for c in conflicts}:
+                        conflicts.append({"setting": verdict.setting, "requested": f"step {current.tool}"})
+                    blocked_steps += 1
+                    note = (f"\nIl passo {current.tool} è vietato dalle impostazioni dell'utente ({verdict.setting}): scegli un passo "
+                            "compatibile con le impostazioni oppure concludi.")
+                    if blocked_steps > MAX_BLOCKED_STEPS:
+                        current, stop_reason = None, "blocked_by_setting"
+                    elif calls:
+                        current, stop_reason, planner_output = self._plan_next(
+                            query=query, standalone_query=standalone_query, conversation_history=conversation_history, calls=calls,
+                            parts=parts, limits=limits, planner_preferences=planner_preferences + note)
+                    else:
+                        again = self._plan_first(query=query, conversation_history=conversation_history, limits=limits,
+                                                 planner_preferences=planner_preferences + note, answer_language=answer_language,
+                                                 policy=settings_policy)
+                        conflicts.extend(c for c in again.conflicts if c["setting"] not in {x["setting"] for x in conflicts})
+                        current, stop_reason = (None, "blocked_by_setting") if again.tool in (CONFLICT_ONLY, CLARIFICATION) else (again, "")
+                    if current is None and not calls:
+                        return self._conflict_only(observer, settings_policy, conflicts, standalone_query, answer_language)
+                    continue
+                if verdict.changed:
+                    fallbacks.append(FALLBACK_PARTLY_BLOCKED_BY_SETTING)
+                    current = _Plan(current.tool, verdict.arguments, current.standalone_query, current.more_steps, current.parts)
             self._emit(
                 observer,
                 TraceStep(
@@ -1044,8 +1145,9 @@ class LLMOrchestrator:
             final_output=final_output,
             lists_out=final_lists,
             on_delta=lambda text: self._emit_delta(observer, text),
-            answer_preferences=answer_preferences,
+            answer_preferences=(f"{answer_preferences} {settings_policy.answer_note(conflicts)}".strip() if settings_policy and conflicts else answer_preferences),
             answer_language=answer_language,
+            answer_prefix=settings_policy.conflict_sentence(conflicts, answer_language) if settings_policy and conflicts else "",
         )
         if answer_failures:
             self._emit(
@@ -1058,6 +1160,8 @@ class LLMOrchestrator:
             )
         fallbacks.extend(answer_failures)
         planning = self._planning(parts, calls, pending, stop_reason, fallbacks, planner_output)
+        if conflicts:
+            planning["settings_conflicts"] = conflicts
 
         return {
             "tool": calls[0].tool,
@@ -1068,4 +1172,5 @@ class LLMOrchestrator:
             "planning": planning,
             "final_answer": final_answer,
             "final_lists": final_lists,
+            "settings_conflicts": conflicts,
         }

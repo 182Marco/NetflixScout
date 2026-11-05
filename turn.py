@@ -226,3 +226,5 @@ class TurnResult(BaseModel):
     history_compacted: bool = False
     # Web only: raw list references from the final answer call, checked by `web_lists`.
     item_refs: list[Any] = Field(default_factory=list)
+    # Requests that contradicted a user setting and lost to it: [{"setting": ..., "requested": ...}] (see `preferences/policy.py`).
+    settings_conflicts: list[dict[str, str]] = Field(default_factory=list)

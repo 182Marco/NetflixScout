@@ -28,6 +28,15 @@ class RagChunk(BaseModel):
     release_year: str | None = None
     genres: str | None = None
     cast: str | None = None
+    # Film index only (`rag.backend = "wikipedia"`); the legacy corpus leaves them empty.
+    original_title: str | None = None
+    directors: list[str] = Field(default_factory=list)
+    countries: list[str] = Field(default_factory=list)
+    duration_minutes: int | None = None
+    imdb_id: str | None = None
+    wikipedia_url: str | None = None
+    work_format: str | None = None
+    unverified: bool = False
 
 
 class ReferenceTitle(BaseModel):
@@ -80,6 +89,25 @@ class RagResult(BaseModel):
     constraints: dict[str, Any] = Field(default_factory=dict)
     # Reference films ("like X, not like Y"): what was resolved, where each vector came from, whether the search was steered.
     references: dict[str, Any] = Field(default_factory=dict)
+    # Film index only: what the answer needs per film (no ids, no URLs) and notes on the search (parser failure, filters dropped, contradiction).
+    films: list[dict[str, Any]] = Field(default_factory=list)
+    notes: dict[str, Any] = Field(default_factory=dict)
+
+
+class FilmIndexToolInput(BaseModel):
+    """Search the film index (about 41,000 films with the plot of Italian Wikipedia) by plot, themes, mood, genre, setting, era, style, people, year or country.
+
+    Put the whole request in `query`, positive and negative parts together ("come X ma senza Y"): exclusions, cited films, franchises and filters are
+    extracted from it. `k_finale` is how many films to return.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    query: str = Field(min_length=1)
+    k_finale: int | None = Field(
+        default=None,
+        description=("How many films to return: the number the user asked for ('un film' = 1, 'dammi 5 film' = 5), null when no number is given."),
+    )
 
 
 class RagToolInput(BaseModel):

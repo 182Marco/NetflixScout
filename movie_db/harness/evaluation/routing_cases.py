@@ -264,25 +264,33 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
             RequestExpectation("search", fields=(("kind", "movie"), ("search_query", "dune"))),
         ),
     ),
-    # A title used only as a reference never goes to the RAG: TMDb similar/recommendations.
+    # A title used as a reference goes to the RAG with the rest of the request (film index, 2026-11-05); TMDb similar/recommendations stays accepted.
     RoutingCase(
         "Mi sono piaciuti i temi di Mare dentro: ci sono altri film che toccano le stesse questioni?",
-        TMDB,
-        expected_request=(
+        RAG,
+        alternative_first_tools=(TMDB,),
+        expected_alternative_request=(
             RequestExpectation("movie_details", fields=(("title", "mare dentro"),), facets=("similar",)),
             RequestExpectation("movie_details", fields=(("title", "mare dentro"),), facets=("recommendations",)),
         ),
     ),
     RoutingCase(
         "Vorrei un film con l'atmosfera e il dilemma morale del Padrino, ma con un finale meno tragico",
-        TMDB,
-        expected_request=(
+        RAG,
+        alternative_first_tools=(TMDB,),
+        expected_alternative_request=(
             RequestExpectation("movie_details", fields=(("title", "padrino"),), facets=("similar",)),
             RequestExpectation("movie_details", fields=(("title", "padrino"),), facets=("recommendations",)),
             RequestExpectation("movie_details", fields=(("title", "godfather"),), facets=("recommendations",)),
             RequestExpectation("movie_details", fields=(("title", "godfather"),), facets=("similar",)),
         ),
     ),
+    # Negative preferences, people, years: all stay in the RAG (the film index extracts exclusions and filters itself).
+    RoutingCase("Consigliami horror psicologici come Hereditary, ma senza possessioni demoniache o elementi soprannaturali", RAG, expected_rag=RagExpectation(k_finale=(None,))),
+    RoutingCase("Voglio fantascienza come Matrix, ma escludi tutti i film di Matrix", RAG, expected_rag=RagExpectation(k_finale=(None,))),
+    RoutingCase("Consigliami thriller diretti da David Fincher", RAG, expected_rag=RagExpectation(k_finale=(None,))),
+    RoutingCase("Voglio film con Tom Hanks degli anni Novanta che parlano di amicizia", RAG, expected_rag=RagExpectation(k_finale=(None,))),
+    RoutingCase("Cerco drammi giapponesi degli anni Cinquanta", RAG, expected_rag=RagExpectation(k_finale=(None,))),
     # From a MovieLens ranking to the first film's credits.
     RoutingCase(
         "E chi l'ha diretto?",
@@ -390,7 +398,7 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
     RoutingCase(
         "Trovami i film dove c'è un personaggio che si chiama Hannibal Lecter",
         RAG,
-        expected_rag=RagExpectation(k_finale=(None,), search_mode="hybrid"),
+        expected_rag=RagExpectation(k_finale=(None,)),   # the film index has no search modes: the word is part of the request
     ),
     # Data coverage (`CONFIG["orchestrator"]["data_coverage"]`): films after the last year a local
     # source covers must not start from RAG (to 2012) or MovieLens (to 2022).
@@ -401,8 +409,10 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
     ),
     RoutingCase(
         "Consigliami un film horror uscito nel 2020 con atmosfera claustrofobica",
-        TMDB,
-        expected_request=RequestExpectation("discover_movies"),
+        RAG,      # a recommendation by theme with a year is the film index's job (it covers 1900-2026; recent years less completely)
+        expected_rag=RagExpectation(k_finale=(None, 1)),
+        alternative_first_tools=(TMDB,),
+        expected_alternative_request=RequestExpectation("discover_movies"),
     ),
     RoutingCase(
         "Qual è il film con il voto medio più alto del 2023?",
@@ -411,8 +421,10 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
     ),
     RoutingCase(
         "Dammi 3 film di fantascienza cupi usciti dopo il 2018",
-        TMDB,
-        expected_request=RequestExpectation("discover_movies"),
+        RAG,
+        expected_rag=RagExpectation(k_finale=3),
+        alternative_first_tools=(TMDB,),
+        expected_alternative_request=RequestExpectation("discover_movies"),
     ),
     RoutingCase(
         "Quali sono le migliori commedie degli ultimi due anni?",

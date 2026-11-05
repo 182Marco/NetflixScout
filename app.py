@@ -12,7 +12,7 @@ from movie_db.config import load_movie_db_config
 from tool.movie_db.movie_db_tool import MovieDbTool
 from tool.movie_db.sql.connection import ensure_db_ready
 from orchestrator import LLMOrchestrator
-from preferences import build_prompt_parts
+from preferences import SettingsPolicy, build_prompt_parts
 from presenters import OutputChannel, present, terminal
 from presenters.story_view import StoryBuilder
 from tool.rag.FromQueryEmbeddingToRes.conversation import _compact_history
@@ -199,7 +199,7 @@ CONFIG = {
             "ricerche con filtri (restano a tmdb_search, regola 1), punteggi (1d e 2), storia e produzione "
             "approfondite (1c), film. Se la richiesta mescola dati strutturati e questi altri temi, in parts "
             "metti tvmaze_search per i dati strutturati e tmdb_search per il resto. Una fonte chiesta "
-            "esplicitamente dall'utente vince sempre. Il tipo di contenuto preferito «serie» fa trattare "
+            "esplicitamente dall'utente vince sempre, salvo che contraddica un'impostazione dell'utente (le impostazioni prevalgono). Il tipo di contenuto preferito «serie» fa trattare "
             "come serie un titolo ambiguo tra film e serie, ma non obbliga a usare tvmaze_search: decide "
             "l'intento della domanda. Per tvmaze_search compila arguments con title e facets (info, cast, "
             "seasons, episodes con season, next) e year solo se la richiesta o la conversazione lo danno. "
@@ -221,7 +221,7 @@ CONFIG = {
             "completo e ordinato di una trilogia o di una saga (restano a tmdb_search, regola 1, e alla regola 1c), "
             "né per spiegare in prosa storia, produzione o differenze di un adattamento (1c). Se la richiesta "
             "mescola relazioni e altri temi, in parts metti wikidata_search per le relazioni e l'altro tool per il "
-            "resto. Una fonte chiesta esplicitamente dall'utente vince sempre. Per wikidata_search compila arguments "
+            "resto. Una fonte chiesta esplicitamente dall'utente vince sempre, salvo che contraddica un'impostazione dell'utente (le impostazioni prevalgono). Per wikidata_search compila arguments "
             "con operation, title (il titolo originale o inglese se lo conosci con certezza o lo ha dato TMDb o la "
             "conversazione, altrimenti le parole dell'utente) e language (en, salvo titolo in un'altra lingua); year, "
             "director e type solo se compaiono nella richiesta, nella conversazione o in un passo già fatto di "
@@ -234,31 +234,29 @@ CONFIG = {
             "voti, confronti basati sui punteggi, film per genere e anno ordinati per voto e tag "
             "degli utenti di MovieLens. MovieLens contiene solo voti e tag degli utenti: nessun "
             "attore, regista o cast, nessun giudizio della critica, nessun filtro per persona. "
-            "3) rag_search (corpus vecchio, fermo al 2012 e limitato) si usa SOLO quando la richiesta "
-            "descrive a parole proprie trama, temi, emozioni, atmosfera, situazioni narrative o "
-            "sentimenti, oppure cerca un dettaglio specifico della trama (un personaggio, un luogo, "
-            "un oggetto), o chiede di riconoscere un film dalla trama senza titolo; e NON contiene "
-            "alcun titolo di film o serie, regista, attore, membro del cast né periodo dopo il 2012. "
-            "Appena la richiesta nomina un titolo (anche solo come riferimento: 'film come X', 'con i "
-            "temi di X', 'stessa atmosfera di X'), una persona o un anno successivo al 2012, rag_search "
-            "NON va scelto: per 'film come X' usa tmdb_search (movie_details o tv_details di X con le "
-            "facet similar e recommendations, più discover con generi e anni se serve). "
-            "Per rag_search puoi scrivere in arguments.query "
-            "una richiesta di ricerca autonoma e più esplicita, senza "
-            "aggiungere vincoli che l'utente non ha espresso. Dopo rag_search il sistema aggiunge da solo i "
-            "metadati TMDb dei film trovati: non scegliere tmdb_search per questo. "
-            "Per rag_search imposta k_finale al numero di film che l'utente chiede ('un film' = 1, "
-            "'dammi 5 film' = 5); se non indica un numero lascialo null. "
-            "Per rag_search imposta search_mode a \"hybrid\" solo se la richiesta si regge su parole "
-            "concrete che devono comparire nella trama (nome di un personaggio, luogo, oggetto, "
-            "termine raro, frase tra virgolette); per temi, atmosfera e somiglianze lascialo null. "
-            "Non usare rag_search per filmografie, attori, registi, voti o giudizi della critica, né "
-            "come ripiego o per completezza quando un altro tool ha già risposto. "
+            "3) rag_search è la ricerca semantica su circa 41.000 film (trama enciclopedica in italiano, fino "
+            "a novembre 2026, meno completo dopo il 2019); solo film, mai serie TV. È il punto di partenza per: "
+            "consigliare film; cercare per trama, temi, emozioni, atmosfera, genere, ambientazione, epoca o stile; "
+            "'film come X', 'simili a X', 'con l'atmosfera di X' (X è un film: resta nella query); riconoscere "
+            "un film dalla trama o da un dettaglio (un personaggio, un luogo, un oggetto); ricerche semantiche con "
+            "vincoli su regista, attore, anno, paese, genere o durata. Un titolo, una persona o un anno NON "
+            "escludono rag_search: sono riferimenti o filtri, e per 'film come X' rag_search sostituisce le facet "
+            "similar e recommendations di tmdb_search, che restano per i 'consigliati dal pubblico' e per le serie. "
+            "Per rag_search scrivi in arguments.query la richiesta dell'utente per intero, positivi e negativi "
+            "insieme ('come X ma senza Y', 'niente sequel', 'diverso da…'): il tool ne ricava da solo esclusioni, "
+            "franchise e filtri. Non riformulare in negativo ciò che l'utente vuole evitare e non aggiungere "
+            "vincoli che l'utente non ha espresso. Per rag_search imposta k_finale al numero di film che l'utente "
+            "chiede ('un film' = 1, 'dammi 5 film' = 5); se non indica un numero lascialo null. Non scegliere "
+            "rag_search per: elenchi completi o filmografie ordinate, novità e film in uscita, voti e classifiche, "
+            "dove vedere un film in streaming, trailer, cast completo, dati ufficiali di un titolo identificato, "
+            "serie TV. Dopo rag_search il sistema aggiunge solo le locandine: titolo, anno, regia, cast principale, "
+            "durata, paese e trama sono già nei risultati, quindi non scegliere tmdb_search per questo ma solo per "
+            "ciò che il RAG non ha (streaming, trailer, voti del pubblico, cast completo). "
             "Film consigliati in poche righe: se la risposta presenterà meno di 4 film (l'utente ne "
             "chiede pochi o le liste trovate sono corte) e quei film sono noti, regia e attori "
             "principali devono comparire nella risposta, purché abbiano un minimo di pertinenza con "
             "la richiesta. Se i dati ottenuti fin qui sono solo titoli, voti o liste senza regia e "
-            "cast (similar, recommendations, discover, movie_db_search), scegli come passo "
+            "cast (similar, recommendations, discover, movie_db_search; non rag_search, che li ha già), scegli come passo "
             "successivo tmdb_search con movie_details e facet credits per quei film (una richiesta "
             "per film, al massimo 3) e imposta more_steps true. Non farlo se la risposta avrà 4 o "
             "più film, se i dati hanno già regia e cast, o se TMDb non ha restituito nulla. "
@@ -281,20 +279,17 @@ CONFIG = {
             "Ogni sinossi o descrizione di un film riformula solo il testo ricevuto (overview "
             "TMDb o trama del RAG): non aggiungere temi, interpretazioni, intenzioni dei "
             "personaggi o dettagli che non vi compaiono, anche se li conosci. "
-            "Se nei Metadata c'è tmdb_enrichment, i film da presentare restano quelli dei "
-            "risultati del RAG (non aggiungerne altri; se li elenchi tutti, nello stesso ordine), e il motivo del consiglio deve venire dagli "
-            "elementi delle loro trame: citali come elementi della trama, senza scrivere che il "
-            "RAG o i risultati giudicano un film simile o vicino al titolo citato dall'utente. "
-            "Per ogni candidato con status 'matched' presenta, con il livello di dettaglio che le "
-            "impostazioni dell'utente indicano (se indicano una risposta breve, solo titolo, anno e "
-            "il motivo in una riga), titolo, anno, "
-            "regista e cast principale presi dal suo blocco tmdb e una breve sinossi; se ha "
-            "matched_by 'alternative_title', usa il titolo dei risultati del RAG e indica il "
-            "titolo con cui il film risulta registrato; per i "
-            "candidati con altro status usa solo i dati del RAG e non indicare regista o cast. "
-            "Se presenti meno di 4 film noti, per ciascuno indica regista e attori principali "
-            "quando i dati li contengono (se pertinenti alla richiesta); con 4 o più film puoi "
-            "ometterli per brevità. "
+            "Se i risultati arrivano da una ricerca di film (nei Metadata c'è films), presenta i film nell'ordine "
+            "ricevuto, solo quelli che servono alla richiesta e senza aggiungerne altri; per ognuno usa titolo (e "
+            "titolo originale se diverso), anno, regia e cast principale presenti in Metadata.films e riformula la "
+            "trama ricevuta: il motivo del consiglio viene dagli elementi della trama, citati come tali, senza "
+            "scrivere che i risultati giudicano un film simile al titolo citato. Rispetta le esclusioni della "
+            "richiesta: un film che mostra un tratto che l'utente voleva evitare, che appartiene a una saga esclusa "
+            "o che è un film citato da escludere non va consigliato; se nessun film ricevuto è adatto, dillo senza "
+            "inventare titoli. Se nei Metadata c'è search_notes: contradiction = dichiara in una frase la "
+            "contraddizione della richiesta e servi solo la parte coerente; parser_failed o reorder_failed = le "
+            "esclusioni potrebbero non essere state applicate, dillo; no_film_matches_the_filters = di' che nessun "
+            "film del catalogo soddisfa i filtri richiesti; not_verified_as_a_film = dichiaralo solo se pertinente. "
             "Non scrivere mai che regia, cast, anno, durata o altri dati di contorno 'non sono "
             "disponibili' o 'mancano': se un dato non c'è, omettilo in silenzio e presenta il film "
             "con ciò che hai; dichiara una mancanza solo se è proprio il dato che l'utente ha "
@@ -467,11 +462,6 @@ CONFIG = {
         # (tests/test_data_coverage.py checks these values against the datasets). The planner
         # does not start from a source for films released after its year.
         "data_coverage": {
-            "rag_search": {
-                "last_complete_year": 2012,
-                "note": "CMU Movie Summary Corpus, dump di Wikipedia del 2 novembre 2012; "
-                "dopo il 2012 solo pochi titoli annunciati",
-            },
             "movie_db_search": {
                 "last_complete_year": 2022,
                 "note": "MovieLens 32M, voti fino al 12 ottobre 2023; il 2023 è parziale",
@@ -493,10 +483,12 @@ CONFIG = {
         "required_tools": [],
         "tool_confidence_threshold": 0.6,
         "fallback_tool": "rag_search",
-        # After rag_search, TMDb metadata for the movies the RAG selected (tool/tmdb/enrich.py).
+        # After rag_search, the poster and TMDb id of the films the RAG RETURNED (one `/find` per film by IMDb id, never by title,
+        # never the pool; tool/tmdb/enrich.py). With `rag.backend = "legacy"` use mode "title" (the corpus has no IMDb ids).
         "rag_enrichment": {
             "enabled": True,
-            "max_candidates": 3,
+            "mode": "imdb",
+            "max_candidates": 5,
         },
         "verbose": False,
         "conversation": {
@@ -511,6 +503,20 @@ CONFIG = {
         },
     },
     "rag": {
+        # "wikipedia": the film index (`wikipedia_films_it_v3`, tool/rag/FromQueryEmbeddingToRes/film_index/), the ONLY retriever.
+        # "legacy": the CMU/2012 pipeline, kept for rollback; apply LEGACY_RAG_OVERRIDES with it. Never both, never a fallback.
+        "backend": "wikipedia",
+        "film_index": {
+            "pool": 300,                 # candidates read from Qdrant before exclusions and penalty
+            "penalty_lambda": 0.5,       # cos(r, wanted) - lambda * max cos(r, trait to avoid)
+            "max_genre_share": 0.08,     # an avoided genre that labels more of the catalogue than this is dropped (too wide a filter)
+            "max_avoid_genres": 3,
+            "parser_model": "gpt-5.6-luna",
+            "parser_effort": None,
+            # LLM reorder of the best candidates. gpt-5.6-sol without reasoning, 40 candidates, up to 1500 characters of plot: 3.0 s and 2.5% violations,
+            # against 6-10 s and 3.6% for gpt-5.6-luna with default reasoning (tool/RAGWikipediaFilm/eval/results/OPTIMIZATION_REPORT.md)
+            "rerank": {"enabled": True, "pool": 40, "plot_chars": 1500, "model": "gpt-5.6-sol", "effort": "none", "top": None},
+        },
         "retrieval": {
             "search_mode": SearchMode.semantic,
             "k_largo": 10,
@@ -549,7 +555,8 @@ CONFIG = {
         },
         "embedding": {
             "backend": "openai",
-            "model": "text-embedding-3-small",
+            "model": "text-embedding-3-large",
+            "dimensions": 1536,
         },
         # Movies cited as references of closeness / distance (see docs/qdrant_migration/reference_embeddings_report.md).
         "reference": {
@@ -569,7 +576,7 @@ CONFIG = {
         # scripts/start_qdrant.sh) | embedded (a folder, one process at a time) | memory (tests only); the embedding
         # model is injected from CONFIG["rag"]["embedding"].
         "vectorstore": {
-            "collection": "netflix_scout",
+            "collection": "wikipedia_films_it_v3",
             "qdrant": {"mode": "server", "path": None, "url": "http://127.0.0.1:6333"},
         },
     },
@@ -667,6 +674,31 @@ def _deep_merge(base: dict[str, Any], override: dict[str, Any] | None) -> dict[s
         else:
             result[key] = copy.deepcopy(value)
     return result
+
+
+def _legacy_rag_overrides() -> dict[str, Any]:
+    """Everything that switches the application back to the legacy RAG (CMU 2012, `netflix_scout`): the backend, the index, the embedding, the old
+    routing rule 3, the old answer rules about TMDb completion and the 2012 coverage note. Built from CONFIG so the rest never drifts."""
+    import legacy_rag_prompts as legacy
+
+    orchestrator = CONFIG["orchestrator"]
+    instructions, final = orchestrator["instructions"], orchestrator["final_instructions"]
+    r0, r1 = instructions.index("3) rag_search è la ricerca semantica"), instructions.index("Film consigliati in poche righe")
+    f0, f1 = final.index("Se i risultati arrivano da una ricerca di film"), final.index("Non scrivere mai che regia, cast")
+    return {
+        "rag": {"backend": "legacy", "embedding": {"model": "text-embedding-3-small", "dimensions": None},
+                "vectorstore": {"collection": "netflix_scout"}},
+        "orchestrator": {
+            "instructions": instructions[:r0] + legacy.RULE_3 + instructions[r1:],
+            "final_instructions": final[:f0] + legacy.FINAL_RAG_ENRICHMENT + final[f1:],
+            "data_coverage": {"rag_search": legacy.DATA_COVERAGE_RAG, **orchestrator["data_coverage"]},
+            "rag_enrichment": {"mode": "title", "max_candidates": 3},
+        },
+    }
+
+
+# Rollback: `build_runtime_config(LEGACY_RAG_OVERRIDES)` or the environment variable RAG_BACKEND=legacy. The legacy code is kept only for this.
+LEGACY_RAG_OVERRIDES: dict[str, Any] = _legacy_rag_overrides()
 
 
 def build_runtime_config(overrides: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -782,7 +814,8 @@ def build_app(overrides: dict[str, Any] | None = None) -> dict[str, Any]:
     enrichment = runtime_config["orchestrator"].get("rag_enrichment") or {}
     enrichers = {}
     if enrichment.get("enabled"):
-        enrichers["rag_search"] = TmdbRagEnricher(tool=tmdb_tool, max_candidates=int(enrichment["max_candidates"]))
+        enrichers["rag_search"] = TmdbRagEnricher(tool=tmdb_tool, max_candidates=int(enrichment["max_candidates"]),
+                                                  by_imdb_only=enrichment.get("mode") == "imdb")
     if (runtime_config.get("catalog") or {}).get("enabled"):
         enrichers["tmdb_search"] = build_catalog_enricher(runtime_config, tmdb_tool)
     orchestrator = LLMOrchestrator(
@@ -797,6 +830,19 @@ def build_app(overrides: dict[str, Any] | None = None) -> dict[str, Any]:
 
 
 def ensure_collection_ready(runtime_rag: dict[str, Any]) -> None:
+    if runtime_rag.get("backend") == "wikipedia":
+        from tool.rag.FromQueryEmbeddingToRes.film_index.adapter import index_for
+        index = index_for(runtime_rag)
+        where = ((runtime_rag.get("vectorstore") or {}).get("qdrant") or {}).get("url")
+        try:
+            count = index.count()
+        except Exception as exc:  # noqa: BLE001  (connection and missing-collection errors come in many client-specific types)
+            raise QdrantUnavailable(
+                f"Cannot reach Qdrant at {where} or the collection '{index.collection}' is missing ({type(exc).__name__}). Start the server "
+                "(`./scripts/start_qdrant.sh`, or set VECTORSTORE_QDRANT_URL to the right address).") from None
+        if count == 0:
+            raise RuntimeError(f"The film collection '{index.collection}' is empty: check rag.vectorstore.collection.")
+        return
     collection = apri_collection(runtime_rag["vectorstore"]["collection"], store_config=runtime_rag["vectorstore"])
     if collection.count() == 0:
         raise RuntimeError(
@@ -892,7 +938,7 @@ def handle_query(
         observer=recorder,
         # Only when given: the terminal call stays exactly as it was.
         **({"final_output": final_output} if final_output else {}),
-        **({"prompt_parts": build_prompt_parts(preferences)} if preferences is not None else {}),
+        **({"prompt_parts": build_prompt_parts(preferences), "settings_policy": SettingsPolicy(preferences)} if preferences is not None else {}),
     )
     answer = decision["final_answer"]
 
@@ -927,6 +973,7 @@ def handle_query(
         history=history,
         history_compacted=compacted,
         item_refs=list(decision.get("final_lists") or []),
+        settings_conflicts=list(decision.get("settings_conflicts") or []),
     )
 
 
@@ -946,13 +993,22 @@ def vector_store_overrides(env: Mapping[str, str] | None = None) -> dict[str, An
     return {"rag": {"vectorstore": {"qdrant": qdrant}}} if qdrant else {}
 
 
+ENV_RAG_BACKEND = "RAG_BACKEND"
+
+
+def rag_backend_overrides(env: Mapping[str, str] | None = None) -> dict[str, Any]:
+    """`RAG_BACKEND=legacy` is the rollback: the CMU/2012 RAG (`LEGACY_RAG_OVERRIDES`) instead of the film index. Never both."""
+    source = os.environ if env is None else env
+    return copy.deepcopy(LEGACY_RAG_OVERRIDES) if (source.get(ENV_RAG_BACKEND) or "").strip().lower() == "legacy" else {}
+
+
 def build_ready_app(overrides: dict[str, Any] | None = None, env: Mapping[str, str] | None = None) -> dict[str, Any]:
     """`build_app` plus the startup checks every entry point needs: it fails with an
     operational message if the vector collection or the MovieLens database is missing.
 
     The Qdrant location comes from the environment (`vector_store_overrides`); explicit `overrides`
     win over it. Both `python app.py` and the web API start here, so they always agree."""
-    app = build_app(_deep_merge(vector_store_overrides(env), overrides))
+    app = build_app(_deep_merge(_deep_merge(rag_backend_overrides(env), vector_store_overrides(env)), overrides))
     runtime_rag = _resolve_runtime_config(app["config"]["rag"])
     ensure_collection_ready(runtime_rag)
     movie_db_config = load_movie_db_config(app["config"]["movie_db"])

@@ -56,22 +56,21 @@ def test_routing_rules_are_prioritized_by_need() -> None:
     # Real eval: with "let TMDb results disambiguate" the planner used `search` (no credits).
     assert "usa movie_details o tv_details con il titolo" in tmdb and "search solo quando" in tmdb
     assert db.startswith("2) movie_db_search") and all(topic in db for topic in ("voti", "classifiche", "confronti"))
-    assert rag.startswith("3) rag_search") and all(topic in rag for topic in ("trama", "temi", "sentimenti"))
-    # A title named even only as a reference never reaches the RAG: it goes to TMDb.
-    assert "NON va scelto" in rag and "'film come X'" in rag and "usa tmdb_search" in rag
-    assert "scegli rag_search e non tmdb_search" not in rag
+    assert rag.startswith("3) rag_search") and all(topic in rag for topic in ("trama", "temi", "emozioni"))
+    # The film index: a title, a person or a year are references or filters, never a reason to leave the RAG (owner's decision, 2026-11-05).
+    assert "NON escludono rag_search" in rag and "'film come X'" in rag and "sostituisce le facet" in rag
+    assert "NON va scelto" not in rag and "corpus vecchio" not in rag and "2012" not in rag
     assert mixed.startswith("4) Richieste composte") and "un solo tool per turno" not in mixed
     assert "more_steps" in mixed and "mai un tool in più" in mixed
     # MovieLens has no people nor critics; the RAG is never a fallback for them.
     assert "nessun attore" in db and "giudizio della critica" in db
-    assert "Non usare rag_search per filmografie" in rag
+    assert "Non scegliere rag_search per: elenchi completi o filmografie" in rag and "serie TV" in rag
 
 
 def test_final_instructions_use_enrichment_sources_and_names_faithfully() -> None:
     final = app_module.CONFIG["orchestrator"]["final_instructions"]
 
-    assert "tmdb_enrichment" in final and "'matched'" in final
-    assert "stesso ordine" in final and "Non attribuire mai a un film i dati di un altro" in final
+    assert "Metadata c'è films" in final and "nell'ordine ricevuto" in final and "Non attribuire mai a un film i dati di un altro" in final
     assert "fonte dei voti" not in final and "nomina il RAG" not in final
     assert "Non spiegare mai da dove vengono i dati" in final
     assert "candidates" in final and "quale versione" in final
@@ -89,8 +88,8 @@ def test_final_instructions_fix_the_unfounded_sentences_of_the_real_runs() -> No
     # Cases 1, 6, 17: synopses enriched with themes not in the overview ("esplora memoria, coscienza").
     assert "riformula solo il testo ricevuto" in final and "anche se li conosci" in final
     # Case 13: "secondo i risultati del RAG, affrontano temi vicini a Mare dentro".
-    assert "dagli elementi delle loro trame" in final
-    assert "senza scrivere che il RAG o i risultati giudicano un film simile" in final
+    assert "citati come tali" in final
+    assert "senza scrivere che i risultati giudicano un film simile" in final
     assert "deve venire dai risultati del RAG" not in final
     # Case 15.2: the field name "created_by" shown to the user.
     assert "Non mostrare all'utente nomi tecnici di campi" in final
@@ -99,7 +98,6 @@ def test_final_instructions_fix_the_unfounded_sentences_of_the_real_runs() -> No
     assert "constraints_summary" in final and "senza aggiungere deduzioni tue" in final
     assert "non dedurre nazionalità dai personaggi né il finale dalla trama" in final
     assert "un vincolo 'contraddetto' va" in final
-    assert "'alternative_title_match'" in final and "matched_by 'alternative_title'" in final
     assert "'year_from_release_dates'" in final and "riporta entrambi gli anni" in final
 
 

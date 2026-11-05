@@ -10,6 +10,10 @@ from . import behavior as b
 from .models import Preferences
 
 
+def _values(prefs: Preferences) -> str:
+    return "; ".join(f"{field}={prefs[field]}" for field in prefs)
+
+
 def _planner_lines(prefs: Preferences) -> list[str]:
     lines: list[str] = []
     content = b.CONTENT_PLANNER.get(prefs["content_type"])
@@ -34,6 +38,6 @@ def _answer_lines(prefs: Preferences) -> list[str]:
 def build_prompt_parts(prefs: Preferences) -> dict[str, str]:
     """`{"planner": str, "answer": str}`, both non-empty for valid preferences."""
     return {
-        "planner": " ".join([b.PLANNER_INTRO, *_planner_lines(prefs)]),
+        "planner": " ".join([b.PLANNER_INTRO.format(values=_values(prefs)), *_planner_lines(prefs)]),
         "answer": " ".join([b.ANSWER_INTRO, *_answer_lines(prefs)]),
     }

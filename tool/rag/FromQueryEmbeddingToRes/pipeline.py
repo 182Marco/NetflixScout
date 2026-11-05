@@ -23,6 +23,11 @@ def run_rag(
     `query` is the user's (standalone) request; `query_hint` is the planner's rewrite, used
     only as extra context for the query parser, never in place of the user's words.
     """
+    if config.get("backend") == "wikipedia":
+        # The film index: one retriever, no fallback to the legacy corpus (set rag.backend = "legacy" to go back, never both).
+        from .film_index.adapter import run_film_index
+        return run_film_index(config=config, query=query, query_hint=query_hint)
+
     runtime_config = _resolve_runtime_config(config)
 
     collection = apri_collection(

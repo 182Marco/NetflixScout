@@ -43,11 +43,11 @@ def qdrant_folder(tmp_path):
 
 
 def config(folder, enabled=True, mode="embedded"):
-    return app.build_runtime_config({
+    return app.build_runtime_config(app._deep_merge(app.LEGACY_RAG_OVERRIDES, {
         "catalog": {"enabled": enabled},
         "rag": {"vectorstore": {
                                  "qdrant": {"mode": mode, "path": str(folder), "url": None}}},
-    })
+    }))
 
 
 class CountingEmbed:
@@ -66,7 +66,7 @@ def test_default_config_has_the_catalog_off():
 def test_off_registers_no_tmdb_enricher_and_touches_nothing(monkeypatch, qdrant_folder):
     opened = []
     monkeypatch.setattr(app, "apri_collection", lambda *a, **k: opened.append(1))
-    built = app.build_app({"catalog": {"enabled": False}})
+    built = app.build_app(app._deep_merge(app.LEGACY_RAG_OVERRIDES, {"catalog": {"enabled": False}}))
     assert "tmdb_search" not in built["orchestrator"].enrichers and opened == []
     assert set(built["orchestrator"].enrichers) <= {"rag_search"}
 
@@ -142,5 +142,5 @@ def test_reference_flow_provider_is_lazy_and_degrades_without_a_writable_qdrant(
 
 def test_build_app_gives_the_rag_tool_the_provider_without_touching_qdrant(monkeypatch):
     monkeypatch.setattr(app, "apri_collection", lambda *a, **k: (_ for _ in ()).throw(AssertionError("Qdrant touched at build time")))
-    rag = app.build_app()["orchestrator"].tools["rag_search"]
+    rag = app.build_app(app.LEGACY_RAG_OVERRIDES)["orchestrator"].tools["rag_search"]
     assert callable(rag.reference_flow)

@@ -6,7 +6,7 @@ from typing import Any
 from turn import OUTCOME_EMPTY, OUTCOME_OK, TOOL_PARAM_TURN_ID, tool_outcome
 
 from .constraints import constraint_summary
-from .models import RagToolInput
+from .models import FilmIndexToolInput, RagToolInput
 from .pipeline import run_rag
 from .retrieval_params import resolve_retrieval
 
@@ -29,6 +29,16 @@ class RagTool:
     # Builds (lazily) the flow that gives real vectors to the movies cited as references; injected by `app.py`.
     reference_flow: Any = None
 
+    def __post_init__(self) -> None:
+        # The film index takes the whole request (positive and negative parts) and the number of films; nothing else.
+        if self.config.get("backend") == "wikipedia":
+            self.description = (
+                "Search the film index (about 41,000 films with the plot of Italian Wikipedia, up to November 2026) for recommendations and "
+                "searches by plot, themes, mood, genre, setting, era, style, people, year or country, including requests that cite films to be "
+                "like or unlike, franchises or traits to exclude. Returns the best films; the answer is written elsewhere."
+            )
+            self.input_schema = FilmIndexToolInput.model_json_schema()
+
     def run(
         self,
         *,
@@ -42,7 +52,7 @@ class RagTool:
         # temi e atmosfere analoghi" named no theme and replaced richer user context).
         planner_query = str(arguments.get("query") or "").strip()
         arguments["query"] = query or planner_query
-        payload = RagToolInput(query=arguments["query"])
+        payload = (FilmIndexToolInput if self.config.get("backend") == "wikipedia" else RagToolInput)(query=arguments["query"])
         hint = planner_query if planner_query and planner_query != payload.query else None
         # The planner's retrieval choices are applied to a copy of the config, clamped to the
         # configured limits; unusable values fall back to the defaults and never fail the turn.
@@ -76,6 +86,8 @@ class RagTool:
                 # (statuses, evidence) stays in the trace.
                 **({"constraints_summary": constraint_summary(result.constraints)} if result.constraints else {}),
                 **({"references_summary": result.references["summary"]} if result.references.get("summary") else {}),
+                **({"films": result.films} if result.films else {}),
+                **({"search_notes": result.notes} if result.notes else {}),
             },
             # Procedure steps for the presenters (same shape as turn.TraceStep).
             # Kept outside "metadata": the orchestrator puts metadata in the LLM prompt.

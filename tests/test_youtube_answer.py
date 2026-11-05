@@ -58,7 +58,7 @@ def test_the_shared_final_rules_do_not_carry_the_youtube_rules() -> None:
     final = app_module.CONFIG["orchestrator"]["final_instructions"]
 
     assert "youtube_search" not in final and "verification" not in final
-    assert "tmdb_enrichment" in final and "Non mostrare all'utente nomi tecnici di campi" in final
+    assert "Metadata c'è films" in final and "Non mostrare all'utente nomi tecnici di campi" in final
 
 
 class _NoClient:

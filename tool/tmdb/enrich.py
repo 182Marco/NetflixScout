@@ -26,7 +26,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from .errors import TmdbConfigError
-from .models.enums import TmdbOperation
+from .models.enums import ExternalSource, TmdbOperation
 from .models.requests import TmdbRequest
 from .models.results import Entity, RequestOutcome
 from .operations.resolve import ALTERNATIVE_TITLE_MATCH, YEAR_FROM_RELEASE_DATES
@@ -48,6 +48,8 @@ class Candidate:
     year: int | None
     # Actor names from the corpus metadata (";"-separated in the chunk), when present.
     cast: tuple[str, ...] = ()
+    # IMDb id of the film index (`rag.backend = "wikipedia"`): identity without any title search.
+    imdb_id: str | None = None
 
 
 def select_candidates(chunks: list[Any], max_candidates: int) -> list[Candidate]:
@@ -68,7 +70,8 @@ def select_candidates(chunks: list[Any], max_candidates: int) -> list[Candidate]
             continue
         seen.add(key)
         cast = tuple(name.strip() for name in str(chunk.get("cast") or "").split(";") if name.strip())
-        selected.append(Candidate(rank=len(selected) + 1, title=title, year=year, cast=cast))
+        imdb = chunk.get("imdb_id") if isinstance(chunk.get("imdb_id"), str) else None
+        selected.append(Candidate(rank=len(selected) + 1, title=title, year=year, cast=cast, imdb_id=imdb))
     return selected
 
 
@@ -159,6 +162,9 @@ class TmdbRagEnricher:
 
     tool: TmdbTool
     max_candidates: int
+    # True with the film index: only the films the RAG RETURNED, by IMDb id (`/find`, one call each), for the poster and the TMDb id.
+    # A film without an IMDb id is skipped; there is never a search by title, and nothing is attributed on a title match.
+    by_imdb_only: bool = False
 
     def enrich(self, *, tool_result: dict[str, Any]) -> dict[str, Any]:
         candidates = select_candidates(tool_result.get("chunks") or [], self.max_candidates)
@@ -178,6 +184,8 @@ class TmdbRagEnricher:
         )
         ctx.strict_identity = True
         ctx.year_after_search = True
+        if self.by_imdb_only:
+            return self._enrich_by_imdb(tool_result, candidates, ctx)
         requests: list[TmdbRequest] = []
         positions: list[int | None] = []
         for candidate in candidates:
@@ -209,3 +217,34 @@ class TmdbRagEnricher:
         return _attach(
             tool_result, enrichment, build_tmdb_trace(ctx.recorder.calls, [], tmdb_cards(matched_outcomes))
         )
+
+    def _enrich_by_imdb(self, tool_result: dict[str, Any], candidates: list[Candidate], ctx: Any) -> dict[str, Any]:
+        requests: list[TmdbRequest] = []
+        positions: list[int | None] = []
+        for candidate in candidates:
+            try:
+                if not candidate.imdb_id:
+                    raise ValueError("no imdb id")
+                requests.append(TmdbRequest(operation=TmdbOperation.find_by_external_id, external_id=candidate.imdb_id,
+                                            external_source=ExternalSource.imdb))
+                positions.append(len(requests) - 1)
+            except (ValidationError, ValueError):
+                positions.append(None)
+        outcomes = run_requests(ctx, requests) if requests else []
+        rows = []
+        cards_from = []
+        for candidate, position in zip(candidates, positions):
+            row: dict[str, Any] = {"rank": candidate.rank, "rag_title": candidate.title, "rag_year": candidate.year}
+            outcome = outcomes[position] if position is not None else None
+            if outcome is None:
+                rows.append({**row, "status": "skipped", "reason": "no_imdb_id"})
+            elif outcome.error:
+                rows.append({**row, "status": "skipped" if outcome.error in _SKIPPED_ERRORS else "error", "reason": outcome.error})
+            elif not outcome.items:
+                rows.append({**row, "status": "not_found"})
+            else:
+                rows.append({**row, "status": "matched", "matched_by": "imdb_id"})
+                cards_from.append(outcome)
+        matched = sum(row["status"] == "matched" for row in rows)
+        enrichment = {"source": "TMDb", "mode": "imdb", "status": "ok" if matched == len(rows) else "partial" if matched else "none", "candidates": rows}
+        return _attach(tool_result, enrichment, build_tmdb_trace(ctx.recorder.calls, [], tmdb_cards(cards_from)))

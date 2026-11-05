@@ -12,18 +12,27 @@ from __future__ import annotations
 from typing import Final
 
 ANSWER_INTRO: Final = (
-    "Impostazioni dell'utente per QUESTO turno: valgono anche se le risposte precedenti della "
-    "conversazione hanno uno stile diverso e si applicano anche al campo reason delle liste. "
-    "Riguardano la forma della risposta e cosa mettere in evidenza, mai i fatti: tutte le regole "
-    "sui dati e sui limiti restano valide e prevalgono. Non spiegare mai da dove vengono i dati."
+    "Impostazioni dell'utente per QUESTO turno: sono VINCOLANTI e prevalgono su qualunque richiesta esplicita che le contraddica, "
+    "anche se le risposte precedenti della conversazione hanno uno stile diverso; valgono anche per il campo reason delle liste. "
+    "Se la risposta comincia con una frase che dichiara un conflitto tra la richiesta e un'impostazione, quella frase è già scritta: "
+    "non ripeterla, continua dalla parte compatibile della richiesta e non eseguire mai la parte in conflitto. Riguardano la forma "
+    "della risposta e cosa mettere in evidenza, mai i fatti: tutte le regole sui dati e sui limiti restano valide e prevalgono. "
+    "Non spiegare mai da dove vengono i dati."
 )
 
 PLANNER_INTRO: Final = (
-    "Preferenze dell'utente per questo turno: sono solo un criterio secondario tra tool che già "
-    "servono alla richiesta. Non cambiano k_finale né gli altri parametri di ricerca e non "
-    "prevalgono mai sull'intento della richiesta, sulle regole numerate o su una richiesta "
-    "esplicita dell'utente. Salvo dove una preferenza dice espressamente di aggiungere un passo, "
-    "non aggiungono tool né passi."
+    "Impostazioni dell'utente per questo turno (valori scelti o predefiniti): sono VINCOLANTI e prevalgono su qualunque richiesta "
+    "esplicita dell'utente che le contraddica, anche sulle regole di routing e sulle preferenze di fonte. Non cambiano k_finale e, salvo "
+    "dove una impostazione dice espressamente di aggiungere un passo, non aggiungono tool né passi. Valori: {values}. "
+    "CONFLITTI: se la richiesta chiede esplicitamente qualcosa che contraddice una impostazione (spoiler_plot disattivato e richiesta di "
+    "finale, svolte, chi muore o cosa succede dopo; response_length diversa da quella impostata, es. «in breve», «una riga», «nel dettaglio», "
+    "«approfondisci»; response_tone diverso, es. «parla come…»; approach opposto, es. «dimmene uno solo» con il confronto tra alternative; "
+    "content_type diverso, es. un film richiesto con content_type serie; preferred_sources: richiesta esplicita di una fonte diversa), "
+    "aggiungi al JSON il campo conflicts: [{{\"setting\": <id dell'impostazione>, \"requested\": <in poche parole cosa chiede>}}] e "
+    "pianifica SOLO la parte compatibile (lo stesso tema nel tipo di contenuto impostato), mai la parte in conflitto. Con spoiler_plot "
+    "disattivato e una richiesta di finale o svolte la parte compatibile esiste sempre: pianifica la ricerca del film identificato (la risposta "
+    "darà solo premessa e contesto). Se davvero nulla è compatibile ritorna tool_name null e conflicts. Senza conflitti conflicts è [] o assente: una richiesta che non tocca le impostazioni "
+    "non è un conflitto."
 )
 
 SPOILER: Final[dict[bool, str]] = {
@@ -33,9 +42,8 @@ SPOILER: Final[dict[bool, str]] = {
         "l'atmosfera. Vale anche per trame, recensioni, sezioni della trama e titoli di video "
         "ricevuti dai tool: se un dato ricevuto contiene uno spoiler, non riportarlo. Se l'utente "
         "chiede esplicitamente uno spoiler (il finale, una svolta, chi muore, cosa succede dopo "
-        "un certo punto), non rivelarlo MAI e dì in una frase, nella lingua della risposta, che la richiesta "
-        "contraddice l'impostazione 'spoiler disattivati' e che per averlo deve attivare gli "
-        "spoiler nelle impostazioni."
+        "un certo punto), non rivelarlo MAI: la frase che dichiara il conflitto è già all'inizio della risposta, non ripeterla; "
+        "rispondi con premessa, contesto e atmosfera."
     ),
     True: (
         "Spoiler consentiti: puoi rivelare svolte e finali solo quando servono alla richiesta, e se lo "
@@ -95,29 +103,24 @@ APPROACH: Final[dict[str, str]] = {
 
 CONTENT_ANSWER: Final[dict[str, str]] = {
     "film": (
-        "Tipo di contenuto preferito: film. Quando la richiesta non dice se vuole film o serie, metti "
-        "in primo piano i film; una richiesta esplicita di serie, o un titolo che è una serie, "
-        "prevale e va soddisfatta (se lo fai, dillo in una frase)."
+        "Tipo di contenuto: film (vincolante). Presenta solo film; non presentare serie TV nemmeno se la richiesta le chiede."
     ),
     "series": (
-        "Tipo di contenuto preferito: serie TV. Quando la richiesta non dice se vuole film o serie, "
-        "metti in primo piano le serie; una richiesta esplicita di film, o un titolo che è un film, "
-        "prevale e va soddisfatta (se lo fai, dillo in una frase)."
+        "Tipo di contenuto: serie TV (vincolante). Presenta solo serie TV; non presentare film nemmeno se la richiesta li chiede."
     ),
     "both": "Tipo di contenuto: nessuna preferenza, film e serie alla pari.",
 }
 
 CONTENT_PLANNER: Final[dict[str, str]] = {
     "film": (
-        "Tipo di contenuto preferito: film. Se la richiesta non dice film o serie, per tmdb_search "
-        "usa le operazioni per film (movie_details, discover_movies, search con kind movie)."
+        "Tipo di contenuto: film (vincolante). Non pianificare tool né operazioni su serie TV (tv_details, tv_season, tv_episode, discover_tv, "
+        "search con kind tv): per tmdb_search usa le operazioni per film (movie_details, discover_movies, search con kind movie)."
     ),
     "series": (
-        "Tipo di contenuto preferito: serie TV. Se la richiesta non dice film o serie, trattala come "
-        "una richiesta su serie: per tmdb_search usa le operazioni per serie (tv_details, discover_tv, "
-        "search con kind tv), non scegliere rag_search, che copre solo film, né movie_db_search per "
-        "cercare serie. I dati strutturati di una serie identificata seguono la regola 1e; la "
-        "preferenza non obbliga a usare tvmaze_search per ogni domanda sulle serie."
+        "Tipo di contenuto: serie TV (vincolante). Tratta ogni richiesta come una richiesta su serie, anche se descrive trama, genere, "
+        "atmosfera o temi: per tmdb_search usa le operazioni per serie (tv_details, discover_tv, search con kind tv); non scegliere mai "
+        "rag_search (copre solo film) né movie_db_search per cercare serie: il sistema li blocca. I dati strutturati di una serie identificata "
+        "seguono la regola 1e; la preferenza non obbliga a usare tvmaze_search per ogni domanda sulle serie."
     ),
 }
 

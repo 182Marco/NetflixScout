@@ -98,7 +98,7 @@ def test_the_web_observer_learns_the_language_from_the_classification() -> None:
 
 
 class _Orchestrator:
-    def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None, final_output=None, answer_language=None):
+    def run(self, *, query, conversation_history=None, tool_overrides=None, observer=None, final_output=None, answer_language=None, **_):
         decision = {
             "tool": "rag_search", "tools": ["rag_search"], "standalone_query": query,
             "calls": [{"tool": "rag_search", "arguments": {}, "result": {"trace": []}}],

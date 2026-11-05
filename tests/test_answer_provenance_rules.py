@@ -41,7 +41,7 @@ def test_the_general_rule_bans_provider_names_even_as_adjectives_and_allows_scor
 def test_the_offers_and_the_notes_name_no_platform() -> None:
     assert "proponi di cercarli come video online, senza nominare la piattaforma" in FINAL
     assert "questi dati non distinguono film e serie TV" in FINAL
-    assert "indica il titolo con cui il film risulta registrato" in FINAL and "i voti sono del pubblico, mai della critica" in FINAL
+    assert "i voti sono del pubblico, mai della critica" in FINAL
 
 
 def test_the_omdb_rule_keeps_audience_and_critics_distinct_the_display_format_and_no_winner_between_scales() -> None:

@@ -6,6 +6,7 @@ turns the result into the two plain-text prompt parts the orchestrator receives.
 """
 from .compose import build_prompt_parts
 from .models import Preferences, defaults
+from .policy import SettingsPolicy
 from .public import public_schema
 from .resolve import Issue, Resolution, resolve_preferences
 
@@ -13,6 +14,7 @@ __all__ = [
     "Issue",
     "Preferences",
     "Resolution",
+    "SettingsPolicy",
     "build_prompt_parts",
     "defaults",
     "public_schema",

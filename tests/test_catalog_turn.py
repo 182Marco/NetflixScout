@@ -45,7 +45,7 @@ def turn_with(enrichers, monkeypatch, search=None):
     payload = details()
     tool, transport = make_tool({"/search/movie": search or single_result(), f"/movie/{MOVIE_ID}": payload})
     client = FakeClient()
-    cfg = app_module.build_runtime_config()
+    cfg = app_module.build_runtime_config(app_module.LEGACY_RAG_OVERRIDES)
     orch = LLMOrchestrator(config=cfg, tools=[tool], client=client, enrichers=enrichers(tool))
     turn = app_module.handle_query({"config": cfg, "orchestrator": orch}, "Chi ha diretto Interstellar?", history=[])
     return turn, client, transport

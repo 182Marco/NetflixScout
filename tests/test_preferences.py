@@ -152,7 +152,7 @@ def test_only_the_interviews_source_adds_a_step_and_only_for_an_identified_title
 def test_a_contradicting_spoiler_request_is_never_answered_and_the_user_is_told() -> None:
     text = build_prompt_parts(defaults())["answer"]
 
-    assert "non rivelarlo MAI" in text and "contraddice" in text
+    assert "non rivelarlo MAI" in text and "già all'inizio della risposta" in text and "VINCOLANTI" in text
 
 
 def test_the_tool_rules_no_longer_force_a_short_answer() -> None:

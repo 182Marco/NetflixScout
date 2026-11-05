@@ -35,8 +35,8 @@ class TmdbScript:
 def rig(tmp_path, monkeypatch):
     build_index(tmp_path / "q")
     overrides = {**app_module.vector_store_overrides(env_for(tmp_path / "q"))["rag"]}
-    config = app_module.build_runtime_config({"rag": {**overrides, "reference": {"enabled": True},
-                                                      "signals": {"avoid_query": True, "reference_titles": True}}})["rag"]
+    config = app_module.build_runtime_config(app_module._deep_merge(app_module.LEGACY_RAG_OVERRIDES, {"rag": {**overrides, "reference": {"enabled": True},
+                                                      "signals": {"avoid_query": True, "reference_titles": True}}}))["rag"]
     config = app_module._resolve_runtime_config(config)
     col = open_collection("netflix_scout", config["vectorstore"])
     embedded = []

@@ -42,7 +42,8 @@ class FakeOrchestrator:
         self.started = threading.Event()
 
     def run(
-        self, *, query, conversation_history=None, tool_overrides=None, observer=None, final_output=None, prompt_parts=None, answer_language=None
+        self, *, query, conversation_history=None, tool_overrides=None, observer=None, final_output=None, prompt_parts=None, answer_language=None,
+        settings_policy=None,
     ):
         self.calls.append(
             {
@@ -50,6 +51,7 @@ class FakeOrchestrator:
                 "history": list(conversation_history or []),
                 "final_output": final_output,
                 "prompt_parts": prompt_parts,
+                "settings_policy": settings_policy,
             }
         )
         self.started.set()
