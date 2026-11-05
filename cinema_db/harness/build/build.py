@@ -35,6 +35,8 @@ from cinema_db.harness.build.phase4 import Phase4
 from cinema_db.harness.build.snapshot import Snapshot
 from cinema_db.schema import SCHEMA_VERSION, check_fts, create_database, rebuild_fts
 
+Q_HUMAN = "Q5"
+COUNTRY_CLASSES = {"Q6256", "Q3624078"}  # country, sovereign state: the only classes that make a release place a country (festivals and cities are not)
 USD = "Q4917"  # the only currency unit imported in phase 3 (see module docstring); its use is verified in the report
 WORLDWIDE = "Q13780930"
 FILM_KIND = {
@@ -91,6 +93,7 @@ class Builder:
         self.p4: Phase4 | None = None
         self.pending_awards: list[tuple[int, str, dict, int]] = []
         self.company_qids: set[str] = set()  # items some work lists as production/distribution company or network (phase 4 only)
+        self.humans: set[str] = set()
         self.iso2_used: set[str] = set()
         self.iso1_used: set[str] = set()
 
@@ -385,6 +388,15 @@ class Builder:
         self.count("franchises")
         return eid
 
+    def country_of_place(self, place: str) -> int | None:
+        """The country row of a release or box-office place: a known country, or (phase 4) a place Wikidata classes as a country or sovereign state."""
+        cid = self.country_by_qid.get(place)
+        if cid is None and self.p4 and COUNTRY_CLASSES & set((self.p4.items.get(place) or {}).get("classes", [])):
+            cid = self.country(place)
+            if cid:
+                self.count("countries_added_from_release_places")
+        return cid
+
     def currency_code(self, unit: str) -> str | None:
         """ISO 4217 code of a currency item, only when phase 4 holds exactly one; amounts are NEVER converted."""
         item = self.p4.items.get(unit) if self.p4 else None
@@ -434,6 +446,9 @@ class Builder:
         for kind, qs in s["companies"].items():
             role = {"production": "production", "distribution": "distribution", "network": "network"}[kind]
             for q in qs:
+                if q in self.humans:
+                    self.note("company_assertion_for_a_human_not_imported", q)
+                    continue
                 named = self.name_of(q)
                 if not named:
                     self.note("company_without_name", q)
@@ -453,7 +468,7 @@ class Builder:
         seen_release: set[tuple[int, str]] = set()
         for d in s["dates"]:
             for place in d["places"]:
-                cid = self.country_by_qid.get(place)  # only places that are countries of some work; others are not guessed
+                cid = self.country_of_place(place)  # only countries; festivals, cities and other places are not guessed
                 if cid and (cid, d["date"]) not in seen_release:
                     seen_release.add((cid, d["date"]))
                     self.add("work_release", (work_id, cid, d["date"], "unspecified", source, qid))
@@ -472,7 +487,7 @@ class Builder:
                     if p == WORLDWIDE:
                         scope = "worldwide"
                     else:
-                        country_id = self.country_by_qid.get(p)
+                        country_id = self.country_of_place(p)
                         scope = "country" if country_id else "unspecified"
                 year = year_ok(f["times"][0][:4]) if f["times"] else None
                 key = (f["kind"], scope, country_id, year, code)
@@ -855,7 +870,7 @@ class Builder:
             if not (item_year or statement_year):
                 self.note("award_without_ceremony_or_year", {"work": wqid, "award": cq})
                 continue
-            if a["nominee"] and not any(self.name_of(n) for n in a["nominee"]):
+            if a["nominee"] and not any(self.name_of(n) and n not in self.company_qids for n in a["nominee"]):
                 self.note("award_nominee_without_name", a["nominee"][0])
                 continue
             plan.append((work_id, wqid, a, wsrc, (a["ceremony"][0], "item") if item_year else None, item_year or statement_year))
@@ -991,6 +1006,10 @@ def run_build(out: Path, inputs: Inputs | None = None, *, force: bool = False, l
             for s in list(film_summaries.values()) + list(series_summaries.values()):
                 for qs in s["companies"].values():
                     b.company_qids.update(qs)
+            # An item both credited and listed as a company is a PERSON when Wikidata says it is a human (Q5): old producers are often
+            # entered as production companies. Only an item whose class phase 4 holds and is not human stays an organisation.
+            b.humans = {q for q in b.company_qids if Q_HUMAN in (b.p4.items.get(q) or {}).get("classes", [])}
+            b.company_qids -= b.humans
         # countries and languages first, from every QID the imported works use, so releases and series text can resolve them
         for s in sorted(film_summaries.values(), key=lambda s: s["qid"]):
             for q in s["countries"]:

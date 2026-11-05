@@ -121,3 +121,15 @@ def test_an_organisation_listed_as_a_producer_is_a_company_not_a_second_entity(p
     assert not any(k.startswith("id_conflict:wikidata") for k in p4["report"]["skipped"])
     # without phase 4 nothing changes: the phase-3 behaviour (and digest) stays reproducible
     assert "credit_holder_is_an_organisation:producer" not in p4["plain"]["skipped"]
+
+
+def test_a_human_entered_as_a_production_company_stays_a_person(p4):
+    assert q(p4, "SELECT e.entity_type FROM external_id x JOIN entity e ON e.entity_id=x.entity_id WHERE x.scheme='wikidata' AND x.value='Q9503'") == [("person",)]
+    assert q(p4, "SELECT count(*) FROM credit c JOIN external_id x ON x.entity_id=c.person_id AND x.scheme='wikidata' WHERE x.value='Q9503' AND c.role='producer'") == [(1,)]
+    assert p4["report"]["skipped"]["company_assertion_for_a_human_not_imported"] == 1
+
+
+def test_only_release_places_that_wikidata_classes_as_countries_become_countries(p4):
+    assert q(p4, "SELECT c.label_en, c.iso2 FROM work_release r JOIN country c ON c.country_id=r.country_id WHERE c.wikidata_id='Q9310'") == [("Free Atlantis", "AL")]
+    assert q(p4, "SELECT count(*) FROM country WHERE wikidata_id='Q9311'") == [(0,)]
+    assert p4["report"]["skipped"]["release_place_not_a_known_country"] >= 1  # the festival stays a counted gap, not an invented country

@@ -109,7 +109,10 @@ def make_inputs(tmp: Path, *, awards_demo: bool = False) -> Inputs:
         entity("Q9005", None, "Only English", {"P136": [item("P136", "Q9204")]}, itwiki="Only English"),
     ]
     if awards_demo:
-        entities[0]["claims"]["P162"] = [item("P162", "Q9502")]  # an organisation that is also a production company
+        entities[0]["claims"]["P162"] = [item("P162", "Q9502"), item("P162", "Q9503")]  # Q9502: an organisation that is also a production company; Q9503: a HUMAN entered as one
+        entities[0]["claims"]["P272"] = entities[0]["claims"]["P272"] + [item("P272", "Q9503")]
+        entities[0]["claims"]["P577"] = entities[0]["claims"]["P577"] + [time("P577", "+1982-09-01T00:00:00Z", 11, {"P291": [q_item("P291", "Q9310")]}),
+                                                                         time("P577", "+1982-09-02T00:00:00Z", 11, {"P291": [q_item("P291", "Q9311")]})]
         when = {"snaktype": "value", "property": "P585", "datavalue": {"value": {"time": "+1983-01-01T00:00:00Z", "precision": 9}, "type": "time"}}
         entities[0]["claims"]["P1411"] = [item("P1411", "Q9702", {"P805": [q_item("P805", "Q9710")], "P2453": [q_item("P2453", "Q9102"), q_item("P2453", "Q9104")]}),
                                           item("P1411", "Q9704"), item("P1411", "Q9703", {"P805": [q_item("P805", "Q9711")]})]
@@ -199,6 +202,9 @@ def make_phase4(root: Path) -> Path:
     ]
     put("https://query.wikidata.org/sparql", {"endpoint": "sparql", "query": "x"}, {"results": {"bindings": rows}})
     ents = {
+        "Q9503": entity("Q9503", "Vecchio Produttore", None, {"P31": [item("P31", "Q5")]}),
+        "Q9310": entity("Q9310", "Atlantide Libera", "Free Atlantis", {"P31": [item("P31", "Q3624078")], "P297": [string("P297", "AL")]}),  # a sovereign state
+        "Q9311": entity("Q9311", "Festival di Prova 1982", None, {"P31": [item("P31", "Q27787439")]}),  # a festival edition: not a country
         "Q9998": entity("Q9998", "Romanzo senza nome offline", "Nameless Novel", {}),
         "Q9501": entity("Q9501", "Casa Senza Nome", None, {"P17": [item("P17", "Q9301")]}),
         "Q9999": entity("Q9999", None, "euro", {"P498": [string("P498", "EUR")]}),
