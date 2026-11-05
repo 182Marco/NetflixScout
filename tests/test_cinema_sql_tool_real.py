@@ -123,6 +123,16 @@ def test_year_range_and_order_and_limit_apply_and_a_cut_list_says_so(tool):
     assert cut["shown"] == 4 and cut["total"] == 13 and cut["truncated"] and "limit" in [n["code"] for n in cut["notes"]]
 
 
+def test_the_first_works_of_a_list_carry_ids_the_next_step_can_reuse(tool, raw):
+    _, m = call(tool, operation="filmography", person="Christopher Nolan", role="director")
+    inception = next(w for w in m["works"] if w["title"] == "Inception")
+    assert inception["imdb_id"] == "tt1375666" and inception["tmdb_id"] == "27205" and "ids_partial" not in [n["code"] for n in m["notes"]]
+    stored = {r[0]: r[1] for r in raw.execute("SELECT entity_id, value FROM external_id WHERE scheme = 'imdb_title' AND entity_id IN (%s)" % ",".join(str(w["work_id"]) for w in m["works"]))}
+    assert all(w.get("imdb_id") == stored.get(w["work_id"]) for w in m["works"])
+    _, long_list = call(tool, operation="filmography", person="Federico Fellini", role="director", limit=50)  # more works than the ids cover
+    assert long_list["total"] > 15 and sum("imdb_id" in w for w in long_list["works"]) <= 15 and "ids_partial" in [n["code"] for n in long_list["notes"]]
+
+
 # 5. the cast of a film ------------------------------------------------------------------------------------------------------------
 def test_the_cast_has_characters_a_total_and_no_claimed_order(tool, raw):
     _, m = call(tool, operation="cast", title="Il padrino", limit=50)
@@ -368,4 +378,4 @@ def test_every_executed_statement_is_recorded_with_the_views_it_read(tool):
     data = result["trace"][0]["data"]
     assert result["trace"][0]["kind"] == "cinema_sql_calls" and data["operation"] == "filmography" and len(data["queries"]) == m["queries"]
     assert all(q["sql"].startswith("SELECT") and "LIMIT" in q["sql"] for q in data["queries"])
-    assert set(data["views"]) <= {"v_name", "v_person", "v_credit"} and "CC BY-SA" in data["license"]
+    assert set(data["views"]) <= {"v_name", "v_person", "v_credit", "v_work"} and "CC BY-SA" in data["license"]

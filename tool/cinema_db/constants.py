@@ -14,6 +14,7 @@ DEFAULT_LIMIT = 25
 MAX_LIMIT = 50            # the SQL guard never returns more
 TURNS_REMEMBERED = 16     # turn budgets kept in memory
 MAX_TEXT_CHARS = 200
+IDS_FOR_FIRST = 15        # works of a list that get their external ids (one query; the SQL guard allows 16 parameters)
 
 LICENSE_TEXT = "Contains data from Wikipedia (CC BY-SA 4.0) and Wikidata (CC0 1.0)."
 
@@ -29,6 +30,7 @@ NOTES = {
     "companies": "Companies are those recorded as production, distribution or network; the list may be partial.",
     "franchise": "'Part of the series' is what Wikidata records: besides sagas it can be a list, a ranking or a collection (for example a 'best films' list), and a film of a saga may be missing from it. Say 'recorded as part of', and do not call a list a saga.",
     "person": "Birth and death years exist only where Wikidata has an unambiguous date; a missing year is not imported, not unknown to the world.",
+    "ids_partial": "Only the first works of the list carry their external ids; ask for a single work (work_id) to get the others.",
     "money": "Budget and box office are in the currency recorded, never converted.",
     "limit": "The list was cut at the limit shown; ask for a narrower year range or role to see the rest.",
     "unverified": "Only similar names were found, not an exact one: they are alternatives, not the requested entity.",

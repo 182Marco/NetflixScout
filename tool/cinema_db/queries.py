@@ -231,6 +231,10 @@ def relations_of(work_id: int, limit: int) -> Query:
             f"ORDER BY relation, direction, related_year LIMIT {int(limit)}", [work_id])
 
 
+def external_ids_of(work_ids: Sequence[int]) -> Query:
+    return (f"SELECT work_id, imdb_id, tmdb_id, kind FROM v_work WHERE work_id IN ({_marks(len(work_ids))}) LIMIT 50", list(work_ids))
+
+
 def names_of(work_id: int) -> Query:
     return "SELECT name, name_kind, language FROM v_name WHERE entity_id = ? AND entity_type = 'work' ORDER BY is_primary DESC, name_kind, name LIMIT 12", [work_id]
 

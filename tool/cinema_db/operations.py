@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable
 
 from . import queries as Q
-from .constants import MAX_LIMIT, SERIES_KINDS
+from .constants import IDS_FOR_FIRST, MAX_LIMIT, SERIES_KINDS
 from .models import CinemaSqlInput
 from .names import normalize_name
 from .resolve import AMBIGUOUS, NOT_FOUND, RESOLVED, UNVERIFIED, Resolution, resolve_named, resolve_person, resolve_work
@@ -48,6 +48,21 @@ def _group(rows: list[dict[str, Any]], key: str, fields: tuple[str, ...], collec
             if r.get(column) is not None and r[column] not in item[name]:
                 item[name].append(r[column])
     return list(out.values())
+
+
+def _with_ids(session: Session, works: list[dict[str, Any]]) -> bool:
+    """Add imdb_id and tmdb_id to the first works of a list (one query) so the next step can reuse them; returns True when some works got none
+    only because the list is longer than `IDS_FOR_FIRST`. The tmdb id is meaningful with the kind (film or series): both are given."""
+    head = works[:IDS_FOR_FIRST]
+    if not head:
+        return False
+    found = {r["work_id"]: r for r in session.rows(*Q.external_ids_of([w["work_id"] for w in head]))}
+    for w in head:
+        ids = found.get(w["work_id"], {})
+        for key in ("imdb_id", "tmdb_id"):
+            if ids.get(key):
+                w[key] = ids[key]
+    return len(works) > IDS_FOR_FIRST
 
 
 def _empty_or_ok(rows: Any, reason: str, **kwargs: Any) -> OpResult:
@@ -100,7 +115,7 @@ def filmography(request: CinemaSqlInput, session: Session, limit: int) -> OpResu
     rows = session.rows(*Q.filmography(*args, request.order, limit))
     total = session.rows(*Q.filmography_count(*args))[0]["works"]
     works = _group(rows, "work_id", ("work_id", "title", "year", "kind"), {"role": "roles"})
-    notes = ["filmography"] + res.notes
+    notes = ["filmography"] + res.notes + (["ids_partial"] if _with_ids(session, works) else [])
     truncated = total > len(works)
     if truncated:
         notes.append("limit")
@@ -269,10 +284,11 @@ def franchise(request: CinemaSqlInput, session: Session, limit: int) -> OpResult
     listed = []
     for f in found[:2]:
         members = session.rows(*Q.franchise_members(f["franchise_id"], limit))
-        listed.append({"franchise": f["franchise"], "members": members, "truncated": len(members) >= limit})
+        partial = _with_ids(session, members)
+        listed.append({"franchise": f["franchise"], "members": members, "truncated": len(members) >= limit, "ids_partial": partial})
     cut = any(f["truncated"] for f in listed)
     return _empty_or_ok(listed, "no_franchise_recorded", subject=subject, data={"franchises": listed}, shown=sum(len(f["members"]) for f in listed), truncated=cut,
-                        notes=["franchise"] + (["limit"] if cut else []), via=via)
+                        notes=["franchise"] + (["limit"] if cut else []) + (["ids_partial"] if any(f["ids_partial"] for f in listed) else []), via=via)
 
 
 def relations(request: CinemaSqlInput, session: Session, limit: int) -> OpResult:
