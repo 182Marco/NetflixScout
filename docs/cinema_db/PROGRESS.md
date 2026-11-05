@@ -7,11 +7,72 @@ Ultimo aggiornamento: 2026-11-05 (fase 3 completata, checkpoint). Legenda: **[V]
 | Fase | Stato |
 |---|---|
 | 0 Misura (baseline offline) | **fatta [V]** |
-| 1 Sicurezza SQL (solo fixture) | **fatta [V]** — 171 test del nucleo, suite richiesta verde |
+| 1 Sicurezza SQL (solo fixture) | **fatta [V]** — 168 test del nucleo (`tests/test_cinema_sql_security.py`), suite richiesta verde |
 | 2 Schema + `schema.html`/`schema.mmd` | **fatta [V]**, schema v2 (generi normalizzati, FTS5): 32 tabelle STRICT più l'indice FTS5, 20 viste approvate |
 | 3 Prima build offline | **fatta [V]** — 333 MB, 293.447 opere, riproducibile, 0 differenze su 400 film (vedi sotto e `BUILD_REPORT.md`) |
 | 4 Arricchimento Wikidata (+ IMDb selettivo, D5) | da fare, dopo la verifica della fase 3 |
 | 5 Tool `cinema_sql` e routing | da fare; **non registrato** in `app.py` né in `allowed_tools` |
+
+## HANDOFF PER NUOVA CONVERSAZIONE (checkpoint del 2026-11-05, fine fase 3)
+
+**Nota sul percorso**: questo è l'unico PROGRESS del progetto, `docs/cinema_db/PROGRESS.md` (non esiste `tool/cinema_db/PROGRESS.md`: non crearlo).
+
+### 1. Dove siamo, in una riga
+Fasi 0–3 **fatte e verificate**; il database locale `cinema_db/data/cinema.sqlite3` esiste (333 MB, schema v2, 293.447 opere, riproducibile); il tool `cinema_sql` **non è registrato** nell'agente; la **fase 4 (richieste di rete a Wikidata) non è iniziata e richiede l'autorizzazione esplicita del proprietario**. Albero git pulito, branch `main`.
+
+### 2. Da leggere, in quest'ordine
+1. `AGENTS.md` (regole del repository; la sezione «Database cinematografico locale» riassume lo stato; è lungo: leggere in particolare §1 e §4).
+2. Questo file (stato, handoff, risultati).
+3. `docs/cinema_db/PLAN.md`: §15 (decisioni D1–D7), §16 (schema e revisione), §17 (FTS5, generi, IMDb, indagine), §18 (decisioni della build). Le sezioni 1–14 sono il piano originale, in parte superato dalle successive.
+4. `docs/cinema_db/BUILD_REPORT.md` (copertura, lacune, interrogazioni reali) e `docs/cinema_db/SURVEY.md` (fabbisogno stimato della fase 4, tetto teorico di IMDb).
+5. Codice: `cinema_db/schema.py` (DDL, viste, vocabolari), `cinema_db/schema_notes.py`, `cinema_db/harness/build/{build,extract,snapshot,genres,common,sources,survey,verify}.py`, `tool/cinema_db/{validator,connection,executor,policy,approved_views}.py`. Documentazione navigabile: `docs/cinema_db/schema.html` (aprire nel browser).
+
+### 3. Comandi per verificare lo stato (tutti offline e gratuiti, nessuno modifica il database)
+```bash
+cd /Users/filippo.milzagmail.com/Desktop/NetflixScout && source .venv/bin/activate
+git status --short            # atteso: vuoto
+git log --oneline -3          # atteso in cima: «document the genre, fts5 and imdb decisions and the first offline build» (5f9c6b1), poi il checkpoint documentale
+python -m cinema_db.harness.schema.generate --check        # atteso: exit 0 (schema.html, schema.mmd, approved_views.py aggiornati)
+python -m pytest tests/test_cinema_sql_security.py tests/test_cinema_schema.py tests/test_cinema_schema_doc.py tests/test_cinema_views_security.py tests/test_cinema_build.py -q   # atteso: 349 passed
+python -c "import sqlite3;d=sqlite3.connect('file:cinema_db/data/cinema.sqlite3?mode=ro',uri=True);print(dict(d.execute('select key,value from build_info')))"   # atteso: content_sha256 d9d475d78874901b7a0f5e00bb7d221f373341419bdc698c528f486cb0e9cb50, schema_version 2
+ls -l movie_db/data/movielens32m.sqlite3                  # atteso: 1323962368 byte, 20 Ott 23:40 (MovieLens mai toccato)
+```
+Suite completa richiesta da `AGENTS.md` §4 (elenco nel file): atteso **2.440 passed** (circa 45–90 s). Hash (primi 16 caratteri) degli input, già registrati in `source.snapshot_sha256` e in `build_info`: catalogo film `films.v3.jsonl` `d5a78e4d1e3327fb`; indice snapshot film `79d40ea98e8b068f`; indice snapshot serie `957d41179d293203`; `data/s5/manifest.json` `dd8ac9f7601c0659` (`shasum -a 256 <file>`).
+
+### 4. Stato dei dati e come ricostruirli
+- **Ignorati da git** (`.gitignore`: `cinema_db/data/`; tutto sotto `tool/RAGWikipedia*/data/`): `cinema_db/data/cinema.sqlite3` (333.148.160 byte), `cinema.build_report.json`, `build.log`, `verify.log`; gli snapshot Wikidata originali **non vanno mai modificati**: film `tool/RAGWikipediaFilm/data/cache/wikidata/itwiki-20261101-a` (1.676 richieste), serie `tool/RAGWikipediaSeries/data/cache/wikidata/itwiki-20261101-series-a` (1.388 corpi); cataloghi `tool/RAGWikipediaFilm/data/clean_v3/films.v3.jsonl` e `tool/RAGWikipediaSeries/data/s5/`; dump `tool/RAGWikipediaFilm/data/raw/itwiki-20261101-pages-articles.xml.bz2` (4,3 GB, non letto dalla build).
+- **Versionati**: tutto il codice, i test, `docs/cinema_db/*` (compresi `schema.html`, `schema.mmd`, `BUILD_REPORT.*`, `SURVEY.*`, `BASELINE.*`) e `tool/cinema_db/approved_views.py` (generato).
+- **Ricostruzione**: `python -u -m cinema_db.harness.build.build --force` (8–12 minuti; in background con `nohup … > cinema_db/data/build.log`, aspettare con Monitor perché `sleep` in foreground è bloccato); scrive su un `.building` e rinomina solo a controlli passati; il vecchio file resta come `cinema.sqlite3.previous`. Poi `python -u -m cinema_db.harness.build.verify [--reproduce]` (la seconda build per il digest costa altri ~8–10 minuti) riscrive `BUILD_REPORT.*`. Se si cambia lo schema: aggiornare `schema_notes.py`, `python -m cinema_db.harness.schema.generate`, **ricostruire** il database.
+- **Sorgente di verità della struttura**: il file SQLite; `schema.html`, `schema.mmd` e `approved_views.py` sono generati da lì e i test falliscono se sono obsoleti.
+
+### 5. Numeri esatti della build (BUILD_REPORT, digest `d9d475d7…`)
+333 MB; 293.447 opere = film 36.529, corti 3.427, film TV 2.817, serie 11.764, miniserie 1.901, stagioni 14.176, episodi 222.557, altre 276; persone 92.041; crediti 532.504 (cast 416.981, regia 48.704, sceneggiatura 30.240, produzione 16.051, musica 7.457, fotografia 5.335, montaggio 3.757, ideatori 1.946, scenografia 1.277, costumi 756); nomi 739.048; identificativi 369.683 (wikidata 148.096, wikipedia_it 67.212, imdb 54.673, tmdb film 40.568, tmdb serie 11.596, eidr 36.445, tvdb 11.093); generi: 1.069 etichette (563 mappate), 123.995 asserzioni (92,1 % mappate); relazioni 4.703 (based_on 1.638, follows 3.065); uscite per paese 50.740; importi USD 9.212; società 1.109; franchise 86; paesi 183; lingue 246. Opere unite tra i due cataloghi: 911. Build 707 s, seconda build 492,5 s, **digest identico**; campione di 400 film: **0 differenze**; `foreign_key_check` 0, `integrity_check` ok, FTS5 coerente, nessun trigger.
+
+### 6. Decisioni già prese (non riaprire senza motivo)
+D1 sqlglot 30.24.0 (MIT) · D2 SQL libero solo sulle viste approvate, con tutte le difese · D3 nessuna copia di MovieLens (resta separato) · D4 richieste mirate a Wikidata solo dopo la build offline verificata, con quantificazione prima · D5 IMDb **non importato** (le condizioni vietano di costruire un database con i suoi dati; il modello `field_provenance`/`source.usage_scope` è pronto se arrivasse un permesso scritto) · D6 `cinema_sql` ↔ `official information` · D7 niente parallelismo del planner. In più: FTS5 a contenuto esterno senza trigger con `v_title_search`; generi in tre livelli (etichetta originale → mappa → vocabolario canonico di 38); un fatto si importa solo se le fonti locali lo dicono E nominano a cosa si riferisce (mai nomi, codici o tipi inventati); il catalogo serie decide le opere televisive e quello film vi aggiunge; due QID Wikidata dello stesso film restano due opere; serie con `ids_reliable=false` non usano i fatti di Wikidata; la pagina di un elenco di episodi non identifica un episodio.
+
+### 7. Decisioni ancora aperte (per il proprietario)
+1. **Autorizzazione alla fase 4** (richieste Wikidata) e **quale stringa di contatto** mettere nello User-Agent (le regole del progetto vietano di usare l'e-mail personale senza che il proprietario lo chieda: chiedere, non riusare quella di altri tool).
+2. Confermare l'esclusione di IMDb o procurare un permesso scritto.
+3. Licenza del vocabolario dei generi (registrato `unverified`).
+4. Fusione dei 240 duplicati di Wikidata (stesso film in due QID): curatela manuale o regola.
+5. Distinguere il tipo di uscita per paese (oggi `unspecified`).
+6. Se esporre le 28 omonimie titolo+anno come candidate duplicate in una vista.
+7. Ricerca di titoli non latini (FTS5 `unicode61`): eventuale tokenizzatore `trigram`.
+
+### 8. Prossime attività, in ordine di priorità
+1. **(Solo con l'autorizzazione)** Fase 4: scrivere prima un piano con l'elenco esatto delle richieste per tipo (la stima è in `SURVEY.md` §7: persone senza nome 983 richieste, premi e cerimonie 47, valute 1, bersagli di relazioni 121, società 86, franchise 17, luoghi 22, più paesi/lingue per i codici ISO ≈9; tutto con le date di vita ≈3.100). Progetto: nuovo snapshot **separato** (es. `cinema_db/data/wikidata_phase4/`, stesso formato `requests.jsonl` + `bodies/`, leggibile con `snapshot.Snapshot`), con manifest e **ripresa** (non rifare le richieste già salvate), `wbgetentities` a 50 id, `maxlag`, rispetto di 429/`Retry-After`, nessuna richiesta fuori dall'elenco. Ordine di valore: (a) nomi delle persone mancanti → importa i crediti oggi scartati (144.630); (b) premi e cerimonie → importa `award_*` da P166/P1411 (26.577 asserzioni; le persone candidate sono P2453); (c) codici ISO di paesi/lingue (P297/P218) e valute (P498) → sblocca `iso2` e gli importi non USD; (d) nomi di società e franchise e bersagli di relazioni; (e) date di vita e ID delle persone (opzionale). Poi estendere `build.py` perché legga lo snapshot della fase 4 **se presente** (stesso ordine deterministico), ricostruire, `verify --reproduce`, aggiornare `BUILD_REPORT`.
+2. Fase 5: tool `cinema_sql` (`tool/cinema_db/tool.py` con `planner_schema`, risposta finale, trace/presenter/serializer web come gli altri tool, `CONFIG["cinema_db"]`, registrazione in `build_app` e `allowed_tools` **spenta di default**, `SOURCE_TOOLS["cinema_sql"] = "official information"`, regola di routing senza rinumerare, test del conflitto con le preferenze, test offline di routing; `tests/test_tool_package.py` richiede di aggiungere `cinema_db` a `TOOLS` e l'eccezione per la cartella radice come per `movie_db`). Il database non è ancora usabile dall'agente: la regola 1f di Wikidata resta il ripiego.
+3. Curatela: duplicati di Wikidata, omonimie, vista delle candidate duplicate.
+4. Misurare in modo reale (con crediti, solo se autorizzato) il guadagno di richieste del routing; finora la baseline è una stima.
+
+### 9. Vincoli e abitudini da non dimenticare
+- **Mai**: modificare MovieLens (`movie_db/`, `tool/movie_db/`), i RAG film e serie, gli altri tool o il planner; usare crediti OpenAI o embedding; importare dati IMDb; inventare dati nel database di prodotto; fare richieste di rete senza permesso; scrivere o modificare `.env`; eliminare dati originali o snapshot.
+- **Git**: commit brevi in inglese, minuscolo, una responsabilità ciascuno, con la riga `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`; **mai** reset, clean, rebase, amend, stash; commit solo a blocco verificato.
+- **Documentazione**: a ogni cambio aggiornare `PROGRESS.md`, `PLAN.md`, `AGENTS.md`, `README.md`, `mappa.html` (controllare la sintassi con `node`).
+- **Sicurezza SQL**: il modello legge solo le viste `v_*`; si esegue il testo rigenerato dall'AST; ogni nuova funzione o vista passa dalla policy generata e dai test di `tests/test_cinema_views_security.py`.
+- **Lezioni operative**: `.gitignore` ignora `build/` (la cartella `cinema_db/harness/build/` è riammessa con `!`); `python -I` ignora PYTHONPATH; le build lunghe vanno in background con `python -u` e si attendono con Monitor (niente `sleep` in foreground); Chrome headless (`--screenshot`, `--virtual-time-budget`) serve per verificare l'HTML; il controllo di Mermaid con la libreria da CDN è stato negato dal sistema e non va aggirato (`schema.mmd` è verificato solo da un parser di test).
+- **Limiti da dichiarare sempre**: la baseline di richieste è una stima; le prestazioni sono misurate su dati sintetici e sul database reale locale, non in produzione; la copertura riguarda il catalogo locale (recente incompleto); il rispetto delle istruzioni da parte del modello non è dimostrabile offline.
 
 ## Vincoli permanenti
 Nessuna chiamata OpenAI a pagamento, nessun embedding, MovieLens e RAG film/serie intatti (verificato: `movie_db/data/movielens32m.sqlite3` stesso size e mtime di prima, aperto solo `mode=ro`), nessun input originale modificato, nessun parallelismo del planner.
@@ -34,7 +95,7 @@ Livelli (ognuno da solo impedisce le scritture, provato da test indipendenti):
 Trovato dai test e corretto: (a) sqlglot conserva i commenti nel testo rigenerato (ora `comments=False`); (b) `JOIN` senza `ON` diventa `ON TRUE` (ora rifiutato, condizione obbligatoria su due tavole).
 Non coperto/limiti noti: la correttezza *semantica* di una SELECT valida non è verificata dal validatore; i nomi di funzione dipendono dal rendering di sqlglot (test sulle funzioni ammesse e vietate); il controllo del piano usa solo tabelle dichiarate `large_tables` (nessuna ancora: arrivano con lo schema reale in fase 2); `Python 3.11` non ha `Connection.setconfig` (DBCONFIG DEFENSIVE): compensato da authorizer e `trusted_schema=OFF`.
 
-## Fase 2 — schema, viste e documentazione generata [V]
+## Fase 2 — schema, viste e documentazione generata [V] (misure dello schema v1; lo schema attuale è v2, vedi Fase 2b)
 - **Schema** `cinema_db/schema.py` (DDL, indici, viste, vocabolari di definizione); `create_database(path)` crea il file e rifiuta di sovrascrivere. Decisioni e correzioni rispetto al piano: PLAN §16.
 - **Misure dal file reale**: 30 tabelle STRICT, 64 FK, 17 viste pubbliche, 8 molti-a-molti, 11 schemi di ID, 16 ruoli, 12 tipi di opera, 4 relazioni; DB solo-schema 372 KB; `foreign_key_check` e `integrity_check` vuoti/ok; nessun JSON.
 - **Documentazione**: `python -m cinema_db.harness.schema.generate` scrive `docs/cinema_db/schema.html` (autonomo, nessuna libreria, ricerca, filtro per gruppo, relazioni tracciate, pannello con colonne/chiavi/indici/check/DDL/viste), `schema.mmd` e `tool/cinema_db/approved_views.py`; con `--db FILE` mostra conteggi e fonti reali; `--check` esce con 1 se qualcosa è obsoleto. Fallisce se manca la descrizione di una tabella, vista o colonna, o se ne esiste una per qualcosa che non c'è (`cinema_db/schema_notes.py`).

@@ -444,3 +444,8 @@ Risultati, problemi trovati e corretti, lacune e fabbisogno della fase 4 sono in
 - **La pagina di un elenco di episodi non identifica un episodio**: `wikipedia_it` si assegna solo agli episodi con pagina propria.
 - **Persone**: solo quelle con un nome nei file locali (92.041); i crediti delle altre non si importano finché la fase 4 non ne legge il nome.
 - **Ordine deterministico e digest del contenuto** (`build_info.content_sha256`): la build è riproducibile byte per byte nel contenuto (verificato con una seconda build completa); si scrive su un file temporaneo e si rinomina solo dopo i controlli; con `--force` il file precedente resta come `.previous`.
+
+---------------------------------------------------------------------------------------------------
+
+## 19. Stato al checkpoint del 2026-11-05 e vincoli della fase 4
+Fasi 0–3 completate (vedi §15–18 e `PROGRESS.md`, che contiene l'handoff per riprendere). Vincoli di progetto per la fase 4, da rispettare: richieste solo con l'autorizzazione del proprietario e solo quelle dell'elenco concordato; stringa di contatto nello User-Agent decisa dal proprietario (non l'e-mail personale per default); snapshot nuovo e separato (`cinema_db/data/wikidata_phase4/`), nello stesso formato di quelli esistenti, con manifest e ripresa; la build deve leggerlo **se presente** restando deterministica e riproducibile (stesso digest in una seconda build); gli snapshot esistenti non si modificano; i dati importati dalla fase 4 hanno `source` propria (Wikidata CC0) con data e hash dello snapshot. Le decisioni aperte sono elencate in `PROGRESS.md` §7 dell'handoff.
