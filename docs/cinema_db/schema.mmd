@@ -1,0 +1,318 @@
+%% Generated from the SQLite schema by cinema_db/harness/schema/generate.py: do not edit.
+%% schema_version=1 structure_digest=e754141b66125a51c5179327710763b090c4d51be2447efc74c65344c5cbf0c0
+erDiagram
+    award {
+        INTEGER award_id PK, FK "Key; equal to entity.entity_id."
+        TEXT entity_type FK "Fixed type tag of the subtype; together with the key it forms the composite foreign key to entity."
+        INTEGER country_id FK "Reference to country.country_id."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    award_category {
+        INTEGER category_id PK "Surrogate key."
+        INTEGER award_id FK "Reference to award.award_id."
+        TEXT name "Name of the category."
+        TEXT name_norm "Normalised name for matching."
+        TEXT scope "work, person or person_for_work."
+        TEXT wikidata_id UK "Wikidata item of the category."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    award_result {
+        INTEGER result_id PK "Surrogate key."
+        INTEGER ceremony_id FK "Reference to ceremony.ceremony_id."
+        INTEGER category_id FK "Reference to award_category.category_id."
+        INTEGER work_id FK "Reference to work.work_id."
+        INTEGER person_id FK "Reference to person.person_id."
+        TEXT outcome "won or nominated."
+        TEXT note "Free note from the source (shared award, honorary...)."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    build_info {
+        TEXT key PK "Name of the fact."
+        TEXT value "Its value."
+    }
+    ceremony {
+        INTEGER ceremony_id PK "Surrogate key."
+        INTEGER award_id FK "Reference to award.award_id."
+        INTEGER year "Year of the ceremony (or of the award when only that is known)."
+        TEXT edition "Edition label (for example 95th), when known."
+        TEXT ceremony_date "Date of the ceremony, ISO partial."
+        TEXT wikidata_id UK "Wikidata item of the ceremony."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    company {
+        INTEGER company_id PK, FK "Key; equal to entity.entity_id."
+        TEXT entity_type FK "Fixed type tag of the subtype; together with the key it forms the composite foreign key to entity."
+        INTEGER country_id FK "Reference to country.country_id."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    country {
+        INTEGER country_id PK "Surrogate key."
+        TEXT iso2 UK "ISO 3166-1 alpha-2 code."
+        TEXT label_en "English name."
+        TEXT label_it "Italian name."
+        TEXT wikidata_id UK "Wikidata item of the country."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+    }
+    credit {
+        INTEGER credit_id PK "Surrogate key."
+        INTEGER work_id FK "Reference to work.work_id."
+        INTEGER person_id FK "Reference to person.person_id."
+        TEXT role FK "Role on the work (table role_type)."
+        TEXT character_name "Character played, for cast roles, when known."
+        INTEGER billing_order "Position in the credits, when known (1 = first)."
+        TEXT credit_note "uncredited, voice, cameo, archive or additional."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    entity {
+        INTEGER entity_id PK "Key shared by every subtype row (work_id, person_id, company_id, franchise_id, award_id)."
+        TEXT entity_type "work, person, company, franchise or award."
+    }
+    entity_name {
+        INTEGER name_id PK "Surrogate key."
+        INTEGER entity_id FK "Reference to entity.entity_id."
+        TEXT name "The name as written."
+        TEXT name_norm "Lower-case, accent-free form used for matching."
+        TEXT language "Language of the name (code), when known."
+        TEXT kind "primary, original, translated, alias, former, working or abbreviation."
+        INTEGER is_primary "1 for the single name shown by default (exactly one per entity)."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    external_id {
+        INTEGER entity_id PK, FK "Reference to entity.entity_id."
+        TEXT scheme PK, FK "Identifier scheme (table id_scheme)."
+        TEXT value PK "The identifier. Unique within its scheme."
+        INTEGER is_primary "1 if this is the preferred value when an entity has several in the same scheme."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    field_provenance {
+        INTEGER entity_id PK, FK "Reference to entity.entity_id."
+        TEXT field PK "Column of the entity's row whose origin is recorded (for example work.runtime_min)."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+        TEXT acquired_at "When the value was acquired."
+    }
+    franchise {
+        INTEGER franchise_id PK, FK "Key; equal to entity.entity_id."
+        TEXT entity_type FK "Fixed type tag of the subtype; together with the key it forms the composite foreign key to entity."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    genre {
+        INTEGER genre_id PK "Surrogate key."
+        TEXT label_en "English label."
+        TEXT label_it "Italian label."
+        INTEGER parent_genre_id FK "Reference to genre.genre_id."
+        TEXT wikidata_id UK "Wikidata item of the genre."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+    }
+    id_scheme {
+        TEXT scheme PK "Code of the identifier scheme."
+        TEXT label "Human name of the scheme."
+        TEXT entity_type "Type of entity the scheme identifies; empty if it applies to several."
+        TEXT url_template "Address of an entity page, with {value} for the identifier."
+    }
+    language {
+        INTEGER language_id PK "Surrogate key."
+        TEXT iso639_1 UK "ISO 639-1 two-letter code."
+        TEXT iso639_3 "ISO 639-3 three-letter code."
+        TEXT label_en "English name."
+        TEXT label_it "Italian name."
+        TEXT wikidata_id UK "Wikidata item of the language."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+    }
+    person {
+        INTEGER person_id PK, FK "Key; equal to entity.entity_id."
+        TEXT entity_type FK "Fixed type tag of the subtype; together with the key it forms the composite foreign key to entity."
+        TEXT birth_date "Date of birth, ISO partial."
+        INTEGER birth_year "Year of birth."
+        TEXT death_date "Date of death, ISO partial."
+        INTEGER death_year "Year of death."
+        INTEGER birth_country_id FK "Reference to country.country_id."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    relation_type {
+        TEXT relation PK "Code of the relation (canonical direction)."
+        TEXT inverse_label "Wording of the inverse direction, used by v_work_relation."
+        TEXT label_en "Wording of the canonical direction."
+        TEXT description "What the relation means and what it does not distinguish."
+    }
+    role_type {
+        TEXT role PK "Code of the role."
+        TEXT department "Department: direction, writing, cast, production, music, camera, editing, design, other."
+        INTEGER is_cast "1 for acting roles."
+        TEXT label_en "English label."
+        TEXT label_it "Italian label."
+    }
+    source {
+        INTEGER source_id PK "Surrogate key."
+        TEXT name UK "Short unique name of the source."
+        TEXT kind "Family of the source: wikidata, wikipedia, imdb, dataset, manual or derived."
+        TEXT url "Address of the source."
+        TEXT license "Name of the licence or terms."
+        TEXT license_url "Address of the licence text."
+        TEXT usage_scope "How the data may be used: open_public_domain, open_attribution, open_share_alike, non_commercial, unverified."
+        INTEGER attribution_required "1 if the source must be credited when its data is shown."
+        TEXT attribution_text "Credit line to show."
+        TEXT terms_note "Caveats about the terms, including what has not been verified."
+        TEXT snapshot_label "Name of the dump or snapshot this source was read from."
+        TEXT snapshot_sha256 "SHA-256 of that snapshot, for reproducibility."
+        TEXT retrieved_at "When the data was acquired (UTC, ISO 8601)."
+    }
+    work {
+        INTEGER work_id PK, FK "Key; equal to entity.entity_id."
+        TEXT entity_type FK "Fixed type tag of the subtype; together with the key it forms the composite foreign key to entity."
+        TEXT kind FK "Kind of work (table work_kind)."
+        INTEGER parent_work_id FK "Series of a season, or season (or series) of an episode."
+        INTEGER season_number "Season number, for seasons and episodes."
+        INTEGER episode_number "Episode number within its season, for episodes."
+        TEXT release_date "First release or first air date, ISO partial (YYYY, YYYY-MM or YYYY-MM-DD)."
+        INTEGER release_year "Year of the first release; derived from release_date when only that is known."
+        TEXT end_date "End date of a series, ISO partial."
+        INTEGER end_year "Year a series ended."
+        INTEGER runtime_min "Running time in minutes."
+        TEXT status "released, in_production, announced, cancelled, ongoing, ended or unreleased."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    work_company {
+        INTEGER work_id PK, FK "Reference to work.work_id."
+        INTEGER company_id PK, FK "Reference to company.company_id."
+        TEXT role PK "production, distribution, broadcaster or network."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    work_country {
+        INTEGER work_id PK, FK "Reference to work.work_id."
+        INTEGER country_id PK, FK "Reference to country.country_id."
+        TEXT role PK "origin, production or filming."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    work_financial {
+        INTEGER financial_id PK "Surrogate key."
+        INTEGER work_id FK "Reference to work.work_id."
+        TEXT kind "budget or box_office."
+        TEXT scope "worldwide, domestic, country or unspecified."
+        INTEGER country_id FK "Reference to country.country_id."
+        INTEGER amount "Amount in whole units of the currency, as stated by the source."
+        TEXT currency "ISO 4217 currency code of the amount."
+        INTEGER reference_year "Year the amount refers to, when the source says it. Not inflation-adjusted."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    work_franchise {
+        INTEGER work_id PK, FK "Reference to work.work_id."
+        INTEGER franchise_id PK, FK "Reference to franchise.franchise_id."
+        INTEGER position "Order of the work in the franchise, when a source gives it."
+        TEXT basis "How membership was established: wikidata_franchise, wikidata_series, title or manual."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    work_genre {
+        INTEGER work_id PK, FK "Reference to work.work_id."
+        INTEGER genre_id PK, FK "Reference to genre.genre_id."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    work_kind {
+        TEXT kind PK "Code of the kind."
+        TEXT medium "Medium: screen, literary, game, comic, stage or other."
+        TEXT label_en "English label."
+        TEXT label_it "Italian label."
+    }
+    work_language {
+        INTEGER work_id PK, FK "Reference to work.work_id."
+        INTEGER language_id PK, FK "Reference to language.language_id."
+        TEXT role PK "original or spoken."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    work_relation {
+        INTEGER work_id PK, FK "Reference to work.work_id."
+        INTEGER related_work_id PK, FK "Reference to work.work_id."
+        TEXT relation PK, FK "Relation code (table relation_type); the row reads: work_id <relation> related_work_id."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    work_release {
+        INTEGER release_id PK "Surrogate key."
+        INTEGER work_id FK "Reference to work.work_id."
+        INTEGER country_id FK "Reference to country.country_id."
+        TEXT release_date "Release date in that country, ISO partial."
+        TEXT kind "premiere, theatrical, streaming, television or home_video."
+        INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
+        TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
+    }
+    entity ||--o{ award : "award_id, entity_type"
+    country |o--o{ award : "country_id"
+    source ||--o{ award : "source_id"
+    award ||--o{ award_category : "award_id"
+    source ||--o{ award_category : "source_id"
+    award_category ||--o{ award_result : "category_id"
+    ceremony ||--o{ award_result : "ceremony_id"
+    person |o--o{ award_result : "person_id"
+    source ||--o{ award_result : "source_id"
+    work |o--o{ award_result : "work_id"
+    award ||--o{ ceremony : "award_id"
+    source ||--o{ ceremony : "source_id"
+    entity ||--o{ company : "company_id, entity_type"
+    country |o--o{ company : "country_id"
+    source ||--o{ company : "source_id"
+    source ||--o{ country : "source_id"
+    person ||--o{ credit : "person_id"
+    role_type ||--o{ credit : "role"
+    source ||--o{ credit : "source_id"
+    work ||--o{ credit : "work_id"
+    entity ||--o{ entity_name : "entity_id"
+    source ||--o{ entity_name : "source_id"
+    entity ||--o{ external_id : "entity_id"
+    id_scheme ||--o{ external_id : "scheme"
+    source ||--o{ external_id : "source_id"
+    entity ||--o{ field_provenance : "entity_id"
+    source ||--o{ field_provenance : "source_id"
+    entity ||--o{ franchise : "franchise_id, entity_type"
+    source ||--o{ franchise : "source_id"
+    genre |o--o{ genre : "parent_genre_id"
+    source ||--o{ genre : "source_id"
+    source ||--o{ language : "source_id"
+    country |o--o{ person : "birth_country_id"
+    entity ||--o{ person : "person_id, entity_type"
+    source ||--o{ person : "source_id"
+    work_kind ||--o{ work : "kind"
+    work |o--o{ work : "parent_work_id"
+    source ||--o{ work : "source_id"
+    entity ||--o{ work : "work_id, entity_type"
+    company ||--o{ work_company : "company_id"
+    source ||--o{ work_company : "source_id"
+    work ||--o{ work_company : "work_id"
+    country ||--o{ work_country : "country_id"
+    source ||--o{ work_country : "source_id"
+    work ||--o{ work_country : "work_id"
+    country |o--o{ work_financial : "country_id"
+    source ||--o{ work_financial : "source_id"
+    work ||--o{ work_financial : "work_id"
+    franchise ||--o{ work_franchise : "franchise_id"
+    source ||--o{ work_franchise : "source_id"
+    work ||--o{ work_franchise : "work_id"
+    genre ||--o{ work_genre : "genre_id"
+    source ||--o{ work_genre : "source_id"
+    work ||--o{ work_genre : "work_id"
+    language ||--o{ work_language : "language_id"
+    source ||--o{ work_language : "source_id"
+    work ||--o{ work_language : "work_id"
+    work ||--o{ work_relation : "related_work_id"
+    relation_type ||--o{ work_relation : "relation"
+    source ||--o{ work_relation : "source_id"
+    work ||--o{ work_relation : "work_id"
+    country |o--o{ work_release : "country_id"
+    source ||--o{ work_release : "source_id"
+    work ||--o{ work_release : "work_id"
