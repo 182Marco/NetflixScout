@@ -1,5 +1,5 @@
 %% Generated from the SQLite schema by cinema_db/harness/schema/generate.py: do not edit.
-%% schema_version=2 structure_digest=219b87a427e740aa29cab27da6d0a5c68a4eca46491cffd9b79ac6e84af42231
+%% schema_version=2 structure_digest=c26c605a7f192e935ff8085f863dc32a33ec4a2beeb8c907f20e078dcd78a39a
 erDiagram
     award {
         INTEGER award_id PK, FK "Key; equal to entity.entity_id."
@@ -91,7 +91,7 @@ erDiagram
         INTEGER entity_id PK, FK "Reference to entity.entity_id."
         TEXT scheme PK, FK "Identifier scheme (table id_scheme)."
         TEXT value PK "The identifier. Unique within its scheme."
-        INTEGER is_primary "1 if this is the preferred value when an entity has several in the same scheme."
+        INTEGER is_primary "1 for THE preferred value when an entity has several in the same scheme (at most one per entity and scheme: a unique index enforces it); the public views show only the preferred one."
         INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
         TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
     }
@@ -268,7 +268,7 @@ erDiagram
         INTEGER work_id FK "Reference to work.work_id."
         INTEGER country_id FK "Reference to country.country_id."
         TEXT release_date "Release date in that country, ISO partial."
-        TEXT kind "premiere, theatrical, streaming, television or home_video."
+        TEXT kind "premiere, theatrical, streaming, television, home_video, or unspecified when the source gives only a date and a place."
         INTEGER source_id FK "Source of this row (table source): where the fact comes from and under which terms."
         TEXT source_ref "Pointer inside the source: Wikidata item/claim, Wikipedia page and revision, dataset row."
     }

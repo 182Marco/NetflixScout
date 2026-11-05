@@ -140,7 +140,7 @@ COLUMNS: dict[str, str] = {
     "entity_name.is_primary": "1 for the single name shown by default (exactly one per entity).",
     "external_id.scheme": "Identifier scheme (table id_scheme).",
     "external_id.value": "The identifier. Unique within its scheme.",
-    "external_id.is_primary": "1 if this is the preferred value when an entity has several in the same scheme.",
+    "external_id.is_primary": "1 for THE preferred value when an entity has several in the same scheme (at most one per entity and scheme: a unique index enforces it); the public views show only the preferred one.",
     "work.work_id": "Key; equal to entity.entity_id.",
     "work.kind": "Kind of work (table work_kind).",
     "work.parent_work_id": "Series of a season, or season (or series) of an episode.",
@@ -168,7 +168,7 @@ COLUMNS: dict[str, str] = {
     "work_relation.relation": "Relation code (table relation_type); the row reads: work_id <relation> related_work_id.",
     "work_release.release_id": "Surrogate key.",
     "work_release.release_date": "Release date in that country, ISO partial.",
-    "work_release.kind": "premiere, theatrical, streaming, television or home_video.",
+    "work_release.kind": "premiere, theatrical, streaming, television, home_video, or unspecified when the source gives only a date and a place.",
     "work_financial.financial_id": "Surrogate key.",
     "work_financial.kind": "budget or box_office.",
     "work_financial.scope": "worldwide, domestic, country or unspecified.",
@@ -299,7 +299,7 @@ VIEW_COLUMNS: dict[str, dict[str, tuple[str, str]]] = {
     "v_work_release": {
         "work_id": ("integer", "Work key."), "work_title": ("text", "Primary title."), "work_kind": ("text", "Kind of the work."),
         "country": ("text", "Country of the release; empty if worldwide or unknown."), "iso2": ("text", "ISO country code."),
-        "release_date": ("text", "Date, ISO partial."), "release_kind": ("text", "premiere, theatrical, streaming, television or home_video."),
+        "release_date": ("text", "Date, ISO partial."), "release_kind": ("text", "premiere, theatrical, streaming, television, home_video or unspecified."),
     },
     "v_work_company": {
         "work_id": ("integer", "Work key."), "work_title": ("text", "Primary title."), "work_year": ("integer", "Release year."),

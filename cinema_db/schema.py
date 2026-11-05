@@ -268,7 +268,7 @@ TABLES: tuple[str, ...] = (
         work_id INTEGER NOT NULL REFERENCES work(work_id),
         country_id INTEGER REFERENCES country(country_id),
         release_date TEXT NOT NULL CHECK (release_date GLOB '[0-9][0-9][0-9][0-9]*'),
-        kind TEXT NOT NULL CHECK (kind IN ('premiere','theatrical','streaming','television','home_video')),
+        kind TEXT NOT NULL CHECK (kind IN ('premiere','theatrical','streaming','television','home_video','unspecified')),
         source_id INTEGER NOT NULL REFERENCES source(source_id),
         source_ref TEXT
     ) STRICT""",
@@ -338,6 +338,7 @@ INDEXES: tuple[str, ...] = (
     "CREATE UNIQUE INDEX entity_name_unique ON entity_name(entity_id, name_norm, COALESCE(language, ''), kind)",
     "CREATE INDEX entity_name_norm ON entity_name(name_norm)",
     "CREATE INDEX external_id_entity ON external_id(entity_id, scheme)",
+    "CREATE UNIQUE INDEX external_id_preferred ON external_id(entity_id, scheme) WHERE is_primary = 1",
     "CREATE INDEX work_kind_year ON work(kind, release_year)",
     "CREATE INDEX work_parent ON work(parent_work_id, season_number, episode_number)",
     "CREATE INDEX work_year ON work(release_year)",
@@ -431,39 +432,44 @@ ID_SCHEMES: tuple[tuple[str, str, str | None, str | None], ...] = (
 _NAME = "LEFT JOIN entity_name {a} ON {a}.entity_id = {key} AND {a}.is_primary = 1"
 
 
-def _ext(entity: str, scheme: str) -> str:
-    return (
-        f"(SELECT x.value FROM external_id x WHERE x.entity_id = {entity} AND x.scheme = '{scheme}' "
-        "ORDER BY x.is_primary DESC, x.value LIMIT 1)"
-    )
-
-
 VIEWS: tuple[tuple[str, str], ...] = (
     (
         "v_work",
-        f"""CREATE VIEW v_work AS
+        """CREATE VIEW v_work AS
         SELECT w.work_id AS work_id, w.kind AS kind, k.medium AS medium, n.name AS title,
                (SELECT o.name FROM entity_name o WHERE o.entity_id = w.work_id AND o.kind = 'original'
                 ORDER BY o.name LIMIT 1) AS original_title,
                w.release_year AS year, w.release_date AS release_date, w.end_year AS end_year,
                w.runtime_min AS runtime_min, w.status AS status, w.parent_work_id AS parent_work_id,
                w.season_number AS season_number, w.episode_number AS episode_number,
-               {_ext('w.work_id', 'imdb_title')} AS imdb_id, COALESCE({_ext('w.work_id', 'tmdb_movie')}, {_ext('w.work_id', 'tmdb_tv')}) AS tmdb_id,
-               {_ext('w.work_id', 'wikidata')} AS wikidata_id, {_ext('w.work_id', 'wikipedia_it')} AS wikipedia_it,
-               {_ext('w.work_id', 'wikipedia_en')} AS wikipedia_en, s.name AS source
+               imdb.value AS imdb_id, COALESCE(tmdbm.value, tmdbt.value) AS tmdb_id,
+               wd.value AS wikidata_id, wpit.value AS wikipedia_it, wpen.value AS wikipedia_en, s.name AS source
         FROM work w JOIN work_kind k ON k.kind = w.kind
-        {_NAME.format(a='n', key='w.work_id')} LEFT JOIN source s ON s.source_id = w.source_id""",
+        LEFT JOIN entity_name n ON n.entity_id = w.work_id AND n.is_primary = 1
+        LEFT JOIN external_id imdb ON imdb.entity_id = w.work_id AND imdb.scheme = 'imdb_title' AND imdb.is_primary = 1
+        LEFT JOIN external_id tmdbm ON tmdbm.entity_id = w.work_id AND tmdbm.scheme = 'tmdb_movie' AND tmdbm.is_primary = 1
+        LEFT JOIN external_id tmdbt ON tmdbt.entity_id = w.work_id AND tmdbt.scheme = 'tmdb_tv' AND tmdbt.is_primary = 1
+        LEFT JOIN external_id wd ON wd.entity_id = w.work_id AND wd.scheme = 'wikidata' AND wd.is_primary = 1
+        LEFT JOIN external_id wpit ON wpit.entity_id = w.work_id AND wpit.scheme = 'wikipedia_it' AND wpit.is_primary = 1
+        LEFT JOIN external_id wpen ON wpen.entity_id = w.work_id AND wpen.scheme = 'wikipedia_en' AND wpen.is_primary = 1
+        LEFT JOIN source s ON s.source_id = w.source_id""",
     ),
     (
         "v_person",
-        f"""CREATE VIEW v_person AS
+        """CREATE VIEW v_person AS
         SELECT p.person_id AS person_id, n.name AS name, p.birth_date AS birth_date, p.birth_year AS birth_year,
                p.death_date AS death_date, p.death_year AS death_year, c.label_en AS birth_country,
-               {_ext('p.person_id', 'imdb_name')} AS imdb_id, {_ext('p.person_id', 'tmdb_person')} AS tmdb_id,
-               {_ext('p.person_id', 'wikidata')} AS wikidata_id, {_ext('p.person_id', 'wikipedia_it')} AS wikipedia_it,
-               {_ext('p.person_id', 'wikipedia_en')} AS wikipedia_en, s.name AS source
-        FROM person p {_NAME.format(a='n', key='p.person_id')}
-        LEFT JOIN country c ON c.country_id = p.birth_country_id LEFT JOIN source s ON s.source_id = p.source_id""",
+               imdb.value AS imdb_id, tmdb.value AS tmdb_id, wd.value AS wikidata_id, wpit.value AS wikipedia_it,
+               wpen.value AS wikipedia_en, s.name AS source
+        FROM person p
+        LEFT JOIN entity_name n ON n.entity_id = p.person_id AND n.is_primary = 1
+        LEFT JOIN country c ON c.country_id = p.birth_country_id
+        LEFT JOIN external_id imdb ON imdb.entity_id = p.person_id AND imdb.scheme = 'imdb_name' AND imdb.is_primary = 1
+        LEFT JOIN external_id tmdb ON tmdb.entity_id = p.person_id AND tmdb.scheme = 'tmdb_person' AND tmdb.is_primary = 1
+        LEFT JOIN external_id wd ON wd.entity_id = p.person_id AND wd.scheme = 'wikidata' AND wd.is_primary = 1
+        LEFT JOIN external_id wpit ON wpit.entity_id = p.person_id AND wpit.scheme = 'wikipedia_it' AND wpit.is_primary = 1
+        LEFT JOIN external_id wpen ON wpen.entity_id = p.person_id AND wpen.scheme = 'wikipedia_en' AND wpen.is_primary = 1
+        LEFT JOIN source s ON s.source_id = p.source_id""",
     ),
     (
         "v_name",

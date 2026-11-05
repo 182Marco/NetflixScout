@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from .policy import Policy, ViewSpec
 
-STRUCTURE_DIGEST = '219b87a427e740aa29cab27da6d0a5c68a4eca46491cffd9b79ac6e84af42231'
+STRUCTURE_DIGEST = 'c26c605a7f192e935ff8085f863dc32a33ec4a2beeb8c907f20e078dcd78a39a'
 
 VIEWS = (
     ViewSpec(
