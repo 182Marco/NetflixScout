@@ -156,6 +156,10 @@ _AWARD_COLUMNS = ("award, category, category_scope AS scope, ceremony_year AS ye
                   "work_year, person_id, person_name")
 
 
+# One award = one (ceremony year, award, category, outcome, work): the people who share it are NOT separate awards (Parasite's Best Original Screenplay has two writers).
+_DISTINCT_AWARDS = "count(DISTINCT ceremony_year || '|' || award || '|' || category || '|' || outcome || '|' || coalesce(work_id, 0))"
+
+
 def _award_filters(outcome: str | None, year_from: int | None, year_to: int | None, pattern: str | None = None) -> tuple[str, list]:
     sql, params = _year_filters("ceremony_year", year_from, year_to)
     if outcome:
@@ -190,9 +194,9 @@ def awards_count(column: str | None, value: object, pattern: str | None, outcome
         if column not in {"work_id", "person_id"}:
             raise ValueError("column not allowed")
         extra, params = _award_filters(outcome, year_from, year_to, pattern)
-        return f"SELECT count(*) AS n FROM v_award_result WHERE {column} = ?{extra}", [value, *params]
+        return f"SELECT {_DISTINCT_AWARDS} AS n FROM v_award_result WHERE {column} = ?{extra}", [value, *params]
     extra, params = _award_filters(outcome, year_from, year_to)
-    return f"SELECT count(*) AS n FROM v_award_result WHERE (lower(award) LIKE ? OR lower(category) LIKE ?){extra}", [pattern, pattern, *params]
+    return f"SELECT {_DISTINCT_AWARDS} AS n FROM v_award_result WHERE (lower(award) LIKE ? OR lower(category) LIKE ?){extra}", [pattern, pattern, *params]
 
 
 # ---- series ---------------------------------------------------------------------------------------------------------------------

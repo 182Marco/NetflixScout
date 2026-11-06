@@ -108,13 +108,13 @@ def verify(raw: sqlite3.Connection, args: dict[str, Any], m: dict[str, Any]) -> 
         if key:
             extra = (f" AND outcome = '{args['outcome']}'" if args.get("outcome") else "") + (f" AND ceremony_year >= {int(args['year_from'])}" if args.get("year_from") else "") + (
                 f" AND ceremony_year <= {int(args['year_to'])}" if args.get("year_to") else "")
-            expected = one(f"SELECT count(*) FROM award_result r JOIN ceremony c ON c.ceremony_id = r.ceremony_id WHERE r.{key} = ?{extra.replace('ceremony_year', 'c.year')}", subject[key])
+            expected = one(f"SELECT count(DISTINCT r.ceremony_id || '|' || r.category_id || '|' || r.outcome || '|' || coalesce(r.work_id, 0)) FROM award_result r JOIN ceremony c ON c.ceremony_id = r.ceremony_id WHERE r.{key} = ?{extra.replace('ceremony_year', 'c.year')}", subject[key])
             if m["total"] != expected:
                 problems.append(f"awards total {m['total']} != {expected}")
         else:
             pattern = f"%{args['award'].casefold()}%"
             extra = (f" AND r.outcome = '{args['outcome']}'" if args.get("outcome") else "") + (f" AND c.year >= {int(args['year_from'])}" if args.get("year_from") else "") + (f" AND c.year <= {int(args['year_to'])}" if args.get("year_to") else "")
-            expected = one(f"SELECT count(*) FROM award_result r JOIN ceremony c ON c.ceremony_id = r.ceremony_id JOIN award_category k ON k.category_id = r.category_id JOIN entity_name an ON an.entity_id = k.award_id AND an.is_primary = 1 WHERE (lower(an.name) LIKE ? OR lower(k.name) LIKE ?){extra}", pattern, pattern)
+            expected = one(f"SELECT count(DISTINCT r.ceremony_id || '|' || r.category_id || '|' || r.outcome || '|' || coalesce(r.work_id, 0)) FROM award_result r JOIN ceremony c ON c.ceremony_id = r.ceremony_id JOIN award_category k ON k.category_id = r.category_id JOIN entity_name an ON an.entity_id = k.award_id AND an.is_primary = 1 WHERE (lower(an.name) LIKE ? OR lower(k.name) LIKE ?){extra}", pattern, pattern)
             if m["total"] != expected:
                 problems.append(f"awards total {m['total']} != {expected}")
     elif op == "series":

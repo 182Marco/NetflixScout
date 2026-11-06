@@ -203,14 +203,27 @@ def awards(request: CinemaSqlInput, session: Session, limit: int) -> OpResult:
             return OpResult(NOT_FOUND, reason="no_award_name")
     if column:
         narrow = _like(request.award) if request.award and normalize_name(request.award) else None  # "Oscar" with a work or a person: only their Oscar results
-        rows = session.rows(*Q.awards_of(column, value, request.outcome, request.year_from, request.year_to, request.order, limit, narrow))
+        rows = session.rows(*Q.awards_of(column, value, request.outcome, request.year_from, request.year_to, request.order, MAX_LIMIT, narrow))
         total = session.rows(*Q.awards_count(column, value, narrow, request.outcome, request.year_from, request.year_to))[0]["n"]
     else:
         exact = " ".join((request.award or "").casefold().split())
-        rows = session.rows(*Q.awards_by_name(pattern, exact, request.outcome, request.year_from, request.year_to, request.order, limit))
+        rows = session.rows(*Q.awards_by_name(pattern, exact, request.outcome, request.year_from, request.year_to, request.order, MAX_LIMIT))
         total = session.rows(*Q.awards_count(None, None, pattern, request.outcome, request.year_from, request.year_to))[0]["n"]
-    notes = ["awards"] + (["awards_person_scope"] if column == "person_id" else []) + (["limit"] if total > len(rows) else [])
-    return _empty_or_ok(rows, "no_award_results_recorded", subject=subject, data={"results": rows}, total=total, shown=len(rows), truncated=total > len(rows), notes=notes, via=via)
+    results = _awards_with_people(rows)[:limit]
+    notes = ["awards"] + (["awards_person_scope"] if column == "person_id" else []) + (["limit"] if total > len(results) else [])
+    return _empty_or_ok(results, "no_award_results_recorded", subject=subject, data={"results": results}, total=total, shown=len(results), truncated=total > len(results), notes=notes, via=via)
+
+
+def _awards_with_people(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """One entry per award (ceremony year, award, category, outcome, work) with the names of the people who share it: counting a prize once per recipient would make
+    «how many Oscars» answer with the number of statuettes handed out, not of awards."""
+    grouped: OrderedDict[tuple, dict[str, Any]] = OrderedDict()
+    for r in rows:
+        key = (r["year"], r["award"], r["category"], r["outcome"], r["work_id"])
+        entry = grouped.setdefault(key, {**{k: v for k, v in r.items() if k not in {"person_id", "person_name"}}, "people": []})
+        if r.get("person_name") and r["person_name"] not in entry["people"]:
+            entry["people"].append(r["person_name"])
+    return list(grouped.values())
 
 
 # ---- series ------------------------------------------------------------------------------------------------------------------------

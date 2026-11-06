@@ -183,19 +183,23 @@ def test_collaboration_edge_cases_are_reported_not_hidden(tool):
 # 7. awards and nominations --------------------------------------------------------------------------------------------------------
 def test_awards_of_a_work_separate_wins_from_nominations(tool, raw):
     _, m = call(tool, operation="awards", title="Il padrino", limit=50)
-    assert m["total"] == 20 == raw.execute("SELECT count(*) FROM award_result WHERE work_id = ?", (GODFATHER,)).fetchone()[0]
-    assert sum(r["outcome"] == "won" for r in m["results"]) == 6 and any(r["person_name"] == "Marlon Brando" for r in m["results"])
+    distinct = "count(DISTINCT ceremony_id || '|' || category_id || '|' || outcome || '|' || coalesce(work_id, 0))"
+    assert m["total"] == raw.execute(f"SELECT {distinct} FROM award_result WHERE work_id = ?", (GODFATHER,)).fetchone()[0]
+    wins = raw.execute(f"SELECT {distinct} FROM award_result WHERE work_id = ? AND outcome = 'won'", (GODFATHER,)).fetchone()[0]
+    assert sum(r["outcome"] == "won" for r in m["results"]) == wins and any("Marlon Brando" in r["people"] for r in m["results"])  # one entry per award, the people who share it listed
     _, won = call(tool, operation="awards", title="Il padrino", outcome="won", limit=50)
-    assert won["total"] == 6 and {r["outcome"] for r in won["results"]} == {"won"}
+    assert won["total"] == wins and {r["outcome"] for r in won["results"]} == {"won"}
     assert "awards" in [n["code"] for n in m["notes"]]
 
 
 def test_awards_of_a_person_and_by_award_name_and_year(tool):
     _, person = call(tool, operation="awards", person="Christopher Nolan", year_from=2010, year_to=2011)
     assert {r["work_title"] for r in person["results"]} == {"Inception"} and person["subject"]["person_id"] == NOLAN
-    assert "awards_person_scope" in [n["code"] for n in person["notes"]]  # prizes recorded only on the film (Oppenheimer's) are not attributed to Nolan
+    assert "awards_person_scope" in [n["code"] for n in person["notes"]]  # prizes recorded only on the film (Best Picture of Oppenheimer) are not attributed to Nolan
     _, oppenheimer = call(tool, operation="awards", title="Oppenheimer", outcome="won")
-    assert oppenheimer["total"] >= 1 and not any(r["work_title"] == "Oppenheimer" for r in call(tool, operation="awards", person="Christopher Nolan", year_from=2024, year_to=2024)[1].get("results", []))
+    assert oppenheimer["total"] >= 1
+    _, nolan_2024 = call(tool, operation="awards", person="Christopher Nolan", year_from=2024, year_to=2024, award="Oscar")
+    assert [(r["category"], r["outcome"]) for r in nolan_2024["results"]] == [("Oscar al miglior regista", "won")]  # the winner named by the source (P1346) is now attributed
     _, named = call(tool, operation="awards", award="Oscar al miglior film", year_from=1973, year_to=1973, outcome="won")
     assert any(r["work_title"] == "Il padrino" and r["category"] == "Oscar al miglior film" for r in named["results"])
     assert named["results"][0]["category"] == "Oscar al miglior film"  # the exact category comes before longer names that contain it
@@ -377,7 +381,7 @@ def test_cast_and_award_counts_match_an_independent_recomputation_on_a_random_sa
         expected_cast = raw.execute("SELECT count(*) FROM credit WHERE work_id = ? AND role = 'cast'", (work_id,)).fetchone()[0]
         assert cast_result.get("total", 0) == expected_cast, work_id
         _, award_result = call(tool, operation="awards", work_id=work_id, limit=50)
-        expected_awards = raw.execute("SELECT count(*) FROM award_result WHERE work_id = ?", (work_id,)).fetchone()[0]
+        expected_awards = raw.execute("SELECT count(DISTINCT ceremony_id || '|' || category_id || '|' || outcome || '|' || coalesce(work_id, 0)) FROM award_result WHERE work_id = ?", (work_id,)).fetchone()[0]
         assert award_result.get("total", 0) == expected_awards, work_id
 
 
