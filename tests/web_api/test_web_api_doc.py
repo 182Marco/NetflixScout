@@ -93,6 +93,21 @@ def test_the_documented_wikidata_step_is_what_the_serializer_produces_with_its_l
     assert "CC0 1.0" in documented["source"]
 
 
+def test_the_documented_cinema_sql_step_is_what_the_serializer_produces_and_exposes_nothing_internal() -> None:
+    from cinema_view_support import SQL, doc_step
+    from presenters.web.payload import serialize_step
+
+    documented = {kind: json.loads(body) for kind, body in STEP_EXAMPLE.findall(DOC)}["cinema_sql_calls"]
+
+    assert documented == json.loads(json.dumps(serialize_step(doc_step(), "it")))
+    assert "calls" not in documented and documented["no_network"]
+    assert [link["url"] for link in documented["subject"]["links"]] == ["https://it.wikipedia.org/wiki/Ann_Regista", "https://www.wikidata.org/wiki/Q9101"]
+    assert [lic["url"] for lic in documented["licenses"]] == ["https://creativecommons.org/licenses/by-sa/4.0/", "https://creativecommons.org/publicdomain/zero/1.0/"]
+    assert "Wikipedia" in documented["source"] and "Wikidata" in documented["source"]
+    text = json.dumps(documented)
+    assert SQL not in text and "v_work" not in text and "person_id" not in text
+
+
 def test_every_documented_step_example_keeps_credentials_masked() -> None:
     for _, body in STEP_EXAMPLE.findall(DOC) + EXAMPLE.findall(DOC):
         for url in re.findall(r'"url":"([^"]+)"', body):

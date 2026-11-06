@@ -81,6 +81,7 @@ TOOLS = {
         "omdb_search": ("su OMDb", "OMDb"),
         "tvmaze_search": ("su TVmaze", "TVmaze"),
         "wikidata_search": ("su Wikidata", "Wikidata"),
+        "cinema_sql": ("nell'archivio locale di film e persone", "Archivio"),
     },
     "en": {
         "rag_search": ("among the movie plots", "Plots"),
@@ -91,6 +92,7 @@ TOOLS = {
         "omdb_search": ("on OMDb", "OMDb"),
         "tvmaze_search": ("on TVmaze", "TVmaze"),
         "wikidata_search": ("on Wikidata", "Wikidata"),
+        "cinema_sql": ("in the local archive of films and people", "Archive"),
     },
     "de": {
         "rag_search": ("in den Filmhandlungen", "Handlungen"),
@@ -101,6 +103,7 @@ TOOLS = {
         "omdb_search": ("auf OMDb", "OMDb"),
         "tvmaze_search": ("auf TVmaze", "TVmaze"),
         "wikidata_search": ("auf Wikidata", "Wikidata"),
+        "cinema_sql": ("im lokalen Archiv von Filmen und Personen", "Archiv"),
     },
 }
 
@@ -122,6 +125,8 @@ REASONS = {
         "network_error": "errore di rete",
         "http_error": "risposta non valida",
         "response_too_large": "pagina troppo grande da leggere",
+        "db_missing": "archivio locale non disponibile",
+        "plan_rejected": "ricerca troppo pesante",
         "default": "non è andata a buon fine",
     },
     "en": {
@@ -140,6 +145,8 @@ REASONS = {
         "network_error": "network error",
         "http_error": "invalid answer",
         "response_too_large": "page too large to read",
+        "db_missing": "local archive unavailable",
+        "plan_rejected": "lookup too heavy",
         "default": "it did not work",
     },
     "de": {
@@ -158,6 +165,8 @@ REASONS = {
         "network_error": "Netzwerkfehler",
         "http_error": "ungültige Antwort",
         "response_too_large": "Seite zu groß zum Lesen",
+        "db_missing": "lokales Archiv nicht verfügbar",
+        "plan_rejected": "Abfrage zu aufwendig",
         "default": "es hat nicht geklappt",
     },
 }
