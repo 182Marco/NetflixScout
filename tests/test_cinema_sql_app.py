@@ -131,7 +131,7 @@ def test_the_rule_never_lets_an_empty_or_partial_result_end_the_search_and_keeps
     assert "wikidata_search resta sempre disponibile come ripiego" in RULE and "wikidata_search per relazioni" in RULE
     assert "non scegliere tu e non cercare altrove" in RULE and "la scelta è dell'utente" in RULE  # a namesake is never picked arbitrarily
     assert "mai un identificativo a memoria" in RULE.replace("non scrivere mai un identificativo a memoria", "mai un identificativo a memoria")
-    assert "non distingue remake" in RULE and "wikipedia_search" in RULE
+    assert "non distinguono remake" in RULE and "wikipedia_search" in RULE
     assert "i premi attribuiti a una persona" in RULE.lower() and "awards con il titolo" in RULE
 
 
