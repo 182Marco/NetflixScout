@@ -32,6 +32,7 @@ ROOT = Path(__file__).resolve().parents[3]
 DATA = ROOT / "cinema_db/data/phase7_live"
 RUNS = DATA / "runs.jsonl"
 JUDGMENTS = DATA / "judgments.jsonl"
+JUDGMENT_ERRORS = DATA / "judgments_credit_errors.jsonl"  # failed judge calls: kept apart, never counted as judged, retried by the next `judge`
 OUT_JSON = ROOT / "docs/cinema_db/PHASE7_LIVE.json"
 OUT_MD = ROOT / "docs/cinema_db/PHASE7_LIVE.md"
 PHASE6_RUNS = ROOT / "cinema_db/data/phase6_live/runs.jsonl"
@@ -116,7 +117,8 @@ def cmd_judge(args: argparse.Namespace) -> None:
     load_dotenv()
     client = OpenAI()
     runs = latest()
-    existing = {(j["key"], j["rep"]) for j in load(JUDGMENTS)}
+    existing = {(j["key"], j["rep"]) for j in load(JUDGMENTS) if j.get("winner") != "error"}
+    consecutive_errors = 0
     for key, rep in sorted({(k, r) for k, _, r in runs}):
         off, on = runs.get((key, "off", rep)), runs.get((key, "on", rep))
         if not off or not on or (key, rep) in existing:
@@ -134,9 +136,14 @@ def cmd_judge(args: argparse.Namespace) -> None:
                    "reason": verdict.get("reason", "")}
         except Exception as exc:  # noqa: BLE001
             row = {"key": key, "rep": rep, "winner": "error", "reason": f"{type(exc).__name__}: {str(exc)[:200]}", "on_errors": [], "off_errors": []}
-        with JUDGMENTS.open("a", encoding="utf-8") as f:
+        failed = row["winner"] == "error"
+        with (JUDGMENT_ERRORS if failed else JUDGMENTS).open("a", encoding="utf-8") as f:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
         print(key, rep, row["winner"], row["reason"][:90], flush=True)
+        consecutive_errors = consecutive_errors + 1 if failed else 0
+        if consecutive_errors >= 3:
+            print("three judge calls in a row failed: stopping (nothing is lost; run `judge --live` again when the API works)", flush=True)
+            return
 
 
 # ---- report ---------------------------------------------------------------------------------------------------------------------------
