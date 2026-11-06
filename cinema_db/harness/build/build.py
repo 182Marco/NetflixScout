@@ -696,21 +696,38 @@ class Builder:
                 self.add_external(wid, "wikipedia_it", page, cat, r["record_id"])
         self.flush()
         numbered: set[tuple[int, int | None, int]] = set()
+        unnumbered: dict[tuple[int, int | None, str], list[int]] = {}
         merged_pages = self._episode_pages_of_known_rows(episodes) if self.inputs.merge_episode_pages else {}
         absorbed = {page["record_id"] for pages in merged_pages.values() for page in pages}
         for r in sorted(episodes, key=lambda r: r["record_id"]):
             if r["record_id"] in absorbed:
                 self.count("episode_pages_merged_into_their_season_row")
                 continue
-            wid = self._episode(r, cat, merged_pages.get(r["record_id"], ()))
-            if wid is not None and isinstance(r.get("episode_number"), int):
-                parent = self.work_by_record.get(r.get("series_id"))
-                numbered.add((parent or 0, r.get("season_number"), r["episode_number"]))
+            pages = merged_pages.get(r["record_id"], ())
+            wid = self._episode(r, cat, pages)
+            parent = self.work_by_record.get(r.get("series_id"))
+            number = r.get("episode_number") if isinstance(r.get("episode_number"), int) else next((p["episode_number"] for p in pages if isinstance(p.get("episode_number"), int)), None)
+            if wid is not None and number is not None:
+                numbered.add((parent or 0, r.get("season_number"), number))
+            elif wid is not None and self.inputs.merge_episode_pages and parent is not None:
+                title = normalize_name(r.get("title_it") or r.get("title") or "")
+                unnumbered.setdefault((parent, r.get("season_number"), title), []).append(wid)
         self.flush()
         for r in sorted(meta, key=lambda r: r["record_id"]):
             parent = self.work_by_record.get(r.get("series_id"))
             if parent is not None and isinstance(r.get("episode_number"), int) and (parent, r.get("season_number"), r["episode_number"]) in numbered:
                 self.note("episode_row_duplicates_an_episode_page")
+                continue
+            # A table row that states the number (and the air date) of an episode a season page lists WITHOUT a number: one episode, completed from the row
+            # when exactly one unnumbered episode of that season has the same title; two of them (or none) means a separate episode, as before.
+            same = unnumbered.get((parent, r.get("season_number"), normalize_name(r.get("title_it") or r.get("title") or ""))) if parent is not None else None
+            if same and len(same) == 1 and isinstance(r.get("episode_number"), int) and r["episode_number"] >= 0:
+                date = next((d for d in (italian_date(x) for x in (r.get("air_dates") or [])) if d), None)
+                self.c.execute("UPDATE work SET episode_number = ?, release_date = COALESCE(release_date, ?), release_year = COALESCE(release_year, ?) WHERE work_id = ?",
+                               (r["episode_number"], date, year_ok(date[:4]) if date else None, same[0]))
+                numbered.add((parent, r.get("season_number"), r["episode_number"]))
+                unnumbered.pop((parent, r.get("season_number"), normalize_name(r.get("title_it") or r.get("title") or "")))
+                self.count("unnumbered_episodes_completed_from_their_table_row")
                 continue
             self._episode(r, cat)
         self.flush()

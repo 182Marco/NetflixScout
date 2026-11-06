@@ -32,6 +32,12 @@ EXTRA = [
     row("wp-703", "Numeri (episodio)", number=4, source="episode_page", wikipedia_url="https://it.wikipedia.org/wiki/Numeri_(episodio)"),    # the numbers contradict: stays
     row("wp-100#r-parte1", "Atto (prima parte)", number=6), row("wp-100#r-parte2", "Atto (seconda parte)", number=7),
     row("wp-704", "Atto (prima parte)", number=6, source="episode_page", wikipedia_url="https://it.wikipedia.org/wiki/Atto_(prima_parte)"),  # a part, not a qualifier: same full title
+    row("wp-100#u-terzo", "Terzo"),                                                                      # a season row WITHOUT a number whose table row states it: one episode
+    row("wp-100#u-gemello-a", "Gemello"), row("wp-100#u-gemello-b", "Gemello"),                          # two unnumbered rows with one title: the table row cannot tell which
+]
+META = [
+    {"record_id": "wp-100#m-terzo", "series_id": SERIES, "season_id": "wp-100", "season_number": 2, "episode_number": 8, "title": "Terzo", "title_it": "Terzo", "air_dates": ["3 marzo 2017"], "source": "table_row"},
+    {"record_id": "wp-100#m-gemello", "series_id": SERIES, "season_id": "wp-100", "season_number": 2, "episode_number": 9, "title": "Gemello", "title_it": "Gemello", "air_dates": [], "source": "table_row"},
 ]
 
 
@@ -39,6 +45,8 @@ def build(tmp_path, *, merge: bool):
     base = make_inputs(tmp_path)
     episodes = base.series_dir / "episodes.jsonl"
     episodes.write_text(episodes.read_text(encoding="utf-8") + "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in EXTRA), encoding="utf-8")
+    meta = base.series_dir / "episodes_meta.jsonl"
+    meta.write_text(meta.read_text(encoding="utf-8") + "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in META), encoding="utf-8")
     inputs = Inputs(base.film_snapshot, base.series_snapshot, base.film_catalog, base.series_dir, merge_episode_pages=merge)
     out = tmp_path / ("merged" if merge else "kept") / "cinema.sqlite3"
     report = run_build(out, inputs, log=lambda *_: None)
@@ -92,7 +100,7 @@ def test_a_part_of_an_episode_is_not_a_qualifier_and_a_row_without_a_number_gets
 def test_only_the_duplicates_disappear_and_the_database_stays_consistent(merged, kept):
     merged_conn, kept_conn = merged[0], kept[0]
     count = lambda c: c.execute("SELECT count(*) FROM v_work WHERE kind = 'episode'").fetchone()[0]  # noqa: E731
-    assert count(kept_conn) - count(merged_conn) == 2  # the pages of «Finale» and of «Atto (prima parte)»: the only exact one-row matches
+    assert count(kept_conn) - count(merged_conn) == 3  # the pages of «Finale» and of «Atto (prima parte)», and the table row of «Terzo»: the only exact one-row matches
     assert merged_conn.execute("PRAGMA foreign_key_check").fetchall() == [] and merged_conn.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
     assert merged_conn.execute("SELECT count(*) FROM (SELECT 1 FROM external_id GROUP BY scheme, value HAVING count(*) > 1)").fetchone()[0] == 0
 
@@ -109,3 +117,13 @@ def test_the_flag_off_keeps_the_phase_three_and_four_behaviour(kept):
 ])
 def test_the_qualifier_is_removed_only_when_it_names_the_series_or_says_episode(title, series, expected):
     assert episode_page_base_title(title, series) == expected
+
+
+def test_a_table_row_completes_the_one_unnumbered_season_row_it_describes_and_never_a_guess(merged, kept):
+    conn, report = merged
+    rows = season2(conn, "Terzo")
+    assert len(rows) == 1 and rows[0][1] == 8 and rows[0][2] == "2017-03-03"  # the number and the date are the table row's
+    assert report["counts"]["unnumbered_episodes_completed_from_their_table_row"] == 1
+    gemello = season2(conn, "Gemello")
+    assert len(gemello) == 3 and sorted(g[1] is None for g in gemello) == [False, True, True]  # two candidates: nothing merged, nothing numbered by guess
+    assert len(season2(kept[0], "Terzo")) == 2
