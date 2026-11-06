@@ -10,6 +10,8 @@ import re
 from html import escape
 from typing import Any
 
+from cinema_db.harness.schema import map_view
+
 _MERMAID_BAD = re.compile(r'["\n\r]')
 
 
@@ -45,7 +47,7 @@ def mermaid(info: dict[str, Any]) -> str:
 def html(info: dict[str, Any]) -> str:
     payload = {"structure": info["structure"], "structure_digest": info["structure_digest"], "counts": info["counts"], "sources": info["sources"]}
     data = json.dumps(payload, sort_keys=True, ensure_ascii=False).replace("</", "<\\/")
-    return _TEMPLATE.replace("__DATA__", data).replace("__TITLE__", escape("Cinema database schema")).replace("__DIGEST__", info["structure_digest"][:16])
+    return _TEMPLATE.replace("__MAP_CSS__", map_view.CSS).replace("__MAP_BODY__", map_view.BODY).replace("__MAP_JS__", map_view.JS).replace("__DATA__", data).replace("__TITLE__", escape("Cinema database schema")).replace("__DIGEST__", info["structure_digest"][:16])
 
 
 _TEMPLATE = r"""<!doctype html>
@@ -86,6 +88,7 @@ table{border-collapse:collapse;width:100%;font-size:12px}th,td{border-bottom:1px
 code,.mono{font-family:ui-monospace,Menlo,monospace}pre{white-space:pre-wrap;background:var(--bg);padding:8px;border-radius:6px;font-size:11px}
 a.link{color:var(--accent);cursor:pointer;text-decoration:underline}.muted{color:var(--muted)}
 .legend{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+__MAP_CSS__
 </style>
 </head>
 <body>
@@ -95,18 +98,19 @@ a.link{color:var(--accent);cursor:pointer;text-decoration:underline}.muted{color
 <div class="bar">
 <input type="search" id="q" placeholder="Search table, column or description" aria-label="Search">
 <span id="chips"></span>
-<button id="all" aria-pressed="false">Show all relations</button>
+<button id="mode-map" class="chip" aria-pressed="true" title="Graph of tables and foreign keys">Map</button><button id="mode-cards" class="chip" aria-pressed="false" title="Tables as columns of cards">Cards</button>
+<button id="all" aria-pressed="false" style="display:none">Show all relations</button>
 <button id="views" aria-pressed="false">Public views</button>
 </div>
 <div class="legend" style="margin-top:8px"><span><span class="b pk">PK</span> primary key</span><span><span class="b fk">FK</span> foreign key (click to follow)</span><span><span class="b uq">UQ</span> unique</span><span>Click a table for columns, keys, indexes, checks and relations.</span></div>
 </header>
-<main><div id="canvas"><svg id="lines" width="0" height="0"></svg><div class="cols" id="cols"></div></div><aside id="detail"></aside></main>
+<main><div id="canvas" style="display:none"><svg id="lines" width="0" height="0"></svg><div class="cols" id="cols"></div></div>__MAP_BODY__<aside id="detail"></aside></main>
 <script type="application/json" id="schema-data">__DATA__</script>
 <script>
 "use strict";
 const D=JSON.parse(document.getElementById('schema-data').textContent),S=D.structure;
 const tables=Object.fromEntries(S.tables.map(t=>[t.name,t])),views=Object.fromEntries(S.views.map(v=>[v.name,v]));
-const state={sel:null,all:false,showViews:false,groups:new Set(Object.keys(S.groups)),q:''};
+const state={mode:'map',sel:null,all:false,showViews:false,groups:new Set(Object.keys(S.groups)),q:''};
 const $=(s,r=document)=>r.querySelector(s),el=(t,a={},...k)=>{const e=document.createElement(t);for(const[x,y]of Object.entries(a))x==='class'?e.className=y:x.startsWith('on')?e.addEventListener(x.slice(2),y):e.setAttribute(x,y);for(const c of k)e.append(c);return e};
 const total=S.tables.reduce((a,t)=>a+(D.counts[t.name]||0),0);
 $('#meta').textContent=`schema v${S.schema_version} · ${S.tables.length} tables · ${S.views.length} public views · ${S.relationships.length} foreign keys · ${S.many_to_many.length} many-to-many · digest ${D.structure_digest.slice(0,12)} · ${total} rows`;
@@ -125,12 +129,12 @@ function render(){
   const items=(g==='view'?S.views:S.tables.filter(t=>t.group===g)).filter(t=>g==='view'||visible(t));
   if(!items.length||!state.groups.has(g))continue;
   const col=el('div',{class:'col'},el('h2',{},label));items.forEach(t=>col.append(card(t,g==='view')));cols.append(col)}
- applySel();
+ applySel();mapRefresh();
 }
 function applySel(){
  const rel=state.sel&&tables[state.sel]?related(state.sel):null;
  document.querySelectorAll('.card').forEach(c=>{const n=c.id.slice(2);c.classList.toggle('sel',n===state.sel);c.classList.toggle('rel',!!rel&&rel.has(n)&&n!==state.sel);c.classList.toggle('dim',!!rel&&!rel.has(n))});
- drawLines();detail();
+ drawLines();detail();applyMap();
 }
 function drawLines(){
  const svg=$('#lines'),cv=$('#canvas');svg.replaceChildren();svg.setAttribute('width',cv.scrollWidth);svg.setAttribute('height',cv.scrollHeight);
@@ -141,7 +145,7 @@ function drawLines(){
   const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',`M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`);p.setAttribute('fill','none');p.setAttribute('stroke',r.optional?'#8aa4c8':'#2b6cb0');p.setAttribute('stroke-width',state.all?'1':'1.6');if(r.optional)p.setAttribute('stroke-dasharray','4 3');p.setAttribute('opacity',state.all?'.45':'.9');svg.append(p);
   const d=document.createElementNS('http://www.w3.org/2000/svg','circle');d.setAttribute('cx',x1);d.setAttribute('cy',y1);d.setAttribute('r',3);d.setAttribute('fill','#2b6cb0');svg.append(d)}
 }
-function select(n){state.sel=n;history.replaceState(null,'','#t='+n);if(!document.getElementById('c-'+n)){if(views[n])state.showViews=true;render()}else applySel();$('#c-'+n)?.scrollIntoView({block:'nearest',inline:'nearest'})}
+function select(n){state.sel=n;history.replaceState(null,'','#t='+n+(state.mode==='cards'?'&view=cards':''));if(!document.getElementById('c-'+n)){if(views[n]){state.showViews=true;$('#views').setAttribute('aria-pressed','true')}render()}else applySel();$('#c-'+n)?.scrollIntoView({block:'nearest',inline:'nearest'})}
 function badge(c){return[c.pk?'PK':'',c.fk?'FK':'',c.unique&&!c.pk?'UQ':''].filter(Boolean).join(' ')}
 function detail(){
  const d=$('#detail');d.replaceChildren();const n=state.sel;
@@ -179,6 +183,8 @@ $('#views').addEventListener('click',e=>{state.showViews=!state.showViews;e.targ
 window.addEventListener('resize',drawLines);$('#canvas').addEventListener('scroll',drawLines);
 const m=location.hash.match(/t=([a-z_]+)/);if(m){state.sel=m[1];if(views[m[1]]){state.showViews=true;$('#views').setAttribute('aria-pressed','true')}}
 if(location.hash.includes('all')){state.all=true;$('#all').setAttribute('aria-pressed','true')}
+__MAP_JS__
+if(location.hash.includes('view=cards'))setMode('cards');else setMode('map');
 render();
 </script>
 </body>

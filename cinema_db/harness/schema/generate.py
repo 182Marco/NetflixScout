@@ -1,7 +1,7 @@
 """Generates the schema documentation and the SQL tool's approved-view policy from the REAL SQLite schema.
 
     python -m cinema_db.harness.schema.generate            # builds a schema-only database in a temp folder, writes the files
-    python -m cinema_db.harness.schema.generate --db FILE  # same, from an existing database (row counts and sources shown)
+    python -m cinema_db.harness.schema.generate --db FILE  # from an existing database: writes only the map with real row counts (cinema_db/data/schema_with_counts.html)
     python -m cinema_db.harness.schema.generate --check    # writes nothing; exit 1 if a generated file is stale
 
 Outputs: docs/cinema_db/schema.html, docs/cinema_db/schema.mmd, tool/cinema_db/approved_views.py.
@@ -96,7 +96,8 @@ def generate(db: Path | None) -> dict[str, str]:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--db", type=Path)
+    ap.add_argument("--db", type=Path, help="read a built database: writes ONLY the map with its real row counts and sources (default cinema_db/data/schema_with_counts.html, git-ignored); the committed files stay schema-only")
+    ap.add_argument("--html-out", type=Path, help="where --db writes the HTML")
     ap.add_argument("--check", action="store_true")
     args = ap.parse_args(argv)
     try:
@@ -104,6 +105,12 @@ def main(argv: list[str] | None = None) -> int:
     except NotesIncomplete as exc:
         print("Schema notes are incomplete or stale:\n" + str(exc), file=sys.stderr)
         return 2
+    if args.db:
+        out = args.html_out or ROOT / "cinema_db/data/schema_with_counts.html"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(next(text for p, text in outputs.items() if Path(p) == HTML), encoding="utf-8")
+        print(f"wrote {out.relative_to(ROOT) if out.is_relative_to(ROOT) else out} (map with the row counts and sources of {args.db})")
+        return 0
     stale = [p for p, text in outputs.items() if not Path(p).is_file() or Path(p).read_text(encoding="utf-8") != text]
     if args.check:
         for p in stale:
