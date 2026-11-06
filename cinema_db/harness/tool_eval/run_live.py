@@ -32,6 +32,7 @@ OUT_MD = ROOT / "docs/cinema_db/PHASE6_LIVE.md"
 SKIPPED = {"B24": "film index (embeddings): not touched by this phase", "B25": "film index (embeddings): not touched by this phase"}
 JUDGE_MODEL = "gpt-5.5"  # not the model that plans or answers (gpt-5.6-luna), like the film evaluation
 PAUSE_SECONDS = 2.0
+RUN_TIMEOUT_SECONDS = 300  # one hung API call must not stall the evaluation for hours (seen once): a run that exceeds it is recorded as an error
 
 
 @dataclass(frozen=True)
@@ -145,10 +146,19 @@ def cmd_run(args: argparse.Namespace) -> None:
     print(f"{len(todo)} runs to do", flush=True)
     for i, (q, mode) in enumerate(todo, 1):
         record: dict[str, Any] = {"key": q.key, "mode": mode, "kind": q.kind, "turns_text": list(q.turns), "preferences": q.preferences}
+        import signal
+
+        def _timeout(signum, frame):  # noqa: ARG001
+            raise TimeoutError(f"run exceeded {RUN_TIMEOUT_SECONDS} s")
+
+        signal.signal(signal.SIGALRM, _timeout)
+        signal.alarm(RUN_TIMEOUT_SECONDS)
         try:
             record.update(run_one(apps[mode], q))
         except Exception as exc:  # noqa: BLE001 - a failed run is data, not a reason to stop the evaluation
             record["error"] = f"{type(exc).__name__}: {str(exc)[:300]}"
+        finally:
+            signal.alarm(0)
         with RUNS.open("a", encoding="utf-8") as f:
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
         print(f"[{i}/{len(todo)}] {q.key} {mode}: {record.get('tools') or record.get('error')} http={record.get('http')} sql={record.get('sql_queries')} {record.get('wall_s')}s", flush=True)
@@ -239,7 +249,31 @@ def report() -> dict[str, Any]:
 
 
 # My own reading of each pair of real answers (written AFTER reading them; not an automated check). Filled in from `docs/cinema_db/PHASE6_LIVE.json`.
-MANUAL_LIVE: dict[str, str] = {}
+MANUAL_LIVE: dict[str, str] = {
+    "B01": "Locale: 9 film, corretto rispetto al database e dichiarato «potrebbe essere incompleto» (nel mondo reale ne mancano 2); con TMDb l'elenco era sbagliato (cortometraggi e documentari, «44 risultati»). Miglioramento netto.",
+    "B02": "Pari: gli stessi due sceneggiatori.", "B03": "Locale: i 6 film giusti; con TMDb il fatto atteso mancava.",
+    "B04": "Locale dà il titolo italiano del romanzo («Il cacciatore di androidi»), Wikidata quello originale: leggermente meno preciso.",
+    "B05": "Locale + Wikipedia: dice che il film del 2011 è un prequel; il flag spento inventava un «The Thing (1990) di Nanni Moretti» da un omonimo sbagliato. Miglioramento.",
+    "B06": "Locale: 7 film più un cortometraggio e una serie dichiarati come tali; corretto rispetto al database.",
+    "B07": "Dopo la correzione del filtro sul premio il planner chiede quale Parasite si intende (1982 o 2019), come voluto; prima della correzione la richiesta era rifiutata e la risposta inutile.",
+    "B09": "Locale: i due film principali con ID IMDb, TMDb e Wikidata (prima della correzione citava l'ID interno); mancano omonimi minori; il flag spento ne dava 4 ma senza il film di Haggis.",
+    "B11": "Locale: «22 film più un film TV, 23 opere» come registrati; il flag spento non rispondeva. Il giudice preferisce il silenzio prudente al numero di un catalogo incompleto: giudizio discutibile, la risposta locale dichiara i limiti.",
+    "B13": "Invariata (TMDb + OMDb per cinque candidati); la differenza di richieste è variabilità del planner, non del tool.",
+    "B15": "Locale per regia e cast, TMDb per il resto: 1 richiesta invece di 2.", "B17": "Il tool locale non distingue il remake: la risposta locale dice «adattamento del film del 1972», impreciso (è un nuovo adattamento del romanzo); entrambe sbagliano il Metascore secondo il giudice (la fonte dà 67).",
+    "B18": "Regressione di completezza: il locale ha una sola candidatura di Villeneuve (Arrival) e lo dice; con Wikipedia la risposta sui premi è molto più ricca. Limite dei dati, già noto (premi per persona).",
+    "B26": "Locale: 5 stagioni e 7/13/13/13/16 episodi (esatti dopo la correzione), con l'avvertenza che possono differire.",
+    "E01": "Locale: Caine 8, Murphy 7 (senza role=director conta anche Transcendence, prodotto da Nolan: corretto per «lavorato con»).",
+    "E02": "Il planner ha scelto Wikipedia invece del locale: variabilità.", "E04": "Locale: «prodotto da Albert S. Ruddy», corretto; il flag spento aggiungeva Coppola e Evans.",
+    "E06": "Regressione di completezza dichiarata: 5 candidature all'Oscar attribuite a Nolan, mancano quelle di Oppenheimer (premi registrati sul film, non sul nominato); Wikipedia ne dà 8 e 2 vittorie. La regola chiede di aggiungere i premi del film: il planner non lo ha fatto in questa esecuzione.",
+    "E09": "Locale: 99 film italiani del 1960 (come registrati); il flag spento non sapeva rispondere.",
+    "X01": "Dopo la correzione di crew senza role: regista e i tre sceneggiatori; prima della correzione la risposta diceva che gli sceneggiatori non compaiono.",
+    "X03": "Prima esecuzione: nessun collaboratore (planner con argomenti diversi); rilanciata a mano la stessa domanda il planner usa role_b=director e la risposta è giusta (Nolan 8, Gilbert 3...). Variabilità del planner.",
+    "X04": "Locale: 3 film della saga, con l'avvertenza che l'elenco può essere parziale.", "X05": "Dopo la correzione: «4 Oscar» con le quattro categorie, in due passi (omonimo, poi anno).",
+    "X06": "Con la preferenza «recensioni» la filmografia usa il locale senza conflitto e dice che non ha punteggi.",
+    "X07": "La frase di conflitto sul tipo di contenuto è la prima della risposta in entrambe le modalità; il locale ha ricevuto type=series dalla guardia.",
+    "X08": "Locale elenca anche Bill Finger e Bob Kane tra gli scrittori (Wikidata) ma avverte che l'elenco comprende gli autori del materiale d'origine; TMDb dava solo i Nolan: meno preciso, dichiarato.",
+    "X10": "Risposta in inglese, 23 opere: la lingua dell'ultimo messaggio è rispettata.", "X11": "Risposta in tedesco: la lingua è rispettata.",
+}
 
 
 def _tools(r: dict[str, Any]) -> str:
@@ -269,6 +303,12 @@ def markdown(data: dict[str, Any]) -> str:
          f"| Tempo totale (s) | {off['wall_s']} | {on['wall_s']} | {on['wall_s'] - off['wall_s']:+.1f} |", "",
          f"`cinema_sql` è stato scelto dal planner in **{s['cinema_used']}** domande su {s['questions']}. Fatti attesi presenti: spento {s['facts']['off']['present']} (assenti {s['facts']['off']['missing']}), "
          f"acceso {s['facts']['on']['present']} (assenti {s['facts']['on']['missing']}). Giudice (a ciechi): {s['judge']}.", "",
+         "## 1b. Prima esecuzione completa e correzioni", "",
+         "La prima esecuzione completa (flag acceso) ha mostrato tre difetti di integrazione, corretti subito (commit «fix what the live evaluation found»): (1) `awards` rifiutava un titolo o una persona "
+         "insieme a un nome di premio («quanti Oscar ha vinto X»: il planner li dà insieme) e la risposta diceva solo «richiesta non riuscita»; (2) con `crew` e più ruoli il planner chiedeva solo `role=director` e "
+         "la risposta diceva che gli sceneggiatori non comparivano; (3) il modello citava l'ID interno invece degli ID IMDb e TMDb. Sono state rieseguite le 10 domande interessate (modalità accesa); "
+         "il confronto sopra e sotto usa le esecuzioni dopo le correzioni. Prima delle correzioni: richieste HTTP acceso 56, query 87, giudice a favore dell'acceso 23, parità 12, a favore dello spento 12; "
+         "dopo: query 98, a favore dell'acceso 23, parità 14, a favore dello spento 10. Le esecuzioni originali restano in `cinema_db/data/phase6_live/runs_first.jsonl` (ignorato da git).", "",
          "## 2. Per domanda", "", "| Chiave | Domanda | Tool spento | Tool acceso | HTTP s/a | SQL | s s/a | Fatti s/a | Giudice | Lettura manuale |", "|---|---|---|---|---|---|---|---|---|---|"]
     for r in rows:
         j = r["judge"]
