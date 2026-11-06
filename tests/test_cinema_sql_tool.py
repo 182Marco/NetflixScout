@@ -254,3 +254,11 @@ def test_crew_without_a_role_lists_every_role_and_says_the_writer_credit_can_nam
 
 def test_the_final_instructions_forbid_quoting_internal_ids_and_calling_unread_roles_missing():
     assert "work_id e person_id sono identificativi interni: non citarli mai" in FINAL_INSTRUCTIONS and "non che mancano" in FINAL_INSTRUCTIONS
+
+
+def test_an_award_by_name_with_a_year_and_no_work_means_the_ceremony_year(tool):
+    """The planner writes {award, year: 1995, outcome: won} for «who won the Oscar in 1995»: `year` is the ceremony's, not a filter that is ignored."""
+    _, m = call(tool, operation="awards", award="Miglior film", year=1983, outcome="won")
+    assert m["status"] == "ok" and {r["year"] for r in m["results"]} == {1983}
+    _, none = call(tool, operation="awards", award="Miglior film", year=1999, outcome="won")
+    assert none["status"] == "empty"

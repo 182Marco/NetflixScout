@@ -32,11 +32,12 @@ def test_the_cast_has_members_but_no_billing_order_and_a_gap_for_the_lead_actors
     assert [g["tool"] for g in offer(gaps, "Who are the main cast of Heat?")] == ["tmdb_search"]
 
 
-def test_person_awards_are_partial_and_work_awards_are_not_offered_a_step():
+def test_person_awards_are_partial_and_work_awards_are_offered_a_step_only_when_the_awards_in_general_are_asked():
     fields, gaps = check("awards", data={"results": [1]}, subject={"kind": "person"})
     assert fields["results"]["state"] == PARTIAL and len(offer(gaps, "Quali candidature all'Oscar ha avuto Nolan?")) == 1
     work_fields, work_gaps = check("awards", data={"results": [1]}, subject={"kind": "work"})
-    assert work_fields["results"]["state"] == PARTIAL and work_gaps == []
+    assert work_fields["results"]["state"] == PARTIAL
+    assert len(offer(work_gaps, "Quali premi ha vinto Inception?")) == 1 and offer(work_gaps, "Quanti Oscar ha vinto Parasite?") == []  # a named award is answered locally
 
 
 def test_episode_counts_are_uncertain_unless_every_row_is_numbered_and_the_step_is_offered_for_episode_questions_only():
@@ -52,7 +53,10 @@ def test_episode_counts_are_uncertain_unless_every_row_is_numbered_and_the_step_
 def test_relations_franchise_and_crew_say_what_the_data_does_not_settle():
     assert check("relations", data={"relations": [{"nature": "based_on_screen_work"}]}, subject={"kind": "work"})[0]["relation_type"]["state"] == UNCERTAIN
     fields, gaps = check("relations", data={"relations": [{"nature": "adaptation_of_non_screen_work"}]}, subject={"kind": "work"})
-    assert fields["relation_type"]["state"] == VERIFIED and gaps == []  # a film based on a novel IS an adaptation: nothing to verify
+    assert fields["relation_type"]["state"] == VERIFIED  # a film based on a novel IS an adaptation: the type is not in doubt
+    assert fields["source_work"]["state"] == PARTIAL  # but the novel is recorded with a title only (B04, B16 of the phase 7 evaluation)
+    assert offer(gaps, "Da quale libro è tratto Blade Runner?") and offer(gaps, "Who wrote the novel Oppenheimer is based on?")
+    assert not offer(gaps, "È un remake di Solaris?") and not offer(gaps, "Chi ha diretto Oppenheimer?") and offer(gaps, "Da cosa è tratto Oppenheimer?")  # even a plain «based on what» gets the author: the source title alone was judged incomplete (B16)
     _, remake_gaps = check("relations", data={"relations": [{"nature": "based_on_screen_work"}, {"nature": "order_in_series"}]}, subject={"kind": "work"})
     assert offer(remake_gaps, "È un remake di Solaris?") and not offer(remake_gaps, "Da cosa è tratto Solaris?")
     assert check("franchise", data={}, subject={"kind": "work"})[0]["membership"]["state"] == UNCERTAIN
@@ -88,8 +92,10 @@ def test_the_tool_reports_reliability_and_offers_a_step_only_for_the_gap_the_req
 def test_a_person_award_result_offers_one_step_and_a_work_award_result_none(tool):
     person = tool.run(query="Quali premi ha vinto Bob Attore?", params={"operation": "awards", "person": "Bob Attore"})
     assert person["metadata"]["cinema_db"]["reliability"]["results"]["state"] == PARTIAL and RESOLVED_OFFER in person[RESULT_FOLLOW_UP]["reasons"]
-    work = tool.run(query="Quali premi ha vinto Film di prova?", params={"operation": "awards", "title": "Film di prova"})
+    work = tool.run(query="Quanti Oscar ha vinto Film di prova?", params={"operation": "awards", "title": "Film di prova"})
     assert RESULT_FOLLOW_UP not in work
+    general = tool.run(query="Quali premi ha vinto Film di prova?", params={"operation": "awards", "title": "Film di prova"})
+    assert general[RESULT_FOLLOW_UP]["reasons"] == ["data_gap:results"]
 
 
 RESOLVED_OFFER = "data_gap:results"

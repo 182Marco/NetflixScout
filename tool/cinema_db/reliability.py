@@ -23,6 +23,8 @@ VERIFIED, PARTIAL, UNCERTAIN, ABSENT = "verified", "partial", "uncertain", "abse
 # a further step; the planner still judges, on the request, whether it adds anything.
 LEAD_WORDS = re.compile(r"protagonist|principal|main cast|lead|leading|star(s|ring)?\b|top[- ]billed|hauptdarsteller|hauptrolle|acteurs? principa|actores principales|interpret", re.I)
 REMAKE_WORDS = re.compile(r"remake|reboot|sequel|prequel|seguito|rifacimento|adattament|adaptation|ispirat|fortsetzung|vorgeschichte", re.I)
+AWARD_WORDS = re.compile(r"premi|riconoscimenti|palmar|awards?\b|prizes?|accolades|auszeichnung|preise|récompenses|premios", re.I)
+SOURCE_WORDS = re.compile(r"libro|romanz|book|novel|autore|autrice|author|fumett|comic|racconto|short story|play\b|opera teatrale|buch|roman\b|livre|tratt[oaie]\b|based on|basat[oaie] su|basiert|tiré|inspired by|ispirat[oaie] a", re.I)
 EPISODE_WORDS = re.compile(r"episod|puntat|episoden|folgen|épisode|capítulo", re.I)
 
 
@@ -68,7 +70,8 @@ def assess(operation: str, *, status: str, reason: str | None, data: dict[str, A
             fields["results"] = _field(PARTIAL, "a result is attached to a person only when the source names the nominee; nominations are recorded for some works only")
             gaps.append(_gap("results", "wikipedia_search", "the person's complete list of nominations and wins (one page, not the whole work again)"))
         else:
-            fields["results"] = _field(PARTIAL, "awards are Wikidata statements recorded for some works; nominations are often missing")
+            fields["results"] = _field(PARTIAL, "awards are Wikidata statements recorded for some works; nominations and some wins are often missing")
+            gaps.append(_gap("results", "wikipedia_search", "the complete list of the work's awards (its page), when the request asks for the awards in general", AWARD_WORDS))
     elif operation == "series":
         seasons = data.get("seasons")
         if seasons is not None:
@@ -89,6 +92,9 @@ def assess(operation: str, *, status: str, reason: str | None, data: dict[str, A
         natures = {r.get("nature") for r in data.get("relations") or []}
         if natures and natures <= {"adaptation_of_non_screen_work", "adapted_into_screen_work"}:
             fields["relation_type"] = _field(VERIFIED, "the source is not a film or a series (a novel, a comic, a play, a game): the work is an adaptation of it")
+            if "adaptation_of_non_screen_work" in natures:
+                fields["source_work"] = _field(PARTIAL, "the source work is recorded with a title only: its author, original title and year are usually not in the catalogue")
+                gaps.append(_gap("source_work", "wikipedia_search", "the author, original title and year of the work it is based on", SOURCE_WORDS))
         else:
             fields["relation_type"] = _field(UNCERTAIN, "a film or series based on another film or series can be a remake, a reboot or a derived work (not told apart); 'follows' is not 'sequel'")
             gaps.append(_gap("relation_type", "wikipedia_search", "whether a related work is a remake, adaptation, sequel or prequel", REMAKE_WORDS))

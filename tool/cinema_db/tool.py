@@ -61,7 +61,7 @@ FINAL_INSTRUCTIONS = (
     "comprende remake, adattamenti e opere solo ispirate; «segue» è l'ordine in una serie, non dice se è un sequel o un prequel; gli importi "
     "restano nella valuta indicata, mai convertiti). Se status è ambiguous elenca le alternative (titolo o nome, anno, regista o ruoli) e "
     "chiedi quale intende, dicendo quante non hai elencato se omitted_candidates è maggiore di zero; se è unverified, sono solo nomi simili, non la "
-    "risposta: dillo senza scegliere; se è not_found o empty dillo senza inventare e senza dedurre che l'opera, la persona o il dato non esistano. "
+    "risposta: dillo senza scegliere; le alternative sono quelle del catalogo locale incompleto, quindi di' «tra quelle registrate» e non dire che sono le uniche; se è not_found o empty dillo senza inventare e senza dedurre che l'opera, la persona o il dato non esistano. "
     "I conteggi di episodi per stagione non sono affidabili: riporta le cifre come registrate (episodes e numbered_episodes), dicendo che il numero "
     "reale può differire, e non dichiararle certe. work_id e person_id sono identificativi interni: non citarli mai; se l'utente chiede un ID, dai imdb_id o tmdb_id. "
     "Se ha chiesto più ruoli (regia e sceneggiatura) e nei dati ne compare uno solo, dì che gli altri non sono stati letti, non che mancano. "

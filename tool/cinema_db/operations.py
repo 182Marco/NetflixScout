@@ -201,6 +201,8 @@ def awards(request: CinemaSqlInput, session: Session, limit: int) -> OpResult:
         pattern = _like(request.award or "")
         if normalize_name(request.award or "") == "":
             return OpResult(NOT_FOUND, reason="no_award_name")
+        if request.year and request.year_from is None and request.year_to is None:  # «who won the Oscar in 1995»: with no work to identify, `year` can only be the ceremony's
+            request = request.model_copy(update={"year_from": request.year, "year_to": request.year})
     if column:
         narrow = _like(request.award) if request.award and normalize_name(request.award) else None  # "Oscar" with a work or a person: only their Oscar results
         rows = session.rows(*Q.awards_of(column, value, request.outcome, request.year_from, request.year_to, request.order, MAX_LIMIT, narrow))
