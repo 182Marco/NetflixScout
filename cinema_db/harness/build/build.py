@@ -20,6 +20,7 @@ import collections
 import hashlib
 import json
 import os
+import re
 import sqlite3
 import sys
 import time
@@ -50,6 +51,22 @@ COUNTRY_ALIASES = {"stati uniti d america": "stati uniti", "usa": "stati uniti",
 SAMPLE = 25  # examples kept per kind of problem in the report
 
 
+_PAREN = re.compile(r"\s*\([^)]*\)\s*$")
+
+
+def episode_page_base_title(title: str, series_title: str) -> str:
+    """Normalised title of an episode page without the disambiguation qualifier Wikipedia adds: «Felina (Breaking Bad)» -> «felina».
+
+    Only a qualifier that is the series (or a part of its name) or says «episodio» is removed: «Il cavaliere pirata (prima parte)» keeps its part."""
+    m = _PAREN.search(title or "")
+    if m:
+        qualifier = normalize_name(m.group(0).strip(" ()"))
+        words, series_words = qualifier.split(), set(series_title.split())
+        if qualifier and (words[0] in {"episodio", "puntata"} or (series_words and all(w in series_words for w in words))):
+            return normalize_name(title[: m.start()])
+    return normalize_name(title or "")
+
+
 def jsonl(path: Path) -> Iterator[dict]:
     with path.open(encoding="utf-8") as f:
         for line in f:
@@ -59,9 +76,11 @@ def jsonl(path: Path) -> Iterator[dict]:
 
 class Inputs:
     def __init__(self, film_snapshot: Path = S.FILM_SNAPSHOT, series_snapshot: Path = S.SERIES_SNAPSHOT, film_catalog: Path = S.FILM_CATALOG, series_dir: Path = S.SERIES_DIR,
-                 phase4: Path | None = None) -> None:
+                 phase4: Path | None = None, merge_episode_pages: bool = True) -> None:
         self.film_snapshot, self.series_snapshot, self.film_catalog, self.series_dir = film_snapshot, series_snapshot, film_catalog, series_dir
         self.phase4 = phase4  # the optional phase-4 Wikidata snapshot; None = a build from the original local sources only
+        # An episode known from its own Wikipedia page and from a row of its season page is ONE episode (phase 6). False reproduces the phase-3/4 databases.
+        self.merge_episode_pages = merge_episode_pages
 
 
 class Builder:
@@ -91,6 +110,7 @@ class Builder:
         self.credit_seen: set[tuple[int, int, str, str]] = set()
         self.assertion_seen: set[tuple] = set()
         self.p4: Phase4 | None = None
+        self.series_base_title: dict[str, str] = {}
         self.pending_awards: list[tuple[int, str, dict, int]] = []
         self.company_qids: set[str] = set()  # items some work lists as production/distribution company or network (phase 4 only)
         self.humans: set[str] = set()
@@ -603,6 +623,7 @@ class Builder:
             kind = "miniseries" if r.get("subtype") == "miniseries" else "series"
             wid = self.entity("work")
             self.work_by_record[r["record_id"]] = wid
+            self.series_base_title[r["record_id"]] = normalize_name(_PAREN.sub("", r.get("title") or ""))
             if reliable:
                 self.work_by_qid[qid] = wid
             year, end = year_ok(r.get("year")), year_ok(r.get("year_end"))
@@ -675,8 +696,13 @@ class Builder:
                 self.add_external(wid, "wikipedia_it", page, cat, r["record_id"])
         self.flush()
         numbered: set[tuple[int, int | None, int]] = set()
+        merged_pages = self._episode_pages_of_known_rows(episodes) if self.inputs.merge_episode_pages else {}
+        absorbed = {page["record_id"] for pages in merged_pages.values() for page in pages}
         for r in sorted(episodes, key=lambda r: r["record_id"]):
-            wid = self._episode(r, cat)
+            if r["record_id"] in absorbed:
+                self.count("episode_pages_merged_into_their_season_row")
+                continue
+            wid = self._episode(r, cat, merged_pages.get(r["record_id"], ()))
             if wid is not None and isinstance(r.get("episode_number"), int):
                 parent = self.work_by_record.get(r.get("series_id"))
                 numbered.add((parent or 0, r.get("season_number"), r["episode_number"]))
@@ -689,7 +715,29 @@ class Builder:
             self._episode(r, cat)
         self.flush()
 
-    def _episode(self, r: dict, cat: int) -> int | None:
+    def _episode_pages_of_known_rows(self, episodes: list[dict]) -> dict[str, list[dict]]:
+        """Episode pages (`source == episode_page`) that describe the SAME episode as one row of a season or list page: record id of the row -> its pages.
+
+        A page matches a row only when the title is the same once the series qualifier is gone, the series is the same, the season agrees (when
+        both give one), exactly ONE row fits and the numbers do not contradict each other. Anything else stays a separate episode and is counted.
+        Nothing is inferred: a row without a number stays without a number."""
+        rows: dict[tuple[str, str], list[dict]] = {}
+        for r in episodes:
+            if r.get("source") != "episode_page":
+                rows.setdefault((r.get("series_id"), normalize_name(r.get("title_it") or r.get("title") or "")), []).append(r)
+        merged: dict[str, list[dict]] = {}
+        for page in sorted((r for r in episodes if r.get("source") == "episode_page"), key=lambda r: r["record_id"]):
+            base = episode_page_base_title(page.get("title_it") or page.get("title") or "", self.series_base_title.get(page.get("series_id"), ""))
+            fits = [x for x in rows.get((page.get("series_id"), base), [])
+                    if page.get("season_number") in (None, x.get("season_number"))
+                    and (page.get("episode_number") is None or x.get("episode_number") in (None, page["episode_number"]))]
+            if len(fits) == 1:
+                merged.setdefault(fits[0]["record_id"], []).append(page)
+            else:
+                self.note("episode_page_not_merged:" + ("no_row" if not fits else "several_rows"), page["record_id"])
+        return merged
+
+    def _episode(self, r: dict, cat: int, pages: Iterable[dict] = ()) -> int | None:
         series = self.work_by_record.get(r.get("series_id"))
         if series is None:
             self.note("episode_without_imported_series", r["record_id"])
@@ -706,6 +754,9 @@ class Builder:
         if r.get("air_dates") and not date:
             self.note("episode_air_date_not_parsed", (r.get("air_dates") or [None])[0])
         ep_no = r.get("episode_number") if isinstance(r.get("episode_number"), int) and r["episode_number"] >= 0 else None
+        pages = list(pages)
+        if ep_no is None:  # a number the episode's own page states is a stated value, not an inference
+            ep_no = next((p["episode_number"] for p in pages if isinstance(p.get("episode_number"), int) and p["episode_number"] >= 0), None)
         self.add("work", (wid, "episode", parent, number, ep_no, date, year_ok(date[:4]) if date else None, None, None, None, None, cat, r["record_id"]))
         self.count("works:episode")
         self.add_name(wid, title, "primary", "it", cat, r["record_id"], primary=True)
@@ -723,6 +774,14 @@ class Builder:
             self.add_external(wid, "wikidata", ids["qid"], cat, r["record_id"])
         if ids.get("imdb_id"):
             self.add_external(wid, "imdb_title", ids["imdb_id"], cat, r["record_id"])
+        for p in pages:  # the episode's own page: its identifiers and title belong to this one episode
+            page_title = wikipedia_title(p.get("wikipedia_url"))
+            if page_title:
+                self.add_external(wid, "wikipedia_it", page_title, cat, p["record_id"])
+            self.add_name(wid, p.get("title_it") or p["title"], "alias", "it", cat, p["record_id"])
+            for scheme, key in (("wikidata", "qid"), ("imdb_title", "imdb_id")):
+                if (p.get("ids") or {}).get(key):
+                    self.add_external(wid, scheme, p["ids"][key], cat, p["record_id"])
         return wid
 
     def tv_movies(self, rows: list[dict], sents: dict[str, dict]) -> None:
@@ -1046,6 +1105,9 @@ def run_build(out: Path, inputs: Inputs | None = None, *, force: bool = False, l
         if b.p4:
             info["phase4_snapshot_index_sha256"] = b.p4.index_sha256
             info["builder"] = "cinema_db.harness.build.build/2"
+        if inputs.merge_episode_pages:  # phase 6: an episode page and its season row are one episode (--no-episode-merge reproduces the phase-3/4 digests)
+            info["builder"] = "cinema_db.harness.build.build/3"
+            info["episode_pages_merged"] = "1"
         for k, v in info.items():
             conn.execute("INSERT OR REPLACE INTO build_info VALUES (?,?)", (k, v))
         conn.commit()
@@ -1070,9 +1132,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", type=Path, default=S.DEFAULT_DB)
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--no-phase4", action="store_true", help="build from the original local sources only (the phase-3 result)")
+    ap.add_argument("--no-episode-merge", action="store_true", help="keep an episode page and the season row of the same episode as two episodes (reproduces the phase-3/4 databases)")
     args = ap.parse_args(argv)
     phase4 = None if args.no_phase4 or not (S.PHASE4_SNAPSHOT / "requests.jsonl").is_file() else S.PHASE4_SNAPSHOT
-    run_build(args.out, Inputs(phase4=phase4), force=args.force)
+    run_build(args.out, Inputs(phase4=phase4, merge_episode_pages=not args.no_episode_merge), force=args.force)
     return 0
 
 

@@ -30,7 +30,7 @@ def q(p4, sql, *args):
 
 def test_integrity_foreign_keys_and_fts_hold_with_phase4(p4):
     assert q(p4, "PRAGMA foreign_key_check") == [] and q(p4, "PRAGMA integrity_check") == [("ok",)] and check_fts(p4["conn"]) == []
-    assert q(p4, "SELECT value FROM build_info WHERE key='builder'") == [("cinema_db.harness.build.build/2",)]
+    assert q(p4, "SELECT value FROM build_info WHERE key='builder'") == [("cinema_db.harness.build.build/3",)]  # phase 4 data, with the phase-6 episode merge
     assert q(p4, "SELECT count(*) FROM build_info WHERE key='phase4_snapshot_index_sha256'") == [(1,)]
 
 
@@ -109,7 +109,7 @@ def test_unplaceable_awards_are_skipped_and_counted_not_invented(p4):
 
 
 def test_without_the_phase4_snapshot_the_build_is_what_it_was(p4):
-    assert "builder" not in p4["plain"]["inputs"] or p4["plain"]["inputs"]["builder"] == "cinema_db.harness.build.build/1"
+    assert p4["plain"]["inputs"]["builder"] == "cinema_db.harness.build.build/3"  # the builder version follows the episode merge, not the phase-4 snapshot
     assert "phase4_snapshot_index_sha256" not in p4["plain"]["inputs"]
     assert p4["plain"]["counts"].get("persons_named_by_phase4") is None and p4["plain"]["counts"]["award_statements_not_imported"] == 6
 
