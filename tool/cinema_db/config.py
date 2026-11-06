@@ -12,12 +12,13 @@ from pydantic import BaseModel, ConfigDict, Field
 class CinemaDbConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    enabled: bool = Field(description="Feature flag: False (the default in `app.py`) does not register the tool, so the application behaves exactly as without it.")
     db_path: str = Field(min_length=1, description="Path of the SQLite file (relative to the repository root, or absolute).")
     max_queries_per_turn: int = Field(ge=1, le=40, description="SQL queries allowed in one turn, shared by every run of the turn.")
     default_limit: int = Field(ge=1, le=50, description="Rows listed when the request gives no limit.")
 
 
-SUGGESTED_CONFIG = {"db_path": "cinema_db/data/cinema.sqlite3", "max_queries_per_turn": 12, "default_limit": 25}
+SUGGESTED_CONFIG = {"enabled": False, "db_path": "cinema_db/data/cinema.sqlite3", "max_queries_per_turn": 12, "default_limit": 25}
 
 
 def load_cinema_db_config(config: dict[str, Any] | CinemaDbConfig) -> CinemaDbConfig:

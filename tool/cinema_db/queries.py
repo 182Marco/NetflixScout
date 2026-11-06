@@ -25,7 +25,8 @@ def kinds_for(type_: str | None) -> tuple[str, ...]:
 
 
 _WORK_CARD = ("w.work_id AS work_id, w.kind AS kind, w.title AS title, w.original_title AS original_title, w.year AS year, w.end_year AS end_year, "
-              "w.runtime_min AS runtime_min, w.status AS status, w.imdb_id AS imdb_id, w.tmdb_id AS tmdb_id, w.wikidata_id AS wikidata_id")
+              "w.runtime_min AS runtime_min, w.status AS status, w.imdb_id AS imdb_id, w.tmdb_id AS tmdb_id, w.wikidata_id AS wikidata_id, "
+              "w.wikipedia_it AS wikipedia_it")
 
 
 # ---- identification -----------------------------------------------------------------------------------------------------------
@@ -58,7 +59,7 @@ def directors_of(work_ids: Sequence[int]) -> Query:
             f"ORDER BY work_id, person_name LIMIT 50", list(work_ids))
 
 
-_PERSON_CARD = "p.person_id AS person_id, p.name AS name, p.birth_year AS birth_year, p.death_year AS death_year, p.birth_country AS birth_country, p.wikidata_id AS wikidata_id"
+_PERSON_CARD = "p.person_id AS person_id, p.name AS name, p.birth_year AS birth_year, p.death_year AS death_year, p.birth_country AS birth_country, p.wikidata_id AS wikidata_id, p.wikipedia_it AS wikipedia_it"
 
 
 def persons_by_name(norm: str, fetch: int) -> Query:

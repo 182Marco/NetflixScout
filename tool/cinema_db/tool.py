@@ -108,6 +108,11 @@ def _without_titles(node: Any) -> Any:
     return node
 
 
+def _public(entity: dict[str, Any] | None) -> dict[str, Any] | None:
+    """What the model sees of an entity: without the Wikipedia page title (it is for the link the interface shows, not for the answer)."""
+    return {k: v for k, v in entity.items() if k != "wikipedia_it"} if entity else entity
+
+
 def _note_list(codes: list[str]) -> list[dict[str, str]]:
     seen: list[str] = []
     for c in codes:
@@ -192,9 +197,9 @@ class CinemaSqlTool:
         if op.reason:
             body["reason"] = op.reason
         if op.subject:
-            body["subject"] = op.subject
+            body["subject"] = _public(op.subject)
         if op.candidates:
-            body["candidates"] = op.candidates
+            body["candidates"] = [_public(c) for c in op.candidates]
             body["omitted_candidates"] = op.omitted
         if op.data:
             body.update(op.data)
@@ -209,7 +214,8 @@ class CinemaSqlTool:
             "chunks": [],
             "outcome": tool_outcome(OUTCOME_OK) if op.status == OK_STATUS else tool_outcome(OUTCOME_EMPTY, op.reason or op.status),
             "metadata": {"cinema_db": body},
-            "trace": build_trace(operation=request.operation, status=op.status, reason=op.reason, calls=calls, subject=op.subject, rows=op.shown if op.status == OK_STATUS else 0),
+            "trace": build_trace(operation=request.operation, status=op.status, reason=op.reason, calls=calls, subject=op.subject, rows=op.shown if op.status == OK_STATUS else 0,
+                                 candidates=op.candidates, omitted=op.omitted, total=op.total, truncated=op.truncated, notes=[n["code"] for n in body["notes"]]),
         }
         if op.status in {"empty", "not_found", "unverified"}:  # an ambiguous request is for the user to settle, not for another tool
             result[RESULT_FOLLOW_UP] = {"available": True, "reasons": [op.reason or op.status], "summary": _summary(request.operation, op.status, op.reason)}

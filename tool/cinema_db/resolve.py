@@ -68,7 +68,7 @@ def work_identity(row: dict[str, Any], directors: list[str]) -> dict[str, Any]:
     out = {
         "work_id": row["work_id"], "kind": row["kind"], "title": row["title"], "original_title": row.get("original_title"), "year": row.get("year"),
         "end_year": row.get("end_year"), "runtime_min": row.get("runtime_min"), "status": row.get("status"), "directors": directors[:MAX_DIRECTORS],
-        "imdb_id": row.get("imdb_id"), "tmdb_id": row.get("tmdb_id"), "wikidata_id": row.get("wikidata_id"),
+        "imdb_id": row.get("imdb_id"), "tmdb_id": row.get("tmdb_id"), "wikidata_id": row.get("wikidata_id"), "wikipedia_it": row.get("wikipedia_it"),
     }
     if len(directors) > MAX_DIRECTORS:
         out["directors_total"] = len(directors)
@@ -156,7 +156,7 @@ def resolve_work(session: Session, request: CinemaSqlInput, *, allow_any_kind: b
 # ---- people ----------------------------------------------------------------------------------------------------------------------
 def person_identity(row: dict[str, Any], roles: dict[str, int] | None = None) -> dict[str, Any]:
     out = {"person_id": row["person_id"], "name": row["name"], "birth_year": row.get("birth_year"), "death_year": row.get("death_year"),
-           "birth_country": row.get("birth_country"), "wikidata_id": row.get("wikidata_id")}
+           "birth_country": row.get("birth_country"), "wikidata_id": row.get("wikidata_id"), "wikipedia_it": row.get("wikipedia_it")}
     if roles is not None:
         out["credits_by_role"] = roles
     return _compact(out)

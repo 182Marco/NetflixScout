@@ -354,7 +354,7 @@ def markdown(summary: dict[str, Any], records: list[dict[str, Any]], comparison:
 def main() -> int:
     if not DB.is_file():
         raise SystemExit(f"{DB} is missing: build it first (python -m cinema_db.harness.build.build)")
-    tool = CinemaSqlTool(config=CinemaDbConfig(db_path=str(DB), max_queries_per_turn=40, default_limit=25))
+    tool = CinemaSqlTool(config=CinemaDbConfig(enabled=True, db_path=str(DB), max_queries_per_turn=40, default_limit=25))
     raw = sqlite3.connect(f"file:{DB}?mode=ro", uri=True)
     records = [evaluate(q, tool, raw) for q in QUESTIONS]
     raw.close()

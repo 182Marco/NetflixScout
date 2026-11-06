@@ -23,11 +23,25 @@ from tool.cinema_db.tool import CinemaSqlTool
 DB = Path(__file__).resolve().parents[1] / "cinema_db/data/cinema.sqlite3"
 pytestmark = pytest.mark.skipif(not DB.is_file(), reason="the local cinema database is not built (python -m cinema_db.harness.build.build)")
 
-GODFATHER, NOLAN, BREAKING_BAD, CRASH_1996, CRASH_2004, CRASH_SERIES = 415700, 310973, 21995, 436264, 368053, 22814
+
+
+def _entity(qid: str) -> int:
+    """Internal ids change with every build (a build that merges duplicates shifts them): the tests find their entities by their Wikidata id."""
+    if not DB.is_file():
+        return 0
+    conn = sqlite3.connect(f"file:{DB}?mode=ro", uri=True)
+    try:
+        return conn.execute("SELECT entity_id FROM external_id WHERE scheme = 'wikidata' AND value = ?", (qid,)).fetchone()[0]
+    finally:
+        conn.close()
+
+
+GODFATHER, NOLAN, BREAKING_BAD, CRASH_1996, CRASH_2004, INCEPTION = (_entity(q) for q in ("Q47703", "Q25191", "Q1079", "Q839133", "Q188000", "Q25188"))
+CRASH_SERIES = 0 if not DB.is_file() else sqlite3.connect(f"file:{DB}?mode=ro", uri=True).execute("SELECT work_id FROM work w JOIN entity_name n ON n.entity_id = w.work_id AND n.is_primary = 1 WHERE n.name = 'Crash' AND w.kind = 'series'").fetchone()[0]
 
 
 def make_tool(max_queries: int = 40, policy=POLICY) -> CinemaSqlTool:
-    return CinemaSqlTool(config=CinemaDbConfig(db_path=str(DB), max_queries_per_turn=max_queries, default_limit=25), policy=policy)
+    return CinemaSqlTool(config=CinemaDbConfig(enabled=True, db_path=str(DB), max_queries_per_turn=max_queries, default_limit=25), policy=policy)
 
 
 @pytest.fixture(scope="module")
@@ -74,7 +88,7 @@ def test_external_identifiers_resolve_without_a_title_search(tool):
 def test_ids_that_point_at_different_works_are_never_resolved_to_one(tool):
     result, m = call(tool, operation="find_work", imdb_id="tt0068646", wikidata_id="Q25188")  # The Godfather and Inception
     assert m["status"] == "ambiguous" and m["reason"] == "ids_disagree"
-    assert {c["work_id"] for c in m["candidates"]} == {GODFATHER, 382977} and "follow_up" not in result
+    assert {c["work_id"] for c in m["candidates"]} == {GODFATHER, INCEPTION} and "follow_up" not in result
 
 
 def test_an_unknown_identifier_is_not_found_and_offers_one_step_elsewhere(tool):
@@ -192,9 +206,12 @@ def test_a_series_lists_its_seasons_with_both_episode_counts(tool, raw):
     _, m = call(tool, operation="series", title="Breaking Bad")
     assert m["status"] == "ok" and m["subject"]["work_id"] == BREAKING_BAD and [s["season_number"] for s in m["seasons"]] == [1, 2, 3, 4, 5]
     season1 = m["seasons"][0]
-    assert (season1["episodes"], season1["numbered_episodes"]) == (8, 7)  # the catalogue holds a repeat: the counts are not claimed to be exact
-    assert "episode_duplicates" in [n["code"] for n in m["notes"]]
-    assert raw.execute("SELECT count(*) FROM work WHERE kind='episode' AND parent_work_id = ?", (66400,)).fetchone()[0] == 8
+    # After the phase-6 fix (an episode page and its season row are one episode) the counts are the real ones: 7, 13, 13, 13, 16. The NUMBERS are still partly
+    # missing in the source (season 4 has two episodes without a number, season 5 none numbered) and are never inferred from the position.
+    assert [(s["episodes"], s["numbered_episodes"]) for s in m["seasons"]] == [(7, 7), (13, 13), (13, 13), (13, 11), (16, 0)]
+    assert "episode_duplicates" in [n["code"] for n in m["notes"]]  # still said: other series do have wrong counts
+    first_season = raw.execute("SELECT work_id FROM work WHERE kind = 'season' AND parent_work_id = ? AND season_number = 1", (BREAKING_BAD,)).fetchone()[0]
+    assert raw.execute("SELECT count(*) FROM work WHERE kind='episode' AND parent_work_id = ?", (first_season,)).fetchone()[0] == season1["episodes"]
 
 
 def test_the_episodes_of_a_season_and_a_film_is_not_a_series(tool):
@@ -326,7 +343,7 @@ def test_a_query_that_runs_too_long_or_scans_too_much_is_stopped_not_answered():
 
 
 def test_a_missing_database_is_an_error_with_a_follow_up_not_a_crash(tmp_path):
-    tool = CinemaSqlTool(config=CinemaDbConfig(db_path=str(tmp_path / "nope.sqlite3"), max_queries_per_turn=3, default_limit=10))
+    tool = CinemaSqlTool(config=CinemaDbConfig(enabled=True, db_path=str(tmp_path / "nope.sqlite3"), max_queries_per_turn=3, default_limit=10))
     result = tool.run(query="x", params={"operation": "find_work", "title": "Il padrino"})
     assert result["metadata"]["cinema_db"]["error"] == "db_missing" and result["follow_up"]["available"] is True and result["outcome"]["status"] == "error"
     assert not (tmp_path / "nope.sqlite3").exists()  # a read-only open never creates the file

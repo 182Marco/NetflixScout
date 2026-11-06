@@ -25,7 +25,7 @@ def tool(tmp_path_factory) -> CinemaSqlTool:
     inputs = Inputs(base.film_snapshot, base.series_snapshot, base.film_catalog, base.series_dir, phase4=make_phase4(tmp / "phase4"))
     out = tmp / "out" / "cinema.sqlite3"
     run_build(out, inputs, log=lambda *_: None)
-    return CinemaSqlTool(config=CinemaDbConfig(db_path=str(out), max_queries_per_turn=40, default_limit=25))
+    return CinemaSqlTool(config=CinemaDbConfig(enabled=True, db_path=str(out), max_queries_per_turn=40, default_limit=25))
 
 
 def call(tool: CinemaSqlTool, **arguments):
@@ -211,8 +211,9 @@ def test_the_tool_is_meant_for_the_official_information_setting_and_carries_no_r
     sources = next(f for f in fields["fields"] if f["id"] == "preferred_sources")
     values = {o["value"] for o in sources["options"]}
     assert SOURCE_CATEGORY == "official information" and SOURCE_CATEGORY in values and {"reviews", "user ratings"} <= values
-    behavior = (root / "preferences" / "behavior.py").read_text(encoding="utf-8")
-    assert "cinema_sql" not in behavior, "the tool is not wired into the settings yet"  # registering it is the next phase, with its own conflict test
+    from preferences import behavior
+
+    assert behavior.SOURCE_TOOLS["cinema_sql"] == SOURCE_CATEGORY  # wired in phase 6, with the conflict tests in tests/test_cinema_sql_app.py
     forbidden = ("rating", "score", "review", "vote", "plot", "overview", "synopsis")
     for arguments in ({"operation": "work_card", "title": "Film di prova"}, {"operation": "cast", "title": "Film di prova"}, {"operation": "awards", "title": "Film di prova"},
                       {"operation": "series", "title": "Serie di prova"}, {"operation": "relations", "title": "Film di prova"}, {"operation": "find_person", "person": "Ann Regista"}):

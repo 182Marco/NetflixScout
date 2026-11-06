@@ -44,14 +44,14 @@ def test_the_questions_that_cannot_be_settled_locally_are_declared_so():
 
 @needs_db
 def test_the_independent_verification_catches_a_wrong_answer():
-    tool = CinemaSqlTool(config=CinemaDbConfig(db_path=str(bench.DB), max_queries_per_turn=40, default_limit=25))
+    tool = CinemaSqlTool(config=CinemaDbConfig(enabled=True, db_path=str(bench.DB), max_queries_per_turn=40, default_limit=25))
     raw = sqlite3.connect(f"file:{bench.DB}?mode=ro", uri=True)
     args = {"operation": "filmography", "person": "Christopher Nolan", "role": "director"}
     metadata = tool.run(query="x", params=args)["metadata"]["cinema_db"]
     assert bench.verify(raw, args, metadata) == []
     wrong = {**metadata, "total": metadata["total"] + 1}
     assert bench.verify(raw, args, wrong) == ["total 14 != 13"]
-    foreign = {**metadata, "works": metadata["works"] + [{"work_id": 415700, "title": "Il padrino"}]}
+    foreign = {**metadata, "works": metadata["works"] + [{"work_id": 1, "title": "Il padrino"}]}
     assert "lists a work the person has no such credit for" in bench.verify(raw, args, foreign)
     cast_args = {"operation": "cast", "title": "Il padrino"}
     cast = tool.run(query="x", params=cast_args)["metadata"]["cinema_db"]
@@ -61,7 +61,7 @@ def test_the_independent_verification_catches_a_wrong_answer():
 
 @needs_db
 def test_a_step_that_picks_a_candidate_that_is_not_there_is_reported_not_guessed():
-    tool = CinemaSqlTool(config=CinemaDbConfig(db_path=str(bench.DB), max_queries_per_turn=40, default_limit=25))
+    tool = CinemaSqlTool(config=CinemaDbConfig(enabled=True, db_path=str(bench.DB), max_queries_per_turn=40, default_limit=25))
     raw = sqlite3.connect(f"file:{bench.DB}?mode=ro", uri=True)
     question = next(q for q in QUESTIONS if q.key == "B10")
     impossible = type(question)(**{**question.__dict__, "steps": (question.steps[0], bench.Step({"operation": "find_work"}, pick={"year": 1066}))})
@@ -73,7 +73,7 @@ def test_a_step_that_picks_a_candidate_that_is_not_there_is_reported_not_guessed
 @needs_db
 def test_the_comparison_with_the_baseline_adds_up(monkeypatch):
     monkeypatch.setattr(bench, "RUNS", 1)
-    tool = CinemaSqlTool(config=CinemaDbConfig(db_path=str(bench.DB), max_queries_per_turn=40, default_limit=25))
+    tool = CinemaSqlTool(config=CinemaDbConfig(enabled=True, db_path=str(bench.DB), max_queries_per_turn=40, default_limit=25))
     raw = sqlite3.connect(f"file:{bench.DB}?mode=ro", uri=True)
     records = [bench.evaluate(q, tool, raw) for q in QUESTIONS]
     raw.close()
@@ -90,7 +90,7 @@ def test_the_comparison_with_the_baseline_adds_up(monkeypatch):
 @needs_db
 def test_a_ambiguous_question_costs_a_second_step_and_a_not_applicable_one_costs_nothing(monkeypatch):
     monkeypatch.setattr(bench, "RUNS", 1)
-    tool = CinemaSqlTool(config=CinemaDbConfig(db_path=str(bench.DB), max_queries_per_turn=40, default_limit=25))
+    tool = CinemaSqlTool(config=CinemaDbConfig(enabled=True, db_path=str(bench.DB), max_queries_per_turn=40, default_limit=25))
     raw = sqlite3.connect(f"file:{bench.DB}?mode=ro", uri=True)
     by_key = {q.key: bench.evaluate(q, tool, raw) for q in QUESTIONS if q.key in {"B01", "B05", "B19"}}
     raw.close()
