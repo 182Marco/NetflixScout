@@ -1,7 +1,7 @@
 # Cinema DB — PROGRESS (punto di ripresa)
 
 Aprire una sessione nuova: leggere `AGENTS.md`, `docs/cinema_db/PLAN.md` (§15 per le decisioni) e questo file.
-Ultimo aggiornamento: 2026-11-06 (fase 5 completata: tool `cinema_sql` realizzato e verificato, NON integrato; fermo prima della fase 6). Legenda: **[V]** verificato con il comando indicato · **[S]** stima · **[P]** solo progettato.
+Ultimo aggiornamento: 2026-11-06 (fase 6 completata: `cinema_sql` integrato dietro feature flag spento, episodi corretti alla fonte, mappa visuale, valutazione live; fermo prima della fase 7). Legenda: **[V]** verificato con il comando indicato · **[S]** stima · **[P]** solo progettato.
 
 ## Stato
 | Fase | Stato |
@@ -12,7 +12,7 @@ Ultimo aggiornamento: 2026-11-06 (fase 5 completata: tool `cinema_sql` realizzat
 | 3 Prima build offline | **fatta [V]** — 333 MB, 293.447 opere, riproducibile, 0 differenze su 400 film (vedi sotto e `BUILD_REPORT.md`) |
 | 4 Arricchimento Wikidata (IMDb escluso, D5) | **fatta [V]** — 1.129 richieste, 0 fallite; +142.823 crediti, +27.751 risultati di premio, date di vita 113.171 persone, importi in 37 valute, ISO su 179 paesi; rapporto `PHASE4_REPORT.md`, digest `b3b0de51…` |
 | 5 Tool `cinema_sql` | **fatta [V]** — 13 operazioni sulle viste approvate, 71 test (37 sul database reale), benchmark 39 domande (0 sbagliate), mediana 33 ms; rapporto `PHASE5_REPORT.md`; **non registrato** in `app.py` né in `allowed_tools` |
-| 6 Integrazione (routing, impostazioni, presenter) | da fare, serve il via del proprietario (vedi PHASE5_REPORT §9) |
+| 6 Integrazione (routing, impostazioni, presenter) | **fatta [V]** — flag `CONFIG["cinema_db"]["enabled"]` spento di default, regola 1g, `official information`, step `cinema_sql_calls`, mappa del database, episodi 222.557 → 222.441 (digest `2d2ff48e…`, riproducibile); suite 2.614 passati, 1 saltato; live 47 domande: richieste HTTP 104 → 56; rapporto `PHASE6_REPORT.md` |
 
 ## HANDOFF PER NUOVA CONVERSAZIONE (checkpoint del 2026-11-05, fine fase 3)
 
@@ -140,8 +140,18 @@ Non coperto/limiti noti: la correttezza *semantica* di una SELECT valida non è 
 - **Lezioni operative**: non usare `cd` in un comando senza ripristinare la directory (sposta la directory di lavoro dello strumento); `cat > file` senza input svuota il file (è successo a `tests/cinema_sql_support.py`, ripristinato con `git restore`: usare sempre lo strumento di scrittura); i file di test nuovi hanno nomi propri (`tests/test_cinema_sql_tool*.py`, `tests/test_cinema_sql_benchmark.py`).
 - **Ripresa**: `python -m pytest tests/test_cinema_sql_tool.py tests/test_cinema_sql_tool_real.py tests/test_cinema_sql_benchmark.py -q` (offline, ~10 s); `python -m cinema_db.harness.tool_eval.run_benchmark` riscrive il benchmark.
 
+## Fase 6 — integrazione di `cinema_sql` [V] (rapporto: `PHASE6_REPORT.md`; live: `PHASE6_LIVE.md`; build: `PHASE6_BUILD_REPORT.md`)
+- **Dati**: unione delle pagine-episodio con la riga della stagione e completamento delle righe senza numero (mai numeri dedotti dalla posizione) in `cinema_db/harness/build/build.py`; `--no-episode-merge` riproduce la fase 4 (digest `b3b0de51…`). Digest finale `2d2ff48e2af6f5e5…`, seconda build identica. Copie: `cinema.phase3.sqlite3`, `cinema.phase4.sqlite3`, `cinema.sqlite3.previous` (ignorate da git).
+- **Integrazione**: `CONFIG["cinema_db"]` (`enabled: False`), `CINEMA_DB_ENABLED=1`, `ensure_cinema_db_ready`, `CINEMA_SQL_ROUTING_RULE` in `CONFIG["orchestrator"]["tool_rules"]` (aggiunta al prompt solo se il tool è registrato: con il flag spento il prompt è identico), `SOURCE_TOOLS["cinema_sql"] = "official information"`, `SettingsPolicy._check_cinema_sql`. `wikidata_search` resta il ripiego.
+- **Presenter**: `presenters/cinema_view.py`, `terminal/cinema/`, `web/cinema/`; fonti Wikipedia CC BY-SA e Wikidata CC0, link dagli identificativi registrati, mai SQL né id interni; contratto in `web_api/contracts/chat_stream.md`. Il frontend `marco-m-netflix` NON è aggiornato.
+- **Mappa**: `docs/cinema_db/schema.html` (grafo SVG interattivo: 33 nodi, 68 chiavi esterne), `cinema_db/harness/schema/map_view.py`; rigenerare con `python -m cinema_db.harness.schema.generate`.
+- **Live** (`python -m cinema_db.harness.tool_eval.run_live plan|run|judge|report`, con `--live`): 47 domande, flag spento/acceso; HTTP 104 → 56, `cinema_sql` scelto in 31/47 (20/21 dove atteso), fatti attesi 19 → 26 su 29, giudice 23 meglio / 14 pari / 10 peggio. Dati runtime in `cinema_db/data/phase6_live/` (ignorati).
+- **Residui**: premi per persona incompleti, conteggi di episodi parziali (17/29 stagioni esatte), franchise come liste, remake non distinguibile, cast senza ordine; frontend e routing-eval non fatti.
+- **Lezioni**: SIGALRM per run nella valutazione live (una chiamata API era rimasta appesa); Chrome headless richiede `--user-data-dir` unico; `timeout` non esiste su macOS; gli id interni cambiano tra le build, i test cercano per id Wikidata.
+- **Ripresa**: `python -m pytest tests/test_cinema_build_episodes.py tests/test_cinema_schema_map.py tests/test_cinema_sql_app.py tests/test_cinema_sql_turn.py tests/test_cinema_presenters.py tests/test_cinema_live_eval.py -q`.
+
 ## Fabbisogno stimato della fase 4 (STIMA, nulla richiesto; SURVEY.md §7) — fatto, vedi sopra
 Richieste a 50 id: persone senza nome 983; premi e cerimonie 47; valute 1; bersagli di relazioni 121; società 86; franchise 17; luoghi 22; paesi/lingue per i codici ISO (non nella stima di SURVEY, circa 9 per 426 voci); tutto, comprese le date di vita di ogni persona (2.824): **circa 3.100–3.130** richieste, circa un'ora a una richiesta al secondo. Minimo utile (nomi mancanti, premi, valute): 1.031. IMDb non fa parte del piano (vedi sopra).
 
 ## Prossimo passo
-Fermo prima della fase 6. Da decidere con il proprietario: integrazione di `cinema_sql` (§8 e PHASE5_REPORT §9), problemi di dati del §7, fusione dei duplicati di Wikidata, crediti verso organizzazioni, esclusione di IMDb, licenza dei generi.
+Fermo dopo la fase 6. Decisioni del proprietario (PHASE6_REPORT §11): flag acceso di default, premi per persona, cast, franchise (~22 richieste Wikidata da autorizzare), episodi, frontend.

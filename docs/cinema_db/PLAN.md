@@ -468,3 +468,12 @@ Dettaglio, numeri e limiti in `PHASE5_REPORT.md` e `PHASE5_BENCHMARK.md`. Decisi
 - **Impostazione**: `SOURCE_CATEGORY = "official information"` dichiarata nel tool ma non registrata in `preferences/` (verificato con un test); il conflitto preferenza/richiesta si prova al collegamento (Fase 6).
 - **Non fatto**: integrazione in `app.py`, planner, regola di routing, presenter e serializzatore web, routing eval live; correzioni dei dati (episodi doppi, franchise che sono liste): proposte nel report, in attesa di decisione.
 
+## 22. Fase 6 completata: integrazione di `cinema_sql` (2026-11-06)
+Dettaglio in `PHASE6_REPORT.md`, `PHASE6_LIVE.md`, `PHASE6_BUILD_REPORT.md`. Decisioni realizzate:
+- **Dati prima del collegamento**: gli episodi duplicati si correggono nella pipeline (unione stretta delle pagine-episodio, completamento delle righe senza numero, mai numeri dedotti); la build senza la correzione riproduce la fase 4; conteggi ancora parziali, quindi episodi a TVmaze.
+- **Feature flag spento di default** e regole del planner legate alla registrazione del tool (`tool_rules`): con il flag spento il prompt è identico. `wikidata_search` e gli altri tool esterni restano raggiungibili come ripiego.
+- **Impostazioni**: `official information`, mai `reviews` né `user ratings`; `content_type` applicato con l'argomento `type`.
+- **Presenter**: si mostra la provenienza dei dati (Wikipedia, Wikidata), non il motore; nessun SQL, vista o id interno.
+- **Mappa del database** obbligatoria, generata dallo schema reale e verificata contro `PRAGMA` indipendenti.
+- **Misura**: richieste HTTP 104 → 56 su 47 domande; i passi di pianificazione non diminuiscono (64 → 66); qualità pari o migliore in 37 domande su 47.
+- **Aperto**: accensione di default, premi per persona, cast, franchise (richiede nuove richieste a Wikidata), episodi, frontend.
