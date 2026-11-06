@@ -399,3 +399,17 @@ def test_every_executed_statement_is_recorded_with_the_views_it_read(tool):
     assert result["trace"][0]["kind"] == "cinema_sql_calls" and data["operation"] == "filmography" and len(data["queries"]) == m["queries"]
     assert all(q["sql"].startswith("SELECT") and "LIMIT" in q["sql"] for q in data["queries"])
     assert set(data["views"]) <= {"v_name", "v_person", "v_credit", "v_work"} and "CC BY-SA" in data["license"]
+
+
+def test_how_many_oscars_did_a_film_win_is_answered_with_the_award_filter_not_refused(tool):
+    parasite = _entity("Q61448040")
+    _, m = call(tool, operation="awards", work_id=parasite, award="Oscar", outcome="won", limit=50)
+    assert m["status"] == "ok" and m["total"] == 4 and {r["outcome"] for r in m["results"]} == {"won"} and all("oscar" in (r["category"] + r["award"]).lower() for r in m["results"])
+    _, nolan = call(tool, operation="awards", person="Christopher Nolan", award="Oscar", outcome="nominated", limit=50)
+    assert nolan["status"] == "ok" and nolan["total"] == 5 and {r["outcome"] for r in nolan["results"]} == {"nominated"}  # 5 of his 6 results are Oscars; the film-level Oppenheimer wins are not attributed to him
+
+
+def test_director_and_writer_of_a_title_come_together_when_no_role_is_given(tool):
+    _, m = call(tool, operation="crew", title="Inception")
+    roles = {g["role"]: g["people"] for g in m["crew"]}
+    assert roles["director"] == ["Christopher Nolan"] and "Hans Zimmer" in roles["composer"] and "writer" in roles

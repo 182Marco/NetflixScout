@@ -143,7 +143,7 @@ def crew(request: CinemaSqlInput, session: Session, limit: int) -> OpResult:
     rows = session.rows(*Q.crew_of(res.entity["work_id"], request.role, limit))
     crew_rows = _group(rows, "role", ("role",), {"person_name": "people"})
     return _empty_or_ok(crew_rows, "no_crew_in_catalogue", subject={"kind": "work", **res.entity}, data={"crew": crew_rows}, shown=len(rows),
-                        truncated=len(rows) >= limit, notes=["coverage"] + (["limit"] if len(rows) >= limit else []), via=res.via)
+                        truncated=len(rows) >= limit, notes=["coverage", "crew"] + (["limit"] if len(rows) >= limit else []), via=res.via)
 
 
 def collaborations(request: CinemaSqlInput, session: Session, limit: int) -> OpResult:
@@ -202,8 +202,9 @@ def awards(request: CinemaSqlInput, session: Session, limit: int) -> OpResult:
         if normalize_name(request.award or "") == "":
             return OpResult(NOT_FOUND, reason="no_award_name")
     if column:
-        rows = session.rows(*Q.awards_of(column, value, request.outcome, request.year_from, request.year_to, request.order, limit))
-        total = session.rows(*Q.awards_count(column, value, None, request.outcome, request.year_from, request.year_to))[0]["n"]
+        narrow = _like(request.award) if request.award and normalize_name(request.award) else None  # "Oscar" with a work or a person: only their Oscar results
+        rows = session.rows(*Q.awards_of(column, value, request.outcome, request.year_from, request.year_to, request.order, limit, narrow))
+        total = session.rows(*Q.awards_count(column, value, narrow, request.outcome, request.year_from, request.year_to))[0]["n"]
     else:
         exact = " ".join((request.award or "").casefold().split())
         rows = session.rows(*Q.awards_by_name(pattern, exact, request.outcome, request.year_from, request.year_to, request.order, limit))

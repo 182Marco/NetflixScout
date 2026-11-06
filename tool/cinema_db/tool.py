@@ -62,7 +62,9 @@ FINAL_INSTRUCTIONS = (
     "chiedi quale intende, dicendo quante non hai elencato se omitted_candidates è maggiore di zero; se è unverified, sono solo nomi simili, non la "
     "risposta: dillo senza scegliere; se è not_found o empty dillo senza inventare e senza dedurre che l'opera, la persona o il dato non esistano. "
     "I conteggi di episodi per stagione non sono affidabili: riporta le cifre come registrate (episodes e numbered_episodes), dicendo che il numero "
-    "reale può differire, e non dichiararle certe. Non aggiungere opere, persone o premi che non compaiono nei dati."
+    "reale può differire, e non dichiararle certe. work_id e person_id sono identificativi interni: non citarli mai; se l'utente chiede un ID, dai imdb_id o tmdb_id. "
+    "Se ha chiesto più ruoli (regia e sceneggiatura) e nei dati ne compare uno solo, dì che gli altri non sono stati letti, non che mancano. "
+    "Non aggiungere opere, persone o premi che non compaiono nei dati."
 )
 
 
@@ -136,6 +138,9 @@ def _failure(query: str, error: str, *, operation: str | None = None, calls: lis
     }
     if error in {"db_missing", "policy_mismatch"}:  # the local tool cannot work at all: an online tool can still answer
         result[RESULT_FOLLOW_UP] = {"available": True, "reasons": [error], "summary": _summary(operation or "unknown", "error", error)}
+    elif error == "invalid_request":  # the arguments broke a rule of the tool: the planner may correct them ONCE (the rule is in the summary) or go to an external tool
+        rules = "; ".join(f"{e['field']}: {e.get('rule') or e['problem']}" for e in details.get("errors", []))
+        result[RESULT_FOLLOW_UP] = {"available": True, "reasons": [error], "summary": f"cinema_sql refused the arguments ({rules}). Correct them once following the tool schema, or use the matching external tool; do not repeat the same arguments."}
     return result
 
 

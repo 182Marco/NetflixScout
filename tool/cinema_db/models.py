@@ -55,7 +55,7 @@ class CinemaSqlInput(BaseModel):
     person_b: str | None = Field(default=None, max_length=MAX_TEXT_CHARS, description="Second person (collaborations).")
     person_b_id: int | None = Field(default=None, ge=1, description="Local id of the second person.")
     birth_year: int | None = Field(default=None, ge=1000, le=2100, description="Birth year, only if given; tells apart namesakes.")
-    role: Role | None = Field(default=None, description="Role of `person`; null = any.")
+    role: Role | None = Field(default=None, description="Role of `person`, or the role to list for crew; null = every role (leave it null when several roles are asked, e.g. director and writer).")
     role_b: Role | None = Field(default=None, description="Role of the second person or collaborators.")
     year_from: int | None = Field(default=None, ge=1870, le=2100, description="First year of a list.")
     year_to: int | None = Field(default=None, ge=1870, le=2100, description="Last year of a list.")
@@ -87,9 +87,9 @@ class CinemaSqlInput(BaseModel):
         if op in PERSON_OPERATIONS and not has_person:
             raise ValueError(f"{op} needs person, person_id or wikidata_id")
         if op == "awards":
-            targets = sum(bool(x) for x in (has_work, self.person or self.person_id, self.award))
-            if targets != 1:
-                raise ValueError("awards needs exactly one of: a work, a person, an award name")
+            subjects = sum(bool(x) for x in (has_work, self.person or self.person_id))
+            if subjects > 1 or (subjects == 0 and not self.award):
+                raise ValueError("awards needs exactly one target: a work, a person, or an award name alone (an award name can also narrow the awards of a work or a person)")
         if op == "companies" and not (has_work or self.company):
             raise ValueError("companies needs a work or a company name")
         if op == "franchise" and not (has_work or self.franchise):
@@ -106,7 +106,10 @@ def describe_validation_errors(exc: ValidationError) -> list[dict[str, str]]:
     """Field and rule of each problem, never the values (they are the user's words)."""
     out = []
     for e in exc.errors()[:MAX_REPORTED_ERRORS]:
-        out.append({"field": ".".join(str(p) for p in e.get("loc", ())) or "request", "problem": str(e.get("type", "invalid"))})
+        item = {"field": ".".join(str(p) for p in e.get("loc", ())) or "request", "problem": str(e.get("type", "invalid"))}
+        if e.get("type") == "value_error" and isinstance(e.get("msg"), str):  # the rule written in this file (never a value the user wrote)
+            item["rule"] = e["msg"].removeprefix("Value error, ")
+        out.append(item)
     return out
 
 

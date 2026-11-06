@@ -156,18 +156,21 @@ _AWARD_COLUMNS = ("award, category, category_scope AS scope, ceremony_year AS ye
                   "work_year, person_id, person_name")
 
 
-def _award_filters(outcome: str | None, year_from: int | None, year_to: int | None) -> tuple[str, list]:
+def _award_filters(outcome: str | None, year_from: int | None, year_to: int | None, pattern: str | None = None) -> tuple[str, list]:
     sql, params = _year_filters("ceremony_year", year_from, year_to)
     if outcome:
         sql += " AND outcome = ?"
         params.append(outcome)
+    if pattern:  # an award name that narrows the results of a work or a person ('Oscar')
+        sql += " AND (lower(award) LIKE ? OR lower(category) LIKE ?)"
+        params += [pattern, pattern]
     return sql, params
 
 
-def awards_of(column: str, value: int, outcome: str | None, year_from: int | None, year_to: int | None, order: str, limit: int) -> Query:
+def awards_of(column: str, value: int, outcome: str | None, year_from: int | None, year_to: int | None, order: str, limit: int, pattern: str | None = None) -> Query:
     if column not in {"work_id", "person_id"}:
         raise ValueError("column not allowed")
-    extra, params = _award_filters(outcome, year_from, year_to)
+    extra, params = _award_filters(outcome, year_from, year_to, pattern)
     direction = "DESC" if order == "desc" else "ASC"
     return (f"SELECT {_AWARD_COLUMNS} FROM v_award_result WHERE {column} = ?{extra} ORDER BY ceremony_year {direction}, award, category, outcome DESC LIMIT {int(limit)}",
             [value, *params])
@@ -183,11 +186,12 @@ def awards_by_name(pattern: str, exact: str, outcome: str | None, year_from: int
 
 
 def awards_count(column: str | None, value: object, pattern: str | None, outcome: str | None, year_from: int | None, year_to: int | None) -> Query:
-    extra, params = _award_filters(outcome, year_from, year_to)
     if column:
         if column not in {"work_id", "person_id"}:
             raise ValueError("column not allowed")
+        extra, params = _award_filters(outcome, year_from, year_to, pattern)
         return f"SELECT count(*) AS n FROM v_award_result WHERE {column} = ?{extra}", [value, *params]
+    extra, params = _award_filters(outcome, year_from, year_to)
     return f"SELECT count(*) AS n FROM v_award_result WHERE (lower(award) LIKE ? OR lower(category) LIKE ?){extra}", [pattern, pattern, *params]
 
 

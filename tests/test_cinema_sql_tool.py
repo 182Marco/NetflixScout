@@ -220,3 +220,36 @@ def test_the_tool_is_meant_for_the_official_information_setting_and_carries_no_r
         text = json.dumps(call(tool, **arguments)[1]).casefold()
         keys = {k for k in __import__("re").findall(r'"([a-z_]+)":', text)}
         assert not [k for k in keys if any(word in k for word in forbidden)], (arguments, keys)
+
+
+# ---- defects found by the live evaluation (docs/cinema_db/PHASE6_LIVE.md) -------------------------------------------------------------------
+def test_an_award_name_narrows_the_awards_of_a_work_or_a_person_instead_of_being_refused(tool):
+    """The planner writes {title, award: 'Oscar', outcome: 'won'} for «how many Oscars did X win»: that is one request, not two targets."""
+    _, narrowed = call(tool, operation="awards", title="Film di prova", award="regia")
+    assert narrowed["status"] == "ok" and {r["category"] for r in narrowed["results"]} == {"Miglior regia"} and narrowed["total"] == 2
+    _, wins = call(tool, operation="awards", title="Film di prova", award="premio", outcome="won")
+    assert wins["total"] == 2 and {r["outcome"] for r in wins["results"]} == {"won"}
+    _, person = call(tool, operation="awards", person="Bob Attore", award="Miglior regia")
+    assert person["status"] == "ok" and {r["category"] for r in person["results"]} == {"Miglior regia"}
+    both = tool.run(query="q", params={"operation": "awards", "title": "Film di prova", "person": "Bob Attore"})
+    assert both["metadata"]["cinema_db"]["error"] == "invalid_request"  # a work AND a person is still two targets
+
+
+def test_a_refused_request_tells_the_planner_which_rule_it_broke_and_allows_one_correction(tool):
+    result = tool.run(query="q", params={"operation": "awards", "title": "Film di prova", "person": "Bob Attore", "title_secret": "x"})
+    assert result["outcome"]["status"] == "error" and result["follow_up"]["available"] is True and result["follow_up"]["reasons"] == ["invalid_request"]
+    clean = tool.run(query="q", params={"operation": "awards", "title": "SECRET TITLE", "person": "SECRET PERSON"})
+    summary = clean["follow_up"]["summary"]
+    assert "awards needs exactly one target" in summary and "Correct them once" in summary and "SECRET" not in json.dumps(clean)  # the rule, never the user's words
+    assert clean["metadata"]["cinema_db"]["errors"][0]["rule"].startswith("awards needs exactly one target")
+
+
+def test_crew_without_a_role_lists_every_role_and_says_the_writer_credit_can_name_source_authors(tool):
+    _, crew = call(tool, operation="crew", title="Film di prova")
+    assert {g["role"] for g in crew["crew"]} >= {"director", "writer"}
+    assert "crew" in [n["code"] for n in crew["notes"]] and "source material" in next(n["text"] for n in crew["notes"] if n["code"] == "crew")
+    assert "role" in planner_schema()["properties"] and "several roles" in planner_schema()["properties"]["role"]["description"]
+
+
+def test_the_final_instructions_forbid_quoting_internal_ids_and_calling_unread_roles_missing():
+    assert "work_id e person_id sono identificativi interni: non citarli mai" in FINAL_INSTRUCTIONS and "non che mancano" in FINAL_INSTRUCTIONS
