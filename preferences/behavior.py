@@ -179,6 +179,11 @@ SOURCE_TOOLS: Final[dict[str, str]] = {
     # keeps the prose). It carries no reviews, ratings or interviews, no plot (so no spoilers; the
     # relations name other works, never how a story ends), films and series. No preference adds a call to it.
     "wikidata_search": "official information",
+    # cinema_sql reads the local cinema database: structured encyclopedic facts (credits, relations, companies, awards, series structure) from Wikipedia
+    # and Wikidata, like wikipedia_search and tmdb_search, so `official information`. Verified on the real data (docs/cinema_db/PHASE5_REPORT.md §2): no
+    # audience rating (not `user ratings`), no critic score or review text (not `reviews`: awards are industry recognitions, not reviews), no interview, no
+    # plot (so no spoilers), films and series. No preference adds a call to it; the routing rule 1g decides when it is the first tool.
+    "cinema_sql": "official information",
 }
 
 SOURCES_PLANNER: Final[dict[str, str]] = {

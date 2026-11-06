@@ -635,6 +635,12 @@ class LLMOrchestrator:
             for name in tool_names
         )
 
+    def _tool_rules(self, allowed: list[str]) -> str:
+        """Routing rules that exist only while their tool is registered and allowed (`orchestrator.tool_rules`): with the tool off the planner prompt is
+        exactly what it was without it, so a disabled tool changes nothing."""
+        rules = self.orchestrator_config.get("tool_rules") or {}
+        return "".join(f"\n{rules[name]}" for name in allowed if name in rules and name in self.tools)
+
     def _coverage_for(self, allowed: list[str]) -> dict[str, Any]:
         coverage = self.orchestrator_config.get("data_coverage") or {}
         return {tool: info for tool, info in coverage.items() if tool in allowed}
@@ -651,6 +657,7 @@ class LLMOrchestrator:
         return (
             self.orchestrator_config.get("instructions", decision_prompt)
             + coverage_rule(self._coverage_for(allowed))
+            + self._tool_rules(allowed)
             + "\nAllowed tools: "
             + ", ".join(allowed)
             + "\nTool catalog (arguments must follow the tool parameters):\n"

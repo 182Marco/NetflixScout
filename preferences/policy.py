@@ -22,6 +22,10 @@ FILM_ONLY_TOOLS = frozenset({"rag_search"})
 SERIES_ONLY_TOOLS = frozenset({"tvmaze_search"})
 UNSAFE_FOR_SERIES = frozenset({"movie_db_search"})   # MovieLens rankings mix films and series and cannot be asked for series only
 
+# cinema_sql operations that resolve a work by title and honour its `type` (film, series); `series` is series-only.
+CINEMA_WORK_OPERATIONS = frozenset({"find_work", "work_card", "cast", "crew", "relations", "companies", "franchise", "filmography", "awards"})
+CINEMA_SERIES_OPERATIONS = frozenset({"series"})
+
 SETTINGS = ("spoiler_plot", "response_length", "response_tone", "approach", "content_type", "preferred_sources")
 
 _TEXTS = {
@@ -102,12 +106,29 @@ class SettingsPolicy:
             return StepVerdict(None, "content_type")
         if tool in SERIES_ONLY_TOOLS and content == "film":
             return StepVerdict(None, "content_type")
+        if tool == "cinema_sql":
+            return self._check_cinema_sql(arguments, content)
         if tool == "tmdb_search" and isinstance(arguments.get("requests"), list):
             requests = [r for r in arguments["requests"] if not (isinstance(r, dict) and _request_kind(r) == forbidden_kind)]
             if not requests:
                 return StepVerdict(None, "content_type")
             if len(requests) != len(arguments["requests"]):
                 return StepVerdict({**arguments, "requests": requests}, "content_type", changed=True)
+        return StepVerdict(dict(arguments))
+
+    def _check_cinema_sql(self, arguments: dict[str, Any], content: str) -> StepVerdict:
+        """The local database holds both kinds of work: the setting is applied through its `type` argument, which the tool honours when it resolves a title.
+        A step that explicitly asks for the forbidden kind (or is series-only under «film») does not run; one with no `type` gets the preferred one."""
+        wanted = "series" if content == "series" else "film"
+        operation = arguments.get("operation")
+        if operation in CINEMA_SERIES_OPERATIONS and content == "film":
+            return StepVerdict(None, "content_type")
+        if operation in CINEMA_WORK_OPERATIONS or operation in CINEMA_SERIES_OPERATIONS:
+            given = arguments.get("type")
+            if given not in (None, wanted):
+                return StepVerdict(None, "content_type")
+            if given is None and (arguments.get("title") or operation == "filmography"):
+                return StepVerdict({**arguments, "type": wanted}, "content_type", changed=True)
         return StepVerdict(dict(arguments))
 
     def conflict_sentence(self, conflicts: list[dict[str, Any]], language: str | None, *, nothing_left: bool = False) -> str:
