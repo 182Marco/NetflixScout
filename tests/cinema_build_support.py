@@ -116,7 +116,9 @@ def make_inputs(tmp: Path, *, awards_demo: bool = False) -> Inputs:
         when = {"snaktype": "value", "property": "P585", "datavalue": {"value": {"time": "+1983-01-01T00:00:00Z", "precision": 9}, "type": "time"}}
         entities[0]["claims"]["P1411"] = [item("P1411", "Q9702", {"P805": [q_item("P805", "Q9710")], "P2453": [q_item("P2453", "Q9102"), q_item("P2453", "Q9104")]}),
                                           item("P1411", "Q9704"), item("P1411", "Q9703", {"P805": [q_item("P805", "Q9711")]})]
-        entities[0]["claims"]["P166"] += [item("P166", "Q9703", {"P585": [when]}), item("P166", "Q9702", {"P805": [q_item("P805", "Q9710")], "P2453": [q_item("P2453", "Q9102")]})]
+        entities[0]["claims"]["P166"] += [item("P166", "Q9703", {"P585": [when]}), item("P166", "Q9702", {"P805": [q_item("P805", "Q9710")], "P2453": [q_item("P2453", "Q9102")]}),
+                                              # Wikidata names the WINNER of a P166 statement with P1346: a known person (Q9101) becomes a result, a company (Q9502) never a person
+                                              item("P166", "Q9702", {"P805": [q_item("P805", "Q9710")], "P1346": [q_item("P1346", "Q9101"), q_item("P1346", "Q9502")]})]
     labels = {
         "Q9101": {"it": "Ann Regista", "en": "Ann Director"}, "Q9102": {"it": "Bob Attore"}, "Q9201": {"it": "film drammatico", "en": "drama film"},
         "Q9202": {"it": "film strano"}, "Q9203": {"en": "psychological thriller"}, "Q9204": {"en": "romantic comedy film"},

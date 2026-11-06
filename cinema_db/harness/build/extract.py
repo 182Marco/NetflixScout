@@ -165,7 +165,7 @@ def summarize(qid: str, entity: dict) -> dict[str, Any]:
             award = item(c["mainsnak"])
             if award:
                 awards.append({"outcome": outcome, "award": award, "ceremony": qualifier_items(c, "P805"), "nominee": qualifier_items(c, "P2453"),
-                               "for_work": qualifier_items(c, "P1686"), "times": qualifier_times(c, "P585")})
+                               "winner": qualifier_items(c, "P1346"), "for_work": qualifier_items(c, "P1686"), "times": qualifier_times(c, "P585")})
     sitelinks = {k: v.get("title") for k, v in (entity.get("sitelinks") or {}).items()}
     return {
         "qid": qid, "labels": labels, "titles": titles, "itwiki": sitelinks.get("itwiki"), "classes": items(entity, "P31"), "ids": ids,

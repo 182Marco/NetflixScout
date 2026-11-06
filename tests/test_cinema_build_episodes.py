@@ -34,10 +34,17 @@ EXTRA = [
     row("wp-704", "Atto (prima parte)", number=6, source="episode_page", wikipedia_url="https://it.wikipedia.org/wiki/Atto_(prima_parte)"),  # a part, not a qualifier: same full title
     row("wp-100#u-terzo", "Terzo"),                                                                      # a season row WITHOUT a number whose table row states it: one episode
     row("wp-100#u-gemello-a", "Gemello"), row("wp-100#u-gemello-b", "Gemello"),                          # two unnumbered rows with one title: the table row cannot tell which
+    row("wp-100#u-duetto-1", "Duetto (1ª parte)"), row("wp-100#u-duetto-2", "Duetto (2ª parte)"),       # a double episode: the table has ONE row "(1 e 2 parte)" numbered 10
+    row("wp-100#u-trio-1", "Trio (1ª parte)"), row("wp-100#u-trio-2", "Trio (2ª parte)"),               # the same, but number 13 is taken by another row: nothing is assumed
+    row("wp-100#u-lungo", "Un week-end lungo"),                                                          # the same episode with another spelling in the table
 ]
 META = [
     {"record_id": "wp-100#m-terzo", "series_id": SERIES, "season_id": "wp-100", "season_number": 2, "episode_number": 8, "title": "Terzo", "title_it": "Terzo", "air_dates": ["3 marzo 2017"], "source": "table_row"},
     {"record_id": "wp-100#m-gemello", "series_id": SERIES, "season_id": "wp-100", "season_number": 2, "episode_number": 9, "title": "Gemello", "title_it": "Gemello", "air_dates": [], "source": "table_row"},
+    {"record_id": "wp-100#m-duetto", "series_id": SERIES, "season_id": "wp-100", "season_number": 2, "episode_number": 10, "title": "Duetto (1 e 2 parte)", "title_it": "Duetto (1 e 2 parte)", "air_dates": ["10 aprile 2017"], "source": "table_row"},
+    {"record_id": "wp-100#m-trio", "series_id": SERIES, "season_id": "wp-100", "season_number": 2, "episode_number": 12, "title": "Trio (1 e 2 parte)", "title_it": "Trio (1 e 2 parte)", "air_dates": [], "source": "table_row"},
+    {"record_id": "wp-100#m-dopo", "series_id": SERIES, "season_id": "wp-100", "season_number": 2, "episode_number": 13, "title": "Dopo il trio", "title_it": "Dopo il trio", "air_dates": [], "source": "table_row"},
+    {"record_id": "wp-100#m-lungo", "series_id": SERIES, "season_id": "wp-100", "season_number": 2, "episode_number": 14, "title": "Un weekend lungo", "title_it": "Un weekend lungo", "air_dates": ["14 maggio 2017"], "source": "table_row"},
 ]
 
 
@@ -100,7 +107,7 @@ def test_a_part_of_an_episode_is_not_a_qualifier_and_a_row_without_a_number_gets
 def test_only_the_duplicates_disappear_and_the_database_stays_consistent(merged, kept):
     merged_conn, kept_conn = merged[0], kept[0]
     count = lambda c: c.execute("SELECT count(*) FROM v_work WHERE kind = 'episode'").fetchone()[0]  # noqa: E731
-    assert count(kept_conn) - count(merged_conn) == 3  # the pages of «Finale» and of «Atto (prima parte)», and the table row of «Terzo»: the only exact one-row matches
+    assert count(kept_conn) - count(merged_conn) == 5  # the pages of «Finale» and of «Atto (prima parte)», the table rows of «Terzo», «Duetto» (a double episode) and «Un weekend lungo» (a spelling variant)
     assert merged_conn.execute("PRAGMA foreign_key_check").fetchall() == [] and merged_conn.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
     assert merged_conn.execute("SELECT count(*) FROM (SELECT 1 FROM external_id GROUP BY scheme, value HAVING count(*) > 1)").fetchone()[0] == 0
 
@@ -127,3 +134,21 @@ def test_a_table_row_completes_the_one_unnumbered_season_row_it_describes_and_ne
     gemello = season2(conn, "Gemello")
     assert len(gemello) == 3 and sorted(g[1] is None for g in gemello) == [False, True, True]  # two candidates: nothing merged, nothing numbered by guess
     assert len(season2(kept[0], "Terzo")) == 2
+
+
+def test_a_double_episode_row_numbers_its_two_parts_n_and_n_plus_one_only_when_the_data_proves_it(merged, kept):
+    conn, report = merged
+    parts = sorted(conn.execute("SELECT title, episode_number, release_date FROM v_work WHERE kind = 'episode' AND title LIKE 'Duetto%' AND season_number = 2").fetchall())
+    assert parts == [("Duetto (1ª parte)", 10, "2017-04-10"), ("Duetto (2ª parte)", 11, "2017-04-10")]  # the combined row is not a third episode
+    assert report["counts"]["double_episodes_completed_from_their_table_row"] == 1
+    assert len(season2(kept[0], "Duetto (1 e 2 parte)")) == 1  # with the flag off the combined row is still its own episode
+    trio = conn.execute("SELECT title, episode_number FROM v_work WHERE kind = 'episode' AND title LIKE 'Trio%' AND season_number = 2 ORDER BY title").fetchall()
+    assert trio == [("Trio (1 e 2 parte)", 12), ("Trio (1ª parte)", None), ("Trio (2ª parte)", None)]  # number 13 belongs to another row: no guess, nothing merged
+    assert report["skipped"]["double_episode_not_completed:number_taken"] == 1
+
+
+def test_the_same_title_with_another_spelling_completes_the_unnumbered_row(merged):
+    conn, report = merged
+    rows = conn.execute("SELECT title, episode_number, release_date FROM v_work WHERE kind = 'episode' AND season_number = 2 AND title LIKE 'Un week%'").fetchall()
+    assert rows == [("Un week-end lungo", 14, "2017-05-14")]
+    assert report["counts"]["unnumbered_episodes_completed_by_spelling_variant"] == 1

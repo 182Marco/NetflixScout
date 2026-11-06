@@ -30,7 +30,7 @@ def q(p4, sql, *args):
 
 def test_integrity_foreign_keys_and_fts_hold_with_phase4(p4):
     assert q(p4, "PRAGMA foreign_key_check") == [] and q(p4, "PRAGMA integrity_check") == [("ok",)] and check_fts(p4["conn"]) == []
-    assert q(p4, "SELECT value FROM build_info WHERE key='builder'") == [("cinema_db.harness.build.build/3",)]  # phase 4 data, with the phase-6 episode merge
+    assert q(p4, "SELECT value FROM build_info WHERE key='builder'") == [("cinema_db.harness.build.build/4",)]  # phase 4 data, with the phase-6 episode merge and the phase-7 fixes
     assert q(p4, "SELECT count(*) FROM build_info WHERE key='phase4_snapshot_index_sha256'") == [(1,)]
 
 
@@ -94,6 +94,9 @@ def test_awards_link_category_ceremony_work_and_nominee_with_provenance(p4):
     assert ("Miglior regia", "person_for_work", "won", 1983, "5ª cerimonia del Premio di Prova", "Bob Attore") in rows  # nominated AND won: the win is kept
     assert ("Miglior regia", "person_for_work", "nominated", 1983, "5ª cerimonia del Premio di Prova", "Dora Sceneggiatrice") in rows
     assert ("Miglior film", "work", "won", 1983, "5ª cerimonia del Premio di Prova", None) in rows
+    # the winner qualifier (P1346) names a person: a known human becomes a result, a company is counted and never turned into a person
+    assert ("Miglior regia", "person_for_work", "won", 1983, "5ª cerimonia del Premio di Prova", "Ann Regista") in rows
+    assert p4["report"]["counts"]["award_winner_not_a_known_person"] == 1
     counts, skipped = p4["report"]["counts"], p4["report"]["skipped"]
     assert counts["award_nominated_and_won_kept_won"] == 2 and skipped["ceremony_items_with_the_same_award_year_and_label"] == 1
     assert q(p4, "SELECT count(*) FROM ceremony") == [(1,)]  # the year-only statement reuses the ONE ceremony item of that award and year
@@ -105,13 +108,13 @@ def test_unplaceable_awards_are_skipped_and_counted_not_invented(p4):
     skipped = p4["report"]["skipped"]
     assert skipped["award_item_not_available"] == 1  # Q9701 was never fetched
     assert skipped["award_without_ceremony_or_year"] == 1  # Q9704 has neither a ceremony nor a year
-    assert q(p4, "SELECT count(*) FROM award_result") == [(3,)]
+    assert q(p4, "SELECT count(*) FROM award_result") == [(4,)]
 
 
 def test_without_the_phase4_snapshot_the_build_is_what_it_was(p4):
-    assert p4["plain"]["inputs"]["builder"] == "cinema_db.harness.build.build/3"  # the builder version follows the episode merge, not the phase-4 snapshot
+    assert p4["plain"]["inputs"]["builder"] == "cinema_db.harness.build.build/4"  # the builder version follows the episode merge, not the phase-4 snapshot
     assert "phase4_snapshot_index_sha256" not in p4["plain"]["inputs"]
-    assert p4["plain"]["counts"].get("persons_named_by_phase4") is None and p4["plain"]["counts"]["award_statements_not_imported"] == 6
+    assert p4["plain"]["counts"].get("persons_named_by_phase4") is None and p4["plain"]["counts"]["award_statements_not_imported"] == 7
 
 
 def test_an_organisation_listed_as_a_producer_is_a_company_not_a_second_entity(p4):
@@ -133,3 +136,16 @@ def test_only_release_places_that_wikidata_classes_as_countries_become_countries
     assert q(p4, "SELECT c.label_en, c.iso2 FROM work_release r JOIN country c ON c.country_id=r.country_id WHERE c.wikidata_id='Q9310'") == [("Free Atlantis", "AL")]
     assert q(p4, "SELECT count(*) FROM country WHERE wikidata_id='Q9311'") == [(0,)]
     assert p4["report"]["skipped"]["release_place_not_a_known_country"] >= 1  # the festival stays a counted gap, not an invented country
+
+
+def test_without_the_phase7_fixes_the_winner_qualifier_is_ignored_as_it_was(tmp_path):
+    base = make_inputs(tmp_path, awards_demo=True)
+    inputs = Inputs(base.film_snapshot, base.series_snapshot, base.film_catalog, base.series_dir, phase4=make_phase4(tmp_path / "phase4"), phase7_fixes=False)
+    out = tmp_path / "old" / "cinema.sqlite3"
+    report = run_build(out, inputs, log=lambda *_: None)
+    conn = sqlite3.connect(out)
+    assert conn.execute("SELECT count(*) FROM award_result r JOIN entity_name n ON n.entity_id = r.person_id AND n.is_primary = 1 WHERE n.name = 'Ann Regista'").fetchone() == (0,)
+    assert "award_winner_not_a_known_person" not in report["counts"]
+    assert conn.execute("SELECT count(*) FROM award_result").fetchone() == (4,)  # the winner statement still gives one row, with no person, as in phase 6
+    assert conn.execute("SELECT value FROM build_info WHERE key='builder'").fetchone() == ("cinema_db.harness.build.build/3",)
+    conn.close()

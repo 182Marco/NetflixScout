@@ -54,6 +54,11 @@ SAMPLE = 25  # examples kept per kind of problem in the report
 _PAREN = re.compile(r"\s*\([^)]*\)\s*$")
 
 
+def compact_title(normalized: str) -> str:
+    """Letters and digits only: two spellings of one title ("week end" / "weekend") compare equal."""
+    return "".join(ch for ch in normalized if ch.isalnum())
+
+
 def episode_page_base_title(title: str, series_title: str) -> str:
     """Normalised title of an episode page without the disambiguation qualifier Wikipedia adds: «Felina (Breaking Bad)» -> «felina».
 
@@ -76,11 +81,12 @@ def jsonl(path: Path) -> Iterator[dict]:
 
 class Inputs:
     def __init__(self, film_snapshot: Path = S.FILM_SNAPSHOT, series_snapshot: Path = S.SERIES_SNAPSHOT, film_catalog: Path = S.FILM_CATALOG, series_dir: Path = S.SERIES_DIR,
-                 phase4: Path | None = None, merge_episode_pages: bool = True) -> None:
+                 phase4: Path | None = None, merge_episode_pages: bool = True, phase7_fixes: bool = True) -> None:
         self.film_snapshot, self.series_snapshot, self.film_catalog, self.series_dir = film_snapshot, series_snapshot, film_catalog, series_dir
         self.phase4 = phase4  # the optional phase-4 Wikidata snapshot; None = a build from the original local sources only
         # An episode known from its own Wikipedia page and from a row of its season page is ONE episode (phase 6). False reproduces the phase-3/4 databases.
         self.merge_episode_pages = merge_episode_pages
+        self.phase7_fixes = phase7_fixes  # winners (P1346) as award recipients, double episodes and spelling variants of episode titles
 
 
 class Builder:
@@ -713,8 +719,20 @@ class Builder:
                 title = normalize_name(r.get("title_it") or r.get("title") or "")
                 unnumbered.setdefault((parent, r.get("season_number"), title), []).append(wid)
         self.flush()
+        meta = list(meta)  # read twice: the numbers of the whole season table first, then row by row
+        meta_numbers: dict[tuple[int, int | None], set[int]] = {}
+        for r in meta:
+            parent = self.work_by_record.get(r.get("series_id"))
+            if parent is not None and isinstance(r.get("episode_number"), int):
+                meta_numbers.setdefault((parent, r.get("season_number")), set()).add(r["episode_number"])
+        compact_titles: dict[tuple[int, int | None, str], list[tuple[tuple[int, int | None, str], int]]] = {}
+        for key, wids in unnumbered.items():
+            for wid in wids:
+                compact_titles.setdefault((key[0], key[1], compact_title(key[2])), []).append((key, wid))
         for r in sorted(meta, key=lambda r: r["record_id"]):
             parent = self.work_by_record.get(r.get("series_id"))
+            if self._complete_double_episode(r, parent, unnumbered, numbered, meta_numbers):
+                continue
             if parent is not None and isinstance(r.get("episode_number"), int) and (parent, r.get("season_number"), r["episode_number"]) in numbered:
                 self.note("episode_row_duplicates_an_episode_page")
                 continue
@@ -729,8 +747,53 @@ class Builder:
                 unnumbered.pop((parent, r.get("season_number"), normalize_name(r.get("title_it") or r.get("title") or "")))
                 self.count("unnumbered_episodes_completed_from_their_table_row")
                 continue
+            # The same episode written with another spelling ("Un week-end da dimenticare" / "Un weekend da dimenticare"): one unnumbered, undated episode of
+            # the season with the same letters and digits; anything else stays a separate episode.
+            if parent is not None and isinstance(r.get("episode_number"), int) and r["episode_number"] >= 0 and self.inputs.merge_episode_pages and self.inputs.phase7_fixes:
+                spelled = compact_titles.get((parent, r.get("season_number"), compact_title(normalize_name(r.get("title_it") or r.get("title") or ""))), [])
+                spelled = [(k, w) for k, w in spelled if w in (unnumbered.get(k) or [])]
+                if len(spelled) == 1:
+                    key, wid = spelled[0]
+                    date = next((d for d in (italian_date(x) for x in (r.get("air_dates") or [])) if d), None)
+                    self.c.execute("UPDATE work SET episode_number = ?, release_date = COALESCE(release_date, ?), release_year = COALESCE(release_year, ?) WHERE work_id = ?",
+                                   (r["episode_number"], date, year_ok(date[:4]) if date else None, wid))
+                    numbered.add((parent, r.get("season_number"), r["episode_number"]))
+                    unnumbered.pop(key, None)
+                    self.count("unnumbered_episodes_completed_by_spelling_variant")
+                    continue
             self._episode(r, cat)
         self.flush()
+
+    DOUBLE_EPISODE = re.compile(r"^(?P<base>.+?)\s*\(\s*(?P<a>\d+)\s*e\s*(?P<b>\d+)\s*parte\s*\)$", re.IGNORECASE)
+
+    def _complete_double_episode(self, r: dict, parent: int | None, unnumbered: dict, numbered: set, meta_numbers: dict) -> bool:
+        """A table row "T (1 e 2 parte)" numbered N, next to two unnumbered rows "T (1ª parte)" and "T (2ª parte)" of the SAME season, is ONE double
+        episode that the table counts as one row: the two parts become N and N+1 with the date of the row (the row stands for both).
+
+        Proven by the data, not by position: the title names exactly parts 1 and 2, each part appears once, N+1 is not used by another row of the season
+        table or of the season, and the row has a number. Anything else (a part missing, N+1 taken, more than one candidate) changes nothing."""
+        if not (self.inputs.merge_episode_pages and self.inputs.phase7_fixes) or parent is None or not isinstance(r.get("episode_number"), int) or r["episode_number"] < 0:
+            return False
+        m = self.DOUBLE_EPISODE.match((r.get("title_it") or r.get("title") or "").strip())
+        if not m or (m["a"], m["b"]) != ("1", "2"):
+            return False
+        season, n = r.get("season_number"), r["episode_number"]
+        base = normalize_name(m["base"])
+        first, second = unnumbered.get((parent, season, f"{base} 1a parte")), unnumbered.get((parent, season, f"{base} 2a parte"))
+        if not first or not second or len(first) != 1 or len(second) != 1:
+            return False
+        if (parent, season, n) in numbered or (parent, season, n + 1) in numbered or (n + 1) in meta_numbers.get((parent, season), set()):
+            self.note("double_episode_not_completed:number_taken", r["record_id"])
+            return False
+        date = next((d for d in (italian_date(x) for x in (r.get("air_dates") or [])) if d), None)
+        for wid, number in ((first[0], n), (second[0], n + 1)):
+            self.c.execute("UPDATE work SET episode_number = ?, release_date = COALESCE(release_date, ?), release_year = COALESCE(release_year, ?) WHERE work_id = ?",
+                           (number, date, year_ok(date[:4]) if date else None, wid))
+        numbered.update({(parent, season, n), (parent, season, n + 1)})
+        unnumbered.pop((parent, season, f"{base} 1a parte"), None)
+        unnumbered.pop((parent, season, f"{base} 2a parte"), None)
+        self.count("double_episodes_completed_from_their_table_row")
+        return True
 
     def _episode_pages_of_known_rows(self, episodes: list[dict]) -> dict[str, list[dict]]:
         """Episode pages (`source == episode_page`) that describe the SAME episode as one row of a season or list page: record id of the row -> its pages.
@@ -886,7 +949,27 @@ class Builder:
             return
         src = self.src["wd_p4"]
         acquired = p4.acquired_range[1]
-        scope_person = {a["award"] for _, _, a, _ in self.pending_awards if a["nominee"]}
+        known_humans = set(self.person_by_qid) | {q for q, it in p4.items.items() if Q_HUMAN in it.get("classes", [])}
+
+        def recipients(a: dict) -> list[str]:
+            """The people a statement names: the nominees (P2453) and, for a win, the winners (P1346) that are known people.
+
+            Wikidata records the winner of a P166 statement with the qualifier P1346, not P2453 (3,776 film and 1,386 series statements).
+            A winner that is a company, a work or an item this database does not know as a person is NOT turned into a person.
+            """
+            names = list(a["nominee"])
+            for w in a.get("winner", []) if self.inputs.phase7_fixes else []:
+                if w in names:
+                    continue
+                if w in known_humans and w not in self.company_qids:
+                    names.append(w)
+                else:
+                    self.count("award_winner_not_a_known_person")
+            return names
+
+        for _, _, a, _ in self.pending_awards:
+            a["recipients"] = recipients(a)
+        scope_person = {a["award"] for _, _, a, _ in self.pending_awards if a["recipients"]}
         award_by_q: dict[str, int] = {}
         category_by_q: dict[str, int] = {}
         category_by_name: dict[tuple[int, str], int] = {}
@@ -946,8 +1029,8 @@ class Builder:
             if not (item_year or statement_year):
                 self.note("award_without_ceremony_or_year", {"work": wqid, "award": cq})
                 continue
-            if a["nominee"] and not any(self.name_of(n) and n not in self.company_qids for n in a["nominee"]):
-                self.note("award_nominee_without_name", a["nominee"][0])
+            if a["recipients"] and not any(self.name_of(n) and n not in self.company_qids for n in a["recipients"]):
+                self.note("award_nominee_without_name", a["recipients"][0])
                 continue
             plan.append((work_id, wqid, a, wsrc, (a["ceremony"][0], "item") if item_year else None, item_year or statement_year))
         # Pass 2: ceremonies of the items first (so a statement that only gives a year can find the one ceremony of that award and year)
@@ -997,7 +1080,7 @@ class Builder:
                     ceremony, created = ceremony_row(aid, year, None, None, None, a["award"])
                     if created:
                         self.count("ceremonies_from_statement_year")
-            persons: list[int | None] = [pid for n in a["nominee"] if (pid := self.person(n, wsrc)) is not None] if a["nominee"] else [None]
+            persons: list[int | None] = [pid for n in a["recipients"] if (pid := self.person(n, wsrc)) is not None] if a["recipients"] else [None]
             for pid in persons:
                 key = (ceremony, category, work_id, pid)  # the database key does not include the outcome
                 if key not in emit:
@@ -1009,7 +1092,11 @@ class Builder:
                     self.count("award_nominated_and_won_kept_won")
                 else:
                     self.count("award_nominated_and_won_kept_won")
+        named = {(k[0], k[1], k[2]) for k in emit if k[3] is not None}
         for (ceremony, category, work_id, pid), (outcome, wsrc, wqid) in emit.items():
+            if self.inputs.phase7_fixes and pid is None and (ceremony, category, work_id) in named:
+                self.count("award_result_without_person_refined_by_named_ones")  # the same award is given with its people: not counted twice
+                continue
             ids["result"] += 1
             self.add("award_result", (ids["result"], ceremony, category, work_id, pid, outcome, None, wsrc, wqid))
             self.count(f"award_results:{outcome}")
@@ -1125,6 +1212,9 @@ def run_build(out: Path, inputs: Inputs | None = None, *, force: bool = False, l
         if inputs.merge_episode_pages:  # phase 6: an episode page and its season row are one episode (--no-episode-merge reproduces the phase-3/4 digests)
             info["builder"] = "cinema_db.harness.build.build/3"
             info["episode_pages_merged"] = "1"
+        if inputs.phase7_fixes:  # phase 7: award winners named by P1346, double-episode rows, spelling variants (--no-phase7-fixes with --no-episode-merge reproduces the phase-4 digest)
+            info["builder"] = "cinema_db.harness.build.build/4"
+            info["phase7_fixes"] = "1"
         for k, v in info.items():
             conn.execute("INSERT OR REPLACE INTO build_info VALUES (?,?)", (k, v))
         conn.commit()
@@ -1149,10 +1239,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", type=Path, default=S.DEFAULT_DB)
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--no-phase4", action="store_true", help="build from the original local sources only (the phase-3 result)")
+    ap.add_argument("--no-phase7-fixes", action="store_true", help="do not name award winners from P1346, do not complete double-episode rows or spelling variants (with --no-episode-merge reproduces the phase-3/4 digests)")
     ap.add_argument("--no-episode-merge", action="store_true", help="keep an episode page and the season row of the same episode as two episodes (reproduces the phase-3/4 databases)")
     args = ap.parse_args(argv)
     phase4 = None if args.no_phase4 or not (S.PHASE4_SNAPSHOT / "requests.jsonl").is_file() else S.PHASE4_SNAPSHOT
-    run_build(args.out, Inputs(phase4=phase4, merge_episode_pages=not args.no_episode_merge), force=args.force)
+    run_build(args.out, Inputs(phase4=phase4, merge_episode_pages=not args.no_episode_merge, phase7_fixes=not args.no_phase7_fixes), force=args.force)
     return 0
 
 
