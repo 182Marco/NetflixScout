@@ -2,7 +2,8 @@
 
 What the user is told about a turn that read the local cinema database: which operation, which work or person it identified (with the links to its public
 Wikipedia and Wikidata pages), how many results, the limits of the data that apply, and the SOURCES of the data with their licences. The provenance is that of
-the DATA (Wikipedia, CC BY-SA 4.0, and Wikidata, CC0 1.0), never "a database": the SQL, the views, the internal ids and the identifiers of other sites are not shown.
+the DATA (Wikipedia, CC BY-SA 4.0, and Wikidata, CC0 1.0), never "a database". Since phase 7 the user also sees the SQL queries that were really executed (text rewritten by the
+guard and its bound values, as for the movie DB step); never queries that were only planned, no HTTP calls, and no internal id outside those queries.
 Reads only `step.data`; imports nothing but `turn`: no `cinema_db` package, no tool logic. The links are built here from two identifiers the database records
 (a Wikipedia page title, a Wikidata item id), validated, on fixed hosts: nothing is invented.
 """
@@ -14,6 +15,8 @@ from urllib.parse import quote
 
 from pydantic import BaseModel, Field
 
+from .db_view import format_sql
+
 from turn import TraceStep, label_language
 
 LABELS = {
@@ -22,6 +25,8 @@ LABELS = {
         "source": "Fonte: Wikipedia ({wikipedia}) e Wikidata ({wikidata}), dati di un archivio locale riformulati dall'assistente",
         "no_network": "Nessuna richiesta di rete: i dati vengono dall'archivio locale",
         "local": "{n} ricerche locali, {ms} ms",
+        "sql_executed": "Query SQL eseguite",
+        "rows_ms": "{rows} righe, {ms} ms",
         "operation": "Ricerca",
         "wikipedia": "Pagina Wikipedia",
         "wikidata": "Elemento Wikidata",
@@ -42,6 +47,8 @@ LABELS = {
         "source": "Source: Wikipedia ({wikipedia}) and Wikidata ({wikidata}), data from a local archive reworded by the assistant",
         "no_network": "No network request: the data comes from the local archive",
         "local": "{n} local lookups, {ms} ms",
+        "sql_executed": "SQL queries executed",
+        "rows_ms": "{rows} rows, {ms} ms",
         "operation": "Lookup",
         "wikipedia": "Wikipedia page",
         "wikidata": "Wikidata item",
@@ -62,6 +69,8 @@ LABELS = {
         "source": "Quelle: Wikipedia ({wikipedia}) und Wikidata ({wikidata}), Daten aus einem lokalen Archiv, vom Assistenten umformuliert",
         "no_network": "Keine Netzwerkanfrage: Die Daten stammen aus dem lokalen Archiv",
         "local": "{n} lokale Abfragen, {ms} ms",
+        "sql_executed": "Ausgeführte SQL-Abfragen",
+        "rows_ms": "{rows} Zeilen, {ms} ms",
         "operation": "Abfrage",
         "wikipedia": "Wikipedia-Seite",
         "wikidata": "Wikidata-Element",
@@ -215,6 +224,15 @@ class LicenseView(BaseModel):
     url: str
 
 
+class QueryView(BaseModel):
+    sql: str
+    params: list[str | int | float | None] = Field(default_factory=list)
+    display_sql: str
+    rows: int | None = None
+    ms: int | None = None
+    detail: str = ""
+
+
 class CinemaCallsView(BaseModel):
     title: str
     source: str
@@ -231,6 +249,7 @@ class CinemaCallsView(BaseModel):
     partial: bool = False
     counts: str | None = None
     notes: list[str] = Field(default_factory=list)
+    queries: list[QueryView] = Field(default_factory=list)
     licenses: list[LicenseView] = Field(default_factory=list)
 
 
@@ -280,6 +299,43 @@ def _candidate(row: dict[str, Any], language: str | None) -> str:
     return f"{_name(row)} ({details})" if details else _name(row)
 
 
+MAX_QUERIES = 40  # the tool allows at most `max_queries_per_turn`; a bound on what one step can send to the browser
+MAX_SQL_CHARS = 3000
+MAX_PARAM_CHARS = 120
+_SECRET_LIKE = re.compile(r"^(sk-|AIza|ya29\.|ghp_|xox[bap]-|Bearer\s)|^[A-Za-z0-9_\-]{32,}$")
+
+
+def _param(value: Any) -> str | int | float | None:
+    """A bound value as shown: numbers and null unchanged; text without control characters, cut, and `***` when it looks like a credential (the values are titles, names and
+    ids in practice: this is only a guard)."""
+    if value is None or isinstance(value, bool):
+        return None if value is None else int(value)
+    if isinstance(value, (int, float)):
+        return value
+    text = " ".join(printable(value).split())
+    if _SECRET_LIKE.search(text):
+        return "***"
+    return text if len(text) <= MAX_PARAM_CHARS else text[: MAX_PARAM_CHARS - 1] + "…"
+
+
+def _queries(raw: Any, text: dict[str, str]) -> list[QueryView]:
+    """The queries the guard really ran (the tool records one only after it executed), in order; malformed entries are skipped."""
+    out: list[QueryView] = []
+    for item in raw if isinstance(raw, list) else []:
+        if not isinstance(item, dict) or not isinstance(item.get("sql"), str) or not item["sql"].strip():
+            continue
+        sql = " ".join(printable(item["sql"]).split())
+        params = [_param(v) for v in item["params"]] if isinstance(item.get("params"), (list, tuple)) else []
+        rows, ms = item.get("rows"), item.get("ms")
+        rows = rows if isinstance(rows, int) and not isinstance(rows, bool) else None
+        ms = ms if isinstance(ms, int) and not isinstance(ms, bool) else None
+        out.append(QueryView(sql=sql[:MAX_SQL_CHARS], params=params, display_sql=format_sql(sql, params)[:MAX_SQL_CHARS], rows=rows, ms=ms,
+                             detail=text["rows_ms"].format(rows=rows, ms=ms) if rows is not None and ms is not None else ""))
+        if len(out) == MAX_QUERIES:
+            break
+    return out
+
+
 def cinema_calls_view(step: TraceStep, language: str | None) -> CinemaCallsView:
     data = step.data
     lang = label_language(language)
@@ -312,5 +368,6 @@ def cinema_calls_view(step: TraceStep, language: str | None) -> CinemaCallsView:
         partial=bool(candidates) and isinstance(omitted, int) and omitted > 0,
         counts=counts,
         notes=[known[code] for code in data.get("notes") or [] if isinstance(code, str) and code in known],
+        queries=_queries(data.get("queries"), text),
         licenses=[LicenseView(name=name, url=url) for name, url in LICENSES],
     )

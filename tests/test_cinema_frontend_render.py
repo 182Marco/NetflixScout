@@ -57,9 +57,13 @@ def test_the_step_shows_the_provenance_of_the_data_the_public_pages_and_the_limi
     assert any("Nessuna richiesta di rete" in line for line in entry["lines"])
 
 
-def test_nothing_internal_reaches_the_screen_and_unsafe_links_are_dropped():
+def test_the_executed_queries_are_shown_and_nothing_else_internal_reaches_the_screen_and_unsafe_links_are_dropped():
     step = contract_step()
     step["subject"]["links"].append({"label": "x", "url": "javascript:alert(1)"})
-    text = json.dumps(render(step)).lower()
-    for internal in ("select ", " v_", "work_id", "person_id", "javascript:"):
+    entry = render(step)
+    assert "Query SQL eseguite:" in entry["lines"]
+    assert any(line.startswith("SELECT work_id, title FROM v_work WHERE work_id = 13 LIMIT 1") and "1 righe, 2 ms" in line for line in entry["lines"])  # as the guard ran it
+    step["queries"] = []
+    text = json.dumps(render(step)).lower()  # with no executed query the screen has no SQL at all
+    for internal in ("select ", " v_", "work_id", "person_id", "javascript:", "query sql eseguite"):
         assert internal not in text

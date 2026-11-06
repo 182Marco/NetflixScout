@@ -105,7 +105,9 @@ def test_the_documented_cinema_sql_step_is_what_the_serializer_produces_and_expo
     assert [lic["url"] for lic in documented["licenses"]] == ["https://creativecommons.org/licenses/by-sa/4.0/", "https://creativecommons.org/publicdomain/zero/1.0/"]
     assert "Wikipedia" in documented["source"] and "Wikidata" in documented["source"]
     text = json.dumps(documented)
-    assert SQL not in text and "v_work" not in text and "person_id" not in text
+    assert documented["queries"][0]["sql"] == SQL and documented["queries"][0]["params"] == [13]  # the executed query, as the guard recorded it
+    rest = json.dumps({k: v for k, v in documented.items() if k != "queries"})
+    assert SQL not in rest and "v_work" not in rest and "person_id" not in rest
 
 
 def test_every_documented_step_example_keeps_credentials_masked() -> None:

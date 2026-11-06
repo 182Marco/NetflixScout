@@ -1,7 +1,7 @@
 """The trace step of the tool (outside `metadata`, so outside the final prompt).
 
-`queries` is what the guard really rewrote and ran (text, bound values, views, rows, ms): for tests and evaluations, never shown to the user, whom the
-presenters give only the operation, the entity, the counts, the notes and the SOURCES of the data (Wikipedia and Wikidata, not the SQL engine).
+`queries` is what the guard really rewrote and ran (text, bound values, views, rows, ms), recorded only after the execution. The presenters show the user the SQL and its values (never the
+view list), the operation, the entity, the counts, the notes and the SOURCES of the data (Wikipedia and Wikidata).
 `subject` carries the two public identifiers the presenters turn into links (`wikipedia_it`, `wikidata_id`): both are recorded in the database, none is built here.
 """
 from __future__ import annotations

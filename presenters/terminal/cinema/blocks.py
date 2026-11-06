@@ -4,8 +4,12 @@ The content comes from the shared `presenters/cinema_view.py`; this module only 
 """
 from __future__ import annotations
 
+import textwrap
+
 from ...cinema_view import CinemaCallsView
 from ..box import print_box
+
+_SQL_WIDTH = 64
 
 
 def print_cinema_calls(view: CinemaCallsView) -> None:
@@ -33,4 +37,13 @@ def print_cinema_calls(view: CinemaCallsView) -> None:
         print(f"\n  {text['notes']}:")
         for note in view.notes:
             print(f"    - {note}")
+    if view.queries:
+        print(f"\n  {text['sql_executed']}:")
+        for index, query in enumerate(view.queries, start=1):
+            lines = textwrap.wrap(query.display_sql, width=_SQL_WIDTH) or [query.display_sql]
+            print(f"  🧾 #{index} {lines[0]}")
+            for line in lines[1:]:
+                print(f"       {line}")
+            if query.detail:
+                print(f"       ({query.detail})")
     print(f"\n  {text['license']}: " + "; ".join(f"{lic.name} — {lic.url}" for lic in view.licenses))

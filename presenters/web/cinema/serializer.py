@@ -2,7 +2,7 @@
 
 The frontend must show `source` (Wikipedia and Wikidata with their licences: the provenance of the DATA), link `subject.links[].url` (public pages) and each
 `licenses[].url`, and list `candidates`, `counts`, `notes` (limits of the data) and `reason`. There is no `calls`: no HTTP request is made, `no_network` says so.
-No SQL, view name or internal identifier is ever in this payload.
+`queries` holds only the SQL queries really executed (rewritten text, bound values, `display_sql` with the values inlined for reading only, rows, ms): no planned query, no HTTP call.
 """
 from __future__ import annotations
 

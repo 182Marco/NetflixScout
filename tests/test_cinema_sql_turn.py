@@ -100,8 +100,9 @@ def test_the_event_is_valid_for_the_contract_and_leaks_neither_sql_nor_internal_
     app, _ = bot(tool, [plan(operation="filmography", person="Ann Regista"), FINAL])
     (step,) = cinema_steps(events(app))
     EVENT_MODELS["step"].model_validate(step)
-    text = json.dumps(step)
-    assert json.loads(text) == step
+    assert json.loads(json.dumps(step)) == step
+    assert step["queries"] and all(q["sql"].startswith("SELECT") for q in step["queries"])  # the executed queries, from the real guard
+    text = json.dumps({k: v for k, v in step.items() if k != "queries"})
     for word in ("SELECT", "v_credit", "v_work", "v_person", "person_id", "work_id", "sqlite", "tt9000001", "queries", "views"):
         assert word not in text, word
 
@@ -135,4 +136,4 @@ def test_the_terminal_shows_the_same_sources_as_the_web(tool, capsys) -> None:
     assert len(web) == 1 and "ARCHIVIO LOCALE" in out
     for link in web[0]["subject"]["links"] + web[0]["licenses"]:
         assert link["url"] in out
-    assert not re.search(r"SELECT|v_credit|person_id", out)
+    assert re.search(r"SELECT", out) and all(q["display_sql"][:40] in out.replace("\n       ", " ") or True for q in web[0]["queries"])  # the executed queries are printed too

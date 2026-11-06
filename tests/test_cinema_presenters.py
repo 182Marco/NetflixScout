@@ -20,7 +20,7 @@ from tool.cinema_db.operations import OPERATIONS as TOOL_OPERATIONS
 from tool.cinema_db.tool import CinemaSqlTool
 from turn import STEP_CINEMA_SQL_CALLS, TraceStep
 
-INTERNAL = (SQL, "v_work", "v_credit", "person_id", "work_id", "queries", "views", "SELECT", "sqlite", "imdb_id", "tt9")
+INTERNAL = (SQL, "v_work", "v_credit", "person_id", "work_id", "views", "SELECT", "sqlite", "imdb_id", "tt9")  # outside `queries`
 
 
 def test_both_channels_register_the_step() -> None:
@@ -47,13 +47,29 @@ def test_the_entity_links_are_public_pages_built_only_from_recorded_identifiers(
     assert cinema_calls_view(step, "it").subject.links == []  # a missing or invalid identifier gives no link, never a guessed one
 
 
-def test_the_payload_never_carries_sql_view_names_or_internal_identifiers() -> None:
+def test_the_payload_carries_the_executed_queries_and_nothing_else_internal() -> None:
     for step in (doc_step(), ambiguous_step()):
         for language in ("it", "en", "de", "fr"):
-            payload = json.dumps(serialize_cinema_sql_calls_step(step, language), ensure_ascii=False)
+            payload = serialize_cinema_sql_calls_step(step, language)
+            queries = payload.pop("queries")
+            assert [(q["sql"], q["params"], q["rows"], q["ms"]) for q in queries] == [(SQL, [13], 1, 2)]  # exactly what the guard ran, nothing planned
+            assert queries[0]["display_sql"] == "SELECT work_id, title FROM v_work WHERE work_id = 13 LIMIT 1"
+            assert set(queries[0]) == {"sql", "params", "display_sql", "rows", "ms", "detail"}  # no view list, no truncation flag
+            rest = json.dumps(payload, ensure_ascii=False)
             for word in INTERNAL:
-                assert word not in payload, (language, word)
-    assert set(serialize_step(doc_step(), "it")) >= {"kind", "title", "source", "labels", "subject", "licenses", "notes", "status_label"} and "calls" not in serialize_step(doc_step(), "it")
+                assert word not in rest, (language, word)
+    assert set(serialize_step(doc_step(), "it")) >= {"kind", "title", "source", "labels", "subject", "licenses", "notes", "status_label", "queries"} and "calls" not in serialize_step(doc_step(), "it")
+
+
+def test_the_parameters_are_cleaned_cut_and_credentials_masked_and_no_query_means_none_shown() -> None:
+    step = doc_step()
+    step.data["queries"] = [{"sql": "SELECT title FROM v_work WHERE title = ? AND year = ? AND wikidata_id = ?", "params": ["It's\x07 ok", 1999, "sk-" + "a" * 40], "rows": 0, "ms": 1},
+                            {"sql": "  ", "params": []}, "not a dict", {"sql": "SELECT 1", "params": ["ab " * 200]}]
+    view = cinema_calls_view(step, "it")
+    assert [q.params[0] for q in view.queries] == ["It's ok", ("ab " * 200).strip()[:119] + "…"] and view.queries[0].params[2] == "***"
+    assert "***" in view.queries[0].display_sql and "sk-" not in view.queries[0].display_sql and "\x07" not in view.queries[0].display_sql
+    step.data["queries"] = []
+    assert cinema_calls_view(step, "it").queries == []
 
 
 def test_the_limits_of_the_data_are_shown_in_the_language_and_unknown_codes_are_dropped() -> None:
@@ -83,7 +99,9 @@ def test_the_terminal_prints_the_same_content(capsys: pytest.CaptureFixture[str]
     for fragment in ("ARCHIVIO LOCALE", "Fonte: Wikipedia (CC BY-SA 4.0) e Wikidata (CC0 1.0)", "Filmografia", "Ann Regista (*1950)", "https://it.wikipedia.org/wiki/Ann_Regista",
                      "https://www.wikidata.org/wiki/Q9101", "Mostrati 2 di 5", "Limiti dei dati", "https://creativecommons.org/licenses/by-sa/4.0/"):
         assert fragment in out, fragment
-    assert not any(word in out for word in INTERNAL)
+    assert "SELECT work_id, title FROM v_work WHERE work_id = 13 LIMIT 1" in out and "Query SQL eseguite" in out  # the executed query, values inlined for reading
+    rest = out.replace("SELECT work_id, title FROM v_work WHERE work_id = 13 LIMIT 1", "")
+    assert not any(word in rest for word in INTERNAL if word != SQL)
 
 
 def test_every_table_of_texts_is_complete_in_every_language_and_covers_what_the_tool_can_say() -> None:
@@ -114,8 +132,10 @@ def test_the_real_trace_of_the_tool_renders_with_public_links_and_nothing_intern
     text = json.dumps(payload, ensure_ascii=False)
     assert payload["status"] == "ok" and payload["operation_label"] == "Cast" and payload["subject"]["name"] == "Film di prova (1982)"
     assert [link["url"] for link in payload["subject"]["links"]] == ["https://it.wikipedia.org/wiki/Film_di_prova", "https://www.wikidata.org/wiki/Q9001"]
+    assert payload["queries"] and all(q["sql"].startswith("SELECT") and q["rows"] is not None for q in payload["queries"])  # the SQL the guard really ran
+    rest = json.dumps({k: v for k, v in payload.items() if k != "queries"}, ensure_ascii=False)
     for word in ("SELECT", "v_credit", "v_work", "work_id", "person_id", "tt9000001", "queries"):
-        assert word not in text, word
+        assert word not in rest, word
     assert payload["notes"] and "Il cast non ha un ordine di rilievo" in payload["notes"][0]
 
 
