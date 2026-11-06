@@ -292,13 +292,27 @@ def franchise(request: CinemaSqlInput, session: Session, limit: int) -> OpResult
                         notes=["franchise"] + (["limit"] if cut else []) + (["ids_partial"] if any(f["ids_partial"] for f in listed) else []), via=via)
 
 
+def relation_nature(relation: str, direction: str, kind: str | None, related_kind: str | None) -> str:
+    """What a stored relation proves, from the kinds of the two works (the database has no `remake_of` rows: no source states one).
+
+    - `adaptation_of_non_screen_work`: the work is based on something that is not a film or a series (a novel, a comic, a play, a game): an adaptation, by definition.
+    - `based_on_screen_work`: a film or series based on another film or series: a remake, a reboot or a derived work, which the data does not tell apart.
+    - `adapted_into_screen_work` (a novel and the film made from it) and `source_of_screen_work` (a film that another film is based on): the inverse direction, with the same limits; `order_in_series`: comes after/before, not a statement of sequel, prequel or reboot."""
+    screen = ("film", "short", "tv_film", "series", "miniseries")
+    if relation == "follows":
+        return "order_in_series"
+    if direction == "forward":
+        return "adaptation_of_non_screen_work" if related_kind not in screen and kind in screen else "based_on_screen_work"
+    return "adapted_into_screen_work" if kind not in screen and related_kind in screen else "source_of_screen_work"
+
+
 def relations(request: CinemaSqlInput, session: Session, limit: int) -> OpResult:
     res = resolve_work(session, request)
     if res.status != RESOLVED:
         return _unresolved(res, kind="work")
     rows = session.rows(*Q.relations_of(res.entity["work_id"], limit))
     listed = [{"relation": r["relation_label"], "direction": r["direction"], "work_id": r["related_work_id"], "title": r["related_title"],
-               "kind": r["related_kind"], "year": r["related_year"]} for r in rows]
+               "kind": r["related_kind"], "year": r["related_year"], "nature": relation_nature(r["relation"], r["direction"], res.entity.get("kind"), r["related_kind"])} for r in rows]
     return _empty_or_ok(listed, "no_relation_recorded", subject={"kind": "work", **res.entity}, data={"relations": listed}, shown=len(listed),
                         truncated=len(rows) >= limit, notes=["relations"], via=res.via)
 

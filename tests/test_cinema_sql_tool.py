@@ -59,7 +59,8 @@ def test_awards_with_category_ceremony_and_nominee(tool):
     _, m = call(tool, operation="awards", title="Film di prova")
     rows = {(r["category"], r["outcome"], r["person_name"]) for r in m["results"]}
     assert ("Miglior film", "won", None) in rows and ("Miglior regia", "won", "Bob Attore") in rows and ("Miglior regia", "nominated", "Dora Sceneggiatrice") in rows
-    assert m["total"] == 3 and {r["year"] for r in m["results"]} == {1983}
+    assert ("Miglior regia", "won", "Ann Regista") in rows  # the winner named by the P1346 qualifier
+    assert m["total"] == 4 and {r["year"] for r in m["results"]} == {1983}
     _, nominated = call(tool, operation="awards", title="Film di prova", outcome="nominated")
     assert nominated["total"] == 1
 
@@ -226,9 +227,9 @@ def test_the_tool_is_meant_for_the_official_information_setting_and_carries_no_r
 def test_an_award_name_narrows_the_awards_of_a_work_or_a_person_instead_of_being_refused(tool):
     """The planner writes {title, award: 'Oscar', outcome: 'won'} for «how many Oscars did X win»: that is one request, not two targets."""
     _, narrowed = call(tool, operation="awards", title="Film di prova", award="regia")
-    assert narrowed["status"] == "ok" and {r["category"] for r in narrowed["results"]} == {"Miglior regia"} and narrowed["total"] == 2
+    assert narrowed["status"] == "ok" and {r["category"] for r in narrowed["results"]} == {"Miglior regia"} and narrowed["total"] == 3
     _, wins = call(tool, operation="awards", title="Film di prova", award="premio", outcome="won")
-    assert wins["total"] == 2 and {r["outcome"] for r in wins["results"]} == {"won"}
+    assert wins["total"] == 3 and {r["outcome"] for r in wins["results"]} == {"won"}
     _, person = call(tool, operation="awards", person="Bob Attore", award="Miglior regia")
     assert person["status"] == "ok" and {r["category"] for r in person["results"]} == {"Miglior regia"}
     both = tool.run(query="q", params={"operation": "awards", "title": "Film di prova", "person": "Bob Attore"})

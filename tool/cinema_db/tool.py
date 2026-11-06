@@ -31,6 +31,7 @@ from .errors import CinemaSqlError, DatabaseMissing, SqlRejected
 from .models import CinemaSqlInput, describe_validation_errors
 from .operations import ERROR, OPERATIONS, OpResult
 from .policy import Policy
+from .reliability import assess, follow_up_summary, offer
 from .session import Session, TurnBudgets
 from .trace import build_trace
 
@@ -64,6 +65,10 @@ FINAL_INSTRUCTIONS = (
     "I conteggi di episodi per stagione non sono affidabili: riporta le cifre come registrate (episodes e numbered_episodes), dicendo che il numero "
     "reale può differire, e non dichiararle certe. work_id e person_id sono identificativi interni: non citarli mai; se l'utente chiede un ID, dai imdb_id o tmdb_id. "
     "Se ha chiesto più ruoli (regia e sceneggiatura) e nei dati ne compare uno solo, dì che gli altri non sono stati letti, non che mancano. "
+    "reliability dice quanto ci si può fidare di ogni campo: verified = registrato senza segnali di incompletezza; partial = vero come registrato ma l'elenco completo può "
+    "essere più lungo («tra quelli registrati»); uncertain = il significato non è stabilito dai dati (non dichiararlo certo e di' perché); absent = il catalogo non lo contiene "
+    "(mai «non esiste»). Se billing_order è absent il cast non ha un ordine: non presentare i primi nomi dell'elenco come protagonisti, di' che l'ordine di rilievo non è registrato "
+    "oppure usa i protagonisti ottenuti da un altro passo. "
     "Non aggiungere opere, persone o premi che non compaiono nei dati."
 )
 
@@ -214,15 +219,19 @@ class CinemaSqlTool:
             body["shown"] = op.shown
             body["truncated"] = op.truncated
         body["notes"] = _note_list(op.notes)
+        fields, gaps = assess(request.operation, status=op.status, reason=op.reason, data=op.data, total=op.total, shown=op.shown, truncated=op.truncated, subject=op.subject)
+        body["reliability"] = fields
         result: dict[str, Any] = {
             "query": request.query,
             "chunks": [],
             "outcome": tool_outcome(OUTCOME_OK) if op.status == OK_STATUS else tool_outcome(OUTCOME_EMPTY, op.reason or op.status),
             "metadata": {"cinema_db": body},
             "trace": build_trace(operation=request.operation, status=op.status, reason=op.reason, calls=calls, subject=op.subject, rows=op.shown if op.status == OK_STATUS else 0,
-                                 candidates=op.candidates, omitted=op.omitted, total=op.total, truncated=op.truncated, notes=[n["code"] for n in body["notes"]]),
+                                 candidates=op.candidates, omitted=op.omitted, total=op.total, truncated=op.truncated, notes=[n["code"] for n in body["notes"]], reliability=fields),
         }
         if op.status in {"empty", "not_found", "unverified"}:  # an ambiguous request is for the user to settle, not for another tool
             result[RESULT_FOLLOW_UP] = {"available": True, "reasons": [op.reason or op.status], "summary": _summary(request.operation, op.status, op.reason)}
+        elif op.status == OK_STATUS and (worth := offer(gaps, request.query)):  # a field the request asks about is not verified: ONE step may complete it
+            result[RESULT_FOLLOW_UP] = {"available": True, "reasons": [f"data_gap:{g['field']}" for g in worth], "summary": follow_up_summary(request.operation, worth)}
         return result
 

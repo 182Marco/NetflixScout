@@ -29,7 +29,7 @@ def _candidate(candidate: dict[str, Any]) -> dict[str, Any]:
 
 def build_trace(*, operation: str, status: str, reason: str | None, calls: list[dict[str, Any]], subject: dict[str, Any] | None, rows: int | None,
                 candidates: list[dict[str, Any]] | None = None, omitted: int = 0, total: int | None = None, truncated: bool = False,
-                notes: list[str] | None = None) -> list[dict[str, Any]]:
+                notes: list[str] | None = None, reliability: dict[str, Any] | None = None) -> list[dict[str, Any]]:
     if not calls:
         return []
     views = sorted({v for c in calls for v in c["views"]})
@@ -39,6 +39,6 @@ def build_trace(*, operation: str, status: str, reason: str | None, calls: list[
         "data": {
             "operation": operation, "status": status, "reason": reason, "queries": calls, "queries_count": len(calls), "views": views, "subject": _subject(subject),
             "rows": rows, "total": total, "truncated": truncated, "candidates": [_candidate(c) for c in (candidates or [])], "candidates_omitted": omitted,
-            "notes": list(notes or []), "elapsed_ms": sum(c["ms"] for c in calls), "license": LICENSE_TEXT,
+            "notes": list(notes or []), "reliability": {k: v["state"] for k, v in (reliability or {}).items()}, "elapsed_ms": sum(c["ms"] for c in calls), "license": LICENSE_TEXT,
         },
     }]
