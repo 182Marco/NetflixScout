@@ -655,6 +655,7 @@ first **offline build**, the **targeted Wikidata enrichment (phase 4)** the **`c
 - Security: one `SELECT` only, approved views and columns only, the rewritten text is what runs, SQLite opened read-only and immutable,
   deny-by-default authorizer, time/row/size limits; FTS5 title search through the `v_title_search` view (words and prefixes, not semantic).
   Tests: `tests/test_cinema_sql_security.py`, `tests/test_cinema_views_security.py`, `tests/test_cinema_build.py`, `tests/test_cinema_sql_tool.py`, `tests/test_cinema_sql_tool_real.py`, `tests/test_cinema_sql_benchmark.py`.
+- **Phase 7 (code and docs done, live validation incomplete)**: DB-first routing, per-field reliability (`tool/cinema_db/reliability.py`), the executed SQL queries are shown in the step `cinema_sql_calls` (terminal and web), repeated live comparison harness `python -m cinema_db.harness.tool_eval.run_live7 plan|run --live|judge --live|report`. The default stays **off** (`cinema_db.enabled`): the blind judging of the second round stopped at 51 of 165 pairs (OpenAI credits exhausted). Report and recommendation: `docs/cinema_db/PHASE7_REPORT.md`.
 
 ## Git Notes
 

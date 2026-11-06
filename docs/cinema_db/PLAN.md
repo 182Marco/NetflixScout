@@ -477,3 +477,13 @@ Dettaglio in `PHASE6_REPORT.md`, `PHASE6_LIVE.md`, `PHASE6_BUILD_REPORT.md`. Dec
 - **Mappa del database** obbligatoria, generata dallo schema reale e verificata contro `PRAGMA` indipendenti.
 - **Misura**: richieste HTTP 104 → 56 su 47 domande; i passi di pianificazione non diminuiscono (64 → 66); qualità pari o migliore in 37 domande su 47.
 - **Aperto**: accensione di default, premi per persona, cast, franchise (richiede nuove richieste a Wikidata), episodi, frontend.
+
+## 23. Fase 7: DB-first, affidabilità per campo, validazione live (2026-11-06)
+Dettaglio in `PHASE7_REPORT.md`. Decisioni realizzate:
+- **Cinema_sql prima per ciò che contiene con certezza**, gli altri tool solo per dati assenti, parziali, incerti o da aggiornare (regola 1g); qualità prima del numero di chiamate.
+- **Affidabilità per campo** (`tool/cinema_db/reliability.py`): quattro stati derivati da fatti, mai un punteggio; passo di completamento solo per il campo di cui la richiesta parla; `absent` non dice mai «non esiste».
+- **Dati**: premi dei vincitori e conteggio uno per premio, puntate doppie; nessuna richiesta Wikidata nuova (piano in `PHASE7_WIKIDATA_PLAN.md`, tutto da autorizzare).
+- **Omonimi e crediti `writer`**: restano scelte volute (il database non sceglie tra omonimi).
+- **Presenter**: mostra le query SQL realmente eseguite con i parametri ripuliti (decisione del proprietario, 2026-11-06, che sostituisce «nessun SQL» della fase 6).
+- **Accensione di default**: NON decisa; criteri in `PHASE7_REPORT.md` §8. Aperto: giudizi di 114 coppie, terzo giro, browser.
+
