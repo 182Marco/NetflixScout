@@ -42,7 +42,7 @@ def test_the_tool_follows_the_common_contract() -> None:
 
     assert isinstance(tool, Tool) and tool.name == OMDB_TOOL_NAME == "omdb_search"
     assert tool.input_schema == planner_schema() and "description" not in tool.input_schema
-    assert len(json.dumps(tool.input_schema)) < 2000
+    assert len(json.dumps(tool.input_schema)) < 2500  # the multi-title form adds ~900 characters
     assert tool.credentials is not None
 
 
@@ -341,3 +341,162 @@ def test_a_title_with_no_score_at_all_or_not_found_never_gets_a_value_in_a_multi
     assert new["outcome"] == {"status": "empty", "reason": "no_ratings"}
     assert all(row["value"] is None and "display" not in row for row in _meta(new)["ratings"])
     assert missing["outcome"] == {"status": "empty", "reason": "not_found"} and _meta(missing)["ratings"] == []
+
+
+# --- several titles in one step (phase 8, intervention 4b) -----------------------------------
+
+
+def _catalog(*entries):
+    """entries: (n, title, year) -> handler answering the search and the record of `Film n`."""
+    records = {f"tt200000{n}": record(imdb_id=f"tt200000{n}", title=t, year=y) for n, t, y in entries}
+    by_title = {t: (f"tt200000{n}", y) for n, t, y in entries}
+
+    def handler(params):
+        if "s" in params:
+            hit = by_title.get(params["s"])
+            return search_answer(search_hit(hit[0], params["s"], hit[1])) if hit else NOT_FOUND
+        return records.get(params["i"], UNKNOWN_ID)
+
+    return handler
+
+
+def _many(tool, titles, **extra):
+    return tool.run(query="q", params={"titles": titles, TOOL_PARAM_TURN_ID: "t1", **extra})
+
+
+FIVE = [(n, f"Film {n}", "2025") for n in range(1, 6)]
+
+
+def test_five_titles_in_one_step_cost_the_same_ten_requests_and_keep_one_result_each() -> None:
+    tool, transport = make_tool(_catalog(*FIVE), max_calls=10)
+    result = _many(tool, [{"title": t, "year": int(y)} for _, t, y in FIVE])
+
+    items = _meta(result)["items"]
+    assert result["outcome"] == {"status": "ok", "reason": None} and _meta(result)["status"] == "ok"
+    assert [i["title"] for i in items] == [t for _, t, _ in FIVE]
+    assert [i["requested"]["title"] for i in items] == [t for _, t, _ in FIVE]
+    assert all(i["status"] == "ok" and i["ratings"] for i in items)
+    assert len(transport.calls) == 10  # same cost as five separate steps, one planner pass instead of five
+
+
+def test_each_title_has_its_own_trace_step_with_only_its_own_requests() -> None:
+    tool, _ = make_tool(_catalog(*FIVE), max_calls=10)
+    result = _many(tool, [{"title": "Film 1"}, {"title": "Film 2"}])
+
+    steps = result["trace"]
+    assert [s["kind"] for s in steps] == [STEP_OMDB_CALLS, STEP_OMDB_CALLS]
+    assert [s["data"]["title"] for s in steps] == ["Film 1", "Film 2"]
+    assert [len(s["data"]["calls"]) for s in steps] == [2, 2]
+    assert "Film 2" not in json.dumps(steps[0]["data"]["calls"]) and SECRET not in json.dumps(result)
+
+
+def test_a_missing_title_does_not_touch_the_others_and_is_not_confused_with_them() -> None:
+    tool, _ = make_tool(_catalog((1, "Film 1", "2025"), (3, "Film 3", "2025")), max_calls=10)
+    result = _many(tool, [{"title": "Film 1"}, {"title": "Nothing Here"}, {"title": "Film 3"}])
+
+    first, missing, third = _meta(result)["items"]
+    assert (first["status"], missing["status"], third["status"]) == ("ok", "not_found", "ok")
+    assert missing["ratings"] == [] and missing["requested"] == {"title": "Nothing Here"}
+    assert _meta(result)["status"] == "partial" and result["outcome"] == {"status": "ok", "reason": "partial"}
+
+
+def test_ambiguous_and_unscored_titles_are_reported_apart_with_no_value() -> None:
+    blank = record(imdb_id="tt3000001", title="New Film", imdb=None, metascore=None, rotten=None, votes=None)
+
+    def handler(params):
+        if params.get("s") == "Crash":
+            return search_answer(search_hit("tt0000001", "Crash", "1996"), search_hit("tt0000002", "Crash", "2004"))
+        if params.get("s") == "New Film":
+            return search_answer(search_hit("tt3000001", "New Film", "2026"))
+        return blank if params.get("i") == "tt3000001" else NOT_FOUND
+
+    tool, _ = make_tool(handler, max_calls=10)
+    result = _many(tool, [{"title": "Crash"}, {"title": "New Film"}])
+
+    crash, new = _meta(result)["items"]
+    assert crash["status"] == "ambiguous" and crash["ratings"] == [] and len(crash["candidates"]) == 2
+    assert new["status"] == "empty" and all(r["value"] is None and "display" not in r for r in new["ratings"])
+    assert result["outcome"] == {"status": "empty", "reason": "no_scores"}
+
+
+def test_a_budget_that_runs_out_marks_only_the_remaining_titles_as_errors() -> None:
+    tool, transport = make_tool(_catalog(*FIVE), max_calls=4)
+    result = _many(tool, [{"title": t} for _, t, _ in FIVE])
+
+    statuses = [i["status"] for i in _meta(result)["items"]]
+    assert statuses == ["ok", "ok", "error", "error", "error"]
+    assert [i.get("error") for i in _meta(result)["items"][2:]] == ["turn_limit"] * 3
+    assert len(transport.calls) == 4 and result["outcome"]["status"] == "ok"
+
+
+@pytest.mark.parametrize("answer,code", [(BAD_KEY, "unauthorized"), (LIMIT, "quota_exceeded")])
+def test_a_key_or_limit_error_stops_the_run_without_more_requests(answer, code) -> None:
+    tool, transport = make_tool(lambda p: answer, max_calls=10)
+    result = _many(tool, [{"title": "Film 1"}, {"title": "Film 2"}, {"title": "Film 3"}])
+
+    assert len(transport.calls) == 1
+    assert [i["error"] for i in _meta(result)["items"]] == [code] * 3
+    assert result["outcome"] == {"status": "error", "reason": code}
+
+
+def test_a_title_that_fails_does_not_hide_the_scores_of_the_ones_that_worked() -> None:
+    good = _catalog((1, "Film 1", "2025"))
+
+    def handler(params):
+        if params.get("s") == "Broken":
+            return (500, {}, {})
+        return good(params)
+
+    tool, _ = make_tool(handler, max_calls=10)
+    result = _many(tool, [{"title": "Broken"}, {"title": "Film 1"}])
+
+    broken, fine = _meta(result)["items"]
+    assert broken["status"] == "error" and fine["status"] == "ok" and fine["ratings"]
+
+
+def test_the_titles_of_a_run_share_the_memo_of_the_turn() -> None:
+    tool, transport = make_tool(_catalog(*FIVE), max_calls=10)
+    _many(tool, [{"title": "Film 1"}, {"title": "Film 2"}])
+    assert len(transport.calls) == 4
+    _many(tool, [{"title": "Film 1"}, {"title": "Film 2"}])
+    assert len(transport.calls) == 4  # same turn: memo, no new request
+
+
+def test_a_single_title_keeps_the_exact_shape_it_always_had() -> None:
+    tool, _ = make_tool(_catalog(*FIVE), max_calls=10)
+    result = tool.run(query="q", params={"title": "Film 1", TOOL_PARAM_TURN_ID: "t1"})
+
+    assert "items" not in _meta(result) and _meta(result)["title"] == "Film 1" and _meta(result)["status"] == "ok"
+    assert len(result["trace"]) == 1
+
+
+@pytest.mark.parametrize(
+    "params",
+    [
+        {"titles": [{"title": "A"}]},  # one title is the single form
+        {"titles": [{"title": f"T{n}"} for n in range(6)]},  # more than the budget covers
+        {"titles": [{"title": "A"}, {"title": "B"}], "title": "C"},  # both forms
+        {"titles": [{"title": "A"}, {"title": "B"}], "year": 2020},
+        {"titles": [{"title": "A"}, {}]},  # a work with no identification
+        {"titles": [{"title": "A"}, {"title": "B", "imdb_id": "bad"}]},
+        {"titles": [{"title": "A"}, {"title": "B", "extra": 1}]},
+    ],
+)
+def test_invalid_multi_title_requests_are_rejected_before_any_call(params) -> None:
+    tool, transport = make_tool(_catalog(*FIVE), max_calls=10)
+    result = tool.run(query="q", params=params)
+
+    assert result["outcome"]["reason"] == "invalid_request" and not transport.calls
+    assert "A" not in json.dumps(result["metadata"])
+
+
+def test_b13_five_candidates_are_one_planner_step_instead_of_five() -> None:
+    """B13 (scores for the five recent films of a director): the planner used to emit one omdb step per
+    candidate (5 planner passes after the first); now one step carries the five works."""
+    tool, transport = make_tool(_catalog(*FIVE), max_calls=10)
+    one_step = _many(tool, [{"title": t, "year": 2025} for _, t, _ in FIVE])
+    separate = [tool.run(query="q", params={"title": t, "year": 2025, TOOL_PARAM_TURN_ID: "t2"}) for _, t, _ in FIVE]
+
+    from_one = [(i["title"], i["year"], [r["display"] for r in i["ratings"] if "display" in r]) for i in _meta(one_step)["items"]]
+    from_five = [(_meta(r)["title"], _meta(r)["year"], [x["display"] for x in _meta(r)["ratings"] if "display" in x]) for r in separate]
+    assert from_one == from_five  # identical scores, per title, in the same order

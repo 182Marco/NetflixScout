@@ -254,3 +254,38 @@ def test_the_budget_covers_five_title_lookups_and_the_final_rules_cover_several_
     text = RULES["omdb_search"]
     assert "di più titoli" in text and "non hanno un punteggio della critica" in text
     assert "non presentare mai i voti del pubblico come giudizio della critica" in text
+
+
+def test_rule_1d_asks_for_one_omdb_step_with_titles_for_several_known_titles() -> None:
+    rule = _rule("1d", "1e")
+    assert "arguments.titles" in rule and "mai un passo per ciascun titolo" in rule
+    assert "per ciascuno dei primi cinque candidati" not in rule
+    from app import CONFIG
+
+    assert "items" in CONFIG["orchestrator"]["tool_final_instructions"]["omdb_search"]
+
+
+def test_the_planner_sees_titles_and_a_titles_step_costs_one_planning_call() -> None:
+    """Offline check that the multi-title form is reachable: it is in the catalog the planner reads, a planner reply that uses it
+    passes the orchestrator unchanged, and five titles are ONE planner call (plus the answer) and ten requests, one result each."""
+    from omdb_support import NOT_FOUND, search_answer, search_hit
+
+    names = [f"Film {n}" for n in range(1, 6)]
+
+    def handler(params):
+        if "s" in params:
+            return search_answer(search_hit(f"tt200000{params['s'][-1]}", params["s"], "2025")) if params["s"] in names else NOT_FOUND
+        return record(imdb_id=params["i"], title=f"Film {params['i'][-1]}", year="2025")
+
+    omdb, transport = make_tool(handler, max_calls=10)
+    catalog = LLMOrchestrator(config=app_module.build_runtime_config(), tools=[omdb], client=FakeClient({}))._catalog_text(["omdb_search"])
+    assert '"titles"' in catalog and "ONE step" in catalog
+
+    plan = {"tool_name": "omdb_search", "confidence": 0.9, "arguments": {"titles": [{"title": n, "year": 2025} for n in names]}}
+    client = FakeClient(plan)
+    decision = LLMOrchestrator(config=app_module.build_runtime_config(), tools=[omdb], client=client).run(query="punteggi di questi film", conversation_history=[])
+
+    items = decision["result"]["metadata"]["omdb"]["items"]
+    assert [i["title"] for i in items] == names and all(i["status"] == "ok" for i in items)
+    assert len(client.calls) == 2 and len(transport.calls) == 10 and decision["timings"]["planner_calls"] == 1
+    assert len(decision["tools"]) == 1  # one step, not five

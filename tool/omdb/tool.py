@@ -19,7 +19,7 @@ from .config import OmdbConfig
 from .errors import OmdbConfigError, OmdbError, OmdbIdMismatch
 from .http import HttpSession, Transport, get_json, urllib_transport
 from .identify import IDENTIFIED, NOT_FOUND, UNVERIFIED, identify, normalize_title
-from .models import OmdbToolInput, describe_validation_errors
+from .models import OmdbToolInput, OmdbWork, describe_validation_errors
 from .ratings import any_available, extract_ratings
 from .responses import NOT_FOUND as RESPONSE_NOT_FOUND
 from .responses import OK, TOO_MANY, response_kind
@@ -46,6 +46,9 @@ STATUS_AMBIGUOUS = "ambiguous"
 STATUS_UNVERIFIED = "unverified"
 STATUS_NOT_FOUND = "not_found"
 STATUS_NO_RATINGS = "no_ratings"
+STATUS_PARTIAL = "partial"
+# After these the other titles of the run are not tried: the next request would fail the same way.
+STOPPING_CODES = frozenset({"unauthorized", "quota_exceeded", "not_configured", "turn_limit"})
 
 
 def planner_schema() -> dict[str, Any]:
@@ -53,6 +56,10 @@ def planner_schema() -> dict[str, Any]:
     tool `description` already says what the tool does. Validation uses the model, not this dict."""
     schema = OmdbToolInput.model_json_schema()
     schema.pop("description", None)
+    for definition in schema.get("$defs", {}).values():
+        definition.pop("description", None)
+        for prop in definition.get("properties", {}).values():
+            prop.pop("title", None)
     return schema
 
 
@@ -68,7 +75,7 @@ def _failure(query: str, error: str, *, calls: list[dict[str, str]] | None = Non
 
 
 def _result(
-    request: OmdbToolInput,
+    query: str,
     calls: list[dict[str, str]],
     *,
     status: str,
@@ -94,7 +101,7 @@ def _result(
         "candidates": candidates or [],
     }
     return {
-        "query": request.query,
+        "query": query,
         "chunks": [],
         "outcome": outcome,
         # Everything is in metadata (all of it reaches the prompt; no URL or key is in it).
@@ -167,12 +174,56 @@ class OmdbTool:
         )
         # Calls of this run only: the session may hold earlier runs of the same turn.
         first_call = len(session.recorder.calls)
+        if request.titles:
+            return self._lookup_many(request, session)
         try:
-            return self._lookup(request, session, first_call)
+            return self._lookup(request.query, request, session, first_call)
         except OmdbError as exc:
             return _failure(request.query, exc.code, calls=session.recorder.calls[first_call:])
 
-    def _lookup(self, request: OmdbToolInput, session: HttpSession, first_call: int) -> dict[str, Any]:
+    def _lookup_many(self, request: OmdbToolInput, session: HttpSession) -> dict[str, Any]:
+        """Several works in one step: each is looked up on its own (own requests, own status), so
+        a missing, ambiguous or failing title never touches the others. A key or limit error stops the
+        remaining titles without calling OMDb again."""
+        assert request.titles is not None
+        items: list[dict[str, Any]] = []
+        outcomes: list[dict[str, Any]] = []
+        trace: list[dict[str, Any]] = []
+        stop: str | None = None
+        for work in request.titles:
+            first_call = len(session.recorder.calls)
+            if stop is not None:
+                result = _failure(request.query, stop)
+            else:
+                try:
+                    result = self._lookup(request.query, work, session, first_call)
+                except OmdbError as exc:
+                    result = _failure(request.query, exc.code, calls=session.recorder.calls[first_call:])
+                    if exc.code in STOPPING_CODES:
+                        stop = exc.code
+            meta = dict(result["metadata"]["omdb"])
+            meta["requested"] = {k: v for k, v in (("title", work.title), ("year", work.year), ("type", work.type), ("imdb_id", work.imdb_id)) if v is not None}
+            items.append(meta)
+            outcomes.append(result["outcome"])
+            trace.extend(result["trace"])
+        good = sum(1 for o in outcomes if o["status"] == OUTCOME_OK)
+        if good == len(items):
+            status, outcome = STATUS_OK, tool_outcome(OUTCOME_OK)
+        elif good:
+            status, outcome = STATUS_PARTIAL, tool_outcome(OUTCOME_OK, STATUS_PARTIAL)
+        elif all(o["status"] == OUTCOME_ERROR for o in outcomes):
+            status, outcome = STATUS_ERROR, tool_outcome(OUTCOME_ERROR, outcomes[0].get("reason") or STATUS_ERROR)
+        else:
+            status, outcome = STATUS_EMPTY, tool_outcome(OUTCOME_EMPTY, "no_scores")
+        return {
+            "query": request.query,
+            "chunks": [],
+            "outcome": outcome,
+            "metadata": {"omdb": {"status": status, "items": items}},
+            "trace": trace,
+        }
+
+    def _lookup(self, query: str, request: OmdbWork | OmdbToolInput, session: HttpSession, first_call: int) -> dict[str, Any]:
         def calls() -> list[dict[str, str]]:
             return session.recorder.calls[first_call:]
 
@@ -183,18 +234,18 @@ class OmdbTool:
             payload = get_json(session, search)
             kind = response_kind(payload)
             if kind == TOO_MANY:
-                return _result(request, calls(), status=STATUS_UNVERIFIED, reason="too_many_results")
+                return _result(query, calls(), status=STATUS_UNVERIFIED, reason="too_many_results")
             if kind == RESPONSE_NOT_FOUND:
-                return _result(request, calls(), status=STATUS_NOT_FOUND)
+                return _result(query, calls(), status=STATUS_NOT_FOUND)
             found = identify(payload.get("Search"), title=request.title, year=request.year, type=request.type)
             if found.status != IDENTIFIED:
                 status = {NOT_FOUND: STATUS_NOT_FOUND, UNVERIFIED: STATUS_UNVERIFIED}.get(found.status, STATUS_AMBIGUOUS)
-                return _result(request, calls(), status=status, candidates=found.candidates)
+                return _result(query, calls(), status=status, candidates=found.candidates)
             imdb_id, expected_title = found.imdb_id, found.title
 
         record = get_json(session, {"i": imdb_id, "r": "json"})
         if response_kind(record) != OK:
-            return _result(request, calls(), status=STATUS_NOT_FOUND, imdb_id=imdb_id)
+            return _result(query, calls(), status=STATUS_NOT_FOUND, imdb_id=imdb_id)
         returned = record.get("imdbID")
         if not isinstance(returned, str) or returned.lower() != imdb_id:
             raise OmdbIdMismatch("OMDb returned a different record than the one identified.")
@@ -202,7 +253,7 @@ class OmdbTool:
             raise OmdbIdMismatch("OMDb returned a different record than the one identified.")
         ratings = extract_ratings(record)
         if any_available(ratings):
-            return _result(request, calls(), status=STATUS_OK, record=record, ratings=ratings, imdb_id=imdb_id)
+            return _result(query, calls(), status=STATUS_OK, record=record, ratings=ratings, imdb_id=imdb_id)
         return _result(
-            request, calls(), status=STATUS_EMPTY, reason=STATUS_NO_RATINGS, record=record, ratings=ratings, imdb_id=imdb_id
+            query, calls(), status=STATUS_EMPTY, reason=STATUS_NO_RATINGS, record=record, ratings=ratings, imdb_id=imdb_id
         )

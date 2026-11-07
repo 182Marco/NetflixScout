@@ -234,3 +234,13 @@ def test_the_query_budget_is_per_turn_across_every_run_of_the_turn(tool) -> None
     outcomes = [small.run(query="q", params=dict(params))["outcome"]["status"] for _ in range(3)]
     assert outcomes[0] == "ok" and "error" in outcomes[1:]  # two queries per lookup: the third query of the turn does not run
     assert small.run(query="q", params={**params, "turn_id": "T2"})["outcome"]["status"] == "ok"
+
+
+def test_a_general_description_request_stays_with_tmdb_and_the_database_stays_first_for_what_it_holds() -> None:
+    """Phase 8: «parlami di X» is one tmdb_search step (no extra local step); every data the database holds is still asked to it first."""
+    assert "«parlami di X»" in RULE and "un solo passo tmdb_search" in RULE and "cinema_sql solo per un dato che la richiesta nomina" in RULE
+    # DB-first is untouched: first source, per-datum order, precedence over rules 1/1e/1f, reliability handling.
+    for text in ("è la PRIMA fonte per tutto ciò che contiene", "per ogni dato chiedi prima a cinema_sql", "ha la precedenza sulle regole 1, 1e e 1f", "Un dato verified non va riverificato"):
+        assert text in RULE
+    # With the flag off the planner never sees the clause.
+    assert "cinema_sql solo per un dato che la richiesta nomina" not in INSTRUCTIONS
