@@ -229,3 +229,5 @@ class TurnResult(BaseModel):
     item_refs: list[Any] = Field(default_factory=list)
     # Requests that contradicted a user setting and lost to it: [{"setting": ..., "requested": ...}] (see `preferences/policy.py`).
     settings_conflicts: list[dict[str, str]] = Field(default_factory=list)
+    # Where the time went (milliseconds): classifier, planner calls, tools, local SQL, answer. Measurement only; no channel shows it.
+    timings: dict[str, Any] = Field(default_factory=dict)

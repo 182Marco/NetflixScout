@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import os
+import time
 from collections.abc import Mapping
 from typing import Any
 
@@ -968,7 +969,9 @@ def handle_query(
     recorder = _TurnRecorder(observer or NullObserver())
 
     context_size = runtime_config["orchestrator"].get("classifier_context_messages", 0)
+    turn_started = time.monotonic()
     classification = classify_query_domain(query, history[-context_size:] if context_size else [])
+    classifier_ms = int((time.monotonic() - turn_started) * 1000)
     language = classification["language"]
     recorder.step(TraceStep(kind=STEP_CLASSIFICATION, title="Classificazione", data=dict(classification)))
 
@@ -984,6 +987,7 @@ def handle_query(
             steps=recorder.steps,
             story=recorder.story,
             history=history,
+            timings={"classifier_ms": classifier_ms},
         )
 
     recorder.status(STAGE_UNDERSTANDING)
@@ -1008,6 +1012,7 @@ def handle_query(
         ]
     )
 
+    compact_started = time.monotonic()
     compacted = False
     if len(history) >= runtime_config["orchestrator"]["memory_window_size"]:
         compact_runtime = {
@@ -1033,6 +1038,8 @@ def handle_query(
         history_compacted=compacted,
         item_refs=list(decision.get("final_lists") or []),
         settings_conflicts=list(decision.get("settings_conflicts") or []),
+        timings={"classifier_ms": classifier_ms, **(decision.get("timings") or {}), "compaction_ms": int((time.monotonic() - compact_started) * 1000) if compacted else 0,
+                 "turn_ms": int((time.monotonic() - turn_started) * 1000)},
     )
 
 

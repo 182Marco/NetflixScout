@@ -105,7 +105,8 @@ def measure(result, wall: float) -> dict[str, Any]:
     return {"tools": list(result.tools), "tool_steps": sum(1 for s in result.steps if s.kind == "tool_selection"), "http": http, "sql_queries": sql, "wall_s": round(wall, 2),
             "answer": result.answer, "language": result.language, "conflicts": [c.get("setting") for c in (getattr(result, "settings_conflicts", None) or []) if isinstance(c, dict)],
             "step_kinds": [s.kind for s in result.steps],
-            "tool_ms": [[s.data.get("tool"), s.data.get("elapsed_ms")] for s in result.steps if s.kind == "tool_outcome" and isinstance(s.data, dict)]}
+            "tool_ms": [[s.data.get("tool"), s.data.get("elapsed_ms")] for s in result.steps if s.kind == "tool_outcome" and isinstance(s.data, dict)],
+            "timings": dict(getattr(result, "timings", None) or {})}
 
 
 def run_one(app, live: Live) -> dict[str, Any]:

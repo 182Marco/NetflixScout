@@ -67,13 +67,31 @@ class _Limits:
         self.started = time.monotonic()
         self.iterations = 0
         self.tokens = 0
+        # One entry per planner call, for the turn timings (measurement only, nothing reads it to decide).
+        self.calls: list[dict[str, Any]] = []
 
-    def record(self, response: Any) -> None:
+    def record(self, response: Any, *, kind: str = "planner", ms: int | None = None) -> None:
         """Count one planner call and the tokens its response reports (0 when it reports none)."""
         self.iterations += 1
-        total = getattr(getattr(response, "usage", None), "total_tokens", None)
+        usage = getattr(response, "usage", None)
+        total = getattr(usage, "total_tokens", None)
         if isinstance(total, int):
             self.tokens += total
+        entry: dict[str, Any] = {"kind": kind, "ms": ms}
+        for field, name in (("input_tokens", "input_tokens"), ("output_tokens", "output_tokens")):
+            value = getattr(usage, field, None)
+            if isinstance(value, int):
+                entry[name] = value
+        self.calls.append(entry)
+
+    def record_failure(self, *, kind: str, ms: int) -> None:
+        """A planner call that raised: its time is still spent, but it is not counted as an iteration."""
+        self.calls.append({"kind": kind, "ms": ms, "failed": True})
+
+    def timings(self) -> dict[str, Any]:
+        """Planner calls of the turn: how many, and the milliseconds each took."""
+        done = [c for c in self.calls if c.get("ms") is not None]
+        return {"planner_calls": len(self.calls), "planner_ms": sum(c["ms"] for c in done), "planner": list(self.calls)}
 
     def exceeded(self) -> str | None:
         """The stop reason of the first limit already reached, else None."""
@@ -222,6 +240,21 @@ def _follow_up(tool_result: dict[str, Any]) -> dict[str, Any] | None:
     return follow_up if isinstance(follow_up, dict) and follow_up.get("available") is True else None
 
 
+def _sql_ms(tool_result: dict[str, Any]) -> float:
+    """Milliseconds the local database spent on a tool result (only `cinema_sql` reports them, in its trace)."""
+    total = 0.0
+    for step in tool_result.get("trace") or []:
+        data = step.get("data") if isinstance(step, dict) else None
+        if isinstance(data, dict) and step.get("kind") == "cinema_sql_calls":
+            total += sum(float(q.get("ms") or 0) for q in data.get("queries") or [] if isinstance(q, dict))
+    return round(total, 2)
+
+
+def _http_calls(tool_result: dict[str, Any]) -> int:
+    """Requests the tool really sent (the `calls` of its trace steps)."""
+    return sum(len(step["data"].get("calls") or []) for step in tool_result.get("trace") or [] if isinstance(step, dict) and isinstance(step.get("data"), dict))
+
+
 @dataclass
 class _Call:
     """One tool run of the turn."""
@@ -347,6 +380,7 @@ def _consume_stream(
     raw: list[str],
     show: Callable[[str], None],
     decoder: AnswerFieldStream | None,
+    usage_out: dict[str, int] | None = None,
 ) -> str | None:
     """Read the stream of the final answer: the raw text goes to `raw`, the text to show goes
     to `show` (decoded from the `answer` field when `decoder` is given). Returns None when the
@@ -362,6 +396,12 @@ def _consume_stream(
         elif kind in EVENT_REFUSAL:
             refused = True
         elif kind == EVENT_COMPLETED:
+            if usage_out is not None:  # measurement only
+                usage = getattr(getattr(event, "response", None), "usage", None)
+                for name in ("input_tokens", "output_tokens"):
+                    value = getattr(usage, name, None)
+                    if isinstance(value, int):
+                        usage_out[name] = value
             return "refusal" if refused else None
         elif kind in EVENT_ABNORMAL_END:
             return kind
@@ -482,6 +522,7 @@ class LLMOrchestrator:
         answer_preferences: str = "",
         answer_language: str | None = None,
         answer_prefix: str = "",
+        usage_out: dict[str, int] | None = None,
     ) -> str:
         """The answer text, written by ONE streamed call; a failure is appended to `failures`.
 
@@ -535,7 +576,7 @@ class LLMOrchestrator:
                 stream=True,
                 **extra,
             )
-            ended = _consume_stream(stream, raw, show, decoder)
+            ended = _consume_stream(stream, raw, show, decoder, usage_out)
         except Exception:
             ended = "error"
         finally:
@@ -693,6 +734,8 @@ class LLMOrchestrator:
             "Se non sei sicuro, usa il fallback tool."
         )
 
+        started = time.monotonic()
+        calls_before = len(limits.calls) if limits else 0
         try:
             response = self.client.responses.create(
                 model=self.orchestrator_config.get("llm_model", "gpt-5.6-luna"),
@@ -707,9 +750,11 @@ class LLMOrchestrator:
                 ],
             )
             if limits:
-                limits.record(response)
+                limits.record(response, kind="first", ms=int((time.monotonic() - started) * 1000))
             payload = json.loads(response.output_text.strip())
         except Exception:
+            if limits and len(limits.calls) == calls_before:
+                limits.record_failure(kind="first", ms=int((time.monotonic() - started) * 1000))
             return _Plan(
                 required[0] if required else self._fallback_tool_name(allowed),
                 {},
@@ -815,6 +860,8 @@ class LLMOrchestrator:
             if follow_up
             else ""
         )
+        started = time.monotonic()
+        calls_before = len(limits.calls) if limits else 0
         try:
             response = self.client.responses.create(
                 model=self.orchestrator_config.get("llm_model", "gpt-5.6-luna"),
@@ -836,9 +883,11 @@ class LLMOrchestrator:
                 ],
             )
             if limits:
-                limits.record(response)
+                limits.record(response, kind="next", ms=int((time.monotonic() - started) * 1000))
             payload = json.loads(response.output_text.strip())
         except Exception:
+            if limits and len(limits.calls) == calls_before:
+                limits.record_failure(kind="next", ms=int((time.monotonic() - started) * 1000))
             return None, "planner_failed", None
 
         detail = _planner_detail(payload, allowed)
@@ -985,6 +1034,8 @@ class LLMOrchestrator:
         answer_preferences = str((prompt_parts or {}).get("answer") or "")
         observer = observer or NullObserver()
         limits = _Limits(self.orchestrator_config)
+        run_started = time.monotonic()
+        tool_timings: list[dict[str, Any]] = []
         plan = self._plan_first(
             query=query,
             conversation_history=conversation_history,
@@ -1087,6 +1138,7 @@ class LLMOrchestrator:
             tool_result = self._enrich(current.tool, {**tool_result, "turn_id": turn_id})
             tool_result.pop("turn_id", None)
             elapsed_ms = int((time.monotonic() - started) * 1000)
+            tool_timings.append({"tool": current.tool, "ms": elapsed_ms, "sql_ms": _sql_ms(tool_result), "http_calls": _http_calls(tool_result)})
             calls.append(_Call(current.tool, current.arguments, tool_result))
             outcome = self._outcome(tool_result)
             self._emit(
@@ -1142,6 +1194,15 @@ class LLMOrchestrator:
         self._emit_status(observer, STAGE_ANSWERING)
         final_lists: list[Any] = []
         answer_failures: list[str] = []
+        answer_usage: dict[str, int] = {}
+        answer_started = time.monotonic()
+        first_delta: list[int] = []
+
+        def timed_delta(text: str) -> None:
+            if not first_delta and text.strip():
+                first_delta.append(int((time.monotonic() - answer_started) * 1000))
+            self._emit_delta(observer, text)
+
         final_answer = self._generate_final_answer(
             query=query,
             tool_result=results[0] if len(results) == 1 else None,
@@ -1151,7 +1212,8 @@ class LLMOrchestrator:
             failures=answer_failures,
             final_output=final_output,
             lists_out=final_lists,
-            on_delta=lambda text: self._emit_delta(observer, text),
+            on_delta=timed_delta,
+            usage_out=answer_usage,
             answer_preferences=(f"{answer_preferences} {settings_policy.answer_note(conflicts)}".strip() if settings_policy and conflicts else answer_preferences),
             answer_language=answer_language,
             answer_prefix=settings_policy.conflict_sentence(conflicts, answer_language) if settings_policy and conflicts else "",
@@ -1169,8 +1231,20 @@ class LLMOrchestrator:
         planning = self._planning(parts, calls, pending, stop_reason, fallbacks, planner_output)
         if conflicts:
             planning["settings_conflicts"] = conflicts
+        # Measurement only: nothing in the loop reads these numbers.
+        timings = {
+            **limits.timings(),
+            "tools": tool_timings,
+            "tool_ms": sum(t["ms"] for t in tool_timings),
+            "sql_ms": round(sum(t["sql_ms"] for t in tool_timings), 2),
+            "answer_ms": int((time.monotonic() - answer_started) * 1000),
+            "answer_tokens": dict(answer_usage),
+            "answer_first_delta_ms": first_delta[0] if first_delta else None,
+            "run_ms": int((time.monotonic() - run_started) * 1000),
+        }
 
         return {
+            "timings": timings,
             "tool": calls[0].tool,
             "tools": [call.tool for call in calls],
             "calls": [{"tool": c.tool, "arguments": c.arguments, "result": c.result} for c in calls],
