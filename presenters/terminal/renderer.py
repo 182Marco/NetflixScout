@@ -20,6 +20,7 @@ from turn import (
     STEP_TVMAZE_CALLS,
     STEP_WIKIDATA_CALLS,
     STEP_CINEMA_SQL_CALLS,
+    STEP_SERIES_RAG,
     STEP_YOUTUBE_CALLS,
     StoryLine,
     TraceStep,
@@ -44,6 +45,7 @@ from .omdb import render_omdb_calls
 from .tvmaze import render_tvmaze_calls
 from .wikidata import render_wikidata_calls
 from .cinema import render_cinema_sql_calls
+from .series import render_series_rag
 from .youtube import render_youtube_calls
 
 # A renderer gets the step and the turn language (ISO code) for its labels.
@@ -62,6 +64,7 @@ STEP_RENDERERS: dict[str, StepRenderer] = {
     STEP_TVMAZE_CALLS: render_tvmaze_calls,
     STEP_WIKIDATA_CALLS: render_wikidata_calls,
     STEP_CINEMA_SQL_CALLS: render_cinema_sql_calls,
+    STEP_SERIES_RAG: render_series_rag,
     STEP_WIKIPEDIA_CALLS: render_wikipedia_calls,
 }
 

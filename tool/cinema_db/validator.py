@@ -9,6 +9,8 @@ from __future__ import annotations
 import logging
 import math
 import re
+import threading
+from collections import OrderedDict
 from dataclasses import dataclass
 
 import sqlglot
@@ -65,8 +67,37 @@ def validate(sql: object, params: object, policy: Policy) -> ValidatedQuery:
         raise reject("control_chars", "The statement contains a NUL character.")
     values = _check_params(params, limits)
 
+    text, view_tuple, limit = _checked(sql, len(values), policy)
+    return ValidatedQuery(sql=text, params=values, views=view_tuple, limit=limit)
+
+
+# The checked form of a statement depends only on its text, the NUMBER of parameters and the policy (values are checked apart, every time), so the result of the
+# full check (parse, structure, qualify, rewrite, second check) is remembered by that key: the tool writes the same few statement shapes again and again, and
+# parsing them is most of the cost of a call. A rejection raises and is never remembered; a hit returns exactly what the same check would have returned.
+_CHECKED: "OrderedDict[tuple[str, int, int], tuple[Policy, str, tuple[str, ...], int]]" = OrderedDict()
+_CHECKED_MAX = 256
+_CHECKED_LOCK = threading.Lock()
+
+
+def _checked(sql: str, n_params: int, policy: Policy) -> tuple[str, tuple[str, ...], int]:
+    key = (sql, n_params, id(policy))
+    with _CHECKED_LOCK:
+        hit = _CHECKED.get(key)
+        if hit is not None and hit[0] is policy:
+            _CHECKED.move_to_end(key)
+            return hit[1], hit[2], hit[3]
+    text, views, limit = _check_statement(sql, n_params, policy)
+    with _CHECKED_LOCK:
+        _CHECKED[key] = (policy, text, views, limit)
+        while len(_CHECKED) > _CHECKED_MAX:
+            _CHECKED.popitem(last=False)
+    return text, views, limit
+
+
+def _check_statement(sql: str, n_params: int, policy: Policy) -> tuple[str, tuple[str, ...], int]:
+    limits = policy.limits
     root = _parse_single(sql)
-    views = _structure(root, policy, expected_params=len(values))
+    views = _structure(root, policy, expected_params=n_params)
     schema = policy.schema_for_qualify()
     try:
         qualified = qualify(
@@ -82,10 +113,10 @@ def validate(sql: object, params: object, policy: Policy) -> ValidatedQuery:
         raise reject("too_long", "The rewritten statement is too long.")
 
     # The rewritten text must pass the same structural checks and read the same views.
-    again = _structure(_parse_single(text), policy, expected_params=len(values))
+    again = _structure(_parse_single(text), policy, expected_params=n_params)
     if again != views:
         raise reject("unstable_rewrite", "The rewritten statement differs from the checked one.")
-    return ValidatedQuery(sql=text, params=values, views=tuple(sorted(views)), limit=limit)
+    return text, tuple(sorted(views)), limit
 
 
 # --- parsing -------------------------------------------------------------------------------------------------

@@ -94,13 +94,13 @@ movie_db/data/*
 /bin/
 
 # =========================
-# RAGWikipedia* pipelines (tool/RAGWikipediaFilm, tool/RAGWikipediaSeries)
+# RAGWikipedia* pipelines (pipelines/wikipedia_films, pipelines/wikipedia_series)
 # data/ (dumps, snapshots, scans, harvests, units) is already ignored by the global `data/` rule above.
 # Versioned on purpose: code, config, tests, manifests, audit decisions, reports (*.md) and the
 # small summary files. Ignored: caches that are rebuilt on demand and bulky per-query dumps.
 # =========================
-tool/RAGWikipedia*/eval/cache/
-tool/RAGWikipedia*/eval/results/*retrieval.jsonl
+pipelines/wikipedia_*/eval/cache/
+pipelines/wikipedia_*/eval/results/*retrieval.jsonl
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/

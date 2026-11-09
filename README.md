@@ -90,13 +90,12 @@ source .venv/bin/activate && uvicorn web_api.main:app --host 127.0.0.1 --port 80
 ├── turn.py             # channel-neutral TurnResult / TraceStep / TurnObserver
 ├── answer_stream.py    # decodes the streamed `answer` field out of a chunked JSON
 ├── data_coverage.py    # years covered by the local sources and the planner rule built from them
-├── buildSemanticDb.py  # reproducible semantic DB builder (shim to tool/rag/EmbeddingProcess/)
 ├── buildMovieDb.py     # MovieLens SQLite builder (shim to movie_db/harness/ingestion/)
-├── tests/              # offline tests (+ test_tool_package.py: layout of tool/); test_tool_contract.py is integration
+├── tests/              # offline tests (+ test_tool_package.py: layout of tool/); test_tool_package.py checks the layout
 └── mappa.html          # interactive project map (hand-written tree, open it in a browser)
 ```
 
-`tool/` holds every orchestrator tool; the root `movie_db/` is the MovieLens **database** side (data, schema, ingestion,
+`tool/` holds only the tools the agent can call (`tool/rag/` has the two RAG tools, `film/` = `rag_search` and `series/` = `series_rag_search`, plus `shared/`); the offline data pipelines are in `pipelines/`; the root `movie_db/` is the MovieLens **database** side (data, schema, ingestion,
 evaluations), while the tool that queries it lives in `tool/movie_db/`. A new tool goes in `tool/<name>/`, never in the root.
 
 Note: a legacy `datasets/` folder may exist in older clones, but the new build pipeline reads from `dataset/`.
@@ -159,33 +158,14 @@ dataset/
 
 ## The vector index (Qdrant)
 
-Why a semantic search: recommendations must match meaning, not words. Every plot of the corpus is stored as a 1536-number vector
-(`text-embedding-3-small`); a question is turned into a vector the same way and the closest plots are returned (cosine similarity),
-optionally fused with keyword search (BM25, `hybrid`) and reranked (Cohere, or an LLM for "like X, not like Y" requests).
-Qdrant is the only vector store: it holds the 42,522 points (vector + plot text + metadata) in `dbVettoriale/qdrant_openai/storage`
-and finds neighbours with an HNSW index. Settings: `CONFIG["rag"]["vectorstore"]` (collection and server URL); the optional
-variables `VECTORSTORE_QDRANT_MODE|URL|PATH` and `QDRANT_API_KEY` only say where the server is.
+Why a semantic search: recommendations must match meaning, not words. Every film (and every series, season, episode, TV film) is stored as a
+1536-number vector (`text-embedding-3-large`); a question is turned into a vector the same way and the closest plots are returned (cosine
+similarity), after filters evaluated by Qdrant and an LLM reorder. Qdrant is the only vector store, a server at `http://127.0.0.1:6333`
+(`./scripts/start_qdrant.sh`; storage `dbVettoriale/qdrant_openai/storage`). The two RAGs only read: `wikipedia_films_it_v3` (41,138 films) and
+`wikipedia_series_it_v1` (101,706 records). Settings: `CONFIG["rag"]["vectorstore"]` and `CONFIG["series_rag"]` (collection and server URL); the optional
+variable `VECTORSTORE_QDRANT_URL` says where the server is. The collections are built by the pipelines in `pipelines/` (never by the application).
 
-### Movies cited as references ("like X, not like Y")
-A cited movie gets a real vector, not only a description written by the LLM: if the index has it, its stored vector is reused;
-if not, its English plot is read from TMDb (identity verified by title and year), embedded once and kept in Qdrant as
-`tmdb:movie:<id>` (or linked to the corpus point of the same work); a movie without a usable plot gets no vector and the trace says so.
-The vectors steer the Qdrant search (`best_score`) only when at least one liked movie was resolved; otherwise the plain search runs.
-The cited movies themselves never come back. Settings: `CONFIG["rag"]["reference"]`, `CONFIG["rag"]["signals"]`; traces in the
-`retrieval` step. Measurements and limits: `docs/qdrant_migration/reference_embeddings_report.md`.
-
-### Rebuild the index from the dataset
-Creates a NEW collection (nothing is overwritten; it uses paid OpenAI embeddings). With the Qdrant server running:
-
-```bash
-python buildSemanticDb.py --collection netflix_scout_new          # then set CONFIG["rag"]["vectorstore"]["collection"]
-python buildSemanticDb.py --qdrant-mode embedded --qdrant-path NEW_FOLDER   # alternative: a folder, no server
-```
-
-The build scans `dataset/`, cleans and chunks the text, embeds the chunks with `tool.rag.FromQueryEmbeddingToRes.embeddings`
-and indexes them. It refuses an existing collection or a non-empty folder before calling the embedding API. See `docs/qdrant_migration/rebuild.md`.
-
-Films cited by the user and missing from the index can also be added from any `tmdb_search` result (`CONFIG["catalog"]["enabled"]`, **off** by default and not calibrated); see `docs/qdrant_migration/catalog/README.md`.
+The old RAG (CMU 2012 corpus, `netflix_scout`, Cohere, BM25, TMDb catalogue, reference-film flow) was removed from the repository on 2026-11-09; there is no rollback to it.
 
 ## Verify Build
 
@@ -199,7 +179,7 @@ After build, verify:
 python app.py
 ```
 
-If the collection is empty, `app.py` raises an explicit error telling you to run `python buildSemanticDb.py`.
+If Qdrant is down or the film collection is missing, `app.py` stops with one line telling you to start the server (`./scripts/start_qdrant.sh`).
 
 When the collection is available, `app.py` starts an interactive terminal chat.
 
@@ -219,20 +199,20 @@ Automatic compaction:
 
 ## Retrieval Notes (the film index)
 
-The RAG searches `wikipedia_films_it_v3`: 41,138 films with the plot of Italian Wikipedia up to November 2026 (less complete after 2019), one point per film (`text-embedding-3-large`, 1,536 dimensions, cosine), in the Qdrant server. It is the only retriever (`CONFIG["rag"]["backend"] = "wikipedia"`): one dense search over one collection, no RRF, no fusion, no fallback to another index. Code: `tool/rag/FromQueryEmbeddingToRes/film_index/`; measurements: `tool/RAGWikipediaFilm/EVAL_REPORT.md`.
+The RAG searches `wikipedia_films_it_v3`: 41,138 films with the plot of Italian Wikipedia up to November 2026 (less complete after 2019), one point per film (`text-embedding-3-large`, 1,536 dimensions, cosine), in the Qdrant server. It is the only retriever (`CONFIG["rag"]["backend"] = "wikipedia"`): one dense search over one collection, no RRF, no fusion, no fallback to another index. Code: `tool/rag/film/retrieval/`; measurements: `pipelines/wikipedia_films/EVAL_REPORT.md`.
 
-1. **Parser** (`film_index/parser.py`, one LLM call): the whole request, positive and negative parts together, becomes `Signals`: the wanted description (Italian and English), cited films (to be like), films and franchises to exclude, narrative traits to avoid written positively, genres, formats, year range, countries, directors, actors, rare plot words, and whether the request contradicts itself.
-2. **Search** (`film_index/search.py`): positive filters (year, country, director, actor, rare plot words) run inside Qdrant; the query vector is the centroid of the wanted description and the cited films; the pool of 300 loses the cited films, the franchises (by id and by name), the avoided genres (never a genre that is also wanted or that labels more than 8% of the catalogue) and the avoided formats; the traits to avoid are penalised: `cos(r, wanted) - 0.5 * max cos(r, trait)`.
-3. **Reorder** (`film_index/service.py`): the best 40 are reordered by an LLM that knows the films and reads up to 1,500 characters of each plot (`gpt-5.6-sol` without reasoning, about 3 s; if it fails the penalty order stays).
+1. **Parser** (`film/retrieval/parser.py`, one LLM call): the whole request, positive and negative parts together, becomes `Signals`: the wanted description (Italian and English), cited films (to be like), films and franchises to exclude, narrative traits to avoid written positively, genres, formats, year range, countries, directors, actors, rare plot words, and whether the request contradicts itself.
+2. **Search** (`film/retrieval/search.py`): positive filters (year, country, director, actor, rare plot words) run inside Qdrant; the query vector is the centroid of the wanted description and the cited films; the pool of 300 loses the cited films, the franchises (by id and by name), the avoided genres (never a genre that is also wanted or that labels more than 8% of the catalogue) and the avoided formats; the traits to avoid are penalised: `cos(r, wanted) - 0.5 * max cos(r, trait)`.
+3. **Reorder** (`film/retrieval/service.py`): the best 40 are reordered by an LLM that knows the films and reads up to 1,500 characters of each plot (`gpt-5.6-sol` without reasoning, about 3 s; if it fails the penalty order stays).
 4. A film cited as a model that is not in the catalogue is described to the embedder with a short summary written by the parser; nothing is ever written to Qdrant.
-5. Rollback: `RAG_BACKEND=legacy` (or `build_runtime_config(LEGACY_RAG_OVERRIDES)`) switches the whole application back to the CMU/2012 pipeline (`netflix_scout`, English parser, BM25/RRF, Cohere); the two never run together.
 
 ## Data projects behind the RAGs (offline, not imported by the app)
 
 Two independent projects prepare Wikipedia-based data; neither is imported by the application at runtime.
 
-- `tool/RAGWikipediaFilm/` builds, verifies and evaluates the film collection `wikipedia_films_it_v3`, which the film index (`film_index/`) reads. Verify offline: `python -m tool.RAGWikipediaFilm.audit.build_v3 verify` and `python -m tool.RAGWikipediaFilm.indexing.v3 check` (read-only).
-- `tool/RAGWikipediaSeries/` prepares a hierarchical dataset of TV series, seasons and episodes (plus TV films as an autonomous `tv_movie` type) from the Italian Wikipedia dump `itwiki-20261101` and Wikidata. **Status: dataset built and verified; there are no embeddings, no Qdrant collection, no retriever and no agent integration yet.** TV films never belong to a series (no season or episode relations); manga/anime franchise pages are kept but flagged `default_search_eligible = false`, so a future default anime search skips them. Re-check the data with `python -m tool.RAGWikipediaSeries.build_clean verify` (byte-for-byte rebuild) and `python -m tool.RAGWikipediaSeries.check_catalog`; tests: `python -m pytest tool/RAGWikipediaSeries/tests -q`. Full state, decisions, hashes, costs and next steps: `tool/RAGWikipediaSeries/PROGRESS.md`.
+- **Layout (2026-11-09)**: `tool/` holds only the tools the agent can call, one folder each; the offline data pipelines (dump → clean catalogue → embeddings → Qdrant collection, plus their evaluation) live in `pipelines/` and never import each other (`tests/test_tool_package.py`). The TV-series retriever exists once, in `tool/rag/series/retrieval/`, and the pipeline's evaluation scripts import it.
+- `pipelines/wikipedia_films/` builds, verifies and evaluates the film collection `wikipedia_films_it_v3`, which the film index (`film_index/`) reads. Verify offline: `python -m pipelines.wikipedia_films.audit.build_v3 verify` and `python -m pipelines.wikipedia_films.indexing.v3 check` (read-only).
+- `pipelines/wikipedia_series/` prepares a hierarchical dataset of TV series, seasons and episodes (plus TV films as an autonomous `tv_movie` type) from the Italian Wikipedia dump `itwiki-20261101` and Wikidata. **Status (2026-11-08): dataset built and verified; embedded with `text-embedding-3-large` (101,706 units, 4.77 USD); Qdrant collection `wikipedia_series_it_v1` built and verified point by point; standalone retriever `retrieval.py` (one dense retriever, level filter, optional LLM reorder) evaluated in `EVAL_REPORT.md`. Since the second session of 2026-11-08 it is also the agent tool `series_rag_search` (`tool/rag/series/`), registered only behind the feature flag `series_rag.enabled` (OFF by default; `SERIES_RAG_ENABLED=1` turns it on, unsetting it is the rollback). Live routing (22 cases) and an end-to-end run (17 turns) are in `pipelines/wikipedia_series/EVAL_REPORT.md` §6–§10; the web frontend renders the `series_index` step (third session, 2026-11-09; not yet tried in a browser) and the domain classifier now accepts anime requests.** TV films never belong to a series (no season or episode relations); manga/anime franchise pages are kept but flagged `default_search_eligible = false`, so a future default anime search skips them. Re-check the data with `python -m pipelines.wikipedia_series.build_clean verify` (byte-for-byte rebuild) and `python -m pipelines.wikipedia_series.check_catalog`; tests: `python -m pytest pipelines/wikipedia_series/tests -q`. Full state, decisions, hashes, costs and next steps: `pipelines/wikipedia_series/PROGRESS.md`.
 
 ## Public Runtime API
 
@@ -242,13 +222,13 @@ Two independent projects prepare Wikipedia-based data; neither is imported by th
 2. `build_app(overrides)`: builds the tools and the `LLMOrchestrator`.
 3. `handle_query(...)`: runs one turn without printing and returns a `TurnResult`; the channel (`presenters/`) decides how to show it.
 
-`run_rag` lives in `tool/rag/FromQueryEmbeddingToRes/pipeline.py` and returns only evidence (retrieve + rerank, no generation); the final answer is always written by the orchestrator.
+`run_film_index` (`tool/rag/film/retrieval/adapter.py`) returns only evidence (parse + retrieve + reorder, no generation); the final answer is always written by the orchestrator.
 
-In the chat, the orchestrator's planner sets one retrieval setting per turn: `k_finale`, the number of films the user asked for (clamped to `rag.retrieval.limits.k_finale`; null keeps the configured default). The legacy backend also accepts `search_mode` (`semantic`, `hybrid`).
+In the chat, the orchestrator's planner sets one retrieval setting per turn: `k_finale`, the number of films the user asked for (clamped to `rag.retrieval.limits.k_finale`; null keeps the configured default).
 
 ## RAG Tool (`rag_search`)
 
-`RagTool` (`tool/rag/FromQueryEmbeddingToRes/tool_interface.py`) follows the `Tool` Protocol of `orchestrator.py`; its input schema is generated from the Pydantic model `FilmIndexToolInput` (the film index: the whole request in `query`, plus `k_finale`) or `RagToolInput` (legacy backend). `build_app` registers it together with the other tools and `CONFIG["orchestrator"]["allowed_tools"]` lists the names the planner may choose, so new tools are added without refactoring the runtime core.
+`RagTool` (`tool/rag/film/tool.py`) follows the `Tool` Protocol of `orchestrator.py`; its input schema is generated from the Pydantic model `FilmIndexToolInput` (the film index: the whole request in `query`, plus `k_finale`). `build_app` registers it together with the other tools and `CONFIG["orchestrator"]["allowed_tools"]` lists the names the planner may choose, so new tools are added without refactoring the runtime core.
 
 ## MovieLens DB Tool (`movie_db_search`)
 
@@ -624,6 +604,8 @@ first **offline build**, the **targeted Wikidata enrichment (phase 4)** the **`c
 
 - Plan, decisions and status: `docs/cinema_db/PLAN.md`, `docs/cinema_db/PROGRESS.md`; baseline `BASELINE.md`; sources survey `SURVEY.md`;
   verification of the phase-3 build `BUILD_REPORT.md`; the phase-4 results and numbers `PHASE4_REPORT.md` (and `PHASE4_BUILD_REPORT.md`); the tool, its benchmark and its limits `PHASE5_REPORT.md`, `PHASE5_BENCHMARK.md`.
+- **Phase 9 (v3 prototype, separate file):** `cinema_db/data/cinema.v3.sqlite3` is built from a copy of the runtime database plus the IMDb bulk datasets (acquired with `python -m cinema_db.harness.acquire.imdb fetch <dataset>`), MovieLens aggregates and the local catalogues, with `python -m cinema_db.harness.build.imdb_layer`. It adds ratings per source, billing order and characters, IMDb person ids, episode links and tens of thousands of films, shorts and TV films, each with its entry route and identification reliability. The runtime database is untouched and the agent does not read the v3 file yet. Reports: `docs/cinema_db/PHASE9_*.md`; interactive map: `docs/cinema_db/schema_v3.html`. To resume the work read the **NEXT SESSION** section at the top of `docs/cinema_db/PROGRESS.md` (the v3 file is a prototype, not used by the agent, and `cinema_db.enabled` stays `False`). **Reconciled v3 (2026-11-08):** `cinema_db/data/cinema.v3.reconciled.sqlite3` applies the approved reconciliation rules (primary IMDb id per work, 12 reversible person merges in `entity_canonical`, ids by birth year, held titles released when proven distinct, IMDb episodes of series that already have episodes, credits kept through new candidate persons). Build with a NEW output path: `python -m cinema_db.harness.build.imdb_layer --out cinema_db/data/NEW.sqlite3 --force`, verify with `python -m cinema_db.harness.build.verify_reconciled --new cinema_db/data/NEW.sqlite3`. Report: `docs/cinema_db/PHASE9_RECONCILED_REPORT.md`. Still not read by the agent; the runtime stays on v2. **Update (evening):** file of that round `cinema_db/data/cinema.v3.reconciled2.sqlite3` (digest `59b57598…`, superseded by `cinema.v3.candidate.sqlite3`): non-Latin titles no longer collide in the same-title check (`cinema_db/harness/build/title_keys.py`; 456 of 522 held titles entered, 66 stay held), the new view `v_work_status.identity_level` separates verified, rule-based and uncertain identities, and `python -m cinema_db.harness.build.person_merge_report` is a read-only report on persons created for weak candidates. Dry run of the entry rules: `imdb_layer --out PATH --select-only`. **Phase F (2026-11-09, not activated):** reference file `cinema_db/data/cinema.v3.candidate2.sqlite3` (data digest `9db2c80d694e21183aa4a14738b237df322a09d8227b85aab7292a7cda5ff667`; the previous `cinema.v3.candidate.sqlite3` is kept as rollback; to activate, NOT done: `CINEMA_DB_ENABLED=1 CINEMA_DB_PATH=cinema_db/data/cinema.v3.candidate2.sqlite3`, rollback: remove both variables); `cinema_sql` reads schema-3 files through `tool/cinema_db/approved_views_v3.py` (chosen from the file by `tool/cinema_db/versions.py`) with two new operations, `ratings` (audience ratings and votes) and `provenance`, and an `identity_level` (verified / rule_based / uncertain) that the answer must not overstate. Report: `docs/cinema_db/PHASE9_F_REPORT.md`. The runtime stays on v2 and `cinema_db.enabled` stays `False`.
+- **Phases 10–11 (2026-11-09, not activated):** `cinema_db/data/cinema.v4.candidate6.sqlite3` (schema 4 = v3 + every MovieLens film, genre and tag; build `python -m cinema_db.harness.build.imdb_layer --movielens --out NEW.sqlite3`, verify `python -m cinema_db.harness.build.verify_movielens --new FILE`) lets `cinema_sql` answer everything `movie_db_search` did (operation `movielens`: top_rated, most_rated, by_title, by_tag, genre_stats), with identical rankings, title and tag searches; parity and timings: `python -m cinema_db.harness.tool_eval.run_movielens_parity`. With a schema-4 file the integrated architecture applies: `cinema_sql` (structured data + MovieLens) + `rag_search` (films) + `series_rag_search` (series), `movie_db_search` not registered, the RAGs hand their `imdb_id` to the planner. Start and rollback: `./scripts/start_integrated.sh [--check]` and `docs/cinema_db/INTEGRATED_LOCAL.md`. Details and open points: `docs/cinema_db/PROGRESS.md` (sections PHASE 13, 12, 11 and 10). Offline check of both RAGs on Qdrant with stored vectors (no model call): `python -m movie_db.harness.evaluation.run_rag_infra_check`; plan of the paid live evaluations (routing, RAG semantic quality, browser), to be authorised: `docs/cinema_db/LIVE_EVALUATION_PLAN.md`.
 - **Open `docs/cinema_db/schema.html` in a browser** for the interactive schema (tables, columns, keys, indexes, checks, relations, public
   views); `schema.mmd` is the Mermaid ER diagram. Both are generated from the real SQLite schema (`python -m cinema_db.harness.schema.generate`,
   `--check` tells whether they are stale); tests fail if they drift.
@@ -641,7 +623,7 @@ first **offline build**, the **targeted Wikidata enrichment (phase 4)** the **`c
   `python -m cinema_db.harness.enrich.compare BEFORE AFTER` gives the quantitative comparison.
 - **The `cinema_sql` tool (phase 5, not wired)**: `tool/cinema_db/tool.py` answers questions about films, series, people, credits, awards, relations, companies and series structure from the local file, in read-only mode through the safe SQL engine, with no network and no LLM. Thirteen operations (`find_work`, `find_person`, `work_card`, `filmography`, `cast`, `crew`, `collaborations`, `awards`, `series`, `companies`, `franchise`, `relations`, and `sql` for a free SELECT on the approved views); names are matched exactly after normalisation (titles, originals, aliases), ids are reused when known, homonyms come back as alternatives and never as an answer, and every result carries notes on what the local data cannot prove. Checked on the real database: 71 tests and a 39-question benchmark with independent SQL (none wrong, median 33 ms and 3 queries per question; hand-written plans, the planner was not run). Known data limits: incomplete catalogue, awards attached to a person only when the nominee is recorded, unreliable episode counts, a "franchise" that can be a list. Try it: `python -m cinema_db.harness.tool_eval.run_benchmark` and `PHASE5_REPORT.md` §7.
 - **Phase 6, integration (feature flag OFF by default)**: `CONFIG["cinema_db"]["enabled"]` is `False`, so the application behaves exactly as before. Switch it on with
-  `build_runtime_config({"cinema_db": {"enabled": True}})` or the environment variable `CINEMA_DB_ENABLED=1` (terminal and web API); with the flag on and no database file the start
+  `build_runtime_config({"cinema_db": {"enabled": True}})` or the environment variable `CINEMA_DB_ENABLED=1` (terminal and web API; `CINEMA_DB_PATH` chooses the database file, and the start checks that it opens with its policy); with the flag on and no database file the start
   stops with the command that builds it. The planner gets its routing rule (1g) only while the tool is registered; `wikidata_search` stays available as the fallback; the setting
   "official information" is the one it serves; the interface shows the DATA sources (Wikipedia CC BY-SA 4.0, Wikidata CC0) with links to public pages, never SQL or internal ids.
   Episode data: an episode known from its own Wikipedia page and from a season row is now one episode (`--no-episode-merge` reproduces the previous database). Live comparison of

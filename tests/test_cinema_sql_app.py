@@ -14,8 +14,10 @@ from cinema_build_support import make_inputs, make_phase4
 from stream_support import reply
 
 import app as app_module
+from cinema_db.schema import create_database
 from cinema_db.harness.build.build import Inputs, run_build
 from orchestrator import LLMOrchestrator
+from preferences_support import without_content_text
 from preferences import SettingsPolicy, behavior, build_prompt_parts, resolve_preferences
 from tool.cinema_db.config import CinemaDbConfig
 from tool.cinema_db.tool import CinemaSqlTool
@@ -87,14 +89,20 @@ def test_the_environment_variable_switches_the_flag_for_both_entry_points() -> N
     assert app_module.cinema_db_overrides({}) == {} and app_module.cinema_db_overrides({"CINEMA_DB_ENABLED": "0"}) == {}
     for value in ("1", "true", "YES", " on "):
         assert app_module.cinema_db_overrides({"CINEMA_DB_ENABLED": value}) == {"cinema_db": {"enabled": True}}
+    on = {"CINEMA_DB_ENABLED": "1", "CINEMA_DB_PATH": " cinema_db/data/x.sqlite3 "}
+    assert app_module.cinema_db_overrides(on) == {"cinema_db": {"enabled": True, "db_path": "cinema_db/data/x.sqlite3"}}
+    assert app_module.cinema_db_overrides({"CINEMA_DB_PATH": "x.sqlite3"}) == {}  # the path alone never switches the flag on
 
 
 def test_a_missing_database_with_the_flag_on_stops_the_start_with_the_command_to_build_it(tmp_path) -> None:
     app_module.ensure_cinema_db_ready({**CONFIG["cinema_db"], "enabled": False, "db_path": str(tmp_path / "none.sqlite3")})  # off: nothing to check
     with pytest.raises(RuntimeError, match="python -m cinema_db.harness.build.build"):
         app_module.ensure_cinema_db_ready({**CONFIG["cinema_db"], "enabled": True, "db_path": str(tmp_path / "none.sqlite3")})
-    (tmp_path / "there.sqlite3").write_bytes(b"")
-    app_module.ensure_cinema_db_ready({**CONFIG["cinema_db"], "enabled": True, "db_path": str(tmp_path / "there.sqlite3")})
+    (tmp_path / "there.sqlite3").write_bytes(b"")  # a file, but not a database: the start stops with the way back
+    with pytest.raises(RuntimeError, match="CINEMA_DB_ENABLED"):
+        app_module.ensure_cinema_db_ready({**CONFIG["cinema_db"], "enabled": True, "db_path": str(tmp_path / "there.sqlite3")})
+    ok = create_database(tmp_path / "ok.sqlite3")
+    app_module.ensure_cinema_db_ready({**CONFIG["cinema_db"], "enabled": True, "db_path": str(ok)})
 
 
 # ---- the planner prompt --------------------------------------------------------------------------------------------------------------
@@ -119,11 +127,11 @@ def test_with_the_flag_on_the_rule_follows_the_instructions_and_the_catalog_has_
 
 
 def test_the_routing_rule_covers_what_the_tool_answers_and_leaves_the_rest_to_the_other_tools() -> None:
-    for covered in ("filmography", "crew", "cast", "collaborations", "awards", "relations", "franchise", "companies", "find_work", "find_person", "work_card", "quante stagioni"):
+    for covered in ("filmography", "crew", "cast", "collaborations", "awards", "relations", "franchise", "companies", "find_work", "find_person", "work_card"):
         assert covered in RULE
     for elsewhere in ("trama", "punteggi, voti e classifiche (1d, 2)", "streaming", "trailer", "novità", "ultimi film", "(1e", "(1c)", "consigli"):
         assert elsewhere in RULE
-    assert "ha la precedenza sulle regole 1, 1e e 1f" in RULE
+    assert "ha la precedenza sulle regole 1 e 1f, MAI sulla 1e" in RULE  # the seasons of a series are TVmaze's (see test_integrated_v4)
 
 
 def test_the_rule_never_lets_an_empty_or_partial_result_end_the_search_and_keeps_wikidata_as_the_fallback() -> None:
@@ -136,12 +144,12 @@ def test_the_rule_never_lets_an_empty_or_partial_result_end_the_search_and_keeps
 
 
 # ---- the user settings -----------------------------------------------------------------------------------------------------------------
-def test_cinema_sql_serves_official_information_and_never_reviews_or_user_ratings() -> None:
+def test_cinema_sql_serves_official_information_and_its_ratings_operation_user_ratings() -> None:
     assert behavior.SOURCE_TOOLS["cinema_sql"] == "official information"
     assert set(behavior.SOURCE_TOOLS) >= set(CONFIG["orchestrator"]["allowed_tools"])  # every allowed tool declares the preference it serves
     for source in ("reviews", "interviews", "official information", "user ratings"):
         for content in ("film", "series", "both"):
-            assert "cinema" not in build_prompt_parts(resolve_preferences({"preferred_sources": source, "content_type": content}).preferences)["planner"].lower()
+            assert "cinema" not in without_content_text(build_prompt_parts(resolve_preferences({"preferred_sources": source, "content_type": content}).preferences)["planner"]).lower()
 
 
 def test_the_content_type_is_applied_to_the_tool_through_its_type_argument() -> None:
@@ -155,6 +163,26 @@ def test_the_content_type_is_applied_to_the_tool_through_its_type_argument() -> 
     verdict = series.check_step("cinema_sql", {"operation": "cast", "work_id": 5})
     assert verdict.arguments == {"operation": "cast", "work_id": 5}  # an id is the identity: nothing to filter
     assert series.check_step("cinema_sql", {"operation": "sql", "sql": "SELECT 1"}).arguments == {"operation": "sql", "sql": "SELECT 1"}
+
+
+def test_the_tag_search_and_the_ranking_of_titles_follow_the_content_type_and_the_other_movielens_lists_stay_film_only() -> None:
+    """FASE 23: `by_tag` covers series too (approved population), so the guard no longer refuses it under «series»; rankings and genre statistics are still films only."""
+    series, film, both = policy(content_type="series"), policy(content_type="film"), policy(content_type="both")
+    tag = {"operation": "movielens", "ml_mode": "by_tag", "tag": "time travel"}
+    assert series.check_step("cinema_sql", tag).arguments == {**tag, "type": "series"}  # the preferred kind is filled in
+    assert film.check_step("cinema_sql", tag).arguments == {**tag, "type": "film"}
+    assert both.check_step("cinema_sql", tag).arguments == tag
+    assert series.check_step("cinema_sql", {**tag, "type": "film"}).arguments is None and film.check_step("cinema_sql", {**tag, "type": "series"}).arguments is None
+    assert series.check_step("cinema_sql", {**tag, "type": "series"}).arguments == {**tag, "type": "series"}
+    for mode in ("top_rated", "most_rated", "genre_stats", "by_title"):
+        step = {"operation": "movielens", "ml_mode": mode, "title": "X"}
+        assert series.check_step("cinema_sql", step).arguments is None  # still films only under «series»
+        assert film.check_step("cinema_sql", step).arguments == step and both.check_step("cinema_sql", step).arguments == step
+    ranking = {"operation": "ratings"}
+    assert series.check_step("cinema_sql", ranking).arguments == {**ranking, "type": "series"} and film.check_step("cinema_sql", ranking).arguments == {**ranking, "type": "film"}
+    assert both.check_step("cinema_sql", ranking).arguments == ranking
+    assert series.check_step("cinema_sql", {**ranking, "type": "film"}).arguments is None
+    assert series.check_step("cinema_sql", {"operation": "ratings", "title": "X"}).arguments == {"operation": "ratings", "title": "X"}  # ratings OF a title: the title decides
 
 
 def test_an_explicit_request_for_another_source_is_the_planners_conflict_to_declare_and_the_guard_does_not_touch_it() -> None:
@@ -239,8 +267,8 @@ def test_the_query_budget_is_per_turn_across_every_run_of_the_turn(tool) -> None
 def test_a_general_description_request_stays_with_tmdb_and_the_database_stays_first_for_what_it_holds() -> None:
     """Phase 8: «parlami di X» is one tmdb_search step (no extra local step); every data the database holds is still asked to it first."""
     assert "«parlami di X»" in RULE and "un solo passo tmdb_search" in RULE and "cinema_sql solo per un dato che la richiesta nomina" in RULE
-    # DB-first is untouched: first source, per-datum order, precedence over rules 1/1e/1f, reliability handling.
-    for text in ("è la PRIMA fonte per tutto ciò che contiene", "per ogni dato chiedi prima a cinema_sql", "ha la precedenza sulle regole 1, 1e e 1f", "Un dato verified non va riverificato"):
+    # DB-first is untouched: first source, per-datum order, precedence over rules 1 and 1f (never over 1e: the seasons of a series are TVmaze's), reliability handling.
+    for text in ("è la PRIMA fonte per tutto ciò che contiene", "per ogni dato chiedi prima a cinema_sql", "ha la precedenza sulle regole 1 e 1f, MAI sulla 1e", "Un dato verified non va riverificato"):
         assert text in RULE
     # With the flag off the planner never sees the clause.
     assert "cinema_sql solo per un dato che la richiesta nomina" not in INSTRUCTIONS

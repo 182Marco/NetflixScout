@@ -18,12 +18,12 @@ KIND = STEP_CINEMA_SQL_CALLS
 def _subject(subject: dict[str, Any] | None) -> dict[str, Any] | None:
     if not subject:
         return None
-    keep = ("kind", "work_id", "person_id", "company_id", "franchise_id", "title", "name", "year", "end_year", "birth_year", "wikipedia_it", "wikidata_id")
+    keep = ("kind", "work_id", "person_id", "company_id", "franchise_id", "title", "name", "year", "end_year", "birth_year", "wikipedia_it", "wikidata_id", "identity_level")
     return {k: subject[k] for k in keep if subject.get(k) is not None}
 
 
 def _candidate(candidate: dict[str, Any]) -> dict[str, Any]:
-    keep = ("kind", "title", "name", "year", "end_year", "birth_year", "directors")
+    keep = ("kind", "title", "name", "year", "end_year", "birth_year", "directors", "identity_level")
     return {k: candidate[k] for k in keep if candidate.get(k) not in (None, [])}
 
 

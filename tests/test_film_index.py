@@ -4,10 +4,10 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from tool.rag.FromQueryEmbeddingToRes.film_index import adapter
-from tool.rag.FromQueryEmbeddingToRes.film_index.index import Film, norm
-from tool.rag.FromQueryEmbeddingToRes.film_index.models import Signals, TitleRef
-from tool.rag.FromQueryEmbeddingToRes.film_index.search import Settings, search
+from tool.rag.film.retrieval import adapter
+from tool.rag.film.retrieval.index import Film, norm
+from tool.rag.film.retrieval.models import Signals, TitleRef
+from tool.rag.film.retrieval.search import Settings, search
 
 
 def v(angle):
@@ -138,10 +138,3 @@ def test_an_empty_collection_is_an_explicit_error(monkeypatch):
     monkeypatch.setattr(adapter, "index_for", lambda config: FakeIndex([]))
     with pytest.raises(RuntimeError, match="empty or missing"):
         adapter.run_film_index(config={"retrieval": {"k_finale": 1}, "embedding": {"model": "m"}}, query="q")
-
-
-def test_run_rag_dispatches_on_the_backend_and_never_falls_back(monkeypatch):
-    from tool.rag.FromQueryEmbeddingToRes import pipeline
-    called = {}
-    monkeypatch.setattr(adapter, "run_film_index", lambda **kw: called.setdefault("film", kw) and "R")
-    assert pipeline.run_rag(config={"backend": "wikipedia"}, query="q") == "R" and called["film"]["query"] == "q"

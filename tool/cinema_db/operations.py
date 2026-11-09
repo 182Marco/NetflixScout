@@ -10,10 +10,11 @@ from dataclasses import dataclass, field
 from typing import Any, Callable
 
 from . import queries as Q
-from .constants import IDS_FOR_FIRST, MAX_LIMIT, SERIES_KINDS
+from .constants import IDS_FOR_FIRST, MAX_LIMIT, ML_MIN_RATINGS, SERIES_KINDS
 from .models import CinemaSqlInput
 from .names import normalize_name
 from .resolve import AMBIGUOUS, NOT_FOUND, RESOLVED, UNVERIFIED, Resolution, resolve_named, resolve_person, resolve_work
+from .ml_titles import normalize_title
 from .session import Session
 
 OK, EMPTY, ERROR = "ok", "empty", "error"
@@ -62,6 +63,11 @@ def _with_ids(session: Session, works: list[dict[str, Any]]) -> bool:
         for key in ("imdb_id", "tmdb_id"):
             if ids.get(key):
                 w[key] = ids[key]
+    if session.schema >= 3:  # only the levels that are not 'verified' are written (the absence of the key means verified)
+        levels = {r["work_id"]: r["identity_level"] for r in session.rows(*Q.identity_of([w["work_id"] for w in head]))}
+        for w in head:
+            if levels.get(w["work_id"]) not in (None, "verified"):
+                w["identity_level"] = levels[w["work_id"]]
     return len(works) > IDS_FOR_FIRST
 
 
@@ -130,8 +136,10 @@ def cast(request: CinemaSqlInput, session: Session, limit: int) -> OpResult:
     wid = res.entity["work_id"]
     rows = session.rows(*Q.cast_of(wid, limit))
     total = session.rows(*Q.cast_count(wid))[0]["n"]
-    people = [{"person_id": r["person_id"], "name": r["person_name"], "character": r["character_name"], "note": r["credit_note"]} for r in rows]
-    notes = ["cast_order", "coverage"] + (["limit"] if total > len(people) else [])
+    people = [{"person_id": r["person_id"], "name": r["person_name"], "character": r["character_name"], "note": r["credit_note"],
+               **({"billing_order": r["billing_order"]} if r.get("billing_order") is not None else {})} for r in rows]
+    ordered = any(p.get("billing_order") is not None for p in people)  # schema 3: the first credited people carry IMDb's order
+    notes = ["cast_order_partial" if ordered else "cast_order", "coverage"] + (["limit"] if total > len(people) else [])
     return _empty_or_ok(people, "no_cast_in_catalogue", subject={"kind": "work", **res.entity}, data={"cast": people}, total=total, shown=len(people),
                         truncated=total > len(people), notes=notes, via=res.via)
 
@@ -332,6 +340,95 @@ def relations(request: CinemaSqlInput, session: Session, limit: int) -> OpResult
                         truncated=len(rows) >= limit, notes=["relations"], via=res.via)
 
 
+# ---- schema 3 only: ratings and provenance --------------------------------------------------------------------------------------
+NOT_IN_THIS_DATABASE = "not_in_this_database"
+
+
+def ratings(request: CinemaSqlInput, session: Session, limit: int) -> OpResult:
+    """Audience ratings and vote counts of one work, or (no work given) the best rated titles. Only the reconciled database has them."""
+    if session.schema < 3:
+        return OpResult(EMPTY, reason=NOT_IN_THIS_DATABASE)
+    if any((request.title, request.work_id, request.imdb_id, request.tmdb_id, request.wikidata_id)):
+        res = resolve_work(session, request)
+        if res.status != RESOLVED:
+            return _unresolved(res, kind="work")
+        rows = session.rows(*Q.ratings_of(res.entity["work_id"]))
+        listed = [{"source": r["source"], "audience": r["audience"], "rating": r["rating"], "scale_max": r["scale_max"], "votes": r["vote_count"], "as_of": r["as_of"]} for r in rows]
+        return _empty_or_ok(listed, "no_rating_recorded", subject={"kind": "work", **res.entity}, data={"ratings": listed}, shown=len(listed), notes=["ratings"], via=res.via)
+    min_votes = request.min_votes or 1000
+    rows = session.rows(*Q.top_rated(request.type, request.year_from, request.year_to, min_votes, limit))
+    listed = [{"work_id": r["work_id"], "title": r["title"], "year": r["year"], "kind": r["kind"], "rating": r["rating"], "scale_max": r["scale_max"], "votes": r["vote_count"]} for r in rows]
+    _with_ids(session, listed)
+    return _empty_or_ok(listed, "no_rated_title_in_catalogue", data={"ranking": listed, "min_votes": min_votes, "as_of": rows[0]["as_of"] if rows else None}, shown=len(listed),
+                        truncated=len(listed) >= limit, notes=["ratings", "ratings_ranking"] + ([] if request.type else ["ratings_mixed_types"]) + (["limit"] if len(listed) >= limit else []))
+
+
+def movielens(request: CinemaSqlInput, session: Session, limit: int) -> OpResult:
+    """The six lists of the old MovieLens tool, on the MovieLens tables of the v4 file: rankings, title search, tag search, mean per genre."""
+    if not session.movielens:
+        return OpResult(EMPTY, reason=NOT_IN_THIS_DATABASE)
+    mode, min_ratings = request.ml_mode, request.min_votes or ML_MIN_RATINGS
+    if mode == "genre_stats":
+        rows = session.rows(*Q.ml_genre_stats(request.genre, request.year_from, request.year_to, min_ratings, limit))
+        listed = [{"genre": r["genre"], "films": r["n_movies"], "avg_rating": r["avg_rating"], "ratings": r["n_ratings"]} for r in rows]
+        return _empty_or_ok(listed, "no_genre_in_range", data={"mode": mode, "genres": listed, "scale_max": 5, "min_ratings": min_ratings}, shown=len(listed),
+                            notes=["movielens", "movielens_genres", "movielens_films_only"])
+    if mode in {"top_rated", "most_rated"}:
+        rows = session.rows(*Q.ml_ranking("rating" if mode == "top_rated" else "count", request.genre, request.year_from, request.year_to, min_ratings, limit))
+    elif mode == "by_title":
+        rows = session.rows(*Q.ml_by_title(request.title or "", request.genre, request.year_from, request.year_to, limit))
+    else:
+        rows = session.rows(*Q.ml_by_tag(request.tag or "", request.genre, request.year_from, request.year_to, limit, request.type))
+    listed = []
+    for r in rows:
+        item = {"work_id": r["work_id"], "imdb_id": r["imdb_id"], "title": r["title"] or normalize_title(r["ml_title"]), "year": r["year"], "kind": r["kind"], "avg_rating": r["avg_rating"],
+                "ratings": r["n_ratings"], "genres": sorted((r["genres"] or "").split("|")) if r["genres"] else []}
+        if r["status"] != "in_catalogue":
+            item.update({"status": "excluded", "reason": r["reason"], "title": normalize_title(r["ml_title"])})
+        if "tag_count" in r:
+            item["tag_users"] = r["tag_count"]
+        listed.append(item)
+    return _empty_or_ok(listed, "no_movielens_film_found", data={"mode": mode, "movies": listed, "scale_max": 5, "min_ratings": min_ratings if mode in {"top_rated", "most_rated"} else None},
+                        shown=len(listed), truncated=len(listed) >= limit, notes=["movielens", "movielens_genres"] + (["movielens_any_kind"] if mode == "by_tag" and not request.type else []) + (["limit"] if len(listed) >= limit else []))
+
+
+def provenance(request: CinemaSqlInput, session: Session, limit: int) -> OpResult:
+    """Where the facts about a work or a person come from: every identifier (primary or alternative), the identification level, values that lost a priority
+    decision, and identifiers that were suspected but NOT attached. Candidates and claims are information about the data, never facts about the film."""
+    if session.schema < 3:
+        return OpResult(EMPTY, reason=NOT_IN_THIS_DATABASE)
+    has_work = any((request.title, request.work_id, request.imdb_id, request.tmdb_id)) or (request.wikidata_id and not request.person and not request.person_id)
+    if has_work:
+        res = resolve_work(session, request)
+        kind, key = "work", "work_id"
+    else:
+        res = resolve_person(session, name=request.person, person_id=request.person_id, wikidata_id=request.wikidata_id, birth_year=request.birth_year)
+        kind, key = "person", "person_id"
+    if res.status != RESOLVED:
+        return _unresolved(res, kind=kind)
+    eid = res.entity[key]
+    merged: list[dict[str, Any]] = []
+    group = [eid]
+    if kind == "person":  # a person merged into another is the same human: read the claims and candidates of the whole group
+        merged = [{"merged_person_id": r["merged_entity_id"], "merged_name": r["merged_name"], "canonical_person_id": r["canonical_entity_id"], "reason": r["reason"]}
+                  for r in session.rows(*Q.merged_into(eid))]
+        group = sorted({eid, *[m["merged_person_id"] for m in merged], *[m["canonical_person_id"] for m in merged]})[:8]
+    ids = [{"scheme": r["scheme"], "value": r["value"], "primary": bool(r["is_primary"])} for r in session.rows(*Q.ids_of_entity(eid))]
+    claims = [{"field": r["field"], "value": r["value"], "source": r["source"], "source_ref": r["source_ref"]} for r in session.rows(*Q.claims_of(group, limit))]
+    candidates = [{"scheme": r["scheme"], "value": r["value"], "tier": r["tier"], "evidence": r["evidence"]} for r in session.rows(*Q.candidates_of(group, limit))]
+    data: dict[str, Any] = {"identifiers": ids, "claims": claims, "candidates_not_attached": candidates}
+    if kind == "work":
+        status = session.rows(*Q.status_of(eid))
+        if status:
+            data["identification"] = {"entry_route": status[0]["entry_route"], "identification": status[0]["identification"], "identity_level": status[0]["identity_level"],
+                                      "completeness": status[0]["completeness"], "plot_status": status[0]["plot_status"]}
+    else:
+        data["merged_persons"] = merged
+    shown = len(ids) + len(claims) + len(candidates)
+    return OpResult(OK if shown or data.get("identification") else EMPTY, reason=None if shown else "no_provenance_recorded", subject={"kind": kind, **res.entity}, data=data,
+                    shown=shown, truncated=len(claims) >= limit or len(candidates) >= limit, notes=["provenance"] + (["limit"] if len(claims) >= limit or len(candidates) >= limit else []), via=res.via)
+
+
 def sql(request: CinemaSqlInput, session: Session, limit: int) -> OpResult:
     result = session.query(request.sql or "", request.params or [])
     rows = [dict(zip(result.columns, r)) for r in result.rows]
@@ -341,5 +438,5 @@ def sql(request: CinemaSqlInput, session: Session, limit: int) -> OpResult:
 
 OPERATIONS: dict[str, Callable[[CinemaSqlInput, Session, int], OpResult]] = {
     "find_work": find_work, "work_card": work_card, "find_person": find_person, "filmography": filmography, "cast": cast, "crew": crew,
-    "collaborations": collaborations, "awards": awards, "series": series, "companies": companies, "franchise": franchise, "relations": relations, "sql": sql,
+    "collaborations": collaborations, "awards": awards, "series": series, "companies": companies, "franchise": franchise, "relations": relations, "ratings": ratings, "movielens": movielens, "provenance": provenance, "sql": sql,
 }

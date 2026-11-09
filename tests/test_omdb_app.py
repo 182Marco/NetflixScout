@@ -13,6 +13,7 @@ from stream_support import reply
 
 import app as app_module
 from orchestrator import LLMOrchestrator
+from preferences_support import without_content_text
 from preferences import build_prompt_parts, defaults, resolve_preferences
 from preferences import behavior
 from presenters import OutputChannel, present
@@ -123,7 +124,7 @@ def test_rule_1_still_sends_critic_lists_to_tmdb_discover() -> None:
 
 
 def _planner(sources: str) -> str:
-    return build_prompt_parts(resolve_preferences({"preferred_sources": sources}).preferences)["planner"]
+    return without_content_text(build_prompt_parts(resolve_preferences({"preferred_sources": sources}).preferences)["planner"])
 
 
 def test_omdb_serves_the_reviews_source_and_every_allowed_tool_is_declared() -> None:
@@ -138,7 +139,7 @@ def test_only_the_reviews_preference_points_the_planner_to_omdb() -> None:
     assert "regola 1d" in texts["reviews"] and "prima di tmdb_search" in texts["reviews"]
     # The other settings keep their text, and the reviews one keeps the TMDb reviews facet.
     assert "facet reviews" in texts["reviews"]
-    assert "omdb" not in build_prompt_parts(defaults())["planner"].lower()
+    assert "omdb" not in without_content_text(build_prompt_parts(defaults())["planner"]).lower()
 
 
 def test_the_reviews_preference_adds_no_step_and_no_call() -> None:

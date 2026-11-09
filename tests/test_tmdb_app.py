@@ -95,9 +95,7 @@ def test_final_instructions_fix_the_unfounded_sentences_of_the_real_runs() -> No
     assert "Non mostrare all'utente nomi tecnici di campi" in final
     # D5 statuses and D1 alternative titles are explained to the model.
     # D5: the per-film summary is reported as given, with no inference of the model's own.
-    assert "constraints_summary" in final and "senza aggiungere deduzioni tue" in final
-    assert "non dedurre nazionalità dai personaggi né il finale dalla trama" in final
-    assert "un vincolo 'contraddetto' va" in final
+    assert "constraints_summary" not in final  # the old RAG's per-constraint summary no longer exists
     assert "'year_from_release_dates'" in final and "riporta entrambi gli anni" in final
 
 

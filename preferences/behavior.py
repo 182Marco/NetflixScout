@@ -29,7 +29,11 @@ PLANNER_INTRO: Final = (
     "«approfondisci»; response_tone diverso, es. «parla come…»; approach opposto, es. «dimmene uno solo» con il confronto tra alternative; "
     "content_type diverso, es. un film richiesto con content_type serie; preferred_sources: richiesta esplicita di una fonte diversa), "
     "aggiungi al JSON il campo conflicts: [{{\"setting\": <id dell'impostazione>, \"requested\": <in poche parole cosa chiede>}}] e "
-    "pianifica SOLO la parte compatibile (lo stesso tema nel tipo di contenuto impostato), mai la parte in conflitto. Con spoiler_plot "
+    "pianifica SOLO la parte compatibile, mai la parte in conflitto. ECCEZIONE per content_type: se la richiesta riguarda ESPLICITAMENTE ed "
+    "esclusivamente l'altro tipo di contenuto (una serie TV con content_type film, un film o le classifiche MovieLens con content_type serie) "
+    "non esiste una parte compatibile: ritorna subito tool_name null e conflicts, NON pianificare nessuna ricerca (nemmeno rag_search o "
+    "series_rag_search) e NON reinterpretare la domanda come richiesta del tipo impostato (niente «film simili alla serie X»). Solo se la "
+    "richiesta mescola i due tipi (es. «un film e una serie su…») pianifica la sola parte del tipo impostato. Con spoiler_plot "
     "disattivato e una richiesta di finale o svolte la parte compatibile esiste sempre: pianifica la ricerca del film identificato (la risposta "
     "darà solo premessa e contesto). Se davvero nulla è compatibile ritorna tool_name null e conflicts. Senza conflitti conflicts è [] o assente: una richiesta che non tocca le impostazioni "
     "non è un conflitto."
@@ -113,14 +117,26 @@ CONTENT_ANSWER: Final[dict[str, str]] = {
 
 CONTENT_PLANNER: Final[dict[str, str]] = {
     "film": (
-        "Tipo di contenuto: film (vincolante). Non pianificare tool né operazioni su serie TV (tv_details, tv_season, tv_episode, discover_tv, "
-        "search con kind tv): per tmdb_search usa le operazioni per film (movie_details, discover_movies, search con kind movie)."
+        "Tipo di contenuto: film (vincolante). Ammessi: rag_search (ricerca semantica e consigli di film), cinema_sql (cast, registi, filmografie, premi, "
+        "franchise, classifiche, tag e statistiche MovieLens) e gli altri tool per film. VIETATI: series_rag_search, tvmaze_search e le operazioni TMDb su "
+        "serie TV (tv_details, tv_season, tv_episode, discover_tv, search con kind tv). Una richiesta generica di consigli, trama, genere o atmosfera va a "
+        "rag_search. Se la richiesta chiede ESPLICITAMENTE una serie TV (o stagioni, episodi, un titolo che è una serie) è un conflitto: dichiaralo in "
+        "conflicts con tool_name null: nessuna ricerca, nemmeno di film simili alla serie citata, e nessuna reinterpretazione come richiesta di film."
     ),
     "series": (
-        "Tipo di contenuto: serie TV (vincolante). Tratta ogni richiesta come una richiesta su serie, anche se descrive trama, genere, "
-        "atmosfera o temi: per tmdb_search usa le operazioni per serie (tv_details, discover_tv, search con kind tv); non scegliere mai "
-        "rag_search (copre solo film) né movie_db_search per cercare serie: il sistema li blocca. I dati strutturati di una serie identificata "
-        "seguono la regola 1e; la preferenza non obbliga a usare tvmaze_search per ogni domanda sulle serie."
+        "Tipo di contenuto: serie TV (vincolante). Ammessi: series_rag_search (ricerca semantica e consigli di serie e film TV, anche per trama, genere, "
+        "atmosfera o temi), tvmaze_search (stagioni, episodi, date di messa in onda, prossimo episodio, secondo la regola 1e), cinema_sql per i dati strutturati "
+        "di serie (operazione series, cast, crew; type series) e gli altri tool per serie (per tmdb_search: tv_details, discover_tv, search con kind tv). "
+        "VIETATI: rag_search (copre solo film) e cinema_sql con operazione movielens, salvo ml_mode by_tag con type series (le classifiche MovieLens sono di film). Una richiesta generica di "
+        "consigli, trama, genere o atmosfera va a series_rag_search. Se la richiesta chiede ESPLICITAMENTE un film (o un titolo che è un film, o le "
+        "classifiche MovieLens) è un conflitto: dichiaralo in conflicts con tool_name null: nessuna ricerca, nemmeno di serie simili al film citato, e nessuna reinterpretazione come richiesta di serie (nemmeno rag_search). Classifiche, voti medi e statistiche per genere di MovieLens riguardano solo film: sotto questa impostazione sono un conflitto, non una ricerca da affidare a un RAG. I tag degli utenti valgono anche per le serie: cinema_sql movielens by_tag con type series."
+    ),
+    "both": (
+        "Tipo di contenuto: entrambi (nessun vincolo di tipo). Scegli i tool dalla domanda, mai per prudenza: una richiesta su film va a rag_search; una "
+        "su serie TV a series_rag_search (stagioni, episodi, date e prossimo episodio a tvmaze_search, mai ai RAG); interroga entrambi i RAG SOLO se la "
+        "richiesta chiede esplicitamente film e serie insieme o un confronto tra i due (in parts, un passo per tool). Se un consiglio non dice se è di film o "
+        "di serie, scegli il tipo più probabile dai titoli e dal contesto; non cercare in entrambi. Classifiche, tag e statistiche MovieLens: sempre "
+        "cinema_sql (operazione movielens), mai i RAG. Usa gli imdb_id restituiti dai RAG per cinema_sql o omdb_search invece di cercare per titolo."
     ),
 }
 
@@ -179,12 +195,28 @@ SOURCE_TOOLS: Final[dict[str, str]] = {
     # keeps the prose). It carries no reviews, ratings or interviews, no plot (so no spoilers; the
     # relations name other works, never how a story ends), films and series. No preference adds a call to it.
     "wikidata_search": "official information",
-    # cinema_sql reads the local cinema database: structured encyclopedic facts (credits, relations, companies, awards, series structure) from Wikipedia
-    # and Wikidata, like wikipedia_search and tmdb_search, so `official information`. Verified on the real data (docs/cinema_db/PHASE5_REPORT.md §2): no
-    # audience rating (not `user ratings`), no critic score or review text (not `reviews`: awards are industry recognitions, not reviews), no interview, no
-    # plot (so no spoilers), films and series. No preference adds a call to it; the routing rule 1g decides when it is the first tool.
+    # cinema_sql reads the local cinema database. Its facts (credits, relations, companies, awards, series structure, identification levels, provenance) are
+    # structured encyclopedic data from Wikipedia and Wikidata, so by default `official information`. Its `ratings` operation (schema 3) is DIFFERENT: audience
+    # ratings (IMDb datasets and MovieLens aggregates), see SOURCE_TOOL_OPERATIONS. No critic score or review text (not `reviews`: Metascore and Rotten Tomatoes
+    # stay with omdb_search), no interview, no plot (so no spoilers), films and series. No preference adds a call to it; the routing rule 1g decides.
     "cinema_sql": "official information",
+    # series_rag_search reads the TV-series collection (Italian Wikipedia: series, seasons, episodes with plots, TV movies). Encyclopedic prose edited by a
+    # community, so `official information`, like wikipedia_search and rag_search for films. No reviews, ratings, interviews or streaming data. Plots can
+    # spoil (series, seasons and above all episodes), so `spoiler_plot` applies to its text; SERIES AND TV MOVIES ONLY (not films), so under `content_type`
+    # film it never runs. Overlap: tvmaze_search/tmdb_search on series details (rule 1h gives search by description to this tool, rule 1e the structured
+    # data to TVmaze). No preference adds a call to it.
+    "series_rag_search": "official information",
 }
+
+# Operations of a tool that serve a DIFFERENT preference from the tool's own (one tool, several kinds of data: no second tool is created to classify them).
+SOURCE_TOOL_OPERATIONS: Final[dict[str, dict[str, str]]] = {
+    "cinema_sql": {"ratings": "user ratings", "movielens": "user ratings"},
+}
+
+
+def source_for(tool: str, operation: str | None = None) -> str | None:
+    """The preference served by a call: the operation's own entry, else the tool's, else None for an unknown tool."""
+    return SOURCE_TOOL_OPERATIONS.get(tool, {}).get(operation or "") or SOURCE_TOOLS.get(tool)
 
 SOURCES_PLANNER: Final[dict[str, str]] = {
     "reviews": (

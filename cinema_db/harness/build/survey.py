@@ -16,10 +16,10 @@ from cinema_db.harness.build.extract import ROLE_PROPS, summarize
 from cinema_db.harness.build.snapshot import Snapshot
 
 ROOT = Path(__file__).resolve().parents[3]
-FILM_SNAP = ROOT / "tool/RAGWikipediaFilm/data/cache/wikidata/itwiki-20261101-a"
-SERIES_SNAP = ROOT / "tool/RAGWikipediaSeries/data/cache/wikidata/itwiki-20261101-series-a"
-FILMS = ROOT / "tool/RAGWikipediaFilm/data/clean_v3/films.v3.jsonl"
-S5 = ROOT / "tool/RAGWikipediaSeries/data/s5"
+FILM_SNAP = ROOT / "pipelines/wikipedia_films/data/cache/wikidata/itwiki-20261101-a"
+SERIES_SNAP = ROOT / "pipelines/wikipedia_series/data/cache/wikidata/itwiki-20261101-series-a"
+FILMS = ROOT / "pipelines/wikipedia_films/data/clean_v3/films.v3.jsonl"
+S5 = ROOT / "pipelines/wikipedia_series/data/s5"
 OUT_JSON = ROOT / "docs/cinema_db/SURVEY.json"
 OUT_MD = ROOT / "docs/cinema_db/SURVEY.md"
 BATCH = 50  # wbgetentities accepts up to 50 ids per request

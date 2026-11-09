@@ -50,6 +50,7 @@ from turn import (
     STEP_TVMAZE_CALLS,
     STEP_WIKIDATA_CALLS,
     STEP_CINEMA_SQL_CALLS,
+    STEP_SERIES_RAG,
     STEP_YOUTUBE_CALLS,
     TraceStep,
     TurnResult,
@@ -63,6 +64,7 @@ from .omdb import serialize_omdb_calls_step
 from .tvmaze import serialize_tvmaze_calls_step
 from .wikidata import serialize_wikidata_calls_step
 from .cinema import serialize_cinema_sql_calls_step
+from .series import serialize_series_rag_step
 from .wikipedia import serialize_wikipedia_calls_step
 from .youtube import serialize_youtube_calls_step
 
@@ -80,6 +82,7 @@ STEP_SERIALIZERS: dict[str, Serializer] = {
     STEP_TVMAZE_CALLS: serialize_tvmaze_calls_step,
     STEP_WIKIDATA_CALLS: serialize_wikidata_calls_step,
     STEP_CINEMA_SQL_CALLS: serialize_cinema_sql_calls_step,
+    STEP_SERIES_RAG: serialize_series_rag_step,
     STEP_WIKIPEDIA_CALLS: serialize_wikipedia_calls_step,
 }
 

@@ -82,6 +82,7 @@ TOOLS = {
         "tvmaze_search": ("su TVmaze", "TVmaze"),
         "wikidata_search": ("su Wikidata", "Wikidata"),
         "cinema_sql": ("nell'archivio locale di film e persone", "Archivio"),
+        "series_rag_search": ("tra le trame di serie, stagioni ed episodi", "Serie"),
     },
     "en": {
         "rag_search": ("among the movie plots", "Plots"),
@@ -93,6 +94,7 @@ TOOLS = {
         "tvmaze_search": ("on TVmaze", "TVmaze"),
         "wikidata_search": ("on Wikidata", "Wikidata"),
         "cinema_sql": ("in the local archive of films and people", "Archive"),
+        "series_rag_search": ("among the plots of series, seasons and episodes", "Series"),
     },
     "de": {
         "rag_search": ("in den Filmhandlungen", "Handlungen"),
@@ -104,6 +106,7 @@ TOOLS = {
         "tvmaze_search": ("auf TVmaze", "TVmaze"),
         "wikidata_search": ("auf Wikidata", "Wikidata"),
         "cinema_sql": ("im lokalen Archiv von Filmen und Personen", "Archiv"),
+        "series_rag_search": ("in den Handlungen von Serien, Staffeln und Episoden", "Serien"),
     },
 }
 
@@ -126,6 +129,9 @@ REASONS = {
         "http_error": "risposta non valida",
         "response_too_large": "pagina troppo grande da leggere",
         "db_missing": "archivio locale non disponibile",
+        "series_rag_unavailable": "catalogo delle serie non raggiungibile",
+        "series_not_in_index": "la serie non risulta nel catalogo",
+        "no_match": "nessuna pagina corrisponde",
         "plan_rejected": "ricerca troppo pesante",
         "default": "non è andata a buon fine",
     },
@@ -146,6 +152,9 @@ REASONS = {
         "http_error": "invalid answer",
         "response_too_large": "page too large to read",
         "db_missing": "local archive unavailable",
+        "series_rag_unavailable": "series catalogue unreachable",
+        "series_not_in_index": "the series is not in the catalogue",
+        "no_match": "no page matches",
         "plan_rejected": "lookup too heavy",
         "default": "it did not work",
     },
@@ -166,6 +175,9 @@ REASONS = {
         "http_error": "ungültige Antwort",
         "response_too_large": "Seite zu groß zum Lesen",
         "db_missing": "lokales Archiv nicht verfügbar",
+        "series_rag_unavailable": "Serienkatalog nicht erreichbar",
+        "series_not_in_index": "die Serie ist nicht im Katalog",
+        "no_match": "keine Seite passt",
         "plan_rejected": "Abfrage zu aufwendig",
         "default": "es hat nicht geklappt",
     },

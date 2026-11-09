@@ -131,7 +131,7 @@ def test_unknown_fields_are_refused_and_the_turn_language_is_ignored(tool):
 def test_the_planner_schema_is_compact_and_the_description_lists_the_real_views():
     schema = planner_schema()
     text = json.dumps(schema, separators=(",", ":"))
-    assert len(text) < 4000 and '"title":"' not in text and '"default":null' not in text and '"anyOf":[{"type":"string"},{"type":"null"}]' not in text
+    assert len(text) < 4100 and '"title":"' not in text and '"default":null' not in text and '"anyOf":[{"type":"string"},{"type":"null"}]' not in text
     assert set(schema["properties"]["operation"]["enum"]) == set(__import__("tool.cinema_db.operations", fromlist=["OPERATIONS"]).OPERATIONS)
     summary = views_summary()
     for view in ("v_work(", "v_person(", "v_credit(", "v_award_result(", "v_work_relation(", "v_franchise("):

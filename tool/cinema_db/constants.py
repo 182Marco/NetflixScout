@@ -8,6 +8,12 @@ SERIES_KINDS = ("series", "miniseries")
 SCREEN_KINDS = FILM_KINDS + SERIES_KINDS
 ROLES = ("director", "writer", "cast", "composer", "cinematographer", "editor", "producer", "production_designer", "costume_designer", "creator")
 
+# MovieLens (schema 4): its own 19 genres (not the IMDb/Wikidata genres) and the minimum ratings of its rankings, as in the old `movie_db_search` (a test keeps the list equal to it).
+ML_GENRES = ("Action", "Adventure", "Animation", "Children", "Comedy", "Crime", "Documentary", "Drama", "Fantasy", "Film-Noir", "Horror", "IMAX",
+             "Musical", "Mystery", "Romance", "Sci-Fi", "Thriller", "War", "Western")
+ML_MODES = ("top_rated", "most_rated", "by_title", "by_tag", "genre_stats")
+ML_MIN_RATINGS = 50
+
 MAX_CANDIDATES = 5        # alternatives listed when a name is ambiguous or only similar
 CANDIDATE_FETCH = 12      # rows read to find them (names repeat: the same entity has several names)
 DEFAULT_LIMIT = 25
@@ -20,6 +26,7 @@ LICENSE_TEXT = "Contains data from Wikipedia (CC BY-SA 4.0) and Wikidata (CC0 1.
 
 # The one place that says what the local data cannot prove. Codes are stable; the text reaches the model.
 NOTES = {
+    "cast_order_partial": "The first credited people carry the billing order of IMDb (billing_order, 1 = top billed); the credits without it come from other sources, unordered, and the cast may be partial. Present the ordered ones as the lead cast (in billing order); do not rank the others.",
     "coverage": "The local catalogue holds films and series that have a Wikipedia page; recent works (after 2019) are incomplete. A missing item or credit does not prove it does not exist.",
     "cast_order": "The cast is listed without billing order (the order of the credits is not recorded) and may be partial.",
     "filmography": "Only works of the local catalogue are listed, with credits taken from Wikidata statements: the list may be incomplete, especially for recent years.",
@@ -37,4 +44,14 @@ NOTES = {
     "limit": "The list was cut at the limit shown; ask for a narrower year range or role to see the rest.",
     "unverified": "Only similar names were found, not an exact one: they are alternatives, not the requested entity.",
     "no_ids": "This work has no external identifier in the catalogue.",
+    "identity_rule_based": "This work was identified by a rule (a single IMDb title of that name within a year), not by a director or an identifier given by a second source: say it is 'identified with good probability', not that it is certain.",
+    "identity_uncertain": "The identification of this work is UNCERTAIN: the Italian page names a director that IMDb does not list for the matching title. Do not present it as verified; say that the match is uncertain and, if the user needs certainty, ask or check one external source.",
+    "ratings": "Ratings are audience ratings (IMDb viewers, MovieLens users) on their own scales (10 and 5), with the number of votes and the date of the data; they are not critics' scores and are never averaged or converted. Give each with its scale and votes.",
+    "ratings_mixed_types": "No type was asked: this ranking mixes films and series (see each kind). Say so; for the best FILMS ask again with type film.",
+    "ratings_ranking": "The ranking uses IMDb viewer ratings and only titles with at least the minimum number of votes shown; it covers the titles of this catalogue.",
+    "movielens": "These are MovieLens users' ratings on a 1-5 scale with the number of ratings, not critics' scores and not IMDb votes; never average them with another source or convert the scale. Rankings list only films, shorts and TV films of the catalogue with at least the minimum number of ratings shown, so they can differ from other lists; a MovieLens film that is not in the catalogue appears only in a title search, with status excluded and its reason.",
+    "movielens_films_only": "The genre statistics count only films, shorts and TV films of the catalogue (never series or episodes) with at least the minimum number of ratings shown.",
+    "movielens_any_kind": "The tag search covers every linked work, not only films: each item has a kind (film, series, miniseries, episode...). Name the kind whenever it is not a film; `type` restricts the search to films or series.",
+    "movielens_genres": "The genres here are MovieLens' own list (Action, Sci-Fi, Film-Noir...), not the genres shown by other operations: a film can have several or none.",
+    "provenance": "Provenance lists what the database knows about WHERE a fact comes from: identifiers (primary and alternative), the identification level, values that lost a priority decision, and candidates NOT attached. Candidates are suspicions, never facts.",
 }

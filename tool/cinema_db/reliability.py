@@ -51,12 +51,24 @@ def assess(operation: str, *, status: str, reason: str | None, data: dict[str, A
         fields["result"] = _field(ABSENT, reason or "nothing recorded")
         return fields, gaps
     if subject:
-        fields["identity"] = _field(VERIFIED, "one entity, found by identifier or by an exact unique name")
+        level = subject.get("identity_level")
+        if level == "rule_based":
+            fields["identity"] = _field(PARTIAL, "one work, identified by the unique-title rule (one IMDb title of that name within a year): good probability, not independently confirmed")
+        elif level == "uncertain":
+            fields["identity"] = _field(UNCERTAIN, "one work, but its identification is uncertain: the Italian page names a director IMDb does not list for the matching title")
+            if operation != "provenance":  # an uncertain work is worth ONE external confirmation (always offered; the planner judges): ratings are checked on the one source that has them
+                gaps.append(_gap("identity", "omdb_search" if operation == "ratings" else "tmdb_search", "confirmation of which work this is (title, year, director)"))
+        else:
+            fields["identity"] = _field(VERIFIED, "one entity, found by identifier or by an exact unique name")
     if operation == "cast":
-        fields["members"] = _field(PARTIAL, "credits are Wikidata statements; the catalogue may hold only some of the cast")
-        fields["billing_order"] = _field(ABSENT, "the order of the credits is not recorded for any cast")
-        gaps.append(_gap("billing_order", "tmdb_search", "which actors lead (credits with their order)", LEAD_WORDS))
         people = data.get("cast") or []
+        ordered = [p for p in people if p.get("billing_order") is not None]
+        fields["members"] = _field(PARTIAL, "credits come from Wikidata and IMDb; the catalogue may hold only some of the cast")
+        if ordered:
+            fields["billing_order"] = _field(PARTIAL, f"{len(ordered)} of {len(people)} listed credits carry IMDb's billing order (the principal cast); the others are unordered")
+        else:
+            fields["billing_order"] = _field(ABSENT, "the order of the credits is not recorded for any cast")
+            gaps.append(_gap("billing_order", "tmdb_search", "which actors lead (credits with their order)", LEAD_WORDS))
         if people:
             named = sum(1 for p in people if p.get("character"))
             fields["characters"] = _field(VERIFIED if named == len(people) else PARTIAL, f"{named} of {len(people)} listed credits name the character")
@@ -108,6 +120,13 @@ def assess(operation: str, *, status: str, reason: str | None, data: dict[str, A
         fields["writers"] = _field(UNCERTAIN, "the writer role can also list the authors of the source material")
         fields["composers"] = _field(PARTIAL, "credits are Wikidata statements")
         fields["money"] = _field(PARTIAL if data.get("money") else ABSENT, "recorded in the currency given, never converted" if data.get("money") else "no budget or box office recorded")
+    elif operation == "ratings":
+        fields["ratings"] = _field(VERIFIED, "audience ratings as recorded, each on its own scale, with the votes and the date of the data; not critics' scores")
+        gaps.append(_gap("critics_scores", "omdb_search", "Metascore and Rotten Tomatoes (critics), which the local database does not hold", re.compile(r"metascore|rotten|critic|critica|kritik|recension|review", re.I)))
+    elif operation == "movielens":
+        fields["movielens"] = _field(PARTIAL if truncated else VERIFIED, "MovieLens users' ratings (scale 1-5) as recorded; the list covers the films of the catalogue" + (", cut at the limit shown" if truncated else ""))
+    elif operation == "provenance":
+        fields["provenance"] = _field(VERIFIED, "what the database records about the origin of the facts; candidates are suspicions, not facts")
     elif operation == "sql":
         fields["rows"] = _field(PARTIAL if truncated else VERIFIED, "the rows returned by the query" + (" cut at the limit" if truncated else ""))
     return fields, gaps

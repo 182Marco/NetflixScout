@@ -122,7 +122,7 @@ def _by_ids(session: Session, request: CinemaSqlInput) -> Resolution | None:
     return Resolution(RESOLVED, entity=work_identity(row, _directors(session, [row["work_id"]]).get(row["work_id"], [])), via="id")
 
 
-def resolve_work(session: Session, request: CinemaSqlInput, *, allow_any_kind: bool = False) -> Resolution:
+def _resolve_work(session: Session, request: CinemaSqlInput, *, allow_any_kind: bool = False) -> Resolution:
     by_id = _by_ids(session, request)
     if by_id is not None:
         return by_id
@@ -151,6 +151,25 @@ def resolve_work(session: Session, request: CinemaSqlInput, *, allow_any_kind: b
         cands, omitted = _work_candidates(session, similar)
         return Resolution(UNVERIFIED, candidates=cands, omitted=omitted, reason="similar_names_only", via="search")
     return Resolution(NOT_FOUND, reason="title_unknown")
+
+
+def annotate_identity(session: Session, entities: list[dict[str, Any]]) -> None:
+    """Schema 3: add `identity_level` (verified, rule_based, uncertain) to works, in ONE query. A level is never guessed: a work with no status row gets none."""
+    if session.schema < 3:
+        return
+    ids = [e["work_id"] for e in entities if e.get("work_id") is not None][:50]
+    if not ids:
+        return
+    levels = {r["work_id"]: r["identity_level"] for r in session.rows(*Q.identity_of(ids))}
+    for e in entities:
+        if levels.get(e.get("work_id")):
+            e["identity_level"] = levels[e["work_id"]]
+
+
+def resolve_work(session: Session, request: CinemaSqlInput, *, allow_any_kind: bool = False) -> Resolution:
+    res = _resolve_work(session, request, allow_any_kind=allow_any_kind)
+    annotate_identity(session, ([res.entity] if res.entity else []) + list(res.candidates))
+    return res
 
 
 # ---- people ----------------------------------------------------------------------------------------------------------------------

@@ -39,7 +39,11 @@ from .routing_cases import (
     ROUTING_CASES,
     RagExpectation,
     RequestExpectation,
+    SERIES_ROUTING_CASES,
     RoutingCase,
+    SeriesExpectation,
+    CinemaExpectation,
+    INTEGRATED_ROUTING_CASES,
     TvmazeExpectation,
     VideoExpectation,
     WikidataExpectation,
@@ -112,6 +116,10 @@ class RoutingResult:
             return check_any_wikidata(self.case.expected_wikidata, self.arguments, self.standalone_query)
         if self.case.expected_rag is not None:
             return check_rag(self.case.expected_rag, self.arguments)
+        if self.case.expected_series is not None:
+            return check_series(self.case.expected_series, self.arguments, self.standalone_query)
+        if self.case.expected_cinema is not None:
+            return check_cinema(self.case.expected_cinema, self.arguments, self.standalone_query)
         return None
 
     @property
@@ -349,6 +357,58 @@ def check_rag(expected: RagExpectation, arguments: Any) -> str | None:
     return None
 
 
+def check_cinema(expected: CinemaExpectation, arguments: Any, standalone_query: str) -> str | None:
+    """Check the arguments of a `cinema_sql` call as the tool would read them (`CinemaSqlInput`), then the operation, the MovieLens mode and the filters the question states."""
+    from tool.cinema_db.models import CinemaSqlInput
+
+    if not isinstance(arguments, dict):
+        return "arguments is not an object"
+    payload = {key: value for key, value in arguments.items() if key != TOOL_PARAM_TURN_LANGUAGE}
+    payload["query"] = standalone_query or payload.get("query") or "q"
+    try:
+        parsed = CinemaSqlInput.model_validate(payload)
+    except ValidationError as exc:
+        return f"invalid arguments: {exc.error_count()} error(s)"
+    operations = expected.operation if isinstance(expected.operation, tuple) else (expected.operation,)
+    if parsed.operation not in operations:
+        return f"operation {parsed.operation!r} not in {operations}"
+    if parsed.operation == "movielens" and expected.ml_mode is not None:
+        modes = expected.ml_mode if isinstance(expected.ml_mode, tuple) else (expected.ml_mode,)
+        if parsed.ml_mode not in modes:
+            return f"ml_mode {parsed.ml_mode!r} not in {modes}"
+    for name in ("genre", "year_from", "year_to"):
+        wanted = getattr(expected, name)
+        if wanted is not None and getattr(parsed, name) != wanted:
+            return f"{name} {getattr(parsed, name)!r} != {wanted!r}"
+    if expected.type == "absent" and parsed.type is not None:
+        return f"type {parsed.type!r} passed although the question names no kind"
+    if expected.type not in (None, "absent") and parsed.type != expected.type:
+        return f"type {parsed.type!r} != {expected.type!r}"
+    if expected.tag is not None and expected.tag not in (parsed.tag or "").casefold():
+        return f"tag {parsed.tag!r} does not contain {expected.tag!r}"
+    return None
+
+
+def check_series(expected: SeriesExpectation, arguments: Any, standalone_query: str) -> str | None:
+    """Check the arguments of a `series_rag_search` call as `SeriesRagTool.run` would read them: the whole request in `query`, `k_final` only if the user gave a number."""
+    from tool.rag.series.models import SeriesRagToolInput
+
+    if not isinstance(arguments, dict):
+        return "arguments is not an object"
+    payload = {key: value for key, value in arguments.items() if key != TOOL_PARAM_TURN_LANGUAGE}
+    payload["query"] = standalone_query or payload.get("query") or ""
+    try:
+        parsed = SeriesRagToolInput.model_validate(payload)
+    except ValidationError as exc:
+        return f"invalid arguments: {exc.error_count()} error(s)"
+    counts = expected.k_final if isinstance(expected.k_final, tuple) else (expected.k_final,)
+    if parsed.k_final not in counts:
+        return f"k_final {parsed.k_final!r} not in {counts}"
+    text = f"{standalone_query} {arguments.get('query') or ''}".casefold()
+    missing = [f for f in expected.query_fragments if f not in text]
+    return f"query lacks {missing}" if missing else None
+
+
 def select_cases(tool: str | None) -> tuple[RoutingCase, ...]:
     return tuple(case for case in ROUTING_CASES if tool is None or case.expected_tool == tool)
 
@@ -417,9 +477,12 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--live", action="store_true", required=True, help="Required: this run costs API credits.")
     parser.add_argument(
         "--tool",
-        choices=sorted({case.expected_tool for case in ROUTING_CASES}),
+        choices=sorted({case.expected_tool for case in (*ROUTING_CASES, *SERIES_ROUTING_CASES, *INTEGRATED_ROUTING_CASES)}),
         help="Run only the cases expecting this tool (2 API calls per case).",
     )
+    parser.add_argument("--series-index", action="store_true", help="Planner prompt WITH the series tool registered (feature flag on): runs SERIES_ROUTING_CASES instead of the default ones.")
+    parser.add_argument("--integrated", action="store_true", help="Integrated configuration: cinema_sql on the schema-4 file (--cinema-db) + the series tool, movie_db_search not registered; runs INTEGRATED_ROUTING_CASES.")
+    parser.add_argument("--cinema-db", default=__import__("cinema_db.harness.candidate", fromlist=["EXPECTED"]).EXPECTED["path"], help="Schema-4 database for --integrated.")
     args = parser.parse_args(argv)
 
     from functools import partial
@@ -429,16 +492,20 @@ def main(argv: list[str] | None = None) -> None:
 
     load_dotenv()
     import app as app_module
-    from tool.rag.FromQueryEmbeddingToRes.query_classifier import query_classifier
+    from query_classifier import query_classifier
 
     # No automatic retries: one call per classifier/planner step.
     query_classifier.OpenAI = partial(OpenAI, max_retries=0)
-    application = app_module.build_app()
+    if args.integrated:
+        application = app_module.build_app({"series_rag": {"enabled": True}, "cinema_db": {"enabled": True, "db_path": args.cinema_db}})
+    else:
+        application = app_module.build_app({"series_rag": {"enabled": True}} if args.series_rag else None)
     orchestrator = application["orchestrator"]
     orchestrator.client = RecordingClient(OpenAI(max_retries=0))
 
     results = run_routing_cases(
-        select_cases(args.tool),
+        (tuple(c for c in INTEGRATED_ROUTING_CASES if args.tool is None or c.expected_tool == args.tool) if args.integrated
+         else tuple(c for c in SERIES_ROUTING_CASES if args.tool is None or c.expected_tool == args.tool) if args.series_rag else select_cases(args.tool)),
         orchestrator=orchestrator,
         classify=query_classifier.classify_query_domain,
         context_size=application["config"]["orchestrator"].get("classifier_context_messages", 0),
@@ -460,6 +527,8 @@ def main(argv: list[str] | None = None) -> None:
             or result.case.expected_tvmaze is not None
             or result.case.expected_wikidata is not None
             or result.case.expected_rag is not None
+            or result.case.expected_series is not None
+            or result.case.expected_cinema is not None
         )
         if expects_arguments and result.tool == result.case.expected_tool:
             print(f"   arguments: {json.dumps(result.arguments, ensure_ascii=False)}")

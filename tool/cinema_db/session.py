@@ -61,6 +61,8 @@ class Session:
     guarded: GuardedConnection
     budget: TurnBudget
     calls: list[dict[str, Any]] = field(default_factory=list)
+    schema: int = 2  # 3 = the reconciled IMDb layer: ratings, identification level, provenance
+    movielens: bool = False  # schema 4: MovieLens films, genres and tags
 
     def query(self, sql: str, params: list[Any] | tuple[Any, ...] = ()) -> QueryResult:
         """Validate, reserve a query of the turn's budget, run. Raises a typed `CinemaSqlError`; the engine's own text is never exposed."""

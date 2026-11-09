@@ -1,0 +1,22 @@
+# Versioned configuration of the wikipedia_series pipeline (paths relative to this folder).
+# Wikidata access for Phase 0: public API, free, read-only, own snapshot (never the film one).
+wikidata:
+  api_url: "https://www.wikidata.org/w/api.php"
+  sparql_url: "https://query.wikidata.org/sparql"
+  site: "itwiki"
+  # Repository URL only (Wikimedia User-Agent policy asks for a contact); no personal e-mail.
+  contact: "https://github.com/182Marco/NetflixScout"
+  user_agent_name: "wikipedia_series/0.1"
+  batch_size: 50
+  min_interval_seconds: 1.5
+  timeout_seconds: 30
+  sparql_timeout_seconds: 70
+  label_batch_size: 1000
+  max_retries: 3
+  retry_backoff_seconds: 5
+  maxlag: 5
+  languages: [it, en]
+  mode: "online"
+  snapshot_id: "itwiki-20261101-series-a"
+  snapshot_root: "data/cache/wikidata"
+  max_actors: 20

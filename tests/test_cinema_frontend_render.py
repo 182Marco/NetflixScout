@@ -67,3 +67,26 @@ def test_the_executed_queries_are_shown_and_nothing_else_internal_reaches_the_sc
     text = json.dumps(render(step)).lower()  # with no executed query the screen has no SQL at all
     for internal in ("select ", " v_", "work_id", "person_id", "javascript:", "query sql eseguite"):
         assert internal not in text
+
+
+def test_a_movielens_list_is_rendered_with_its_own_source_no_wikipedia_links_and_no_internal_ids(tmp_path):
+    """The step the backend really produces for the `movielens` operation (miniature schema-4 file) goes through the frontend's `render.js`."""
+    import sys
+
+    sys.path.insert(0, str(ROOT / "tests"))
+    from cinema_v3_support import build_v3
+
+    from presenters.web.payload import STEP_SERIALIZERS
+    from tool.cinema_db.config import CinemaDbConfig
+    from tool.cinema_db.tool import CinemaSqlTool
+    from turn import TraceStep
+
+    tool = CinemaSqlTool(config=CinemaDbConfig(enabled=True, db_path=str(build_v3(tmp_path / "v4.sqlite3", movielens=True)), max_queries_per_turn=12, default_limit=10))
+    raw = tool.run(query="q", params={"operation": "movielens", "ml_mode": "most_rated", "min_votes": 1})["trace"][0]
+    step = STEP_SERIALIZERS[raw["kind"]](TraceStep(kind=raw["kind"], title=raw["title"], data=raw["data"]), "it")
+    entry = render(step)
+    assert entry["attributions"] == [step["source"]] and "MovieLens" in entry["attributions"][0] and "Wikipedia" not in entry["attributions"][0]
+    assert not any("wikipedia" in link["url"] or "wikidata" in link["url"] or "creativecommons" in link["url"] for link in entry["links"])
+    lines = "\n".join(entry["lines"])
+    assert "Liste MovieLens" in lines and "Nessuna richiesta di rete" in lines and "Limiti dei dati" in lines and "scala 1-5" in lines
+    assert "work_id" not in lines.replace("SELECT", "").split("Query SQL eseguite")[0]  # ids only inside the executed SQL, never in the summary lines

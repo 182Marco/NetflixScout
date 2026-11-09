@@ -15,6 +15,9 @@ YOUTUBE = "youtube_search"
 WIKIPEDIA = "wikipedia_search"
 TVMAZE = "tvmaze_search"
 WIKIDATA = "wikidata_search"
+SERIES = "series_rag_search"
+CINEMA = "cinema_sql"
+OMDB = "omdb_search"
 # No tool: the planner asks the user for the missing title (orchestrator.CLARIFICATION).
 CLARIFY = "clarification"
 
@@ -111,6 +114,30 @@ class RagExpectation:
 
 
 @dataclass(frozen=True)
+class SeriesExpectation:
+    """The `k_final` the planner should set for a `series_rag_search` call (None = left null; a tuple lists acceptable values); the whole request must be in `query`."""
+
+    k_final: int | None | tuple[int | None, ...] = None
+    query_fragments: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class CinemaExpectation:
+    """The `cinema_sql` call the planner should write (run with the integrated configuration, see INTEGRATED_ROUTING_CASES): the operation (a tuple lists acceptable ones), and for
+    `movielens` the mode and the filters the question states. A filter left None is not checked."""
+
+    operation: str | tuple[str, ...]
+    ml_mode: str | tuple[str, ...] | None = None
+    genre: str | None = None
+    year_from: int | None = None
+    year_to: int | None = None
+    # FASE 23: the `type` the planner passes. A string = exactly that value; "absent" = the question names no kind, so the argument must NOT be set (the answer then says films
+    # and series are mixed); None = not checked. `tag` (by_tag): lowercase fragment the planned tag must contain.
+    type: str | None = None
+    tag: str | None = None
+
+
+@dataclass(frozen=True)
 class RoutingCase:
     question: str
     expected_tool: str
@@ -130,6 +157,10 @@ class RoutingCase:
     expected_wikidata: WikidataExpectation | tuple[WikidataExpectation, ...] | None = None
     # RAG cases only: the retrieval parameters in the planned arguments.
     expected_rag: RagExpectation | None = None
+    # series_rag_search cases only (run with the feature flag on, see run_series_routing_eval).
+    expected_series: SeriesExpectation | None = None
+    # cinema_sql cases only (integrated configuration).
+    expected_cinema: CinemaExpectation | None = None
     # Other tools accepted as the FIRST step (the case is still judged on `expected_tool`'s arguments only
     # when that tool is the one chosen).
     alternative_first_tools: tuple[str, ...] = ()
@@ -625,4 +656,79 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
         TMDB,
         expected_request=RequestExpectation("movie_details", fields=(("title", "blade runner 2049"),)),
     ),
+)
+
+
+# Cases for the planner prompt WITH the series tool registered (feature flag `series_rag.enabled`); run by `run_series_routing_eval`, never by the default routing eval
+# (with the flag off the prompt does not know the tool). Positive cases, then the boundaries with tvmaze_search, tmdb_search, rag_search and omdb_search.
+SERIES_ROUTING_CASES: tuple[RoutingCase, ...] = (
+    RoutingCase("Consigliami una serie TV su un gruppo di detective che indagano su casi irrisolti in una piccola città di provincia", SERIES, expected_series=SeriesExpectation(k_final=(None, 1), query_fragments=("detective",))),
+    RoutingCase("Serie come Dark, ma senza viaggi nel tempo", SERIES, expected_series=SeriesExpectation(query_fragments=("dark", "viaggi nel tempo"))),
+    RoutingCase("Consigliami serie simili a Dark", SERIES, expected_series=SeriesExpectation(query_fragments=("dark",))),
+    RoutingCase("Qual è la puntata in cui un personaggio scopre di essere stato sostituito da un sosia?", SERIES, expected_series=SeriesExpectation(k_final=(None, 1), query_fragments=("sosia",))),
+    RoutingCase("Nei Simpson, l'episodio in cui Homer diventa famoso per caso", SERIES, expected_series=SeriesExpectation(k_final=(None, 1), query_fragments=("simpson", "homer"))),
+    RoutingCase("Di cosa parla la seconda stagione di Lost?", SERIES, expected_series=SeriesExpectation(query_fragments=("lost",))),
+    RoutingCase("Quali sono gli episodi della prima stagione di Stargate SG-1?", TVMAZE, expected_tvmaze=TvmazeExpectation("stargate", facets=("episodes",), extra_facets=("seasons", "info"))),
+    RoutingCase("Elencami gli episodi della seconda stagione di Lost", TVMAZE, expected_tvmaze=TvmazeExpectation("lost", facets=("episodes",), extra_facets=("seasons", "info"))),
+    RoutingCase("Nella seconda stagione di Lost, in quale episodio i sopravvissuti trovano la botola?", SERIES, expected_series=SeriesExpectation(k_final=(None, 1), query_fragments=("lost",))),
+    RoutingCase("Un film per la televisione drammatico tratto da una storia vera di un processo", SERIES, expected_series=SeriesExpectation(k_final=(None, 1), query_fragments=("processo",))),
+    RoutingCase("Cerco un anime di avventura con un ragazzo che vuole diventare il più forte spadaccino", SERIES, expected_series=SeriesExpectation(query_fragments=("spadaccino",))),
+    RoutingCase("Dammi 3 miniserie storiche britanniche ambientate durante la Seconda guerra mondiale", SERIES, expected_series=SeriesExpectation(k_final=3, query_fragments=("miniserie",))),
+    RoutingCase("Series about a lighthouse keeper who discovers a mysterious creature", SERIES, expected_series=SeriesExpectation(query_fragments=("lighthouse",))),
+    # Boundaries: structured data of ONE series stays with TVmaze (rule 1e)
+    RoutingCase("Quando esce il prossimo episodio di The Bear?", TVMAZE, expected_tvmaze=TvmazeExpectation("the bear", facets=("next",), extra_facets=("info",))),
+    RoutingCase("Quante stagioni ha Breaking Bad?", TVMAZE, expected_tvmaze=TvmazeExpectation("breaking bad", facets=("seasons",), extra_facets=("info",))),
+    RoutingCase("Chi recita in Killing Eve e quali personaggi interpretano?", TVMAZE, expected_tvmaze=TvmazeExpectation("killing eve", facets=("cast",), extra_facets=("info",))),
+    RoutingCase("Quanti episodi ha la stagione 2 di Severance e quando sono usciti?", TVMAZE, expected_tvmaze=TvmazeExpectation("severance", facets=("episodes",), extra_facets=("seasons", "info"))),
+    # Boundaries: streaming, trailers, popularity and new releases stay with TMDb (rule 1)
+    RoutingCase("Dove posso vedere The Bear in Italia?", TMDB, expected_request=RequestExpectation("tv_details", fields=(("title", "the bear"),), facets=("watch_providers",))),
+    RoutingCase("Mostrami il trailer della serie Severance", TMDB, expected_request=RequestExpectation("tv_details", fields=(("title", "severance"),), facets=("videos",))),
+    RoutingCase("Quali sono le serie TV più popolari del momento?", TMDB, expected_request=(RequestExpectation("trending"), RequestExpectation("discover_tv"), RequestExpectation("chart"))),
+    RoutingCase("Parlami della serie Dark", TMDB, alternative_first_tools=(SERIES,), expected_request=RequestExpectation("tv_details", fields=(("title", "dark"),))),
+    # Boundaries: films stay with the film index, critics' scores with OMDb
+    RoutingCase("Consigliami film come Interstellar ma senza viaggi nel tempo", RAG, expected_rag=RagExpectation()),
+    RoutingCase("Film horror psicologici senza elementi soprannaturali", RAG, expected_rag=RagExpectation()),
+    RoutingCase("Che punteggio ha Breaking Bad su Rotten Tomatoes e Metacritic?", OMDB),
+)
+
+
+# Cases for the INTEGRATED configuration (cinema_sql on a schema-4 file + the film RAG + the series RAG, movie_db_search NOT registered); run by `run_routing_eval --integrated`
+# (live, 2 API calls per case, only with the owner's authorisation), never by the default eval. Every question that used to go to movie_db_search goes to cinema_sql `movielens`.
+INTEGRATED_ROUTING_CASES: tuple[RoutingCase, ...] = (
+    # MovieLens lists (formerly movie_db_search)
+    RoutingCase("Quali sono i film con il voto medio più alto secondo gli utenti?", CINEMA, expected_cinema=CinemaExpectation("movielens", "top_rated")),
+    RoutingCase("I 10 film più votati dagli utenti", CINEMA, expected_cinema=CinemaExpectation("movielens", "most_rated")),
+    RoutingCase("Migliori film di fantascienza degli anni Ottanta secondo gli utenti", CINEMA, expected_cinema=CinemaExpectation("movielens", "top_rated", genre="Sci-Fi", year_from=1980, year_to=1989)),
+    RoutingCase("Film horror usciti negli anni Novanta ordinati per voto", CINEMA, expected_cinema=CinemaExpectation("movielens", "top_rated", genre="Horror", year_from=1990, year_to=1999)),
+    RoutingCase("Trovami i film che gli utenti hanno taggato con 'time travel'", CINEMA, expected_cinema=CinemaExpectation("movielens", "by_tag")),
+    RoutingCase("Qual è il genere con il voto medio più alto?", CINEMA, expected_cinema=CinemaExpectation("movielens", "genre_stats")),
+    RoutingCase("Quanti film ci sono per genere e con che voto medio?", CINEMA, expected_cinema=CinemaExpectation("movielens", "genre_stats")),
+    # FASE 23: the population of `ratings` (no title) and `by_tag`: `type` follows the kind the question names
+    RoutingCase("Qual è la classifica dei titoli meglio votati dal pubblico su IMDb?", CINEMA, expected_cinema=CinemaExpectation("ratings", type="absent")),
+    RoutingCase("Quali sono i 10 film meglio votati dal pubblico su IMDb?", CINEMA, expected_cinema=CinemaExpectation("ratings", type="film")),
+    RoutingCase("Quali sono le serie TV meglio votate dal pubblico su IMDb?", CINEMA, expected_cinema=CinemaExpectation("ratings", type="series")),
+    RoutingCase("Quali opere hanno ricevuto il tag 'time travel' dagli utenti?", CINEMA, expected_cinema=CinemaExpectation("movielens", "by_tag", type="absent", tag="time travel")),
+    RoutingCase("Quali film hanno ricevuto il tag 'time travel' dagli utenti?", CINEMA, expected_cinema=CinemaExpectation("movielens", "by_tag", type="film", tag="time travel")),
+    RoutingCase("Quali serie TV hanno ricevuto il tag 'time travel' dagli utenti?", CINEMA, expected_cinema=CinemaExpectation("movielens", "by_tag", type="series", tag="time travel")),
+    RoutingCase("Dimmi i film più votati dagli utenti e dove posso vedere Dune in streaming in Italia", CINEMA, also_uses=(TMDB,),
+                expected_cinema=CinemaExpectation("movielens", ("most_rated", "top_rated"))),
+    RoutingCase("Che voto hanno dato gli utenti a Pulp Fiction?", CINEMA, expected_cinema=CinemaExpectation(("ratings", "movielens"), ("by_title", None))),
+    # Structured data (formerly cinema_sql too)
+    RoutingCase("Chi ha diretto Parasite e quali premi ha vinto?", CINEMA, expected_cinema=CinemaExpectation(("crew", "awards", "work_card"))),
+    RoutingCase("Elencami la filmografia di Greta Gerwig", CINEMA, expected_cinema=CinemaExpectation("filmography")),
+    RoutingCase("Quali film hanno fatto insieme Martin Scorsese e Robert De Niro?", CINEMA, expected_cinema=CinemaExpectation("collaborations")),
+    # Semantic search: films and series
+    RoutingCase("Consigliami un film inquietante ambientato in un faro isolato", RAG, expected_rag=RagExpectation(k_finale=(None, 1))),  # "un film" = one asked: k_finale 1 is right (FASE 23)
+    RoutingCase("Film come Her ma senza storie d'amore", RAG, expected_rag=RagExpectation()),
+    RoutingCase("Consigliami una serie TV su un gruppo di detective che indagano su casi irrisolti", SERIES, expected_series=SeriesExpectation(k_final=(None, 1))),
+    # Combinations
+    RoutingCase("Consigliami un film drammatico sul lutto e dimmi chi l'ha diretto e se ha vinto dei premi", RAG, also_uses=(CINEMA,), expected_rag=RagExpectation(k_finale=(None, 1))),
+    RoutingCase("Consigliami una serie su una pandemia e dimmi quante stagioni ha", SERIES, also_uses=(TVMAZE,), expected_series=SeriesExpectation(k_final=(None, 1))),
+    # The seasons of ONE series have one owner (rule 1e): TVmaze, never cinema_sql (no alternative accepted)
+    RoutingCase("Quante stagioni ha Breaking Bad?", TVMAZE, expected_tvmaze=TvmazeExpectation("breaking bad", facets=("seasons",), extra_facets=("info",))),
+    # Complementary tools stay where they were
+    RoutingCase("Dove posso vedere Dune in streaming in Italia?", TMDB, expected_request=RequestExpectation("movie_details", fields=(("title", "dune"),), facets=("watch_providers",))),
+    RoutingCase("Che punteggio ha Oppenheimer su Rotten Tomatoes e Metacritic?", OMDB),
+    RoutingCase("Trovami un'intervista al regista di Parasite", YOUTUBE, expected_video=VideoExpectation("parasite", kinds=("director_interview",), extra_kinds=("cast_interview", "behind_the_scenes"))),
+    RoutingCase("Quali sono i film più popolari usciti quest'anno?", TMDB, expected_request=(RequestExpectation("trending"), RequestExpectation("discover_movies"), RequestExpectation("chart"))),
 )

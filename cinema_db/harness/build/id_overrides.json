@@ -1,0 +1,21 @@
+{
+  "_comment": "Verified corrections of identifiers that break the shape of their scheme (cinema_db/harness/build/id_rules.py). Applied by the layer builder only to the exact record that supplied the rejected value, and only if the replacement exists in the local IMDb archive with a compatible type and year.",
+  "overrides": [
+    {
+      "id": "tumbling-2010",
+      "scheme": "imdb_title",
+      "rejected": "nm1627110",
+      "source_ref": "wp-4059646",
+      "action": "replace",
+      "value": "tt1627110",
+      "wikidata": "Q4000414",
+      "evidence": [
+        "nm1627110 is an IMDb NAME id: name.basics lists it as Ryan O'Kane (sound_department); it cannot identify a series.",
+        "Origin of the error: Wikidata item Q4000414 (Tumbling, 2010 Japanese series), property imdb_id = nm1627110, in the local snapshot pipelines/wikipedia_series/data/s2/wikidata_entities.jsonl.",
+        "The IMDb dataset (cinema_db/data/imdb_snapshot/2026-11-08) has tt1627110: tvSeries, startYear 2010, primaryTitle 'Tanburingu' (the romanisation of the original title the item records, タンブリング), 58 min, Comedy.",
+        "Same digits (1627110) with the prefix of a person id instead of a title id; the type and the year agree with the item (start 2010-04-17).",
+        "Checked 2026-11-09 offline against the local archives only; no external request."
+      ]
+    }
+  ]
+}

@@ -470,9 +470,20 @@ class LLMOrchestrator:
         ]
 
     @staticmethod
+    def _imdb_ids_line(metadata: dict[str, Any]) -> str:
+        """`imdb_id` of the listed results, by position, when a tool hands them over (the film RAG in `metadata.films`, the series RAG in `metadata.series_rag.items`): the next
+        planner step passes one to cinema_sql or omdb_search instead of searching the title. Empty (and the summary unchanged) when no result has one."""
+        lists = [metadata.get("films")] + [v.get("items") for v in metadata.values() if isinstance(v, dict)]
+        pairs = [f"{row.get('n', i)}={row['imdb_id']}" for rows in lists if isinstance(rows, list) for i, row in enumerate(rows, start=1) if isinstance(row, dict) and row.get("imdb_id")]
+        return "IMDb ids of the results (position=id): " + ", ".join(pairs) if pairs else ""
+
+    @staticmethod
     def _result_lines(tool_result: dict[str, Any]) -> list[str]:
         lines: list[str] = []
         metadata = tool_result.get("metadata") or {}
+        ids = LLMOrchestrator._imdb_ids_line(metadata)
+        if ids:  # first, so the summary cut (STEP_SUMMARY_CHARS) can never drop the id of a later result
+            lines.append(ids)
         if metadata:
             lines.append(f"Metadata: {json.dumps(metadata, ensure_ascii=False)}")
         chunks = tool_result.get("chunks") or []
@@ -737,21 +748,29 @@ class LLMOrchestrator:
         started = time.monotonic()
         calls_before = len(limits.calls) if limits else 0
         try:
-            response = self.client.responses.create(
-                model=self.orchestrator_config.get("llm_model", "gpt-5.6-luna"),
-                instructions=self._planning_instructions(
-                    allowed, decision_prompt, planner_preferences, _planner_language_rule(answer_language)
-                ),
-                # Full history, unchanged and in order: a stable prompt prefix lets the
-                # provider's prompt caching reuse it across turns.
-                input=[
-                    *history,
-                    {"role": "user", "content": query},
-                ],
-            )
-            if limits:
-                limits.record(response, kind="first", ms=int((time.monotonic() - started) * 1000))
-            payload = json.loads(response.output_text.strip())
+            # One more attempt ONLY when the model wrote text that is not valid JSON (FASE 23: a stray quote after a number sent the turn to the fallback tool in 2 of 4 runs
+            # of the same question); a failing call (network, API) is not retried.
+            for attempt in (1, 2):
+                response = self.client.responses.create(
+                    model=self.orchestrator_config.get("llm_model", "gpt-5.6-luna"),
+                    instructions=self._planning_instructions(
+                        allowed, decision_prompt, planner_preferences, _planner_language_rule(answer_language)
+                    ),
+                    # Full history, unchanged and in order: a stable prompt prefix lets the
+                    # provider's prompt caching reuse it across turns.
+                    input=[
+                        *history,
+                        {"role": "user", "content": query},
+                    ],
+                )
+                if limits:
+                    limits.record(response, kind="first", ms=int((time.monotonic() - started) * 1000))
+                try:
+                    payload = json.loads(response.output_text.strip())
+                    break
+                except json.JSONDecodeError:
+                    if attempt == 2:
+                        raise
         except Exception:
             if limits and len(limits.calls) == calls_before:
                 limits.record_failure(kind="first", ms=int((time.monotonic() - started) * 1000))

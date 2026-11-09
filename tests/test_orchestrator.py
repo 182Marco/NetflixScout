@@ -610,3 +610,36 @@ def test_a_normal_single_tool_turn_has_no_fallback_and_no_planning_step() -> Non
     decision = orch.run(query="x", conversation_history=[], observer=_Keep([]))
 
     assert decision["planning"]["fallbacks"] == [] and "planning" not in [s.kind for s in steps]
+
+
+# ---------------------------------------------------------------------------------------------------------------- FASE 23: one more attempt on invalid JSON
+def _first_step_texts(texts):
+    tools = [RecordingTool("rag_search"), RecordingTool("cinema_sql")]
+    client = ScriptedClient(texts)
+    orch = LLMOrchestrator(config={"orchestrator": {"fallback_tool": "rag_search", "tool_confidence_threshold": 0.6}}, tools=tools, client=client)
+    return orch, tools, client
+
+
+GOOD_PLAN = json.dumps({"standalone_query": "q", "tool_name": "cinema_sql", "arguments": {"operation": "movielens"}, "confidence": 0.9})
+STRAY_QUOTE = '{"standalone_query":"q","tool_name":"cinema_sql","arguments":{"year_to":1989","type":"film"},"confidence":0.99}'  # the real defect: a quote after a number
+
+
+def test_a_planner_answer_that_is_not_json_gets_one_more_attempt_and_keeps_the_chosen_tool() -> None:
+    orch, tools, client = _first_step_texts([STRAY_QUOTE, GOOD_PLAN])
+    decision = orch.run(query="x", conversation_history=[])
+    assert decision["tool"] == "cinema_sql" and tools[1].params and not tools[0].params
+    assert "planner_failed" not in (decision["planning"]["fallbacks"] or [])
+    assert len(client.calls) == 3  # two planner attempts + the final answer
+
+
+def test_two_invalid_answers_still_end_in_the_recorded_fallback_after_exactly_two_attempts() -> None:
+    orch, tools, client = _first_step_texts([STRAY_QUOTE, STRAY_QUOTE])
+    decision = orch.run(query="x", conversation_history=[])
+    assert decision["tool"] == "rag_search" and decision["planning"]["fallbacks"] == ["planner_failed"]
+    assert len(client.calls) == 3
+
+
+def test_a_valid_answer_costs_one_planner_call_as_before() -> None:
+    orch, _, client = _first_step_texts([GOOD_PLAN])
+    orch.run(query="x", conversation_history=[])
+    assert len(client.calls) == 2

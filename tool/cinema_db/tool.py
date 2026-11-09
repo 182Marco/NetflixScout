@@ -34,22 +34,25 @@ from .policy import Policy
 from .reliability import assess, follow_up_summary, offer
 from .session import Session, TurnBudgets
 from .trace import build_trace
+from .versions import has_movielens, policy_for_version, schema_of_policy, schema_version_of
 
 CINEMA_SQL_TOOL_NAME = "cinema_sql"
 OK_STATUS = "ok"
 ROOT = Path(__file__).resolve().parents[2]
 
-# The user setting this tool will serve ("Preferred sources"), to register in `preferences/behavior.py:SOURCE_TOOLS["cinema_sql"]` WHEN the tool is wired (not
-# done: the settings are unchanged). Verified on the real data: structured encyclopedic facts (credits, relations, companies, awards, series structure) from
-# Wikipedia and Wikidata, like `wikipedia_search` and `tmdb_search`. It carries NO audience rating (that is `user ratings`) and NO critic score or review
-# (that is `reviews`: awards are industry recognitions, not reviews), no interview, no plot (so no spoilers) and covers films and series.
+# The user setting this tool serves ("Preferred sources"), registered in `preferences/behavior.py` (SOURCE_TOOLS, SOURCE_TOOL_OPERATIONS). Structured encyclopedic
+# facts (credits, relations, companies, awards, series structure) from Wikipedia and Wikidata: `official information`. The schema-3 `ratings` operation carries
+# AUDIENCE ratings (IMDb datasets, MovieLens aggregates): `user ratings`. It carries no critic score or review (Metascore, Rotten Tomatoes: omdb_search), no
+# interview and no plot (so no spoilers), and covers films and series.
 SOURCE_CATEGORY = "official information"
+RATINGS_SOURCE_CATEGORY = "user ratings"
 
 # Where a local gap can be looked at once, online (the planner decides; the tool only suggests).
 FALLBACKS = {
     "find_work": "tmdb_search", "work_card": "tmdb_search", "cast": "tmdb_search", "crew": "tmdb_search", "find_person": "tmdb_search",
     "filmography": "tmdb_search", "collaborations": "tmdb_search", "awards": "wikipedia_search", "series": "tvmaze_search",
     "companies": "tmdb_search", "franchise": "wikidata_search", "relations": "wikidata_search", "sql": "tmdb_search",
+    "ratings": "omdb_search", "movielens": "tmdb_search", "provenance": "wikipedia_search",
 }
 
 FINAL_INSTRUCTIONS = (
@@ -69,6 +72,12 @@ FINAL_INSTRUCTIONS = (
     "essere più lungo («tra quelli registrati»); uncertain = il significato non è stabilito dai dati (non dichiararlo certo e di' perché); absent = il catalogo non lo contiene "
     "(mai «non esiste»). Se billing_order è absent il cast non ha un ordine: non presentare i primi nomi dell'elenco come protagonisti, di' che l'ordine di rilievo non è registrato "
     "oppure usa i protagonisti ottenuti da un altro passo. "
+    "identity_level (se presente) dice quanto è certa l'identificazione di un'opera: verified = certa; rule_based = identificata dalla regola del titolo unico, «identificata con buona probabilità», non "
+    "dichiararla certa; uncertain = la pagina italiana cita un regista non registrato per quel titolo: non presentarla come un fatto verificato, dì che l'identificazione è incerta e, se serve certezza, "
+    "proponi di controllare. Per un'opera rule_based o uncertain non affermare con sicurezza regia, cast o altri dati che dipendono da quell'identificazione. "
+    "Le valutazioni (ratings) sono voti del pubblico (il voto IMDb e un secondo voto di utenti), ciascuno sulla propria scala (10 e 5) con il numero di voti e la data: riporta soltanto valore, scala, numero di voti e data, non fare medie né conversioni, non chiamarle giudizio della critica e non aggiungere giudizi qualitativi "
+    "(«ottimo», «molto positivo», «alto», «basso», «apprezzato») che i dati non contengono. billing_order (se presente) è l'ordine di accredito dei primi del cast: presentali come cast principale in quell'ordine; gli altri non hanno ordine. "
+    "In provenance, i candidati (candidates_not_attached) sono sospetti non attribuiti, mai fatti; claims e identifiers dicono da dove viene un dato: spiegali in parole semplici e non citare id interni. "
     "Non aggiungere opere, persone o premi che non compaiono nei dati."
 )
 
@@ -78,13 +87,21 @@ def views_summary(policy: Policy = POLICY) -> str:
     return "; ".join(f"{v.name}({', '.join(c for c, _ in v.columns)})" for v in policy.views if v.name not in {"v_source", "v_role_type", "v_genre_label", "v_work_genre_label"})
 
 
-_DESCRIPTION = (
-    "Answer from the LOCAL cinema database (films, series, seasons, episodes, people, credits, awards, relations, companies, franchises; no "
-    "scores, plots, streaming or recent releases). Pick an `operation` and identify things by name or, better, by the ids an earlier step "
-    "returned (work_id, person_id, imdb_id, wikidata_id): no new search is made when an id is given. Ambiguous or similar names return "
-    "alternatives, not data. The catalogue is incomplete (recent works especially): an empty result does not prove absence. "
-    "operation=sql runs ONE SELECT with ? placeholders and a LIMIT on these views only: " + views_summary()
-)
+def description_for(policy: Policy) -> str:
+    """The tool description of the planner for the database the policy describes (schema 3 adds ratings, identification levels and provenance)."""
+    v3 = schema_of_policy(policy) >= 3
+    return (
+        "Answer from the LOCAL cinema database (films, series, seasons, episodes, people, credits, awards, relations, companies, franchises"
+        + ("; audience ratings with votes, identification level and provenance of the data" if v3 else "")
+        + "; no " + ("critics' scores, " if v3 else "scores, ") + "plots, streaming or recent releases). Pick an `operation` and identify things by name or, better, by the ids an earlier step "
+        "returned (work_id, person_id, imdb_id, wikidata_id): no new search is made when an id is given. Ambiguous or similar names return "
+        "alternatives, not data. The catalogue is incomplete (recent works especially): an empty result does not prove absence."
+        + (" Results carry identity_level (verified, rule_based, uncertain): never present rule_based or uncertain identities as certain." if v3 else "")
+        + " operation=sql runs ONE SELECT with ? placeholders and a LIMIT on these views only: " + views_summary(policy)
+    )
+
+
+_DESCRIPTION = description_for(POLICY)
 
 
 def planner_schema() -> dict[str, Any]:
@@ -101,6 +118,8 @@ def planner_schema() -> dict[str, Any]:
             prop.pop("anyOf")
             if len(options) == 1:
                 prop.update(options[0])
+        if name == "params":
+            prop["items"] = {}  # free scalars: the model validates the types
         props[name] = prop
     schema["properties"] = props
     return _without_titles(schema)
@@ -126,6 +145,19 @@ def _note_list(codes: list[str]) -> list[dict[str, str]]:
         if c in NOTES and c not in seen:
             seen.append(c)
     return [{"code": c, "text": NOTES[c]} for c in seen]
+
+
+def _identity_notes(op: OpResult) -> list[str]:
+    """Notes for works whose identification is not `verified` (schema 3): in the subject, the alternatives and the listed works."""
+    entities = [op.subject or {}, *op.candidates]
+    for value in op.data.values():
+        if isinstance(value, list):
+            entities += [v for v in value if isinstance(v, dict)]
+            for v in value:
+                if isinstance(v, dict):
+                    entities += [m for m in v.get("members", []) if isinstance(m, dict)]
+    levels = {e.get("identity_level") for e in entities}
+    return (["identity_rule_based"] if "rule_based" in levels else []) + (["identity_uncertain"] if "uncertain" in levels else [])
 
 
 def _summary(operation: str, status: str, reason: str | None) -> str:
@@ -154,14 +186,22 @@ class CinemaSqlTool:
     """Read-only local cinema database tool. A connection lives only for one run (it is opened read-only and immutable, ~10 ms), so threads never share one."""
 
     config: CinemaDbConfig
-    policy: Policy = POLICY
+    policy: Policy | None = None  # None = the policy of the database file (schema 2 or 3); tests may give one
     name: str = CINEMA_SQL_TOOL_NAME
-    description: str = _DESCRIPTION
+    description: str = ""
     input_schema: dict[str, Any] = field(default_factory=planner_schema)
+    schema: int = field(init=False, default=2)
+    movielens: bool = field(init=False, default=False)
     _budgets: TurnBudgets = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
         self._budgets = TurnBudgets(self.config.max_queries_per_turn)
+        if self.policy is None:
+            self.policy = policy_for_version(schema_version_of(self.db_path))
+        self.schema = schema_of_policy(self.policy)
+        self.movielens = has_movielens(self.policy)  # schema 4: MovieLens films, genres and tags are in the file
+        if not self.description:
+            self.description = description_for(self.policy)
 
     @property
     def db_path(self) -> Path:
@@ -189,7 +229,7 @@ class CinemaSqlTool:
             guarded = open_database(self.db_path, self.policy)
         except CinemaSqlError as exc:
             return _failure(request.query, exc.code, operation=request.operation)
-        session = Session(guarded, self._budgets.for_turn(turn_id))
+        session = Session(guarded, self._budgets.for_turn(turn_id), schema=self.schema, movielens=self.movielens)
         try:
             outcome = OPERATIONS[request.operation](request, session, limit)
         except SqlRejected as exc:  # the rule that failed, never the SQL: the planner may fix it once
@@ -218,7 +258,7 @@ class CinemaSqlTool:
         if op.status == OK_STATUS and (op.total is not None or op.shown or op.truncated):  # identification returns no list
             body["shown"] = op.shown
             body["truncated"] = op.truncated
-        body["notes"] = _note_list(op.notes)
+        body["notes"] = _note_list(op.notes + _identity_notes(op))
         fields, gaps = assess(request.operation, status=op.status, reason=op.reason, data=op.data, total=op.total, shown=op.shown, truncated=op.truncated, subject=op.subject)
         body["reliability"] = fields
         result: dict[str, Any] = {

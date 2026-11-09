@@ -12,7 +12,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
-from .constants import MAX_LIMIT, MAX_TEXT_CHARS, ROLES
+from .constants import MAX_LIMIT, MAX_TEXT_CHARS, ML_GENRES, ML_MODES, ROLES
 
 IMDB_TITLE = re.compile(r"^tt\d{7,9}$")
 WIKIDATA_ID = re.compile(r"^Q[1-9]\d{0,11}$")
@@ -20,7 +20,7 @@ MAX_REPORTED_ERRORS = 20
 
 Operation = Literal[
     "find_work", "work_card", "find_person", "filmography", "cast", "crew", "collaborations",
-    "awards", "series", "companies", "franchise", "relations", "sql",
+    "awards", "series", "companies", "franchise", "relations", "ratings", "movielens", "provenance", "sql",
 ]
 Role = Enum("Role", {r: r for r in ROLES}, type=str)  # an Enum: the planner schema defines it once and references it twice
 
@@ -33,41 +33,47 @@ class CinemaSqlInput(BaseModel):
 
     model_config = ConfigDict(extra="forbid", use_enum_values=True)
 
-    query: str = Field(min_length=1, description="The user's request; filled in by the system.")
+    query: str = Field(min_length=1, description="Filled in by the system.")
     operation: Operation = Field(
         description=(
             "find_work/find_person: identify (ids, alternatives). work_card: facts of a work. filmography: works of `person`. cast/crew: of a work. "
-            "collaborations: works shared by `person` and `person_b`; person_b null = people `person` worked with most. awards: of a work, a person or "
-            "an `award`. series: seasons, or episodes of `season`. companies: of a work or of `company`. franchise: of a work or by name. "
-            "relations: source and series order. sql: one SELECT on the views in the tool description."
+            "collaborations: works shared by `person` and `person_b` (null: who `person` worked with most). awards: of a work, a person or an `award`. "
+            "series: recorded seasons or episodes of `season` (counts, dates: tvmaze_search). companies: of a work or `company`. franchise: of a work or by name. relations: source and series order. "
+            "ratings: audience ratings of a work (no work: best rated, with year_from/year_to/type/min_votes). movielens: MovieLens users' lists, see `ml_mode`. "
+            "provenance: ids, identification level, alternative values. sql: one SELECT on the views in the tool description."
         )
     )
-    title: str | None = Field(default=None, max_length=MAX_TEXT_CHARS, description="Title or alias, as the user gives it.")
-    year: int | None = Field(default=None, ge=1870, le=2100, description="Release year, only if given; tells apart same-title works.")
-    director: str | None = Field(default=None, max_length=MAX_TEXT_CHARS, description="Director, only if given; tells apart same-title works.")
-    type: Literal["film", "series"] | None = Field(default=None, description="film (also shorts, TV films) or series (also miniseries); null = any.")
-    work_id: int | None = Field(default=None, ge=1, description="Local work id from an earlier step; skips the search.")
-    imdb_id: str | None = Field(default=None, description="IMDb title id, only if given by the user, the conversation or an earlier step; never from memory.")
-    tmdb_id: int | None = Field(default=None, ge=1, description="TMDb id of the work (needs `type`), only if given.")
-    wikidata_id: str | None = Field(default=None, description="Wikidata id of the work or person, only if given.")
-    person: str | None = Field(default=None, max_length=MAX_TEXT_CHARS, description="Person name.")
-    person_id: int | None = Field(default=None, ge=1, description="Local person id from an earlier step.")
-    person_b: str | None = Field(default=None, max_length=MAX_TEXT_CHARS, description="Second person (collaborations).")
-    person_b_id: int | None = Field(default=None, ge=1, description="Local id of the second person.")
-    birth_year: int | None = Field(default=None, ge=1000, le=2100, description="Birth year, only if given; tells apart namesakes.")
-    role: Role | None = Field(default=None, description="Role of `person`, or the role to list for crew; null = every role (leave it null when several roles are asked, e.g. director and writer).")
-    role_b: Role | None = Field(default=None, description="Role of the second person or collaborators.")
-    year_from: int | None = Field(default=None, ge=1870, le=2100, description="First year of a list.")
-    year_to: int | None = Field(default=None, ge=1870, le=2100, description="Last year of a list.")
-    order: Literal["asc", "desc"] = Field(default="asc", description="asc, or desc for the most recent first.")
-    award: str | None = Field(default=None, max_length=MAX_TEXT_CHARS, description="Award or category name, mostly Italian ('Oscar al miglior film').")
-    outcome: Literal["won", "nominated"] | None = Field(default=None, description="Only won or only nominated.")
+    title: str | None = Field(default=None, max_length=MAX_TEXT_CHARS, description="Title or alias.")
+    year: int | None = Field(default=None, ge=1870, le=2100, description="Release year, only if given.")
+    director: str | None = Field(default=None, max_length=MAX_TEXT_CHARS, description="Director, only if given.")
+    type: Literal["film", "series"] | None = Field(default=None, description="film (also shorts, TV films) or series. For films only pass film (ratings, by_tag: else both).")
+    work_id: int | None = Field(default=None, ge=1, description="Local work id from a step.")
+    imdb_id: str | None = Field(default=None, description="IMDb title id, only if given or from an earlier step.")
+    tmdb_id: int | None = Field(default=None, ge=1, description="TMDb id (needs `type`), if given.")
+    wikidata_id: str | None = Field(default=None, description="Wikidata id, only if given.")
+    person: str | None = Field(default=None, max_length=MAX_TEXT_CHARS)
+    person_id: int | None = Field(default=None, ge=1, description="Local person id from a step.")
+    person_b: str | None = Field(default=None, max_length=MAX_TEXT_CHARS, description="Second person.")
+    person_b_id: int | None = Field(default=None, ge=1, description="Local id of `person_b`.")
+    birth_year: int | None = Field(default=None, ge=1000, le=2100, description="Birth year, only if given.")
+    role: Role | None = Field(default=None, description="Role of `person`, or of the crew to list; null = every role (also when several roles are asked).")
+    role_b: Role | None = Field(default=None, description="Role of `person_b` or of the collaborators.")
+    year_from: int | None = Field(default=None, ge=1870, le=2100, description="First year.")
+    year_to: int | None = Field(default=None, ge=1870, le=2100, description="Last year.")
+    order: Literal["asc", "desc"] = Field(default="asc", description="desc = most recent first.")
+    award: str | None = Field(default=None, max_length=MAX_TEXT_CHARS, description="Award or category name.")
+    outcome: Literal["won", "nominated"] | None = Field(default=None, description="Only won or nominated.")
     season: int | None = Field(default=None, ge=0, le=500, description="Season number: lists its episodes.")
-    company: str | None = Field(default=None, max_length=MAX_TEXT_CHARS, description="Company name.")
-    franchise: str | None = Field(default=None, max_length=MAX_TEXT_CHARS, description="Franchise or saga name.")
-    limit: int | None = Field(default=None, ge=1, le=MAX_LIMIT, description="Rows to list (default 25, max 50).")
-    sql: str | None = Field(default=None, max_length=2000, description="sql only: ONE SELECT, ? placeholders, a LIMIT.")
-    params: list[str | int | float | None] | None = Field(default=None, max_length=16, description="sql only: values of the ? placeholders.")
+    company: str | None = Field(default=None, max_length=MAX_TEXT_CHARS)
+    franchise: str | None = Field(default=None, max_length=MAX_TEXT_CHARS)
+    min_votes: int | None = Field(default=None, ge=1, le=10_000_000, description="Minimum votes (ratings 1000, movielens 50).")
+    ml_mode: Literal["top_rated", "most_rated", "by_title", "by_tag", "genre_stats"] | None = Field(
+        default=None, description="movielens: top_rated/most_rated (genre, years), by_title, by_tag, genre_stats.")
+    genre: str | None = Field(default=None, description="MovieLens genre (Action, Sci-Fi, Film-Noir...).")
+    tag: str | None = Field(default=None, max_length=100, description="by_tag: user tag.")
+    limit: int | None = Field(default=None, ge=1, le=MAX_LIMIT, description="Rows (default 25).")
+    sql: str | None = Field(default=None, max_length=2000, description="sql only: ONE SELECT with ? and a LIMIT.")
+    params: list[str | int | float | None] | None = Field(default=None, max_length=16, description="sql only: values of the ?.")
 
     @model_validator(mode="after")
     def _check(self) -> CinemaSqlInput:
@@ -90,6 +96,26 @@ class CinemaSqlInput(BaseModel):
             subjects = sum(bool(x) for x in (has_work, self.person or self.person_id))
             if subjects > 1 or (subjects == 0 and not self.award):
                 raise ValueError("awards needs exactly one target: a work, a person, or an award name alone (an award name can also narrow the awards of a work or a person)")
+        if op == "provenance":
+            subjects = sum(bool(x) for x in (has_work, self.person or self.person_id))
+            if subjects != 1:
+                raise ValueError("provenance needs exactly one target: a work (title, work_id, imdb_id...) or a person (person, person_id)")
+        if op not in {"ratings", "movielens"} and self.min_votes is not None:
+            raise ValueError("min_votes is only for ratings and movielens")
+        if op != "movielens" and any(x is not None for x in (self.ml_mode, self.genre, self.tag)):
+            raise ValueError("ml_mode, genre and tag are only for movielens")
+        if op == "movielens":
+            if self.ml_mode is None:
+                raise ValueError("movielens needs ml_mode (" + ", ".join(ML_MODES) + ")")
+            if self.genre is not None:
+                canonical = {g.casefold(): g for g in ML_GENRES}.get(self.genre.strip().casefold())
+                if canonical is None:
+                    raise ValueError("genre must be one of: " + ", ".join(ML_GENRES))
+                self.genre = canonical
+            if self.ml_mode == "by_title" and not self.title:
+                raise ValueError("by_title needs title")
+            if self.ml_mode == "by_tag" and not (self.tag and self.tag.strip()):
+                raise ValueError("by_tag needs tag")
         if op == "companies" and not (has_work or self.company):
             raise ValueError("companies needs a work or a company name")
         if op == "franchise" and not (has_work or self.franchise):

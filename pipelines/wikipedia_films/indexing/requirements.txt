@@ -1,0 +1,5 @@
+# Packages used by pipelines/wikipedia_films/indexing (versions are the ones of the project's .venv when the phase was run)
+tiktoken==0.14.0
+openai==3.21.0
+qdrant-client==1.20.0
+numpy

@@ -4,8 +4,8 @@ import pytest
 
 import app as app_module
 from presenters import OutputChannel, present
-from tool.rag.FromQueryEmbeddingToRes.models import QuerySignals, RagChunk, RagResult, RerankBackend, SearchMode
-from tool.rag.FromQueryEmbeddingToRes.tool_interface import RagTool
+from tool.rag.film.results import QuerySignals, RagChunk, RagResult
+from tool.rag.film.tool import RagTool
 from turn import TraceStep, TurnResult
 from turn_support import stream_decision
 
@@ -14,11 +14,10 @@ def _chunk(idx: int, title: str) -> RagChunk:
     return RagChunk(id=f"c{idx}", testo=f"trama {idx}", score=0.9 - idx / 10, title=title, release_year="1999")
 
 
-def _fake_run_rag(*, config, query, history=None, query_hint=None, **kwargs) -> RagResult:
+def _fake_run_rag(*, config, query, query_hint=None) -> RagResult:
     return RagResult(
         query=query,
-        search_mode=SearchMode.semantic,
-        rerank_backend=RerankBackend.cohere,
+        rerank_engine="llm",
         chunks=[_chunk(1, "Matrix")],
         candidates=[_chunk(1, "Matrix"), _chunk(2, "Dark City")],
         signals=QuerySignals(semantic_query="Movies about robots", genres=["Science Fiction"]),
@@ -27,14 +26,14 @@ def _fake_run_rag(*, config, query, history=None, query_hint=None, **kwargs) -> 
 
 
 def test_rag_tool_returns_trace_outside_metadata(monkeypatch) -> None:
-    monkeypatch.setattr("tool.rag.FromQueryEmbeddingToRes.tool_interface.run_rag", _fake_run_rag)
+    monkeypatch.setattr("tool.rag.film.tool.run_film_index", _fake_run_rag)
 
     result = RagTool(config={}).run(query="film con robot", params={}, conversation_history=[])
 
     assert [step["kind"] for step in result["trace"]] == ["retrieval", "rerank", "selection"]
     assert len(result["trace"][0]["data"]["chunks"]) == 2
     assert [c["id"] for c in result["trace"][2]["data"]["chunks"]] == [c["id"] for c in result["chunks"]]
-    assert result["trace"][1]["data"]["backend"] == "cohere" and result["trace"][2]["title"] == "K stretto"
+    assert result["trace"][1]["data"]["backend"] == "llm" and result["trace"][2]["title"] == "K stretto"
     assert "trace" not in result["metadata"]
     assert result["trace"][0]["data"]["embedded_text"] == "Movies about robots"
     assert result["trace"][0]["data"]["signals"]["genres"] == ["Science Fiction"]

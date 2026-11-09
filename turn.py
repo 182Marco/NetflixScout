@@ -32,6 +32,7 @@ STEP_TVMAZE_CALLS = "tvmaze_calls"
 STEP_WIKIPEDIA_CALLS = "wikipedia_calls"
 STEP_WIKIDATA_CALLS = "wikidata_calls"
 STEP_CINEMA_SQL_CALLS = "cinema_sql_calls"
+STEP_SERIES_RAG = "series_index"  # wire name of the step, kept: the web frontend (another repository) renders this kind
 
 # Tool parameter set by `handle_query` with the turn language (ISO 639-1 code of the latest
 # user message, from the classifier). Tools that do not use it ignore it.

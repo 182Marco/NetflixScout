@@ -100,7 +100,7 @@ def test_silent_fallbacks_are_detected_and_fail() -> None:
     db_case = RoutingCase("film più votati", DB)
     rag_case = RoutingCase("di cosa parla Inception?", RAG)
 
-    invalid, low, crashed = _run((rag_case, db_case, rag_case), ["not json", _plan(DB, 0.2), RuntimeError("offline")])
+    invalid, low, crashed = _run((rag_case, db_case, rag_case), ["not json", "not json", _plan(DB, 0.2), RuntimeError("offline")])  # FASE 23: an answer that is not JSON gets ONE more attempt, so it is scripted twice
 
     # The fallback tool is rag_search: even the "right" tool fails when it was not chosen.
     assert (invalid.tool, invalid.source, invalid.passed) == (RAG, "fallback: invalid JSON", False)
@@ -355,18 +355,6 @@ def test_check_rag_requires_the_asked_count() -> None:
     assert "search_mode" in check_rag(RagExpectation(), {"search_mode": "hybrid"})
     assert check_rag(RagExpectation(search_mode="hybrid"), {"search_mode": "hybrid"}) is None
     assert check_rag(RagExpectation(search_mode=(None, "hybrid")), {}) is None
-
-
-def test_rag_params_verdict_counts_only_objective_gains() -> None:
-    from movie_db.harness.evaluation.run_rag_params_eval import AbCase, verdict
-
-    arm = {"returned": 3, "verified": 1, "contradicted": 0, "title_rank": None}
-    asked = AbCase("dammi 5 film", count=5)
-    assert verdict(arm, {**arm, "returned": 5}, asked) == "better"
-    assert verdict({**arm, "returned": 5}, arm, asked) == "worse"
-    assert verdict(arm, {**arm}, AbCase("x")) == "same"
-    named = AbCase("quel film", title="truman")
-    assert verdict(arm, {**arm, "title_rank": 1}, named) == "better"
 
 
 def _case(prefix: str):

@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from tool.rag.FromQueryEmbeddingToRes.query_classifier.query_classifier import (
+from query_classifier.query_classifier import (
     classify_query_domain,
     detect_language_markers,
     resolve_language,
@@ -53,7 +53,7 @@ def test_cinema_question_uses_openai_classifier(monkeypatch) -> None:
             )()
 
     monkeypatch.setattr(
-        "tool.rag.FromQueryEmbeddingToRes.query_classifier.query_classifier.OpenAI",
+        "query_classifier.query_classifier.OpenAI",
         lambda: type("Client", (), {"chat": type("Chat", (), {"completions": FakeCompletions})()})(),
     )
 
@@ -74,7 +74,7 @@ def _fake_openai(monkeypatch, captured: dict[str, object]) -> None:
             return type("Response", (), {"choices": [type("Choice", (), {"message": message})()]})()
 
     monkeypatch.setattr(
-        "tool.rag.FromQueryEmbeddingToRes.query_classifier.query_classifier.OpenAI",
+        "query_classifier.query_classifier.OpenAI",
         lambda: type("Client", (), {"chat": type("Chat", (), {"completions": FakeCompletions})()})(),
     )
 
@@ -167,7 +167,7 @@ def _fake_classifier(monkeypatch, language) -> None:
             return type("Response", (), {"choices": [type("Choice", (), {"message": message})()]})()
 
     monkeypatch.setattr(
-        "tool.rag.FromQueryEmbeddingToRes.query_classifier.query_classifier.OpenAI",
+        "query_classifier.query_classifier.OpenAI",
         lambda: type("Client", (), {"chat": type("Chat", (), {"completions": FakeCompletions})()})(),
     )
 
@@ -275,7 +275,7 @@ def _classifier_says(monkeypatch, content: str) -> None:
     response = type("Response", (), {"choices": [type("Choice", (), {"message": message})()]})()
     completions = type("Completions", (), {"create": staticmethod(lambda **kwargs: response)})
     monkeypatch.setattr(
-        "tool.rag.FromQueryEmbeddingToRes.query_classifier.query_classifier.OpenAI",
+        "query_classifier.query_classifier.OpenAI",
         lambda: type("Client", (), {"chat": type("Chat", (), {"completions": completions})()})(),
     )
 
@@ -305,3 +305,26 @@ def test_classifier_json_without_is_cinema_is_an_error(monkeypatch) -> None:
     _classifier_says(monkeypatch, '{"language": "de"}')
     with pytest.raises(RuntimeError, match="is_cinema"):
         classify_query_domain("Hallo")
+
+
+def test_the_classifier_prompt_treats_anime_as_cinematic_and_keeps_manga_comics_and_games_out(monkeypatch) -> None:
+    """Prompt text only (the live check is `movie_db/harness/evaluation/run_classifier_eval.py`): anime are series, other media count only through an adaptation."""
+    captured: list[str] = []
+
+    class Client:
+        def __init__(self) -> None:
+            self.chat = self
+            self.completions = self
+
+        def create(self, **kwargs):
+            captured.append(kwargs["messages"][0]["content"])
+            message = type("M", (), {"content": '{"is_cinema": true, "language": "it", "block_reply": null}'})()
+            return type("R", (), {"choices": [type("C", (), {"message": message})()]})()
+
+    from query_classifier import query_classifier
+
+    monkeypatch.setattr(query_classifier, "OpenAI", Client)
+    query_classifier.classify_query_domain("Consigliami un anime", [])
+    prompt = captured[0]
+    assert "anime e le serie animate sono serie TV" in prompt and "'consigliami un anime' è cinematografica" in prompt
+    assert "Manga, fumetti, libri e videogiochi senza un legame esplicito" in prompt and "adattamento in anime, serie o film" in prompt

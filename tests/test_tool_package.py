@@ -6,9 +6,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ("rag", "tmdb", "youtube", "wikipedia", "movie_db", "omdb", "tvmaze", "wikidata", "cinema_db")
-ENTRY = {"rag": "FromQueryEmbeddingToRes/tool_interface.py", "movie_db": "movie_db_tool.py"}
-# Legacy terminal loop of the RAG, kept as it was before the move (see AGENTS.md).
-LEGACY_PRESENTER_IMPORT = "tool/rag/FromQueryEmbeddingToRes/chat.py"
+# `rag` holds the two RAG tools, one sub-package each (`film` = rag_search, `series` = series_rag_search).
+ENTRY = {"rag": "film/tool.py", "movie_db": "movie_db_tool.py"}
+RAG_TOOLS = ("film", "series")
 SKIPPED = {".venv", "__pycache__", ".git", "dbVettoriale", "dataset", "tests"}
 
 
@@ -27,6 +27,10 @@ def test_every_tool_package_lives_in_the_tool_folder() -> None:
     for name in TOOLS:
         assert (ROOT / "tool" / name / "__init__.py").is_file(), name
         assert (ROOT / "tool" / name / ENTRY.get(name, "tool.py")).is_file(), name
+    for sub in RAG_TOOLS:  # two distinct tools, each with its own entry point, retriever and contract
+        for part in ("__init__.py", "tool.py", "models.py" if sub == "film" else "config.py"):
+            assert (ROOT / "tool" / "rag" / sub / part).is_file(), (sub, part)
+        assert (ROOT / "tool" / "rag" / sub / "retrieval" / "__init__.py").is_file(), sub
         if name not in ("movie_db", "cinema_db"):  # the root movie_db/ and cinema_db/ are the database side (data, schema, harness)
             assert not (ROOT / name).exists(), f"{name}/ must not come back to the root"
     assert not (ROOT / "movie_db" / "tool").exists(), "the MovieLens tool lives in tool/movie_db/"
@@ -43,18 +47,20 @@ def test_only_app_and_the_routing_eval_import_the_tools() -> None:
     }
     assert importers == {
         "app.py",
-        "buildSemanticDb.py",  # shims to tool/rag/EmbeddingProcess
-        "movie_metadata.py",
         "movie_db/harness/evaluation/cases.py",
         "movie_db/harness/evaluation/run_eval.py",
         "movie_db/harness/evaluation/run_routing_eval.py",
-        "movie_db/harness/evaluation/run_rag_params_eval.py",
+        "movie_db/harness/evaluation/run_rag_infra_check.py",  # offline check of the two RAGs on Qdrant with stored vectors (no model call)
+        "movie_db/harness/evaluation/run_rag_semantic_smoke.py",  # free-text quality harness of the two RAGs (paid only with --live and an env authorisation)
         # offline analysis scripts of the Qdrant work, never imported at runtime
         "cinema_db/harness/baseline/run_baseline.py",
         "cinema_db/harness/tool_eval/run_benchmark.py",  # offline benchmark of the cinema_sql tool on the real database
+        "cinema_db/harness/tool_eval/run_movielens_parity.py",  # offline parity of cinema_sql movielens against the old movie_db_search (both read-only)
         "cinema_db/harness/build/verify.py",  # offline verification of the built cinema database: opens it through tool/cinema_db's guard  # offline phase-0 baseline of the cinema DB plan (fake transports)
-        "docs/qdrant_migration/phase5/ab.py",
-        "docs/qdrant_migration/catalog/calibration/calibrate.py",  # offline, paid steps gated by an env variable
+        # the series pipeline evaluates and indexes with the retriever the agent runs (one copy, in tool/rag/series), never a duplicate
+        "pipelines/wikipedia_series/index.py",
+        "pipelines/wikipedia_series/eval_known_item.py",
+        "pipelines/wikipedia_series/eval/run_battery.py",
     }
 
 
@@ -81,10 +87,37 @@ def test_tool_packages_do_not_import_the_project_or_each_other() -> None:
         for module in _imported_modules(path):
             parts = module.split(".")
             relative = path.relative_to(ROOT).as_posix()
-            if relative == LEGACY_PRESENTER_IMPORT and parts[0] in {"presenters", "app"}:
-                continue
             if own == "movie_db" and module in shared_with_the_database:
                 continue
             assert parts[0] not in forbidden, (relative, module)
             if parts[0] == "tool":
                 assert parts[1] == own, (path.relative_to(ROOT).as_posix(), module)
+            if own == "rag" and parts[:2] == ["tool", "rag"] and len(parts) > 2:  # the two RAG tools never import each other; only `shared` is common
+                mine = path.relative_to(ROOT / "tool" / "rag").parts[0]
+                assert parts[2] in {mine, "shared"} or mine == "shared", (relative, module)
+
+
+def test_tool_holds_only_the_tools_the_agent_can_use_and_pipelines_live_outside() -> None:
+    """One folder per tool in `tool/`; datasets, cleaning, embedding and index builds are `pipelines/`, and the two pipelines never import each other."""
+    folders = {p.name for p in (ROOT / "tool").iterdir() if p.is_dir() and p.name != "__pycache__"}
+    assert folders == set(TOOLS)
+    assert {p.name for p in (ROOT / "pipelines").iterdir() if p.is_dir() and p.name != "__pycache__"} == {"wikipedia_films", "wikipedia_series"}
+    for mine, other in (("wikipedia_films", "wikipedia_series"), ("wikipedia_series", "wikipedia_films")):
+        for path in (ROOT / "pipelines" / mine).rglob("*.py"):
+            if "data" in path.relative_to(ROOT).parts:
+                continue
+            assert f"pipelines.{other}" not in path.read_text(), path
+
+
+def test_the_two_rag_tools_share_only_the_shared_package_and_use_no_removed_code() -> None:
+    """film and series import nothing from each other (relative imports stay inside the own sub-package or reach `shared`), and the old RAG is gone."""
+    for sub in RAG_TOOLS:
+        for path in (ROOT / "tool" / "rag" / sub).rglob("*.py"):
+            for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+                if isinstance(node, ast.ImportFrom) and node.level >= 3 and sub in path.parts:
+                    # from ...X inside tool/rag/<sub>/retrieval/<m>.py is tool.rag.X
+                    assert (node.module or "").split(".")[0] == "shared", (path, node.module)
+    text = " ".join(p.read_text(encoding="utf-8") for p in (ROOT / "tool").rglob("*.py") if "__pycache__" not in p.parts)
+    for removed in ("FromQueryEmbeddingToRes", "EmbeddingProcess", "series_index", "rerank_cohere", "COHERE_API_KEY", "rerank-v3"):
+        assert removed not in text, removed
+    assert not (ROOT / "tool" / "rag" / "FromQueryEmbeddingToRes").exists() and not (ROOT / "tool" / "series_index").exists()

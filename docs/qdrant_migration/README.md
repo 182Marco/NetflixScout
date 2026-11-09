@@ -1,3 +1,5 @@
+> **DOCUMENTO STORICO (2026-11-09).** Descrive la migrazione dell'indice del **vecchio RAG** (corpus CMU 2012, `netflix_scout`, Cohere, BM25/RRF, catalogo TMDb, film di riferimento) da Chroma a Qdrant. Quel RAG e il suo codice (`buildSemanticDb.py`, `tool/rag/FromQueryEmbeddingToRes`, `tool/rag/EmbeddingProcess`, gli script `phase5/ab.py`, `catalog/calibration`, `rebuild/compare_indexes.py`) sono stati **eliminati dal repository** (FASE 16) e non esiste rollback: i comandi qui sotto non funzionano più e i report restano solo come registro. Il RAG attivo è in `tool/rag/` (film e serie); le collezioni correnti e le loro pipeline sono in `pipelines/`.
+
 # Ricerca semantica RAG su Qdrant - guida d'insieme
 
 Stato finale: **Qdrant è l'unico motore.** ChromaDB è stato rimosso da codice, dipendenze, configurazione e test. Gli strumenti di migrazione, il ritorno a Chroma e gli script di confronto con Chroma sono stati cancellati; i report di fase in questa cartella sono un registro **storico** della migrazione e citano Chroma per questo.

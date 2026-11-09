@@ -1,0 +1,2454 @@
+{
+ "added_value": {
+  "movielens": {
+   "genres_in_movielens_vs_cinema": "MovieLens has 19 coarse genres; cinema holds 38 canonical genres: no gain expected (hypothesis).",
+   "ratings_covered": 30233131,
+   "ratings_total": 32000204,
+   "tags_ge2_users_total_pairs": 156452,
+   "with_ge50_ratings": 11976,
+   "works_in_cinema_with_movielens_stats": 25626,
+   "works_with_tags_ge2_users": 11496
+  },
+  "rag_v3_cast": {
+   "actor_rows": 358210,
+   "already_in_cinema_credits": 326124,
+   "character_available_for_existing_credits": 38623,
+   "character_new_for_existing_credits": 1832,
+   "cinema_cast_credits_with_character": 55415,
+   "films_with_actor_list": 37318,
+   "not_in_cinema_credits": 41,
+   "note": "list order is the page order of the infobox: a billing-order proxy (hypothesis, not verified against a billing source)",
+   "rows_with_character": 38623,
+   "unlinked_actor_rows": 32045
+  },
+  "s5": {
+   "cinema_episodes": 222415,
+   "episodes_summary": {
+    "episodes": 78705,
+    "with_number": 54261,
+    "with_qid": 106
+   },
+   "series_not_in_cinema_by_qid": 2561,
+   "tv_movies_not_in_cinema_by_qid": 17,
+   "uncertain_not_in_cinema_by_qid": 297
+  },
+  "wikidata_cast_qualifiers": {
+   "film_snapshot": {
+    "entities_with_ordinal": 236,
+    "statements": 365043,
+    "with_character_item": 23132,
+    "with_character_name": 35496,
+    "with_ordinal": 6579
+   },
+   "series_snapshot": {
+    "entities_with_ordinal": 118,
+    "statements": 88708,
+    "with_character_item": 14584,
+    "with_character_name": 11301,
+    "with_ordinal": 2561
+   }
+  }
+ },
+ "coverage": {
+  "by_kind": {
+   "episode": {
+    "award_result": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "cast": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "cast_with_billing_order": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "cast_with_character": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "cinematographer": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "company": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "composer": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "country": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "director": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "financial": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "franchise": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "genre": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "imdb_id": {
+     "n": 76,
+     "pct": 0.03
+    },
+    "language": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "original_title": {
+     "n": 188165,
+     "pct": 84.6
+    },
+    "rating_any_source": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "relation": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "release_dates": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "release_with_type": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "release_year": {
+     "n": 193076,
+     "pct": 86.81
+    },
+    "runtime": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "tmdb_id": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "works": 222415,
+    "writer": {
+     "n": 0,
+     "pct": 0.0
+    }
+   },
+   "film": {
+    "award_result": {
+     "n": 5563,
+     "pct": 15.23
+    },
+    "cast": {
+     "n": 31457,
+     "pct": 86.12
+    },
+    "cast_with_billing_order": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "cast_with_character": {
+     "n": 4730,
+     "pct": 12.95
+    },
+    "cinematographer": {
+     "n": 22256,
+     "pct": 60.93
+    },
+    "company": {
+     "n": 26079,
+     "pct": 71.39
+    },
+    "composer": {
+     "n": 23960,
+     "pct": 65.59
+    },
+    "country": {
+     "n": 36366,
+     "pct": 99.55
+    },
+    "director": {
+     "n": 35558,
+     "pct": 97.34
+    },
+    "financial": {
+     "n": 5614,
+     "pct": 15.37
+    },
+    "franchise": {
+     "n": 2485,
+     "pct": 6.8
+    },
+    "genre": {
+     "n": 35298,
+     "pct": 96.63
+    },
+    "imdb_id": {
+     "n": 36277,
+     "pct": 99.31
+    },
+    "language": {
+     "n": 31024,
+     "pct": 84.93
+    },
+    "original_title": {
+     "n": 34419,
+     "pct": 94.22
+    },
+    "rating_any_source": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "relation": {
+     "n": 8435,
+     "pct": 23.09
+    },
+    "release_dates": {
+     "n": 13899,
+     "pct": 38.05
+    },
+    "release_with_type": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "release_year": {
+     "n": 36510,
+     "pct": 99.95
+    },
+    "runtime": {
+     "n": 34697,
+     "pct": 94.98
+    },
+    "tmdb_id": {
+     "n": 35309,
+     "pct": 96.66
+    },
+    "works": 36529,
+    "writer": {
+     "n": 28087,
+     "pct": 76.89
+    }
+   },
+   "miniseries": {
+    "award_result": {
+     "n": 36,
+     "pct": 1.89
+    },
+    "cast": {
+     "n": 946,
+     "pct": 49.76
+    },
+    "cast_with_billing_order": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "cast_with_character": {
+     "n": 142,
+     "pct": 7.47
+    },
+    "cinematographer": {
+     "n": 234,
+     "pct": 12.31
+    },
+    "company": {
+     "n": 1747,
+     "pct": 91.9
+    },
+    "composer": {
+     "n": 698,
+     "pct": 36.72
+    },
+    "country": {
+     "n": 1900,
+     "pct": 99.95
+    },
+    "director": {
+     "n": 1276,
+     "pct": 67.12
+    },
+    "financial": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "franchise": {
+     "n": 48,
+     "pct": 2.52
+    },
+    "genre": {
+     "n": 1885,
+     "pct": 99.16
+    },
+    "imdb_id": {
+     "n": 1598,
+     "pct": 84.06
+    },
+    "language": {
+     "n": 1405,
+     "pct": 73.91
+    },
+    "original_title": {
+     "n": 1388,
+     "pct": 73.01
+    },
+    "rating_any_source": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "relation": {
+     "n": 462,
+     "pct": 24.3
+    },
+    "release_dates": {
+     "n": 45,
+     "pct": 2.37
+    },
+    "release_with_type": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "release_year": {
+     "n": 1901,
+     "pct": 100.0
+    },
+    "runtime": {
+     "n": 20,
+     "pct": 1.05
+    },
+    "tmdb_id": {
+     "n": 1309,
+     "pct": 68.86
+    },
+    "works": 1901,
+    "writer": {
+     "n": 439,
+     "pct": 23.09
+    }
+   },
+   "other": {
+    "award_result": {
+     "n": 2,
+     "pct": 0.02
+    },
+    "cast": {
+     "n": 3,
+     "pct": 0.03
+    },
+    "cast_with_billing_order": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "cast_with_character": {
+     "n": 1,
+     "pct": 0.01
+    },
+    "cinematographer": {
+     "n": 1,
+     "pct": 0.01
+    },
+    "company": {
+     "n": 6,
+     "pct": 0.07
+    },
+    "composer": {
+     "n": 4,
+     "pct": 0.05
+    },
+    "country": {
+     "n": 30,
+     "pct": 0.35
+    },
+    "director": {
+     "n": 9,
+     "pct": 0.1
+    },
+    "financial": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "franchise": {
+     "n": 1,
+     "pct": 0.01
+    },
+    "genre": {
+     "n": 20,
+     "pct": 0.23
+    },
+    "imdb_id": {
+     "n": 10,
+     "pct": 0.12
+    },
+    "language": {
+     "n": 28,
+     "pct": 0.32
+    },
+    "original_title": {
+     "n": 26,
+     "pct": 0.3
+    },
+    "rating_any_source": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "relation": {
+     "n": 8676,
+     "pct": 99.85
+    },
+    "release_dates": {
+     "n": 2,
+     "pct": 0.02
+    },
+    "release_with_type": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "release_year": {
+     "n": 29,
+     "pct": 0.33
+    },
+    "runtime": {
+     "n": 18,
+     "pct": 0.21
+    },
+    "tmdb_id": {
+     "n": 9,
+     "pct": 0.1
+    },
+    "works": 8689,
+    "writer": {
+     "n": 4,
+     "pct": 0.05
+    }
+   },
+   "season": {
+    "award_result": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "cast": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "cast_with_billing_order": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "cast_with_character": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "cinematographer": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "company": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "composer": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "country": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "director": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "financial": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "franchise": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "genre": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "imdb_id": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "language": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "original_title": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "rating_any_source": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "relation": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "release_dates": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "release_with_type": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "release_year": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "runtime": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "tmdb_id": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "works": 14176,
+    "writer": {
+     "n": 0,
+     "pct": 0.0
+    }
+   },
+   "series": {
+    "award_result": {
+     "n": 326,
+     "pct": 2.77
+    },
+    "cast": {
+     "n": 6147,
+     "pct": 52.25
+    },
+    "cast_with_billing_order": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "cast_with_character": {
+     "n": 505,
+     "pct": 4.29
+    },
+    "cinematographer": {
+     "n": 317,
+     "pct": 2.69
+    },
+    "company": {
+     "n": 10779,
+     "pct": 91.63
+    },
+    "composer": {
+     "n": 3270,
+     "pct": 27.8
+    },
+    "country": {
+     "n": 11748,
+     "pct": 99.86
+    },
+    "director": {
+     "n": 3233,
+     "pct": 27.48
+    },
+    "financial": {
+     "n": 1,
+     "pct": 0.01
+    },
+    "franchise": {
+     "n": 633,
+     "pct": 5.38
+    },
+    "genre": {
+     "n": 11307,
+     "pct": 96.12
+    },
+    "imdb_id": {
+     "n": 10556,
+     "pct": 89.73
+    },
+    "language": {
+     "n": 10332,
+     "pct": 87.83
+    },
+    "original_title": {
+     "n": 9903,
+     "pct": 84.18
+    },
+    "rating_any_source": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "relation": {
+     "n": 3316,
+     "pct": 28.19
+    },
+    "release_dates": {
+     "n": 64,
+     "pct": 0.54
+    },
+    "release_with_type": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "release_year": {
+     "n": 10915,
+     "pct": 92.78
+    },
+    "runtime": {
+     "n": 10,
+     "pct": 0.09
+    },
+    "tmdb_id": {
+     "n": 10228,
+     "pct": 86.94
+    },
+    "works": 11764,
+    "writer": {
+     "n": 1337,
+     "pct": 11.37
+    }
+   },
+   "short": {
+    "award_result": {
+     "n": 159,
+     "pct": 4.64
+    },
+    "cast": {
+     "n": 1308,
+     "pct": 38.17
+    },
+    "cast_with_billing_order": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "cast_with_character": {
+     "n": 34,
+     "pct": 0.99
+    },
+    "cinematographer": {
+     "n": 548,
+     "pct": 15.99
+    },
+    "company": {
+     "n": 2468,
+     "pct": 72.02
+    },
+    "composer": {
+     "n": 1124,
+     "pct": 32.8
+    },
+    "country": {
+     "n": 3416,
+     "pct": 99.68
+    },
+    "director": {
+     "n": 3025,
+     "pct": 88.27
+    },
+    "financial": {
+     "n": 17,
+     "pct": 0.5
+    },
+    "franchise": {
+     "n": 908,
+     "pct": 26.5
+    },
+    "genre": {
+     "n": 2524,
+     "pct": 73.65
+    },
+    "imdb_id": {
+     "n": 3408,
+     "pct": 99.45
+    },
+    "language": {
+     "n": 1301,
+     "pct": 37.96
+    },
+    "original_title": {
+     "n": 3298,
+     "pct": 96.24
+    },
+    "rating_any_source": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "relation": {
+     "n": 281,
+     "pct": 8.2
+    },
+    "release_dates": {
+     "n": 115,
+     "pct": 3.36
+    },
+    "release_with_type": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "release_year": {
+     "n": 3425,
+     "pct": 99.94
+    },
+    "runtime": {
+     "n": 2182,
+     "pct": 63.67
+    },
+    "tmdb_id": {
+     "n": 2398,
+     "pct": 69.97
+    },
+    "works": 3427,
+    "writer": {
+     "n": 1420,
+     "pct": 41.44
+    }
+   },
+   "tv_film": {
+    "award_result": {
+     "n": 48,
+     "pct": 1.7
+    },
+    "cast": {
+     "n": 1932,
+     "pct": 68.58
+    },
+    "cast_with_billing_order": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "cast_with_character": {
+     "n": 125,
+     "pct": 4.44
+    },
+    "cinematographer": {
+     "n": 614,
+     "pct": 21.8
+    },
+    "company": {
+     "n": 1993,
+     "pct": 70.75
+    },
+    "composer": {
+     "n": 1065,
+     "pct": 37.81
+    },
+    "country": {
+     "n": 2729,
+     "pct": 96.88
+    },
+    "director": {
+     "n": 2530,
+     "pct": 89.81
+    },
+    "financial": {
+     "n": 29,
+     "pct": 1.03
+    },
+    "franchise": {
+     "n": 232,
+     "pct": 8.24
+    },
+    "genre": {
+     "n": 2782,
+     "pct": 98.76
+    },
+    "imdb_id": {
+     "n": 2687,
+     "pct": 95.39
+    },
+    "language": {
+     "n": 2206,
+     "pct": 78.31
+    },
+    "original_title": {
+     "n": 2575,
+     "pct": 91.41
+    },
+    "rating_any_source": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "relation": {
+     "n": 571,
+     "pct": 20.27
+    },
+    "release_dates": {
+     "n": 371,
+     "pct": 13.17
+    },
+    "release_with_type": {
+     "n": 0,
+     "pct": 0.0
+    },
+    "release_year": {
+     "n": 2811,
+     "pct": 99.79
+    },
+    "runtime": {
+     "n": 814,
+     "pct": 28.9
+    },
+    "tmdb_id": {
+     "n": 2549,
+     "pct": 90.49
+    },
+    "works": 2817,
+    "writer": {
+     "n": 983,
+     "pct": 34.9
+    }
+   }
+  },
+  "cast_per_work": {
+   "avg": 10.56,
+   "max": 579
+  },
+  "films_by_decade": {
+   "1890s": {
+    "award_result": 0.0,
+    "cast": 33.33,
+    "cast_with_character": 33.33,
+    "company": 33.33,
+    "director": 100.0,
+    "films": 3,
+    "genre": 100.0,
+    "imdb_id": 100.0,
+    "runtime": 100.0
+   },
+   "1900s": {
+    "award_result": 0.0,
+    "cast": 21.15,
+    "cast_with_character": 1.92,
+    "company": 28.85,
+    "director": 88.46,
+    "films": 52,
+    "genre": 94.23,
+    "imdb_id": 100.0,
+    "runtime": 65.38
+   },
+   "1910s": {
+    "award_result": 0.0,
+    "cast": 76.83,
+    "cast_with_character": 1.57,
+    "company": 64.39,
+    "director": 97.26,
+    "films": 2227,
+    "genre": 98.38,
+    "imdb_id": 99.42,
+    "runtime": 57.52
+   },
+   "1920s": {
+    "award_result": 1.82,
+    "cast": 88.3,
+    "cast_with_character": 3.49,
+    "company": 69.87,
+    "director": 99.04,
+    "films": 1975,
+    "genre": 98.73,
+    "imdb_id": 99.95,
+    "runtime": 85.92
+   },
+   "1930s": {
+    "award_result": 13.81,
+    "cast": 91.39,
+    "cast_with_character": 7.8,
+    "company": 76.02,
+    "director": 97.92,
+    "films": 1347,
+    "genre": 95.99,
+    "imdb_id": 99.7,
+    "runtime": 94.73
+   },
+   "1940s": {
+    "award_result": 20.57,
+    "cast": 94.14,
+    "cast_with_character": 8.72,
+    "company": 79.03,
+    "director": 99.0,
+    "films": 1502,
+    "genre": 97.67,
+    "imdb_id": 99.33,
+    "runtime": 96.54
+   },
+   "1950s": {
+    "award_result": 13.31,
+    "cast": 94.86,
+    "cast_with_character": 8.29,
+    "company": 71.19,
+    "director": 99.23,
+    "films": 2607,
+    "genre": 97.05,
+    "imdb_id": 99.39,
+    "runtime": 98.85
+   },
+   "1960s": {
+    "award_result": 13.18,
+    "cast": 94.48,
+    "cast_with_character": 12.09,
+    "company": 62.42,
+    "director": 99.38,
+    "films": 2573,
+    "genre": 97.94,
+    "imdb_id": 99.77,
+    "runtime": 99.14
+   },
+   "1970s": {
+    "award_result": 11.67,
+    "cast": 93.06,
+    "cast_with_character": 11.4,
+    "company": 54.45,
+    "director": 98.8,
+    "films": 2999,
+    "genre": 97.93,
+    "imdb_id": 99.87,
+    "runtime": 98.97
+   },
+   "1980s": {
+    "award_result": 20.62,
+    "cast": 91.02,
+    "cast_with_character": 14.62,
+    "company": 68.91,
+    "director": 98.83,
+    "films": 2818,
+    "genre": 97.87,
+    "imdb_id": 99.33,
+    "runtime": 98.55
+   },
+   "1990s": {
+    "award_result": 21.38,
+    "cast": 90.64,
+    "cast_with_character": 19.25,
+    "company": 77.28,
+    "director": 98.86,
+    "films": 3428,
+    "genre": 97.67,
+    "imdb_id": 99.56,
+    "runtime": 99.12
+   },
+   "2000s": {
+    "award_result": 19.25,
+    "cast": 86.86,
+    "cast_with_character": 13.92,
+    "company": 81.75,
+    "director": 98.35,
+    "films": 5511,
+    "genre": 98.0,
+    "imdb_id": 99.15,
+    "runtime": 99.13
+   },
+   "2010s": {
+    "award_result": 18.24,
+    "cast": 77.9,
+    "cast_with_character": 15.82,
+    "company": 75.86,
+    "director": 95.32,
+    "films": 6557,
+    "genre": 96.57,
+    "imdb_id": 98.96,
+    "runtime": 97.7
+   },
+   "2020s": {
+    "award_result": 14.6,
+    "cast": 71.52,
+    "cast_with_character": 22.09,
+    "company": 64.27,
+    "director": 90.31,
+    "films": 2911,
+    "genre": 86.47,
+    "imdb_id": 98.49,
+    "runtime": 96.74
+   },
+   "unknown": {
+    "award_result": 0.0,
+    "cast": 5.26,
+    "cast_with_character": 0.0,
+    "company": 10.53,
+    "director": 5.26,
+    "films": 19,
+    "genre": 10.53,
+    "imdb_id": 73.68,
+    "runtime": 0.0
+   }
+  },
+  "films_weighted": {
+   "all_films_pct": {
+    "award_result": 15.23,
+    "cast": 86.12,
+    "cast_with_billing_order": 0.0,
+    "cast_with_character": 12.95,
+    "cinematographer": 60.93,
+    "company": 71.39,
+    "composer": 65.59,
+    "country": 99.55,
+    "director": 97.34,
+    "financial": 15.37,
+    "franchise": 6.8,
+    "genre": 96.63,
+    "imdb_id": 99.31,
+    "language": 84.93,
+    "original_title": 94.22,
+    "rating_any_source": 0.0,
+    "relation": 23.09,
+    "release_dates": 38.05,
+    "release_with_type": 0.0,
+    "release_year": 99.95,
+    "runtime": 94.98,
+    "tmdb_id": 96.66,
+    "writer": 76.89
+   },
+   "films_in_movielens_ge50": 11593,
+   "films_total": 36529,
+   "movielens_ge50_films_pct": {
+    "award_result": 32.14,
+    "cast": 93.85,
+    "cast_with_billing_order": 0.0,
+    "cast_with_character": 27.15,
+    "cinematographer": 82.1,
+    "company": 97.27,
+    "composer": 89.74,
+    "country": 100.0,
+    "director": 99.91,
+    "financial": 38.45,
+    "franchise": 14.51,
+    "genre": 99.89,
+    "imdb_id": 100.0,
+    "language": 99.75,
+    "original_title": 99.82,
+    "rating_any_source": 0.0,
+    "relation": 43.74,
+    "release_dates": 74.42,
+    "release_with_type": 0.0,
+    "release_year": 100.0,
+    "runtime": 99.72,
+    "tmdb_id": 99.98,
+    "writer": 91.49
+   }
+  },
+  "persons": {
+   "birth_country": 0,
+   "birth_year": 113171,
+   "death_year": 40550,
+   "total": 141646
+  },
+  "ratings_tables_in_cinema": 0
+ },
+ "dump": {
+  "accepted_page_ids_in_dump_scan": 39852,
+  "film_infobox_pages": 80469,
+  "film_pages_neither_accepted_nor_rejected": 5,
+  "rejected_by_decade": {
+   "1880s": 5,
+   "1890s": 149,
+   "1900s": 1840,
+   "1910s": 14480,
+   "1920s": 1998,
+   "1930s": 1828,
+   "1940s": 1678,
+   "1950s": 2309,
+   "1960s": 2356,
+   "1970s": 2203,
+   "1980s": 1963,
+   "1990s": 2081,
+   "2000s": 2824,
+   "2010s": 3148,
+   "2020s": 1733,
+   "unknown": 17
+  },
+  "rejected_matching_a_cinema_work_by_title_and_year": 626,
+  "rejected_page_ids_in_dump_scan": 40612,
+  "rejected_reasons": {
+   "no_plot_section": 2785,
+   "plot_too_short": 37827
+  },
+  "rejected_with_plot_heading_found_by_scan": {
+   "no_plot_section:False": 2738,
+   "no_plot_section:True": 47,
+   "plot_too_short:True": 37827
+  },
+  "rejected_with_year": 40595,
+  "rejected_without_match_in_cinema": 39986,
+  "scanned": true
+ },
+ "duplicates": {
+  "id_conflicts": {
+   "movielens_imdb_shared_by_several_movies": 0,
+   "movielens_tmdb_differs_from_cinema_for_same_imdb": 257,
+   "movielens_tmdb_shared_by_several_movies": 36,
+   "snapshot_film_imdb_id_on_several_qids": 4,
+   "snapshot_series_imdb_id_on_several_qids": 65
+  },
+  "note": "candidates only; no merge is performed and none is proposed as certain",
+  "person_groups_oversized_not_paired": 0,
+  "person_name_groups": 1962,
+  "person_pairs_by_class": {
+   "homonym_different_birth_year": 1125,
+   "same_person_candidate_same_birth_year": 29,
+   "same_person_candidate_shared_work_other_role": 44,
+   "same_person_candidate_strong_shared_work_and_role": 256,
+   "undetermined_birth_year_missing": 988
+  },
+  "work_homonym_pairs_by_class": {
+   "duplicate_candidate_same_director": 7,
+   "homonym_different_directors": 35,
+   "undetermined_director_unknown": 40
+  },
+  "works_multiple_ids": {
+   "eidr": 110,
+   "imdb_title": 58,
+   "tmdb_movie": 17,
+   "tmdb_movie+tmdb_tv": 338,
+   "tmdb_tv": 7,
+   "tvdb_series": 4
+  },
+  "works_multiple_ids_evidence": {
+   "all_ids_are_distinct_movielens_films": 5,
+   "no_external_evidence": 41,
+   "one_id_in_movielens": 12
+  }
+ },
+ "identifiers": {
+  "cinema_external_ids": [
+   {
+    "entities": 141634,
+    "entity_type": "person",
+    "rows": 141634,
+    "scheme": "wikidata"
+   },
+   {
+    "entities": 67212,
+    "entity_type": "work",
+    "rows": 67212,
+    "scheme": "wikipedia_it"
+   },
+   {
+    "entities": 64342,
+    "entity_type": "work",
+    "rows": 64342,
+    "scheme": "wikidata"
+   },
+   {
+    "entities": 54612,
+    "entity_type": "work",
+    "rows": 54673,
+    "scheme": "imdb_title"
+   },
+   {
+    "entities": 40547,
+    "entity_type": "work",
+    "rows": 40568,
+    "scheme": "tmdb_movie"
+   },
+   {
+    "entities": 36333,
+    "entity_type": "work",
+    "rows": 36445,
+    "scheme": "eidr"
+   },
+   {
+    "entities": 11589,
+    "entity_type": "work",
+    "rows": 11596,
+    "scheme": "tmdb_tv"
+   },
+   {
+    "entities": 11089,
+    "entity_type": "work",
+    "rows": 11093,
+    "scheme": "tvdb_series"
+   },
+   {
+    "entities": 5706,
+    "entity_type": "company",
+    "rows": 5706,
+    "scheme": "wikidata"
+   },
+   {
+    "entities": 1059,
+    "entity_type": "award",
+    "rows": 1059,
+    "scheme": "wikidata"
+   },
+   {
+    "entities": 1020,
+    "entity_type": "franchise",
+    "rows": 1020,
+    "scheme": "wikidata"
+   }
+  ],
+  "conclusion_persons": "no local archive carries IMDb (nm) or TMDb person identifiers: the targeted Wikidata responses hold label/birth/death only and the film snapshots hold films. The Italian dump pages of persons were not scanned for external links (hypothesis: not a source of nm ids).",
+  "movielens_links": {
+   "movies": 87585,
+   "persons": 0,
+   "with_imdb": 87585,
+   "with_tmdb": 87461
+  },
+  "persons_total": 141646,
+  "persons_with_non_wikidata_id": 0,
+  "phase4_snapshot_sparql_kinds": {
+   "distinct_items": 142072,
+   "kinds": {
+    "birth": 131193,
+    "death": 46478,
+    "label": 293518
+   }
+  },
+  "rag_v3_person_records": {
+   "actors": 358210,
+   "actors_with_character": 66350,
+   "actors_with_qid": 326165,
+   "other_person_identifiers": 0
+  },
+  "wikidata_snapshots": {
+   "film_snapshot": {
+    "cast_statements": {
+     "entities_with_ordinal": 236,
+     "statements": 365043,
+     "with_character_item": 23132,
+     "with_character_name": 35496,
+     "with_ordinal": 6579
+    },
+    "entities": 41395,
+    "external_id_properties": [
+     {
+      "entities": 40937,
+      "imported_by_build": true,
+      "label": "IMDb title/name ID",
+      "property": "P345"
+     },
+     {
+      "entities": 39035,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P2529"
+     },
+     {
+      "entities": 38845,
+      "imported_by_build": true,
+      "label": "TMDb movie ID",
+      "property": "P4947"
+     },
+     {
+      "entities": 38516,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P2603"
+     },
+     {
+      "entities": 38482,
+      "imported_by_build": false,
+      "label": "Letterboxd film ID",
+      "property": "P6127"
+     },
+     {
+      "entities": 36860,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P12096"
+     },
+     {
+      "entities": 35457,
+      "imported_by_build": true,
+      "label": "EIDR ID",
+      "property": "P2704"
+     },
+     {
+      "entities": 34640,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P12196"
+     },
+     {
+      "entities": 34317,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P11460"
+     },
+     {
+      "entities": 32147,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P12492"
+     },
+     {
+      "entities": 31047,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P8013"
+     },
+     {
+      "entities": 29725,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P3138"
+     },
+     {
+      "entities": 28698,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P12879"
+     },
+     {
+      "entities": 28003,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P480"
+     },
+     {
+      "entities": 27569,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P646"
+     },
+     {
+      "entities": 26935,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P1562"
+     },
+     {
+      "entities": 26618,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P4282"
+     },
+     {
+      "entities": 26575,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P3143"
+     },
+     {
+      "entities": 26458,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P12683"
+     },
+     {
+      "entities": 25362,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P14449"
+     },
+     {
+      "entities": 25111,
+      "imported_by_build": false,
+      "label": "Rotten Tomatoes ID",
+      "property": "P1258"
+     },
+     {
+      "entities": 24925,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P4780"
+     },
+     {
+      "entities": 24635,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P4529"
+     },
+     {
+      "entities": 24322,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P1970"
+     },
+     {
+      "entities": 23522,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P1265"
+     },
+     {
+      "entities": 21746,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P12241"
+     },
+     {
+      "entities": 19572,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P14821"
+     },
+     {
+      "entities": 18510,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P9586"
+     },
+     {
+      "entities": 18363,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P5786"
+     },
+     {
+      "entities": 18260,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P905"
+     },
+     {
+      "entities": 18240,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P2631"
+     },
+     {
+      "entities": 17983,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P13707"
+     },
+     {
+      "entities": 17830,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P3107"
+     },
+     {
+      "entities": 17603,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P5327"
+     },
+     {
+      "entities": 17363,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P2465"
+     },
+     {
+      "entities": 16257,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P2346"
+     },
+     {
+      "entities": 16136,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P5032"
+     },
+     {
+      "entities": 15847,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P2334"
+     },
+     {
+      "entities": 15781,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P3844"
+     },
+     {
+      "entities": 15112,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P14724"
+     }
+    ],
+    "external_id_properties_total": 948,
+    "properties_distinct": 1356
+   },
+   "series_snapshot": {
+    "cast_statements": {
+     "entities_with_ordinal": 118,
+     "statements": 88708,
+     "with_character_item": 14584,
+     "with_character_name": 11301,
+     "with_ordinal": 2561
+    },
+    "entities": 32412,
+    "external_id_properties": [
+     {
+      "entities": 17408,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P8013"
+     },
+     {
+      "entities": 15723,
+      "imported_by_build": true,
+      "label": "IMDb title/name ID",
+      "property": "P345"
+     },
+     {
+      "entities": 14640,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P2529"
+     },
+     {
+      "entities": 13415,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P11460"
+     },
+     {
+      "entities": 13202,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P2671"
+     },
+     {
+      "entities": 12301,
+      "imported_by_build": true,
+      "label": "TMDb TV series ID",
+      "property": "P4983"
+     },
+     {
+      "entities": 11960,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P2603"
+     },
+     {
+      "entities": 11947,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P646"
+     },
+     {
+      "entities": 11875,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P12096"
+     },
+     {
+      "entities": 11612,
+      "imported_by_build": true,
+      "label": "TheTVDB series ID",
+      "property": "P4835"
+     },
+     {
+      "entities": 10299,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P8600"
+     },
+     {
+      "entities": 8019,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P3138"
+     },
+     {
+      "entities": 7740,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P4282"
+     },
+     {
+      "entities": 7728,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P5327"
+     },
+     {
+      "entities": 7725,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P12544"
+     },
+     {
+      "entities": 6859,
+      "imported_by_build": false,
+      "label": "Rotten Tomatoes ID",
+      "property": "P1258"
+     },
+     {
+      "entities": 6839,
+      "imported_by_build": false,
+      "label": "Metacritic ID",
+      "property": "P1712"
+     },
+     {
+      "entities": 6140,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P12683"
+     },
+     {
+      "entities": 5585,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P5099"
+     },
+     {
+      "entities": 5514,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P14821"
+     },
+     {
+      "entities": 5490,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P12241"
+     },
+     {
+      "entities": 5096,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P1267"
+     },
+     {
+      "entities": 4659,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P2638"
+     },
+     {
+      "entities": 4004,
+      "imported_by_build": false,
+      "label": "Letterboxd film ID",
+      "property": "P6127"
+     },
+     {
+      "entities": 3940,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P14813"
+     },
+     {
+      "entities": 3704,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P480"
+     },
+     {
+      "entities": 3688,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P4529"
+     },
+     {
+      "entities": 3553,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P4834"
+     },
+     {
+      "entities": 3478,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P4780"
+     },
+     {
+      "entities": 3413,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P3302"
+     },
+     {
+      "entities": 3399,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P5925"
+     },
+     {
+      "entities": 3137,
+      "imported_by_build": true,
+      "label": "TMDb movie ID",
+      "property": "P4947"
+     },
+     {
+      "entities": 3135,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P3121"
+     },
+     {
+      "entities": 3073,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P6643"
+     },
+     {
+      "entities": 2824,
+      "imported_by_build": true,
+      "label": "EIDR ID",
+      "property": "P2704"
+     },
+     {
+      "entities": 2627,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P1874"
+     },
+     {
+      "entities": 2527,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P12492"
+     },
+     {
+      "entities": 2445,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P12196"
+     },
+     {
+      "entities": 2176,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P2002"
+     },
+     {
+      "entities": 2153,
+      "imported_by_build": false,
+      "label": "(label not verified)",
+      "property": "P12397"
+     }
+    ],
+    "external_id_properties_total": 914,
+    "properties_distinct": 1284
+   }
+  }
+ },
+ "inventory": {
+  "candidates": 41421,
+  "cinema_build_info": {
+   "builder": "cinema_db.harness.build.build/4",
+   "content_sha256": "c888ebd0f6cf953ff951c94c903d7a220165bb42d3226bee7ab5ff074b526428",
+   "episode_pages_merged": "1",
+   "film_catalog_sha256": "d5a78e4d1e3327fb42e04d14338c2e67e60b0d84cb0cc1ed215142ca61c98385",
+   "film_snapshot_index_sha256": "79d40ea98e8b068f90c8e14949cf9db02f7caeb81a181fde767b6e85848b65d8",
+   "phase4_snapshot_index_sha256": "5487e960e9c123da80dcd14410be5003a0381a62e802b60a589c4c984eef176a",
+   "phase7_fixes": "1",
+   "schema_version": "2",
+   "series_snapshot_index_sha256": "957d41179d2932039a3fe9d86884a9fddc319d9a6a70bf4760ee944cb4c3f0dc"
+  },
+  "cinema_counts": {
+   "award_result": 26136,
+   "company": 6715,
+   "credit": 675327,
+   "external_id": 435348,
+   "franchise": 1071,
+   "person": 141646,
+   "work": 301718,
+   "work_financial": 10162,
+   "work_relation": 15311,
+   "work_release": 51028
+  },
+  "clean_excluded": 284,
+  "files": [
+   {
+    "bytes": 405159936,
+    "mtime": 1793959380,
+    "path": "cinema_db/data/cinema.sqlite3"
+   },
+   {
+    "bytes": 1323962368,
+    "mtime": 1792532405,
+    "path": "movie_db/data/movielens32m.sqlite3"
+   },
+   {
+    "bytes": 149509891,
+    "mtime": 1793820301,
+    "path": "tool/RAGWikipediaFilm/data/clean_v3/films.v3.jsonl",
+    "sha256": "d5a78e4d1e3327fb42e04d14338c2e67e60b0d84cb0cc1ed215142ca61c98385"
+   },
+   {
+    "bytes": 131526398,
+    "mtime": 1793811323,
+    "path": "tool/RAGWikipediaFilm/data/clean/films.clean.jsonl",
+    "sha256": "a22ae050cace8231e9c7c0733b1bf6123a8295cd6776ddac14e15eb98f5860db"
+   },
+   {
+    "bytes": 149027467,
+    "mtime": 1793749446,
+    "path": "tool/RAGWikipediaFilm/data/processed/candidates.jsonl",
+    "sha256": "532ece8bec62ca99fa954e2d743dffbce5a27bc5337b372313dc62f242a24827"
+   },
+   {
+    "bytes": 3489773,
+    "mtime": 1793749446,
+    "path": "tool/RAGWikipediaFilm/data/processed/rejected.jsonl",
+    "sha256": "6d2394f77ac5a1ec2d3e4586bc3ef48956d9a3070f80e48064a7f11867f76856"
+   },
+   {
+    "bytes": 1195143,
+    "mtime": 1793811323,
+    "path": "tool/RAGWikipediaFilm/data/clean/excluded.jsonl",
+    "sha256": "c7ab72167aeaa14c90c00368d99bdc4724fd2d1b73616e7fee7d94e9ae769dca"
+   },
+   {
+    "bytes": 4286436387,
+    "mtime": 1793747274,
+    "path": "tool/RAGWikipediaFilm/data/raw/itwiki-20261101-pages-articles.xml.bz2"
+   },
+   {
+    "bytes": 154561981,
+    "mtime": 1793876536,
+    "path": "tool/RAGWikipediaSeries/data/s5/episodes.jsonl",
+    "sha256": "7322eb20a1534e6c2d05cecfc6770f335f28e4a012686f5950169752618a29d9"
+   },
+   {
+    "bytes": 64653444,
+    "mtime": 1793876539,
+    "path": "tool/RAGWikipediaSeries/data/s5/episodes_meta.jsonl",
+    "sha256": "c9b80960c2b5636860b06f8b6b8daf07871f3f960e6b19ea030c9ae40ffff173"
+   },
+   {
+    "bytes": 1564485,
+    "mtime": 1793876539,
+    "path": "tool/RAGWikipediaSeries/data/s5/excluded.jsonl",
+    "sha256": "020263d8265e8f70c54ae5b5e701539e30475f5afa3eb36abe5fdd654b12255a"
+   },
+   {
+    "bytes": 13599891,
+    "mtime": 1793876534,
+    "path": "tool/RAGWikipediaSeries/data/s5/seasons.jsonl",
+    "sha256": "585fc678f3c1dcf053800350dd095445a3d9dfe59c9f28253e6de4d12b6564c2"
+   },
+   {
+    "bytes": 41278551,
+    "mtime": 1793876533,
+    "path": "tool/RAGWikipediaSeries/data/s5/series.jsonl",
+    "sha256": "31ba067c4220e5169176f676faa6a1802bace46407779872662a0c1be19e0882"
+   },
+   {
+    "bytes": 6897134,
+    "mtime": 1793876539,
+    "path": "tool/RAGWikipediaSeries/data/s5/tv_movies.jsonl",
+    "sha256": "dafb616b153be4c2209d33feda309e7ba2122c12fe64b7ac251813a95b214c97"
+   },
+   {
+    "bytes": 679906,
+    "mtime": 1793876539,
+    "path": "tool/RAGWikipediaSeries/data/s5/uncertain.jsonl",
+    "sha256": "f01ee8ea83ec0b037755fb8c82b7deff254cbd8fa200ac9f35e231e6f7bfebd0"
+   }
+  ],
+  "movielens_counts": {
+   "links": 87585,
+   "movie_genres": 147090,
+   "movie_stats": 84432,
+   "movies": 87585,
+   "ratings": 32000204,
+   "tags": 2000066
+  },
+  "rejected": 41627,
+  "s5": {
+   "episodes_summary": 1,
+   "excluded": 9684,
+   "seasons": 15032,
+   "series": 15697,
+   "tv_movies": 2578,
+   "uncertain": 303
+  },
+  "series_catalog_excluded_reasons": {
+   "manga_or_other_animation": 3940,
+   "no_series_signal": 1634,
+   "non_narrative_tv_movie": 102,
+   "override_exclude": 48,
+   "programme_not_episodic": 3960
+  },
+  "snapshots": {
+   "film": {
+    "acquired": [
+     "2026-11-03T23:52:12Z",
+     "2026-11-04T05:51:37Z"
+    ],
+    "entities": 41395,
+    "index_sha256": "79d40ea98e8b068f90c8e14949cf9db02f7caeb81a181fde767b6e85848b65d8",
+    "requests": 1676
+   },
+   "series": {
+    "acquired": [
+     "2026-11-05T00:57:06Z",
+     "2026-11-05T10:20:40Z"
+    ],
+    "entities": 32412,
+    "index_sha256": "957d41179d2932039a3fe9d86884a9fddc319d9a6a70bf4760ee944cb4c3f0dc",
+    "requests": 1390
+   }
+  },
+  "v3_records": 41138
+ },
+ "ml_missing": {
+  "causes_all": {
+   "in_local_source_but_not_in_cinema": 88,
+   "itwiki_film_page_in_extraction_but_not_in_cinema": 17,
+   "itwiki_film_page_not_in_extraction_lists": 1,
+   "itwiki_film_page_rejected:no_plot_section": 835,
+   "itwiki_film_page_rejected:plot_too_short": 7249,
+   "itwiki_page_without_film_infobox": 5332,
+   "itwiki_redirect_to_other_page": 1096,
+   "itwiki_title_only_candidate_year_not_confirmed": 4779,
+   "no_itwiki_page_with_that_title": 41430,
+   "present_in_cinema_with_another_imdb_id": 34,
+   "probable_same_work_under_other_ids": 613
+  },
+  "causes_ge50": {
+   "in_local_source_but_not_in_cinema": 9,
+   "itwiki_film_page_in_extraction_but_not_in_cinema": 7,
+   "itwiki_film_page_rejected:no_plot_section": 253,
+   "itwiki_film_page_rejected:plot_too_short": 1629,
+   "itwiki_page_without_film_infobox": 260,
+   "itwiki_redirect_to_other_page": 70,
+   "itwiki_title_only_candidate_year_not_confirmed": 215,
+   "no_itwiki_page_with_that_title": 1568,
+   "present_in_cinema_with_another_imdb_id": 14,
+   "probable_same_work_under_other_ids": 33
+  },
+  "dump_scanned": true,
+  "ge50_by_decade": {
+   "1910s": 2,
+   "1920s": 10,
+   "1930s": 28,
+   "1940s": 58,
+   "1950s": 47,
+   "1960s": 123,
+   "1970s": 181,
+   "1980s": 410,
+   "1990s": 862,
+   "2000s": 1048,
+   "2010s": 1127,
+   "2020s": 155,
+   "unknown": 7
+  },
+  "ge50_ratings_total": 1429404,
+  "ge50_top_by_ratings": [
+   {
+    "cause": "itwiki_film_page_rejected:no_plot_section",
+    "n": 77332,
+    "title": "Fight Club (1999)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:plot_too_short",
+    "n": 19492,
+    "title": "This Is Spinal Tap (1984)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:plot_too_short",
+    "n": 15016,
+    "title": "Christmas Story, A (1983)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:plot_too_short",
+    "n": 12835,
+    "title": "Best in Show (2000)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:plot_too_short",
+    "n": 12764,
+    "title": "So I Married an Axe Murderer (1993)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:no_plot_section",
+    "n": 12420,
+    "title": "Planet of the Apes (2001)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:plot_too_short",
+    "n": 11176,
+    "title": "Searching for Bobby Fischer (1993)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:plot_too_short",
+    "n": 11006,
+    "title": "Caddyshack (1980)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:plot_too_short",
+    "n": 9903,
+    "title": "Brady Bunch Movie, The (1995)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:no_plot_section",
+    "n": 9813,
+    "title": "West Side Story (1961)"
+   },
+   {
+    "cause": "no_itwiki_page_with_that_title",
+    "n": 8612,
+    "title": "Wallace & Gromit: The Best of Aardman Animation (1996)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:plot_too_short",
+    "n": 7981,
+    "title": "Jerk, The (1979)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:plot_too_short",
+    "n": 7923,
+    "title": "Waterboy, The (1998)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:no_plot_section",
+    "n": 6739,
+    "title": "Grindhouse (2007)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:plot_too_short",
+    "n": 6524,
+    "title": "Mystery Science Theater 3000: The Movie (1996)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:plot_too_short",
+    "n": 6511,
+    "title": "Spy Hard (1996)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:no_plot_section",
+    "n": 6433,
+    "title": "Waiting for Guffman (1996)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:no_plot_section",
+    "n": 6363,
+    "title": "Crumb (1994)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:plot_too_short",
+    "n": 6151,
+    "title": "Hamlet (1996)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:plot_too_short",
+    "n": 6066,
+    "title": "Wayne's World 2 (1993)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:no_plot_section",
+    "n": 5936,
+    "title": "Circle of Friends (1995)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:plot_too_short",
+    "n": 5936,
+    "title": "My Left Foot (1989)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:plot_too_short",
+    "n": 5487,
+    "title": "Milk Money (1994)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:plot_too_short",
+    "n": 5419,
+    "title": "Black Sheep (1996)"
+   },
+   {
+    "cause": "itwiki_film_page_rejected:no_plot_section",
+    "n": 5255,
+    "title": "Amistad (1997)"
+   }
+  ],
+  "ge50_top_genres": {
+   "Action": 423,
+   "Adventure": 210,
+   "Comedy": 1547,
+   "Crime": 372,
+   "Documentary": 669,
+   "Drama": 1619,
+   "Horror": 323,
+   "Romance": 486,
+   "Sci-Fi": 257,
+   "Thriller": 470
+  },
+  "ge50_with_tmdb_id": 4045,
+  "missing_ge50": 4058,
+  "missing_total": 61474,
+  "tmdb_known_to_movielens_only": "MovieLens carries the TMDb id of most of them (see ge50_with_tmdb_id)."
+ },
+ "ml_relevance_curve": {
+  "by_threshold": [
+   {
+    "min_ratings": 1,
+    "missing_from_cinema": 58806,
+    "missing_pct": 69.65,
+    "missing_ratings": 1767073,
+    "ml_films": 84432,
+    "total_ratings": 32000204
+   },
+   {
+    "min_ratings": 5,
+    "missing_from_cinema": 23446,
+    "missing_pct": 53.43,
+    "missing_ratings": 1699391,
+    "ml_films": 43884,
+    "total_ratings": 31921467
+   },
+   {
+    "min_ratings": 10,
+    "missing_from_cinema": 14284,
+    "missing_pct": 44.69,
+    "missing_ratings": 1639145,
+    "ml_films": 31961,
+    "total_ratings": 31842705
+   },
+   {
+    "min_ratings": 20,
+    "missing_from_cinema": 8299,
+    "missing_pct": 35.54,
+    "missing_ratings": 1558937,
+    "ml_films": 23350,
+    "total_ratings": 31725920
+   },
+   {
+    "min_ratings": 50,
+    "missing_from_cinema": 4058,
+    "missing_pct": 25.31,
+    "missing_ratings": 1429404,
+    "ml_films": 16034,
+    "total_ratings": 31498689
+   },
+   {
+    "min_ratings": 100,
+    "missing_from_cinema": 2313,
+    "missing_pct": 18.97,
+    "missing_ratings": 1308736,
+    "ml_films": 12191,
+    "total_ratings": 31228923
+   },
+   {
+    "min_ratings": 500,
+    "missing_from_cinema": 543,
+    "missing_pct": 8.72,
+    "missing_ratings": 930844,
+    "ml_films": 6226,
+    "total_ratings": 29834370
+   },
+   {
+    "min_ratings": 1000,
+    "missing_from_cinema": 248,
+    "missing_pct": 5.64,
+    "missing_ratings": 727254,
+    "ml_films": 4397,
+    "total_ratings": 28528258
+   },
+   {
+    "min_ratings": 5000,
+    "missing_from_cinema": 27,
+    "missing_pct": 1.81,
+    "missing_ratings": 299380,
+    "ml_films": 1489,
+    "total_ratings": 21934272
+   },
+   {
+    "min_ratings": 10000,
+    "missing_from_cinema": 8,
+    "missing_pct": 1.04,
+    "missing_ratings": 172041,
+    "ml_films": 772,
+    "total_ratings": 16859102
+   }
+  ],
+  "movielens_without_imdb_link": 0,
+  "movielens_without_stats": 3153
+ },
+ "overlap": {
+  "imdb": {
+   "matrix": {
+    "cinema": {
+     "cinema": 54673,
+     "movielens": 26111,
+     "rag_v3": 40799,
+     "s5_series": 12165,
+     "s5_tv_movies": 2456,
+     "s5_uncertain": 2,
+     "wikidata_film_snapshot": 40929,
+     "wikidata_series_snapshot": 14725
+    },
+    "movielens": {
+     "cinema": 26111,
+     "movielens": 87585,
+     "rag_v3": 25172,
+     "s5_series": 334,
+     "s5_tv_movies": 1174,
+     "s5_uncertain": 6,
+     "wikidata_film_snapshot": 25205,
+     "wikidata_series_snapshot": 1529
+    },
+    "rag_v3": {
+     "cinema": 40799,
+     "movielens": 25172,
+     "rag_v3": 40799,
+     "s5_series": 60,
+     "s5_tv_movies": 824,
+     "s5_uncertain": 2,
+     "wikidata_film_snapshot": 40799,
+     "wikidata_series_snapshot": 886
+    },
+    "s5_series": {
+     "cinema": 12165,
+     "movielens": 334,
+     "rag_v3": 60,
+     "s5_series": 12887,
+     "s5_tv_movies": 0,
+     "s5_uncertain": 0,
+     "wikidata_film_snapshot": 175,
+     "wikidata_series_snapshot": 12887
+    },
+    "s5_tv_movies": {
+     "cinema": 2456,
+     "movielens": 1174,
+     "rag_v3": 824,
+     "s5_series": 0,
+     "s5_tv_movies": 2470,
+     "s5_uncertain": 0,
+     "wikidata_film_snapshot": 827,
+     "wikidata_series_snapshot": 2470
+    },
+    "s5_uncertain": {
+     "cinema": 2,
+     "movielens": 6,
+     "rag_v3": 2,
+     "s5_series": 0,
+     "s5_tv_movies": 0,
+     "s5_uncertain": 107,
+     "wikidata_film_snapshot": 2,
+     "wikidata_series_snapshot": 107
+    },
+    "wikidata_film_snapshot": {
+     "cinema": 40929,
+     "movielens": 25205,
+     "rag_v3": 40799,
+     "s5_series": 175,
+     "s5_tv_movies": 827,
+     "s5_uncertain": 2,
+     "wikidata_film_snapshot": 40966,
+     "wikidata_series_snapshot": 1007
+    },
+    "wikidata_series_snapshot": {
+     "cinema": 14725,
+     "movielens": 1529,
+     "rag_v3": 886,
+     "s5_series": 12887,
+     "s5_tv_movies": 2470,
+     "s5_uncertain": 107,
+     "wikidata_film_snapshot": 1007,
+     "wikidata_series_snapshot": 15628
+    }
+   },
+   "not_in_cinema": {
+    "movielens": 61474,
+    "rag_v3": 0,
+    "s5_series": 722,
+    "s5_tv_movies": 14,
+    "s5_uncertain": 105,
+    "wikidata_film_snapshot": 37,
+    "wikidata_series_snapshot": 903
+   },
+   "only_in_one_archive": {
+    "cinema": 1,
+    "movielens": 61386,
+    "rag_v3": 0,
+    "s5_series": 0,
+    "s5_tv_movies": 0,
+    "s5_uncertain": 0,
+    "wikidata_film_snapshot": 9,
+    "wikidata_series_snapshot": 59
+   },
+   "sizes": {
+    "cinema": 54673,
+    "movielens": 87585,
+    "rag_v3": 40799,
+    "s5_series": 12887,
+    "s5_tv_movies": 2470,
+    "s5_uncertain": 107,
+    "wikidata_film_snapshot": 40966,
+    "wikidata_series_snapshot": 15628
+   }
+  },
+  "qid": {
+   "matrix": {
+    "cinema": {
+     "cinema": 64342,
+     "rag_v3": 41110,
+     "s5_series": 13114,
+     "s5_tv_movies": 2556,
+     "s5_uncertain": 5,
+     "wikidata_film_snapshot": 41220,
+     "wikidata_series_snapshot": 15782
+    },
+    "rag_v3": {
+     "cinema": 41110,
+     "rag_v3": 41115,
+     "s5_series": 71,
+     "s5_tv_movies": 858,
+     "s5_uncertain": 2,
+     "wikidata_film_snapshot": 41115,
+     "wikidata_series_snapshot": 931
+    },
+    "s5_series": {
+     "cinema": 13114,
+     "rag_v3": 71,
+     "s5_series": 15675,
+     "s5_tv_movies": 0,
+     "s5_uncertain": 0,
+     "wikidata_film_snapshot": 254,
+     "wikidata_series_snapshot": 15675
+    },
+    "s5_tv_movies": {
+     "cinema": 2556,
+     "rag_v3": 858,
+     "s5_series": 0,
+     "s5_tv_movies": 2573,
+     "s5_uncertain": 0,
+     "wikidata_film_snapshot": 861,
+     "wikidata_series_snapshot": 2573
+    },
+    "s5_uncertain": {
+     "cinema": 5,
+     "rag_v3": 2,
+     "s5_series": 0,
+     "s5_tv_movies": 0,
+     "s5_uncertain": 302,
+     "wikidata_film_snapshot": 2,
+     "wikidata_series_snapshot": 302
+    },
+    "wikidata_film_snapshot": {
+     "cinema": 41220,
+     "rag_v3": 41115,
+     "s5_series": 254,
+     "s5_tv_movies": 861,
+     "s5_uncertain": 2,
+     "wikidata_film_snapshot": 41395,
+     "wikidata_series_snapshot": 1119
+    },
+    "wikidata_series_snapshot": {
+     "cinema": 15782,
+     "rag_v3": 931,
+     "s5_series": 15675,
+     "s5_tv_movies": 2573,
+     "s5_uncertain": 302,
+     "wikidata_film_snapshot": 1119,
+     "wikidata_series_snapshot": 32412
+    }
+   },
+   "not_in_cinema": {
+    "rag_v3": 5,
+    "s5_series": 2561,
+    "s5_tv_movies": 17,
+    "s5_uncertain": 297,
+    "wikidata_film_snapshot": 175,
+    "wikidata_series_snapshot": 16630
+   },
+   "only_in_one_archive": {
+    "cinema": 8378,
+    "rag_v3": 0,
+    "s5_series": 0,
+    "s5_tv_movies": 0,
+    "s5_uncertain": 0,
+    "wikidata_film_snapshot": 89,
+    "wikidata_series_snapshot": 13754
+   },
+   "sizes": {
+    "cinema": 64342,
+    "rag_v3": 41115,
+    "s5_series": 15675,
+    "s5_tv_movies": 2573,
+    "s5_uncertain": 302,
+    "wikidata_film_snapshot": 41395,
+    "wikidata_series_snapshot": 32412
+   }
+  },
+  "v3_absent_from_cinema_by_format": {
+   "animated": 3,
+   "feature": 3,
+   "tv_film": 1,
+   "unknown": 21
+  },
+  "v3_absent_from_cinema_sample": [
+   {
+    "format": "unknown",
+    "imdb": null,
+    "qid": null,
+    "title": "Holly e Benji: La grande sfida mondiale: Jr World Cup!",
+    "year": 1986
+   },
+   {
+    "format": "feature",
+    "imdb": "tt0096160",
+    "qid": "Q1608991",
+    "title": "Splendor",
+    "year": 1989
+   },
+   {
+    "format": "feature",
+    "imdb": "tt0077766",
+    "qid": "Q1199834",
+    "title": "Lo squalo 2",
+    "year": 1978
+   },
+   {
+    "format": "animated",
+    "imdb": null,
+    "qid": null,
+    "title": "Superman-Batman - Nemici pubblici",
+    "year": null
+   },
+   {
+    "format": "animated",
+    "imdb": "tt1401235",
+    "qid": "Q113993527",
+    "title": "Eiga Pretty Cure All Stars DX - Minna tomodachi Kiseki no zenin daishūgō!",
+    "year": 2009
+   },
+   {
+    "format": "feature",
+    "imdb": "tt0051219",
+    "qid": "Q8066591",
+    "title": "Zarak Khan",
+    "year": 1956
+   },
+   {
+    "format": "animated",
+    "imdb": "tt8774798",
+    "qid": "Q96417228",
+    "title": "100% lupo",
+    "year": 2020
+   },
+   {
+    "format": "unknown",
+    "imdb": null,
+    "qid": null,
+    "title": "Rivali in amore",
+    "year": 1935
+   },
+   {
+    "format": "unknown",
+    "imdb": null,
+    "qid": null,
+    "title": "Santa Lucia Luntana (film 1931)",
+    "year": 1931
+   },
+   {
+    "format": "unknown",
+    "imdb": null,
+    "qid": null,
+    "title": "Viananda",
+    "year": 2023
+   }
+  ],
+  "v3_in_cinema_by_kind": {
+   "absent": 28,
+   "film": 36502,
+   "miniseries": 35,
+   "other": 32,
+   "series": 18,
+   "short": 3427,
+   "tv_film": 1096
+  }
+ }
+}

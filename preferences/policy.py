@@ -19,7 +19,7 @@ TMDB_FILM_OPERATIONS = frozenset({"movie_details", "movie_collection", "discover
 TMDB_SERIES_OPERATIONS = frozenset({"tv_details", "tv_season", "tv_episode", "discover_tv"})
 # Tools that cover only one kind of work, or cannot tell them apart and cannot serve the other one.
 FILM_ONLY_TOOLS = frozenset({"rag_search"})
-SERIES_ONLY_TOOLS = frozenset({"tvmaze_search"})
+SERIES_ONLY_TOOLS = frozenset({"tvmaze_search", "series_rag_search"})
 UNSAFE_FOR_SERIES = frozenset({"movie_db_search"})   # MovieLens rankings mix films and series and cannot be asked for series only
 
 # cinema_sql operations that resolve a work by title and honour its `type` (film, series); `series` is series-only.
@@ -34,7 +34,7 @@ _TEXTS = {
         "response_length": "La lunghezza della risposta è impostata su «{value}» e questa impostazione prevale sulla tua richiesta: rispondo con quella lunghezza.",
         "response_tone": "Il tono è impostato su «{value}» e questa impostazione prevale sulla tua richiesta: mantengo quel tono.",
         "approach": "L'approccio è impostato su «{value}» e questa impostazione prevale sulla tua richiesta: rispondo con quell'approccio.",
-        "content_type": "Il tipo di contenuto è impostato su «{value}» e questa impostazione prevale sulla tua richiesta: non cerco {other}.",
+        "content_type": "Il tipo di contenuto è impostato su «{value}» e questa impostazione prevale sulla tua richiesta: non cerco {other}. Per cercarli cambia il tipo di contenuto nelle impostazioni.",
         "preferred_sources": "Le fonti preferite sono impostate su «{value}» e questa impostazione prevale sulla tua richiesta: non uso un'altra fonte.",
         "other": {"film": "film", "series": "serie TV"},
         "nothing": "Non eseguo la parte in conflitto della richiesta.",
@@ -44,7 +44,7 @@ _TEXTS = {
         "response_length": "The answer length is set to «{value}» and that setting prevails over your request: I answer at that length.",
         "response_tone": "The tone is set to «{value}» and that setting prevails over your request: I keep that tone.",
         "approach": "The approach is set to «{value}» and that setting prevails over your request: I answer with that approach.",
-        "content_type": "The content type is set to «{value}» and that setting prevails over your request: I do not look for {other}.",
+        "content_type": "The content type is set to «{value}» and that setting prevails over your request: I do not look for {other}. To search for them, change the content type in the settings.",
         "preferred_sources": "The preferred sources are set to «{value}» and that setting prevails over your request: I do not use another source.",
         "other": {"film": "films", "series": "TV series"},
         "nothing": "I do not carry out the conflicting part of the request.",
@@ -54,7 +54,7 @@ _TEXTS = {
         "response_length": "Die Antwortlänge ist auf «{value}» eingestellt, und diese Einstellung hat Vorrang vor deiner Anfrage: Ich antworte in dieser Länge.",
         "response_tone": "Der Ton ist auf «{value}» eingestellt, und diese Einstellung hat Vorrang vor deiner Anfrage: Ich behalte diesen Ton bei.",
         "approach": "Der Ansatz ist auf «{value}» eingestellt, und diese Einstellung hat Vorrang vor deiner Anfrage: Ich antworte mit diesem Ansatz.",
-        "content_type": "Der Inhaltstyp ist auf «{value}» eingestellt, und diese Einstellung hat Vorrang vor deiner Anfrage: Ich suche keine {other}.",
+        "content_type": "Der Inhaltstyp ist auf «{value}» eingestellt, und diese Einstellung hat Vorrang vor deiner Anfrage: Ich suche keine {other}. Ändere dafür den Inhaltstyp in den Einstellungen.",
         "preferred_sources": "Die bevorzugten Quellen sind auf «{value}» eingestellt, und diese Einstellung hat Vorrang vor deiner Anfrage: Ich nutze keine andere Quelle.",
         "other": {"film": "Filme", "series": "Serien"},
         "nothing": "Den widersprüchlichen Teil der Anfrage führe ich nicht aus.",
@@ -121,6 +121,20 @@ class SettingsPolicy:
         A step that explicitly asks for the forbidden kind (or is series-only under «film») does not run; one with no `type` gets the preferred one."""
         wanted = "series" if content == "series" else "film"
         operation = arguments.get("operation")
+        if operation == "movielens":
+            # Rankings and genre statistics are of films; the tag search (FASE 22) covers every linked work and takes `type`: under a setting it gets the preferred kind,
+            # and an explicit request of the other kind does not run.
+            if arguments.get("ml_mode") != "by_tag":
+                return StepVerdict(None, "content_type") if content == "series" else StepVerdict(dict(arguments))
+            given = arguments.get("type")
+            if given not in (None, wanted):
+                return StepVerdict(None, "content_type")
+            return StepVerdict({**arguments, "type": wanted}, "content_type", changed=True) if given is None else StepVerdict(dict(arguments))
+        if operation == "ratings" and not any(arguments.get(k) for k in ("title", "work_id", "imdb_id", "tmdb_id", "wikidata_id")):  # the ranking of titles (FASE 22: type decides)
+            given = arguments.get("type")
+            if given not in (None, wanted):
+                return StepVerdict(None, "content_type")
+            return StepVerdict({**arguments, "type": wanted}, "content_type", changed=True) if given is None else StepVerdict(dict(arguments))
         if operation in CINEMA_SERIES_OPERATIONS and content == "film":
             return StepVerdict(None, "content_type")
         if operation in CINEMA_WORK_OPERATIONS or operation in CINEMA_SERIES_OPERATIONS:

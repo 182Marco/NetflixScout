@@ -14,6 +14,7 @@ from tvmaze_support import make_tool, routes_for
 
 import app as app_module
 from orchestrator import LLMOrchestrator
+from preferences_support import without_content_text
 from preferences import behavior, build_prompt_parts, resolve_preferences
 from tool.tvmaze.tool import TVMAZE_TOOL_NAME
 
@@ -49,7 +50,7 @@ class _Tmdb:
 
 
 def _planner(**prefs) -> str:
-    return build_prompt_parts(resolve_preferences(prefs).preferences)["planner"]
+    return without_content_text(build_prompt_parts(resolve_preferences(prefs).preferences)["planner"])
 
 
 def test_it_is_registered_allowed_and_in_the_planner_catalog(monkeypatch) -> None:
@@ -97,10 +98,9 @@ def test_rule_1e_allows_one_fallback_step_and_never_a_second_try() -> None:
 def test_the_series_preference_orients_the_content_without_forcing_tvmaze() -> None:
     text = behavior.CONTENT_PLANNER["series"]
 
-    assert "regola 1e" in text and "non obbliga a usare tvmaze_search" in text
-    assert "rag_search" in text and "movie_db_search" in text
-    assert "tvmaze" not in behavior.CONTENT_PLANNER["film"]
-    assert "tvmaze" not in _planner(content_type="film") and "tvmaze" in _planner(content_type="series")
+    assert "regola 1e" in text and "tvmaze_search" in text
+    assert "VIETATI: rag_search" in text
+    assert "VIETATI: series_rag_search, tvmaze_search" in behavior.CONTENT_PLANNER["film"]  # forbidden under «film», named on purpose
 
 
 def test_tvmaze_serves_official_information_and_no_source_preference_adds_a_call_to_it() -> None:
@@ -111,7 +111,7 @@ def test_tvmaze_serves_official_information_and_no_source_preference_adds_a_call
 
 def test_a_reviews_preference_keeps_its_own_rule_and_does_not_reroute_a_structure_request() -> None:
     """Intent beats the preference: the `reviews` text only concerns critic scores (rule 1d)."""
-    text = _planner(preferred_sources="reviews", content_type="series")
+    text = build_prompt_parts(resolve_preferences({"preferred_sources": "reviews", "content_type": "series"}).preferences)["planner"]  # with the content block
 
     assert "regola 1d" in text and "regola 1e" in text
     assert "esplicitamente il giudizio o i punteggi della critica" in _rule("1d", "1e")

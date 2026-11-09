@@ -6,6 +6,7 @@ against the real database when the connection opens (`connection.verify_policy`)
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from functools import cached_property
 
 from .settings import DEFAULT_FUNCTIONS, QueryLimits
 
@@ -42,11 +43,11 @@ class Policy:
         key = name.casefold()
         return next((v for v in self.views if v.name.casefold() == key), None)
 
-    @property
+    @cached_property
     def view_names(self) -> frozenset[str]:
         return frozenset(v.name.casefold() for v in self.views)
 
-    @property
+    @cached_property
     def base_table_names(self) -> frozenset[str]:
         return frozenset(t.casefold() for t in self.base_columns)
 
