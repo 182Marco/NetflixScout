@@ -42,7 +42,7 @@ if SET == "opt2":      # the winning family (gpt-5.6-sol without reasoning) with
     STRATS_BOTH = ["S6", "X4", "X5", "X6", "X7", "X8"]
     STRATS_NEW_ONLY = []
 if SET == "opt":      # latency / quality variants of the LLM reorder, NEW corpus only, same 62 questions
-    STRATS_BOTH = ["S5", "S6", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10", "C1", "W1", "W2", "W3", "W4", "W5", "W6", "X1", "X2", "X3", "X4"]
+    STRATS_BOTH = ["S5", "S6", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10", "W1", "W2", "W3", "W4", "W5", "W6", "X1", "X2", "X3", "X4"]
     STRATS_NEW_ONLY = []
 if SET == "wide":      # S6 with a rerank pool of 50 instead of 25 (same 62 questions)
     STRATS_BOTH = ["S6w"]
@@ -99,7 +99,7 @@ def retrieve_one(job):
             signals = parser.parse(case["question"])
             ctx = S.build_context(corpus, signals)
             fn = S.STRATEGIES[strat]
-            out = fn(ctx, S.K, request=case["question"]) if strat.startswith(("S6", "V", "C1")) else fn(ctx, S.K)
+            out = fn(ctx, S.K, request=case["question"]) if strat.startswith(("S6", "V")) else fn(ctx, S.K)
             if out is None:
                 return None
             out["trace"] = {**out["trace"], "coverage": ctx.coverage, "contradictory": signals.contradictory}

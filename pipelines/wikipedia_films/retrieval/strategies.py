@@ -219,24 +219,6 @@ def s6(ctx, k=K, request: str = "", pool: int = 25, **kw):
     return _finish(rerank_llm(ctx, request, pool=pool, **kw), k, {"reranked_pool": pool, **{x: str(v) for x, v in kw.items()}})
 
 
-def rerank_cohere(ctx, request: str, *, pool: int = 25):
-    """Cross-encoder over the S5 pool. It cannot use knowledge of the films, so the exclusions only reach it as text."""
-    import cohere
-    from dotenv import load_dotenv
-    import os
-    load_dotenv(llm.ROOT.parents[1] / ".env")
-    base = _combined_pool(ctx)[:pool]
-    s = ctx.signals
-    query = f"{s.positive_en}. Must not contain: {'; '.join(s.avoid_descriptions_en) or 'nothing'}"
-    docs = [f"{f.label()}\n{', '.join(f.genres[:4])}\n{f.plot[:1000]}" for f in base]
-    r = cohere.ClientV2(api_key=os.getenv("COHERE_API_KEY")).rerank(model="rerank-v3.5", query=query, documents=docs, top_n=len(docs))
-    return [base[x.index] for x in r.results]
-
-
-def s7(ctx, k=K, request="", pool=25):
-    return _finish(rerank_cohere(ctx, request, pool=pool), k, {"engine": "cohere"})
-
-
 def _with_filters(fn):
     def wrapped(ctx, k=K, **kw):
         ctx.apply_filters = True
@@ -263,7 +245,6 @@ VARIANTS = {   # latency / quality variants of the LLM reorder
     "X3": _v(model="gpt-5.4", effort="none", pool=40), "X4": _v(model="gpt-5.6-sol", effort="none", pool=40, plot_chars=700),
     "X5": _v(model="gpt-5.6-sol", effort="none", pool=40, plot_chars=1500), "X6": _v(model="gpt-5.6-sol", effort="none", pool=50, plot_chars=700),
     "X7": _v(model="gpt-5.6-sol", effort="none", pool=40, plot_chars=700, top=8), "X8": _v(model="gpt-5.6-sol", effort="none", pool=30, plot_chars=700),
-    "C1": lambda ctx, k=K, request="": s7(ctx, k, request),
 }
 
 STRATEGIES = {**VARIANTS, "S6w": lambda ctx, k=K, request="": s6(ctx, k, request, 50), "S5f": _with_filters(s5), "S6f": _with_filters(s6), "S0": s0, "S1": s1, "S2n": s2n, "S2f": s2f, "S3": s3, "S3b": s3b, "S4": s4, "S5": s5, "S6": s6}
