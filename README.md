@@ -4,36 +4,47 @@ This repository integrates the RAG modules into a reproducible local pipeline an
 
 ## Start the services (two terminals, from the repository root)
 
-NetflixScout needs two processes. Qdrant must be up before the application.
+NetflixScout needs two processes: **Qdrant** (the database that stores the film and series vectors, so the app can search by meaning) and the **backend** (the program that receives the questions, calls the tools and the AI model, and streams the answer to the web page). Qdrant must be up before the backend.
+
+**One-time setup: three aliases** (add them to `~/.zshrc`, then run `source ~/.zshrc`; replace the path if the project lives elsewhere):
 
 ```bash
-./scripts/start_qdrant.sh                                       # terminal 1: the Qdrant server (vector store)
-source .venv/bin/activate && uvicorn web_api.main:app --host 127.0.0.1 --port 8000   # terminal 2: the backend API for the frontend
+alias nf-qdrant='/Users/filippo.milzagmail.com/Desktop/NetflixScout/scripts/start_qdrant.sh'
+alias nf-backend='/Users/filippo.milzagmail.com/Desktop/NetflixScout/scripts/start_backend.sh'
+alias nf-stop='/Users/filippo.milzagmail.com/Desktop/NetflixScout/scripts/stop_services.sh'
+alias nf-status='/Users/filippo.milzagmail.com/Desktop/NetflixScout/scripts/status_services.sh'
 ```
 
-- `scripts/start_qdrant.sh` runs the official Qdrant 1.20.0 binary on `127.0.0.1:6333` over `dbVettoriale/qdrant_openai/storage`.
-  It looks for the binary in `$QDRANT_BIN`, then `bin/qdrant` (not versioned), then the `PATH`; if none is found it says where to put
-  it (official release: https://github.com/qdrant/qdrant/releases/tag/v1.20.0). Ready when `curl http://127.0.0.1:6333/collections` lists `netflix_scout`.
-- The backend (`web_api/main.py`, one worker only) is ready when `curl http://127.0.0.1:8000/health` answers `{"status":"ok"}`. For the terminal chat use `python app.py`
-  instead of the second command. If Qdrant is down both stop with one line: `Error: Cannot reach Qdrant at ...`.
+**Every time you work on the project:**
+
+| Step | Alias | What it does, in plain words |
+|---|---|---|
+| 1. Terminal 1 | `nf-qdrant` | Starts the vector database on `127.0.0.1:6333`. Leave the terminal open. |
+| 2. Terminal 2 | `nf-backend` | Starts the API on `127.0.0.1:8000` (it refuses to start if Qdrant is down or the port is taken). Leave it open. |
+| 3. When you finish | `nf-stop` | Stops Qdrant and the backend cleanly (also the ones left running in closed terminals). |
+| Any time | `nf-status` | Read-only check: for each port (6333, 8000, 8001, 8080) says `RUNNING` or `free`, and ends with `=> all stopped` when nothing runs. |
+
+Ready when `curl http://127.0.0.1:6333/collections` lists `wikipedia_films_it_v3` and `wikipedia_series_it_v1`, and `curl http://127.0.0.1:8000/health` answers `{"status":"ok"}`.
+
+Without aliases the same commands are `./scripts/start_qdrant.sh`, `./scripts/start_backend.sh` (= `source .venv/bin/activate && uvicorn web_api.main:app --host 127.0.0.1 --port 8000`) and `./scripts/stop_services.sh`.
+
+- Starting a service twice does not work: a second Qdrant on the same storage crashes with `Can't init WAL: Kind(WouldBlock)`. Check what is running with `lsof -nP -iTCP -sTCP:LISTEN | grep -E ":(6333|8000|8001|8080)\b"`. Services started in a terminal that was later closed keep running: `nf-stop` finds them by port.
+- `scripts/start_qdrant.sh` runs the official Qdrant 1.20.0 binary over `dbVettoriale/qdrant_openai/storage`. It looks for the binary in `$QDRANT_BIN`, then `bin/qdrant` (not versioned), then the `PATH`; if none is found it says where to put it (official release: https://github.com/qdrant/qdrant/releases/tag/v1.20.0).
+- The backend (`web_api/main.py`) uses one worker only. For the terminal chat use `python app.py` instead of `nf-backend`. If Qdrant is down both stop with one line: `Error: Cannot reach Qdrant at ...`.
+- `nf-backend` lets the browser call the API from `localhost` and `127.0.0.1` on ports 8080, 8081 and 5173 (CORS); another origin: `WEB_API_CORS_ORIGINS="http://host:port,..." nf-backend` (it replaces the list, so repeat the ones you need).
+- `nf-stop` stops ports 6333, 8000 and 8001; add the frontend (8080) with `PORTS="6333 8000 8001 8080" nf-stop`.
 
 ## Project Layout
 
 ```text
 /
-├── dataset/            # local corpus input (not versioned)
 ├── dbVettoriale/       # local data (not versioned): qdrant_openai/storage is the Qdrant index
 ├── scripts/            # start_qdrant.sh
-├── movie_db/           # MovieLens database side (the tool is in tool/movie_db/)
-│   ├── config.py       # validated view of CONFIG["movie_db"]
-│   ├── schema.py       # tables, columns, DDL (shared)
-│   ├── harness/        # offline only: ingestion/, fixtures/, evaluation/
-│   └── data/           # MovieLens CSV + SQLite DB (not versioned)
+├── movie_db/           # MovieLens as a build input of cinema_db: schema.py, harness/evaluation/ (application-level evaluations), data/ (CSV + SQLite, not versioned)
 ├── tool/               # orchestrator tools (app.py is the only wiring point)
 │   ├── rag/                # RAG tool (rag_search)
 │   │   ├── EmbeddingProcess/          # offline: loaders, clean, chunk, embed, index
 │   │   └── FromQueryEmbeddingToRes/   # runtime: retrieval, rerank, RagTool, query_classifier/
-│   ├── movie_db/           # MovieLens tool (movie_db_search): MovieDbTool, parser, read-only SQL (sql/)
 │   ├── tmdb/               # TMDb API tool (tmdb_search)
 │   │   ├── config.py       # validated view of CONFIG["tmdb"] (3 settings)
 │   │   ├── tool.py         # TmdbTool: validate → run requests → pack context → trace
@@ -90,15 +101,11 @@ source .venv/bin/activate && uvicorn web_api.main:app --host 127.0.0.1 --port 80
 ├── turn.py             # channel-neutral TurnResult / TraceStep / TurnObserver
 ├── answer_stream.py    # decodes the streamed `answer` field out of a chunked JSON
 ├── data_coverage.py    # years covered by the local sources and the planner rule built from them
-├── buildMovieDb.py     # MovieLens SQLite builder (shim to movie_db/harness/ingestion/)
 ├── tests/              # offline tests (+ test_tool_package.py: layout of tool/); test_tool_package.py checks the layout
 └── mappa.html          # interactive project map (hand-written tree, open it in a browser)
 ```
 
-`tool/` holds only the tools the agent can call (`tool/rag/` has the two RAG tools, `film/` = `rag_search` and `series/` = `series_rag_search`, plus `shared/`); the offline data pipelines are in `pipelines/`; the root `movie_db/` is the MovieLens **database** side (data, schema, ingestion,
-evaluations), while the tool that queries it lives in `tool/movie_db/`. A new tool goes in `tool/<name>/`, never in the root.
-
-Note: a legacy `datasets/` folder may exist in older clones, but the new build pipeline reads from `dataset/`.
+`tool/` holds only the tools the agent can call (`tool/rag/` has the two RAG tools, `film/` = `rag_search` and `series/` = `series_rag_search`, plus `shared/`); the offline data pipelines are in `pipelines/`; the root `movie_db/` is the MovieLens **database** side (input data of the cinema database build, schema, application-level evaluations); MovieLens queries are an operation of `cinema_sql` (`tool/cinema_db/`). A new tool goes in `tool/<name>/`, never in the root.
 
 ## Prerequisites
 
@@ -108,7 +115,6 @@ Note: a legacy `datasets/` folder may exist in older clones, but the new build p
 
 ```env
 OPENAI_API_KEY=...
-COHERE_API_KEY=...
 VUE_APP_TMDB_API_KEY=...        # TMDb v3 API key or v4 read access token
 VUE_APP_TMDB_BASE_URL=https://api.themoviedb.org/3
 YOUTUBE_API_KEY=...             # YouTube Data API v3 key (Google Cloud project)
@@ -124,8 +130,6 @@ The TMDb key is read only by the Python backend (`tool/tmdb/auth.py`). The `VUE_
 the Vue CLI convention for variables exposed to client bundles: never point a Vue frontend at
 this `.env`, or rename the variables (one constant each in `tool/tmdb/auth.py`).
 
-`COHERE_API_KEY` is required when `rerank_backend` is `cohere` (default in `app.py`).
-
 ## Install / Setup
 
 From repository root:
@@ -135,25 +139,6 @@ python -m venv .venv
 .venv\Scripts\activate
 pip install --upgrade pip
 pip install -r requirements.txt
-```
-
-## Download the Dataset
-
-Download the CMU Movie Summary Corpus:
-
-https://www.cs.cmu.edu/~ark/personas/
-
-Place all corpus files inside `dataset/` (not `datasets/`), for example:
-
-```text
-dataset/
-└── MovieSummaries/
-    ├── character.metadata.tsv
-    ├── movie.metadata.tsv
-    ├── name.clusters.txt
-    ├── plot_summaries.txt
-    ├── README.txt
-    └── tvtropes.clusters.txt
 ```
 
 ## The vector index (Qdrant)
@@ -186,7 +171,7 @@ When the collection is available, `app.py` starts an interactive terminal chat.
 Conversation flow:
 
 1. Type a query in terminal.
-2. The domain classifier blocks off-topic and jailbreak requests; otherwise the orchestrator (`orchestrator.py`) rewrites the query as standalone, picks a tool (`rag_search`, `movie_db_search`, `tmdb_search`, `youtube_search`, `wikipedia_search`, `omdb_search`, `tvmaze_search`, `wikidata_search`) and may chain more tools in the same turn.
+2. The domain classifier blocks off-topic and jailbreak requests; otherwise the orchestrator (`orchestrator.py`) rewrites the query as standalone, picks a tool (`rag_search`, `cinema_sql`, `tmdb_search`, `youtube_search`, `wikipedia_search`, `omdb_search`, `tvmaze_search`, `wikidata_search`) and may chain more tools in the same turn.
 3. Each step is narrated while it happens, then the final answer is streamed (one LLM call, written only from the tool results).
 4. Conversation history is updated and reused in the next turns.
 5. Type `exit` or `quit` to close.
@@ -212,7 +197,7 @@ Two independent projects prepare Wikipedia-based data; neither is imported by th
 
 - **Layout (2026-11-09)**: `tool/` holds only the tools the agent can call, one folder each; the offline data pipelines (dump → clean catalogue → embeddings → Qdrant collection, plus their evaluation) live in `pipelines/` and never import each other (`tests/test_tool_package.py`). The TV-series retriever exists once, in `tool/rag/series/retrieval/`, and the pipeline's evaluation scripts import it.
 - `pipelines/wikipedia_films/` builds, verifies and evaluates the film collection `wikipedia_films_it_v3`, which the film index (`film_index/`) reads. Verify offline: `python -m pipelines.wikipedia_films.audit.build_v3 verify` and `python -m pipelines.wikipedia_films.indexing.v3 check` (read-only).
-- `pipelines/wikipedia_series/` prepares a hierarchical dataset of TV series, seasons and episodes (plus TV films as an autonomous `tv_movie` type) from the Italian Wikipedia dump `itwiki-20261101` and Wikidata. **Status (2026-11-08): dataset built and verified; embedded with `text-embedding-3-large` (101,706 units, 4.77 USD); Qdrant collection `wikipedia_series_it_v1` built and verified point by point; standalone retriever `retrieval.py` (one dense retriever, level filter, optional LLM reorder) evaluated in `EVAL_REPORT.md`. Since the second session of 2026-11-08 it is also the agent tool `series_rag_search` (`tool/rag/series/`), registered only behind the feature flag `series_rag.enabled` (OFF by default; `SERIES_RAG_ENABLED=1` turns it on, unsetting it is the rollback). Live routing (22 cases) and an end-to-end run (17 turns) are in `pipelines/wikipedia_series/EVAL_REPORT.md` §6–§10; the web frontend renders the `series_index` step (third session, 2026-11-09; not yet tried in a browser) and the domain classifier now accepts anime requests.** TV films never belong to a series (no season or episode relations); manga/anime franchise pages are kept but flagged `default_search_eligible = false`, so a future default anime search skips them. Re-check the data with `python -m pipelines.wikipedia_series.build_clean verify` (byte-for-byte rebuild) and `python -m pipelines.wikipedia_series.check_catalog`; tests: `python -m pytest pipelines/wikipedia_series/tests -q`. Full state, decisions, hashes, costs and next steps: `pipelines/wikipedia_series/PROGRESS.md`.
+- `pipelines/wikipedia_series/` prepares a hierarchical dataset of TV series, seasons and episodes (plus TV films as an autonomous `tv_movie` type) from the Italian Wikipedia dump `itwiki-20261101` and Wikidata. **Status (2026-11-08): dataset built and verified; embedded with `text-embedding-3-large` (101,706 units, 4.77 USD); Qdrant collection `wikipedia_series_it_v1` built and verified point by point; standalone retriever `retrieval.py` (one dense retriever, level filter, optional LLM reorder) evaluated in `EVAL_REPORT.md`. Since the second session of 2026-11-08 it is also the agent tool `series_rag_search` (`tool/rag/series/`), registered while the flag `series_rag.enabled` is on (ON by default since FASE 24; `SERIES_RAG_ENABLED=0` turns it off, which is the rollback). Live routing (22 cases) and an end-to-end run (17 turns) are in `pipelines/wikipedia_series/EVAL_REPORT.md` §6–§10; the web frontend renders the `series_index` step (third session, 2026-11-09; not yet tried in a browser) and the domain classifier now accepts anime requests.** TV films never belong to a series (no season or episode relations); manga/anime franchise pages are kept but flagged `default_search_eligible = false`, so a future default anime search skips them. Re-check the data with `python -m pipelines.wikipedia_series.build_clean verify` (byte-for-byte rebuild) and `python -m pipelines.wikipedia_series.check_catalog`; tests: `python -m pytest pipelines/wikipedia_series/tests -q`. Full state, decisions, hashes, costs and next steps: `pipelines/wikipedia_series/PROGRESS.md`.
 
 ## Public Runtime API
 
@@ -230,82 +215,6 @@ In the chat, the orchestrator's planner sets one retrieval setting per turn: `k_
 
 `RagTool` (`tool/rag/film/tool.py`) follows the `Tool` Protocol of `orchestrator.py`; its input schema is generated from the Pydantic model `FilmIndexToolInput` (the film index: the whole request in `query`, plus `k_finale`). `build_app` registers it together with the other tools and `CONFIG["orchestrator"]["allowed_tools"]` lists the names the planner may choose, so new tools are added without refactoring the runtime core.
 
-## MovieLens DB Tool (`movie_db_search`)
-
-A second orchestrator tool answers quantitative questions (rankings, average ratings, number of
-ratings, movies by genre and year, user tags) from MovieLens 32M in a local SQLite database.
-All parameters live in `CONFIG["movie_db"]` in `app.py` and go through `build_runtime_config(overrides)`;
-`movie_db/config.py` validates them (`MovieDbConfig.model_json_schema()` is ready for a future web form).
-
-### Setup after cloning
-
-The CSV files (~950 MB) and the generated database (~1.3 GB) are not in the repository:
-`movie_db/data/` is ignored by Git except for its `.gitkeep`. Every clone downloads and builds them once.
-
-1. Download **MovieLens 32M** (`ml-32m.zip`, ~240 MB) from the GroupLens page
-   https://grouplens.org/datasets/movielens/32m/ (direct link: https://files.grouplens.org/datasets/movielens/ml-32m.zip).
-2. Unzip it into `movie_db/data/raw/`. The zip already contains the `ml-32m/` folder:
-
-   ```bash
-   mkdir -p movie_db/data/raw
-   unzip ml-32m.zip -d movie_db/data/raw
-   ```
-
-   Expected layout (only the four CSV files are read):
-
-   ```text
-   movie_db/data/
-   ├── .gitkeep
-   ├── raw/ml-32m/{movies,ratings,tags,links}.csv  (+ README.txt, checksums.txt)
-   └── movielens32m.sqlite3                        # created by the next step
-   ```
-
-3. Optional: check the files with `cd movie_db/data/raw/ml-32m && md5sum -c checksums.txt`
-   (macOS: compare `md5 -r *.csv` with `checksums.txt`).
-4. Build the SQLite database from the repo root (a few minutes; an existing DB is replaced only with `--force`):
-
-   ```bash
-   python buildMovieDb.py            # options: --source-dir DIR --db-path FILE --force
-   ```
-
-   The build makes no API calls, but it currently needs `OPENAI_API_KEY` set in `.env`: it reads
-   `CONFIG` from `app.py`, whose imports create the OpenAI client. The same holds for the offline
-   `run_eval` below.
-
-Paths come from `CONFIG["movie_db"]["source_dir"]` and `["db_path"]`. With the tool enabled,
-`python app.py` refuses to start until the database exists; set `CONFIG["movie_db"]["enabled"] = False`
-to run the chat with the RAG tool only.
-
-Read-only by construction, never by prompt:
-
-1. The LLM parser only fills a `MovieDbQuery` (closed `MovieDbOperation` enum + typed fields, extra keys rejected); it never writes SQL.
-2. SQL is built in `tool/movie_db/sql/queries.py` from constant fragments; values are bind parameters only.
-3. The connection is `mode=ro` + `PRAGMA query_only`, with an SQLite authorizer that allows only SELECT on the known tables and whitelisted functions; `max_limit` and `timeout_ms` bound every call.
-
-Each run adds one `db_query` trace step with only the SQL executed (`{sql, params}`), no rows:
-the terminal prints it in `presenters/terminal/db/`, `presenters/web/db/` serializes it for the future API
-(both read it through `presenters/db_view.py`).
-
-### Evaluation
-
-| Command | What it checks | API calls |
-|---|---|---|
-| `python -m movie_db.harness.evaluation.run_eval` | 6 cases: SQL, guard and results on the bundled mini dataset, scripted parser | none |
-| `python -m movie_db.harness.evaluation.run_eval --live-parser` | same 6 cases with the real LLM parser | 6 × `gpt-5.6-luna` |
-| `python -m movie_db.harness.evaluation.run_routing_eval --live` | 30 questions (6 DB, 5 RAG, 11 TMDb, 7 YouTube, 1 clarification; 5 are follow-ups): domain classifier + orchestrator planning only, no tool runs | 30 × `gpt-4o-mini` + 30 × `gpt-5.6-luna` |
-| `python -m movie_db.harness.evaluation.run_routing_eval --live --tool tmdb_search` | only the 11 TMDb questions; the planned `requests` are also validated offline (operation, title, facets), the tool never runs | 11 × `gpt-4o-mini` + 11 × `gpt-5.6-luna` |
-| `python -m movie_db.harness.evaluation.run_routing_eval --live --tool wikipedia_search` | only the 4 Wikipedia questions; the planned arguments are validated offline as `WikipediaToolInput` (topic, kind, depth, nothing invented); never run yet | 4 classifier + 4 planner |
-| `python -m movie_db.harness.evaluation.run_routing_eval --live --tool youtube_search` | only the 7 YouTube questions; the planned arguments are also validated offline as `YoutubeToolInput` (title, kinds, and no year, director, cast or alternative title the conversation does not give), the tool never runs | 7 × `gpt-4o-mini` + 7 × `gpt-5.6-luna` |
-
-The parser evaluation accepts `by_genre_year` in place of `top_rated` (and vice versa) only for a genre
-without a year range, and only if the executed SQL and parameters are identical to the expected ones.
-The routing evaluation records the planner's raw output, so a silent fallback to `rag_search`
-(invalid JSON, unknown tool, low confidence) counts as a failure even when the tool is right.
-Both live runs disable automatic retries. Cases live in `movie_db/harness/evaluation/cases.py` and
-`routing_cases.py`.
-
-MovieLens is licensed for non-commercial use without redistribution: never commit or serve `movie_db/data/`.
-
 ## TMDb Tool (`tmdb_search`)
 
 A third orchestrator tool queries The Movie Database API for up-to-date facts: cast and crew,
@@ -322,7 +231,7 @@ operation to a fixed endpoint and uses `append_to_response` (max 20) for facets.
 
 Routing priority: any request for information on a film or series identified by its title goes to
 `tmdb_search` ("tell me about Arrival", "who directed…", streaming, cast); ratings and rankings go
-to `movie_db_search`; recommendations and plot/theme/mood searches go to `rag_search`, also with titles, people, years or countries ("films like X", "thrillers by Fincher", "films with Tom Hanks from the 90s"); the film index replaced the 2012 corpus whose limits had kept those requests out of the RAG. When a specific film is meant but neither the question
+to `cinema_sql` (operation `movielens`); recommendations and plot/theme/mood searches go to `rag_search`, also with titles, people, years or countries ("films like X", "thrillers by Fincher", "films with Tom Hanks from the 90s"); the film index replaced the 2012 corpus whose limits had kept those requests out of the RAG. When a specific film is meant but neither the question
 nor the history identifies it ("who was in that Sorrentino film…"), the planner asks a clarifying
 question instead: no tool and no TMDb call run in that turn.
 
@@ -602,10 +511,9 @@ A local SQLite database of films, series, seasons, episodes, people, credits, ge
 (untouched). The agent will query it through one read-only SQL tool restricted to approved views. Status: security core, schema and the
 first **offline build**, the **targeted Wikidata enrichment (phase 4)** the **`cinema_sql` tool (phase 5)** and its **integration behind a feature flag (phase 6)** are done.
 
-- Plan, decisions and status: `docs/cinema_db/PLAN.md`, `docs/cinema_db/PROGRESS.md`; baseline `BASELINE.md`; sources survey `SURVEY.md`;
-  verification of the phase-3 build `BUILD_REPORT.md`; the phase-4 results and numbers `PHASE4_REPORT.md` (and `PHASE4_BUILD_REPORT.md`); the tool, its benchmark and its limits `PHASE5_REPORT.md`, `PHASE5_BENCHMARK.md`.
-- **Phase 9 (v3 prototype, separate file):** `cinema_db/data/cinema.v3.sqlite3` is built from a copy of the runtime database plus the IMDb bulk datasets (acquired with `python -m cinema_db.harness.acquire.imdb fetch <dataset>`), MovieLens aggregates and the local catalogues, with `python -m cinema_db.harness.build.imdb_layer`. It adds ratings per source, billing order and characters, IMDb person ids, episode links and tens of thousands of films, shorts and TV films, each with its entry route and identification reliability. The runtime database is untouched and the agent does not read the v3 file yet. Reports: `docs/cinema_db/PHASE9_*.md`; interactive map: `docs/cinema_db/schema_v3.html`. To resume the work read the **NEXT SESSION** section at the top of `docs/cinema_db/PROGRESS.md` (the v3 file is a prototype, not used by the agent, and `cinema_db.enabled` stays `False`). **Reconciled v3 (2026-11-08):** `cinema_db/data/cinema.v3.reconciled.sqlite3` applies the approved reconciliation rules (primary IMDb id per work, 12 reversible person merges in `entity_canonical`, ids by birth year, held titles released when proven distinct, IMDb episodes of series that already have episodes, credits kept through new candidate persons). Build with a NEW output path: `python -m cinema_db.harness.build.imdb_layer --out cinema_db/data/NEW.sqlite3 --force`, verify with `python -m cinema_db.harness.build.verify_reconciled --new cinema_db/data/NEW.sqlite3`. Report: `docs/cinema_db/PHASE9_RECONCILED_REPORT.md`. Still not read by the agent; the runtime stays on v2. **Update (evening):** file of that round `cinema_db/data/cinema.v3.reconciled2.sqlite3` (digest `59b57598…`, superseded by `cinema.v3.candidate.sqlite3`): non-Latin titles no longer collide in the same-title check (`cinema_db/harness/build/title_keys.py`; 456 of 522 held titles entered, 66 stay held), the new view `v_work_status.identity_level` separates verified, rule-based and uncertain identities, and `python -m cinema_db.harness.build.person_merge_report` is a read-only report on persons created for weak candidates. Dry run of the entry rules: `imdb_layer --out PATH --select-only`. **Phase F (2026-11-09, not activated):** reference file `cinema_db/data/cinema.v3.candidate2.sqlite3` (data digest `9db2c80d694e21183aa4a14738b237df322a09d8227b85aab7292a7cda5ff667`; the previous `cinema.v3.candidate.sqlite3` is kept as rollback; to activate, NOT done: `CINEMA_DB_ENABLED=1 CINEMA_DB_PATH=cinema_db/data/cinema.v3.candidate2.sqlite3`, rollback: remove both variables); `cinema_sql` reads schema-3 files through `tool/cinema_db/approved_views_v3.py` (chosen from the file by `tool/cinema_db/versions.py`) with two new operations, `ratings` (audience ratings and votes) and `provenance`, and an `identity_level` (verified / rule_based / uncertain) that the answer must not overstate. Report: `docs/cinema_db/PHASE9_F_REPORT.md`. The runtime stays on v2 and `cinema_db.enabled` stays `False`.
-- **Phases 10–11 (2026-11-09, not activated):** `cinema_db/data/cinema.v4.candidate6.sqlite3` (schema 4 = v3 + every MovieLens film, genre and tag; build `python -m cinema_db.harness.build.imdb_layer --movielens --out NEW.sqlite3`, verify `python -m cinema_db.harness.build.verify_movielens --new FILE`) lets `cinema_sql` answer everything `movie_db_search` did (operation `movielens`: top_rated, most_rated, by_title, by_tag, genre_stats), with identical rankings, title and tag searches; parity and timings: `python -m cinema_db.harness.tool_eval.run_movielens_parity`. With a schema-4 file the integrated architecture applies: `cinema_sql` (structured data + MovieLens) + `rag_search` (films) + `series_rag_search` (series), `movie_db_search` not registered, the RAGs hand their `imdb_id` to the planner. Start and rollback: `./scripts/start_integrated.sh [--check]` and `docs/cinema_db/INTEGRATED_LOCAL.md`. Details and open points: `docs/cinema_db/PROGRESS.md` (sections PHASE 13, 12, 11 and 10). Offline check of both RAGs on Qdrant with stored vectors (no model call): `python -m movie_db.harness.evaluation.run_rag_infra_check`; plan of the paid live evaluations (routing, RAG semantic quality, browser), to be authorised: `docs/cinema_db/LIVE_EVALUATION_PLAN.md`.
+- Plan, decisions and status: `docs/cinema_db/PLAN.md`, `docs/cinema_db/PROGRESS.md`. The per-phase reports were removed on 2026-11-16: `PROGRESS.md` keeps the figures that still matter.
+- **Phase 9 (v3 prototype, separate file):** `cinema_db/data/cinema.v3.sqlite3` is built from a copy of the runtime database plus the IMDb bulk datasets (acquired with `python -m cinema_db.harness.acquire.imdb fetch <dataset>`), MovieLens aggregates and the local catalogues, with `python -m cinema_db.harness.build.imdb_layer`. It adds ratings per source, billing order and characters, IMDb person ids, episode links and tens of thousands of films, shorts and TV films, each with its entry route and identification reliability. The runtime database is untouched and the agent does not read the v3 file yet. Reports: `docs/cinema_db/PHASE9_*.md`; interactive map: `docs/cinema_db/schema_v3.html`. To resume the work read the **NEXT SESSION** section at the top of `docs/cinema_db/PROGRESS.md` (the v3 file is a prototype, not used by the agent, and `cinema_db.enabled` stays `False`). **Reconciled v3 (2026-11-08):** `cinema_db/data/cinema.v3.reconciled.sqlite3` applies the approved reconciliation rules (primary IMDb id per work, 12 reversible person merges in `entity_canonical`, ids by birth year, held titles released when proven distinct, IMDb episodes of series that already have episodes, credits kept through new candidate persons). Build with a NEW output path: `python -m cinema_db.harness.build.imdb_layer --out cinema_db/data/NEW.sqlite3 --force`, verify with `python -m cinema_db.harness.build.verify_reconciled --new cinema_db/data/NEW.sqlite3`. Still not read by the agent; the runtime stays on v2. **Update (evening):** file of that round `cinema_db/data/cinema.v3.reconciled2.sqlite3` (digest `59b57598…`, superseded by `cinema.v3.candidate.sqlite3`): non-Latin titles no longer collide in the same-title check (`cinema_db/harness/build/title_keys.py`; 456 of 522 held titles entered, 66 stay held), the new view `v_work_status.identity_level` separates verified, rule-based and uncertain identities, and `python -m cinema_db.harness.build.person_merge_report` is a read-only report on persons created for weak candidates. Dry run of the entry rules: `imdb_layer --out PATH --select-only`. **Phase F (2026-11-09, not activated):** reference file `cinema_db/data/cinema.v3.candidate2.sqlite3` (data digest `9db2c80d694e21183aa4a14738b237df322a09d8227b85aab7292a7cda5ff667`; the previous `cinema.v3.candidate.sqlite3` is kept as rollback; to activate, NOT done: `CINEMA_DB_ENABLED=1 CINEMA_DB_PATH=cinema_db/data/cinema.v3.candidate2.sqlite3`, rollback: remove both variables); `cinema_sql` reads schema-3 files through `tool/cinema_db/approved_views_v3.py` (chosen from the file by `tool/cinema_db/versions.py`) with two new operations, `ratings` (audience ratings and votes) and `provenance`, and an `identity_level` (verified / rule_based / uncertain) that the answer must not overstate. The runtime stays on v2 and `cinema_db.enabled` stays `False`.
+- **Phases 10–11 (2026-11-09, not activated):** `cinema_db/data/cinema.v4.candidate6.sqlite3` (schema 4 = v3 + every MovieLens film, genre and tag; build `python -m cinema_db.harness.build.imdb_layer --movielens --out NEW.sqlite3`, verify `python -m cinema_db.harness.build.verify_movielens --new FILE`) lets `cinema_sql` answer what the former `movie_db_search` tool did (removed on 2026-11-16) (operation `movielens`: top_rated, most_rated, by_title, by_tag, genre_stats), with identical rankings, title and tag searches. With a schema-4 file the integrated architecture applies: `cinema_sql` (structured data + MovieLens) + `rag_search` (films) + `series_rag_search` (series), the RAGs hand their `imdb_id` to the planner. Start and rollback: `./scripts/start_integrated.sh [--check]` and `docs/cinema_db/INTEGRATED_LOCAL.md`. Details and open points: `docs/cinema_db/PROGRESS.md` (sections PHASE 13, 12, 11 and 10). Offline check of both RAGs on Qdrant with stored vectors (no model call): `python -m movie_db.harness.evaluation.run_rag_infra_check`; plan of the paid live evaluations (routing, RAG semantic quality, browser), to be authorised: `docs/cinema_db/LIVE_EVALUATION_PLAN.md`.
 - **Open `docs/cinema_db/schema.html` in a browser** for the interactive schema (tables, columns, keys, indexes, checks, relations, public
   views); `schema.mmd` is the Mermaid ER diagram. Both are generated from the real SQLite schema (`python -m cinema_db.harness.schema.generate`,
   `--check` tells whether they are stale); tests fail if they drift.
@@ -621,13 +529,13 @@ first **offline build**, the **targeted Wikidata enrichment (phase 4)** the **`c
   exactly). Added: the names of 49,500 people (142,823 credits recovered), 27,751 award results with categories and ceremonies, life dates, money in
   its original currency (never converted), ISO codes, company and franchise names, 8,875 more "based on" relations.
   `python -m cinema_db.harness.enrich.compare BEFORE AFTER` gives the quantitative comparison.
-- **The `cinema_sql` tool (phase 5, not wired)**: `tool/cinema_db/tool.py` answers questions about films, series, people, credits, awards, relations, companies and series structure from the local file, in read-only mode through the safe SQL engine, with no network and no LLM. Thirteen operations (`find_work`, `find_person`, `work_card`, `filmography`, `cast`, `crew`, `collaborations`, `awards`, `series`, `companies`, `franchise`, `relations`, and `sql` for a free SELECT on the approved views); names are matched exactly after normalisation (titles, originals, aliases), ids are reused when known, homonyms come back as alternatives and never as an answer, and every result carries notes on what the local data cannot prove. Checked on the real database: 71 tests and a 39-question benchmark with independent SQL (none wrong, median 33 ms and 3 queries per question; hand-written plans, the planner was not run). Known data limits: incomplete catalogue, awards attached to a person only when the nominee is recorded, unreliable episode counts, a "franchise" that can be a list. Try it: `python -m cinema_db.harness.tool_eval.run_benchmark` and `PHASE5_REPORT.md` §7.
-- **Phase 6, integration (feature flag OFF by default)**: `CONFIG["cinema_db"]["enabled"]` is `False`, so the application behaves exactly as before. Switch it on with
+- **The `cinema_sql` tool (phase 5, not wired)**: `tool/cinema_db/tool.py` answers questions about films, series, people, credits, awards, relations, companies and series structure from the local file, in read-only mode through the safe SQL engine, with no network and no LLM. Thirteen operations (`find_work`, `find_person`, `work_card`, `filmography`, `cast`, `crew`, `collaborations`, `awards`, `series`, `companies`, `franchise`, `relations`, and `sql` for a free SELECT on the approved views); names are matched exactly after normalisation (titles, originals, aliases), ids are reused when known, homonyms come back as alternatives and never as an answer, and every result carries notes on what the local data cannot prove. Checked on the real database: 71 tests and a 39-question benchmark with independent SQL (none wrong, median 33 ms and 3 queries per question; hand-written plans, the planner was not run). Known data limits: incomplete catalogue, awards attached to a person only when the nominee is recorded, unreliable episode counts, a "franchise" that can be a list. Try it: `python -m cinema_db.harness.tool_eval.run_benchmark`.
+- **Phase 6, integration (since FASE 24 ON by default, on `cinema_db/data/cinema.v4.candidate6.sqlite3`; this paragraph describes the original flag)**: `CONFIG["cinema_db"]["enabled"]` is `True` and `CONFIG["series_rag"]["enabled"]` is `True`: `cinema_sql` (MovieLens inside) and `series_rag_search` are registered, there is no separate MovieLens tool any more. Switch each off on its own with `CINEMA_DB_ENABLED=0` / `SERIES_RAG_ENABLED=0` (both off = the configuration before FASE 24). Restart plan and rollback: `docs/cinema_db/INTEGRATED_LOCAL.md`. The original flag text follows: switch it with
   `build_runtime_config({"cinema_db": {"enabled": True}})` or the environment variable `CINEMA_DB_ENABLED=1` (terminal and web API; `CINEMA_DB_PATH` chooses the database file, and the start checks that it opens with its policy); with the flag on and no database file the start
   stops with the command that builds it. The planner gets its routing rule (1g) only while the tool is registered; `wikidata_search` stays available as the fallback; the setting
   "official information" is the one it serves; the interface shows the DATA sources (Wikipedia CC BY-SA 4.0, Wikidata CC0) with links to public pages, never SQL or internal ids.
   Episode data: an episode known from its own Wikipedia page and from a season row is now one episode (`--no-episode-merge` reproduces the previous database). Live comparison of
-  the real application with the flag off and on: `docs/cinema_db/PHASE6_LIVE.md`; report: `docs/cinema_db/PHASE6_REPORT.md`.
+  the real application with the flag off and on (report removed on 2026-11-16).
 - **Map of the database** (every table, column, key and foreign key, read from the SQLite file): open **`docs/cinema_db/schema.html`** in a browser (double click, no server, no library). It opens on the
   **Map**: tables as nodes, foreign keys as edges with ER cardinality symbols, junction tables in orange, optional keys dashed, subtype links in purple; drag to pan, wheel or ＋/－ to zoom, drag a
   table to move it, type to search tables, columns and descriptions (Enter jumps to the first match), click a table to highlight its keys and neighbours and read its columns, keys, checks, indexes and
@@ -637,11 +545,11 @@ first **offline build**, the **targeted Wikidata enrichment (phase 4)** the **`c
 - Security: one `SELECT` only, approved views and columns only, the rewritten text is what runs, SQLite opened read-only and immutable,
   deny-by-default authorizer, time/row/size limits; FTS5 title search through the `v_title_search` view (words and prefixes, not semantic).
   Tests: `tests/test_cinema_sql_security.py`, `tests/test_cinema_views_security.py`, `tests/test_cinema_build.py`, `tests/test_cinema_sql_tool.py`, `tests/test_cinema_sql_tool_real.py`, `tests/test_cinema_sql_benchmark.py`.
-- **Phase 7 (code and docs done, live validation incomplete)**: DB-first routing, per-field reliability (`tool/cinema_db/reliability.py`), the executed SQL queries are shown in the step `cinema_sql_calls` (terminal and web), repeated live comparison harness `python -m cinema_db.harness.tool_eval.run_live7 plan|run --live|judge --live|report`. The default stays **off** (`cinema_db.enabled`): the blind judging of the second round stopped at 51 of 165 pairs (OpenAI credits exhausted). Report and recommendation: `docs/cinema_db/PHASE7_REPORT.md`.
+- **Phase 7 (code and docs done, live validation incomplete)**: DB-first routing, per-field reliability (`tool/cinema_db/reliability.py`), the executed SQL queries are shown in the step `cinema_sql_calls` (terminal and web). The default stays **off** (`cinema_db.enabled`): the blind judging of the second round stopped at 51 of 165 pairs (OpenAI credits exhausted).
 
 ## Git Notes
 
-`dataset/`, `dbVettoriale/` and `movie_db/data/` are local artifacts and are ignored by Git.
+`dbVettoriale/`, `cinema_db/data/` and `movie_db/data/` are local artifacts and are ignored by Git.
 
 ## HTTP / SSE server (for a web frontend)
 
