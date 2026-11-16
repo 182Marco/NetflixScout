@@ -20,6 +20,7 @@ run, so the TMDb budget stays per turn.
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Any
 
@@ -147,6 +148,12 @@ def _candidate_result(candidate: Candidate, outcome: RequestOutcome | None) -> d
             **({"year_note": "release_date"} if YEAR_FROM_RELEASE_DATES in outcome.notes else {})}
 
 
+def _rag_title_forms(title: str) -> list[str]:
+    """The film index title as it is and without its disambiguation suffix ("Relic (film 2020)" -> "Relic")."""
+    plain = re.sub(r"\s*\((?:film|serie|serie televisiva)[^)]*\)\s*$", "", title).strip()
+    return list(dict.fromkeys(form for form in (title, plain) if form))
+
+
 def _attach(tool_result: dict[str, Any], enrichment: dict[str, Any], trace: list[dict[str, Any]]) -> dict[str, Any]:
     """Copy of the result with the enrichment in `metadata` and the calls in `trace`; chunks untouched."""
     return {
@@ -167,7 +174,8 @@ class TmdbRagEnricher:
     by_imdb_only: bool = False
 
     def enrich(self, *, tool_result: dict[str, Any]) -> dict[str, Any]:
-        candidates = select_candidates(tool_result.get("chunks") or [], self.max_candidates)
+        # the film index returns `chunks`; the series search returns no chunks (they would reach the prompt) and lists its identified results in `enrich_candidates`
+        candidates = select_candidates(tool_result.get("chunks") or tool_result.get("enrich_candidates") or [], self.max_candidates)
         if not candidates:
             return tool_result
         try:
@@ -185,6 +193,7 @@ class TmdbRagEnricher:
         ctx.strict_identity = True
         ctx.year_after_search = True
         if self.by_imdb_only:
+            ctx.skip_genre_names = True  # poster and TMDb id only: the genres come from the film index
             return self._enrich_by_imdb(tool_result, candidates, ctx)
         requests: list[TmdbRequest] = []
         positions: list[int | None] = []
@@ -233,6 +242,7 @@ class TmdbRagEnricher:
         outcomes = run_requests(ctx, requests) if requests else []
         rows = []
         cards_from = []
+        aliases: dict[int, list[str]] = {}  # TMDb id -> the title(s) of the film index (Italian), so a card is found when the answer uses them
         for candidate, position in zip(candidates, positions):
             row: dict[str, Any] = {"rank": candidate.rank, "rag_title": candidate.title, "rag_year": candidate.year}
             outcome = outcomes[position] if position is not None else None
@@ -243,8 +253,12 @@ class TmdbRagEnricher:
             elif not outcome.items:
                 rows.append({**row, "status": "not_found"})
             else:
-                rows.append({**row, "status": "matched", "matched_by": "imdb_id"})
+                # The reference the web lists read ("TMDb movie/NNN"): without it the model has no id to point to and no poster card is built.
+                entity = outcome.items[0]
+                rows.append({**row, "status": "matched", "matched_by": "imdb_id", "tmdb_ref": f"TMDb {entity.kind}/{entity.tmdb_id}"})
                 cards_from.append(outcome)
+                aliases[entity.tmdb_id] = _rag_title_forms(candidate.title)
         matched = sum(row["status"] == "matched" for row in rows)
         enrichment = {"source": "TMDb", "mode": "imdb", "status": "ok" if matched == len(rows) else "partial" if matched else "none", "candidates": rows}
-        return _attach(tool_result, enrichment, build_tmdb_trace(ctx.recorder.calls, [], tmdb_cards(cards_from)))
+        cards = [{**card, "aliases": aliases[card["id"]]} if card.get("id") in aliases else card for card in tmdb_cards(cards_from)]
+        return _attach(tool_result, enrichment, build_tmdb_trace(ctx.recorder.calls, [], cards))

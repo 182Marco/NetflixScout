@@ -38,6 +38,13 @@ LABELS = {
         "n_ambiguous_title": "Più serie con questo titolo: {text}",
         "n_mixed": "Pagina su manga e anime insieme: {text}",
         "mixed_page": "pagina su manga e anime",
+        "phase_wide": "K largo: {n} candidati letti dal catalogo (massimo {req})",
+        "phase_rerank": "Riordino: un modello ha riordinato i primi {n} candidati",
+        "phase_rerank_none": "Riordino: non eseguito, resta l'ordine per somiglianza",
+        "phase_rerank_failed": "Riordino: non riuscito, resta l'ordine per somiglianza",
+        "phase_selection": "K stretto: {n} risultati scelti (richiesti {req})",
+        "phase_more": "… e altri {n}",
+        "phase_from": "era {n}°",
         "license": "Licenza", "elapsed": "{ms} ms",
     },
     "en": {
@@ -58,6 +65,13 @@ LABELS = {
         "n_ambiguous_title": "Several series with this title: {text}",
         "n_mixed": "Page about manga and anime together: {text}",
         "mixed_page": "page about manga and anime",
+        "phase_wide": "K-wide: {n} candidates read from the catalogue (maximum {req})",
+        "phase_rerank": "Rerank: a model reordered the top {n} candidates",
+        "phase_rerank_none": "Rerank: not run, similarity order kept",
+        "phase_rerank_failed": "Rerank: failed, similarity order kept",
+        "phase_selection": "K-narrow: {n} results chosen (asked {req})",
+        "phase_more": "… and {n} more",
+        "phase_from": "was #{n}",
         "license": "Licence", "elapsed": "{ms} ms",
     },
     "de": {
@@ -78,6 +92,13 @@ LABELS = {
         "n_ambiguous_title": "Mehrere Serien mit diesem Titel: {text}",
         "n_mixed": "Seite über Manga und Anime zugleich: {text}",
         "mixed_page": "Seite über Manga und Anime",
+        "phase_wide": "K-breit: {n} Kandidaten aus dem Katalog gelesen (höchstens {req})",
+        "phase_rerank": "Neuordnung: ein Modell hat die ersten {n} Kandidaten neu geordnet",
+        "phase_rerank_none": "Neuordnung: nicht ausgeführt, Ähnlichkeitsreihenfolge bleibt",
+        "phase_rerank_failed": "Neuordnung: fehlgeschlagen, Ähnlichkeitsreihenfolge bleibt",
+        "phase_selection": "K-eng: {n} Ergebnisse gewählt (verlangt {req})",
+        "phase_more": "… und {n} weitere",
+        "phase_from": "war Nr. {n}",
         "license": "Lizenz", "elapsed": "{ms} ms",
     },
 }
@@ -93,6 +114,26 @@ class ResultView(BaseModel):
     note: str | None = None
 
 
+class PhaseItem(BaseModel):
+    n: int
+    label: str
+    year: int | None = None
+    score: float | None = None
+    note: str | None = None
+
+
+class PhaseView(BaseModel):
+    """One of the three stages of every search: `wide` (K-wide), `rerank`, `selection` (K-narrow)."""
+    key: str
+    title: str
+    total: int
+    items: list[PhaseItem] = Field(default_factory=list)
+    more: str | None = None
+
+
+PHASE_ITEMS_SHOWN = 10
+
+
 class SeriesView(BaseModel):
     title: str
     source: str
@@ -102,6 +143,7 @@ class SeriesView(BaseModel):
     search_label: str
     engine_label: str
     results: list[ResultView] = Field(default_factory=list)
+    phases: list[PhaseView] = Field(default_factory=list)
     notes_title: str
     notes: list[str] = Field(default_factory=list)
     elapsed: str | None = None
@@ -119,6 +161,35 @@ def _public_url(url: Any) -> str | None:
         return None
     parsed = urlparse(url)
     return url if parsed.scheme == "https" and parsed.hostname in _HOSTS and not _CONTROL.search(url) else None
+
+
+def _phase_items(rows: Any, t: dict, *, scored: bool, with_rank: bool = False) -> tuple[list[PhaseItem], int]:
+    rows = [r for r in rows or [] if isinstance(r, dict)]
+    shown = [PhaseItem(n=int(r.get("n") or i), label=_clean(r.get("label") or r.get("title")), year=r.get("year"),
+                       score=r.get("similarity") if scored else None,
+                       note=t["phase_from"].format(n=r["rank_before"]) if with_rank and isinstance(r.get("rank_before"), int) else None)
+             for i, r in enumerate(rows[:PHASE_ITEMS_SHOWN], start=1)]
+    return shown, len(rows)
+
+
+def _phases(d: dict[str, Any], t: dict, results: list[ResultView]) -> list[PhaseView]:
+    """The three stages, always present (also for an exact-title lookup or a listing, where K-wide and rerank are empty)."""
+    ph = d.get("phases") or {}
+    wide, rer, sel = ph.get("wide") or {}, ph.get("rerank") or {}, ph.get("selection") or {}
+    out: list[PhaseView] = []
+    items, total = _phase_items(wide.get("items"), t, scored=True)
+    n = int(wide.get("n") or 0)
+    out.append(PhaseView(key="wide", title=t["phase_wide"].format(n=n, req=int(wide.get("requested") or 0)), total=n, items=items,
+                         more=t["phase_more"].format(n=n - len(items)) if n > len(items) else None))
+    items, total = _phase_items(rer.get("items"), t, scored=False, with_rank=True)
+    engine = rer.get("engine")
+    title = (t["phase_rerank"].format(n=total) if engine == "llm" else t["phase_rerank_failed"] if engine == "llm_failed" else t["phase_rerank_none"])
+    out.append(PhaseView(key="rerank", title=title, total=total, items=items,
+                         more=t["phase_more"].format(n=total - len(items)) if total > len(items) else None))
+    sel_items = [PhaseItem(n=r.n, label=r.label, year=r.year, score=r.score, note=r.note) for r in results]
+    out.append(PhaseView(key="selection", title=t["phase_selection"].format(n=len(results), req=int(sel.get("requested") or len(results))),
+                         total=len(results), items=sel_items))
+    return out
 
 
 def series_view(step: TraceStep, language: str | None = None) -> SeriesView:
@@ -149,5 +220,5 @@ def series_view(step: TraceStep, language: str | None = None) -> SeriesView:
     return SeriesView(
         title=t["title"], source=t["source"], status=status, status_label=t[status].format(n=len(results)) if status != "error" else t["error"],
         reason=t["reason"].get(reason) if reason else None, search_label=t["searching"].format(level=t["level"][level]),
-        engine_label=t["engine"].get(d.get("engine"), ""), results=results, notes_title=t["notes_title"], notes=notes,
+        engine_label=t["engine"].get(d.get("engine"), ""), results=results, phases=_phases(d, t, results), notes_title=t["notes_title"], notes=notes,
         elapsed=t["elapsed"].format(ms=ms) if isinstance(ms, int) else None, license_label=t["license"])

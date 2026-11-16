@@ -19,7 +19,7 @@ Reorder = Callable[[str, Signals, list[str], list[Film]], list[int]]
 
 @dataclass
 class Settings:
-    pool: int = 300
+    pool: int = 50
     penalty_lambda: float = 0.5
     max_genre_share: float = 0.08
     max_avoid_genres: int = 3

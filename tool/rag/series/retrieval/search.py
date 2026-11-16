@@ -1,7 +1,7 @@
 """The dense search: filters decided by the request and evaluated by Qdrant, exclusions as a penalty, optional LLM reorder. Pure functions around `embed`/`parse`."""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Callable
 
 import numpy as np
@@ -16,7 +16,7 @@ Embed = Callable[[list[str]], np.ndarray]
 
 @dataclass
 class Settings:
-    pool: int = 300
+    pool: int = 50
     penalty_lambda: float = 0.5
     rerank_pool: int = 40
 
@@ -27,6 +27,8 @@ class Output:
     pool: list[Item]
     notes: dict
     series_ids: list[str] | None = None
+    wide: list[tuple[Item, float]] = field(default_factory=list)       # K-wide: the candidates after exclusions and penalty, with their score, before the reorder
+    reranked: list[Item] = field(default_factory=list)                  # the head sent to the reorder, in the order the model decided
 
 
 def _resolve_series(index: SeriesIndex, sg: SeriesSignals) -> tuple[list[str] | None, dict]:
@@ -114,6 +116,8 @@ def search(index: SeriesIndex, embed: Embed, sg: SeriesSignals, *, k: int, setti
         notes["contradiction"] = sg.contradiction_note or True
     if not kept and raw == []:
         notes["no_match_for_the_filters"] = True
+    wide = [(it, float(it.score)) for it in kept]
+    reranked: list[Item] = []
     if reorder is not None and len(kept) > 1:
         head = kept[:settings.rerank_pool]
         try:
@@ -123,10 +127,11 @@ def search(index: SeriesIndex, embed: Embed, sg: SeriesSignals, *, k: int, setti
                 if 0 <= i < len(head) and i not in seen:
                     seen.add(i); ranked.append(head[i])
             kept = ranked + [head[i] for i in range(len(head)) if i not in seen] + kept[len(head):]
+            reranked = kept[:len(head)]
             notes["reordered"] = True
         except Exception:  # noqa: BLE001  (an improvement, not a requirement: the penalty order stays)
             notes["reorder_failed"] = True
-    return Output(kept[:k], kept, notes, series_ids)
+    return Output(kept[:k], kept, notes, series_ids, wide=wide, reranked=reranked)
 
 
 

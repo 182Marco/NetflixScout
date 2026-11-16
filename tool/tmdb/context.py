@@ -41,6 +41,8 @@ class TmdbContext:
     # by one and TMDb's filter is exact, so a year-filtered search costs a second search);
     # `_pick_work` checks the year ±1 on the results; the filtered search is the fallback.
     year_after_search: bool = False
+    # True when the caller does not need genre names: list results then skip the genre-table request.
+    skip_genre_names: bool = False
 
     def limit(self, requested: int | None) -> int:
         """Items to return for a list: the request's limit, capped by `max_results`."""

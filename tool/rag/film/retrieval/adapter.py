@@ -23,12 +23,16 @@ def index_for(config: dict) -> FilmIndex:
     return _index(qdrant.get("url") or "http://127.0.0.1:6333", config["vectorstore"]["collection"])
 
 
+MAX_POOL = 50
+
+
 def settings_from(config: dict) -> Settings:
     fi = config.get("film_index") or {}
     rr = fi.get("rerank") or {}
-    return Settings(pool=int(fi.get("pool", 300)), penalty_lambda=float(fi.get("penalty_lambda", 0.5)),
+    pool = max(10, min(int(fi.get("pool", MAX_POOL)), MAX_POOL))          # K-wide hard cap: never more than 50 candidates
+    return Settings(pool=pool, penalty_lambda=float(fi.get("penalty_lambda", 0.5)),
                     max_genre_share=float(fi.get("max_genre_share", 0.08)), max_avoid_genres=int(fi.get("max_avoid_genres", 3)),
-                    rerank_pool=int(rr.get("pool", 40)))
+                    rerank_pool=min(int(rr.get("pool", 40)), pool))
 
 
 def chunk_of(f: Film, rank_score: float) -> RagChunk:

@@ -37,7 +37,8 @@ def _find(haystack: str, needle: str) -> int:
 
 def _name_forms(record: dict[str, Any]) -> list[str]:
     forms = []
-    for title in (record.get("title"), record.get("original_title")):
+    extra = record.get("aliases") if isinstance(record.get("aliases"), list) else []
+    for title in (record.get("title"), record.get("original_title"), *extra):
         norm = _norm(title) if isinstance(title, str) else ""
         if norm:
             forms.append(norm)

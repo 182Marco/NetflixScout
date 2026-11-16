@@ -55,3 +55,25 @@ def test_only_the_first_max_candidates_are_looked_up():
 def test_an_unknown_imdb_id_is_not_found():
     result, _ = _enrich([_chunk("X", 2000, "tt7777777")], {"/find/tt7777777": {"movie_results": [], "tv_results": [], "person_results": []}})
     assert result["metadata"][ENRICHMENT_KEY]["candidates"][0]["status"] == "not_found" and result["metadata"][ENRICHMENT_KEY]["status"] == "none"
+
+
+def test_the_enrichment_never_fetches_the_genre_table():
+    raw = _found(493922, "Hereditary")
+    raw["movie_results"][0]["genre_ids"] = [27, 18]
+    result, transport = _enrich([_chunk("Hereditary", 2018, "tt7784604")], {"/find/tt7784604": raw})
+    assert result["metadata"][ENRICHMENT_KEY]["candidates"][0]["status"] == "matched"
+    assert transport.paths == ["/find/tt7784604"]                                      # no /genre/movie/list
+
+
+def test_a_series_result_gets_its_poster_through_enrich_candidates():
+    """The series search returns no chunks: its identified results (IMDb id) are looked up with the same `/find`, and a TV result becomes a card."""
+    tv = {"movie_results": [], "person_results": [], "tv_results": [{"id": 2490, "name": "The IT Crowd", "original_name": "The IT Crowd", "first_air_date": "2006-02-03",
+                                                                      "poster_path": "/it.jpg", "overview": "x", "vote_average": 8.0, "vote_count": 100, "popularity": 10.0}]}
+    tool, transport = make_tool({"/find/tt0487831": tv})
+    result = TmdbRagEnricher(tool=tool, max_candidates=5, by_imdb_only=True).enrich(tool_result={
+        "query": "q", "chunks": [], "metadata": {}, "trace": [],
+        "enrich_candidates": [{"title": "IT Crowd", "release_year": 2006, "imdb_id": "tt0487831"}]})
+    row = result["metadata"][ENRICHMENT_KEY]["candidates"][0]
+    assert row["status"] == "matched" and row["tmdb_ref"] == "TMDb tv/2490"
+    assert [p for p in transport.paths if p.startswith("/find")] == ["/find/tt0487831"]
+    assert result["trace"][-1]["data"]["items"][0]["poster_path"]

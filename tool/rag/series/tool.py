@@ -96,6 +96,23 @@ def _view(item: R.Item, n: int, *, plot_chars: int, listing: bool, with_imdb_id:
     return {k: v for k, v in d.items() if v not in (None, [], "")}
 
 
+def _phase_item(n: int, it: R.Item, **extra: Any) -> dict[str, Any]:
+    return {"n": n, "level": it.entity_type, "title": it.title, "label": it.label(), "year": it.year, **extra}
+
+
+def _phases(out: R.Output, notes: dict[str, Any], pool: int, rerank_pool: int, k: int, selected: int, rerank_enabled: bool) -> dict[str, Any]:
+    """The three stages of the search, always reported: K-wide (candidates read and filtered), rerank (the head sent to the model) and K-narrow (what is returned)."""
+    position = {id(it): i for i, (it, _) in enumerate(out.wide, start=1)}
+    wide = [_phase_item(i, it, similarity=round(sc, 4)) for i, (it, sc) in enumerate(out.wide[:pool], start=1)]
+    reranked = [_phase_item(i, it, rank_before=position.get(id(it))) for i, it in enumerate(out.reranked, start=1)]
+    engine = "llm" if out.reranked else "llm_failed" if notes.get("reorder_failed") else "none"
+    if not rerank_enabled and not out.reranked:
+        engine = "none"
+    return {"wide": {"requested": pool, "n": len(out.wide), "items": wide},
+            "rerank": {"engine": engine, "requested": rerank_pool, "n": len(reranked), "items": reranked},
+            "selection": {"requested": k, "n": selected}}
+
+
 def _follow_up(reason: str, summary: str) -> dict[str, Any]:
     return {"available": True, "reasons": [reason], "summary": summary}
 
@@ -171,9 +188,13 @@ class SeriesRagTool:
                                           "notes": {k_: v_ for k_, v_ in public_notes.items() if k_ != "dropped_rare_terms"}}},
             "trace": build_series_rag_trace(level=signals.level, query=request.query, items=trace_items, notes=public_notes, status=status,
                                               reason=reason, engine=engine,
+                                              phases=_phases(out, notes, self.config.pool, self.config.rerank_pool, k, len(items), self.config.rerank_enabled),
                                               signals={k_: v for k_, v in signals.model_dump().items() if v not in (None, [], False, "")},
                                               timings=timings),
             "usage": {"tokens": usage.tokens, "timings_ms": timings},
+            # Only series and TV movies that carry a reliable IMDb id: the TMDb enricher turns them into poster cards (never read by the prompt).
+            "enrich_candidates": [{"title": it.title, "release_year": it.year, "imdb_id": it.imdb_id} for it in out.items
+                                  if it.imdb_id and it.entity_type in ("series", "tv_movie")],
         }
         if not items:
             result[RESULT_FOLLOW_UP] = _follow_up(reason, (

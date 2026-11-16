@@ -14,6 +14,15 @@ def print_series(view: SeriesView) -> None:
         print(f"  {view.engine_label}")
     if view.reason:
         print(f"  ⚠️  {view.reason}")
+    for phase in view.phases:
+        print(f"\n  ▸ {phase.title}")
+        for it in phase.items:
+            tail = f" ({it.note})" if it.note else ""
+            sc = f" [{it.score:.2f}]" if it.score is not None else ""
+            print(f"      {it.n}. {it.label}{sc}{tail}")
+        if phase.more:
+            print(f"      {phase.more}")
+    print()
     for r in view.results:
         extra = f" — {r.note}" if r.note else ""
         print(f"  {r.n}. {r.label}{extra}")
