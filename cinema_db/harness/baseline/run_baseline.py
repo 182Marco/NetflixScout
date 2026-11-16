@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import statistics
+from contextlib import closing
 import sys
 import time
 from pathlib import Path
@@ -154,8 +155,7 @@ def sql_latency() -> dict:
     db = ROOT / "movie_db/data/movielens32m.sqlite3"
     if not db.is_file():
         return {"available": False}
-    from movie_db.config import MovieDbConfig  # noqa: F401
-    from tool.movie_db.sql.connection import readonly_connection
+    import sqlite3
     sqls = {
         "top_rated_50": "SELECT m.movie_id, m.clean_title, s.avg_rating FROM movies m JOIN movie_stats s ON s.movie_id=m.movie_id WHERE s.n_ratings>=50 ORDER BY s.avg_rating DESC, s.n_ratings DESC LIMIT 10",
         "by_title": "SELECT movie_id, clean_title, year FROM movies WHERE clean_title LIKE 'Pulp%' LIMIT 10",
@@ -164,7 +164,7 @@ def sql_latency() -> dict:
     out = {"available": True, "queries": {}}
     for name, sql in sqls.items():
         times = []
-        with readonly_connection(db, timeout_ms=5000) as conn:
+        with closing(sqlite3.connect(f"file:{db}?mode=ro", uri=True, timeout=5)) as conn:
             for _ in range(20):
                 t0 = time.perf_counter()
                 conn.execute(sql).fetchall()
