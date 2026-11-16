@@ -417,3 +417,12 @@ def test_director_and_writer_of_a_title_come_together_when_no_role_is_given(tool
     _, m = call(tool, operation="crew", title="Inception")
     roles = {g["role"]: g["people"] for g in m["crew"]}
     assert roles["director"] == ["Christopher Nolan"] and "Hans Zimmer" in roles["composer"] and "writer" in roles
+
+
+def test_awards_by_category_words_find_the_director_prize_of_a_ceremony_year(tool):
+    """«Who won the Oscar for best director in 2020»: the category words narrow the 27 Oscars of that ceremony down to the right one."""
+    _, m = call(tool, operation="awards", award="Oscar miglior regista", outcome="won", year_from=2020, year_to=2020)
+    results = m["data"]["results"] if "data" in m else m["results"]
+    assert [(r["work_title"], r["category"]) for r in results] == [("Parasite", "Oscar al miglior regista")]
+    _, same = call(tool, operation="awards", award="Oscar migliore regista", outcome="won", year_from=2020, year_to=2020)
+    assert "Parasite" in str(same)

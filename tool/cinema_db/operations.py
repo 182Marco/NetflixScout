@@ -188,12 +188,24 @@ def _like(text: str) -> str:
     return f"%{cleaned[:90]}%"
 
 
+_AWARD_STOPWORDS = frozenset({"al", "alla", "allo", "ai", "agli", "alle", "del", "della", "dello", "dei", "degli", "delle", "per", "the", "for", "best", "and", "dal", "nel", "nella", "con"})
+
+
+def _award_patterns(text: str) -> list[str]:
+    """The significant words of an award text, each as a LIKE pattern: «Oscar miglior regista» → oscar, miglior, regista. A word of 6+ letters is cut by two
+    so that «migliore» still finds «miglior». With a single word the pattern is the whole text, as it always was."""
+    words = [w for w in " ".join(text.replace("%", " ").replace("_", " ").casefold().split()).split() if len(w) > 2 and w not in _AWARD_STOPWORDS]
+    if len(words) < 2:
+        return [_like(text)]
+    return [f"%{(w[:-2] if len(w) >= 6 else w)[:40]}%" for w in words[:5]]
+
+
 def awards(request: CinemaSqlInput, session: Session, limit: int) -> OpResult:
     has_work = any((request.title, request.work_id, request.imdb_id, request.tmdb_id)) or (request.wikidata_id and not request.person and not request.person_id)
     subject: dict[str, Any] | None = None
     column: str | None = None
     value: Any = None
-    pattern: str | None = None
+    pattern: list[str] | None = None
     via = None
     if has_work:
         res = resolve_work(session, request)
@@ -206,13 +218,13 @@ def awards(request: CinemaSqlInput, session: Session, limit: int) -> OpResult:
             return _unresolved(res, kind="person")
         column, value, subject, via = "person_id", res.entity["person_id"], {"kind": "person", **res.entity}, res.via
     else:
-        pattern = _like(request.award or "")
+        pattern = _award_patterns(request.award or "")
         if normalize_name(request.award or "") == "":
             return OpResult(NOT_FOUND, reason="no_award_name")
         if request.year and request.year_from is None and request.year_to is None:  # «who won the Oscar in 1995»: with no work to identify, `year` can only be the ceremony's
             request = request.model_copy(update={"year_from": request.year, "year_to": request.year})
     if column:
-        narrow = _like(request.award) if request.award and normalize_name(request.award) else None  # "Oscar" with a work or a person: only their Oscar results
+        narrow = _award_patterns(request.award) if request.award and normalize_name(request.award) else None  # "Oscar" with a work or a person: only their Oscar results
         rows = session.rows(*Q.awards_of(column, value, request.outcome, request.year_from, request.year_to, request.order, MAX_LIMIT, narrow))
         total = session.rows(*Q.awards_count(column, value, narrow, request.outcome, request.year_from, request.year_to))[0]["n"]
     else:

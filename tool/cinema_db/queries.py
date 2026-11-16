@@ -163,18 +163,27 @@ _AWARD_COLUMNS = ("award, category, category_scope AS scope, ceremony_year AS ye
 _DISTINCT_AWARDS = "count(DISTINCT ceremony_year || '|' || award || '|' || category || '|' || outcome || '|' || coalesce(work_id, 0))"
 
 
-def _award_filters(outcome: str | None, year_from: int | None, year_to: int | None, pattern: str | None = None) -> tuple[str, list]:
+def _name_clause(patterns: str | Sequence[str]) -> tuple[str, list]:
+    """Every pattern (one per significant word of the award text) must match the award OR the category: «Oscar miglior regista» finds the category
+    «Oscar al miglior regista» even though the words are not contiguous. One pattern gives the clause this module always had."""
+    items = [patterns] if isinstance(patterns, str) else list(patterns)
+    sql = " AND ".join("(lower(award) LIKE ? OR lower(category) LIKE ?)" for _ in items)
+    return (f"({sql})" if len(items) > 1 else sql), [x for item in items for x in (item, item)]
+
+
+def _award_filters(outcome: str | None, year_from: int | None, year_to: int | None, pattern: str | Sequence[str] | None = None) -> tuple[str, list]:
     sql, params = _year_filters("ceremony_year", year_from, year_to)
     if outcome:
         sql += " AND outcome = ?"
         params.append(outcome)
     if pattern:  # an award name that narrows the results of a work or a person ('Oscar')
-        sql += " AND (lower(award) LIKE ? OR lower(category) LIKE ?)"
-        params += [pattern, pattern]
+        clause, clause_params = _name_clause(pattern)
+        sql += f" AND {clause}"
+        params += clause_params
     return sql, params
 
 
-def awards_of(column: str, value: int, outcome: str | None, year_from: int | None, year_to: int | None, order: str, limit: int, pattern: str | None = None) -> Query:
+def awards_of(column: str, value: int, outcome: str | None, year_from: int | None, year_to: int | None, order: str, limit: int, pattern: str | Sequence[str] | None = None) -> Query:
     if column not in {"work_id", "person_id"}:
         raise ValueError("column not allowed")
     extra, params = _award_filters(outcome, year_from, year_to, pattern)
@@ -183,23 +192,25 @@ def awards_of(column: str, value: int, outcome: str | None, year_from: int | Non
             [value, *params])
 
 
-def awards_by_name(pattern: str, exact: str, outcome: str | None, year_from: int | None, year_to: int | None, order: str, limit: int) -> Query:
+def awards_by_name(pattern: str | Sequence[str], exact: str, outcome: str | None, year_from: int | None, year_to: int | None, order: str, limit: int) -> Query:
     """Results whose award or category contains `pattern`; within a year the category that IS `exact` comes first ('Oscar al miglior film' before
     'Oscar al miglior film in lingua straniera'). Without it a plain LIMIT would cut the answer in favour of longer names."""
+    name, name_params = _name_clause(pattern)
     extra, params = _award_filters(outcome, year_from, year_to)
     direction = "DESC" if order == "desc" else "ASC"
-    return (f"SELECT {_AWARD_COLUMNS} FROM v_award_result WHERE (lower(award) LIKE ? OR lower(category) LIKE ?){extra} "
-            f"ORDER BY ceremony_year {direction}, lower(category) = ? DESC, category, work_title LIMIT {int(limit)}", [pattern, pattern, *params, exact])
+    return (f"SELECT {_AWARD_COLUMNS} FROM v_award_result WHERE {name}{extra} "
+            f"ORDER BY ceremony_year {direction}, lower(category) = ? DESC, category, work_title LIMIT {int(limit)}", [*name_params, *params, exact])
 
 
-def awards_count(column: str | None, value: object, pattern: str | None, outcome: str | None, year_from: int | None, year_to: int | None) -> Query:
+def awards_count(column: str | None, value: object, pattern: str | Sequence[str] | None, outcome: str | None, year_from: int | None, year_to: int | None) -> Query:
     if column:
         if column not in {"work_id", "person_id"}:
             raise ValueError("column not allowed")
         extra, params = _award_filters(outcome, year_from, year_to, pattern)
         return f"SELECT {_DISTINCT_AWARDS} AS n FROM v_award_result WHERE {column} = ?{extra}", [value, *params]
+    name, name_params = _name_clause(pattern or "")
     extra, params = _award_filters(outcome, year_from, year_to)
-    return f"SELECT {_DISTINCT_AWARDS} AS n FROM v_award_result WHERE (lower(award) LIKE ? OR lower(category) LIKE ?){extra}", [pattern, pattern, *params]
+    return f"SELECT {_DISTINCT_AWARDS} AS n FROM v_award_result WHERE {name}{extra}", [*name_params, *params]
 
 
 # ---- series ---------------------------------------------------------------------------------------------------------------------
