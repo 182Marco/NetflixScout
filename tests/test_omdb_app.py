@@ -65,18 +65,18 @@ def test_build_app_registers_omdb_from_the_omdb_config(monkeypatch) -> None:
 
     assert isinstance(tool, OmdbTool) and tool.config.max_calls_per_turn == 3
     assert tool.credentials is None  # `.env` is read on first use, not at build time
-    assert set(orchestrator.enrichers) == {"rag_search"}  # no enricher: OMDb is never added to a turn on its own
+    assert set(orchestrator.enrichers) - {"series_rag_search"} == {"rag_search"}  # no enricher: OMDb is never added to a turn on its own
     assert app_module.CONFIG["orchestrator"]["fallback_tool"] == "rag_search"
 
 
 def test_omdb_is_allowed_and_in_the_planner_catalog(monkeypatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", "test")
-    orchestrator = app_module.build_app()["orchestrator"]
+    orchestrator = app_module.build_app({"cinema_db": {"enabled": False}, "series_rag": {"enabled": False}})["orchestrator"]  # the legacy tool set (FASE 24: cinema_sql replaces movie_db_search by default)
 
     assert OMDB_TOOL_NAME in app_module.CONFIG["orchestrator"]["allowed_tools"]
     catalog = orchestrator._catalog_text(orchestrator._allowed_tool_names())
     assert '"name":"omdb_search"' in catalog and "imdb_id" in catalog
-    for existing in ("rag_search", "movie_db_search", "tmdb_search", "youtube_search", "wikipedia_search"):
+    for existing in ("rag_search", "tmdb_search", "youtube_search", "wikipedia_search"):
         assert existing in orchestrator._allowed_tool_names()
 
 
@@ -84,8 +84,8 @@ def test_omdb_is_allowed_and_in_the_planner_catalog(monkeypatch) -> None:
 
 
 def test_rule_1d_sits_after_1c_and_before_movie_db_and_leaves_the_others_alone() -> None:
-    assert INSTRUCTIONS.index("1c) wikipedia_search") < INSTRUCTIONS.index("1d) omdb_search") < INSTRUCTIONS.index("2) movie_db_search")
-    assert _rule("1b", "1c").startswith("1b) youtube_search") and _rule("2", "3").startswith("2) movie_db_search")
+    assert INSTRUCTIONS.index("1c) wikipedia_search") < INSTRUCTIONS.index("1d) omdb_search") < INSTRUCTIONS.index("2) Voti e classifiche")
+    assert _rule("1b", "1c").startswith("1b) youtube_search") and _rule("2", "3").startswith("2) Voti e classifiche")
     assert _rule("3", "4").startswith("3) rag_search") and "omdb" not in _rule("3", "4")
 
 
@@ -222,7 +222,7 @@ def test_a_planned_omdb_turn_reaches_the_presenter(monkeypatch, capsys) -> None:
     assert "81/100" in out and "7.9/10" in out
 
 
-# --- regressions of the live check (docs/omdb_routing_live_report.md) -----------------------------------------------
+# --- regressions of the live check -----------------------------------------------
 
 
 def test_the_final_rules_fix_the_rotten_tomatoes_format_and_forbid_a_winner_between_scales() -> None:

@@ -7,7 +7,6 @@ from pathlib import Path
 import pytest
 
 from cinema_db.harness import candidate as C
-from cinema_db.harness.tool_eval import run_movielens_parity as parity
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -65,18 +64,12 @@ def test_the_real_candidate_is_the_expected_one() -> None:
 def test_every_default_path_of_the_harness_is_the_expected_candidate() -> None:
     from movie_db.harness.evaluation import run_preference_routing_eval as pref
     from movie_db.harness.evaluation import run_rag_semantic_smoke as smoke
-    assert parity.NEW_DB == C.EXPECTED_PATH and smoke.CINEMA_DB == C.EXPECTED_PATH and pref.CINEMA_DB == C.EXPECTED["path"]
+    assert smoke.CINEMA_DB == C.EXPECTED_PATH and pref.CINEMA_DB == C.EXPECTED["path"]
     for module in ("run_routing_eval", "run_rag_infra_check"):
         text = (ROOT / "movie_db/harness/evaluation" / f"{module}.py").read_text()
         assert "candidate3" not in text and "candidate4" not in text and "candidate.EXPECTED" in text.replace("fromlist=[\"EXPECTED\"]).EXPECTED", "candidate.EXPECTED").replace("fromlist=[\"EXPECTED_PATH\"]).EXPECTED_PATH", "candidate.EXPECTED")
     script = (ROOT / "scripts/start_integrated.sh").read_text()
     assert C.EXPECTED["path"] in script
-
-
-def test_the_parity_run_refuses_a_file_that_is_not_the_expected_candidate(tmp_path) -> None:
-    other = _file(tmp_path / "cinema.v4.candidate3.sqlite3", schema_version="4", content_sha256="1" * 64)
-    with pytest.raises(C.CandidateMismatch):
-        parity.main(["--db", str(other)])
 
 
 def test_no_schema_4_check_of_the_harness_names_a_superseded_candidate() -> None:

@@ -9,7 +9,6 @@ from typing import Any, Callable, Iterable, Mapping, Protocol, Sequence, runtime
 from openai import OpenAI
 
 from answer_stream import AnswerFieldStream
-from data_coverage import coverage_rule
 
 from turn import (
     OUTCOME_EMPTY,
@@ -693,10 +692,6 @@ class LLMOrchestrator:
         rules = self.orchestrator_config.get("tool_rules") or {}
         return "".join(f"\n{rules[name]}" for name in allowed if name in rules and name in self.tools)
 
-    def _coverage_for(self, allowed: list[str]) -> dict[str, Any]:
-        coverage = self.orchestrator_config.get("data_coverage") or {}
-        return {tool: info for tool, info in coverage.items() if tool in allowed}
-
     def _planning_instructions(
         self,
         allowed: list[str],
@@ -708,7 +703,6 @@ class LLMOrchestrator:
         appended last, after the long stable prefix, and are empty when the turn carries none."""
         return (
             self.orchestrator_config.get("instructions", decision_prompt)
-            + coverage_rule(self._coverage_for(allowed))
             + self._tool_rules(allowed)
             + "\nAllowed tools: "
             + ", ".join(allowed)

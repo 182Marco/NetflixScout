@@ -24,7 +24,6 @@ STEP_RETRIEVAL = "retrieval"
 STEP_RERANK = "rerank"
 # The few films kept after the rerank (the narrow K).
 STEP_SELECTION = "selection"
-STEP_DB_QUERY = "db_query"
 STEP_TMDB_CALLS = "tmdb_calls"
 STEP_YOUTUBE_CALLS = "youtube_calls"
 STEP_OMDB_CALLS = "omdb_calls"

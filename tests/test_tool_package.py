@@ -5,9 +5,9 @@ import ast
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ("rag", "tmdb", "youtube", "wikipedia", "movie_db", "omdb", "tvmaze", "wikidata", "cinema_db")
+TOOLS = ("rag", "tmdb", "youtube", "wikipedia", "omdb", "tvmaze", "wikidata", "cinema_db")
 # `rag` holds the two RAG tools, one sub-package each (`film` = rag_search, `series` = series_rag_search).
-ENTRY = {"rag": "film/tool.py", "movie_db": "movie_db_tool.py"}
+ENTRY = {"rag": "film/tool.py"}
 RAG_TOOLS = ("film", "series")
 SKIPPED = {".venv", "__pycache__", ".git", "dbVettoriale", "dataset", "tests"}
 
@@ -33,7 +33,6 @@ def test_every_tool_package_lives_in_the_tool_folder() -> None:
         assert (ROOT / "tool" / "rag" / sub / "retrieval" / "__init__.py").is_file(), sub
         if name not in ("movie_db", "cinema_db"):  # the root movie_db/ and cinema_db/ are the database side (data, schema, harness)
             assert not (ROOT / name).exists(), f"{name}/ must not come back to the root"
-    assert not (ROOT / "movie_db" / "tool").exists(), "the MovieLens tool lives in tool/movie_db/"
     assert not (ROOT / "cinema_db" / "tool").exists(), "the cinema tool lives in tool/cinema_db/"
 
 
@@ -47,15 +46,11 @@ def test_only_app_and_the_routing_eval_import_the_tools() -> None:
     }
     assert importers == {
         "app.py",
-        "movie_db/harness/evaluation/cases.py",
-        "movie_db/harness/evaluation/run_eval.py",
         "movie_db/harness/evaluation/run_routing_eval.py",
         "movie_db/harness/evaluation/run_rag_infra_check.py",  # offline check of the two RAGs on Qdrant with stored vectors (no model call)
         "movie_db/harness/evaluation/run_rag_semantic_smoke.py",  # free-text quality harness of the two RAGs (paid only with --live and an env authorisation)
         # offline analysis scripts of the Qdrant work, never imported at runtime
-        "cinema_db/harness/baseline/run_baseline.py",
         "cinema_db/harness/tool_eval/run_benchmark.py",  # offline benchmark of the cinema_sql tool on the real database
-        "cinema_db/harness/tool_eval/run_movielens_parity.py",  # offline parity of cinema_sql movielens against the old movie_db_search (both read-only)
         "cinema_db/harness/build/verify.py",  # offline verification of the built cinema database: opens it through tool/cinema_db's guard  # offline phase-0 baseline of the cinema DB plan (fake transports)
         # the series pipeline evaluates and indexes with the retriever the agent runs (one copy, in tool/rag/series), never a duplicate
         "pipelines/wikipedia_series/index.py",
@@ -78,8 +73,6 @@ def test_tool_packages_do_not_import_the_project_or_each_other() -> None:
     """A tool imports only itself (`tool.<name>...`) or relative modules: no sibling tool, no
     presenter, no channel; `turn` is the neutral core."""
     forbidden = {"app", "orchestrator", "presenters", "web_api", "web_lists", "movie_db", "tmdb", "youtube", "wikipedia", "rag"}
-    # The MovieLens tool reads the database side shared with the ingestion: config and schema only.
-    shared_with_the_database = {"movie_db", "movie_db.config", "movie_db.schema"}
     for path in (ROOT / "tool").rglob("*.py"):
         if "__pycache__" in path.parts:
             continue
@@ -87,8 +80,6 @@ def test_tool_packages_do_not_import_the_project_or_each_other() -> None:
         for module in _imported_modules(path):
             parts = module.split(".")
             relative = path.relative_to(ROOT).as_posix()
-            if own == "movie_db" and module in shared_with_the_database:
-                continue
             assert parts[0] not in forbidden, (relative, module)
             if parts[0] == "tool":
                 assert parts[1] == own, (path.relative_to(ROOT).as_posix(), module)

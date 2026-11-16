@@ -79,8 +79,11 @@ def make_tool(index, signals=None, *, reorder=None, parse_error=False, embed_err
 
 
 # ---- config, flag, registration -----------------------------------------------------------------------------------------------------
-def test_the_flag_is_off_by_default_and_the_config_has_exactly_the_documented_keys() -> None:
-    assert CONFIG["series_rag"]["enabled"] is False and CONFIG["series_rag"]["collection"] == "wikipedia_series_it_v1"
+OFF_CINEMA = {"cinema_db": {"enabled": False}}  # FASE 24: cinema_sql is on by default; these tests compare the series tool alone
+
+
+def test_the_flag_is_on_by_default_and_the_config_has_exactly_the_documented_keys() -> None:
+    assert CONFIG["series_rag"]["enabled"] is True and CONFIG["series_rag"]["collection"] == "wikipedia_series_it_v1"
     assert set(CONFIG["series_rag"]) == set(SeriesRagConfig.model_fields)
     assert "series_rag_search" in CONFIG["orchestrator"]["allowed_tools"] and "series_rag_search" in CONFIG["orchestrator"]["tool_final_instructions"]
     with pytest.raises(Exception):
@@ -89,17 +92,19 @@ def test_the_flag_is_off_by_default_and_the_config_has_exactly_the_documented_ke
 
 def test_off_the_tool_is_not_registered_and_on_it_is(monkeypatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", "test")
-    off = app_module.build_app()["orchestrator"]
-    on = app_module.build_app({"series_rag": {"enabled": True}})["orchestrator"]
+    off = app_module.build_app({**OFF_CINEMA, "series_rag": {"enabled": False}})["orchestrator"]
+    on = app_module.build_app({**OFF_CINEMA, "series_rag": {"enabled": True}})["orchestrator"]
     assert "series_rag_search" not in off.tools and "series_rag_search" in on.tools
     assert [t for t in on.tools if t != "series_rag_search"] == list(off.tools)
 
 
 def test_the_environment_variable_switches_the_flag_and_follows_the_qdrant_url() -> None:
-    assert app_module.series_rag_overrides({}) == {} and app_module.series_rag_overrides({"SERIES_RAG_ENABLED": "0"}) == {}
+    """FASE 24: ON by default. Unset leaves it, an explicit false switches it off, the Qdrant URL is followed also with the default."""
+    assert app_module.series_rag_overrides({}) == {} and app_module.series_rag_overrides({"SERIES_RAG_ENABLED": "0"}) == {"series_rag": {"enabled": False}}
     assert app_module.series_rag_overrides({"SERIES_RAG_ENABLED": " on "}) == {"series_rag": {"enabled": True}}
     assert app_module.series_rag_overrides({"SERIES_RAG_ENABLED": "1", "VECTORSTORE_QDRANT_URL": "http://h:1"}) == {"series_rag": {"enabled": True, "url": "http://h:1"}}
-    assert app_module.series_rag_overrides({"VECTORSTORE_QDRANT_URL": "http://h:1"}) == {}
+    assert app_module.series_rag_overrides({"VECTORSTORE_QDRANT_URL": "http://h:1"}) == {"series_rag": {"url": "http://h:1"}}
+    assert app_module.series_rag_overrides({"SERIES_RAG_ENABLED": "off", "VECTORSTORE_QDRANT_URL": "http://h:1"}) == {"series_rag": {"enabled": False}}
 
 
 def test_a_flag_on_start_stops_with_the_way_back_when_qdrant_or_the_collection_is_missing() -> None:
@@ -114,11 +119,12 @@ def _prompt(orchestrator) -> str:
 
 def test_with_the_flag_off_the_planner_prompt_is_exactly_what_it_was_without_the_tool(monkeypatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", "test")
-    off = app_module.build_app()["orchestrator"]
-    without_rules = app_module.build_app({"orchestrator": {"tool_rules": {}}})["orchestrator"]
+    off_config = {**OFF_CINEMA, "series_rag": {"enabled": False}}
+    off = app_module.build_app(off_config)["orchestrator"]
+    without_rules = app_module.build_app({**off_config, "orchestrator": {"tool_rules": {}}})["orchestrator"]
     assert _prompt(off) == _prompt(without_rules)
     assert "series_rag_search" not in _prompt(off) and "1h)" not in _prompt(off)
-    on = _prompt(app_module.build_app({"series_rag": {"enabled": True}})["orchestrator"])
+    on = _prompt(app_module.build_app({**OFF_CINEMA, "series_rag": {"enabled": True}})["orchestrator"])
     assert "\n" + RULE in on and on.index(RULE) < on.index("Allowed tools:") and '"name":"series_rag_search"' in on
 
 
@@ -317,7 +323,8 @@ def test_the_documented_series_step_is_what_the_serializer_produces() -> None:
     documented = {k: json.loads(b) for k, b in re.findall(r"```json step=(\w+)\n(.*?)\n```", doc, re.S)}["series_index"]
     data = {"status": "ok", "reason": None, "level": "episode", "engine": "llm_reorder", "items": [
         {"n": 1, "level": "episode", "title": "Pilota", "label": "Alfa S1E1 – Pilota", "year": None, "url": "https://it.wikipedia.org/wiki/Pilota", "score": 0.4321}],
-        "notes": {"series_resolved": [{"record_id": "wp-1", "title": "Alfa", "year": 2000}]}, "signals": {}, "timings_ms": {"total": 2400}}
+        "notes": {"series_resolved": [{"record_id": "wp-1", "title": "Alfa", "year": 2000}]}, "signals": {}, "timings_ms": {"total": 2400},
+            "phases": {"wide": {"requested": 50, "n": 2, "items": [{"n": 1, "label": "Beta S1E2 – Altro", "year": None, "similarity": 0.51}, {"n": 2, "label": "Alfa S1E1 – Pilota", "year": None, "similarity": 0.43}]}, "rerank": {"engine": "llm", "requested": 40, "n": 2, "items": [{"n": 1, "label": "Alfa S1E1 – Pilota", "year": None, "rank_before": 2}, {"n": 2, "label": "Beta S1E2 – Altro", "year": None, "rank_before": 1}]}, "selection": {"requested": 1, "n": 1}}}
     assert serialize_series_rag_step(TraceStep(kind=STEP_SERIES_RAG, title="t", data=data), "it") == documented
     assert "calls" not in documented and "record_id" not in json.dumps(documented)
 
@@ -326,7 +333,7 @@ def test_the_documented_series_step_is_what_the_serializer_produces() -> None:
 def test_series_routing_cases_are_well_formed_and_the_default_cases_are_untouched() -> None:
     from movie_db.harness.evaluation.routing_cases import ROUTING_CASES, SERIES, SERIES_ROUTING_CASES
     from movie_db.harness.evaluation.run_routing_eval import check_series
-    assert len(ROUTING_CASES) == 77 and not any(c.expected_tool == SERIES for c in ROUTING_CASES)
+    assert len(ROUTING_CASES) == 69 and not any(c.expected_tool == SERIES for c in ROUTING_CASES)
     cases = [c for c in SERIES_ROUTING_CASES if c.expected_tool == SERIES]
     assert len(SERIES_ROUTING_CASES) == 24 and len(cases) == 11 and all(c.expected_series for c in cases)
     exp = cases[9].expected_series      # "Dammi 3 miniserie…": the number goes in k_final
@@ -334,3 +341,28 @@ def test_series_routing_cases_are_well_formed_and_the_default_cases_are_untouche
     assert "k_final" in check_series(exp, {"query": "Dammi 3 miniserie storiche"}, "Dammi 3 miniserie storiche")
     assert "query lacks" in check_series(cases[0].expected_series, {"query": "serie"}, "serie")
     assert check_series(cases[0].expected_series, "x", "x") == "arguments is not an object"
+
+
+# ---- K-wide cap and the three stages --------------------------------------------------------------------------------------------------
+def test_the_k_wide_is_capped_at_50_for_both_rags() -> None:
+    import pytest
+    from tool.rag.film.retrieval.adapter import settings_from
+    from tool.rag.series.config import load_series_rag_config
+    assert CONFIG["series_rag"]["pool"] <= 50 and CONFIG["rag"]["film_index"]["pool"] <= 50
+    assert settings_from({"film_index": {"pool": 300, "rerank": {"pool": 40}}}).pool == 50
+    with pytest.raises(Exception):
+        load_series_rag_config({**CONFIG["series_rag"], "pool": 300})
+    with pytest.raises(Exception):
+        load_series_rag_config({**CONFIG["series_rag"], "pool": 20, "rerank_pool": 40})
+
+
+def test_the_rerankers_use_sol_not_luna() -> None:
+    assert CONFIG["series_rag"]["rerank_model"] == "gpt-5.6-sol" and CONFIG["rag"]["film_index"]["rerank"]["model"] == "gpt-5.6-sol"
+
+
+def test_the_series_view_always_has_the_three_stages() -> None:
+    from presenters.series_view import series_view
+    data = {"status": "ok", "level": "series", "engine": "dense", "items": [{"n": 1, "title": "A", "label": "A", "level": "series", "year": 2000}], "notes": {},
+            "timings_ms": {"total": 5}}                                   # no `phases`: exact-title lookups and old steps still show three stages
+    view = series_view(TraceStep(kind=STEP_SERIES_RAG, title="t", data=data), "it")
+    assert [p.key for p in view.phases] == ["wide", "rerank", "selection"] and view.phases[2].total == 1

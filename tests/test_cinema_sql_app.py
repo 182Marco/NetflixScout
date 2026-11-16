@@ -1,7 +1,7 @@
 """Offline tests of the `cinema_sql` integration: the feature flag, the registration, the routing rule that exists only while the tool is on, the user settings, the fallback to the
 external tools and the turn through the orchestrator with the REAL tool on a miniature database.
 
-They check wiring and prompt *text*: they are not evidence of what the real planner chooses. That is measured by the live evaluation (docs/cinema_db/PHASE6_LIVE.md).
+They check wiring and prompt *text*: they are not evidence of what the real planner chooses. That is measured by the live evaluation.
 """
 from __future__ import annotations
 
@@ -70,28 +70,37 @@ def policy(**values) -> SettingsPolicy:
     return SettingsPolicy(resolve_preferences(values).preferences)
 
 
+OFF_BOTH = {"cinema_db": {"enabled": False}, "series_rag": {"enabled": False}}  # FASE 24: both systems are ON by default; these tests describe the configuration without them
+V2_FILE = {"cinema_db": {"enabled": True, "db_path": "cinema_db/data/cinema.sqlite3"}, "series_rag": {"enabled": False}}  # the schema-2 runtime file (the rules it always had)
+
+
 # ---- the feature flag and the registration ------------------------------------------------------------------------------------------
-def test_the_flag_is_off_by_default_and_the_config_has_exactly_the_documented_keys() -> None:
-    assert CONFIG["cinema_db"] == {"enabled": False, "db_path": "cinema_db/data/cinema.sqlite3", "max_queries_per_turn": 12, "default_limit": 25}
+def test_the_flag_is_on_by_default_with_the_candidate_6_file_and_the_config_has_exactly_the_documented_keys() -> None:
+    assert CONFIG["cinema_db"] == {"enabled": True, "db_path": "cinema_db/data/cinema.v4.candidate6.sqlite3", "max_queries_per_turn": 12, "default_limit": 25}
     assert "cinema_sql" in CONFIG["orchestrator"]["allowed_tools"] and "cinema_sql" in CONFIG["orchestrator"]["tool_final_instructions"]
 
 
 def test_off_the_tool_is_not_registered_and_on_it_is(monkeypatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", "test")
-    off = app_module.build_app()["orchestrator"]
-    on = app_module.build_app({"cinema_db": {"enabled": True}})["orchestrator"]
+    off = app_module.build_app(OFF_BOTH)["orchestrator"]
+    on = app_module.build_app(V2_FILE)["orchestrator"]
     assert "cinema_sql" not in off.tools and "cinema_sql" not in off._allowed_tool_names()
     assert "cinema_sql" in on.tools and on.tools["cinema_sql"].config.max_queries_per_turn == 12
     assert [t for t in on.tools if t != "cinema_sql"] == list(off.tools)  # every other tool is the same, in the same order
 
 
 def test_the_environment_variable_switches_the_flag_for_both_entry_points() -> None:
-    assert app_module.cinema_db_overrides({}) == {} and app_module.cinema_db_overrides({"CINEMA_DB_ENABLED": "0"}) == {}
+    """FASE 24: the default is ON, so unset leaves it alone, an explicit false switches it off, an explicit true is the same as the default."""
+    assert app_module.cinema_db_overrides({}) == {}
+    for value in ("0", "false", "NO", " off "):
+        assert app_module.cinema_db_overrides({"CINEMA_DB_ENABLED": value}) == {"cinema_db": {"enabled": False}}
     for value in ("1", "true", "YES", " on "):
         assert app_module.cinema_db_overrides({"CINEMA_DB_ENABLED": value}) == {"cinema_db": {"enabled": True}}
+    assert app_module.cinema_db_overrides({"CINEMA_DB_ENABLED": "maybe"}) == {}  # not a recognised value: the default applies
     on = {"CINEMA_DB_ENABLED": "1", "CINEMA_DB_PATH": " cinema_db/data/x.sqlite3 "}
     assert app_module.cinema_db_overrides(on) == {"cinema_db": {"enabled": True, "db_path": "cinema_db/data/x.sqlite3"}}
-    assert app_module.cinema_db_overrides({"CINEMA_DB_PATH": "x.sqlite3"}) == {}  # the path alone never switches the flag on
+    assert app_module.cinema_db_overrides({"CINEMA_DB_PATH": "x.sqlite3"}) == {"cinema_db": {"db_path": "x.sqlite3"}}  # the path alone chooses the file; the default keeps the flag on
+    assert app_module.cinema_db_overrides({"CINEMA_DB_ENABLED": "0", "CINEMA_DB_PATH": "x.sqlite3"}) == {"cinema_db": {"enabled": False}}  # explicitly off wins over a path
 
 
 def test_a_missing_database_with_the_flag_on_stops_the_start_with_the_command_to_build_it(tmp_path) -> None:
@@ -112,15 +121,15 @@ def _prompt(orchestrator) -> str:
 
 def test_with_the_flag_off_the_planner_prompt_is_exactly_what_it_was_without_the_tool(monkeypatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", "test")
-    off = app_module.build_app()["orchestrator"]
-    without_rules = app_module.build_app({"orchestrator": {"tool_rules": {}}})["orchestrator"]
+    off = app_module.build_app(OFF_BOTH)["orchestrator"]
+    without_rules = app_module.build_app({**OFF_BOTH, "orchestrator": {"tool_rules": {}}})["orchestrator"]
     assert _prompt(off) == _prompt(without_rules)
     assert "cinema_sql" not in _prompt(off) and "1g)" not in _prompt(off) and "cinema_sql" not in INSTRUCTIONS
 
 
 def test_with_the_flag_on_the_rule_follows_the_instructions_and_the_catalog_has_the_tool(monkeypatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", "test")
-    off, on = (_prompt(app_module.build_app(o)["orchestrator"]) for o in ({}, {"cinema_db": {"enabled": True}}))
+    off, on = (_prompt(app_module.build_app(o)["orchestrator"]) for o in (OFF_BOTH, V2_FILE))
     assert on.startswith(INSTRUCTIONS) and "\n" + RULE in on and on.index(RULE) < on.index("Allowed tools:")
     assert '"name":"cinema_sql"' in on and "operation" in on and "v_work(" in on
     assert on.replace("\n" + RULE, "").replace(", cinema_sql", "") .split("Tool catalog")[0] == off.split("Tool catalog")[0]  # the rule is the only change before the catalog

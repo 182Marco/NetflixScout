@@ -1,6 +1,6 @@
 """The text written for the user never names a source or provider (TMDb, OMDb, IMDb as a source, MovieLens,
 Wikipedia, YouTube, the RAG...): the interface shows where the data comes from (presenters). Regression of the
-live check of 2026-10-28 (docs/omdb_routing_live_report.md, case 8: «ordered by TMDb audience rating»).
+live check of 2026-10-28 (case 8: «ordered by TMDb audience rating»).
 
 These tests read the prompts: they show the instructions no longer ask for, or model, a provider name; what the
 model really writes is only observed live."""

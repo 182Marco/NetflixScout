@@ -1,7 +1,7 @@
 """Web output channel: the JSON-ready form of a `TurnResult` for the FastAPI response.
 
 Same content as the terminal, in another format. Both read the same shared views
-(`presenters/story_view.py`, `rag_view.py`, `db_view.py`, `api_view.py`, `youtube_view.py`, `wikipedia_view.py`, `omdb_view.py`, `tvmaze_view.py`, `wikidata_view.py`, `cinema_view.py`),
+(`presenters/story_view.py`, `rag_view.py`, `api_view.py`, `youtube_view.py`, `wikipedia_view.py`, `omdb_view.py`, `tvmaze_view.py`, `wikidata_view.py`, `cinema_view.py`),
 so the story, the steps and their data are the same; the web has no emoji and no `═` titles,
 the frontend picks icons from `story[].level`.
 
@@ -40,7 +40,6 @@ from collections.abc import Callable
 from typing import Any
 
 from turn import (
-    STEP_DB_QUERY,
     STEP_RERANK,
     STEP_RETRIEVAL,
     STEP_SELECTION,
@@ -58,7 +57,6 @@ from turn import (
 
 from ..story_view import STORY_STEP_KINDS, build_story
 from .api import serialize_tmdb_calls_step
-from .db import serialize_db_query_step
 from .rag import serialize_rag_step
 from .omdb import serialize_omdb_calls_step
 from .tvmaze import serialize_tvmaze_calls_step
@@ -75,7 +73,6 @@ STEP_SERIALIZERS: dict[str, Serializer] = {
     STEP_RETRIEVAL: serialize_rag_step,
     STEP_RERANK: serialize_rag_step,
     STEP_SELECTION: serialize_rag_step,
-    STEP_DB_QUERY: serialize_db_query_step,
     STEP_TMDB_CALLS: serialize_tmdb_calls_step,
     STEP_YOUTUBE_CALLS: serialize_youtube_calls_step,
     STEP_OMDB_CALLS: serialize_omdb_calls_step,

@@ -19,7 +19,6 @@ def policy(**values) -> SettingsPolicy:
 def test_series_forbids_the_film_tools_and_film_operations():
     p = policy(content_type="series")
     assert p.check_step("rag_search", {"query": "x"}).arguments is None
-    assert p.check_step("movie_db_search", {"query": "x"}).arguments is None
     assert p.check_step("tvmaze_search", {"title": "x"}).arguments == {"title": "x"}
     only_film = {"requests": [{"operation": "discover_movies"}, {"operation": "search", "kind": "movie", "search_query": "x"}]}
     assert p.check_step("tmdb_search", only_film).arguments is None
@@ -38,7 +37,7 @@ def test_film_forbids_the_series_tools_and_operations():
 
 def test_both_forbids_nothing():
     p = policy(content_type="both")
-    for tool in ("rag_search", "tvmaze_search", "movie_db_search"):
+    for tool in ("rag_search", "tvmaze_search"):
         assert p.check_step(tool, {"a": 1}).arguments == {"a": 1}
 
 

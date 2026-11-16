@@ -164,11 +164,11 @@ class _Planner:
 
 
 def _run(case, plan: dict):
-    from movie_db.harness.evaluation.routing_cases import DB, RAG, YOUTUBE
+    from movie_db.harness.evaluation.routing_cases import RAG, YOUTUBE
     from movie_db.harness.evaluation.run_routing_eval import RecordingClient, run_routing_cases
     from orchestrator import LLMOrchestrator
 
-    tools = [RAG, DB, TMDB, YOUTUBE, WIKIPEDIA]
+    tools = [RAG, "cinema_sql", TMDB, YOUTUBE, WIKIPEDIA]
     orch = LLMOrchestrator(
         config={"orchestrator": {"fallback_tool": RAG, "tool_confidence_threshold": 0.6, "allowed_tools": tools}},
         tools=[_Tool(name) for name in tools],

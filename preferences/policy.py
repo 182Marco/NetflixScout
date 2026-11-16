@@ -20,7 +20,6 @@ TMDB_SERIES_OPERATIONS = frozenset({"tv_details", "tv_season", "tv_episode", "di
 # Tools that cover only one kind of work, or cannot tell them apart and cannot serve the other one.
 FILM_ONLY_TOOLS = frozenset({"rag_search"})
 SERIES_ONLY_TOOLS = frozenset({"tvmaze_search", "series_rag_search"})
-UNSAFE_FOR_SERIES = frozenset({"movie_db_search"})   # MovieLens rankings mix films and series and cannot be asked for series only
 
 # cinema_sql operations that resolve a work by title and honour its `type` (film, series); `series` is series-only.
 CINEMA_WORK_OPERATIONS = frozenset({"find_work", "work_card", "cast", "crew", "relations", "companies", "franchise", "filmography", "awards"})
@@ -102,7 +101,7 @@ class SettingsPolicy:
         if content == "both":
             return StepVerdict(dict(arguments))
         forbidden_kind = "film" if content == "series" else "series"
-        if tool in (FILM_ONLY_TOOLS | UNSAFE_FOR_SERIES) and content == "series":
+        if tool in FILM_ONLY_TOOLS and content == "series":
             return StepVerdict(None, "content_type")
         if tool in SERIES_ONLY_TOOLS and content == "film":
             return StepVerdict(None, "content_type")

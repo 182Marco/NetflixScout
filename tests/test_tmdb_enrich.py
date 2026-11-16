@@ -231,7 +231,7 @@ def test_orchestrator_passes_the_verified_metadata_to_the_final_answer() -> None
     assert decision["result"]["chunks"] == rag_result["chunks"]
 
 
-@pytest.mark.parametrize("tool_name", ["tmdb_search", "movie_db_search"])
+@pytest.mark.parametrize("tool_name", ["tmdb_search", "cinema_sql"])
 def test_enrichment_runs_only_after_rag(tool_name) -> None:
     calls = []
 

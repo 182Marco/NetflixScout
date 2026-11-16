@@ -33,7 +33,7 @@ def files(tmp_path_factory):
 
 def planner_prompt(monkeypatch, files, cinema=None, series=False):
     monkeypatch.setenv("OPENAI_API_KEY", "test")
-    overrides = {"series_rag": {"enabled": series}}
+    overrides = {"series_rag": {"enabled": series}, "cinema_db": {"enabled": False}}  # FASE 24: on by default, so "off" is explicit here
     if cinema:
         overrides["cinema_db"] = {"enabled": True, "db_path": str(files[cinema])}
     built = app_module.build_app(overrides)
@@ -50,11 +50,11 @@ def test_every_flag_combination_registers_the_right_tools_and_rules(monkeypatch,
     assert ("1h) series_rag_search" in prompt) is series
     if cinema == "v4":
         # MovieLens is inside the database: the old tool is neither registered nor named anywhere the planner reads
-        assert "movie_db_search" not in tools and "movie_db_search" not in prompt and config["movie_db"]["enabled"] is False
-        assert V4.CINEMA_SQL_V4_RULE in prompt and V4.RULE_2_V4 in prompt and OLD_RULE_START not in prompt and "Copertura temporale" not in prompt
+        assert "movie_db_search" not in tools and "movie_db_search" not in prompt
+        assert V4.CINEMA_SQL_V4_RULE in prompt and OLD_RULE_START not in prompt and "Copertura temporale" not in prompt
         assert "operation movielens" in prompt and '"name":"cinema_sql"' in prompt and "ml_mode" in prompt
     else:
-        assert "movie_db_search" in tools and V4.RULE_2_OLD in prompt and V4.CINEMA_SQL_V4_RULE not in prompt and "Copertura temporale" in prompt
+        assert "movie_db_search" not in tools and "movie_db_search" not in prompt and V4.CINEMA_SQL_V4_RULE not in prompt and "Copertura temporale" not in prompt
         assert (OLD_RULE_START in prompt) is bool(cinema)
         assert ("[Archivio con valutazioni" in prompt) is (cinema == "v3")
 
@@ -62,11 +62,6 @@ def test_every_flag_combination_registers_the_right_tools_and_rules(monkeypatch,
 def test_with_every_flag_off_the_prompt_is_the_one_the_planner_always_had(monkeypatch, files):
     prompt, _, config = planner_prompt(monkeypatch, files)
     assert prompt.startswith(CFG["instructions"]) and "cinema_sql" not in prompt and config["rag"]["film_index"].get("expose_imdb_id") is None
-
-
-def test_rule_2_and_rule_3_patches_match_the_text_in_app_py():
-    for old in (V4.RULE_2_OLD, V4.RULE_3_OLD):
-        assert CFG["instructions"].count(old) == 1
 
 
 def test_the_rule_names_exactly_the_tool_operations_and_genres(files):

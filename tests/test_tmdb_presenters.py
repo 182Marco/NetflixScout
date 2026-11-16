@@ -123,7 +123,7 @@ def test_presenters_live_only_in_the_root_folder_split_by_channel_and_tool() -> 
     ]
     assert not stray
     for channel in ("terminal", "web"):
-        for tool in ("rag", "db", "api", "youtube"):
+        for tool in ("rag", "api", "youtube"):
             assert (ROOT / "presenters" / channel / tool / "__init__.py").is_file(), (channel, tool)
 
 

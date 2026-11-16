@@ -55,7 +55,7 @@ def test_routing_rules_are_prioritized_by_need() -> None:
     assert all(topic in tmdb for topic in ("chi ha diretto", "cast", "durata", "streaming", "ambiguo"))
     # Real eval: with "let TMDb results disambiguate" the planner used `search` (no credits).
     assert "usa movie_details o tv_details con il titolo" in tmdb and "search solo quando" in tmdb
-    assert db.startswith("2) movie_db_search") and all(topic in db for topic in ("voti", "classifiche", "confronti"))
+    assert db.startswith("2) Voti e classifiche") and all(topic in db for topic in ("voti", "classifiche"))
     assert rag.startswith("3) rag_search") and all(topic in rag for topic in ("trama", "temi", "emozioni"))
     # The film index: a title, a person or a year are references or filters, never a reason to leave the RAG (owner's decision, 2026-11-05).
     assert "NON escludono rag_search" in rag and "'film come X'" in rag and "sostituisce le facet" in rag
@@ -128,7 +128,7 @@ def test_build_app_registers_the_rag_enricher_on_the_same_tmdb_tool(monkeypatch)
     enricher = enabled.enrichers["rag_search"]
     assert isinstance(enricher, TmdbRagEnricher) and enricher.tool is enabled.tools[TMDB_TOOL_NAME]
     assert enricher.max_candidates == app_module.CONFIG["orchestrator"]["rag_enrichment"]["max_candidates"]
-    assert set(enabled.enrichers) == {"rag_search"}
+    assert set(enabled.enrichers) - {"series_rag_search"} == {"rag_search"}
     assert disabled.enrichers == {}
 
 

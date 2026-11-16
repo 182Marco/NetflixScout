@@ -74,7 +74,6 @@ TEXT = {
 TOOLS = {
     "it": {
         "rag_search": ("tra le trame dei film", "Trame"),
-        "movie_db_search": ("nei voti e nelle classifiche MovieLens", "Voti"),
         "tmdb_search": ("su TMDb", "TMDb"),
         "youtube_search": ("su YouTube", "YouTube"),
         "wikipedia_search": ("su Wikipedia", "Wikipedia"),
@@ -86,7 +85,6 @@ TOOLS = {
     },
     "en": {
         "rag_search": ("among the movie plots", "Plots"),
-        "movie_db_search": ("in the MovieLens ratings and charts", "Ratings"),
         "tmdb_search": ("on TMDb", "TMDb"),
         "youtube_search": ("on YouTube", "YouTube"),
         "wikipedia_search": ("on Wikipedia", "Wikipedia"),
@@ -98,7 +96,6 @@ TOOLS = {
     },
     "de": {
         "rag_search": ("in den Filmhandlungen", "Handlungen"),
-        "movie_db_search": ("in den MovieLens-Bewertungen und Ranglisten", "Bewertungen"),
         "tmdb_search": ("auf TMDb", "TMDb"),
         "youtube_search": ("auf YouTube", "YouTube"),
         "wikipedia_search": ("auf Wikipedia", "Wikipedia"),

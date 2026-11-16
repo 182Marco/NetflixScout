@@ -223,7 +223,7 @@ def test_the_tool_is_meant_for_the_official_information_setting_and_carries_no_r
         assert not [k for k in keys if any(word in k for word in forbidden)], (arguments, keys)
 
 
-# ---- defects found by the live evaluation (docs/cinema_db/PHASE6_LIVE.md) -------------------------------------------------------------------
+# ---- defects found by the live evaluation -------------------------------------------------------------------
 def test_an_award_name_narrows_the_awards_of_a_work_or_a_person_instead_of_being_refused(tool):
     """The planner writes {title, award: 'Oscar', outcome: 'won'} for «how many Oscars did X win»: that is one request, not two targets."""
     _, narrowed = call(tool, operation="awards", title="Film di prova", award="regia")

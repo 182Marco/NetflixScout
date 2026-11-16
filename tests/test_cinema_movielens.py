@@ -15,7 +15,6 @@ from tool.cinema_db.config import CinemaDbConfig
 from tool.cinema_db.constants import ML_GENRES
 from tool.cinema_db.tool import CinemaSqlTool, planner_schema
 from tool.cinema_db.versions import schema_version_of
-from tool.movie_db import titles as old_titles
 
 
 def make(path, movielens=True):
@@ -40,10 +39,12 @@ def test_the_policy_follows_the_file_and_schema_3_is_untouched(tool, tmp_path):
     assert body["status"] == "empty" and body["reason"] == "not_in_this_database"
 
 
-def test_vocabularies_equal_the_old_tool():
+def test_vocabularies_and_title_forms():
     assert tuple(GENRES) == ML_GENRES
-    for title in ("Matrix, The", "The Matrix", "Kingdom II, The (Riget II)", "Cité, La (La Cité)", "Heat", "L'avventura"):
-        assert ml_titles.normalize_title(title) == old_titles.normalize_title(title) and ml_titles.stored_form(title) == old_titles.stored_form(title)
+    expected = {"Matrix, The": ("The Matrix", None), "The Matrix": ("The Matrix", "Matrix, The"), "Kingdom II, The (Riget II)": ("The Kingdom II (Riget II)", None),
+                "Cité, La (La Cité)": ("La Cité (La Cité)", None), "Heat": ("Heat", None), "L'avventura": ("L'avventura", "avventura, L'")}
+    for title, (normal, stored) in expected.items():
+        assert ml_titles.normalize_title(title) == normal and ml_titles.stored_form(title) == stored
     assert normalize_tag("  Time   Travel ") == " ".join("  Time   Travel ".split()).casefold()
 
 

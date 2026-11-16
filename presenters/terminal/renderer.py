@@ -10,7 +10,6 @@ from collections.abc import Callable
 
 from turn import (
     STEP_CLASSIFICATION,
-    STEP_DB_QUERY,
     STEP_RERANK,
     STEP_RETRIEVAL,
     STEP_SELECTION,
@@ -38,7 +37,6 @@ from .blocks import (
     print_generic_step,
     print_story_line,
 )
-from .db import render_db_query
 from .rag import render_rerank, render_retrieval, render_selection
 from .wikipedia import render_wikipedia_calls
 from .omdb import render_omdb_calls
@@ -57,7 +55,6 @@ STEP_RENDERERS: dict[str, StepRenderer] = {
     STEP_RETRIEVAL: render_retrieval,
     STEP_RERANK: render_rerank,
     STEP_SELECTION: render_selection,
-    STEP_DB_QUERY: render_db_query,
     STEP_TMDB_CALLS: render_tmdb_calls,
     STEP_YOUTUBE_CALLS: render_youtube_calls,
     STEP_OMDB_CALLS: render_omdb_calls,

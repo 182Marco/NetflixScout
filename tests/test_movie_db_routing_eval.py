@@ -5,7 +5,6 @@ import json
 import pytest
 
 from movie_db.harness.evaluation.routing_cases import (
-    DB,
     RAG,
     ROUTING_CASES,
     TMDB,
@@ -47,6 +46,9 @@ class ScriptedClient:
         if isinstance(output, Exception):
             raise output
         return type("Response", (), {"output_text": output})()
+
+
+DB = "cinema_sql"  # a stand-in tool name for the harness mechanics
 
 
 def _run(cases, outputs):
@@ -111,7 +113,9 @@ def test_silent_fallbacks_are_detected_and_fail() -> None:
 def test_follow_up_requires_the_rewritten_query() -> None:
     case = next(c for c in ROUTING_CASES if c.history)
 
-    good, bad = _run((case, case), [_plan(DB, standalone="Film horror più votati anni '90"), _plan(DB, standalone="E degli anni '90?")])
+    tool = case.expected_tool
+    wiki = {"topic": "sea inside", "kind": "film", "year": 2004, "depth": "sections"}
+    good, bad = _run((case, case), [_plan(tool, standalone="Plot of The Sea Inside in English", arguments=wiki), _plan(tool, standalone="Could you get in english the plot?", arguments=wiki)])
 
     assert good.passed
     assert not bad.passed
@@ -120,11 +124,11 @@ def test_follow_up_requires_the_rewritten_query() -> None:
 def test_cases_cover_every_tool_and_follow_ups() -> None:
     tools = [case.expected_tool for case in ROUTING_CASES]
 
-    assert tools.count(DB) >= 5 and tools.count(RAG) >= 5 and tools.count(TMDB) >= 10
+    assert tools.count(RAG) >= 5 and tools.count(TMDB) >= 10
     assert tools.count(YOUTUBE) == 7
     assert any(case.history and case.expected_tool == TMDB for case in ROUTING_CASES)
     assert any(case.history and case.expected_tool == YOUTUBE for case in ROUTING_CASES)
-    assert len(ROUTING_CASES) == 77  # 72 before the film index (5 RAG cases with exclusions, people and years; the 2 reference-title cases moved from TMDb to the RAG); 67 before the Wikidata cases (4 for it, 1 boundary that stays on TMDb); 60 before the TVmaze cases (4 for it, 3 boundaries that stay on TMDb)
+    assert len(ROUTING_CASES) == 69  # 72 before the film index (5 RAG cases with exclusions, people and years; the 2 reference-title cases moved from TMDb to the RAG); 67 before the Wikidata cases (4 for it, 1 boundary that stays on TMDb); 60 before the TVmaze cases (4 for it, 3 boundaries that stay on TMDb)
 
 
 def test_every_tmdb_case_has_a_valid_request_expectation() -> None:

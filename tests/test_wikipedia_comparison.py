@@ -14,7 +14,7 @@ from orchestrator import LLMOrchestrator
 from turn import TOOL_PARAM_TURN_ID
 
 INSTRUCTIONS = app_module.CONFIG["orchestrator"]["instructions"]
-RULE = INSTRUCTIONS[INSTRUCTIONS.index("1c) ") : INSTRUCTIONS.index("2) movie_db_search")]
+RULE = INSTRUCTIONS[INSTRUCTIONS.index("1c) ") : INSTRUCTIONS.index("2) Voti e classifiche")]
 
 FILM_TEXT = "Blade Runner is a 1982 film.\n\n== Plot ==\nDeckard hunts replicants.\n\n== Pre-production ==\nThe script dropped religion."
 NOVEL_TEXT = "Do Androids Dream of Electric Sheep? is a 1968 novel.\n\n== Plot ==\nDeckard owns an electric sheep.\n\n== Themes ==\nEmpathy and religion (Mercerism)."

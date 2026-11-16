@@ -65,8 +65,8 @@ def test_it_is_registered_allowed_and_in_the_planner_catalog(monkeypatch) -> Non
 
 
 def test_rule_1e_sits_after_1d_and_before_movie_db_and_leaves_the_others_alone() -> None:
-    assert INSTRUCTIONS.index("1d) omdb_search") < INSTRUCTIONS.index("1e) tvmaze_search") < INSTRUCTIONS.index("2) movie_db_search")
-    assert _rule("1d", "1e").startswith("1d) omdb_search") and _rule("2", "3").startswith("2) movie_db_search")
+    assert INSTRUCTIONS.index("1d) omdb_search") < INSTRUCTIONS.index("1e) tvmaze_search") < INSTRUCTIONS.index("2) Voti e classifiche")
+    assert _rule("1d", "1e").startswith("1d) omdb_search") and _rule("2", "3").startswith("2) Voti e classifiche")
     assert "tvmaze" not in _rule("3", "4") and "tvmaze" not in _rule("1c", "1d")
 
 

@@ -35,9 +35,8 @@ STEPS = [
     TraceStep(kind="retrieval", title="x", data={"embedded_text": "robots", "signals": {"genres": ["Sci-Fi"]}, "chunks": [CHUNK]}),
     TraceStep(kind="rerank", title="x", data={"chunks": [CHUNK]}),
     TraceStep(kind="selection", title="x", data={"chunks": [CHUNK]}),
-    TraceStep(kind="tool_selection", title="x", data={"tool": "movie_db_search", "purpose": "voti"}),
-    TraceStep(kind="tool_outcome", title="x", data={"tool": "movie_db_search", "status": "error", "reason": "unsupported_request", "elapsed_ms": 100}),
-    TraceStep(kind="db_query", title="Database", data={"queries": [{"sql": "SELECT ? ", "params": [1]}]}),
+    TraceStep(kind="tool_selection", title="x", data={"tool": "wikipedia_search", "purpose": "voti"}),
+    TraceStep(kind="tool_outcome", title="x", data={"tool": "wikipedia_search", "status": "error", "reason": "unsupported_request", "elapsed_ms": 100}),
     TraceStep(kind="tmdb_calls", title="TMDb", data={"calls": ["https://api.themoviedb.org/3/movie/1?api_key=***"], "attributions": ["justwatch"]}),
     YOUTUBE_STEP,
     TraceStep(kind="planning", title="x", data={"fallbacks": ["answer_failed"], "pending": []}),
@@ -90,10 +89,9 @@ def test_the_web_payload_has_no_terminal_decoration(language) -> None:
 def test_every_step_has_its_web_form_with_the_data_the_terminal_shows() -> None:
     steps = {step["kind"]: step for step in to_payload(_turn())["steps"]}
 
-    assert set(steps) == {"retrieval", "rerank", "selection", "db_query", "tmdb_calls", "youtube_calls"}
+    assert set(steps) == {"retrieval", "rerank", "selection", "tmdb_calls", "youtube_calls"}
     assert steps["retrieval"]["embedded_text"] == "robots" and steps["retrieval"]["chunks"][0]["title"] == "Matrix"
     assert steps["rerank"]["chunks"][0]["year"] == "1999"
-    assert steps["db_query"]["queries"][0]["display_sql"] == "SELECT 1 "
     assert steps["tmdb_calls"]["attributions"][0]["source"] == "JustWatch"
     video = steps["youtube_calls"]["groups"][0]["confirmed"][0]
     assert video["url"] == "https://www.youtube.com/watch?v=abcdefghijk" and video["channel"] == "Canale"

@@ -65,10 +65,10 @@ def test_it_is_registered_allowed_and_in_the_planner_catalog(monkeypatch) -> Non
 
 
 def test_rule_1f_sits_after_1e_and_before_movie_db_and_leaves_the_others_alone() -> None:
-    assert INSTRUCTIONS.index("1e) tvmaze_search") < INSTRUCTIONS.index("1f) wikidata_search") < INSTRUCTIONS.index("2) movie_db_search")
-    assert _rule("1e", "1f").startswith("1e) tvmaze_search") and _rule("2", "3").startswith("2) movie_db_search")
+    assert INSTRUCTIONS.index("1e) tvmaze_search") < INSTRUCTIONS.index("1f) wikidata_search") < INSTRUCTIONS.index("2) Voti e classifiche")
+    assert _rule("1e", "1f").startswith("1e) tvmaze_search") and _rule("2", "3").startswith("2) Voti e classifiche")
     before_1f = INSTRUCTIONS[: INSTRUCTIONS.index("1f) wikidata_search")]
-    after_1f = INSTRUCTIONS[INSTRUCTIONS.index("2) movie_db_search") :]
+    after_1f = INSTRUCTIONS[INSTRUCTIONS.index("2) Voti e classifiche") :]
     assert "wikidata" not in before_1f and "wikidata" not in after_1f
 
 

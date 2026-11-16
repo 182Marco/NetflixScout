@@ -74,7 +74,7 @@ def test_the_planner_text_routes_each_kind_of_request_and_only_with_a_v3_file(to
     v2_path = create_database(tmp_path / "v2.sqlite3")
     v2 = app_module.build_app({"cinema_db": {"enabled": True, "db_path": str(v2_path)}})["config"]["orchestrator"]["tool_rules"]["cinema_sql"]
     assert v2 == app_module.CINEMA_SQL_ROUTING_RULE and v3.startswith(v2) and v3 != v2  # v2 prompt untouched; v3 only adds
-    for fragment in ("PRIMA ratings", "Metascore, Rotten Tomatoes", "omdb_search (1d)", "movie_db_search (2)", "billing_order", "rule_based", "provenance", "UN passo esterno", "sono la prima fonte per un titolo (ratings)", "mai operation sql su v_work_rating", "anche quando l'utente dice «dagli utenti»"):
+    for fragment in ("PRIMA ratings", "Metascore, Rotten Tomatoes", "omdb_search (1d)", "vanno alla 1g", "billing_order", "rule_based", "provenance", "UN passo esterno", "sono la prima fonte per un titolo (ratings)", "mai operation sql su v_work_rating", "anche quando l'utente dice «dagli utenti»"):
         assert fragment in v3 and fragment not in v2
     assert "tmdb_search" in v2 and "novità" in v2  # dynamic data (releases, latest films) stays with the online tool in the base rule
     assert "ratings" not in v2 and "identity_level" not in v2
@@ -84,8 +84,8 @@ def test_the_user_ratings_preference_reaches_ratings_and_the_other_sources_keep_
     assert behavior.source_for("cinema_sql", "ratings") == "user ratings"
     for operation in ("find_work", "cast", "awards", "provenance", None):
         assert behavior.source_for("cinema_sql", operation) == "official information"
-    assert behavior.source_for("omdb_search", "anything") == "reviews" and behavior.source_for("movie_db_search") == "user ratings" and behavior.source_for("unknown") is None
-    assert set(behavior.SOURCE_TOOL_OPERATIONS["cinema_sql"].values()) <= set(behavior.SOURCE_TOOLS.values())
+    assert behavior.source_for("omdb_search", "anything") == "reviews" and behavior.source_for("unknown") is None
+    assert set(behavior.SOURCE_TOOL_OPERATIONS["cinema_sql"].values()) <= set(behavior.SOURCE_TOOLS.values()) | {"user ratings"}
 
 
 def test_with_user_ratings_set_the_planner_gets_both_the_preference_and_the_v3_rule(tool):
@@ -106,11 +106,11 @@ def test_activation_and_rollback_need_only_the_two_variables_and_the_start_check
     import sqlite3
     from cinema_v3_support import build_v3
 
-    assert app_module.CONFIG["cinema_db"]["enabled"] is False and app_module.CONFIG["cinema_db"]["db_path"] == "cinema_db/data/cinema.sqlite3"
+    assert app_module.CONFIG["cinema_db"]["enabled"] is True and app_module.CONFIG["cinema_db"]["db_path"] == "cinema_db/data/cinema.v4.candidate6.sqlite3"  # FASE 24
     env = {"CINEMA_DB_ENABLED": "1", "CINEMA_DB_PATH": str(tool.db_path)}
     cfg = app_module.build_runtime_config(app_module.cinema_db_overrides(env))["cinema_db"]
     app_module.ensure_cinema_db_ready(cfg)  # a valid v3 file passes the probe
-    assert app_module.build_runtime_config(app_module.cinema_db_overrides({}))["cinema_db"]["enabled"] is False  # unsetting the variables is the rollback
+    assert app_module.build_runtime_config(app_module.cinema_db_overrides({"CINEMA_DB_ENABLED": "0"}))["cinema_db"]["enabled"] is False  # CINEMA_DB_ENABLED=0 is the rollback
     broken = build_v3(tmp_path / "broken.sqlite3")
     conn = sqlite3.connect(broken)
     conn.execute("DROP VIEW v_work_status")

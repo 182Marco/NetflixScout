@@ -67,7 +67,7 @@ def test_the_rag_enricher_and_the_fallback_are_unchanged(monkeypatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", "test")
     orchestrator = app_module.build_app()["orchestrator"]
 
-    assert set(orchestrator.enrichers) == {"rag_search"}
+    assert set(orchestrator.enrichers) - {"series_rag_search"} == {"rag_search"}
     assert app_module.CONFIG["orchestrator"]["fallback_tool"] == "rag_search"
 
 
@@ -75,7 +75,7 @@ def test_the_rag_enricher_and_the_fallback_are_unchanged(monkeypatch) -> None:
 
 
 def test_rule_1b_sits_between_tmdb_and_movie_db() -> None:
-    assert INSTRUCTIONS.index("1) tmdb_search") < INSTRUCTIONS.index("1b) youtube_search") < INSTRUCTIONS.index("2) movie_db_search")
+    assert INSTRUCTIONS.index("1) tmdb_search") < INSTRUCTIONS.index("1b) youtube_search") < INSTRUCTIONS.index("2) Voti e classifiche")
 
 
 def test_rule_1b_names_the_video_kinds_and_keeps_trailers_on_tmdb() -> None:

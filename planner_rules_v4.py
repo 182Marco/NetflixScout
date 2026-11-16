@@ -1,24 +1,9 @@
-"""Planner rules for the integrated architecture: used ONLY when `cinema_sql` runs on a schema-4 file (MovieLens inside the database).
+"""Planner rules of the integrated architecture: `cinema_sql` on a schema-4 file (MovieLens inside the database).
 
-With any other configuration `app.py` keeps the rules it always had (rule 1g + the v3 addendum, rule 2 for `movie_db_search`), so a disabled flag changes nothing.
-In schema-4 mode `build_app` (a) does not register `movie_db_search`, (b) replaces rule 2, (c) replaces rule 1g and its v3 addendum by `CINEMA_SQL_V4_RULE`, which is the
-same content organised by capability and with the MovieLens operations, and (d) corrects the one mention of `movie_db_search` in rule 3. Pure text: no imports.
+In schema-4 mode `build_app` replaces rule 1g (and its v3 addendum) by `CINEMA_SQL_V4_RULE`, organised by capability and with the MovieLens operations, and adds the
+MovieLens list instructions to the final-answer rules of cinema_sql. Pure text: no imports.
 """
 from __future__ import annotations
-
-# Rule 2 as written in app.py (replaced verbatim; a test fails if app.py changes and this no longer matches).
-RULE_2_OLD = (
-    "2) movie_db_search è il punto di partenza per voti, valutazioni, classifiche, numero di "
-    "voti, confronti basati sui punteggi, film per genere e anno ordinati per voto e tag "
-    "degli utenti di MovieLens. MovieLens contiene solo voti e tag degli utenti: nessun "
-    "attore, regista o cast, nessun giudizio della critica, nessun filtro per persona. "
-)
-RULE_2_V4 = (
-    "2) Voti e classifiche degli utenti (MovieLens) sono dentro cinema_sql: vedi 1g (operation movielens, e ratings per UN titolo). MovieLens contiene solo voti e tag degli utenti: "
-    "nessun attore, regista o cast, nessun giudizio della critica, nessun filtro per persona. "
-)
-RULE_3_OLD = "(similar, recommendations, discover, movie_db_search; non rag_search, che li ha già)"
-RULE_3_V4 = "(similar, recommendations, discover, cinema_sql movielens; non rag_search, che li ha già)"
 
 # Only the genres MovieLens uses (the tool validates them): listed in the rule because the planner must write one of them.
 ML_GENRES_TEXT = "Action, Adventure, Animation, Children, Comedy, Crime, Documentary, Drama, Fantasy, Film-Noir, Horror, IMAX, Musical, Mystery, Romance, Sci-Fi, Thriller, War, Western"
@@ -34,7 +19,7 @@ CINEMA_SQL_V4_RULE = (
     "cinema_sql contiene. (A) Persone e crediti: filmografia di una persona e quanti film ha fatto (filmography, con role e type se la richiesta li dice); regia, sceneggiatura, musica, "
     "fotografia, montaggio e produzione di un film o di una serie (crew: con più ruoli nella stessa domanda lascia role vuoto); se un attore ha recitato in un film, l'elenco completo del cast "
     "e il cast di opere che TMDb non ha (cast: senza ordine di rilievo né personaggi sempre presenti; billing_order, quando c'è, dà l'ordine dei primi e allora basta); le opere in comune di due "
-    "persone e con chi una persona ha lavorato di più (collaborations). (B) Premi, candidature e vincitori di un'opera, di una persona o di una categoria (awards: un nome come «Oscar» si dà insieme al titolo o alla persona; "
+    "persone e con chi una persona ha lavorato di più (collaborations). (B) Premi, candidature e vincitori di un'opera, di una persona o di una categoria (awards: un nome come «Oscar» si dà insieme al titolo o alla persona; se l'utente nomina una categoria («miglior regista», «miglior attore») metti in award nome del premio e categoria insieme, es. «Oscar miglior regista», altrimenti arrivano tutte le categorie; "
     "per l'anno della cerimonia year_from e year_to). (C) Relazioni: da quale opera è tratto un titolo e cosa viene prima o dopo nella serie (relations), le opere di una saga (franchise), le società (companies). "
     "(D) Identificare e schedare: find_work e find_person (anno, regista, identificativi, omonimi), work_card (scrittori, musica, generi, paesi, società, importi). "
     "(E) Voti degli utenti. Per «che voto ha X», «quanti voti ha», «com'è valutato» su UN titolo: ratings con il titolo (voto del pubblico e numero di voti, due fonti ciascuna con la propria scala; precede la regola 2). "

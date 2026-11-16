@@ -23,9 +23,6 @@ TEXTS = {
         "tmdb_calls": "chiamate TMDb",
         "embedding_created": "embedding creato",
         "plot": "TESTO",
-        "db_executed": "QUERY ESEGUITE",
-        "db_none": "Nessuna query eseguita.",
-        "db_query": "QUERY",
     },
     "en": {
         "answer_title": "FINAL ANSWER FROM THE LLM",
@@ -42,9 +39,6 @@ TEXTS = {
         "tmdb_calls": "TMDb calls",
         "embedding_created": "embedding created",
         "plot": "PLOT",
-        "db_executed": "QUERIES RUN",
-        "db_none": "No query run.",
-        "db_query": "QUERY",
     },
     "de": {
         "answer_title": "ENDGÜLTIGE ANTWORT DES LLM",
@@ -61,9 +55,6 @@ TEXTS = {
         "tmdb_calls": "TMDb-Aufrufe",
         "embedding_created": "Embedding erstellt",
         "plot": "HANDLUNG",
-        "db_executed": "AUSGEFÜHRTE ABFRAGEN",
-        "db_none": "Keine Abfrage ausgeführt.",
-        "db_query": "ABFRAGE",
     },
 }
 

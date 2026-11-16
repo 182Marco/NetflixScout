@@ -31,14 +31,8 @@ SELECTION_TITLE = {
 }
 # Who ranked the pool, as shown in the title. A fallback says so: the LLM meant for "not like Y" failed.
 ENGINE_LABEL = {
-    "cohere": {"it": "Cohere", "en": "Cohere", "de": "Cohere"},
     "llm": {"it": "LLM", "en": "LLM", "de": "LLM"},
     "llm_request": {"it": "LLM", "en": "LLM", "de": "LLM"},
-    "cohere_fallback": {
-        "it": "Cohere, ripiego dopo l'errore dell'LLM",
-        "en": "Cohere, fallback after the LLM failed",
-        "de": "Cohere, Ersatz nach LLM-Fehler",
-    },
 }
 
 
@@ -75,7 +69,7 @@ class ReferenceView(BaseModel):
 class RagStepView(BaseModel):
     kind: str
     title: str
-    # Rerank step only: who ranked the pool (`cohere`, `llm`, `llm_request`, `cohere_fallback`).
+    # Rerank step only: who ranked the pool (`llm`, `llm_request`).
     engine: str | None = None
     embedded_text: str | None = None
     genres: list[str] = Field(default_factory=list)

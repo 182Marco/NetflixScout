@@ -58,12 +58,12 @@ def test_the_other_tools_and_the_fallback_are_unchanged(monkeypatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", "test")
     orchestrator = app_module.build_app()["orchestrator"]
 
-    assert set(orchestrator.enrichers) == {"rag_search"}
+    assert set(orchestrator.enrichers) - {"series_rag_search"} == {"rag_search"}
     assert app_module.CONFIG["orchestrator"]["fallback_tool"] == "rag_search"
 
 
 def test_rule_1c_sits_between_youtube_and_movie_db() -> None:
-    assert INSTRUCTIONS.index("1b) youtube_search") < INSTRUCTIONS.index("1c) wikipedia_search") < INSTRUCTIONS.index("2) movie_db_search")
+    assert INSTRUCTIONS.index("1b) youtube_search") < INSTRUCTIONS.index("1c) wikipedia_search") < INSTRUCTIONS.index("2) Voti e classifiche")
 
 
 def test_rule_1c_defines_the_boundaries_with_the_other_tools() -> None:

@@ -230,5 +230,3 @@ def test_a_step_without_calls_shows_none_and_the_non_http_steps_are_untouched(ca
     empty = TraceStep(kind=STEP_OMDB_CALLS, title="t", data={})
     assert STEP_SERIALIZERS[STEP_OMDB_CALLS](empty, "it")["calls"] == []
 
-    db = TraceStep(kind="db_query", title="DB", data={"queries": [{"sql": "SELECT 1", "params": []}]})
-    assert "calls" not in STEP_SERIALIZERS["db_query"](db, "it")

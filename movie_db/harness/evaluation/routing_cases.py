@@ -1,4 +1,4 @@
-"""Routing cases: does the orchestrator pick `movie_db_search`, `rag_search`, `tmdb_search`,
+"""Routing cases: does the orchestrator pick `rag_search`, `tmdb_search`,
 `youtube_search` or `wikipedia_search`?
 
 Each case runs only the domain classifier and the planning call (`_plan_turn`): no
@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-DB = "movie_db_search"
 RAG = "rag_search"
 TMDB = "tmdb_search"
 YOUTUBE = "youtube_search"
@@ -205,11 +204,6 @@ _PARK_CHAN_WOOK = (
 )
 
 ROUTING_CASES: tuple[RoutingCase, ...] = (
-    RoutingCase("Quali sono i 10 film più votati di sempre?", DB),
-    RoutingCase("Che voto medio ha Pulp Fiction?", DB),
-    RoutingCase("Classifica dei migliori thriller degli anni 2000", DB),
-    RoutingCase("Quali film hanno più spesso il tag 'time travel'?", DB),
-    RoutingCase("Qual è il genere con il voto medio più alto?", DB),
     RoutingCase("Consigliami un film su un robot che si innamora di un umano", RAG),
     # Information on a film named by its title starts from TMDb (routing rule 1).
     RoutingCase(
@@ -230,7 +224,6 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
         ),
     ),
     RoutingCase("Vorrei un film su un ex killer che cerca la redenzione in un paesino di montagna", RAG),
-    RoutingCase("E degli anni '90?", DB, history=_HORROR_80S, standalone_must_contain=("horror", "90")),
     # Follow-up in another language that acts on the film just suggested: once blocked as off-topic.
     # A detailed plot is encyclopedic (rule 1c, added after this case): Wikipedia; a short synopsis stays on TMDb.
     RoutingCase(
@@ -462,9 +455,7 @@ ROUTING_CASES: tuple[RoutingCase, ...] = (
         TMDB,
         expected_request=RequestExpectation("discover_movies"),
     ),
-    # Controls: inside the covered years the local sources stay the start.
-    RoutingCase("Qual è il film con il voto medio più alto del 2005?", DB),
-    RoutingCase("Quali sono i film più votati usciti nel 2021?", DB),
+    # Control: a recommendation by theme with a year stays with the film index.
     RoutingCase("Consigliami un film del 2008 su un robot che si innamora di un umano", RAG),
     # Encyclopedic information TMDb does not have (rule 1c): depth is the planner's first guess.
     RoutingCase(

@@ -1,5 +1,5 @@
 """FASE 21: which works each `cinema_sql` operation ranges over (the populations), and that the order of what it returns is deterministic. Real file, read only;
-skipped when the candidate is absent. The populations asserted here are the CURRENT ones, including the inconsistency documented in docs/cinema_db/PHASE21_POPULATIONS.md
+skipped when the candidate is absent. The populations asserted here are the CURRENT ones, including the documented inconsistency
 (genre statistics, tags and titles are not limited to films); if the owner decides otherwise, this file changes in the same step as the queries."""
 from __future__ import annotations
 

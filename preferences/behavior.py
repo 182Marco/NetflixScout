@@ -172,7 +172,6 @@ SOURCES_COMMON: Final = (
 # first (`tests/test_preferences.py` checks every allowed tool is listed).
 SOURCE_TOOLS: Final[dict[str, str]] = {
     "rag_search": "official information",
-    "movie_db_search": "user ratings",
     "tmdb_search": "official information",
     "wikipedia_search": "official information",
     "youtube_search": "interviews",
@@ -244,7 +243,7 @@ SOURCES_PLANNER: Final[dict[str, str]] = {
     ),
     "user ratings": (
         "Fonti preferite: voti degli utenti. Se la richiesta ammette sia voti MovieLens sia voti TMDb, "
-        "usa per primo il tool che la regola 2 già indica per i punteggi (movie_db_search); per un "
+        "usa per primo il tool che la regola 2 già indica per i punteggi; per un "
         "titolo identificato i voti arrivano già con tmdb_search."
     ),
 }

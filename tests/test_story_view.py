@@ -40,11 +40,11 @@ def test_the_language_comes_from_the_classification_step() -> None:
 
 
 def test_empty_and_failed_runs_are_warnings_in_plain_words() -> None:
-    lines = build_story([_outcome(status="empty", elapsed_ms=300), _outcome("movie_db_search", "error", "unsupported_request")])
+    lines = build_story([_outcome(status="empty", elapsed_ms=300), _outcome("wikipedia_search", "error", "unsupported_request")])
 
     assert [(line.level, line.text) for line in lines] == [
         ("warn", "TMDb: nessun risultato, meno di 1 s"),
-        ("warn", "Voti: questa richiesta non si può cercare qui, 2 s"),
+        ("warn", "Wikipedia: questa richiesta non si può cercare qui, 2 s"),
     ]
 
 

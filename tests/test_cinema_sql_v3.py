@@ -140,8 +140,8 @@ def test_the_planner_learns_the_v3_capabilities_only_with_a_v3_database(tool, tm
     v2 = create_database(tmp_path / "v2.sqlite3")
     app2 = app_module.build_app({"cinema_db": {"enabled": True, "db_path": str(v2)}})
     assert app2["config"]["orchestrator"]["tool_rules"]["cinema_sql"] == app_module.CINEMA_SQL_ROUTING_RULE
-    assert on["cinema_db"]["enabled"] is True and "cinema_sql" not in app_module.build_app({})["orchestrator"].tools  # flag off: not even registered
-    assert app_module.CONFIG["cinema_db"]["enabled"] is False and app_module.CONFIG["cinema_db"]["db_path"] == "cinema_db/data/cinema.sqlite3"  # the runtime default is untouched
+    assert on["cinema_db"]["enabled"] is True and "cinema_sql" not in app_module.build_app({"cinema_db": {"enabled": False}})["orchestrator"].tools  # flag off: not even registered
+    assert app_module.CONFIG["cinema_db"]["enabled"] is True and app_module.CONFIG["cinema_db"]["db_path"] == "cinema_db/data/cinema.v4.candidate6.sqlite3"  # FASE 24: the default is the candidate 6
 
 
 # ---- the turn through the orchestrator (fake planner and answer, the REAL tool on the miniature v3 database) --------------------------
