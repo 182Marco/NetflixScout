@@ -1,7 +1,7 @@
 """Verified copy of a Qdrant storage folder, to make before the catalog is ever switched on.
 
-    python docs/qdrant_migration/catalog/backup_storage.py backup --storage DIR --dest NEWDIR
-    python docs/qdrant_migration/catalog/backup_storage.py verify --storage DIR --dest DIR2
+    python scripts/backup_qdrant_storage.py backup --storage DIR --dest NEWDIR
+    python scripts/backup_qdrant_storage.py verify --storage DIR --dest DIR2
 
 TMDb films are not rebuildable from Chroma, so a copy is the only way back. Rules: the server must be
 stopped (a live storage is not a consistent copy: the script refuses when a lock/port is detected via
