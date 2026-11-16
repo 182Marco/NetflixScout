@@ -83,6 +83,10 @@ def classify_query_domain(
                     "es. 'Could you give me the plot of the movie you just advised?'. "
                     "Un seguito che da solo non nomina il film o la persona ma si riferisce a ciò che la conversazione "
                     "ha appena citato (dove vederlo in streaming, formazione, cast, durata) è cinematografico. "
+                    "Sono cinematografiche anche le richieste che si limitano a rilanciare, dopo una modifica delle "
+                    "impostazioni o una risposta di chiarimento, la richiesta cinematografica precedente "
+                    "(es. 'ora puoi fare la ricerca', 'riprova', 'ok adesso cercala', 'vai'): "
+                    "se nella conversazione l'ultima richiesta dell'utente era cinematografica, lo è anche questa. "
                     'Sono cinematografiche anche le domande enciclopediche sul mondo del cinema: storia e produzione '
                     'dei film, doppiaggio, correnti e scuole, biografie di registi e attori, e il confronto tra un film '
                     "e l'opera da cui è tratto (romanzo, racconto, fumetto, remake). "
