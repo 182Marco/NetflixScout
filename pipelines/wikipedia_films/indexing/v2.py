@@ -73,10 +73,12 @@ def assemble(units: list[Unit], old: dict, fresh: dict[str, np.ndarray]) -> np.n
     return np.vstack(rows).astype(np.float32)
 
 
-def load_fresh(units: list[Unit], missing: list[int]) -> dict[str, np.ndarray]:
-    if not NEW_VECTORS.exists():
+def load_fresh(units: list[Unit], missing: list[int], path=None) -> dict[str, np.ndarray]:
+    """unit id → vector for the `missing` units found in the file of new vectors (default: the Phase 7 file; v3 passes its own)."""
+    path = path or NEW_VECTORS
+    if not path.exists():
         return {}
-    with np.load(NEW_VECTORS, allow_pickle=False) as z:
+    with np.load(path, allow_pickle=False) as z:
         ids, shas, vec = [str(x) for x in z["unit_ids"]], [str(x) for x in z["text_sha256"]], z["vectors"]
     want = {units[i].unit_id: units[i].text_sha256 for i in missing}
     return {i: vec[k] for k, (i, h) in enumerate(zip(ids, shas)) if want.get(i) == h}
