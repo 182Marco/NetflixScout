@@ -1,0 +1,11 @@
+movieId,title,genres
+1,Toy Story (1995),Adventure|Animation|Children|Comedy|Fantasy
+2,"Matrix, The (1999)",Action|Sci-Fi|Thriller
+3,Heat (1995),Action|Crime|Thriller
+4,Alien (1979),Horror|Sci-Fi
+5,Scream (1996),Horror|Mystery
+6,"Shining, The (1980)",Horror
+7,Blade Runner (1982),Action|Sci-Fi|Thriller
+8,Unknown Film,(no genres listed)
+9,"Amélie (Fabuleux destin d'Amélie Poulain, Le) (2001)",Comedy|Romance
+10,Back to the Future (1985),Adventure|Comedy|Sci-Fi
