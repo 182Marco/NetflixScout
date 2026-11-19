@@ -1,0 +1,9 @@
+# Everything needed to REBUILD the data (collections, embeddings, cinema database) on a new machine.
+# The application itself only needs requirements.txt; install this file instead when you follow docs/REBUILD.md:
+#     pip install -r requirements-pipelines.txt pytest
+-r requirements.txt
+
+# pipelines/wikipedia_films and pipelines/wikipedia_series: configuration, wikitext parsing, token counts for the embedding plan
+pyyaml==6.0.3
+mwparserfromhell==0.7.2
+tiktoken==0.14.0
