@@ -74,7 +74,17 @@ SERIES_RAG_ENABLED=             # empty = on; 0/false/no/off switches series_rag
 
 Wikipedia, TVmaze and Wikidata need no key. Each key is read by one module only, on the first use of its tool (`tool/tmdb/auth.py`, `tool/youtube/auth.py`, `tool/omdb/auth.py`) and never appears in code, logs, traces, cache or frontend. The `VUE_APP_` prefix of the TMDb variables is the Vue CLI convention for variables exposed to client bundles: never point a Vue frontend at this `.env`.
 
-Dependencies (`requirements.txt`, pinned): `openai`, `qdrant-client` (same version as the server), `pydantic`, `python-dotenv`, `numpy`, `fastapi`, `uvicorn`, `sqlglot`. The external tools use only the standard library (`urllib`).
+Dependencies (`requirements.txt`, pinned): `openai`, `qdrant-client` (same version as the server), `pydantic`, `python-dotenv`, `numpy`, `fastapi`, `uvicorn`, `sqlglot`. The external tools use only the standard library (`urllib`). To rebuild the data (next section) install `requirements-pipelines.txt` instead: it adds `pyyaml`, `mwparserfromhell` and `tiktoken`.
+
+## Rebuilding the data from a clean clone
+
+The repository holds **only code**. Everything the application reads at runtime is generated and git-ignored (about 18 GB): the two Qdrant collections (`wikipedia_films_it_v3`, `wikipedia_series_it_v1`) and the SQLite database `cinema_db/data/cinema.v4.candidate6.sqlite3`. Without them `python app.py` stops at start with a message pointing here.
+
+**[`docs/REBUILD.md`](docs/REBUILD.md) is the one document to follow**: six stages in order (environment, films, series, MovieLens, `cinema_db`, run), each with its commands, time, cost and a checkpoint with the expected numbers. `python scripts/rebuild_status.py` is a read-only report of which stages are done and which command comes next; it never calls an API.
+
+- **What you need:** Python 3.11, about 30 GB of disk, an OpenAI key, internet access, about 10–12 hours of mostly unattended machine time, and about **8 USD** of embeddings (films about 3.1, series about 4.8). The two paid steps refuse to start unless you authorise them in the shell for that one command (`FILMS_EMBED_AUTHORIZED=yes`, `SERIES_EMBED_AUTHORIZED=yes`).
+- **What you get:** an *equivalent* result, not the same bytes. The it.wikipedia dump of the original build will disappear from Wikimedia, Wikidata keeps changing and IMDb republishes its datasets daily, so counts agree within about 1–2% and content digests differ. MovieLens is static: its tables come out identical.
+- **Why the data is not in git:** 18 GB cannot live in a repository, the IMDb and MovieLens licences forbid redistributing their data, and the sources are not reproducible byte for byte anyway.
 
 ## Run
 
@@ -128,9 +138,11 @@ The planner's own settings per turn: `k_finale`, the number of films the user as
 │   └── web/            # observer.py (WebObserver, live events), payload.py (to_payload, STEP_SERIALIZERS) + one folder per tool
 ├── web_api/            # HTTP/SSE server (FastAPI): conversations, streamed answer, web_lists; see contracts/
 ├── web_lists/          # web channel only: the lists of films/videos returned with the final answer
-├── scripts/            # start_qdrant.sh, start_backend.sh, start_integrated.sh, status_services.sh, stop_services.sh, backup_qdrant_storage.py
-├── docs/               # docs/cinema_db/ (plan, progress, NEXT_SESSION, schema maps, checklists) and the frontend handoff notes
+├── scripts/            # start_qdrant.sh, start_backend.sh, start_integrated.sh, status_services.sh, stop_services.sh, backup_qdrant_storage.py, rebuild_status.py
+├── docs/               # REBUILD.md (how to rebuild every generated file), docs/cinema_db/ (plan, progress, NEXT_SESSION, schema maps, checklists), frontend handoff notes
 ├── tests/              # offline tests (+ test_tool_package.py: layout of tool/ and import rules)
+├── requirements.txt            # what the application needs
+├── requirements-pipelines.txt  # + what rebuilding the data needs (docs/REBUILD.md)
 ├── dbVettoriale/       # local Qdrant storage (not versioned)
 ├── bin/                # local binaries, e.g. the Qdrant server (not versioned)
 └── mappa.html          # interactive project map (open it in a browser)
@@ -183,12 +195,14 @@ A SQLite database of films, series, seasons, episodes, people, credits, genres, 
 
 ### MovieLens
 
-MovieLens 32M (87,585 films, 32 million ratings, 2 million tags; CSV in `movie_db/data/raw/`, SQLite in `movie_db/data/`, both git-ignored: the licence forbids redistribution) is **not a tool and nothing reads it at runtime**. It is an input of the offline build of `cinema_db`: `cinema_db/harness/build/movielens_layer.py` copies its films, genres and tags into the schema-4 file (tables `ml_movie`, `work_ml_genre`, `work_tag`; views `v_ml_movie`, `v_ml_genre`, `v_work_tag`), joining a film only through the IMDb id that MovieLens gives. At runtime the rankings, average ratings, rating counts, genre statistics and tags are the **`movielens` operation of `cinema_sql`** (`ml_mode`: `top_rated`, `most_rated`, `by_title`, `by_tag`, `genre_stats`). `movie_db/schema.py` keeps the MovieLens vocabularies and DDL (used by parity tests); `movie_db/harness/evaluation/` holds the evaluations of the whole application. MovieLens has no cast, directors or critics' reviews; coverage: films up to 2022, ratings up to October 2023. `genre_stats` counts films only; `ratings` without `type` covers films and series.
+MovieLens 32M (87,585 films, 32 million ratings, 2 million tags; CSV in `movie_db/data/raw/`, SQLite in `movie_db/data/`, both git-ignored: the licence forbids redistribution) is **not a tool and nothing reads it at runtime**. It is an input of the offline build of `cinema_db`: `cinema_db/harness/build/movielens_layer.py` copies its films, genres and tags into the schema-4 file (tables `ml_movie`, `work_ml_genre`, `work_tag`; views `v_ml_movie`, `v_ml_genre`, `v_work_tag`), joining a film only through the IMDb id that MovieLens gives. At runtime the rankings, average ratings, rating counts, genre statistics and tags are the **`movielens` operation of `cinema_sql`** (`ml_mode`: `top_rated`, `most_rated`, `by_title`, `by_tag`, `genre_stats`). `movie_db/harness/ingestion/` builds `movie_db/data/movielens32m.sqlite3` from the CSV files (`python -m movie_db.harness.ingestion.build`, offline; the build of `cinema_db` reads that file); `movie_db/schema.py` keeps the MovieLens vocabularies and DDL; `movie_db/harness/evaluation/` holds the evaluations of the whole application. MovieLens has no cast, directors or critics' reviews; coverage: films up to 2022, ratings up to October 2023. `genre_stats` counts films only; `ratings` without `type` covers films and series.
 
 ### Building and checking the database (offline, no network, no credits)
 
+The full sequence, with the acquisition steps it depends on (Wikidata, IMDb, MovieLens), is stage 4 of [`docs/REBUILD.md`](docs/REBUILD.md); these are the commands of the last steps:
+
 ```bash
-python -m cinema_db.harness.build.imdb_layer --movielens --out NEW_PATH      # builds a schema-4 file; always a NEW path
+python -m cinema_db.harness.build.imdb_layer --movielens --out NEW_PATH      # builds a schema-4 file; always a NEW path (needs the inputs of docs/REBUILD.md, stages 1-4)
 python -m cinema_db.harness.build.verify_movielens --new NEW_PATH            # independent check against MovieLens and the base
 python -m cinema_db.harness.schema.generate                                  # rewrites docs/cinema_db/schema.html, schema.mmd and tool/cinema_db/approved_views*.py
 python -m cinema_db.harness.schema.generate --check                          # exit 1 if they are stale

@@ -1,5 +1,7 @@
 # wikipedia_films — Fase 1: dump di Wikipedia italiana → `films.jsonl`
 
+> **Per ricostruire i dati su una macchina nuova usa `docs/REBUILD.md`** (stadio 1 per i film): è l'unico runbook aggiornato, con l'ordine dei comandi, i costi e i controlli di arrivo. Questo documento è lo storico della pipeline: lo «Stato effettivo» qui sotto è fermo al 2026-11-04 e alcune frasi (per esempio «integrazione non fatta») sono superate. I comandi di dettaglio restano validi.
+
 Pipeline **offline** e indipendente dalla RAG esistente (`tool/rag/`): non è registrata in `app.py`, nessun
 modulo del progetto la importa. Scarica il dump di Wikipedia italiana, individua gli articoli sui singoli
 film, estrae e pulisce la **trama**, arricchisce i metadati con Wikidata e scrive un record per film in

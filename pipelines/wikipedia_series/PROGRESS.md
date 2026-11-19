@@ -1,5 +1,7 @@
 # wikipedia_series — PROGRESS (documento di ripresa)
 
+> **Per ricostruire i dati su una macchina nuova usa `docs/REBUILD.md`** (stadio 2 per le serie). Questo file è lo storico delle sessioni e l'elenco delle decisioni: non è un'istruzione di ricostruzione, e le sezioni sullo stato (spento di default, «da fare») sono superate: il tool è acceso di default.
+
 Aprire una sessione nuova, leggere `AGENTS.md` e questo file: bastano per ripartire. **Stato dal 2026-11-08: embedding, collezione, retriever e valutazione FATTI** (§0); resta la registrazione come tool dell'agente (decisione separata) e la fase di test reali.
 Ultimo aggiornamento: 2026-11-08 (seconda sessione: tool dell'agente dietro flag, routing live, e2e, §0bis). Nulla è stato committato in questa sessione (HEAD `06ba627`; i commit di §9 sono della sessione precedente).
 
