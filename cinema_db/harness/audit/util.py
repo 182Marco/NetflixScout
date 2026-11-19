@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import sqlite3
 import unicodedata
@@ -23,7 +24,7 @@ CLEAN_CATALOG = FILM_DATA / "clean/films.clean.jsonl"
 CANDIDATES = FILM_DATA / "processed/candidates.jsonl"
 REJECTED = FILM_DATA / "processed/rejected.jsonl"
 CLEAN_EXCLUDED = FILM_DATA / "clean/excluded.jsonl"
-DUMP = FILM_DATA / "raw/itwiki-20261101-pages-articles.xml.bz2"
+DUMP = FILM_DATA / f"raw/itwiki-{os.environ.get('ITWIKI_DUMP_DATE', '20261101')}-pages-articles.xml.bz2"  # see docs/REBUILD.md
 FILM_SNAPSHOT = FILM_DATA / "cache/wikidata/itwiki-20261101-a"
 SERIES_SNAPSHOT = SERIES_DATA / "cache/wikidata/itwiki-20261101-series-a"
 PHASE4_SNAPSHOT = ROOT / "cinema_db/data/wikidata_phase4"

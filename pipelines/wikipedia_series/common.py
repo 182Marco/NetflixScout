@@ -6,6 +6,7 @@ ones (`dump.py`, `clean_plot.py`, `wikidata_client.py`): this package imports no
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from .clean_plot import clean_wikitext, normalize_heading  # noqa: F401
@@ -24,7 +25,9 @@ def load_env() -> None:
     load_dotenv(REPO / ".env")
 
 
-DUMP_DATE = "20261101"
+# The dump this project was built from. Wikimedia keeps only the latest dumps: on a new machine set ITWIKI_DUMP_DATE to the newest one
+# (the same value as `--set dump.date=` of the film pipeline, see docs/REBUILD.md). The default is unchanged.
+DUMP_DATE = os.environ.get("ITWIKI_DUMP_DATE", "20261101")
 # The 4 GiB dump FILE is shared read-only with the film project by path (data, not code): it is never
 # copied or modified.
 DUMP_PATH = FILM_DIR / "data" / "raw" / f"itwiki-{DUMP_DATE}-pages-articles.xml.bz2"
