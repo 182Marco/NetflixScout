@@ -761,7 +761,8 @@ def ensure_collection_ready(runtime_rag: dict[str, Any]) -> None:
     except Exception as exc:  # noqa: BLE001  (connection and missing-collection errors come in many client-specific types)
         raise QdrantUnavailable(
             f"Cannot reach Qdrant at {where} or the collection '{index.collection}' is missing ({type(exc).__name__}). Start the server "
-            "(`./scripts/start_qdrant.sh`, or set VECTORSTORE_QDRANT_URL to the right address).") from None
+            "(`./scripts/start_qdrant.sh`, or set VECTORSTORE_QDRANT_URL to the right address). On a new machine the collection does not exist yet: "
+            "build it with stage 1 of docs/REBUILD.md.") from None
     if count == 0:
         raise RuntimeError(f"The film collection '{index.collection}' is empty: check rag.vectorstore.collection.")
 
@@ -954,7 +955,7 @@ def ensure_series_rag_ready(config: dict[str, Any]) -> None:
         count = SeriesRagTool(config=series).count()
     except Exception as exc:  # noqa: BLE001
         raise RuntimeError(f"series_rag is enabled but Qdrant at {series.url} or the collection '{series.collection}' is unreachable ({type(exc).__name__}): "
-                           "start Qdrant (./scripts/start_qdrant.sh) or unset SERIES_RAG_ENABLED.") from None
+                           "start Qdrant (./scripts/start_qdrant.sh), build the collection with stage 2 of docs/REBUILD.md on a new machine, or set SERIES_RAG_ENABLED=0.") from None
     if count == 0:
         raise RuntimeError(f"series_rag is enabled but the collection '{series.collection}' is empty: unset SERIES_RAG_ENABLED.")
 
@@ -968,7 +969,7 @@ def ensure_cinema_db_ready(config: dict[str, Any]) -> None:
     if not cinema.enabled:
         return
     if not (Path(cinema.db_path) if Path(cinema.db_path).is_absolute() else Path(__file__).resolve().parent / cinema.db_path).is_file():
-        raise RuntimeError(f"cinema_db is enabled but {cinema.db_path} is missing: build it with `python -m cinema_db.harness.build.build` or switch the flag off.")
+        raise RuntimeError(f"cinema_db is enabled but {cinema.db_path} is missing: rebuild it by following stage 4 of docs/REBUILD.md (the file is not in git), or switch the flag off with CINEMA_DB_ENABLED=0.")
     try:
         probe = CinemaSqlTool(config=cinema).run(query="startup probe", params={"operation": "find_work", "title": "startup probe"})
     except Exception as exc:  # a file that is not a database, a policy that cannot be loaded

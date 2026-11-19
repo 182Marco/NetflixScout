@@ -103,9 +103,9 @@ def test_the_environment_variable_switches_the_flag_for_both_entry_points() -> N
     assert app_module.cinema_db_overrides({"CINEMA_DB_ENABLED": "0", "CINEMA_DB_PATH": "x.sqlite3"}) == {"cinema_db": {"enabled": False}}  # explicitly off wins over a path
 
 
-def test_a_missing_database_with_the_flag_on_stops_the_start_with_the_command_to_build_it(tmp_path) -> None:
+def test_a_missing_database_with_the_flag_on_stops_the_start_and_points_to_the_rebuild_runbook(tmp_path) -> None:
     app_module.ensure_cinema_db_ready({**CONFIG["cinema_db"], "enabled": False, "db_path": str(tmp_path / "none.sqlite3")})  # off: nothing to check
-    with pytest.raises(RuntimeError, match="python -m cinema_db.harness.build.build"):
+    with pytest.raises(RuntimeError, match="docs/REBUILD.md"):  # the file is generated and not in git: the message points to the runbook, stage 4
         app_module.ensure_cinema_db_ready({**CONFIG["cinema_db"], "enabled": True, "db_path": str(tmp_path / "none.sqlite3")})
     (tmp_path / "there.sqlite3").write_bytes(b"")  # a file, but not a database: the start stops with the way back
     with pytest.raises(RuntimeError, match="CINEMA_DB_ENABLED"):
