@@ -105,3 +105,13 @@ def test_a_complete_part_file_is_finalised_after_http_416(config, tmp_path):
     finally:
         server.shutdown()
     assert path.read_bytes() == DATA and not part.exists()
+
+
+def test_set_option_keeps_the_dump_date_a_string_and_numbers_numeric():
+    """`--set dump.date=20261101` (docs/REBUILD.md) must not turn the date into an int; numeric fields still get numbers."""
+    from pipelines.wikipedia_films.pipeline import _config, _parser
+
+    args = _parser().parse_args(["--set", "dump.date=20270101", "--set", "extract.min_plot_words=50", "verify"])
+    cfg = _config(args)
+    assert cfg.dump.date == "20270101" and cfg.extract.min_plot_words == 50
+    assert cfg.dump_timestamp == "2027-01-01T00:00:00Z"

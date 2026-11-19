@@ -47,7 +47,7 @@ def _config(args: argparse.Namespace) -> PipelineConfig:
     overrides: dict[str, object] = {}
     for item in args.set:
         key, _, value = item.partition("=")
-        overrides[key] = int(value) if value.isdigit() else value
+        overrides[key] = value  # kept as text: pydantic converts numbers for numeric fields, and `dump.date=20261101` must stay a string
     if os.environ.get(CONTACT_ENV):
         overrides.setdefault("wikidata.contact", os.environ[CONTACT_ENV])
     return load_config(args.config, overrides)
